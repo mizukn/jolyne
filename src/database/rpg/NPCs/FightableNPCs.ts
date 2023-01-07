@@ -1,5 +1,5 @@
 import type { FightableNPC } from "../../../@types";
-import * as NPCs from "./index";
+import * as NPCs from "./NPCs";
 
 export const Harry_Lester: FightableNPC = {
 	...NPCs.Harry_Lester,
@@ -11,4 +11,16 @@ export const Harry_Lester: FightableNPC = {
 		perception: 0,
 	},
 	stand: null,
+};
+
+export const Kakyoin: FightableNPC = {
+	...NPCs.Kakyoin,
+	level: 1,
+	skill_points: {
+		defense: 1,
+		strength: 1,
+		speed: 1,
+		perception: 1,
+	},
+	stand: "Hierophant Green",
 };

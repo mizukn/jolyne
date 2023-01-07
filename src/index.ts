@@ -1,6 +1,13 @@
 import type { EventFile } from "./@types";
 import { GatewayIntentBits, Partials } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
+import {
+	createClient,
+	SchemaFieldTypes,
+	AggregateGroupByReducers,
+	AggregateSteps,
+} from "redis";
+
 import JolyneClient from "./structures/JolyneClient";
 import i18n from "./structures/i18n";
 import fs from "fs";

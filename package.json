@@ -4,7 +4,7 @@
 	"description": "A JJBA RPG Discord BOT",
 	"main": "dist/Cluster.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "node dist/scripts/test.js",
 		"start": "node dist/Cluster.js"
 	},
 	"repository": {
@@ -33,12 +33,16 @@
 		"ioredis": "^5.0.4",
 		"moment-timezone": "^0.5.34",
 		"node-fetch": "^2.6.7",
+		"pg": "^8.8.0",
+		"redis": "^4.5.1",
 		"sunflake": "^0.4.1",
 		"turndown": "^7.1.1",
 		"wikijs": "^6.3.3"
 	},
 	"devDependencies": {
+		"@types/pg": "^8.6.6",
 		"@typescript-eslint/eslint-plugin": "^5.47.1",
-		"eslint": "^8.30.0"
+		"eslint": "^8.30.0",
+		"tslib": "^2.4.1"
 	}
 }

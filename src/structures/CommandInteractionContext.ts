@@ -14,7 +14,7 @@ import {
 	APIMessage,
 } from "discord.js";
 
-export default class InteractionCommandContext {
+export default class CommandInteractionContext {
 	constructor(
 		public interaction: CommandInteraction & { client: Jolyne },
 		public userData?: RPGUserDataHash
@@ -36,9 +36,7 @@ export default class InteractionCommandContext {
 		return this.interaction.guild;
 	}
 
-	private resolveMessage(
-		message: Message | APIMessage | null
-	): Message | null {
+	private resolveMessage(message: Message | APIMessage | null): Message | null {
 		if (!message) return null;
 		if (message instanceof Message) return message;
 		// @ts-expect-error Message constructor is private, but we need it.
@@ -47,9 +45,7 @@ export default class InteractionCommandContext {
 
 	async makeMessage(options: object): Promise<Message | null> {
 		if (this.interaction.replied || this.interaction.deferred)
-			return this.resolveMessage(
-				await this.interaction.editReply(options)
-			);
+			return this.resolveMessage(await this.interaction.editReply(options));
 
 		return this.resolveMessage(
 			await this.interaction.reply({ ...options, fetchReply: true })
@@ -74,8 +70,7 @@ export default class InteractionCommandContext {
 		}
 	): string {
 		if (this.interaction.options.getUser("user"))
-			translateVars.user_option =
-				this.interaction.options.getUser("user");
+			translateVars.user_option = this.interaction.options.getUser("user");
 		return (
 			this.client.translations.get(this.userData.language)(
 				text,

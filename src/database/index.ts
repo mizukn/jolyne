@@ -4,10 +4,11 @@ import type {
 	RPGUserDataInventoryHash,
 	Email,
 	RPGUserDataEmailsHash,
+	RPGUserDataJSON,
 } from "../@types";
 import redis from "./RedisHandler";
 import JolyneClient from "../structures/JolyneClient";
-import * as Consumables from "./rpg/Items/Consumables";
+import * as Consumables from "./rpg/Items/ConsumableItems";
 import { User } from "discord.js";
 
 export default class DatabaseHandler {
@@ -53,7 +54,7 @@ export default class DatabaseHandler {
 			const data = await this.fetchUserData(user.id);
 			if (data) return data;
 		}
-		const userData: RPGUserDataHash = {
+		const userData: RPGUserDataJSON = {
 			id: user.id,
 			tag: user.tag,
 			level: 1,
@@ -63,6 +64,10 @@ export default class DatabaseHandler {
 			coins: 500,
 			language: "en-US",
 			stand: null,
+			chapter: {
+				id: 1,
+				quests: 
+			}
 			adventureStartedAt: Date.now(),
 		};
 

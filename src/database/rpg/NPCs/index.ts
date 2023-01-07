@@ -1,8 +1,4 @@
-import type { NPC } from "../../../@types";
+import * as NPCs from "./NPCs";
+import * as FightableNPCS from "./FightableNPCS";
 
-export const Harry_Lester: NPC = {
-	id: "harry_lester",
-	name: "Harry Lester",
-	email: "harry.lester78@mori.oh",
-	emoji: "👴",
-};
+export { NPCs, FightableNPCS };

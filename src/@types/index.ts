@@ -1,4 +1,5 @@
 import type { User, Message } from "discord.js";
+import CommandInteractionContext from "../structures/CommandInteractionContext";
 import JolyneClient from "../structures/JolyneClient";
 
 export interface DJSMessage extends Message {
@@ -188,6 +189,109 @@ export interface RPGUserDataSideQuestsHash {
 	 */
 	[key: string]: string;
 }
+
+/**
+ * UserData redis hash interface
+ */
+
+export interface RPGUserDataJSON {
+	/**
+	 * The user's ID.
+	 */
+	id: string;
+	/**
+	 * The user's tag.
+	 * @example "User#0000"
+	 */
+	tag: User["tag"];
+	/**
+	 * The user's level.
+	 */
+	level: number;
+	/**
+	 * The user's health.
+	 */
+	health: number;
+	/**
+	 * The user's stamina.
+	 */
+	stamina: number;
+	/**
+	 * The user's experience.
+	 */
+	xp: number;
+	/**
+	 * The user's coins.
+	 */
+	coins: number;
+	/**
+	 * The user's preferred language.
+	 */
+	language: i18n_key;
+	/**
+	 * The user's stand.
+	 */
+	stand: string;
+	/**
+	 * The user's chapter info.
+	 */
+	chapter: {
+		id: number;
+		quests: QuestArray;
+	};
+	/**
+	 * The user's side quests.
+	 */
+	sideQuests: {
+		id: SideQuest["id"];
+		quests: SideQuest["quests"];
+	}[];
+	/**
+	 * The unix timestamp of when the user started their adventure.
+	 */
+	adventureStartedAt: number;
+}
+
+export interface SideQuest {
+	/**
+	 * The side quest's ID.
+	 */
+	id: string;
+	/**
+	 * The side quest's title.
+	 */
+	title: string;
+	/**
+	 * The side quest's description.
+	 */
+	description: string;
+	/**
+	 * The side quest's quests.
+	 */
+	quests: QuestArray;
+	/**
+	 * The side quest's rewards.
+	 */
+	rewards: Rewards;
+	/**
+	 * The side quest's requirements.
+	 */
+	requirements: Requirements;
+}
+
+export interface Rewards {
+	xp?: number;
+	coins?: number;
+	items?: Item[];
+	stand?: Stand["id"];
+}
+
+export interface Requirements {
+	level?: number;
+	stand?: Stand["id"];
+	chapter?: number;
+}
+
 export interface ConsumableEffects {
 	health?: number;
 	stamina?: number;
@@ -282,7 +386,7 @@ export interface NPC {
 	/**
 	 * The NPC's email adress.
 	 */
-	email: string;
+	email?: string;
 	/**
 	 * Emoji that represents the NPC.
 	 */
@@ -400,13 +504,20 @@ export interface RequiemStand extends Stand {
 	base_stand: Stand;
 }
 
+export interface EvolutionStand extends RequiemStand {
+	/**
+	 * The stand's evolution level.
+	 */
+	evolution_level: number;
+}
+
 // I don't have the faith to continue commenting everything...
 export interface Quest {
 	/**
 	 * The quest's ID.
 	 */
 	id: string;
-	completed: boolean;
+	completed: (ctx: CommandInteractionContext) => number;
 	i18n_key?: string;
 	pushQuestWhenCompleted?: Quest["id"];
 	pushEmailWhenCompleted?: {
@@ -416,28 +527,66 @@ export interface Quest {
 	};
 }
 /**
- * MustReadEmail interface
+ * MustReadEmailQuest interface
  * @description A quest that must be completed by reading an email.
  * @note Not initialized in /src/database/rpg/Quests, but automatically when a user completes a quest that has the pushEmailWhenCompleted?.mustRead property.
  */
-export interface MustReadEmail extends Quest {
+export interface MustReadEmailQuest
+	extends Omit<Quest, "completed" | "i18n_key"> {
+	completed: boolean;
 	email: string; // Email["id"];
 }
 
-export interface ActionQuest extends Quest {
-	actionId: string; // Action["id"];
+export interface ActionQuest extends Omit<Quest, "completed" | "i18n_key"> {
+	completed: boolean;
+	action: string; // Action["id"];
 }
 
-export interface FightNPCQuest extends Quest {
+export interface FightNPCQuest extends Omit<Quest, "completed" | "i18n_key"> {
+	completed: boolean;
 	npc: NPC["id"];
 }
 
-export type QuestArray = (
+export interface ClaimXQuest extends Omit<Quest, "completed" | "i18n_key"> {
+	x: "coins" | "xp" | "daily";
+	amount: number;
+	goal: number;
+}
+
+export interface ClaimItemQuest extends Omit<ClaimXQuest, "x"> {
+	item: Item["id"];
+}
+
+export interface UseXCommandQuest extends Omit<ClaimXQuest, "x"> {
+	command: string;
+}
+
+export interface Action {
+	id: string;
+	execute: (ctx: CommandInteractionContext) => Promise<boolean>;
+}
+
+export type Quests =
 	| Quest
-	| MustReadEmail
+	| MustReadEmailQuest
 	| ActionQuest
 	| FightNPCQuest
-)[];
+	| ClaimXQuest
+	| ClaimItemQuest
+	| UseXCommandQuest;
+export type QuestArray = Quests[];
+
+export type RPGUserQuest = Omit<
+	| Omit<Quest, "completed">
+	| MustReadEmailQuest
+	| ActionQuest
+	| FightNPCQuest
+	| ClaimXQuest
+	| ClaimItemQuest
+	| UseXCommandQuest,
+	"i18n_key"
+>;
+
 export interface Chapter {
 	/**
 	 * The chapter's ID.
@@ -464,13 +613,13 @@ export interface Chapter {
 	/**
 	 * Dialogs for the chapter
 	 */
-	dialogs: {
+	dialogs?: {
 		[key in i18n_key]?: string[];
 	};
 	/**
 	 * The mail's rewards (when completed)
 	 */
-	rewardsWhenComplete: {
+	rewardsWhenComplete?: {
 		coins: number;
 		email: string;
 		items: Item[];
@@ -516,7 +665,7 @@ export interface Email {
 	chapterQuests?: QuestArray;
 }
 
-export interface Part extends Chapter {
+export interface Part extends Omit<Chapter, "description"> {
 	/**
 	 * The part's parent.
 	 */
@@ -531,6 +680,3 @@ export interface RPGUserDataEmailsHash {
 	date: number;
 	archived: boolean;
 }
-export const isGarment = (item: Item): item is Garment => {
-	return (item as Garment).skill_points !== undefined;
-};
