@@ -1,5 +1,5 @@
-import type { NPC } from "../../../@types";
-import * as Emojis from "../../../emojis.json";
+import type { NPC } from "../../@types";
+import * as Emojis from "../../emojis.json";
 
 export const Harry_Lester: NPC = {
 	id: "harry_lester",

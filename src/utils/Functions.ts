@@ -22,6 +22,11 @@ export const generateRandomId = (): string => {
 	);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const randomArray = (array: any[]): any => {
+	return array[Math.floor(Math.random() * array.length)];
+};
+
 export const isGarment = (item: Item): item is Garment => {
 	return (item as Garment).skill_points !== undefined;
 };

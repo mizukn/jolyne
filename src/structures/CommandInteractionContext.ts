@@ -1,10 +1,9 @@
 // https://github.com/MenheraBot/MenheraBot helped me a lot with making this class
 
-import type { RPGUserDataHash } from "../@types";
+import type { RPGUserDataJSON } from "../@types";
 import Jolyne from "./JolyneClient";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
-	CommandInteraction,
+	ChatInputCommandInteraction,
 	MessagePayload,
 	InteractionReplyOptions,
 	Message,
@@ -12,16 +11,21 @@ import {
 	Guild,
 	User,
 	APIMessage,
+	BaseMessageOptions,
 } from "discord.js";
 
 export default class CommandInteractionContext {
 	constructor(
-		public interaction: CommandInteraction & { client: Jolyne },
-		public userData?: RPGUserDataHash
+		public interaction: ChatInputCommandInteraction & { client: Jolyne },
+		private RPGUserData?: RPGUserDataJSON
 	) {}
 
 	get client(): Jolyne {
 		return this.interaction.client;
+	}
+
+	get userData(): RPGUserDataJSON {
+		return this.RPGUserData;
 	}
 
 	get author(): User {
@@ -36,6 +40,10 @@ export default class CommandInteractionContext {
 		return this.interaction.guild;
 	}
 
+	get options(): typeof this.interaction.options {
+		return this.interaction.options;
+	}
+
 	private resolveMessage(message: Message | APIMessage | null): Message | null {
 		if (!message) return null;
 		if (message instanceof Message) return message;
@@ -43,7 +51,14 @@ export default class CommandInteractionContext {
 		return new Message(this.client, message);
 	}
 
-	async makeMessage(options: object): Promise<Message | null> {
+	async makeMessage(options: BaseMessageOptions): Promise<Message | null> {
+		if (options.content) {
+			options.content = options.content.replace(
+				new RegExp(this.interaction.client.token, "gi"),
+				"TOKEN"
+			);
+		}
+
 		if (this.interaction.replied || this.interaction.deferred)
 			return this.resolveMessage(await this.interaction.editReply(options));
 

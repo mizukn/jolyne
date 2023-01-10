@@ -1,17 +1,17 @@
-import type { SlashCommand } from "../@types";
-import { Client, Collection, ClientOptions } from "discord.js";
+import type { SlashCommand, DiscordSlashCommandsData } from "../@types";
+import { Client, Collection, ClientOptions, Routes } from "discord.js";
 import { TFunction } from "i18next";
 import { REST } from "@discordjs/rest";
 import { ClusterManager } from "discord-hybrid-sharding";
 import emojis from "../emojis.json";
 import log from "../utils/Logger";
-import database from "../database";
-
+import database from "../structures/DatabaseHandler";
 export default class Jolyne extends Client {
 	_ready: boolean;
 	localEmojis = emojis;
-	_rest: REST;
-	commands: Collection<string, SlashCommand> = new Collection();
+	private _rest: REST;
+	commands: Collection<SlashCommand["data"]["name"], SlashCommand> =
+		new Collection();
 	cooldowns: Collection<string, number> = new Collection();
 	log: typeof log;
 	database: database;
@@ -27,7 +27,23 @@ export default class Jolyne extends Client {
 		this.log = log;
 		this.database = new database(this);
 		this._rest = new REST({
-			version: "9",
+			version: "10",
 		}).setToken(process.env.CLIENT_TOKEN);
+	}
+
+	async postSlashCommands(
+		body: DiscordSlashCommandsData[],
+		guildId?: string
+	): Promise<unknown> {
+		if (guildId)
+			return await this._rest.put(
+				Routes.applicationGuildCommands(this.user.id, guildId),
+				{
+					body,
+				}
+			);
+		return await this._rest.put(Routes.applicationCommands(this.user.id), {
+			body,
+		});
 	}
 }

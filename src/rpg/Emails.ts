@@ -1,4 +1,4 @@
-import type { Email } from "../../@types";
+import type { Email } from "../@types";
 import * as NPCs from "./NPCs/NPCs";
 
 export const P1C1_GP: Email = {

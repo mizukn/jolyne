@@ -5,7 +5,9 @@
 	"main": "dist/Cluster.js",
 	"scripts": {
 		"test": "node dist/scripts/test.js",
-		"start": "node dist/Cluster.js"
+		"start": "node dist/Cluster.js",
+		"init-db": "node dist/scripts/InitDatabase.js",
+		"init-db-reset": "node dist/scripts/InitDatabase.js --reset"
 	},
 	"repository": {
 		"type": "git",
@@ -24,6 +26,7 @@
 		"chalk": "^4.1.2",
 		"chartjs-node-canvas": "^3.2.0",
 		"cron": "^2.0.0",
+		"discord-api-types": "^0.37.26",
 		"discord-hybrid-sharding": "^2.0.4",
 		"discord.js": "^14.7.1",
 		"dotenv": "^16.0.0",
@@ -33,14 +36,18 @@
 		"ioredis": "^5.0.4",
 		"moment-timezone": "^0.5.34",
 		"node-fetch": "^2.6.7",
+		"patreon": "^0.4.1",
 		"pg": "^8.8.0",
 		"redis": "^4.5.1",
+		"request-promise-native": "^1.0.9",
 		"sunflake": "^0.4.1",
 		"turndown": "^7.1.1",
 		"wikijs": "^6.3.3"
 	},
 	"devDependencies": {
+		"@types/node-fetch": "^2.6.2",
 		"@types/pg": "^8.6.6",
+		"@types/request-promise-native": "^1.0.18",
 		"@typescript-eslint/eslint-plugin": "^5.47.1",
 		"eslint": "^8.30.0",
 		"tslib": "^2.4.1"

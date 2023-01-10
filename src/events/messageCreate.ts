@@ -1,12 +1,13 @@
-import type { EventFile, DJSMessage } from "../@types";
+import type { EventFile } from "../@types";
 import { inspect } from "util";
-import { Events } from "discord.js";
+import { Events, Message } from "discord.js";
+import JolyneClient from "../structures/JolyneClient";
 
-export default {
+const Event: EventFile = {
 	name: Events.MessageCreate,
-	async execute(message: DJSMessage) {
-		const ownerIDs = process.env.OWNER_IDS?.split(",");
-		const adminIDs = process.env.ADMIN_IDS?.split(",");
+	async execute(message: Message & { client: JolyneClient }) {
+		const ownerIDs = process.env.OWNER_IDS?.split(",") || [];
+		const adminIDs = process.env.ADMIN_IDS?.split(",") || [];
 		const prefix = "j!";
 		const args = message.content.slice(prefix.length).trim().split(/ +/);
 		const commandName = args.shift()?.toLowerCase();
@@ -20,14 +21,17 @@ export default {
 				const result = new Promise((resolve) => resolve(eval(content)));
 
 				return result
-					.then((output: any) => {
+					.then((output: unknown | string) => {
 						if (typeof output !== `string`) {
 							output = inspect(output, {
 								depth: 0,
 							});
 						}
-						if (output.includes(client.token)) {
-							output = output.replace(new RegExp(client.token, "gi"), `T0K3N`);
+						if ((output as string).includes(client.token)) {
+							output = (output as string).replace(
+								new RegExp(client.token, "gi"),
+								`T0K3N`
+							);
 						}
 						try {
 							// eslint-disable-next-line no-useless-escape
@@ -52,4 +56,6 @@ export default {
 			}
 		}
 	},
-} as EventFile;
+};
+
+export default Event;

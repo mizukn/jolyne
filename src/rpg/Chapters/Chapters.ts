@@ -1,5 +1,5 @@
-import { Chapter } from "../../../@types";
-import * as Functions from "../../../utils/Functions";
+import { Chapter } from "../../@types";
+import * as Functions from "../../utils/Functions";
 import * as NPCs from "../NPCs/NPCs";
 
 export const C1: Chapter = {

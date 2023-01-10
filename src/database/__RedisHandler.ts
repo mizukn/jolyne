@@ -1,3 +1,5 @@
+// file will be deleted soon.
+
 import redis, { ChainableCommander } from "ioredis";
 import log from "../utils/Logger";
 
