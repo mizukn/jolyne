@@ -5,16 +5,16 @@ import * as Stands from "../rpg/Stands/Stands";
 import Jolyne from "../structures/JolyneClient";
 
 const Event: EventFile = {
-	name: Events.ClientReady,
-	once: true,
-	execute: async (client: Jolyne): Promise<void> => {
-		client.user.setActivity({
-			type: ActivityType.Watching,
-			name: "bugs...",
-		});
+    name: Events.ClientReady,
+    once: true,
+    execute: async (client: Jolyne): Promise<void> => {
+        client.user.setActivity({
+            type: ActivityType.Watching,
+            name: "bugs...",
+        });
 
-		// prettier-ignore
-		if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
+        // prettier-ignore
+        if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
 			const lastCommands = await client.database.getString(
 				`jolyne_${client.user.id}:commands`
 			);
@@ -49,34 +49,34 @@ const Event: EventFile = {
 			}
 		}
 
-		// end
-		client.user.setActivity({
-			type: ActivityType.Watching,
-			name: "the beginning...",
-		});
-		setInterval(() => {
-			const activies: ActivityOptions[] = [
-				{
-					type: ActivityType.Watching,
-					name: "The World",
-				},
-				{
-					type: ActivityType.Watching,
-					name: "The Way To Heaven",
-				},
-				{
-					type: ActivityType.Playing,
-					name: Functions.randomArray(Object.values(Stands).map((v) => v.name)),
-				},
-				{
-					type: ActivityType.Watching,
-					name: "JoJo's Bizarre Adventure",
-				},
-			];
-			client.user.setActivity(Functions.randomArray(activies));
-		}, 1000 * 60 * 5);
+        // end
+        client.user.setActivity({
+            type: ActivityType.Watching,
+            name: "the beginning...",
+        });
+        setInterval(() => {
+            const activies: ActivityOptions[] = [
+                {
+                    type: ActivityType.Watching,
+                    name: "The World",
+                },
+                {
+                    type: ActivityType.Watching,
+                    name: "The Way To Heaven",
+                },
+                {
+                    type: ActivityType.Playing,
+                    name: Functions.randomArray(Object.values(Stands).map((v) => v.name)),
+                },
+                {
+                    type: ActivityType.Watching,
+                    name: "JoJo's Bizarre Adventure",
+                },
+            ];
+            client.user.setActivity(Functions.randomArray(activies));
+        }, 1000 * 60 * 5);
 
-		client.log(`Logged in as ${client.user?.tag}`, "ready");
-	},
+        client.log(`Logged in as ${client.user?.tag}`, "ready");
+    },
 };
 export default Event;
