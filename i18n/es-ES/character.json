@@ -1,7 +1,4 @@
 {
-    "DESCRIPTION": "Muestra información acerca de un personaje de anime específico",
-    "EXAMPLES": [
-        "`character:` Monkey D. Luffy",
-        "`character:` Jotaro Kujo"
-    ]
+	"DESCRIPTION": "Muestra información acerca de un personaje de anime específico",
+	"EXAMPLES": ["`character:` Monkey D. Luffy", "`character:` Jotaro Kujo"]
 }
