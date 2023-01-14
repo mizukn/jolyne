@@ -13,3 +13,21 @@ export const Kakyoin: NPC = {
     name: "Kakyoin",
     emoji: Emojis["kakyoin_normal"],
 };
+
+export const Jotaro: NPC = {
+    id: "jotaro",
+    name: "Jotaro Kujo",
+    emoji: Emojis.jotaro,
+};
+
+export const Dio: NPC = {
+    id: "dio",
+    name: "Dio Brando",
+    emoji: Emojis.dio,
+};
+
+export const Heaven_Ascended_Dio: NPC = {
+    id: "heaven_ascended_dio",
+    name: "Heaven Ascended Dio",
+    emoji: Emojis.dioangry,
+};

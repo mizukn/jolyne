@@ -1,6 +1,7 @@
 import {
     NPC,
     FightNPCQuest,
+    FightableNPC,
     Quest,
     MustReadEmailQuest,
     Email,
@@ -13,8 +14,21 @@ import {
     Item,
     Garment,
     RPGUserQuest,
+    RPGUserDataJSON,
+    SkillPoints,
+    Stand,
+    RequiemStand,
+    EvolutionStand,
 } from "../@types";
-
+import * as Stands from "../rpg/Stands/Stands";
+import { FightableNPCS, NPCs } from "../rpg/NPCs";
+import {
+    ActionRowBuilder,
+    AnyComponentBuilder,
+    ButtonBuilder,
+    StringSelectMenuBuilder,
+} from "discord.js";
+import { Fighter } from "../structures/FightHandler";
 export const generateRandomId = (): string => {
     return (
         Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
@@ -164,4 +178,158 @@ export const generateUseXCommandQuest = (
     };
 
     return quest;
+};
+
+export const findStand = (stand: string): Stand => {
+    if (!stand) return null;
+
+    const stands = Object.values(Stands);
+    const foundStand = stands.find(
+        (standClass) =>
+            standClass.id === stand ||
+            standClass.name === stand ||
+            standClass.name.toLocaleLowerCase() === stand.toLocaleLowerCase()
+    );
+
+    return foundStand;
+};
+
+export const findNPC = (npc: string): NPC => {
+    if (!npc) return null;
+
+    const npcs = Object.values(NPCs);
+    const foundNPC = npcs.find(
+        (npcClass) =>
+            npcClass.id === npc ||
+            npcClass.name === npc ||
+            npcClass.name.toLocaleLowerCase() === npc.toLocaleLowerCase()
+    );
+
+    return foundNPC;
+};
+
+export const getSkillPointsBonus = (
+    rpgData: RPGUserDataJSON | FightableNPC | Fighter
+): SkillPoints => {
+    const skillPoints = { ...rpgData.skillPoints };
+    const stand = isFighter(rpgData) ? rpgData.stand : findStand(rpgData.stand);
+    if (stand) {
+        for (const id of Object.keys(stand.skillPoints)) {
+            skillPoints[id as keyof typeof skillPoints] +=
+                stand.skillPoints[id as keyof typeof stand.skillPoints];
+        }
+    }
+    return skillPoints;
+};
+
+export const getBaseHealth = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+    return 100 + Math.trunc(rpgData.level / 2);
+};
+
+export const getBaseStamina = 60;
+
+export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+    const skillPoints = getSkillPointsBonus(rpgData);
+    const baseHealth = getBaseHealth(rpgData);
+
+    return (
+        baseHealth +
+        Math.round(
+            (skillPoints.defense / 4 + skillPoints.defense) * 10 +
+                (((skillPoints.defense / 4 + skillPoints.defense) * 6) / 100) * 100
+        )
+    );
+};
+
+export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+    const skillPoints = getSkillPointsBonus(rpgData);
+    const baseStamina = getBaseStamina;
+
+    return Math.round(baseStamina + skillPoints.stamina * 1.25 + rpgData.level / 3);
+};
+
+export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+    const skillPoints = getSkillPointsBonus(rpgData);
+    return Math.round(Math.round(rpgData.level / 4 + skillPoints.perception / 1.1));
+};
+
+export const generateDiscordTimestamp = (
+    date: Date | number,
+    type: "FROM_NOW" | "DATE" | "FULL_DATE"
+): string => {
+    const fixedDate = typeof date === "number" ? new Date(date) : date;
+    return `<t:${(fixedDate.getTime() / 1000).toFixed(0)}:${type
+        .replace("FROM_NOW", "R")
+        .replace("DATE", "D")
+        .replace("FULL_D", "F")}>`;
+};
+
+export const localeNumber = (num: number): string => {
+    return num.toLocaleString("en-US");
+};
+
+export const RNG = (min: number, max: number): number => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+export const percent = (percent: number): boolean => {
+    return RNG(1, 100) <= percent;
+};
+
+export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
+    const quests: RPGUserQuest[] = [pushQuest(generateClaimXQuest("daily", 1))];
+    if (level > 200) level = 200;
+    if (level < 5) level = 5;
+
+    const NPCs = Object.values(FightableNPCS).filter((npc) => npc.level <= level);
+
+    // fight npcs
+    for (let i = 0; i < level; i++) {
+        if (percent(80) || i < 5) {
+            const NPC = randomArray(NPCs);
+            quests.push(pushQuest(generateFightQuest(NPC)));
+        }
+    }
+
+    // use loot
+    if (percent(50)) {
+        quests.push(pushQuest(generateUseXCommandQuest("loot", RNG(1, 5))));
+    }
+    // use assault
+    if (percent(50)) {
+        quests.push(pushQuest(generateUseXCommandQuest("assault", RNG(1, 5))));
+    }
+
+    return quests;
+};
+
+export const isRPGUserDataJSON = (
+    data: RPGUserDataJSON | FightableNPC
+): data is RPGUserDataJSON => {
+    return (data as RPGUserDataJSON).adventureStartedAt !== undefined;
+};
+
+export const actionRow = (
+    components: (ButtonBuilder | StringSelectMenuBuilder)[]
+): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder> =>
+    new ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>().addComponents(...components);
+
+export const isFighter = (data: Fighter | RPGUserDataJSON | FightableNPC): data is Fighter => {
+    return (data as Fighter).isDefending !== undefined;
+};
+
+export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC): number => {
+    const skillPoints = getSkillPointsBonus(user);
+    const baseDamage = 5;
+
+    return Math.round(
+        baseDamage +
+            Math.round(
+                skillPoints.strength * 0.675 + (user.level * 1.5 + (baseDamage / 100) * 15) / 2
+            )
+    );
+};
+
+export const getDiffPercent = (a: number, b: number): number => {
+    return Math.abs((a - b) / ((a + b) / 2)) * 100;
 };

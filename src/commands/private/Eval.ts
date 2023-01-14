@@ -1,6 +1,7 @@
 import { SlashCommandFile } from "../../@types";
 import util from "util";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
+import { InteractionResponse, Message, userMention } from "discord.js";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -78,10 +79,44 @@ const slashCommand: SlashCommandFile = {
         ],
     },
     ownerOnly: true,
-    execute: async (ctx: CommandInteractionContext): Promise<void> => {
-        const content = ctx.options.getString("query", true);
-        const result = new Promise((resolve) => resolve(eval(content)));
+    execute: async (
+        ctx: CommandInteractionContext
+    ): Promise<void | Message<boolean> | InteractionResponse> => {
         const { client } = ctx;
+        const content = ctx.options.getString("code", true);
+        // prevent malicious code
+        if (
+            content.includes("rm -rf") ||
+            content.toLowerCase().includes("flushdb") ||
+            content.includes("--no-preserve-root") ||
+            ((content.includes("child_process") ||
+                content.includes("token") ||
+                content.includes("process")) &&
+                ctx.user.id !== process.env.OWNER_IDS.split(",")[0])
+        ) {
+            // alert every owners
+            for (const id of (process.env.OWNER_IDS + "," + process.env.ADMIN_IDS).split(",")) {
+                const owner = await client.users.fetch(id);
+                await owner.send({
+                    content: `:warning: [EMERGENCY ALERT]::: **${ctx.user.tag}** (${
+                        ctx.user.id
+                    }) tried to execute malicious code on **${ctx.guild.name}** (${
+                        ctx.guild.id
+                    })). Please, alert <@${process.env.OWNER_IDS.split(",")[0]}> and kick **${
+                        ctx.user.tag
+                    }** in the Support Server before it's too late !!!!! Even if you can, alert other admins.`,
+                });
+            }
+            // remove the owner from process.env on every clusters
+            await client.cluster.broadcastEval(
+                `process.env.OWNER_IDS = process.env.OWNER_IDS.replace("${ctx.user.id}", "x021x")`
+            );
+
+            return ctx.makeMessage({
+                content: "Nice try, but you can't do that.",
+            });
+        }
+        const result = new Promise((resolve) => resolve(eval(content)));
 
         return result
             .then((output) => {
@@ -101,12 +136,9 @@ const slashCommand: SlashCommandFile = {
                         // eslint-disable-next-line no-useless-escape
                         content: `\`\`\`\js\n${output}\n\`\`\``,
                     });
-                } catch (e) {
-                    console.error(e);
-                }
+                } catch (_) {}
             })
             .catch((err) => {
-                console.error(err);
                 err = err.toString();
                 if (err.includes(client.token)) {
                     err = err.replace(new RegExp(client.token, "gi"), `T0K3N`);

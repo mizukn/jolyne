@@ -1,5 +1,3 @@
-// https://github.com/MenheraBot/MenheraBot helped me a lot with making this class
-
 import type { RPGUserDataJSON } from "../@types";
 import Jolyne from "./JolyneClient";
 import {
@@ -11,7 +9,7 @@ import {
     Guild,
     User,
     APIMessage,
-    BaseMessageOptions,
+    InteractionResponse,
 } from "discord.js";
 
 export default class CommandInteractionContext {
@@ -28,7 +26,7 @@ export default class CommandInteractionContext {
         return this.RPGUserData;
     }
 
-    get author(): User {
+    get user(): User {
         return this.interaction.user;
     }
 
@@ -51,7 +49,7 @@ export default class CommandInteractionContext {
         return new Message(this.client, message);
     }
 
-    async makeMessage(options: BaseMessageOptions): Promise<Message | null> {
+    async makeMessage(options: InteractionReplyOptions): Promise<Message | InteractionResponse> {
         if (options.content) {
             options.content = options.content.replace(
                 new RegExp(this.interaction.client.token, "gi"),
@@ -60,9 +58,16 @@ export default class CommandInteractionContext {
         }
 
         if (this.interaction.replied || this.interaction.deferred)
-            return this.resolveMessage(await this.interaction.editReply(options));
+            return this.interaction.editReply(options);
 
-        return this.resolveMessage(await this.interaction.reply({ ...options, fetchReply: true }));
+        try {
+            return this.interaction.reply({
+                ...options,
+                fetchReply: true,
+            });
+        } catch (_) {
+            return this.interaction.reply(options);
+        }
     }
 
     async followUp(options: MessagePayload | InteractionReplyOptions): Promise<Message | null> {
@@ -71,11 +76,7 @@ export default class CommandInteractionContext {
 
     translate(
         text: string,
-        translateVars: {
-            emojis: Record<string, string>;
-            user: User;
-            user_option?: User;
-        } = {
+        translateVars: TranslateVars = {
             emojis: this.client.localEmojis,
             user: this.interaction.user,
         }
@@ -84,4 +85,23 @@ export default class CommandInteractionContext {
             translateVars.user_option = this.interaction.options.getUser("user");
         return this.client.translations.get(this.userData.language)(text, translateVars) || text;
     }
+
+    sendTranslated(
+        text: string,
+        translateVars: TranslateVars = {
+            emojis: this.client.localEmojis,
+            user: this.interaction.user,
+        }
+    ): Promise<Message | InteractionResponse> {
+        if (this.interaction.options.getUser("user"))
+            translateVars.user_option = this.interaction.options.getUser("user");
+        return this.makeMessage({
+            content: this.translate(text, translateVars),
+        });
+    }
+}
+
+interface TranslateVars {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
 }

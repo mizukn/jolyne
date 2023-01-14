@@ -1,4 +1,4 @@
 import * as NPCs from "./NPCs";
-// import * as FightableNPCS from "./FightableNPCS";
+import * as FightableNPCS from "./FightableNPCs";
 
-export { NPCs };
+export { NPCs, FightableNPCS };

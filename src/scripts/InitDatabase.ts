@@ -3,6 +3,7 @@ import { createClient, SchemaFieldTypes } from "redis";
 import { Pool } from "pg";
 
 const redisClient = createClient({
+    url: `redis://localhost:${process.env.DEV_MODE === "true" ? 6380 : 6379}`,
     database: 0,
 });
 const postgresClient = new Pool({
@@ -12,6 +13,14 @@ const postgresClient = new Pool({
     password: process.env.PSQL_PASSWORD,
     port: 5432,
 });
+
+if (process.argv.includes("--update-psql")) {
+    console.log("Updating PostgreSQL database...");
+    // add column only if it exists "daily" jsonb
+    postgresClient.query(`ALTER TABLE "RPGUsers" ADD COLUMN IF NOT EXISTS "daily" jsonb NOT NULL`);
+    console.log("done");
+    process.exit(1);
+}
 
 const start = async () => {
     if (process.argv.includes("--reset")) {
@@ -44,7 +53,8 @@ const start = async () => {
 		"chapter" jsonb NOT NULL DEFAULT '{"id": 1, "quests": []}',
 		"skillPoints" jsonb NOT NULL DEFAULT '{"strength": 0, "defense": 0, "speed": 0, "stamina": 0, "perception": 0}',
 		"sideQuests" jsonb NOT NULL DEFAULT '[]',
-		"inventory" jsonb NOT NULL DEFAULT '{"pizza": 5, "mysterious_arrow": 1}',
+        "daily" jsonb,
+ 		"inventory" jsonb NOT NULL DEFAULT '{"pizza": 5, "mysterious_arrow": 1}',
 		"adventureStartedAt" bigint NOT NULL DEFAULT 0
 	)
 		`);
@@ -52,6 +62,9 @@ const start = async () => {
     // creating indexes for faster leaderboard queries (find users by level)
     await postgresClient.query(
         `CREATE INDEX IF NOT EXISTS "RPGUsers_level" ON "RPGUsers" ("level")`
+    );
+    console.log(
+        "Table RPGUsers created or already created. IF you didn't use --reset, run: npm run init-db-update"
     );
 };
 

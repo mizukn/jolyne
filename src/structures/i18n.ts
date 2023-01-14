@@ -38,6 +38,9 @@ export default async (): Promise<Map<string, TFunction>> => {
     i18next.use(Backend);
 
     await i18next.init({
+        backend: {
+            loadPath: path.resolve(__dirname, "../../i18n/{{lng}}/{{ns}}.json"),
+        },
         debug: false,
         fallbackLng: "en-US",
         initImmediate: false,

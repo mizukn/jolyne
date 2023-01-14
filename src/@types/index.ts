@@ -39,11 +39,11 @@ export interface SlashCommandFile {
     adminOnly?: boolean;
     data: DiscordSlashCommandsData;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    execute: (...args: any) => void;
+    execute: (ctx: CommandInteractionContext, ...args: any) => Promise<any>;
 }
 
 export interface SlashCommand extends SlashCommandFile {
-    category: string;
+    category: "private" | "rpg" | "utils";
     path: string;
 }
 
@@ -217,6 +217,15 @@ export interface RPGUserDataJSON {
     chapter: {
         id: number;
         quests: RPGUserQuest[];
+    };
+    /**
+     * The user's daily info.
+     */
+    daily: {
+        claimStreak: number;
+        lastClaimed: number;
+        quests: RPGUserQuest[];
+        questsStreak: number;
     };
     /**
      * The user's side quests.
@@ -400,11 +409,11 @@ export interface FightableNPC extends NPC {
     /**
      * The NPC's skill points.
      */
-    skill_points: SkillPoints;
+    skillPoints: SkillPoints;
     /**
      * The NPC's stand.
      */
-    stand: string;
+    stand?: string;
 }
 
 /**
@@ -454,6 +463,17 @@ export interface Stand {
      * The stand's skill points bonuses.
      */
     skillPoints: SkillPoints;
+    /**
+     * If the stand has a custom attack
+     */
+    customAttack?: {
+        name: string;
+        emoji: string;
+        cooldown?: {
+            cd: number;
+            fightLogs: Ability["useMessage"];
+        };
+    };
     /**
      * If the stand is available.
      */

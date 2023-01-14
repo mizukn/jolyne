@@ -48,7 +48,8 @@ export default class DatabaseHandler {
     constructor(client: JolyneClient) {
         this.jolyneClient = client;
         this.redis = createClient({
-            database: process.env.DEV_MODE === "true" ? 2 : 1,
+            url: `redis://localhost:${process.env.DEV_MODE === "true" ? 6380 : 6379}`,
+            database: 0,
         });
         this.postgresql = new Pool({
             user: process.env.PSQL_USER,
@@ -99,6 +100,16 @@ export default class DatabaseHandler {
     async getJSONData(key: string): Promise<LocalRedisJSON> {
         return await this.redis.json.get(key);
     }
+    async getRPGUserData(userId: string): Promise<RPGUserDataJSON> {
+        let data = (await this.getJSONData(
+            `${process.env.REDIS_PREFIX}:${userId}`
+        )) as RPGUserDataJSON;
+        if (data) return data;
+        data = await this.postgresql
+            .query(`SELECT * FROM "RPGUsers" WHERE id = $1`, [userId])
+            .then((res) => res.rows[0]);
+        return data;
+    }
     async searchRPGUser(query: string): Promise<{ total: number; documents: RPGUserDataJSON[] }> {
         const result: { total: number; documents: LocalRedisJSON[] } = await this.redis.ft.search(
             `idx:${process.env.REDIS_PREFIX}`,
@@ -107,7 +118,7 @@ export default class DatabaseHandler {
         return result as { total: number; documents: RPGUserDataJSON[] };
     }
 
-    async createUserData(user: string | User, overwrite?: true): Promise<RPGUserDataJSON> {
+    async createUserData(user: string | User, overwrite?: boolean): Promise<RPGUserDataJSON> {
         if (typeof user === "string") {
             user = await this.jolyneClient.users.fetch(user).catch(() => null);
         }
@@ -143,6 +154,12 @@ export default class DatabaseHandler {
                 id: 1,
                 quests: Chapters.C1.quests.map((q) => Functions.pushQuest(q)),
             },
+            daily: {
+                lastClaimed: 0,
+                claimStreak: 0,
+                quests: Functions.generateDailyQuests(1),
+                questsStreak: 0,
+            },
             sideQuests: [],
             skillPoints: {
                 strength: 0,
@@ -172,6 +189,10 @@ export default class DatabaseHandler {
         await this.setJSONData(`${process.env.REDIS_PREFIX}:${user.id}`, userData);
 
         return userData;
+    }
+    async saveUserData(rpgData: RPGUserDataJSON): Promise<RPGUserDataJSON> {
+        await this.setJSONData(`${process.env.REDIS_PREFIX}:${rpgData.id}`, rpgData);
+        return rpgData;
     }
 
     async getCooldownCache(base: string, target?: string): Promise<string | null> {

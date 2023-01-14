@@ -11,3 +11,5 @@ yarn*.log
 
 # Sytem
 .env
+
+logs

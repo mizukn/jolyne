@@ -1,7 +1,6 @@
-import type { EventFile, SlashCommandFile } from "./@types";
-import { GatewayIntentBits, Partials } from "discord.js";
+import type { EventFile, SlashCommandFile, SlashCommand } from "./@types";
+import { GatewayIntentBits, Partials, Options } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
-
 import JolyneClient from "./structures/JolyneClient";
 import i18n from "./structures/i18n";
 import fs from "fs";
@@ -21,6 +20,45 @@ const client = new JolyneClient({
     shardCount: getInfo().TOTAL_SHARDS, // Total number of shards
     intents,
     partials,
+    makeCache: Options.cacheWithLimits({
+        GuildBanManager: 0,
+        GuildEmojiManager: 0,
+        PresenceManager: 0,
+        VoiceStateManager: 0,
+        ThreadManager: 0,
+        ThreadMemberManager: 0,
+        ReactionManager: 0,
+        ReactionUserManager: 0,
+        StageInstanceManager: 0,
+        BaseGuildEmojiManager: 0,
+        GuildScheduledEventManager: 0,
+        GuildStickerManager: 0,
+        GuildInviteManager: 0,
+        MessageManager: 0,
+    }),
+});
+
+// when process interrupted or exited, close redis connection
+process.on("SIGINT", () => {
+    client.database.postgresql.end();
+    client.database.redis.quit();
+    process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+    client.database.postgresql.end();
+    client.database.redis.quit();
+    process.exit(0);
+});
+
+process.on("exit", () => {
+    console.log("Exiting...");
+    client.database.postgresql.end();
+    client.database.redis.quit();
+});
+
+process.on("unhandledRejection", (error) => {
+    console.error("Unhandled promise rejection:", error);
 });
 
 // @ts-expect-error because the typings are wrong
@@ -47,7 +85,7 @@ async function init() {
         client.log(`Loaded event ${event.name}`, "event");
     }
 
-    for (const category of categories) {
+    for (const category of categories as SlashCommand["category"][]) {
         client.log(`Loading category ${category}`, "category");
         const commands = fs
             .readdirSync(path.resolve(__dirname, "commands", category))
