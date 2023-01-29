@@ -24,7 +24,7 @@ export const Harry_Lester: FightableNPC = {
         perception: 1,
         stamina: 0,
     },
-    //stand: "Hierophant Green",
+    stand: "Hierophant Green",
 };
 
 export const Jotaro: FightableNPC = {
