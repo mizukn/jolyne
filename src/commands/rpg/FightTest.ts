@@ -5,6 +5,7 @@ import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { FightableNPCS } from "../../rpg/NPCs";
 import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
+import { Harry_Lester } from "../../rpg/NPCs/NPCs";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -13,12 +14,14 @@ const slashCommand: SlashCommandFile = {
         options: [],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        const sopow = await ctx.client.database.createUserData("835273012147126272");
+        const sopow = await ctx.client.database.createUserData("221756292862050314");
+        sopow.stand = "The World";
+        ctx.userData.stand = "magicians_red";
 
         const fight = new FightHandler(
             ctx,
-            [[FightableNPCS.Dio, Jotaro, Heaven_Ascended_Dio], [ctx.userData]],
-            FightTypes.Boss
+            [[ctx.userData], [FightableNPCS.Harry_Lester, Kakyoin]],
+            FightTypes.Friendly
         );
 
         fight.on("unexpectedEnd", (message) => {
