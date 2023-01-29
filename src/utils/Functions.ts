@@ -19,16 +19,19 @@ import {
     Stand,
     RequiemStand,
     EvolutionStand,
+    Ability,
 } from "../@types";
-import * as Stands from "../rpg/Stands/Stands";
+import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
 import {
     ActionRowBuilder,
     AnyComponentBuilder,
     ButtonBuilder,
     StringSelectMenuBuilder,
+    APIEmbed,
+    Utils,
 } from "discord.js";
-import { Fighter } from "../structures/FightHandler";
+import { Fighter, FightInfos } from "../structures/FightHandler";
 export const generateRandomId = (): string => {
     return (
         Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
@@ -183,7 +186,7 @@ export const generateUseXCommandQuest = (
 export const findStand = (stand: string): Stand => {
     if (!stand) return null;
 
-    const stands = Object.values(Stands);
+    const stands = Object.values({ ...Stands.Stands });
     const foundStand = stands.find(
         (standClass) =>
             standClass.id === stand ||
@@ -235,8 +238,8 @@ export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC): number =>
     return (
         baseHealth +
         Math.round(
-            (skillPoints.defense / 4 + skillPoints.defense) * 10 +
-                (((skillPoints.defense / 4 + skillPoints.defense) * 6) / 100) * 100
+            (skillPoints.defense / 4 + skillPoints.defense / 2) * 10 +
+                (((skillPoints.defense / 4 + skillPoints.defense / 2) * 6) / 100) * 90
         )
     );
 };
@@ -325,11 +328,106 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
     return Math.round(
         baseDamage +
             Math.round(
-                skillPoints.strength * 0.675 + (user.level * 1.5 + (baseDamage / 100) * 15) / 2
+                skillPoints.strength * 0.475 + (user.level * 1.58 + (baseDamage / 100) * 12.5) / 2
             )
     );
 };
 
 export const getDiffPercent = (a: number, b: number): number => {
     return Math.abs((a - b) / ((a + b) / 2)) * 100;
+};
+
+export const getAbilityDamage = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    ability: Ability
+): number => {
+    if (ability.damage === 0) return 0;
+
+    let dmg = getAttackDamages(user);
+    dmg *= 1 + ability.damage / 10;
+
+    return Math.round(dmg);
+};
+
+export const standAbilitiesEmbed = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    cooldowns?: FightInfos["cooldowns"]
+): APIEmbed => {
+    const stand = isFighter(user) ? user.stand : findStand(user.stand);
+    const totalStandSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
+
+    const embed: APIEmbed = {
+        title: stand.name,
+        description:
+            stand.description +
+            `\n\n**BONUSES:** +${totalStandSkillPoints} skill-points:\n${Object.entries(
+                stand.skillPoints
+            )
+                .map(([key, value]) => `• +${value} ${key}`)
+                .join("\n")}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
+        color: stand.color,
+        footer: {
+            text: `Rarity: ${stand.rarity}`,
+        },
+        thumbnail: {
+            url: stand.image,
+        },
+        fields: [],
+    };
+
+    for (const ability of stand.abilities) {
+        let content = `\`Damages:\` ${getAbilityDamage(user, ability)}\n\`Stamina cost:\` ${
+            ability.stamina
+        }`;
+
+        let cooldown: number;
+        if (cooldowns)
+            cooldown =
+                cooldowns.find((c) => c.move === ability.name && c.id === user.id)?.cooldown ?? 0;
+        else cooldown = ability.cooldown;
+
+        content += `\n\`Cooldown:\` ${cooldown} turns\n\n${ability.description.replace(
+            /{standName}/gi,
+            stand.name
+        )}\n`;
+
+        if (ability.special) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
+        else content += "▬▬▬▬▬▬▬▬▬";
+
+        embed.fields.push({
+            name: ability.name + (ability.special ? " ⭐" : ""),
+            value: content,
+            inline: ability.special ? false : true,
+        });
+    }
+
+    return embed;
+};
+
+export const getSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): number => {
+    const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
+    return user.level * 3 - totalSkillPoints;
+};
+
+export const skillPointsIsOK = (user: RPGUserDataJSON | FightableNPC): boolean => {
+    const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
+    return totalSkillPoints === user.level * 3;
+};
+
+export const generateSkillPoints = (user: RPGUserDataJSON | FightableNPC): void => {
+    user.skillPoints = {
+        strength: 0,
+        stamina: 0,
+        speed: 0,
+        defense: 0,
+        perception: 0,
+    };
+    const skillPointsLeft = getSkillPointsLeft(user);
+
+    for (let i = 0; i < skillPointsLeft; i++) {
+        const skill = randomArray(
+            Object.keys(user.skillPoints) as (keyof SkillPoints)[]
+        ) as keyof SkillPoints;
+        user.skillPoints[skill]++;
+    }
 };
