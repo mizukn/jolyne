@@ -2,6 +2,7 @@ import type { User, Message } from "discord.js";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import JolyneClient from "../structures/JolyneClient";
 import { LocaleString, ApplicationCommandOptionType } from "discord-api-types/v10";
+import { FightHandler, Fighter } from "../structures/FightHandler";
 
 export interface DJSMessage extends Message {
     client: JolyneClient;
@@ -12,6 +13,9 @@ export interface DJSMessage extends Message {
  */
 export interface DiscordSlashCommandsData {
     name: string;
+    name_localizations?: {
+        [key in LocaleString]?: string;
+    };
     description: string;
     description_localizations?: {
         [key in LocaleString]?: string;
@@ -451,6 +455,7 @@ export interface Stand {
      * The stand's rarity
      */
     rarity: Rarity;
+    image: string;
     /**
      * The stand's emoji.
      */
@@ -469,41 +474,17 @@ export interface Stand {
     customAttack?: {
         name: string;
         emoji: string;
+        multiplier?: number;
         cooldown?: {
             cd: number;
             fightLogs: Ability["useMessage"];
         };
     };
+    color: number;
     /**
      * If the stand is available.
      */
     available: boolean;
-}
-
-export interface Fighter {
-    level: number;
-    skill_points: SkillPoints;
-    stand: Stand;
-    displayName: string;
-    avatarURL: string;
-    health: number;
-    maxHealth: number;
-    stamina: number;
-    maxStamina: number;
-}
-
-export class Fighter implements Fighter {
-    constructor(options: Fighter) {
-        this.level = options.level;
-        this.skill_points = options.skill_points;
-        this.stand = options.stand;
-        this.displayName = options.displayName;
-        this.avatarURL = options.avatarURL;
-        this.health = options.health;
-        this.maxHealth = options.maxHealth;
-        this.stamina = options.stamina;
-        this.maxStamina = options.maxStamina;
-    }
 }
 
 /**
@@ -524,7 +505,12 @@ export interface Ability {
      * @param {Fighter} target The target of the ability.
      * @param {number} damage The damage dealt by the ability.
      */
-    useMessage(user: Fighter, target: Fighter, damage: number): string;
+    useMessage?: (
+        user: Fighter,
+        target: Fighter,
+        damage: number,
+        ctx: FightHandler
+    ) => string | void;
 
     /**
      * The ability's cooldown (in turns).
@@ -533,7 +519,8 @@ export interface Ability {
     /**
      * If the ability gives extra turns to the user (and how much) after being used.
      */
-    extra_turns: number;
+    extraTurns: number;
+    extraTurnsIfGB?: number;
     /**
      * The ability's base damage.
      */
@@ -550,6 +537,7 @@ export interface Ability {
      * If the ability's stamina usage.
      */
     stamina: number;
+    special?: boolean;
 }
 
 export interface RequiemStand extends Stand {
