@@ -95,10 +95,10 @@ export default class DatabaseHandler {
 
             this.postgresql.query(query, values).catch(() => console.error);
         }
-        return await this.redis.json.set(key, "$", data as RedisJSON);
+        return await this.redis.set(key, JSON.stringify(data));
     }
     async getJSONData(key: string): Promise<LocalRedisJSON> {
-        return await this.redis.json.get(key);
+        return JSON.parse((await this.redis.get(key)) as string);
     }
     async getRPGUserData(userId: string): Promise<RPGUserDataJSON> {
         let data = (await this.getJSONData(
