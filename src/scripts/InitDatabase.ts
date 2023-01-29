@@ -71,62 +71,11 @@ const start = async () => {
 redisClient.on("connect", async () => {
     console.log("Redis connected, creating/updating index for RPGUsers");
     try {
-        await redisClient.ft.dropIndex(`idx:${process.env.REDIS_PREFIX}`);
         console.log("Index deleted, recreating it");
     } catch (_) {
         console.log("Index doesn't exist, creating it");
     }
 
-    await redisClient.ft.create(
-        // @ts-expect-error I can't use NUMERIC lols badly typed
-        `idx:${process.env.REDIS_PREFIX}`,
-        {
-            "$.id": {
-                type: SchemaFieldTypes.TEXT,
-                AS: "id",
-            },
-            "$.tag": {
-                type: SchemaFieldTypes.TEXT,
-                AS: "tag",
-            },
-            "$.level": {
-                type: SchemaFieldTypes.NUMERIC,
-                AS: "level",
-                SORTABLE: "UNF",
-            },
-            "$.health": {
-                type: SchemaFieldTypes.NUMERIC,
-                AS: "health",
-                SORTABLE: "UNF",
-            },
-            "$.coins": {
-                type: SchemaFieldTypes.NUMERIC,
-                AS: "coins",
-                SORTABLE: "UNF",
-            },
-            "$.stand": {
-                type: SchemaFieldTypes.TEXT,
-                AS: "stand",
-            },
-            "$.language": {
-                type: SchemaFieldTypes.TEXT,
-                AS: "language",
-            },
-            "$.chapter.id": {
-                type: SchemaFieldTypes.NUMERIC,
-                AS: "chapterId",
-            },
-            "$.sideQuests[*].id": {
-                type: SchemaFieldTypes.TEXT,
-                AS: "hasSideQuestId",
-            },
-        },
-        {
-            ON: "JSON",
-            PREFIX: "rpgusers:",
-        }
-    );
-    console.log("Index created/updated");
     postgresClient.connect();
     start();
 });

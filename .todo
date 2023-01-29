@@ -1,4 +1,6 @@
-1) Fix handle defend
-2) add stand abilities
-3) support forfeit
-4) add fighter.frozenFor
+-   support forfeit
+-   add daily command
+-   add timeout for user select
+-   fix took too much to do a selection
+-   add dodge
+-   add attack again (speed)

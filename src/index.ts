@@ -2,6 +2,8 @@ import type { EventFile, SlashCommandFile, SlashCommand } from "./@types";
 import { GatewayIntentBits, Partials, Options } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
 import JolyneClient from "./structures/JolyneClient";
+import * as NPCs from "./rpg/NPCs/FightableNPCs";
+import * as Functions from "./utils/Functions";
 import i18n from "./structures/i18n";
 import fs from "fs";
 import path from "path";
@@ -38,6 +40,13 @@ const client = new JolyneClient({
     }),
 });
 
+for (const NPC of Object.values(NPCs))
+    if (!Functions.skillPointsIsOK(NPC)) {
+        Functions.generateSkillPoints(NPC);
+        client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
+        console.log(NPC.skillPoints);
+    }
+
 // when process interrupted or exited, close redis connection
 process.on("SIGINT", () => {
     client.database.postgresql.end();
@@ -59,6 +68,10 @@ process.on("exit", () => {
 
 process.on("unhandledRejection", (error) => {
     console.error("Unhandled promise rejection:", error);
+});
+
+process.on("uncaughtException", (error) => {
+    console.error("Uncaught exception:", error);
 });
 
 // @ts-expect-error because the typings are wrong

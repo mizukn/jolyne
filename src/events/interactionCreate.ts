@@ -2,6 +2,7 @@ import type { EventFile } from "../@types";
 import { Events, Interaction } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
+import * as Functions from "../utils/Functions";
 
 const Event: EventFile = {
     name: Events.InteractionCreate,
@@ -49,25 +50,26 @@ const Event: EventFile = {
                         Date.now() + command.cooldown * 1000
                     );
             }
+            let ctx: CommandInteractionContext;
 
-            const ctx =
-                command.category === ("rpg" || "private")
-                    ? new CommandInteractionContext(
-                          interaction,
-                          await interaction.client.database.getRPGUserData(interaction.user.id)
-                      )
-                    : new CommandInteractionContext(interaction);
-
-            // check if command category === "rpg". if ctx.userData doesn't exist and command.name !== "adventure" and interaction.options.getSubcommand() !== "start", return
-            if (
-                command.category === "rpg" &&
-                !ctx.userData &&
-                command.data.name !== "adventure" &&
-                interaction.options.getSubcommand() !== "start"
-            )
-                return interaction.reply({
-                    content: interaction.client.translations.get("en-US")("base:NO_ADVENTURE"),
-                });
+            if (command.category === "rpg" || command.ownerOnly || command.adminOnly) {
+                const userData = await interaction.client.database.getRPGUserData(
+                    interaction.user.id
+                );
+                ctx = new CommandInteractionContext(interaction, userData);
+                if (!ctx.userData && command.data.name !== "adventure") {
+                    if (interaction.options.getSubcommand() !== "start") {
+                        return interaction.reply({
+                            content: interaction.client.translations.get("en-US")(
+                                "base:NO_ADVENTURE",
+                                {
+                                    emojis: interaction.client.localEmojis,
+                                }
+                            ),
+                        });
+                    }
+                }
+            } else ctx = new CommandInteractionContext(interaction);
 
             try {
                 await command.execute(ctx);
