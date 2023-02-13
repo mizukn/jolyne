@@ -1,6 +1,6 @@
 import { RPGUserDataJSON } from "../@types";
 import { createClient, RedisClientType, RedisScripts, RedisModules, RedisFunctions } from "redis";
-import JolyneClient from "../structures/JolyneClient";
+import JolyneClient from "./JolyneClient";
 import { User } from "discord.js";
 import * as Chapters from "../rpg/Chapters/Chapters";
 import * as Functions from "../utils/Functions";
@@ -151,7 +151,7 @@ export default class DatabaseHandler {
             language: "en-US",
             stand: null,
             chapter: {
-                id: 1,
+                id: Chapters.C1.id,
                 quests: Chapters.C1.quests.map((q) => Functions.pushQuest(q)),
             },
             daily: {
@@ -172,7 +172,7 @@ export default class DatabaseHandler {
                 pizza: 5,
                 mysterious_arrow: 1,
             },
-            adventureStartedAt: Date.now(),
+            adventureStartedAt: "" + Date.now() + "", // bigint postgresql string
         };
 
         const query = `INSERT INTO "RPGUsers" (${Object.keys(userData)
@@ -189,6 +189,18 @@ export default class DatabaseHandler {
         await this.setJSONData(`${process.env.REDIS_PREFIX}:${user.id}`, userData);
 
         return userData;
+    }
+
+    async deleteUserData(userId: string, ignoreRedis?: boolean): Promise<number> {
+        await this.postgresql.query(`DELETE FROM "RPGUsers" WHERE id = $1`, [userId]);
+        await this.redis.del(`${process.env.REDIS_PREFIX}:${userId}`);
+
+        if (ignoreRedis) return 1;
+        const keys = await this.redis.keys(`*${userId}*`);
+        for (const key of keys) {
+            await this.redis.del(key);
+        }
+        return 1 + keys.length;
     }
     async saveUserData(rpgData: RPGUserDataJSON): Promise<RPGUserDataJSON> {
         await this.setJSONData(`${process.env.REDIS_PREFIX}:${rpgData.id}`, rpgData);

@@ -5,7 +5,7 @@ import { REST } from "@discordjs/rest";
 import { ClusterManager } from "discord-hybrid-sharding";
 import emojis from "../emojis.json";
 import log from "../utils/Logger";
-import database from "../structures/DatabaseHandler";
+import database from "./DatabaseHandler";
 export default class Jolyne extends Client {
     _ready: boolean;
     localEmojis = emojis;

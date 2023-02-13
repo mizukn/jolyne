@@ -61,6 +61,7 @@ export class FightHandler extends EventEmitter {
     public emit<K extends keyof FightEvents>(event: K, ...args: FightEvents[K]): boolean {
         return super.emit(event, ...args);
     }
+    private timeout: NodeJS.Timeout;
     public teams: Fighter[][];
     public fighters: Fighter[];
     public infos: FightInfos;
@@ -271,6 +272,7 @@ export class FightHandler extends EventEmitter {
     }
 
     private NPCAttack() {
+        //this.updateTimeout();
         if (this.ended) return;
         if (!Functions.findNPC(this.whosTurn.id)) {
             this.emit("unexpectedEnd", "NPCAttack called on non-NPC");
@@ -288,7 +290,7 @@ export class FightHandler extends EventEmitter {
             possible.push("stand");
         }
 
-        if (this.whosTurn.extraTurns !== 0) {
+        if (this.whosTurn.extraTurns !== 0 || this.whosTurn.manipulatedBy) {
             possible = possible.filter((p) => p !== "defend");
         }
 
@@ -313,6 +315,7 @@ export class FightHandler extends EventEmitter {
     }
 
     private selectTarget(): void {
+        //this.updateTimeout();
         console.log(`Select target on user ${this.whosTurn.name}`);
         if (this.infos.selectedTargetCount === undefined) this.infos.selectedTargetCount = 0;
         else this.infos.selectedTargetCount++;
@@ -336,8 +339,10 @@ export class FightHandler extends EventEmitter {
             );
         }
         if (availableTargets.length === 0) {
+            return this.nextTurn();
+            /*
             this.emit("unexpectedEnd", "no target available");
-            return;
+            return; */
         }
         // if is npc, select a random target
         if (Functions.findNPC(this.whosTurn.id)) {
@@ -407,6 +412,7 @@ export class FightHandler extends EventEmitter {
     }
 
     private selectStandAbility(): void | string[] {
+        //this.updateTimeout();
         console.log(`Select stand ability on user ${this.whosTurn.name}`);
         if (!this.whosTurn) {
             this.emit("unexpectedEnd", "no fighter found");
@@ -485,6 +491,7 @@ export class FightHandler extends EventEmitter {
     }
 
     private handleDefend(): void {
+        //this.updateTimeout();
         console.log(`Defend on user ${this.whosTurn.name}`);
         if (!this.whosTurn) {
             this.emit("unexpectedEnd", "no fighter found");
@@ -499,6 +506,7 @@ export class FightHandler extends EventEmitter {
     }
 
     private handleAttack(): void {
+        //this.updateTimeout();
         console.log(`handleAttack on user ${this.whosTurn.name}`);
         if (!this.whosTurn) {
             this.emit("unexpectedEnd", "no fighter found");
@@ -548,6 +556,7 @@ export class FightHandler extends EventEmitter {
     }
 
     private handleUseAbility(ability: string): void {
+        //this.updateTimeout();
         console.log(`handleUseAbility(${ability})`);
         const stand = this.whosTurn.stand;
         if (!stand) {
@@ -583,9 +592,13 @@ export class FightHandler extends EventEmitter {
             abilityObj.blockable,
             abilityObj.dodgeable
         );
+        if (!this.whosTurn.stand) {
+            console.log("stand is null", this.whosTurn.id, this.whosTurn.manipulatedBy);
+        }
 
         if (status.type === FighterRemoveHealthTypes.Defended) {
-            abilityObj.useMessage(this.whosTurn, target, status.amount, this);
+            if (abilityObj.useMessage)
+                abilityObj.useMessage(this.whosTurn, target, status.amount, this);
             this.turns[this.turns.length - 1].logs.push(
                 `${this.whosTurn.stand.emoji} \`${this.whosTurn.name}\` uses **${this.whosTurn.stand.name} : ${abilityObj.name}** on **${target.name}** but they defended theirselves and deals **${status.amount}** damages instead of **${dmg}** (defense: -${status.defense})`
             );
@@ -594,7 +607,8 @@ export class FightHandler extends EventEmitter {
                 `:x: \`${this.whosTurn.name}\` uses **${this.whosTurn.stand.name} : ${abilityObj.name}** on **${target.name}** but they dodged`
             );
         } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
-            abilityObj.useMessage(this.whosTurn, target, status.amount, this);
+            if (abilityObj.useMessage)
+                abilityObj.useMessage(this.whosTurn, target, status.amount, this);
             if (abilityObj.extraTurnsIfGB !== undefined)
                 this.whosTurn.extraTurns += abilityObj.extraTurnsIfGB;
             this.turns[this.turns.length - 1].logs.push(
@@ -622,7 +636,22 @@ export class FightHandler extends EventEmitter {
         this.nextTurn();
     }
 
+    private updateTimeout(): void {
+        clearTimeout(this.timeout);
+        const oldHp = this.whosTurn.health;
+        this.whosTurn.health -= Math.round(this.whosTurn.maxHealth / 10);
+        if (this.whosTurn.health < 0) this.whosTurn.health = 0;
+
+        this.timeout = setTimeout(() => {
+            this.turns[this.turns.length - 1].logs.push(
+                `${this.ctx.client.localEmojis.timerIcon} **${this.whosTurn.name}** took too much to do a selection (health: ${oldHp} -> ${this.whosTurn.health}))`
+            );
+            this.nextTurn();
+        }, 15000);
+    }
+
     private nextTurn() {
+        if (this.timeout) clearTimeout(this.timeout);
         this.infos.selectedTargetCount = 0;
 
         try {
@@ -712,6 +741,8 @@ export class FightHandler extends EventEmitter {
                 teams: this.teams,
             });
         }
+        //this.updateTimeout();
+
         this.infos.target = undefined;
         this.infos.selectedTargetCount = 0;
 

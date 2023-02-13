@@ -15,7 +15,7 @@ import {
 export default class CommandInteractionContext {
     constructor(
         public interaction: ChatInputCommandInteraction & { client: Jolyne },
-        private RPGUserData?: RPGUserDataJSON
+        public RPGUserData?: RPGUserDataJSON
     ) {}
 
     get client(): Jolyne {
