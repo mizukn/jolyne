@@ -22,7 +22,7 @@
 		"DESCRIPTION": "Loot {{cc}} coins (using the `/loot` command)"
 	},
 	"CLAIM_DAILY": {
-		"DESCRIPTION": "Claim your daily reward {{cc}} time{{s}} (using the `/loot` command)"
+		"DESCRIPTION": "Claim your daily reward {{cc}} time{{s}} (using the `/daily claim` command)"
 	},
 	"CLAIM_COINS": {
 		"DESCRIPTION": "Claim {{cc}} coins"
