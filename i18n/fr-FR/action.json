@@ -1,7 +1,7 @@
 {
-	"NO_ACTIONS": "You can't do anything for the moment.",
+	"NO_ACTIONS": "Vous ne pouvez rien faire pour le moment.",
 	"REMOVE_THING_KAKYOIN": {
-		"BASE": "You tried to remove the thing...",
+		"BASE": "Vous avez tenté de supprimer la chose...",
 		"FAILED": "And you failed. Your only choice now is to bring kakyoin to the hospital.",
 		"SUCCESS": "And you succeeded."
 	},
