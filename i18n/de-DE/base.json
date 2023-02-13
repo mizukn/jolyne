@@ -1,7 +1,7 @@
 {
 	"NO_ADVENTURE": "{{emojis.jolyne}} You haven't started your adventure yet. Use `/adventure start` to start it!",
 	"ALREADY_ADVENTURE": "{{emojis.jolyne}} You already started your bizarre adventure.",
-	"USER_NO_ADVENTURE": "{{emojis.thinking}} **{{user_option.username}}** haven't started their adventure yet.",
+	"USER_NO_ADVENTURE": "{{emojis.think}} **{{user_option.username}}** haven't started their adventure yet.",
 	"AND": "and",
 	"SECOND": "second",
 	"MINUTE": "minute",
@@ -19,7 +19,7 @@
 	"GOT": "got",
 	"FOUND": "found",
 	"A": "a",
-	"LEVEL_UP_MESSAGE": ":stars: <@{{user.id}}>, You are now level **{{level}}**\n\n:information_source: You gained **4** skill-oints. Use `/skill-points` to use them.",
+	"LEVEL_UP_MESSAGE": ":stars: <@{{user.id}}>, You are now level **{{level}}**\n\n:information_source: You gained **4** skill-points. Use `/skill-points` to use them.",
 	"BASE_COOLDOWN": "You have to wait **{{timer}}** second(s) before using the `/{{command}}` again.",
 	"CONFIRM": "Confirm",
 	"CANCEL": "Cancel",
