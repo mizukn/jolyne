@@ -1,7 +1,10 @@
-import { SlashCommandFile } from "../../@types";
+import { SlashCommandFile, Leaderboard } from "../../@types";
 import { Message, APIEmbed, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import { makeChapterTitle } from "./Chapter";
+import * as Chapters from "../../rpg/Chapters/Chapters";
+import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -77,8 +80,19 @@ const slashCommand: SlashCommandFile = {
             : ctx.userData;
 
         if (!rpgData) return ctx.sendTranslated("base:USER_NO_ADVENTURE");
-        const leaderboard = await ctx.client.database.searchRPGUser("* SORTBY level ASC");
-        console.log(leaderboard);
+        const chapter =
+            Object.values(Chapters).find((c) => c.id === ctx.userData.chapter.id) ||
+            Object.values(ChapterParts).find((c) => c.id === ctx.userData.chapter.id);
+
+        const levelLb = (JSON.parse(
+            await ctx.client.database.getString(`${ctx.client.user.id}_leaderboard:level`)
+        ) as Leaderboard) || { lastUpdated: 0, data: [] };
+        const levelLbPos = levelLb.data.findIndex((x) => x.id === userOption.id) + 1;
+
+        const coinsLb = (JSON.parse(
+            await ctx.client.database.getString(`${ctx.client.user.id}_leaderboard:coins`)
+        ) as Leaderboard) || { lastUpdated: 0, data: [] };
+        const coinsLbPos = coinsLb.data.findIndex((x) => x.id === userOption.id) + 1;
 
         const embed: APIEmbed = {
             author: {
@@ -86,8 +100,14 @@ const slashCommand: SlashCommandFile = {
                 icon_url: userOption.displayAvatarURL({ extension: "gif" }),
             },
             description: ctx.translate("profile:ADVENTUREAT", {
-                rUnix: Functions.generateDiscordTimestamp(rpgData.adventureStartedAt, "FROM_NOW"), //`<t:${(userData.adventureat/1000).toFixed(0)}:R>`,
-                dUnix: Functions.generateDiscordTimestamp(rpgData.adventureStartedAt, "DATE"), //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
+                rUnix: Functions.generateDiscordTimestamp(
+                    parseInt(rpgData.adventureStartedAt),
+                    "FROM_NOW"
+                ), //`<t:${(userData.adventureat/1000).toFixed(0)}:R>`,
+                dUnix: Functions.generateDiscordTimestamp(
+                    parseInt(rpgData.adventureStartedAt),
+                    "DATE"
+                ), //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
             }),
             color: 0x70926c,
             fields: [
@@ -99,7 +119,49 @@ const slashCommand: SlashCommandFile = {
                         Functions.getMaxHealth(rpgData)
                     )}\n:zap: Stamina: ${Functions.localeNumber(
                         rpgData.stamina
-                    )}/${Functions.localeNumber(Functions.getMaxStamina(rpgData))}`,
+                    )}/${Functions.localeNumber(
+                        Functions.getMaxStamina(rpgData)
+                    )}\n${makeChapterTitle(chapter, rpgData)}`,
+                    inline: true,
+                },
+                {
+                    name: "Ranking",
+                    value: `:globe_with_meridians: \`${levelLbPos}\`/\`${levelLb.data.length}\`\n${ctx.client.localEmojis.jocoins} \`${coinsLbPos}\`/\`${coinsLb.data.length}\``,
+                    inline: true,
+                },
+                {
+                    name: "Player Stats",
+                    value: `${ctx.client.localEmojis.a_} Level: ${rpgData.level}\n${
+                        ctx.client.localEmojis.xp
+                    } XP: ${rpgData.xp.toLocaleString("en-US")}/${Functions.getMaxXp(
+                        rpgData.level
+                    ).toLocaleString("en-US")}\n${
+                        ctx.client.localEmojis.jocoins
+                    } Coins: ${rpgData.coins.toLocaleString()}`,
+                    inline: true,
+                },
+                {
+                    name: "Combat Infos",
+                    value: `✊ ATK Damage: ${Functions.getAttackDamages(rpgData).toLocaleString(
+                        "en-US"
+                    )}\n:leaves: Dodge score: ${Functions.getDodgeScore(rpgData).toLocaleString(
+                        "en-US"
+                    )}\n🔄 Speed score: ${Functions.getSpeedScore(rpgData).toLocaleString(
+                        "en-US"
+                    )}`,
+                    inline: true,
+                },
+                {
+                    name: "Stand",
+                    value: rpgData.stand
+                        ? (() => {
+                              const stand = Functions.findStand(rpgData.stand);
+                              return `${stand.emoji} **${stand.name}** (${stand.rarity}):\n[${
+                                  stand.abilities.length
+                              }] Abilities: ${stand.abilities.map((a) => a.name).join(", ")}`;
+                          })()
+                        : "Stand-less",
+                    inline: true,
                 },
             ],
         };

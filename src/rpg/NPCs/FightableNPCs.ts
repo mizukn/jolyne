@@ -1,5 +1,14 @@
+// Note: it doesn't matter if the NPC doesn't have balanced skill points because it'll be balanced when the bot starts.
 import type { FightableNPC } from "../../@types";
 import * as NPCs from "./NPCs";
+
+const baseSP = {
+    defense: 1,
+    strength: 1,
+    speed: 1,
+    perception: 1,
+    stamina: 0,
+};
 
 export const Kakyoin: FightableNPC = {
     ...NPCs.Kakyoin,

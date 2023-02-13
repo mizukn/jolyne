@@ -117,7 +117,7 @@ export const MagiciansRed: Stand = {
     abilities: [Abilities.CrossfireHurricane, Abilities.RedBind, Abilities.Bakugo],
     emoji: Emojis.Magiciansred,
     skillPoints: {
-        strength: 1000,
+        strength: 10,
         defense: 0,
         perception: 0,
         speed: 0,

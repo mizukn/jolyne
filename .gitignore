@@ -12,5 +12,4 @@ yarn*.log
 # Sytem
 .env
 
-src/structures
 logs

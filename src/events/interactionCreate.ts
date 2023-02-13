@@ -57,8 +57,11 @@ const Event: EventFile = {
                     interaction.user.id
                 );
                 ctx = new CommandInteractionContext(interaction, userData);
-                if (!ctx.userData && command.data.name !== "adventure") {
-                    if (interaction.options.getSubcommand() !== "start") {
+                if (!ctx.userData) {
+                    if (
+                        command.data.name === "adventure" &&
+                        interaction.options.getSubcommand() !== "start"
+                    ) {
                         return interaction.reply({
                             content: interaction.client.translations.get("en-US")(
                                 "base:NO_ADVENTURE",
@@ -68,6 +71,11 @@ const Event: EventFile = {
                             ),
                         });
                     }
+                    return interaction.reply({
+                        content: interaction.client.translations.get("en-US")("base:NO_ADVENTURE", {
+                            emojis: interaction.client.localEmojis,
+                        }),
+                    });
                 }
             } else ctx = new CommandInteractionContext(interaction);
 

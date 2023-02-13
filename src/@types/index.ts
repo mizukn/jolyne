@@ -251,7 +251,7 @@ export interface RPGUserDataJSON {
     /**
      * The unix timestamp of when the user started their adventure.
      */
-    adventureStartedAt: number;
+    adventureStartedAt: string;
 }
 
 export interface ReminderJSON {
@@ -342,10 +342,6 @@ export interface Item {
      * The item's emoji.
      */
     readonly emoji: string;
-    /**
-     * Function to use the item
-     */
-    // readonly use?: (ctx: CommandInteractionContext, userData: UserData, skip?: boolean, left?: number) => Promise<any>;
 }
 
 /**
@@ -366,8 +362,10 @@ export interface Consumable extends Item {
  * Special items interface
  */
 export interface Special extends Item {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    use: (...args: any) => Promise<any>;
+    /**
+     * Function to use the item
+     */
+    use: (ctx: CommandInteractionContext, ...args: string[]) => Promise<boolean>;
 }
 
 /**
@@ -579,9 +577,9 @@ export interface MustReadEmailQuest extends Omit<Quest, "completed" | "i18n_key"
     email: string; // Email["id"];
 }
 
-export interface ActionQuest extends Omit<Quest, "completed" | "i18n_key"> {
+export interface ActionQuest extends Omit<Quest, "completed"> {
     completed: boolean;
-    action: string; // Action["id"];
+    use: (ctx: CommandInteractionContext) => Promise<boolean>;
 }
 
 export interface FightNPCQuest extends Omit<Quest, "completed" | "i18n_key"> {
@@ -618,16 +616,19 @@ export type Quests =
     | UseXCommandQuest;
 export type QuestArray = Quests[];
 
-export type RPGUserQuest = Omit<
-    | Omit<Quest, "completed">
-    | MustReadEmailQuest
-    | ActionQuest
-    | FightNPCQuest
-    | ClaimXQuest
-    | ClaimItemQuest
-    | UseXCommandQuest,
-    "i18n_key"
->;
+export interface RPGUserQuest
+    extends Omit<
+        | Omit<Quest, "completed">
+        | MustReadEmailQuest
+        | ActionQuest
+        | FightNPCQuest
+        | ClaimXQuest
+        | ClaimItemQuest
+        | UseXCommandQuest,
+        "i18n_key"
+    > {
+    completed?: boolean;
+}
 
 export interface Chapter {
     /**
@@ -707,18 +708,29 @@ export interface Email {
     chapterQuests?: QuestArray;
 }
 
-export interface Part extends Omit<Chapter, "description"> {
+export interface ChapterPart extends Omit<Chapter, "description"> {
     /**
      * The part's parent.
      */
     parent: Chapter;
 }
 
-export type ChapterArray = (Chapter | Part)[];
+export type ChapterArray = (Chapter | ChapterPart)[];
 
 export interface RPGUserDataEmailsHash {
     id: Email["id"];
     read: boolean;
     date: number;
     archived: boolean;
+}
+
+export interface Leaderboard {
+    lastUpdated: number;
+    data: {
+        id: string;
+        tag: string;
+        level: number;
+        xp: number;
+        coins: number;
+    }[];
 }

@@ -102,7 +102,7 @@ export const LittleBoy: Ability = {
 export const Manipulation: Ability = {
     name: "Manipulation",
     description: "Manipulates the opponent's body, causing them unable to control therseivles",
-    cooldown: 10,
+    cooldown: 1,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const baseTarget = { ...target };
@@ -110,7 +110,7 @@ export const Manipulation: Ability = {
         if (user.manipulatedBy) {
             return `**${user.manipulatedBy.name}:** [ERROR: cannot manipulate if already manipulated]`;
         } else if (target.manipulatedBy) {
-            return `**${user.name}:** [ERROR: cannot manipulate ${target.name} because they are already manipulated by ${target.manipulatedBy.name}}]`;
+            return `**${user.name}:** [ERROR: cannot manipulate ${target.name} because they are already manipulated by ${target.manipulatedBy.name}]`;
         } else {
             target.id = user.id;
             target.name += " (Manipulated)";

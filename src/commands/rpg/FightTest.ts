@@ -6,22 +6,37 @@ import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { FightableNPCS } from "../../rpg/NPCs";
 import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
 import { Harry_Lester } from "../../rpg/NPCs/NPCs";
+import { RemoveFleshbudToKakyoin } from "../../rpg/Quests/ActionQuests";
+import { StandArrow } from "../../rpg/Items/Special";
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "fight",
         description: "neeeega",
-        options: [],
+        options: [
+            /*{
+                name: "npc",
+                description: "npc",
+                type: 1,
+            },*/
+        ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        const sopow = await ctx.client.database.createUserData("221756292862050314");
-        sopow.stand = "The World";
-        ctx.userData.stand = "magicians_red";
+        const cheesie = await ctx.client.database.createUserData("884838876303228928");
+        const ff = await ctx.client.database.createUserData("767797194107387904");
+        cheesie.stand = "The Hand";
+        ff.stand = "magician's red";
+        Kakyoin.stand = "Hierophant Green";
+
+        ctx.userData.stand = "The World";
 
         const fight = new FightHandler(
             ctx,
-            [[ctx.userData], [FightableNPCS.Harry_Lester, Kakyoin]],
-            FightTypes.Friendly
+            [
+                [ctx.userData, cheesie],
+                [Kakyoin, ff],
+            ],
+            FightTypes.Boss
         );
 
         fight.on("unexpectedEnd", (message) => {

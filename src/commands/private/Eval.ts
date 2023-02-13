@@ -82,8 +82,11 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<void | Message<boolean> | InteractionResponse> => {
+        const Functions = require("../../utils/Functions"); // eslint-disable-line @typescript-eslint/no-var-requires
+
         const { client } = ctx;
         const content = ctx.options.getString("code", true);
+
         // prevent malicious code
         if (
             content.includes("rm -rf") ||
