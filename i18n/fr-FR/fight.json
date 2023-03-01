@@ -1,0 +1,7 @@
+{
+    "NOBODY_TO_FIGHT": "{{npc.jotaro}} There's nobody to fight here.",
+    "TOO_MANY_ENEMIES": "{{npc.jotaro}} Looks like you've got too many enemies to fight. Choose an enemy:",
+    "FROM_DAILY": "(📆 from your daily quests)",
+    "FROM_CHAPTER": "(📜 from your chapter quests)",
+    "PLACEHOLDER": "Select an enemy to fight"
+}
