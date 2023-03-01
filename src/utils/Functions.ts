@@ -22,6 +22,10 @@ import {
     Ability,
     Chapter,
     ChapterPart,
+    RPGUserEmail,
+    WaitQuest,
+    Consumable,
+    Special,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -38,6 +42,8 @@ import * as ActionQuests from "../rpg/Quests/ActionQuests";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Items from "../rpg/Items";
 import Canvas from "canvas";
+import * as BaseQuests from "../rpg/Quests/Quests";
+import * as Emails from "../rpg/Emails";
 
 export const generateRandomId = (): string => {
     return (
@@ -51,10 +57,14 @@ export const randomArray = (array: any[]): any => {
 };
 
 export const isGarment = (item: Item): item is Garment => {
-    return (item as Garment).skill_points !== undefined;
+    return (item as Garment).skillPoints !== undefined;
 };
 
-export const isBaseQuest = (quest: Quests): quest is Quest => {
+export const isSpecial = (item: Item): item is Special => {
+    return (item as Special)["use"] !== undefined;
+};
+
+export const isBaseQuest = (quest: Quests | RPGUserQuest): quest is Quest => {
     return (quest as Quest).i18n_key !== undefined;
 };
 
@@ -70,6 +80,43 @@ export const isActionQuest = (quest: Quests | RPGUserQuest): quest is ActionQues
     return (quest as ActionQuest).use !== undefined;
 };
 
+export const isUseXCommandQuest = (quest: Quests | RPGUserQuest): quest is UseXCommandQuest => {
+    return (quest as UseXCommandQuest).command !== undefined;
+};
+
+export const pushItemWhenCompleted = (
+    quest: Quests,
+    arr: Quests["pushItemWhenCompleted"]
+): Quests => {
+    quest.pushItemWhenCompleted = arr;
+    return quest;
+};
+
+export const pushEmailWhenCompleted = (
+    quest: Quests,
+    obj: Quests["pushEmailWhenCompleted"]
+): Quests => {
+    quest.pushEmailWhenCompleted = obj;
+    return quest;
+};
+
+export const pushQuestWhenCompleted = (
+    quest: Quests,
+    id: Quests["pushQuestWhenCompleted"]
+): Quests => {
+    quest.pushQuestWhenCompleted = id;
+    return quest;
+};
+
+export const findQuest = (query: string): Quest => {
+    const quest = Object.values(BaseQuests).find(
+        (quest) => quest.id === query || quest.id.toLocaleLowerCase() === query.toLocaleLowerCase()
+    );
+    if (!quest) return;
+
+    return quest;
+};
+
 export const pushQuest = (quest: Quests): RPGUserQuest => {
     const questData: Quests = {
         ...quest,
@@ -83,15 +130,47 @@ export const pushQuest = (quest: Quests): RPGUserQuest => {
         !isMustReadEmailQuest(questData)
     ) {
         delete (questData as Quest).completed;
+        delete (questData as Quest).emoji;
+    }
+
+    if (isActionQuest(questData)) {
+        delete questData.use;
+        delete questData.emoji;
     }
 
     return questData as RPGUserQuest;
 };
 
+export const pushEmail = (email: Email): RPGUserEmail => {
+    const emailData: RPGUserEmail = {
+        id: email.id,
+        read: false,
+        archived: false,
+        claimedRewards: false,
+    };
+    if (!email.rewards) delete emailData.claimedRewards;
+
+    return emailData;
+};
+
+export const findEmail = (query: string): Email => {
+    const email = Object.values(Emails).find(
+        (email) =>
+            (email.id || email.subject) === query ||
+            (email.id || email.subject) === query ||
+            (email.id || email.subject).toLocaleLowerCase() === query.toLocaleLowerCase() ||
+            (email.id || email.subject).toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
+            query.toLocaleLowerCase().includes((email.id || email.subject).toLocaleLowerCase())
+    );
+
+    return email;
+};
+
 export const generateFightQuest = (
     npc: NPC,
     pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"]
+    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
+    pushItemWhenCompleted?: Quest["pushItemWhenCompleted"]
 ): FightNPCQuest => {
     const quest: FightNPCQuest = {
         id: generateRandomId(),
@@ -99,6 +178,7 @@ export const generateFightQuest = (
         npc: npc.id,
         pushEmailWhenCompleted,
         pushQuestWhenCompleted,
+        pushItemWhenCompleted,
     };
 
     return quest;
@@ -202,18 +282,20 @@ export const findStand = (stand: string): Stand => {
     return foundStand;
 };
 
-export const findNPC = (npc: string): NPC => {
+export const findNPC = <T extends NPC | FightableNPC>(npc: string, fightable?: boolean): T => {
     if (!npc) return null;
 
-    const npcs = Object.values(NPCs);
+    const npcs = fightable ? Object.values(FightableNPCS) : Object.values(NPCs);
     const foundNPC = npcs.find(
         (npcClass) =>
             npcClass.id === npc ||
             npcClass.name === npc ||
-            npcClass.name.toLocaleLowerCase() === npc.toLocaleLowerCase()
+            npcClass.name.toLocaleLowerCase() === npc.toLocaleLowerCase() ||
+            npcClass.name.toLocaleLowerCase().includes(npc.toLocaleLowerCase()) ||
+            npc.toLocaleLowerCase().includes(npcClass.name.toLocaleLowerCase())
     );
 
-    return foundNPC;
+    return foundNPC as T;
 };
 
 export const getSkillPointsBonus = (
@@ -249,19 +331,19 @@ export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC): number =>
     );
 };
 
-export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     const skillPoints = getSkillPointsBonus(rpgData);
     const baseStamina = getBaseStamina;
 
     return Math.round(baseStamina + skillPoints.stamina * 1.25 + rpgData.level / 3);
 };
 
-export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     const skillPoints = getSkillPointsBonus(rpgData);
     return Math.round(Math.round(rpgData.level / 5 + skillPoints.perception / 1.1));
 };
 
-export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     const skillPoints = getSkillPointsBonus(rpgData);
     return Math.round(Math.round(rpgData.level / 5 + skillPoints.speed / 1.1));
 };
@@ -290,7 +372,7 @@ export const percent = (percent: number): boolean => {
 };
 
 export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
-    const quests: RPGUserQuest[] = [pushQuest(generateClaimXQuest("daily", 1))];
+    const quests: RPGUserQuest[] = [];
     if (level > 200) level = 200;
     if (level < 5) level = 5;
 
@@ -313,11 +395,14 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
         quests.push(pushQuest(generateUseXCommandQuest("assault", RNG(1, 5))));
     }
 
+    quests.push(pushQuest(generateClaimXQuest("coin", Math.round(getRewards(level).coins * 2.5))));
+    quests.push(pushQuest(generateClaimXQuest("xp", Math.round(getRewards(level).xp * 2.5))));
+
     return quests;
 };
 
 export const isRPGUserDataJSON = (
-    data: RPGUserDataJSON | FightableNPC
+    data: RPGUserDataJSON | FightableNPC | Fighter
 ): data is RPGUserDataJSON => {
     return (data as RPGUserDataJSON).adventureStartedAt !== undefined;
 };
@@ -497,85 +582,6 @@ export const findItem = (name: string): Item => {
     );
 };
 
-export const getQuestsStats = (
-    quests: RPGUserQuest[],
-    ctx: CommandInteractionContext
-): { message: string; percent: number } => {
-    const message: string[] = [];
-    let totalPercent = 0;
-
-    for (const quest of quests) {
-        let completed = false;
-        let questPercent = 0;
-        if (isMustReadEmailQuest(quest) || isActionQuest(quest)) {
-            if (quest.completed) {
-                completed = true;
-                questPercent = 100;
-            }
-        }
-        if (isClaimXQuest(quest) || isClaimItemQuest(quest)) {
-            // usexcommandquest
-            if (quest.goal <= quest.amount) {
-                completed = true;
-                questPercent = 100;
-            } else questPercent = Math.round((quest.amount / quest.goal) * 100);
-
-            let questMessage = `Claim **${quest.goal.toLocaleString(
-                "en-US"
-            )}** {{name}} ||(${quest.amount.toLocaleString("en-US")}/${quest.goal.toLocaleString(
-                "en-US"
-            )}) **${questPercent}%**||`;
-
-            if (isClaimItemQuest(quest)) {
-                questMessage = questMessage.replace("{{name}}", findItem(quest.item).name);
-            } else questMessage = questMessage.replace("{{name}}", quest.x);
-
-            message.push(questMessage);
-
-            totalPercent += questPercent;
-            continue;
-        }
-
-        if (isFightNPCQuest(quest)) {
-            const npc = Object.values(FightableNPCS).find((v) => v.id === quest.npc);
-            questPercent =
-                quests.filter((r) => isFightNPCQuest(r) && r.npc === npc.id && r.completed).length /
-                quests.filter((r) => isFightNPCQuest(r) && r.npc === npc.id).length;
-            if (questPercent === 1) completed = true;
-
-            if (message.includes(npc.name)) continue;
-            if (quests.filter((r) => isFightNPCQuest(r) && r.npc === npc.id).length === 1) {
-                message.push(
-                    `Defeat ${npc.name} ||(${questPercent === 1 ? ":white_check_mark:" : ":x:"})||`
-                );
-            } else
-                message.push(
-                    `Defeat ${
-                        quests.filter((r) => isFightNPCQuest(r) && r.npc === npc.id).length
-                    } ${npc.name} ||(${
-                        quests.filter((r) => isFightNPCQuest(r) && r.npc === npc.id && r.completed)
-                            .length
-                    }/${
-                        quests.filter((r) => isFightNPCQuest(r) && r.npc === npc.id).length
-                    }) **${Math.round(questPercent * 100)}%**||`
-                );
-            totalPercent += questPercent * 100;
-            continue;
-        }
-    }
-
-    return {
-        message: message
-            .map((v, i) => {
-                // check if it is last message
-                if (i === message.length - 1) return `${ctx.client.localEmojis.replyEnd} ${v}`;
-                else return `${ctx.client.localEmojis.reply} ${v}`;
-            })
-            .join("\n"),
-        percent: totalPercent,
-    };
-};
-
 export const romanize = (num: number): string => {
     if (isNaN(num)) return "NaN";
     const digits = String(+num).split("");
@@ -705,4 +711,166 @@ export const generateStandCart = async function standCart(stand: Stand): Promise
     bufferCache[stand.name as keyof typeof bufferCache] = canvas.toBuffer();
 
     return canvas.toBuffer();
+};
+
+export const getRewards = (
+    level: number
+): {
+    coins: number;
+    xp: number;
+} => {
+    const rewards = {
+        coins: level * 1000 - (level * 1000 * 25) / 100,
+        xp: level * 400 - (level * 400 * 10) / 100,
+    };
+    if (rewards.coins > 6000) rewards.coins = 6000;
+
+    return rewards;
+};
+
+export const addItem = (userData: RPGUserDataJSON, item: Item | string, amount?: number): void => {
+    if (typeof item === "string") {
+        item = findItem(item);
+    }
+    if (!item) return;
+    if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
+    if (amount) {
+        userData.inventory[item.id] += amount;
+    } else {
+        userData.inventory[item.id]++;
+    }
+
+    for (const quests of [
+        userData.daily.quests,
+        userData.chapter.quests,
+        ...userData.sideQuests.map((v) => v.quests),
+    ]) {
+        for (const quest of quests.filter(
+            (x) => isClaimItemQuest(x) && x.item === (item as Item).id
+        )) {
+            (quest as ClaimItemQuest).amount++;
+        }
+    }
+};
+
+export const removeItem = (
+    userData: RPGUserDataJSON,
+    item: Item | string,
+    amount?: number
+): void => {
+    if (typeof item === "string") {
+        item = findItem(item);
+    }
+    if (!item) return;
+    if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
+    if (amount) {
+        userData.inventory[item.id] -= amount;
+    } else {
+        userData.inventory[item.id]--;
+    }
+};
+
+export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): void {
+    userData.coins += amount;
+    for (const quests of [
+        userData.daily.quests,
+        userData.chapter.quests,
+        ...userData.sideQuests.map((v) => v.quests),
+    ]) {
+        console.log("started looping from", quests);
+        for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "coin")) {
+            (quest as ClaimXQuest).amount += amount;
+        }
+    }
+};
+
+export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): void {
+    userData.xp += amount;
+    for (const quests of [
+        userData.daily.quests,
+        userData.chapter.quests,
+        ...userData.sideQuests.map((v) => v.quests),
+    ]) {
+        for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "xp")) {
+            (quest as ClaimXQuest).amount += amount;
+        }
+    }
+};
+
+export const addEmail = function addEmail(userData: RPGUserDataJSON, email: string): void {
+    const emailData = findEmail(email);
+    if (!emailData) return;
+    if (userData.emails.find((v) => v.id === emailData.id)) {
+        console.log(
+            `Attempted to add email ${emailData.id} to user ${userData.id} but it already exists`
+        );
+        return;
+    }
+    userData.emails.push(pushEmail(emailData));
+};
+
+export const addStandDisc = (
+    userData: RPGUserDataJSON,
+    stand: Stand | "string",
+    amount?: number
+): void => {
+    if (typeof stand === "string") {
+        stand = findStand(stand);
+    }
+    if (!stand) return;
+
+    const standId = stand.id + ".disc";
+    if (!userData.inventory[standId]) userData.inventory[standId] = 0;
+    if (amount) {
+        userData.inventory[standId] += amount;
+    } else {
+        userData.inventory[standId]++;
+    }
+};
+
+export const s = (num: number): string => {
+    return num === 1 ? "" : "s";
+};
+
+export const isWaitQuest = (quest: Quests | RPGUserQuest): quest is WaitQuest => {
+    return (quest as WaitQuest).end !== undefined;
+};
+
+export const generateWaitQuest = (
+    time: number,
+    email?: WaitQuest["email"],
+    quest?: WaitQuest["quest"],
+    i18n_key?: WaitQuest["i18n_key"]
+): WaitQuest => {
+    const questData = {
+        end: Date.now() + time,
+        id: generateRandomId(),
+        email,
+        quest,
+        i18n_key,
+    };
+
+    if (!email) delete questData.email;
+    if (!quest) delete questData.quest;
+    if (!i18n_key) delete questData.i18n_key;
+
+    return questData;
+};
+
+export const isConsumable = (item: Item | "string"): item is Consumable => {
+    if (typeof item === "string") {
+        item = findItem(item);
+    }
+    if (!item) return false;
+    return (item as Consumable)["effects"] !== undefined;
+};
+
+export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: number): void {
+    userData.health += amount;
+    if (userData.health > getMaxHealth(userData)) userData.health = getMaxHealth(userData);
+};
+
+export const addStamina = function addStamina(userData: RPGUserDataJSON, amount: number): void {
+    userData.stamina += amount;
+    if (userData.stamina > getMaxStamina(userData)) userData.stamina = getMaxStamina(userData);
 };
