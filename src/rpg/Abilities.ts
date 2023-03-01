@@ -56,11 +56,15 @@ export const TheWorld: Ability = {
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
             cooldown: 6,
-            promise: (fight) =>
+            promise: (fight) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
                     `**${user.name}:** Toki wo Ugokidasu...`
-                ),
+                );
+                user.hasStoppedTime = false;
+            },
         });
+        user.hasStoppedTime = true;
+
         if (user.stand.name === Stands.TheWorld.name) {
             return `**${user.name}:** THE WORLD! TOKI WO TOMARE!`;
         } else if (user.stand.name === Stands.StarPlatinum.name) {

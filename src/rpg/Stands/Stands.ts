@@ -40,7 +40,6 @@ export const TheWorld: Stand = {
         Abilities.KickBarrage,
         Abilities.RoadRoller,
         Abilities.TheWorld,
-        Abilities.Manipulation,
     ],
     skillPoints: StarPlatinum.skillPoints,
     color: 0xffff00,

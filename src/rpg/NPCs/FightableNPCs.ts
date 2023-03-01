@@ -12,13 +12,17 @@ const baseSP = {
 
 export const Kakyoin: FightableNPC = {
     ...NPCs.Kakyoin,
-    level: 1,
+    level: 0,
     skillPoints: {
         defense: 1,
         strength: 1,
         speed: 1,
-        perception: 1,
+        perception: 100,
         stamina: 0,
+    },
+    rewards: {
+        coins: 100,
+        xp: 350,
     },
     //stand: "Hierophant Green",
 };
@@ -67,4 +71,17 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         stamina: Dio.skillPoints.stamina * 5,
     },
     //stand: "The World: Over Heaven",
+};
+
+export const BanditLeader: FightableNPC = {
+    ...NPCs.BanditLeader,
+    level: 20, // is raid boss
+    skillPoints: baseSP,
+    stand: "Hierophant Green",
+};
+
+export const Bandit: FightableNPC = {
+    ...NPCs.Bandit,
+    level: 5,
+    skillPoints: baseSP,
 };

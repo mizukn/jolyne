@@ -1,6 +1,7 @@
 import { Chapter } from "../../@types";
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../NPCs/NPCs";
+import * as Quests from "../Quests/Quests";
 
 export const C1: Chapter = {
     id: 1,
@@ -70,7 +71,13 @@ export const C1: Chapter = {
     },
     quests: [
         Functions.generateClaimXQuest("daily", 1),
-        Functions.generateClaimXQuest("coins", 3500),
-        Functions.generateFightQuest(NPCs.Kakyoin),
+        Functions.generateClaimXQuest("coin", 3500),
+        Functions.generateFightQuest(NPCs.Kakyoin, null, null, [
+            {
+                item: Functions.findItem("Stand Arrow").name,
+                amount: 1,
+            },
+        ]),
+        Quests.AwakenYourStand,
     ],
 };

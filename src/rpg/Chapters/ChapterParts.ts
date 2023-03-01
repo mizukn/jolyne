@@ -48,7 +48,7 @@ export const C1: ChapterPart = {
     },
     quests: [
         Functions.generateClaimXQuest("daily", 1),
-        Functions.generateClaimXQuest("coins", 3500),
+        Functions.generateClaimXQuest("coin", 3500),
         Functions.generateFightQuest(NPCs.Kakyoin),
     ],
     parent: Chapters.C1,

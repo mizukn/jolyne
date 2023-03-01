@@ -31,3 +31,21 @@ export const Heaven_Ascended_Dio: NPC = {
     name: "Heaven Ascended Dio",
     emoji: Emojis.dioangry,
 };
+
+export const BanditLeader: NPC = {
+    id: "bandit_leader",
+    name: "Bandit Leader",
+    emoji: "🦹🏻",
+};
+
+export const Bandit: NPC = {
+    id: "bandit",
+    name: "Bandit",
+    emoji: "👤",
+};
+
+export const Joshua_Joengo: NPC = {
+    id: "joshua_joengo",
+    name: "Joshua Joengo",
+    emoji: Emojis.josephChad,
+};

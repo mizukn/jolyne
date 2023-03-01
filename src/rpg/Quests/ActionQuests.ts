@@ -6,6 +6,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
     id: "remove_fleshbud_to_kakyoin",
     completed: false,
     i18n_key: "REMOVE_FLESHBUD",
+    emoji: "🐛",
     use: async (ctx) => {
         const finishEmoji = "🐛";
         const map = ["🔲", "🔲", "🔲", "🔲", finishEmoji, "🔲", "🔲", "🔲", "🔲", "🔲"];
@@ -130,7 +131,5 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         collector.on("end", () => {
             //ctx.client.database.delCooldownCache("cooldown", userData.id);
         });
-
-        return true;
     },
 };
