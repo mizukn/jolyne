@@ -1,8 +1,10 @@
-import type { User, Message } from "discord.js";
+import type { User, Message, AutocompleteInteraction } from "discord.js";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import JolyneClient from "../structures/JolyneClient";
 import { LocaleString, ApplicationCommandOptionType } from "discord-api-types/v10";
 import { FightHandler, Fighter } from "../structures/FightHandler";
+
+export type numOrPerc = number | `${number}%`;
 
 export interface DJSMessage extends Message {
     client: JolyneClient;
@@ -30,6 +32,8 @@ export interface DiscordSlashCommandsData {
     }[];
 }
 
+export type itemPrize = { [key: Item["id"]]: number };
+
 export interface SlashCommandFile {
     cooldown?: number;
     rpgCooldown?: {
@@ -44,6 +48,12 @@ export interface SlashCommandFile {
     data: DiscordSlashCommandsData;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     execute: (ctx: CommandInteractionContext, ...args: any) => Promise<any>;
+    autoComplete?: (
+        interaction: AutocompleteInteraction,
+        userData: RPGUserDataJSON,
+        currentInput: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...args: any // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) => Promise<any>;
 }
 
 export interface SlashCommand extends SlashCommandFile {
@@ -249,6 +259,10 @@ export interface RPGUserDataJSON {
         [key: Item["id"]]: number;
     };
     /**
+     * The user's emails.
+     */
+    emails: RPGUserEmail[];
+    /**
      * The unix timestamp of when the user started their adventure.
      */
     adventureStartedAt: string;
@@ -301,9 +315,9 @@ export interface Requirements {
 }
 
 export interface ConsumableEffects {
-    health?: number;
-    stamina?: number;
-    items?: Item[];
+    health?: numOrPerc;
+    stamina?: numOrPerc;
+    items?: itemPrize;
 }
 
 /**
@@ -348,7 +362,7 @@ export interface Item {
  * Garment interface
  */
 export interface Garment extends Item {
-    skill_points: SkillPoints;
+    skillPoints: SkillPoints;
 }
 
 /**
@@ -416,6 +430,10 @@ export interface FightableNPC extends NPC {
      * The NPC's stand.
      */
     stand?: string;
+    /**
+     * The NPC's rewards.
+     */
+    rewards?: Rewards;
 }
 
 /**
@@ -558,47 +576,63 @@ export interface Quest {
      * The quest's ID.
      */
     id: string;
-    completed: (ctx: CommandInteractionContext) => number;
+    completed: (user: RPGUserDataJSON) => number;
     i18n_key?: string;
-    pushQuestWhenCompleted?: Quest["id"];
+    pushQuestWhenCompleted?: RPGUserQuest;
     pushEmailWhenCompleted?: {
         timeout?: number;
         mustRead?: boolean;
         email: string; // Email["id"];
     };
+    pushItemWhenCompleted?: {
+        item: Item["id"];
+        amount: number;
+    }[];
+    emoji: string;
+    hintCommand?: string;
 }
 /**
  * MustReadEmailQuest interface
  * @description A quest that must be completed by reading an email.
  * @note Not initialized in /src/database/rpg/Quests, but automatically when a user completes a quest that has the pushEmailWhenCompleted?.mustRead property.
  */
-export interface MustReadEmailQuest extends Omit<Quest, "completed" | "i18n_key"> {
+export interface MustReadEmailQuest
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand"> {
     completed: boolean;
     email: string; // Email["id"];
 }
 
-export interface ActionQuest extends Omit<Quest, "completed"> {
+export interface ActionQuest extends Omit<Quest, "completed" | "hintCommand"> {
     completed: boolean;
-    use: (ctx: CommandInteractionContext) => Promise<boolean>;
+    use: (ctx: CommandInteractionContext) => Promise<void>;
 }
 
-export interface FightNPCQuest extends Omit<Quest, "completed" | "i18n_key"> {
+export interface FightNPCQuest
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand"> {
     completed: boolean;
     npc: NPC["id"];
 }
 
-export interface ClaimXQuest extends Omit<Quest, "completed" | "i18n_key"> {
-    x: "coins" | "xp" | "daily";
+export interface ClaimXQuest
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand"> {
+    x: "coin" | "xp" | "daily";
     amount: number;
     goal: number;
 }
 
-export interface ClaimItemQuest extends Omit<ClaimXQuest, "x"> {
+export interface ClaimItemQuest extends Omit<ClaimXQuest, "x" | "hintCommand"> {
     item: Item["id"];
 }
 
-export interface UseXCommandQuest extends Omit<ClaimXQuest, "x"> {
+export interface UseXCommandQuest extends Omit<ClaimXQuest, "x" | "hintCommand"> {
     command: string;
+}
+
+export interface WaitQuest extends Omit<Quest, "completed" | "emoji" | "hintCommand"> {
+    end: number; // Date.now() + ms
+    email?: Email["id"];
+    quest?: Quest["id"];
+    claimed?: boolean;
 }
 
 export interface Action {
@@ -613,22 +647,24 @@ export type Quests =
     | FightNPCQuest
     | ClaimXQuest
     | ClaimItemQuest
+    | WaitQuest
     | UseXCommandQuest;
 export type QuestArray = Quests[];
 
-export interface RPGUserQuest
-    extends Omit<
-        | Omit<Quest, "completed">
-        | MustReadEmailQuest
-        | ActionQuest
-        | FightNPCQuest
-        | ClaimXQuest
-        | ClaimItemQuest
-        | UseXCommandQuest,
-        "i18n_key"
-    > {
+export type RPGUserQuest = Omit<
+    | Omit<Quest, "completed">
+    | MustReadEmailQuest
+    | ActionQuest
+    | FightNPCQuest
+    | ClaimXQuest
+    | ClaimItemQuest
+    | WaitQuest
+    | UseXCommandQuest,
+    "i18n_key"
+> & {
     completed?: boolean;
-}
+    npc?: NPC["id"];
+};
 
 export interface Chapter {
     /**
@@ -708,6 +744,12 @@ export interface Email {
     chapterQuests?: QuestArray;
 }
 
+export interface RPGUserEmail {
+    id: Email["id"];
+    read: number | false; // timestamp
+    archived: boolean;
+    claimedRewards?: boolean;
+}
 export interface ChapterPart extends Omit<Chapter, "description"> {
     /**
      * The part's parent.
