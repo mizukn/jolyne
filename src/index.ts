@@ -1,5 +1,5 @@
-import type { EventFile, SlashCommandFile, SlashCommand } from "./@types";
-import { GatewayIntentBits, Partials, Options } from "discord.js";
+import type { EventFile, SlashCommandFile, SlashCommand, Special } from "./@types";
+import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
 import JolyneClient from "./structures/JolyneClient";
 import * as NPCs from "./rpg/NPCs/FightableNPCs";
@@ -7,6 +7,53 @@ import * as Functions from "./utils/Functions";
 import i18n from "./structures/i18n";
 import fs from "fs";
 import path from "path";
+import * as Items from "./rpg/Items";
+import * as Stands from "./rpg/Stands";
+import * as Emojis from "./emojis.json";
+
+/**
+ * Temp code starts from here
+ */
+const standPrices = {
+    SS: 200000,
+    S: 50000,
+    A: 25000,
+    B: 10000,
+    C: 5000,
+    T: 69,
+};
+
+for (const stand of Object.values(Stands.Stands)) {
+    const standDisc: Special = {
+        id: stand.id + ".disc",
+        name: stand.name + " Stand Disc",
+        description: "A disc that contains the power of " + stand.name,
+        rarity: stand.rarity,
+        price: standPrices[stand.rarity],
+        tradable: true,
+        storable: true,
+        emoji: stand.emoji + Emojis.disk,
+        use: async (ctx) => {
+            if (Functions.findStand(ctx.userData.stand)) {
+                ctx.makeMessage({
+                    content: "no",
+                });
+                return false;
+            }
+            ctx.userData.stand = stand.id;
+            ctx.makeMessage({
+                content: "You have successfully equipped " + stand.name + " " + stand.emoji + " !",
+            });
+            return true;
+        },
+    };
+    // @ts-expect-error because it's a dynamic property
+    Items.default[standDisc.id] = standDisc;
+}
+
+/**
+ * Temp code ends here
+ */
 
 const intents = [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers];
 const partials = [];
@@ -40,12 +87,34 @@ const client = new JolyneClient({
     }),
 });
 
-for (const NPC of Object.values(NPCs))
+for (const NPC of Object.values(NPCs)) {
     if (!Functions.skillPointsIsOK(NPC)) {
         Functions.generateSkillPoints(NPC);
         client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
         console.log(NPC.skillPoints);
     }
+    if (!NPC.rewards) NPC.rewards = {};
+    if (NPC.rewards.xp === undefined) {
+        // shouldn't do if ! at the beginning because it's an number and if it's 0, it will be false
+        NPC.rewards.xp = 50;
+        NPC.rewards.coins = 50;
+        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 700;
+        NPC.rewards.coins += Functions.getMaxXp(NPC.level) / 5000;
+
+        NPC.rewards.xp += NPC.level * 1.25;
+        NPC.rewards.coins += NPC.level * 0.65;
+
+        if (Functions.findStand(NPC.stand)) {
+            NPC.rewards.xp += standPrices[Functions.findStand(NPC.stand).rarity] / 115;
+            NPC.rewards.coins += standPrices[Functions.findStand(NPC.stand).rarity] / 1000;
+        }
+
+        NPC.rewards.xp = Math.round(NPC.rewards.xp);
+        NPC.rewards.coins = Math.round(NPC.rewards.coins);
+
+        console.log(NPC.rewards);
+    }
+}
 
 // when process interrupted or exited, close redis connection
 process.on("SIGINT", () => {
