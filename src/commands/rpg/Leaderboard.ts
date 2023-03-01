@@ -101,7 +101,7 @@ const slashCommand: SlashCommandFile = {
                     embed.fields = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)
                         .map((user, i) => ({
-                            name: `${i + 1} - ${user.tag}`,
+                            name: `${i + 1} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
                             value: `${ctx.client.localEmojis.a_} Level **${user.level}** with  **${user.xp}** ${ctx.client.localEmojis.xp}`,
                             inline: false,
                         }));
@@ -114,7 +114,7 @@ const slashCommand: SlashCommandFile = {
                     embed.fields = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)
                         .map((user, i) => ({
-                            name: `${i + 1} - ${user.tag}`,
+                            name: `${i + 1} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
                             value: `${ctx.client.localEmojis.a_} **${user.coins}** ${ctx.client.localEmojis.jocoins}`,
                             inline: false,
                         }));

@@ -110,6 +110,13 @@ const slashCommand: SlashCommandFile = {
                 ), //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
             }),
             color: 0x70926c,
+            thumbnail: {
+                url: rpgData.stand
+                    ? Functions.findStand(rpgData.stand)
+                        ? Functions.findStand(rpgData.stand).image
+                        : undefined
+                    : undefined,
+            },
             fields: [
                 {
                     name: "Player Infos",
