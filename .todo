@@ -1,9 +1,12 @@
--   fix "start your adventure" !!!
--   support forfeit
+-   fix the world can dodge in attack
+-   add daily quests
 -   add daily command
 -   add timeout for user select
 -   fix took too much to do a selection
 -   add dodge
--   add attack again (speed)
 -   add badges on profile
 -   add bumpstand, bumpchapter, bumplevel (private)
+-   stand evolution support on stand disc
+-   fix embed field maximum length
+
+-   check pinned commands 1 + reprendre fight pour pushEmail
