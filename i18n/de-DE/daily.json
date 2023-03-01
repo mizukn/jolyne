@@ -1,7 +1,14 @@
 {
-	"ALREADY_CLAIMED": "{{emojis.jotaro}} **Jotaro:** Yare Yare Daze... You've already claimed your daily bonuses today. Try again in **{{time}}**.",
-	"CLAIMED_EMBED_DESCRIPTION": "Here is your daily **{{xp}}** {{emojis.xp}}, **{{coins}}** {{emojis.jocoins}} and **2 Candy Canes** <:candy_cane:1055876219251466330>.",
-	"CLAIMED_EMBED_DESCRIPTION_PREMIUM": "Since you're premium (tier **{{tier}}**), you received an extra **{{xp}}** {{emojis.xp}} and **{{coins}}** {{emojis.jocoins}}.",
-	"CLAIMED_EMBED_FOOTER": "Next streak:",
-	"CLAIMED_EMBED_DESCRIPTION_BOOSTER": "Since you're a booster, you received an extra **{{xp}}** {{emojis.xp}} and **{{coins}}** {{emojis.jocoins}}."
+    "ALREADY_CLAIMED": "{{emojis.jotaro}} **Jotaro:** Yare Yare Daze... You've already claimed your daily bonuses today. Try again in **{{time}}**.",
+    "CLAIMED_EMBED_DESCRIPTION": "Here is your daily **{{xp}}** {{emojis.xp}}, **{{coins}}** {{emojis.jocoins}}.",
+    "CLAIMED_EMBED_DESCRIPTION_PREMIUM": "Since you're premium (tier **{{tier}}**), you received an extra **{{xp}}** {{emojis.xp}} and **{{coins}}** {{emojis.jocoins}}.",
+    "CLAIMED_EMBED_FOOTER": "Next streak:",
+    "CLAIMED_EMBED_DESCRIPTION_BOOSTER": "Since you're a booster, you received an extra **{{xp}}** {{emojis.xp}} and **{{coins}}** {{emojis.jocoins}}.",
+    "WANT_MORE_HEADER": "Want more?",
+    "WANT_MORE_DESCRIPTION_NON_PREMIUM_NON_BOOSTER": "You can get more daily bonuses by boosting our [support server](https://discord.gg/jolyne) and by becoming a [patreon](https://www.patreon.com/mizuki54). You can also get some rewards by {{command.vote}} if you haven't already.",
+    "WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER": "You can get more daily bonuses by becoming a [patreon](https://www.patreon.com/mizuki54). You can also get some rewards by {{command.vote}} if you haven't already.",
+    "WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER": "You can get more daily bonuses by boosting our [support server](https://discord.gg/jolyne). You can also get some rewards by {{command.vote}} if you haven't already.",
+    "WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER": "You can get some rewards by {{command.vote}} if you haven't already.",
+    "REWARDS_MESSAGE": "{{emojis.timerIcon}} Resets {{discordUnix}}\n{{emojis.arrowRight}} You'll get **{{coins}}** {{emojis.jocoins}} and **{{xp}}** {{emojis.xp}} if you complete all of them.",
+    "REWARDS_CLAIM_MESSAGE": "GG! You've completed all of the daily rewards. Here is your **{{coins}}** {{emojis.jocoins}} and **{{xp}}** {{emojis.xp}}."
 }
