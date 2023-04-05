@@ -575,11 +575,19 @@ export interface RequiemStand extends Stand {
     base_stand: Stand;
 }
 
-export interface EvolutionStand extends RequiemStand {
+export interface Evolutions {
+    name: string;
+    tier: number;
+    rarity: Rarity;
+    abilities: Ability[];
+    skillPoints: SkillPoints;
+}
+
+export interface EvolutionStand extends Stand {
     /**
      * The stand's evolution level.
      */
-    evolution_level: number;
+    evolutions: Evolutions[];
 }
 
 export type itemRewards = {
@@ -797,4 +805,15 @@ export interface Shop {
         item: Item["id"];
         price?: number; // If not specified, the item's price will be used.
     }[];
+}
+
+export interface Passive {
+
+    name: string;
+
+    description: string;
+
+    cooldown: number;
+
+    execute: (ctx: CommandInteractionContext) => Promise<void>;
 }

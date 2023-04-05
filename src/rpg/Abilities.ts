@@ -1,5 +1,5 @@
 import { Ability } from "../@types";
-import { FightHandler, Fighter } from "../structures/FightHandler";
+import { FightHandler, Fighter } from '../structures/FightHandler';
 import * as Stands from "./Stands/Stands";
 import * as Functions from "../utils/Functions";
 
@@ -56,7 +56,7 @@ export const TheWorld: Ability = {
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
             cooldown: 6,
-            promise: (fight) => {
+            promise: (fight: { turns: { logs: string[]; }[]; }) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
                     `**${user.name}:** Toki wo Ugokidasu...`
                 );
@@ -121,7 +121,7 @@ export const Manipulation: Ability = {
             target.manipulatedBy = user;
             ctx.nextRoundPromises.push({
                 cooldown: 2,
-                promise: (fight) => {
+                promise: (fight: { turns: { logs: string[]; }[]; }) => {
                     target.id = baseTarget.id;
                     target.name = baseTarget.name;
                     target.manipulatedBy = undefined;
@@ -167,7 +167,7 @@ export const DeadlyErasure: Ability = {
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
     ctx.nextRoundPromises.push({
         cooldown: 3,
-        promise: (fight) => {
+        promise: (fight: { turns: { logs: string[]; }[]; }) => {
             fight.turns[ctx.turns.length - 1].logs.push(
                 `:fire: **${target.name}** took **${damage}** burn damage`
             );
@@ -231,3 +231,58 @@ export const Bakugo: Ability = {
     },
     special: true,
 };
+
+export const NailShot: Ability = {
+    name: "Nail Shot",
+    description: "Shoot a nail, at the speed of a bullet",
+    cooldown: 4,
+    damage: 40,
+    blockable: true,
+    dodgeable: true,
+    stamina: 20,
+    extraTurns: 0
+}
+
+export const NailSpin: Ability = {
+    name: "Nail Spin",
+    description: "Spin your nails, allowing you to practically use them as melee weapons",
+    cooldown: 6,
+    damage: 30,
+    blockable: true,
+    dodgeable: true,
+    stamina: 20,
+    extraTurns: 0
+}
+
+export const GoldenRectangleNails: Ability = {
+    name: "Golden Rectangle Nails",
+    description: "Shoot a nail, at the speed of a bullet, but with the power of a golden rectangle",
+    cooldown: 8,
+    damage: 60,
+    blockable: true,
+    dodgeable: true,
+    stamina: 30,
+    extraTurns: 0
+}
+
+export const SpatialWormhole: Ability = {
+    name: "Spatial Wormhole",
+    description: "Creates a wormhole that can teleport the user to any location",
+    cooldown: 10,
+    damage: 70,
+    blockable: false,
+    dodgeable: false,
+    stamina: 40,
+    extraTurns: 0
+}
+
+export const InfiniteRotation = {
+    name: "Infinite Rotation",
+    description: "Creates a wormhole that can teleport the user to any location",
+    cooldown: 20,
+    damage: 150,
+    blockable: false,
+    dodgeable: false,
+    stamina: 60,
+    extraTurns: 0
+}
