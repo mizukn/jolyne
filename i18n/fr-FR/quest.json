@@ -21,7 +21,7 @@
     "LOOT_COINS": {
         "DESCRIPTION": "Loot {{cc}} coins (using the {{command.loot}} command)"
     },
-    "CLAIMX": "Claim **{{cc}}** {{name}}{{s}}",
+    "CLAIMX": "Claim **{{cc}}** {{name}}{{s}} {{emoji}}",
     "USE_COMMAND": "Use the {{cmd}} command {{cc}} time{{s}}",
     "SPEEDWAGON_ANSWER": {
         "TITLE": "Wait for the SPEEDWAGON to answer",
