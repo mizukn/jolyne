@@ -1,1 +1,1 @@
-// import { Passive } from './Abilities';
+// import { Passive } from '../@types';
