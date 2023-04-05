@@ -64,6 +64,7 @@ const slashCommand: SlashCommandFile = {
                 .map((v) => {
                     const item = Functions.findItem(v);
                     if (!item) return;
+                    if (ctx.userData.inventory[v] === 0) return;
                     return {
                         name: item.name,
                         emoji: item.emoji,
@@ -241,17 +242,36 @@ const slashCommand: SlashCommandFile = {
 
                             Functions.addItem(ctx.userData, item, itemData.effects.items[item]);
                             winContentArray.push(
-                                `+${itemData.effects.items[item]} ${itemData2.name} ${itemData2.emoji}`
+                                `[${i + 1}] +${itemData.effects.items[item]} ${itemData2.name} ${
+                                    itemData2.emoji
+                                }`
                             );
                         }
                     }
                 }
             } else if (Functions.isSpecial(itemData)) {
-                const status = await itemData.use(ctx);
-                if (status) {
-                    Functions.removeItem(ctx.userData, itemString);
+                const oldData = { ...ctx.userData } as RPGUserDataJSON;
+                await ctx.client.database.setCooldown(
+                    ctx.user.id,
+                    "You're currently using an item."
+                );
+                try {
+                    const status = await itemData.use(ctx);
+                    if (status) {
+                        Functions.removeItem(ctx.userData, itemString);
+                        ctx.client.database.saveUserData(ctx.userData);
+                    }
+                } catch (e) {
+                    ctx.client.database.deleteCooldown(ctx.user.id);
+                    ctx.followUp({
+                        content:
+                            "An error occured while using this item. Your data has been saved.",
+                    });
+                    ctx.RPGUserData = oldData;
                     ctx.client.database.saveUserData(ctx.userData);
+                    throw e;
                 }
+                await ctx.client.database.deleteCooldown(ctx.user.id);
                 return;
                 // TODO: If used multiple times
             }
@@ -267,6 +287,8 @@ const slashCommand: SlashCommandFile = {
         const userItems = Object.keys(userData.inventory).map((v) => {
             const item = Functions.findItem(v);
             if (!item) return;
+            if (userData.inventory[v] === 0) return;
+
             return {
                 name: item.name,
                 amount: userData.inventory[v],

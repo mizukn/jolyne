@@ -1,4 +1,11 @@
-import { SlashCommandFile, Chapter, ChapterPart, RPGUserQuest, ClaimXQuest } from "../../@types";
+import {
+    SlashCommandFile,
+    Chapter,
+    ChapterPart,
+    RPGUserQuest,
+    ClaimXQuest,
+    Quest,
+} from "../../@types";
 import {
     Message,
     APIEmbed,
@@ -22,6 +29,17 @@ export const isChapterPart = (chapter: Chapter | ChapterPart): chapter is Chapte
     return (chapter as ChapterPart).parent !== undefined;
 };
 
+// do a function that for example if questPercent is 99.99999658242203, then it returns 65.8242203 and if 99.973456789 then it returns 73.456789
+function calculatePercentage(questPercent: number): number {
+    while (questPercent < 0 || questPercent > 100) {
+        if (questPercent < 0) {
+            questPercent += 100;
+        } else {
+            questPercent -= 100;
+        }
+    }
+    return Math.round(questPercent * 10000000) / 100000;
+}
 export const makeChapterTitle = (
     chapter: Chapter | ChapterPart,
     userData: CommandInteractionContext["RPGUserData"]
@@ -50,7 +68,9 @@ export const makeChapterTitle = (
     } else {
         return `🔱 Chapter \`${Functions.romanize(
             getChapterNumber(chapter.parent)
-        )}\` - Part \`${Functions.romanize(getPartNumber(chapter))}\`: ${chapter.title}`;
+        )}\` - Part \`${Functions.romanize(getPartNumber(chapter))}\`: ${
+            chapter.parent.title[userData.language]
+        }`;
     }
 };
 
@@ -73,18 +93,25 @@ export const getQuestsStats = (
         }
 
         if (Functions.isWaitQuest(quest)) {
-            if (quest.end > Date.now()) {
-                questPercent = 100;
+            questPercent = (Date.now() * 100) / quest.end;
+            if (questPercent >= 100) {
                 completed = true;
+                questPercent = 100;
             }
+
             let content = `${ctx.client.localEmojis.timerIcon} ${Functions.generateDiscordTimestamp(
                 quest.end,
                 "FROM_NOW"
             )}`;
 
-            if (quest.email) content += ` (+:envelope: ${quest.email})`;
+            if (quest.email) {
+                const mailData = Functions.findEmail(quest.email);
+                console.log(quest.email);
+                content += ` (+:envelope: ${mailData.subject})`;
+            }
             if (quest.quest) content += ` (+:scroll: ${quest.quest})`;
             message.push(content);
+            totalPercent += questPercent;
             continue;
         }
 
@@ -116,6 +143,7 @@ export const getQuestsStats = (
                     cc: quest.goal.toLocaleString("en-US"),
                     s: Functions.s(quest.goal),
                     name: Functions.findItem(quest.item).name,
+                    emoji: Functions.findItem(quest.item).emoji,
                 });
             } else if (Functions.isUseXCommandQuest(quest)) {
                 const cmd = ctx.client.getSlashCommandMention(quest.command);
@@ -125,9 +153,16 @@ export const getQuestsStats = (
                     s: Functions.s(quest.goal),
                 });
             } else {
+                const emoji = {
+                    daily: "📆",
+                    coin: ctx.client.localEmojis.jocoins,
+                    xp: ctx.client.localEmojis.xp,
+                }[quest.x];
+
                 questMessage = ctx.translate("quest:CLAIMX", {
                     cc: quest.goal.toLocaleString("en-US"),
                     s: Functions.s(quest.goal),
+                    emoji,
                     name:
                         quest.x +
                         (quest.x === "daily"
@@ -151,39 +186,49 @@ export const getQuestsStats = (
                 quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length;
             if (questPercent === 1) completed = true;
 
-            if (message.join(" ").includes(npc.name)) continue;
             if (
                 quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length === 1
             ) {
-                message.push(
-                    `Defeat ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
-                        "fight npc"
-                    )}) ||(${questPercent === 1 ? ":white_check_mark:" : ":x:"})||`
-                );
-            } else
-                message.push(
-                    `Defeat ${
-                        quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id)
-                            .length
-                    } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
-                        "fight npc"
-                    )}) ||(${
-                        quests.filter(
-                            (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
-                        ).length
-                    }/${
-                        quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id)
-                            .length
-                    }) **${Math.round(questPercent * 100)}%**||`
-                );
+                if (!message.join(" ").includes(npc.name))
+                    message.push(
+                        `Defeat ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
+                            "fight npc"
+                        )}) ||(${questPercent === 1 ? ":white_check_mark:" : ":x:"})||`
+                    );
+            } else {
+                if (!message.join(" ").includes(npc.name))
+                    message.push(
+                        `Defeat ${
+                            quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id)
+                                .length
+                        } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
+                            "fight npc"
+                        )}) ||(${
+                            quests.filter(
+                                (r) =>
+                                    Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
+                            ).length
+                        }/${
+                            quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id)
+                                .length
+                        }) **${Math.round(questPercent * 100)}%**||`
+                    );
+            }
             totalPercent += questPercent * 100;
             continue;
         }
 
         // is base quest
-        if (Object.keys(quest).length === 1) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (Object.keys(quest).length === 1 || (quest as any as Quest).hintCommand) {
             const originalQuest = Object.values(QuestsL).find((v) => v.id === quest.id);
-            if (!originalQuest) continue;
+            if (!originalQuest) {
+                message.push(
+                    `??? Unknown Base Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`
+                );
+                totalPercent += 100;
+                continue;
+            }
 
             const questPerc = originalQuest.completed(ctx.userData);
             totalPercent += questPerc;
@@ -198,20 +243,30 @@ export const getQuestsStats = (
         // is action quest
         if (Object.keys(quest).length === 2) {
             const originalQuest = Object.values(ActionQuestsL).find((v) => v.id === quest.id);
-            if (!originalQuest) continue;
+            if (!originalQuest) {
+                message.push(
+                    `??? Unknown Action Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`
+                );
+                totalPercent += 100;
+                continue;
+            }
 
-            totalPercent += quest.completed ? 100 : 0;
+            questPercent += quest.completed ? 100 : 0;
+            console.log(quest, quest.completed, questPercent);
 
             // prettier-ignore
             message.push(`${ctx.translate(`action:${originalQuest.i18n_key}.DESCRIPTION`)} ${
                     originalQuest.emoji
-                } ({{command.action}}) ||(${totalPercent === 100 ? ":white_check:mark" : ":x:"})||`
+                } (${ctx.client.getSlashCommandMention("action")}) ||(${questPercent === 100 ? ":white_check_mark:" : ":x:"})||`
             );
+            totalPercent += questPercent;
             continue;
         }
         message.push(`??? Unknown Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`);
-        totalPercent += 100;
+        totalPercent += questPercent;
     }
+
+    console.log(totalPercent, quests.length);
 
     return {
         message: message
@@ -224,6 +279,14 @@ export const getQuestsStats = (
         percent: totalPercent / quests.length,
     };
 };
+
+function getChapterOrChapterPartInfos(id: number): Chapter | ChapterPart {
+    return (
+        Object.values(Chapters).find((c) => c.id === id) ||
+        Object.values(ChapterParts).find((c) => c.id === id) ||
+        null
+    );
+}
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -256,13 +319,82 @@ const slashCommand: SlashCommandFile = {
                 time: 30000,
             });
             collector.on("collect", async (i) => {
-                ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+                if (await ctx.antiCheat(true)) return;
 
-                const status = getQuestsStats(ctx.userData.chapter.quests, ctx);
+                let status = getQuestsStats(ctx.userData.chapter.quests, ctx);
                 if (status.percent !== 100) {
                     collector.stop();
                     return;
                 }
+
+                const newChap = getChapterOrChapterPartInfos(ctx.userData.chapter.id + 1);
+
+                if (!newChap || newChap.private) {
+                    collector.stop();
+                    ctx.followUp({
+                        content: `We're sorry, but this is the last chapter for now. We're working on new content!`,
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                if (newChap.rewardsWhenComplete) {
+                    const winContent: string[] = [];
+
+                    if (newChap.rewardsWhenComplete.coins) {
+                        winContent.push(
+                            `+**${newChap.rewardsWhenComplete.coins}** ${ctx.client.localEmojis.jocoins}`
+                        );
+                        Functions.addCoins(ctx.userData, newChap.rewardsWhenComplete.coins);
+                    }
+
+                    if (newChap.rewardsWhenComplete.email) {
+                        const emailData = Functions.findEmail(newChap.rewardsWhenComplete.email);
+                        if (emailData) {
+                            Functions.addEmail(ctx.userData, newChap.rewardsWhenComplete.email);
+                            winContent.push(
+                                `+**${emailData.author.name}**:${emailData.subject} :envelope:`
+                            );
+                        }
+                    }
+
+                    if (newChap.rewardsWhenComplete.items)
+                        for (const item of newChap.rewardsWhenComplete.items) {
+                            Functions.addItem(
+                                ctx.userData,
+                                Functions.findItem(item.item),
+                                item.amount
+                            );
+                            winContent.push(
+                                `+${item.amount} ${Functions.findItem(item.item).name} ${
+                                    Functions.findItem(item.item).emoji
+                                }`
+                            );
+                        }
+                    ctx.followUp({
+                        content: `You have completed the chapter and received the following rewards:\n${winContent.join(
+                            ", "
+                        )}`,
+                    });
+                }
+
+                ctx.userData.chapter.quests = newChap.quests.map((x) => Functions.pushQuest(x));
+                ctx.userData.chapter.id = newChap.id;
+
+                status = getQuestsStats(ctx.userData.chapter.quests, ctx);
+
+                await ctx.client.database.saveUserData(ctx.userData);
+
+                ctx.followUp({
+                    content: `${makeChapterTitle(chapter, ctx.userData)}\n\`\`\`\n${
+                        chapter.description[ctx.userData.language]
+                    }\n\`\`\`\n\n:scroll: **__Quests:__** (${status.percent.toFixed(2)}%)\n${
+                        status.message
+                    }`,
+                });
+
+                // TODO: if chap dialogues...
+
                 // ...
             });
         }

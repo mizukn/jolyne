@@ -133,7 +133,13 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Ranking",
-                    value: `:globe_with_meridians: \`${levelLbPos}\`/\`${levelLb.data.length}\`\n${ctx.client.localEmojis.jocoins} \`${coinsLbPos}\`/\`${coinsLb.data.length}\``,
+                    value: `:globe_with_meridians: \`${levelLbPos.toLocaleString(
+                        "en-US"
+                    )}\`/\`${levelLb.data.length.toLocaleString("en-US")}\`\n${
+                        ctx.client.localEmojis.jocoins
+                    } \`${coinsLbPos.toLocaleString(
+                        "en-US"
+                    )}\`/\`${coinsLb.data.length.toLocaleString("en-US")}\``,
                     inline: true,
                 },
                 {

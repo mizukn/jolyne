@@ -123,10 +123,11 @@ export const pushQuest = (quest: Quests): RPGUserQuest => {
     };
     if (isBaseQuest(questData)) {
         delete questData.i18n_key;
+        delete questData.hintCommand;
     }
     if (
-        !isActionQuest(questData) ||
-        !isFightNPCQuest(questData) ||
+        !isActionQuest(questData) &&
+        !isFightNPCQuest(questData) &&
         !isMustReadEmailQuest(questData)
     ) {
         delete (questData as Quest).completed;
@@ -136,6 +137,7 @@ export const pushQuest = (quest: Quests): RPGUserQuest => {
     if (isActionQuest(questData)) {
         delete questData.use;
         delete questData.emoji;
+        questData.completed = false;
     }
 
     return questData as RPGUserQuest;
@@ -146,9 +148,8 @@ export const pushEmail = (email: Email): RPGUserEmail => {
         id: email.id,
         read: false,
         archived: false,
-        claimedRewards: false,
+        date: Date.now(),
     };
-    if (!email.rewards) delete emailData.claimedRewards;
 
     return emailData;
 };
@@ -748,7 +749,7 @@ export const addItem = (userData: RPGUserDataJSON, item: Item | string, amount?:
         for (const quest of quests.filter(
             (x) => isClaimItemQuest(x) && x.item === (item as Item).id
         )) {
-            (quest as ClaimItemQuest).amount++;
+            (quest as ClaimItemQuest).amount += amount || 1;
         }
     }
 };
@@ -768,6 +769,8 @@ export const removeItem = (
     } else {
         userData.inventory[item.id]--;
     }
+
+    if (userData.inventory[item.id] === 0) delete userData.inventory[item.id];
 };
 
 export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): void {
@@ -800,6 +803,7 @@ export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): 
 export const addEmail = function addEmail(userData: RPGUserDataJSON, email: string): void {
     const emailData = findEmail(email);
     if (!emailData) return;
+
     if (userData.emails.find((v) => v.id === emailData.id)) {
         console.log(
             `Attempted to add email ${emailData.id} to user ${userData.id} but it already exists`

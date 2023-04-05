@@ -49,18 +49,33 @@ const slashCommand: SlashCommandFile = {
             npcId: string,
             type: FightTypes.DailyQuest | FightTypes.ChapterQuest
         ) {
+            if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
+                return ctx.makeMessage({
+                    content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
+                        "inventory use"
+                    )} or ${ctx.client.getSlashCommandMention("shop")})`,
+                    embeds: [],
+                    components: [],
+                });
+            }
             const npc = Functions.findNPC<FightableNPC>(npcId, true);
-            ctx.userData.stand = "the_world"; // temp
 
             const fight = new FightHandler(ctx, [[ctx.userData], [npc]], type);
-
+            ctx.interaction.fetchReply().then((r) => {
+                ctx.client.database.setCooldown(
+                    ctx.userData.id,
+                    `You're currently in a fight. Lost your battle ? Click here --> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+                );
+            });
             fight.on("unexpectedEnd", (message) => {
+                ctx.client.database.deleteCooldown(ctx.userData.id);
                 ctx.followUp({
                     content: `An error occured and your fight was ended. No changes were made towards your stats. \n\`\`\`${message}\`\`\``,
                 });
             });
 
             fight.on("end", async (winners, losers, fightType) => {
+                ctx.client.database.deleteCooldown(ctx.userData.id);
                 ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.userData.id); // IN CASE new daily quests
 
                 if (losers[0].find((r) => r.id === ctx.userData.id)) {
@@ -172,7 +187,10 @@ const slashCommand: SlashCommandFile = {
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji(ctx.client.localEmojis.arrowRight);
 
-                if (chapterQuestsNPC.length !== 0 || dailyQuestsNPC.length !== 0) {
+                if (
+                    (chapterQuestsNPC.length !== 0 || dailyQuestsNPC.length !== 0) &&
+                    ctx.userData.health > 10
+                ) {
                     ctx.makeMessage({
                         components: [Functions.actionRow([nextFightButton])],
                     });
@@ -188,16 +206,10 @@ const slashCommand: SlashCommandFile = {
 
                     collector.on("collect", async (i) => {
                         await i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                        const oldData = ctx.userData;
-                        ctx.RPGUserData = await ctx.client.database.getRPGUserData(
-                            ctx.interaction.user.id
-                        );
-
-                        if (JSON.stringify(oldData) !== JSON.stringify(ctx.userData)) {
+                        if (await ctx.antiCheat(true)) {
                             collector.stop();
                             return;
                         }
-
                         return ctx.client.commands.get("fight").execute(ctx);
                     });
                 }
@@ -270,10 +282,7 @@ const slashCommand: SlashCommandFile = {
 
                     collector.on("collect", async (i) => {
                         i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                        const oldData = ctx.userData;
-                        ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.userData.id); // anti cheat
-
-                        if (JSON.stringify(oldData) !== JSON.stringify(ctx.userData)) {
+                        if (await ctx.antiCheat(true)) {
                             collector.stop();
                             return;
                         }
@@ -298,28 +307,6 @@ const slashCommand: SlashCommandFile = {
             }
         }
         return;
-        const brazil = await ctx.client.database.getRPGUserData("802620164058775583");
-        const aelepe = await ctx.client.database.getRPGUserData("435153814375366666");
-        const leaf = await ctx.client.database.getRPGUserData("813381014977118208");
-
-        const fight = new FightHandler(
-            ctx,
-            [[ctx.userData], [brazil], [leaf], [aelepe], [Kakyoin]],
-            FightTypes.Boss
-        );
-
-        fight.on("unexpectedEnd", (message) => {
-            ctx.followUp({
-                content: `An error occured and your fight was ended. No changes were made towards your stats. \n\`\`\`${message}\`\`\``,
-            });
-        });
-        fight.on("end", (winners, losers) => {
-            ctx.followUp({
-                content: `The fight has ended. Winners: ${winners
-                    .map((w) => w.name)
-                    .join(", ")}\nLosers: ${losers.map((l) => l.map((f) => f.name)).join(", ")}`,
-            });
-        });
     },
 };
 

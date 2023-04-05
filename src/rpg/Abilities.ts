@@ -46,7 +46,7 @@ export const RoadRoller: Ability = {
 export const TheWorld: Ability = {
     name: "The World",
     description: "Stops time for 5 turns",
-    cooldown: 1,
+    cooldown: 10,
     extraTurns: 5,
     damage: 0,
     stamina: 25,
@@ -106,7 +106,7 @@ export const LittleBoy: Ability = {
 export const Manipulation: Ability = {
     name: "Manipulation",
     description: "Manipulates the opponent's body, causing them unable to control therseivles",
-    cooldown: 1,
+    cooldown: 10,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const baseTarget = { ...target };

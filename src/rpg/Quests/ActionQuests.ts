@@ -1,6 +1,34 @@
 import { ButtonStyle, ButtonBuilder, MessageComponentInteraction } from "discord.js";
-import { ActionQuest } from "../../@types";
+import { ActionQuest, Quests, RPGUserQuest } from "../../@types";
 import * as Functions from "../../utils/Functions";
+import CommandInteractionContext from "../../structures/CommandInteractionContext";
+
+function validateQuest(ctx: CommandInteractionContext, questId: string): void {
+    for (const quests of [
+        ctx.userData.daily.quests,
+        ctx.userData.chapter.quests,
+        ...ctx.userData.sideQuests.map((v) => v.quests),
+    ]) {
+        for (const quest of quests.filter((r) => r.id === questId)) {
+            quest.completed = true;
+        }
+    }
+}
+
+function pushQuest(ctx: CommandInteractionContext, quest: Quests, questId: string): void {
+    let base: RPGUserQuest[];
+
+    if (ctx.userData.daily.quests.find((r) => r.id === questId)) base = ctx.userData.daily.quests;
+    else if (ctx.userData.chapter.quests.find((r) => r.id === questId))
+        base = ctx.userData.chapter.quests;
+    else {
+        for (const sideQuest of ctx.userData.sideQuests) {
+            if (sideQuest.quests.find((r) => r.id === questId)) base = sideQuest.quests;
+        }
+    }
+
+    base.push(Functions.pushQuest(quest));
+}
 
 export const RemoveFleshbudToKakyoin: ActionQuest = {
     id: "remove_fleshbud_to_kakyoin",
@@ -111,25 +139,74 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             if (map[planeDirection] === crashEmoji) {
                 collector.stop("crashed");
                 ctx.makeMessage({
-                    content: "You failed to remove the fleshbud. Try again later.",
+                    content: "You failed to remove the fleshbud. Try again.",
                 });
             } else if (map[planeDirection] === finishEmoji) {
                 collector.stop("finished");
                 ctx.makeMessage({
                     content: "You succesfully removed the fleshbud.",
                 });
-                // validate quest
-                if (ctx.userData.chapter.quests.find((v) => v.id === "remove_fleshbud_to_kakyoin"))
-                    ctx.userData.chapter.quests.find(
-                        (v) => v.id === "remove_fleshbud_to_kakyoin"
-                    ).completed = true;
+                validateQuest(ctx, "remove_fleshbud_to_kakyoin");
+                pushQuest(ctx, TakeKakyoinToHospital, "remove_fleshbud_to_kakyoin");
+                ctx.client.database.saveUserData(ctx.userData);
             }
             oldEmoji = map[planeDirection];
             makeMessage();
         });
 
         collector.on("end", () => {
-            //ctx.client.database.delCooldownCache("cooldown", userData.id);
+            ctx.client.database.deleteCooldown(ctx.userData.id);
         });
+    },
+};
+
+export const AnalyseHair: ActionQuest = {
+    id: "analyse_hair",
+    completed: false,
+    i18n_key: "ANALYSE_HAIR",
+    emoji: "✉️",
+    use: async (ctx) => {
+        ctx.sendTranslated("action:ANALYSE_HAIR.SUCCESS", {
+            components: [],
+        });
+
+        const quest = Functions.generateWaitQuest(60000 * 5, "p1c2:speedwagon_diohair");
+
+        pushQuest(ctx, quest, "analyse_hair");
+        validateQuest(ctx, "analyse_hair");
+
+        ctx.client.database.saveUserData(ctx.userData);
+    },
+};
+
+export const TakeKakyoinToHospital: ActionQuest = {
+    id: "take_kakyoin_to_hospital",
+    completed: false,
+    i18n_key: "BRING_KAKYOIN_HOSPITAL",
+    emoji: "🏥",
+    use: async (ctx) => {
+        if (ctx.userData.coins < 2500) {
+            await ctx.sendTranslated("action:BRING_KAKYOIN_HOSPITAL.MONEY");
+            ctx.followUp({
+                content:
+                    "You need 2,500 coins to do this. Try claiming your daily, fighting mobs from your daily quests or selling items.",
+                ephemeral: true,
+            });
+            return;
+        }
+        ctx.userData.coins -= 5000;
+        ctx.sendTranslated("action:BRING_KAKYOIN_HOSPITAL.SUCCESS");
+
+        const quest = Functions.generateWaitQuest(
+            60000 * 5,
+            "p1c1:kakyoin_back",
+            null,
+            "WAIT_KAKYOIN_BACK"
+        );
+
+        pushQuest(ctx, quest, "take_kakyoin_to_hospital");
+        validateQuest(ctx, "take_kakyoin_to_hospital");
+
+        ctx.client.database.saveUserData(ctx.userData);
     },
 };

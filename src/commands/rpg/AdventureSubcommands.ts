@@ -86,6 +86,11 @@ const slashCommand: SlashCommandFile = {
         switch (ctx.interaction.options.getSubcommand()) {
             case "start": {
                 if (ctx.userData) return ctx.sendTranslated("base:ALREADY_ADVENTURE");
+                ctx.client.database.setCooldown(
+                    ctx.user.id,
+                    `You're currently starting your adventure!`
+                );
+
                 const acceptButton = new ButtonBuilder()
                     .setStyle(ButtonStyle.Success)
                     .setLabel(ctx.translate("adventure:AGREE"))
@@ -95,9 +100,13 @@ const slashCommand: SlashCommandFile = {
                     .setLabel(ctx.translate("adventure:DISAGREE"))
                     .setCustomId(ctx.interaction.id + "decline");
 
-                await ctx.sendTranslated("adventure:CONFIRM", {
-                    components: [Functions.actionRow([acceptButton, declineButton])],
-                });
+                await ctx
+                    .sendTranslated("adventure:CONFIRM", {
+                        components: [Functions.actionRow([acceptButton, declineButton])],
+                    })
+                    .catch(() => {
+                        ctx.client.database.deleteCooldown(ctx.user.id);
+                    });
 
                 const filter = (i: MessageComponentInteraction) =>
                     i.user.id === ctx.interaction.user.id;
@@ -107,11 +116,17 @@ const slashCommand: SlashCommandFile = {
                     time: 60000,
                 });
 
+                collector.on("end", () => {
+                    ctx.client.database.deleteCooldown(ctx.user.id);
+                });
+
                 collector.on("collect", async (i: MessageComponentInteraction) => {
                     i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+
                     switch (i.customId.slice(ctx.interaction.id.length)) {
                         case "decline":
                             ctx.interaction.deleteReply().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                            ctx.client.database.deleteCooldown(ctx.user.id);
                             break;
                         case "accept":
                             ctx.sendTranslated("adventure:SELECT_LANGUAGE", {
@@ -129,15 +144,25 @@ const slashCommand: SlashCommandFile = {
                             ctx.sendTranslated("adventure:ADVENTURE_COMPLETE", {
                                 components: [],
                             });
+                            ctx.client.database.deleteCooldown(ctx.user.id);
                     }
                 });
                 break;
             }
             case "reset": {
                 if (await ctx.client.database.redis.get(`adventure:${ctx.user.id}`))
-                    return ctx.makeMessage({
-                        content: ctx.client.localEmojis.jolyne,
-                    });
+                    return ctx
+                        .makeMessage({
+                            content: ctx.client.localEmojis.jolyne,
+                        })
+                        .catch(() => {
+                            ctx.client.database.deleteCooldown(ctx.user.id);
+                        });
+                ctx.client.database.setCooldown(
+                    ctx.user.id,
+                    `You're currently resetting your adventure!`
+                );
+
                 const yesButton = new ButtonBuilder()
                     .setStyle(ButtonStyle.Success)
                     .setLabel(ctx.translate("base:YES"))
@@ -147,9 +172,13 @@ const slashCommand: SlashCommandFile = {
                     .setLabel(ctx.translate("base:NO"))
                     .setCustomId(ctx.interaction.id + "no");
 
-                await ctx.sendTranslated("adventure:ADVENTURE_RESET_BITE", {
-                    components: [Functions.actionRow([yesButton, noButton])],
-                });
+                await ctx
+                    .sendTranslated("adventure:ADVENTURE_RESET_BITE", {
+                        components: [Functions.actionRow([yesButton, noButton])],
+                    })
+                    .catch(() => {
+                        ctx.client.database.deleteCooldown(ctx.user.id);
+                    });
 
                 const filter = (i: MessageComponentInteraction) =>
                     i.user.id === ctx.interaction.user.id &&
@@ -160,10 +189,20 @@ const slashCommand: SlashCommandFile = {
                     time: 60000,
                 });
 
+                collector.on("end", () => {
+                    ctx.client.database.deleteCooldown(ctx.user.id);
+                });
+
                 collector.on("collect", async (i: MessageComponentInteraction) => {
                     i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                    if (await ctx.antiCheat()) {
+                        collector.stop();
+                        return;
+                    }
+
                     switch (i.customId.slice(ctx.interaction.id.length)) {
                         case "yes":
+                            ctx.client.database.deleteCooldown(ctx.user.id);
                             await ctx.client.database.deleteUserData(ctx.user.id);
                             await ctx.sendTranslated("adventure:ADVENTURE_RESET_MESSAGE", {
                                 components: [],
@@ -175,14 +214,22 @@ const slashCommand: SlashCommandFile = {
                             break;
                         case "no":
                             ctx.interaction.deleteReply().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                            ctx.client.database.deleteCooldown(ctx.user.id);
                             break;
                     }
                 });
                 break;
             }
             case "language": {
+                ctx.client.database.setCooldown(
+                    ctx.user.id,
+                    `You're currently editing your adventure language!`
+                );
+
                 ctx.sendTranslated("adventure:SELECT_LANGUAGE", {
                     components: [Functions.actionRow([languageMenu])],
+                }).catch(() => {
+                    ctx.client.database.deleteCooldown(ctx.user.id);
                 });
 
                 const filter = (i: MessageComponentInteraction) =>
@@ -194,8 +241,18 @@ const slashCommand: SlashCommandFile = {
                     time: 60000,
                 });
 
+                collector.on("end", () => {
+                    ctx.client.database.deleteCooldown(ctx.user.id);
+                });
+
                 collector.on("collect", async (i: MessageComponentInteraction) => {
                     i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                    if (await ctx.antiCheat()) {
+                        collector.stop();
+                        return;
+                    }
+
+                    ctx.client.database.deleteCooldown(ctx.user.id);
 
                     ctx.userData.language = (i as StringSelectMenuInteraction)
                         .values[0] as i18n_key;

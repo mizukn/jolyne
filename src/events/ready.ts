@@ -81,6 +81,11 @@ const Event: EventFile = {
             type: ActivityType.Watching,
             name: "the beginning...",
         });
+        client.cluster.on("updatePatreons", async () => {
+            client.patreons = [];
+            await fetchPatreons();
+        });
+
         setInterval(() => {
             const activies: ActivityOptions[] = [
                 {
@@ -93,7 +98,7 @@ const Event: EventFile = {
                 },
                 {
                     type: ActivityType.Playing,
-                    name: Functions.randomArray(Object.values(Stands).map((v) => v.name)),
+                    name: "with " + Functions.randomArray(Object.values(Stands).map((v) => v.name)),
                 },
                 {
                     type: ActivityType.Watching,
@@ -101,7 +106,7 @@ const Event: EventFile = {
                 },
             ];
             client.user.setActivity(Functions.randomArray(activies));
-        }, 1000 * 60 * 5);
+        }, 1000 * 60 * 1);
 
         client.log(`Logged in as ${client.user?.tag}`, "ready");
 
@@ -136,11 +141,11 @@ const Event: EventFile = {
     
             const keys = await client.database.redis.keys("patron:*");
             for (const key of keys) client.database.redis.del(key);
+            client.patreons = [];
     
             for (const patron of patrons) {
-                if (new Date(patron.last_charge_date).getTime() + 1000 * 60 * 60 * 24 * 31 < Date.now())
+                if (new Date(patron.last_charge_date).getTime() + 1000 * 60 * 60 * 24 * 31 < Date.now() || patron.currently_entitled_amount_cents === 0)
                     {
-                        client.log(`Fetched former patron ${patron.full_name}`);
                         continue;
                     }
                 let tier;

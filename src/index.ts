@@ -1,4 +1,4 @@
-import type { EventFile, SlashCommandFile, SlashCommand, Special } from "./@types";
+import type { EventFile, SlashCommandFile, SlashCommand, Special, FightableNPC } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
 import JolyneClient from "./structures/JolyneClient";
@@ -24,6 +24,7 @@ const standPrices = {
 };
 
 for (const stand of Object.values(Stands.Stands)) {
+    console.log(`Adding ${stand.name} Stand Disc`);
     const standDisc: Special = {
         id: stand.id + ".disc",
         name: stand.name + " Stand Disc",

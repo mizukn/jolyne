@@ -66,6 +66,27 @@ const Event: EventFile = {
             } else ctx = new CommandInteractionContext(interaction);
 
             if (command.category === "rpg" && ctx.userData) {
+                const isONCD = await ctx.client.database.getCooldown(ctx.user.id);
+                if (isONCD) {
+                    await ctx.interaction.reply({
+                        content: isONCD,
+                    });
+                    if (
+                        !(await ctx.client.database.redis.get(
+                            `tempCache_cooldown:${ctx.user.id}_toldWarning`
+                        ))
+                    ) {
+                        ctx.followUp({
+                            content: `Reminder: If you can't find the command or someone deleted it, just wait a few minutes and your cooldown will be automatically deleted. If this problem still persists, please contact us at https://discord.gg/jolyne`,
+                            ephemeral: true,
+                        });
+                        await ctx.client.database.redis.set(
+                            `tempCache_cooldown:${ctx.user.id}_toldWarning`,
+                            "true"
+                        );
+                    }
+                    return;
+                }
                 let commandName = command.data.name;
                 if (command.data.options.filter((r) => r.type === 1).length !== 0) {
                     commandName += ` ${interaction.options.getSubcommand()}`;
@@ -143,6 +164,10 @@ const Event: EventFile = {
 
             const userData = await interaction.client.database.getRPGUserData(interaction.user.id);
             if (!userData) {
+                interaction.respond([]);
+                return;
+            }
+            if (await interaction.client.database.getCooldown(userData.id)) {
                 interaction.respond([]);
                 return;
             }

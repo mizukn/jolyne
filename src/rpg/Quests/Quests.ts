@@ -11,5 +11,5 @@ export const AwakenYourStand: Quest = {
 
         return 0;
     },
-    hintCommand: "items use",
+    hintCommand: "inventory use",
 };

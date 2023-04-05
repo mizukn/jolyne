@@ -12,6 +12,7 @@ export const Kakyoin: NPC = {
     id: "kakyoin",
     name: "Kakyoin",
     emoji: Emojis["kakyoin_normal"],
+    email: "cock.yo_in69@mori.oh",
 };
 
 export const Jotaro: NPC = {
@@ -48,4 +49,17 @@ export const Joshua_Joengo: NPC = {
     id: "joshua_joengo",
     name: "Joshua Joengo",
     emoji: Emojis.josephChad,
+};
+
+export const SPEEDWAGON_FOUNDATION: NPC = {
+    id: "speedwagon_foundation",
+    email: "contact@speedwagon.net",
+    name: "SPEEDWAGON FOUNDATION",
+    emoji: "🔬",
+};
+
+export const Tonio_Trussardi: NPC = {
+    id: "tonio_trussardi",
+    name: "Tonio Trussardi",
+    emoji: Emojis["Tonio_Trussardi"],
 };

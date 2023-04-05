@@ -10,6 +10,11 @@ const baseSP = {
     stamina: 0,
 };
 
+const baseRewards = {
+    coins: 100,
+    xp: 350,
+};
+
 export const Kakyoin: FightableNPC = {
     ...NPCs.Kakyoin,
     level: 0,

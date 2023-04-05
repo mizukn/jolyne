@@ -1,12 +1,12 @@
--   fix the world can dodge in attack
--   add daily quests
--   add daily command
--   add timeout for user select
--   fix took too much to do a selection
--   add dodge
+[NOW]
+
 -   add badges on profile
 -   add bumpstand, bumpchapter, bumplevel (private)
+-   add email subcommands + must read complete finish
+-   fix wait quest being 100% chapter
+
+[LATER]
+
 -   stand evolution support on stand disc
 -   fix embed field maximum length
-
--   check pinned commands 1 + reprendre fight pour pushEmail
+-   add timeout for user select

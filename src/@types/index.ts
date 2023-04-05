@@ -49,7 +49,7 @@ export interface SlashCommandFile {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     execute: (ctx: CommandInteractionContext, ...args: any) => Promise<any>;
     autoComplete?: (
-        interaction: AutocompleteInteraction,
+        interaction: AutocompleteInteraction & { client: JolyneClient },
         userData: RPGUserDataJSON,
         currentInput: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...args: any // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -247,6 +247,7 @@ export interface RPGUserDataJSON {
     sideQuests: {
         id: SideQuest["id"];
         quests: RPGUserQuest[];
+        claimedPrize?: boolean;
     }[];
     /**
      * The user's skill points.
@@ -356,6 +357,10 @@ export interface Item {
      * The item's emoji.
      */
     readonly emoji: string;
+    /**
+     * If the item is craftable, so its requirements.
+     */
+    readonly craft?: CraftRequirements;
 }
 
 /**
@@ -382,13 +387,20 @@ export interface Special extends Item {
     use: (ctx: CommandInteractionContext, ...args: string[]) => Promise<boolean>;
 }
 
+export type CraftRequirements = {
+    items: {
+        id: Item["id"];
+        amount: number;
+    }[];
+    coins?: number;
+    level?: number;
+};
+
 /**
  * Scroll craft interface
  */
 export interface ScrollCraft extends Item {
-    requirements: {
-        level: number;
-    };
+    requirements: CraftRequirements;
 }
 
 /**
@@ -570,6 +582,11 @@ export interface EvolutionStand extends RequiemStand {
     evolution_level: number;
 }
 
+export type itemRewards = {
+    item: Item["id"];
+    amount: number;
+}[];
+
 // I don't have the faith to continue commenting everything...
 export interface Quest {
     /**
@@ -584,10 +601,7 @@ export interface Quest {
         mustRead?: boolean;
         email: string; // Email["id"];
     };
-    pushItemWhenCompleted?: {
-        item: Item["id"];
-        amount: number;
-    }[];
+    pushItemWhenCompleted?: itemRewards;
     emoji: string;
     hintCommand?: string;
 }
@@ -684,12 +698,6 @@ export interface Chapter {
         [key in i18n_key]?: string;
     };
     /**
-     * Hints for the chapter
-     */
-    hints: {
-        [key in i18n_key]?: string[];
-    };
-    /**
      * Dialogs for the chapter
      */
     dialogs?: {
@@ -701,12 +709,13 @@ export interface Chapter {
     rewardsWhenComplete?: {
         coins: number;
         email: string;
-        items: Item[];
+        items: itemRewards;
     };
     /**
      * The chapter's quests
      */
     quests: QuestArray;
+    private?: boolean;
 }
 
 export interface Email {
@@ -737,9 +746,10 @@ export interface Email {
     /**
      * The email's rewards.
      */
+    emoji?: string;
     rewards?: {
         coins?: number;
-        items?: Item[];
+        items?: itemRewards;
     };
     chapterQuests?: QuestArray;
 }
@@ -748,9 +758,11 @@ export interface RPGUserEmail {
     id: Email["id"];
     read: number | false; // timestamp
     archived: boolean;
-    claimedRewards?: boolean;
+    date: number;
+    //claimedRewards?: boolean;
 }
-export interface ChapterPart extends Omit<Chapter, "description"> {
+export interface ChapterPart extends Omit<Chapter, "title"> {
+    title?: Chapter["title"];
     /**
      * The part's parent.
      */
@@ -774,5 +786,15 @@ export interface Leaderboard {
         level: number;
         xp: number;
         coins: number;
+    }[];
+}
+
+export interface Shop {
+    owner?: NPC;
+    emoji?: string;
+    name: string;
+    items: {
+        item: Item["id"];
+        price?: number; // If not specified, the item's price will be used.
     }[];
 }

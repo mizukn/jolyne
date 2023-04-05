@@ -1,4 +1,10 @@
-import { RPGUserDataJSON, SlashCommandFile, Leaderboard, i18n_key } from "../../@types";
+import {
+    RPGUserDataJSON,
+    SlashCommandFile,
+    Leaderboard,
+    i18n_key,
+    ClaimXQuest,
+} from "../../@types";
 import {
     Message,
     APIEmbed,
@@ -170,6 +176,18 @@ const slashCommand: SlashCommandFile = {
                         name: "Streak Bonus",
                         value: `\`x${arrows} ${StandArrow.name}\` ${StandArrow.emoji}`,
                     });
+                }
+
+                for (const quests of [
+                    ctx.userData.daily.quests,
+                    ctx.userData.chapter.quests,
+                    ...ctx.userData.sideQuests.map((v) => v.quests),
+                ]) {
+                    for (const quest of quests.filter(
+                        (r) => Functions.isClaimXQuest(r) && r.x === "daily"
+                    )) {
+                        (quest as ClaimXQuest).amount++;
+                    }
                 }
 
                 await ctx.client.database.saveUserData(ctx.userData);
