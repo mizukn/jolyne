@@ -8,6 +8,18 @@ TempRedis.keys("*tempCache_*").then((keys) => {
         TempRedis.del(key);
     }
     console.log(`Cleared ${keys.length} temp cache keys.`);
+});
+
+TempRedis.keys("*rpgCooldown:*").then(async (keys) => {
+    let counter = 0;
+    for (const key of keys) {
+        const cooldown = await TempRedis.get(key);
+        if (Number(cooldown) < Date.now()) {
+            TempRedis.del(key);
+            counter++;
+        }
+    }
+    console.log(`Cleared ${counter} rpg cooldown keys.`);
     TempRedis.quit();
 });
 

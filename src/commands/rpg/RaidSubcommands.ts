@@ -34,6 +34,7 @@ const slashCommand: SlashCommandFile = {
             },
         ],
     },
+    checkRPGCooldown: "raid",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
             ctx.makeMessage({
@@ -123,6 +124,7 @@ const slashCommand: SlashCommandFile = {
             fight.on("end", async (winners, losers) => {
                 for (const user of joinedUsers) {
                     ctx.client.database.deleteCooldown(user.id);
+                    await ctx.client.database.setRPGCooldown(user.id, "raid", 60000 * 10);
                 }
                 if (joinedUsers.find((r) => r.id === winners[0].id)) {
                     for (const winner of winners) {
@@ -195,6 +197,9 @@ const slashCommand: SlashCommandFile = {
                 for (const user of joinedUsers) {
                     ctx.client.database.deleteCooldown(user.id);
                 }
+                ctx.followUp({
+                    content: `The raid ended unexpectedly due to an error: \`${error}\`. Please report this to the developers Your data has been saved and no cooldown has been set for you.`,
+                });
             });
         });
 

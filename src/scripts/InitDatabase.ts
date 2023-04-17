@@ -64,9 +64,16 @@ const start = async () => {
         "standsEvolved" jsonb NOT NULL DEFAULT '{}',
         "emails" jsonb[] NOT NULL,
  		"inventory" jsonb NOT NULL DEFAULT '{"pizza": 5, "mysterious_arrow": 1}',
+        "learnedItems" varchar(255)[] NOT NULL DEFAULT '{}',
 		"adventureStartedAt" bigint NOT NULL DEFAULT 0
 	)
 		`);
+    // drop column if exists learnedItems and create it again
+    await postgresClient.query(`ALTER TABLE "RPGUsers" DROP COLUMN IF EXISTS "learnedItems"`);
+    await postgresClient.query(
+        `ALTER TABLE "RPGUsers" ADD COLUMN IF NOT EXISTS "learnedItems" varchar(255)[] NOT NULL DEFAULT '{}'`
+    );
+    // "learnedItems" varchar(255)[] NOT NULL DEFAULT '{}',
     // creating indexes for faster queries (find user by id)
     // creating indexes for faster leaderboard queries (find users by level)
     await postgresClient.query(

@@ -37,7 +37,6 @@ export type itemPrize = { [key: Item["id"]]: number };
 export interface SlashCommandFile {
     cooldown?: number;
     rpgCooldown?: {
-        i18n_key: string; // for cooldown msg
         base: number;
         patronCd?: {
             [tier: number]: number;
@@ -45,6 +44,7 @@ export interface SlashCommandFile {
     };
     ownerOnly?: boolean;
     adminOnly?: boolean;
+    checkRPGCooldown?: string;
     data: DiscordSlashCommandsData;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     execute: (ctx: CommandInteractionContext, ...args: any) => Promise<any>;

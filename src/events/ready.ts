@@ -110,16 +110,6 @@ const Event: EventFile = {
 
         client.log(`Logged in as ${client.user?.tag}`, "ready");
 
-        const fetchPatreonsJob = new CronJob(
-            "0 0 * * *",
-            fetchPatreons,
-            null,
-            true,
-            "Europe/Paris"
-        );
-        fetchPatreonsJob.start();
-        fetchPatreons();
-
         async function fetchPatreonsFromCache() {
             const patrons = await client.database.redis.keys("patron:*");
             for (const patron of patrons) {
@@ -165,6 +155,18 @@ const Event: EventFile = {
         } else {
             setTimeout(fetchPatreonsFromCache, 1000 * 15);
         }
+        }
+
+        if (process.env.IGNORE_PATREONS !== "true") {
+            const fetchPatreonsJob = new CronJob(
+                "0 0 * * *",
+                fetchPatreons,
+                null,
+                true,
+                "Europe/Paris"
+            );
+            fetchPatreonsJob.start();
+            fetchPatreons();
         }
     },
 };
