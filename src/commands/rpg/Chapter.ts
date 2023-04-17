@@ -82,7 +82,6 @@ export const getQuestsStats = (
     let totalPercent = 0;
 
     for (const quest of quests) {
-        console.log(quest.id);
         let completed = false;
         let questPercent = 0;
         if (Functions.isMustReadEmailQuest(quest) || Functions.isActionQuest(quest)) {
@@ -106,12 +105,13 @@ export const getQuestsStats = (
 
             if (quest.email) {
                 const mailData = Functions.findEmail(quest.email);
-                console.log(quest.email);
                 content += ` (+:envelope: ${mailData.subject})`;
             }
             if (quest.quest) content += ` (+:scroll: ${quest.quest})`;
+            content += ` ||(${questPercent}%)||`;
             message.push(content);
             totalPercent += questPercent;
+            console.log(questPercent);
             continue;
         }
 
@@ -252,7 +252,6 @@ export const getQuestsStats = (
             }
 
             questPercent += quest.completed ? 100 : 0;
-            console.log(quest, quest.completed, questPercent);
 
             // prettier-ignore
             message.push(`${ctx.translate(`action:${originalQuest.i18n_key}.DESCRIPTION`)} ${
@@ -265,8 +264,6 @@ export const getQuestsStats = (
         message.push(`??? Unknown Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`);
         totalPercent += questPercent;
     }
-
-    console.log(totalPercent, quests.length);
 
     return {
         message: message

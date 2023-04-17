@@ -17,8 +17,8 @@ export const StandArrow: Special = {
     craft: {
         items: [
             {
-                id: "pizza",
-                amount: 1,
+                id: "broken_arrow",
+                amount: 4,
             },
         ],
     },

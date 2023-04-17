@@ -375,12 +375,15 @@ export const percent = (percent: number): boolean => {
 export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
     const quests: RPGUserQuest[] = [];
     if (level > 200) level = 200;
-    if (level < 5) level = 5;
+    if (level < 9) level = 9;
 
     const NPCs = Object.values(FightableNPCS).filter((npc) => npc.level <= level);
 
     // fight npcs
-    for (let i = 0; i < level; i++) {
+    let tflv = level;
+    if (tflv > 50) tflv = 50;
+
+    for (let i = 0; i < tflv; i++) {
         if (percent(80) || i < 5) {
             const NPC = randomArray(NPCs);
             quests.push(pushQuest(generateFightQuest(NPC)));
@@ -388,16 +391,22 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
     }
 
     // use loot
-    if (percent(50)) {
-        quests.push(pushQuest(generateUseXCommandQuest("loot", RNG(1, 5))));
-    }
+    if (level > 10)
+        if (percent(50)) {
+            quests.push(pushQuest(generateUseXCommandQuest("loot", RNG(1, 5))));
+        }
     // use assault
-    if (percent(50)) {
-        quests.push(pushQuest(generateUseXCommandQuest("assault", RNG(1, 5))));
-    }
+    if (level > 10)
+        if (percent(50)) {
+            quests.push(pushQuest(generateUseXCommandQuest("assault", RNG(1, 5))));
+        }
 
-    quests.push(pushQuest(generateClaimXQuest("coin", Math.round(getRewards(level).coins * 2.5))));
-    quests.push(pushQuest(generateClaimXQuest("xp", Math.round(getRewards(level).xp * 2.5))));
+    if (level > 10)
+        quests.push(
+            pushQuest(generateClaimXQuest("coin", Math.round(getRewards(level).coins * 2.5)))
+        );
+    if (level > 25)
+        quests.push(pushQuest(generateClaimXQuest("xp", Math.round(getRewards(level).xp * 2.5))));
 
     return quests;
 };
@@ -775,6 +784,8 @@ export const removeItem = (
 
 export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): void {
     userData.coins += amount;
+    if (amount > 0) return;
+
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,

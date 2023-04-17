@@ -263,6 +263,13 @@ export interface RPGUserDataJSON {
      * The user's emails.
      */
     emails: RPGUserEmail[];
+    voteHistory: {
+        total: number;
+        [key: string]: number;
+    };
+    standsEvolved: {
+        [key: Stand["id"]]: number;
+    };
     /**
      * The unix timestamp of when the user started their adventure.
      */
@@ -302,12 +309,13 @@ export interface SideQuest {
     requirements: Requirements;
 }
 
+/*
 export interface Rewards {
     xp?: number;
     coins?: number;
     items?: Item[];
     stand?: Stand["id"];
-}
+}*/
 
 export interface Requirements {
     level?: number;
@@ -446,6 +454,11 @@ export interface FightableNPC extends NPC {
      * The NPC's rewards.
      */
     rewards?: Rewards;
+    dialogues?: {
+        win?: string;
+        lose?: string;
+        raid?: string;
+    };
 }
 
 /**
@@ -575,12 +588,12 @@ export interface RequiemStand extends Stand {
     base_stand: Stand;
 }
 
-export interface Evolutions {
-    name: string;
+export interface Evolutions
+    extends Omit<
+        Stand,
+        "image" | "emoji" | "customAttack" | "color" | "available" | "id" | "description"
+    > {
     tier: number;
-    rarity: Rarity;
-    abilities: Ability[];
-    skillPoints: SkillPoints;
 }
 
 export interface EvolutionStand extends Stand {
@@ -593,6 +606,7 @@ export interface EvolutionStand extends Stand {
 export type itemRewards = {
     item: Item["id"];
     amount: number;
+    chance?: number;
 }[];
 
 // I don't have the faith to continue commenting everything...
@@ -808,7 +822,6 @@ export interface Shop {
 }
 
 export interface Passive {
-
     name: string;
 
     description: string;
@@ -816,4 +829,18 @@ export interface Passive {
     cooldown: number;
 
     execute: (ctx: CommandInteractionContext) => Promise<void>;
+}
+
+export interface Rewards {
+    coins?: number;
+    items?: itemRewards;
+    xp?: number;
+}
+
+export interface RaidBoss {
+    boss: FightableNPC;
+    minions: FightableNPC[];
+    baseRewards: Rewards;
+    level: number;
+    maxPlayers: number;
 }

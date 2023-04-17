@@ -4,6 +4,7 @@
 -   add bumpstand, bumpchapter, bumplevel (private)
 -   add email subcommands + must read complete finish
 -   fix wait quest being 100% chapter
+-   fix WaitQuest.email === MustRead.email, fix pushQuestWhenCompleted etc
 
 [LATER]
 

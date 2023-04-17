@@ -45,14 +45,14 @@ const Event: EventFile = {
 			const privateCommandsData = client.commands
 				.filter((v) => v.ownerOnly || v.adminOnly)
 				.map((v) => v.data);
-			if (JSON.stringify(commandsData) !== lastCommands) {
+			//if (JSON.stringify(commandsData) !== lastCommands) {
 				await client.postSlashCommands(commandsData);
 				await client.database.setString(
 					`jolyne_${client.user.id}:commands`,
 					JSON.stringify(commandsData)
 				);
 				client.log("Updated slash commands");
-			} else client.log("Slash commands are up to date");
+			//} else client.log("Slash commands are up to date");
 
 			if (JSON.stringify(privateCommandsData) !== lastPrivateCommands) {
 				await client.postSlashCommands(
@@ -155,7 +155,7 @@ const Event: EventFile = {
                 else if (patron.currently_entitled_amount_cents >= 450) tier = 2; // ASCENDED SUPPORTER
                 else tier = 1; // SUPPORTER
     
-                client.log(`Fetched patron ${patron.full_name} is tier ${tier} with money ${patron.currently_entitled_amount_cents} (discordID: ${patron.discord_id})`);
+                client.log(`Fetched patron ${patron.full_name} is tier ${tier}, currently_entitled_amount_cents: ${patron.currently_entitled_amount_cents} (discordID: ${patron.discord_id})`);
                 client.database.redis.set(`patron:${patron.discord_id}`, String(tier));
                 client.patreons.push({
                     id: patron.discord_id,

@@ -79,21 +79,30 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             .setCustomId("bottomId")
             .setEmoji("🔽")
             .setStyle(ButtonStyle.Secondary);
-        const invisibleBTN = new ButtonBuilder()
-            .setCustomId("invisibleId")
-            .setLabel("ㅤ")
-            .setStyle(ButtonStyle.Secondary);
-        const invisibleBTN2 = new ButtonBuilder()
-            .setCustomId("invisibleId2")
-            .setLabel("ㅤ")
-            .setStyle(ButtonStyle.Secondary);
+
+        function generateInvisibleBTN() {
+            const invisibleBTN2 = new ButtonBuilder()
+                .setCustomId("invisibleId" + Functions.generateRandomId())
+                .setLabel("ㅤ")
+                .setStyle(ButtonStyle.Secondary);
+            return invisibleBTN2;
+        }
 
         function makeMessage(): void {
             map[planeDirection] = "👆";
             ctx.makeMessage({
                 components: [
-                    Functions.actionRow([backBTN, centerBTN, forwardBTN]),
-                    Functions.actionRow([invisibleBTN, bottomBTN, invisibleBTN2]),
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        centerBTN,
+                        generateInvisibleBTN(),
+                    ]),
+                    Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        bottomBTN,
+                        generateInvisibleBTN(),
+                    ]),
                 ],
                 embeds: [
                     {

@@ -37,6 +37,12 @@ const start = async () => {
         }
         console.log("Resetting database...");
         await postgresClient.query('DROP TABLE IF EXISTS "RPGUsers"');
+
+        const keys = await redisClient.keys(`${process.env.REDIS_PREFIX}:*`);
+        for await (const key of keys) {
+            await redisClient.del(key);
+        }
+        console.log("done");
     }
 
     console.log("Creating table RPGUsers");
@@ -52,8 +58,11 @@ const start = async () => {
 		"language" varchar(255) NOT NULL DEFAULT 'en-US',
 		"chapter" jsonb NOT NULL DEFAULT '{"id": 1, "quests": []}',
 		"skillPoints" jsonb NOT NULL DEFAULT '{"strength": 0, "defense": 0, "speed": 0, "stamina": 0, "perception": 0}',
-		"sideQuests" jsonb NOT NULL DEFAULT '[]',
+		"sideQuests" jsonb[] NOT NULL,
         "daily" jsonb,
+        "voteHistory" jsonb NOT NULL DEFAULT '{"total": 0}',
+        "standsEvolved" jsonb NOT NULL DEFAULT '{}',
+        "emails" jsonb[] NOT NULL,
  		"inventory" jsonb NOT NULL DEFAULT '{"pizza": 5, "mysterious_arrow": 1}',
 		"adventureStartedAt" bigint NOT NULL DEFAULT 0
 	)
