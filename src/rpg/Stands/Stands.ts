@@ -1,6 +1,13 @@
-import { Stand } from "../../@types";
+import { Stand, Ability } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import * as Abilities from "../Abilities";
+
+function addGif(ability: Ability, gif: string): Ability {
+    return {
+        ...ability,
+        thumbnail: gif,
+    };
+}
 
 export const StarPlatinum: Stand = {
     id: "star_platinum",
@@ -11,7 +18,10 @@ export const StarPlatinum: Stand = {
     image: "https://i.pinimg.com/originals/c8/a7/ed/c8a7edf03bcce4b74a24345bb1a109b7.jpg",
     emoji: Emojis["sp"],
     abilities: [
-        Abilities.StandBarrage,
+        addGif(
+            Abilities.StandBarrage,
+            "https://i.pinimg.com/originals/07/9f/ad/079fad3ce8871e86b93bff8b786aa179.gif"
+        ),
         Abilities.KickBarrage,
         Abilities.StarFinger,
         Abilities.TheWorld,
@@ -36,7 +46,10 @@ export const TheWorld: Stand = {
     image: "https://naniwallpaper.com/files/wallpapers/za-warudo/2-za%20warudo-1080x1920.jpg",
     emoji: Emojis.the_world,
     abilities: [
-        Abilities.StandBarrage,
+        addGif(
+            Abilities.StandBarrage,
+            "https://img.wattpad.com/e8f5b0bedeb643f1344a8c31cb53946a1161e4b0/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f6f6a31774f4335725a3173314a513d3d2d313131373338353733352e313639633731363736353735623639373535383635393834393635392e676966"
+        ),
         Abilities.KickBarrage,
         Abilities.RoadRoller,
         Abilities.TheWorld,
@@ -123,5 +136,25 @@ export const MagiciansRed: Stand = {
         stamina: 0,
     },
     color: 0xff0000,
+    available: true,
+};
+
+export const HermitPurple: Stand = {
+    id: "hermit_purple",
+    name: "Hermit Purple",
+    rarity: "C",
+    description:
+        "Hermit Purple is the Stand of [Joseph Joestar](https://jojo.fandom.com/wiki/Joseph_Joestar), featured in Stardust Crusaders, and occasionally in Diamond is Unbreakable. The Hermit Hermit Purple manifests itself as multiple, purple, thorn-covered vines that spawn from its handler's hand.",
+    image: "https://static.wikia.nocookie.net/heros/images/9/94/Joseph_Joestar_senior_Infobox.jpg/revision/latest?cb=20201223201734&path-prefix=fr",
+    abilities: [Abilities.VineBarrage, Abilities.VineSlap, Abilities.OhMyGod],
+    emoji: Emojis.hermit_purple,
+    skillPoints: {
+        strength: 2,
+        defense: 0,
+        perception: 2,
+        speed: 2,
+        stamina: 1,
+    },
+    color: 0x800080,
     available: true,
 };

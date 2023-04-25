@@ -1,4 +1,11 @@
-import type { EventFile, SlashCommandFile, SlashCommand, Special, FightableNPC } from "./@types";
+import type {
+    EventFile,
+    SlashCommandFile,
+    SlashCommand,
+    Special,
+    FightableNPC,
+    Item,
+} from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
 import JolyneClient from "./structures/JolyneClient";
@@ -24,9 +31,10 @@ const standPrices = {
 };
 
 for (const stand of Object.values(Stands.Stands)) {
+    if (!stand.available) continue;
     console.log(`Adding ${stand.name} Stand Disc`);
     const standDisc: Special = {
-        id: stand.id + ".disc",
+        id: stand.id + ".$disc$",
         name: stand.name + " Stand Disc",
         description: "A disc that contains the power of " + stand.name,
         rarity: stand.rarity,
@@ -50,6 +58,43 @@ for (const stand of Object.values(Stands.Stands)) {
     };
     // @ts-expect-error because it's a dynamic property
     Items.default[standDisc.id] = standDisc;
+}
+
+for (const item of Object.values(Items.default)) {
+    if (item.craft) {
+        const itemScroll: Special = {
+            id: item.id + ".$scroll$",
+            name: item.name + " Scroll",
+            description:
+                "A scroll that contains the recipe for " +
+                item.name +
+                ". Using it will use up the scroll.",
+            rarity: item.rarity,
+            price: item.price * 10,
+            tradable: true,
+            storable: true,
+            emoji: "📜",
+            use: async (ctx) => {
+                if (ctx.userData.learnedItems.includes(item.id)) {
+                    ctx.makeMessage({
+                        content: item.emoji + " | You have already learned this recipe!",
+                    });
+                    return false;
+                }
+                ctx.userData.learnedItems.push(item.id);
+                Functions.removeItem(ctx.userData, itemScroll.id, 1);
+                ctx.makeMessage({
+                    content:
+                        item.emoji +
+                        " | You have successfully learned the recipe for " +
+                        item.name +
+                        "!",
+                });
+            },
+        };
+        // @ts-expect-error because it's a dynamic property
+        Items.default[itemScroll.id] = itemScroll;
+    }
 }
 
 /**

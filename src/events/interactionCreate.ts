@@ -63,7 +63,10 @@ const Event: EventFile = {
                             return ctx.sendTranslated("base:NO_ADVENTURE");
                     } else return ctx.sendTranslated("base:NO_ADVENTURE");
                 }
-                if (command.checkRPGCooldown) {
+
+                // eslint-disable-next-line
+                if (false) {
+                    //(command.checkRPGCooldown) {
                     const cooldown = await interaction.client.database.getRPGCooldown(
                         ctx.user.id,
                         command.checkRPGCooldown

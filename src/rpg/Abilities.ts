@@ -1,5 +1,5 @@
 import { Ability } from "../@types";
-import { FightHandler, Fighter } from '../structures/FightHandler';
+import { FightHandler, Fighter } from "../structures/FightHandler";
 import * as Stands from "./Stands/Stands";
 import * as Functions from "../utils/Functions";
 
@@ -56,12 +56,13 @@ export const TheWorld: Ability = {
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
             cooldown: 6,
-            promise: (fight: { turns: { logs: string[]; }[]; }) => {
+            promise: (fight: { turns: { logs: string[] }[] }) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
                     `**${user.name}:** Toki wo Ugokidasu...`
                 );
                 user.hasStoppedTime = false;
             },
+            id: "" + Date.now() + Math.random() + "",
         });
         user.hasStoppedTime = true;
 
@@ -89,6 +90,8 @@ export const VolaBarrage: Ability = {
     ...EmeraldSplash,
     name: "Vola Barrage",
     description: "Sends a wave of bullets in the direction the user is facing.",
+    thumbnail:
+        "https://cdn.discordapp.com/attachments/940949551911690311/1100382611634913391/AdorableRemoteBigmouthbass-mobile.gif",
 };
 
 export const LittleBoy: Ability = {
@@ -106,7 +109,7 @@ export const LittleBoy: Ability = {
 export const Manipulation: Ability = {
     name: "Manipulation",
     description: "Manipulates the opponent's body, causing them unable to control therseivles",
-    cooldown: 10,
+    cooldown: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const baseTarget = { ...target };
@@ -121,7 +124,7 @@ export const Manipulation: Ability = {
             target.manipulatedBy = user;
             ctx.nextRoundPromises.push({
                 cooldown: 2,
-                promise: (fight: { turns: { logs: string[]; }[]; }) => {
+                promise: (fight: { turns: { logs: string[] }[] }) => {
                     target.id = baseTarget.id;
                     target.name = baseTarget.name;
                     target.manipulatedBy = undefined;
@@ -129,6 +132,7 @@ export const Manipulation: Ability = {
                         `${user.stand.emoji} (target: ${target.name}) has been released from manipulation.`
                     );
                 },
+                id: "" + Date.now() + Math.random() + "",
             });
             return `${user.stand.emoji} **${user.name}:** ${user.stand.name}: Manipulation! (target: ${target.name})`;
         }
@@ -138,6 +142,7 @@ export const Manipulation: Ability = {
     damage: 0,
     stamina: TheWorld.stamina,
     extraTurns: 0,
+    thumbnail: "https://media.tenor.com/zOTu19A7VoEAAAAC/jojo-hierophant-green.gif",
 };
 
 export const LightSpeedBarrage: Ability = {
@@ -149,6 +154,7 @@ export const LightSpeedBarrage: Ability = {
     dodgeable: false,
     stamina: 15,
     extraTurns: 1,
+    thumbnail: "https://media.tenor.com/X1JHf1sGkwIAAAAd/okuyasu-the-hand.gif",
 };
 
 export const DeadlyErasure: Ability = {
@@ -162,12 +168,14 @@ export const DeadlyErasure: Ability = {
     stamina: 35,
     extraTurns: 2,
     special: true,
+    thumbnail:
+        "https://cdn.discordapp.com/attachments/940949551911690311/1100382190166081647/RawDaringEeve-mobile.gif",
 };
 
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
     ctx.nextRoundPromises.push({
         cooldown: 3,
-        promise: (fight: { turns: { logs: string[]; }[]; }) => {
+        promise: (fight: { turns: { logs: string[] }[] }) => {
             fight.turns[ctx.turns.length - 1].logs.push(
                 `:fire: **${target.name}** took **${damage}** burn damage`
             );
@@ -181,6 +189,7 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) =
                 }
             }
         },
+        id: "" + Date.now() + Math.random() + "",
     });
 };
 
@@ -199,6 +208,7 @@ export const CrossfireHurricane: Ability = {
         );
         burnDamagePromise(ctx, target, burnDamageCalc);
     },
+    thumbnail: "https://media.tenor.com/n79QWE9azhEAAAAC/magicians-red-avdol.gif",
 };
 
 export const RedBind: Ability = {
@@ -240,8 +250,8 @@ export const NailShot: Ability = {
     blockable: true,
     dodgeable: true,
     stamina: 20,
-    extraTurns: 0
-}
+    extraTurns: 0,
+};
 
 export const NailSpin: Ability = {
     name: "Nail Spin",
@@ -251,8 +261,8 @@ export const NailSpin: Ability = {
     blockable: true,
     dodgeable: true,
     stamina: 20,
-    extraTurns: 0
-}
+    extraTurns: 0,
+};
 
 export const GoldenRectangleNails: Ability = {
     name: "Golden Rectangle Nails",
@@ -262,8 +272,8 @@ export const GoldenRectangleNails: Ability = {
     blockable: true,
     dodgeable: true,
     stamina: 30,
-    extraTurns: 0
-}
+    extraTurns: 0,
+};
 
 export const SpatialWormhole: Ability = {
     name: "Spatial Wormhole",
@@ -273,8 +283,8 @@ export const SpatialWormhole: Ability = {
     blockable: false,
     dodgeable: false,
     stamina: 40,
-    extraTurns: 0
-}
+    extraTurns: 0,
+};
 
 export const InfiniteRotation = {
     name: "Infinite Rotation",
@@ -284,5 +294,61 @@ export const InfiniteRotation = {
     blockable: false,
     dodgeable: false,
     stamina: 60,
-    extraTurns: 0
-}
+    extraTurns: 0,
+};
+
+/**
+ * Hermit Purple DESU
+ */
+
+export const OhMyGod: Ability = {
+    name: "Oh My God",
+    description: "BOOSTS ALL YOUR STATS BY 100% FOR 3 TURNS LETS GOOOOO",
+    cooldown: 0,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 30,
+    extraTurns: 1,
+    useMessage: (user, target, damage, ctx) => {
+        for (const stat in user.skillPoints) {
+            user.skillPoints[stat as keyof typeof user.skillPoints] +=
+                user.skillPoints[stat as keyof typeof user.skillPoints];
+        }
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are boosted by 100% !1!1!1!!!!1!1`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                fight.turns[ctx.turns.length - 1].logs.push(
+                    `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are back...`
+                );
+                for (const stat in user.skillPoints) {
+                    user.skillPoints[stat as keyof typeof user.skillPoints] -=
+                        user.skillPoints[stat as keyof typeof user.skillPoints] / 2;
+                }
+            },
+            id: "" + Date.now() + Math.random() + "",
+        });
+    },
+    thumbnail: "https://media.tenor.com/RQtghGnCYxEAAAAd/jojo-oh-my-god.gif",
+};
+
+export const VineSlap: Ability = {
+    name: "Vine Slap",
+    description: "extends {{standName}}'s vines to whip twice in the opponent's direction",
+    cooldown: 0,
+    damage: 30,
+    blockable: true,
+    dodgeable: true,
+    stamina: 20,
+    extraTurns: 1,
+};
+
+export const VineBarrage: Ability = {
+    ...StandBarrage,
+    name: "Vine Barrage",
+    description: "extends {{standName}}'s vines to whip the opponent",
+};

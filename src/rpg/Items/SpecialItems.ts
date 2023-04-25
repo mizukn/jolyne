@@ -14,14 +14,12 @@ export const StandArrow: Special = {
     price: 35000,
     tradable: true,
     storable: true,
-    craft: {
-        items: [
-            {
-                id: "broken_arrow",
-                amount: 4,
-            },
-        ],
-    },
+    craft: [
+        {
+            item: "pizza",
+            amount: 4,
+        },
+    ],
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const standArray = Object.values(Stands);
         const percent = Math.floor(Math.random() * 100);

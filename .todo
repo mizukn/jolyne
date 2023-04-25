@@ -1,5 +1,5 @@
 [NOW]
-
+-   stand handleAttack (for gun stands bullets & reload etc)
 -   add badges on profile
 -   add bumpstand, bumpchapter, bumplevel (private)
 -   add email subcommands + must read complete finish
@@ -10,4 +10,3 @@
 
 -   stand evolution support on stand disc
 -   fix embed field maximum length
--   add timeout for user select

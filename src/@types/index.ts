@@ -270,6 +270,7 @@ export interface RPGUserDataJSON {
     standsEvolved: {
         [key: Stand["id"]]: number;
     };
+    learnedItems: Item["id"][];
     /**
      * The unix timestamp of when the user started their adventure.
      */
@@ -368,7 +369,7 @@ export interface Item {
     /**
      * If the item is craftable, so its requirements.
      */
-    readonly craft?: CraftRequirements;
+    readonly craft?: itemRewards;
 }
 
 /**
@@ -579,6 +580,7 @@ export interface Ability {
      */
     stamina: number;
     special?: boolean;
+    thumbnail?: string;
 }
 
 export interface RequiemStand extends Stand {
@@ -842,5 +844,6 @@ export interface RaidBoss {
     minions: FightableNPC[];
     baseRewards: Rewards;
     level: number;
+    maxLevel: number;
     maxPlayers: number;
 }

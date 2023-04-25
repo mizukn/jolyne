@@ -16,6 +16,7 @@ export const Dio: RaidBoss = {
         ],
     },
     level: 0,
+    maxLevel: Infinity,
     maxPlayers: 10,
 };
 
@@ -33,6 +34,7 @@ export const BanditBoss: RaidBoss = {
         ],
     },
     level: 0,
+    maxLevel: FightableNPCs.BanditLeader.level + 5,
     maxPlayers: 5,
 };
 
@@ -51,5 +53,6 @@ export const Kakyoin: RaidBoss = {
         ],
     },
     level: 0,
-    maxPlayers: 3,
+    maxLevel: 15,
+    maxPlayers: 4,
 };

@@ -88,7 +88,7 @@ const slashCommand: SlashCommandFile = {
         function generateBanUserFromRaid() {
             return new StringSelectMenuBuilder()
                 .setCustomId(banUserFromRaidID)
-                .setPlaceholder("[BAN USER FROM RAID]")
+                .setPlaceholder("[Select a user to ban (not)]")
                 .setMinValues(1)
                 .setMaxValues(1)
                 .addOptions(
@@ -325,19 +325,47 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
-            const components = [Functions.actionRow([joinRaidButton, leaveRaidButton])];
+            const components = [
+                Functions.actionRow([joinRaidButton]),
+                Functions.actionRow([startRaidButton, leaveRaidButton]),
+            ];
             if (joinedUsers.length > 1) {
                 components.push(Functions.actionRow([generateBanUserFromRaid()]));
             }
-            components.push(Functions.actionRow([startRaidButton]));
 
-            ctx.makeMessage({
-                embeds: [
+            const embed: APIEmbed = {
+                title: `${raid.boss.emoji} ${raid.boss.name} RAID`,
+                description: `> \`Min Level Requirement:\` ${
+                    raid.level
+                }\n> \`Max Level Requirement:\` ${
+                    raid.level
+                }\n> \`Starts (auto):\` ${Functions.generateDiscordTimestamp(
+                    startRaid,
+                    "FROM_NOW"
+                )}`,
+                fields: [
                     {
-                        title: `${raid.boss.emoji} ${raid.boss.name} RAID`,
-                        description: `**LEVEL REQUIREMENT: ${raid.level}**\n\n**JOINED USERS [${
-                            joinedUsers.length
-                        }/${raid.maxPlayers}]:**\n${joinedUsers
+                        name: "Rewards",
+                        value: `- **${(raid.baseRewards.coins ?? 0).toLocaleString(
+                            "en-US"
+                        )}** coins ${ctx.client.localEmojis.jocoins}\n- **${(
+                            raid.baseRewards.xp ?? 0
+                        ).toLocaleString("en-US")}** xp ${
+                            ctx.client.localEmojis.xp
+                        }\n${raid.baseRewards.items
+                            .map((i) => {
+                                const itemData = Functions.findItem(i.item);
+                                if (!itemData) return null;
+                                return `- **${i.amount.toLocaleString("en-US")}x** ${
+                                    itemData.name
+                                } ${itemData.emoji}${i.chance ? ` (${i.chance}%)` : ""}`;
+                            })
+                            .filter((r) => r)
+                            .join("\n")}`,
+                    },
+                    {
+                        name: `Joined Users [${joinedUsers.length}/${raid.maxPlayers}]:`,
+                        value: `\n${joinedUsers
                             .map(
                                 (r) =>
                                     `- ${r.tag} (LEVEL: ${r.level}) [${r.health.toLocaleString(
@@ -346,22 +374,31 @@ const slashCommand: SlashCommandFile = {
                                         "en-US"
                                     )} :heart:]`
                             )
-                            .join("\n")}${
-                            bannedUsers.length !== 0
-                                ? `\n\n**BANNED USERS:**\n${bannedUsers
-                                      .map((r) => `${r.tag} (LEVEL: ${r.level})`)
-                                      .join("\n")}`
-                                : ""
-                        }\n\n**STARTS IN:** ${Functions.generateDiscordTimestamp(
+                            .join("\n")}`,
+                    },
+                    /*
+                    {
+                        name: "\u200b",
+                        value: `\`Starts (auto) in:\` ${Functions.generateDiscordTimestamp(
                             startRaid,
                             "FROM_NOW"
                         )}`,
-                        thumbnail: {
-                            url: raid.boss.avatarURL,
-                        },
-                        color: 0x00ff00,
-                    },
+                    },*/
                 ],
+                thumbnail: {
+                    url: raid.boss.avatarURL,
+                },
+                color: 0x70926c,
+            };
+
+            if (bannedUsers.length !== 0) {
+                embed.fields.push({
+                    name: `Banned Users [${bannedUsers.length}]:`,
+                    value: `\n${bannedUsers.map((r) => `${r.tag} (LEVEL: ${r.level})`).join("\n")}`,
+                });
+            }
+            ctx.makeMessage({
+                embeds: [embed],
                 components,
             });
         }
