@@ -784,14 +784,13 @@ export const removeItem = (
 
 export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): void {
     userData.coins += amount;
-    if (amount > 0) return;
+    if (amount < 0) return;
 
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,
         ...userData.sideQuests.map((v) => v.quests),
     ]) {
-        console.log("started looping from", quests);
         for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "coin")) {
             (quest as ClaimXQuest).amount += amount;
         }
@@ -888,4 +887,29 @@ export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: n
 export const addStamina = function addStamina(userData: RPGUserDataJSON, amount: number): void {
     userData.stamina += amount;
     if (userData.stamina > getMaxStamina(userData)) userData.stamina = getMaxStamina(userData);
+};
+
+export const calculateArrayValues = (array: number[]): number => {
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+        sum += array[i];
+    }
+    return sum;
+};
+
+export const standPrices = {
+    SS: 200000,
+    S: 50000,
+    A: 25000,
+    B: 10000,
+    C: 5000,
+    T: 69696,
+};
+
+export const makeNPCString = function makeNPCString(
+    npc: NPC,
+    message?: string,
+    emoji?: string
+): string {
+    return `${emoji ?? npc.emoji} **${npc.name}**: ${message}`;
 };

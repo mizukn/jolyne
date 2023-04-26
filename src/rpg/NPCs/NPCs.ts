@@ -63,3 +63,9 @@ export const Tonio_Trussardi: NPC = {
     name: "Tonio Trussardi",
     emoji: Emojis["Tonio_Trussardi"],
 };
+
+export const Pucci: NPC = {
+    id: "pucci",
+    name: "Enrico Pucci",
+    emoji: Emojis.Pucci,
+};

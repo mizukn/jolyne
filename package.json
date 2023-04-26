@@ -12,7 +12,8 @@
         "redis-start": "sudo redis-server --port 6380 --loadmodule /var/lib/redis/modules/redisearch.so --loadmodule /var/lib/redis/modules/librejson.so",
         "redis-cli": "redis-cli -p 6380",
         "clear-redis": "redis-cli -p 6380 FLUSHALL",
-        "clear-logs": "rm -rf logs/*"
+        "clear-logs": "rm -rf logs/*",
+        "update": "git pull && cd src/structures && git pull"
     },
     "repository": {
         "type": "git",

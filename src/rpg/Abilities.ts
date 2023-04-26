@@ -352,3 +352,43 @@ export const VineBarrage: Ability = {
     name: "Vine Barrage",
     description: "extends {{standName}}'s vines to whip the opponent",
 };
+
+/**
+ * THIS ABILITY IS ONLY FOR SEX PISTOLS OR ELSE IT WILL CRASH
+ */
+export const BulletsRafale: Ability = {
+    name: "Bullets Rafale",
+    description: "fires all your bullets at once",
+    cooldown: 1,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 30,
+    extraTurns: 0,
+    useMessage: (user, target, damage, ctx) => {
+        const bulletId = `${ctx.id}_${user.id}`;
+        ctx.ctx.client.fightCache.set(bulletId + "fireX", true);
+
+        const bullets: number = ctx.ctx.client.fightCache.get(bulletId) as number;
+        if (bullets === 6) {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `${ctx.ctx.client.localEmojis.sexPistols} **${user.name}** has no bullets left... You just wasted your ability & stamina omg you're so dumb`
+            );
+            return;
+        }
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `>> ${ctx.ctx.client.localEmojis.sexPistols} **${
+                user.name
+            }** fires all their bullets at once! (${6 - bullets})`
+        );
+        for (let i = 0; i < 6 - bullets; i++) {
+            user.stand.customAttack.handleAttack(
+                ctx,
+                user,
+                target,
+                Functions.getAttackDamages(user)
+            );
+        }
+        ctx.ctx.client.fightCache.delete(bulletId + "fireX");
+    },
+};

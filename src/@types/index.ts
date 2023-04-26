@@ -514,13 +514,9 @@ export interface Stand {
      * If the stand has a custom attack
      */
     customAttack?: {
-        name: string;
+        name: (ctx: FightHandler, user: Fighter) => string;
         emoji: string;
-        multiplier?: number;
-        cooldown?: {
-            cd: number;
-            fightLogs: Ability["useMessage"];
-        };
+        handleAttack?: (ctx: FightHandler, user: Fighter, target: Fighter, damages: number) => void;
     };
     color: number;
     /**

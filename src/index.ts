@@ -9,7 +9,7 @@ import type {
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
 import JolyneClient from "./structures/JolyneClient";
-import * as NPCs from "./rpg/NPCs/FightableNPCs";
+import * as FightableNPCs from "./rpg/NPCs/FightableNPCs";
 import * as Functions from "./utils/Functions";
 import i18n from "./structures/i18n";
 import fs from "fs";
@@ -17,6 +17,7 @@ import path from "path";
 import * as Items from "./rpg/Items";
 import * as Stands from "./rpg/Stands";
 import * as Emojis from "./emojis.json";
+import * as NPCs from "./rpg/NPCs/NPCs";
 
 /**
  * Temp code starts from here
@@ -51,7 +52,10 @@ for (const stand of Object.values(Stands.Stands)) {
             }
             ctx.userData.stand = stand.id;
             ctx.makeMessage({
-                content: "You have successfully equipped " + stand.name + " " + stand.emoji + " !",
+                content: Functions.makeNPCString(
+                    NPCs.Pucci,
+                    "You have successfully equipped " + stand.name + " " + stand.emoji + " !"
+                ),
             });
             return true;
         },
@@ -133,7 +137,7 @@ const client = new JolyneClient({
     }),
 });
 
-for (const NPC of Object.values(NPCs)) {
+for (const NPC of Object.values(FightableNPCs)) {
     if (!Functions.skillPointsIsOK(NPC)) {
         Functions.generateSkillPoints(NPC);
         client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
