@@ -137,7 +137,11 @@ const slashCommand: SlashCommandFile = {
                     },
                 ]);
                 menuEmbed.fields.push({
-                    name: (emailData.emoji ?? emailData.author.emoji) + " | " + emailData.subject,
+                    name:
+                        (emailData.emoji ?? emailData.author.emoji) +
+                        " | " +
+                        emailData.subject +
+                        (email.read ? "" : " (❗Unread)"),
                     value: `${ctx.client.localEmojis.reply} From: \`${emailData.author.name} (${
                         emailData.author.email ?? emailData.author.name
                     })\`\n${
@@ -177,18 +181,43 @@ const slashCommand: SlashCommandFile = {
                     text: emailData.footer,
                 },
                 color: 0x70926c,
+                image: {
+                    url: emailData.image,
+                },
             };
 
             if (!emailBrut.read) {
                 emailBrut.read = Date.now();
                 const winContent: string[] = [];
 
-                for (const quest of ctx.userData.chapter.quests) {
-                    if ((quest as MustReadEmailQuest).email === email) {
-                        quest.completed = true;
-                        winContent.push(
-                            `:white_check_mark: Validated quest: ${quest.id} (Chapter Quest)`
-                        );
+                for (const quests of [
+                    ctx.userData.daily.quests,
+                    ctx.userData.chapter.quests,
+                    ...ctx.userData.sideQuests.map((v) => v.quests),
+                ]) {
+                    for (const quest of quests) {
+                        if (Functions.isMustReadEmailQuest(quest) && quest.email === email) {
+                            quest.completed = true;
+                            let chapterFrom = "ERROR";
+                            if (ctx.userData.daily.quests.find((v) => v.id === quest.id)) {
+                                chapterFrom = "Daily Quest";
+                            } else if (ctx.userData.chapter.quests.find((v) => v.id === quest.id)) {
+                                chapterFrom = "Chapter Quest";
+                            } else if (
+                                ctx.userData.sideQuests.find((v) =>
+                                    v.quests.find((q) => q.id === quest.id)
+                                )
+                            ) {
+                                chapterFrom = `Side Quest: ${
+                                    ctx.userData.sideQuests.find((v) =>
+                                        v.quests.find((q) => q.id === quest.id)
+                                    ).id
+                                }`;
+                            }
+                            winContent.push(
+                                `:white_check_mark: Validated quest: ${quest.id} [${chapterFrom}]`
+                            );
+                        }
                     }
                 }
                 // TBC

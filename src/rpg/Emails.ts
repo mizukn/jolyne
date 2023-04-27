@@ -19,6 +19,7 @@ const generateFightQuest = (
     pushItemWhenCompleted?: Quest["pushItemWhenCompleted"]
 ): FightNPCQuest => {
     const quest: FightNPCQuest = {
+        type: "fight",
         id: generateRandomId(),
         completed: false,
         npc: npc.id,
@@ -59,7 +60,18 @@ export const P1C2_KAKYOINBACK: Email = {
         
     BTW today some **bandits** attacked my sister, but I can't do anything since i'm in the hospital. Please beat their asses for me !1!1!!1`,
     footer: "DONT LOOOOOSE!l1kjghf2c::!!!!!!",
-    chapterQuests: [generateFightQuest(fNPCs.Bandit)],
+    chapterQuests: [
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+        generateFightQuest(fNPCs.Bandit),
+    ],
     rewards: {
         coins: 1000,
         items: [

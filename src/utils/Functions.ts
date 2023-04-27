@@ -65,23 +65,23 @@ export const isSpecial = (item: Item): item is Special => {
 };
 
 export const isBaseQuest = (quest: Quests | RPGUserQuest): quest is Quest => {
-    return (quest as Quest).i18n_key !== undefined;
+    return (quest as Quest).type === "baseQuest";
 };
 
 export const isFightNPCQuest = (quest: Quests | RPGUserQuest): quest is FightNPCQuest => {
-    return (quest as FightNPCQuest).npc !== undefined;
+    return (quest as FightNPCQuest).type === "fight";
 };
 
 export const isMustReadEmailQuest = (quest: Quests | RPGUserQuest): quest is MustReadEmailQuest => {
-    return (quest as MustReadEmailQuest).email !== undefined;
+    return (quest as MustReadEmailQuest).type === "mustRead";
 };
 
 export const isActionQuest = (quest: Quests | RPGUserQuest): quest is ActionQuest => {
-    return (quest as ActionQuest).use !== undefined;
+    return (quest as ActionQuest).type === "action";
 };
 
 export const isUseXCommandQuest = (quest: Quests | RPGUserQuest): quest is UseXCommandQuest => {
-    return (quest as UseXCommandQuest).command !== undefined;
+    return (quest as UseXCommandQuest).type === "UseXCommandQuest";
 };
 
 export const pushItemWhenCompleted = (
@@ -174,6 +174,7 @@ export const generateFightQuest = (
     pushItemWhenCompleted?: Quest["pushItemWhenCompleted"]
 ): FightNPCQuest => {
     const quest: FightNPCQuest = {
+        type: "fight",
         id: generateRandomId(),
         completed: false,
         npc: npc.id,
@@ -191,6 +192,7 @@ export const generateMustReadEmailQuest = (
     pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"]
 ): MustReadEmailQuest => {
     const quest: MustReadEmailQuest = {
+        type: "mustRead",
         id: generateRandomId(),
         completed: false,
         email: email.id,
@@ -207,6 +209,7 @@ export const generateActionQuest = (
     pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"]
 ): ActionQuest => {
     const quest: ActionQuest = {
+        type: "action",
         ...Object.values(ActionQuests).find((actionQuest) => actionQuest.id === id),
         pushEmailWhenCompleted,
         pushQuestWhenCompleted,
@@ -222,6 +225,7 @@ export const generateClaimXQuest = (
     pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"]
 ): ClaimXQuest => {
     const quest: ClaimXQuest = {
+        type: "claimX",
         id: generateRandomId(),
         amount: 0,
         x,
@@ -240,6 +244,7 @@ export const generateClaimItemQuest = (
     pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"]
 ): ClaimItemQuest => {
     const quest: ClaimItemQuest = {
+        type: "ClaimXQuest",
         id: generateRandomId(),
         amount: 0,
         item,
@@ -258,6 +263,7 @@ export const generateUseXCommandQuest = (
     pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"]
 ): UseXCommandQuest => {
     const quest: UseXCommandQuest = {
+        type: "UseXCommandQuest",
         id: generateRandomId(),
         amount: 0,
         command,
@@ -550,11 +556,11 @@ export const randomNumber = (min: number, max: number): number => {
 };
 
 export const isClaimItemQuest = (quest: RPGUserQuest): quest is ClaimItemQuest => {
-    return (quest as ClaimItemQuest).item !== undefined;
+    return (quest as ClaimItemQuest).type === "ClaimXQuest";
 };
 
 export const isClaimXQuest = (quest: RPGUserQuest): quest is ClaimXQuest => {
-    return (quest as ClaimXQuest).x !== undefined;
+    return (quest as ClaimXQuest).type === "claimX";
 };
 
 export const findItem = (name: string): Item => {
@@ -847,21 +853,24 @@ export const s = (num: number): string => {
 };
 
 export const isWaitQuest = (quest: Quests | RPGUserQuest): quest is WaitQuest => {
-    return (quest as WaitQuest).end !== undefined;
+    return (quest as WaitQuest).type === "wait";
 };
 
 export const generateWaitQuest = (
     time: number,
     email?: WaitQuest["email"],
     quest?: WaitQuest["quest"],
-    i18n_key?: WaitQuest["i18n_key"]
+    i18n_key?: WaitQuest["i18n_key"],
+    mustRead?: WaitQuest["mustRead"]
 ): WaitQuest => {
-    const questData = {
+    const questData: WaitQuest = {
+        type: "wait",
         end: Date.now() + time,
         id: generateRandomId(),
         email,
         quest,
         i18n_key,
+        mustRead,
     };
 
     if (!email) delete questData.email;

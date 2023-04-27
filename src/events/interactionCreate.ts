@@ -124,17 +124,17 @@ const Event: EventFile = {
                             if (quest.end < Date.now()) {
                                 quest.claimed = true;
                                 if (quest.email) {
+                                    const mailData = Functions.findEmail(quest.email);
                                     Functions.addEmail(ctx.userData, quest.email);
+                                    if (quest.mustRead) {
+                                        quests.push(Functions.generateMustReadEmailQuest(mailData));
+                                    }
                                 }
                                 if (quest.quest) {
                                     const questData = Functions.findQuest(quest.quest);
                                     // find a way to find if from daily, quests or sidequests
                                     if (questData) {
-                                        if (
-                                            ctx.userData.chapter.quests.find(
-                                                (r) => r.id === quest.id
-                                            )
-                                        )
+                                        if (quests.find((r) => r.id === quest.id))
                                             ctx.userData.chapter.quests.push(
                                                 Functions.pushQuest(questData)
                                             );

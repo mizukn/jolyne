@@ -624,6 +624,7 @@ export interface Quest {
     pushItemWhenCompleted?: itemRewards;
     emoji: string;
     hintCommand?: string;
+    type: "baseQuest";
 }
 /**
  * MustReadEmailQuest interface
@@ -631,44 +632,56 @@ export interface Quest {
  * @note Not initialized in /src/database/rpg/Quests, but automatically when a user completes a quest that has the pushEmailWhenCompleted?.mustRead property.
  */
 export interface MustReadEmailQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand"> {
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     completed: boolean;
     email: string; // Email["id"];
+    type: "mustRead";
 }
 
-export interface ActionQuest extends Omit<Quest, "completed" | "hintCommand"> {
+export interface ActionQuest extends Omit<Quest, "completed" | "hintCommand" | "type"> {
     completed: boolean;
+    type: "action";
     use: (ctx: CommandInteractionContext) => Promise<void>;
 }
 
 export interface FightNPCQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand"> {
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     completed: boolean;
     npc: NPC["id"];
+    type: "fight";
 }
 
 export interface ClaimXQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand"> {
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     x: "coin" | "xp" | "daily";
     amount: number;
     goal: number;
+    type: "claimX";
 }
 
-export interface ClaimItemQuest extends Omit<ClaimXQuest, "x" | "hintCommand"> {
+export interface ClaimItemQuest extends Omit<ClaimXQuest, "x" | "hintCommand" | "type"> {
     item: Item["id"];
+    type: "ClaimXQuest";
 }
 
-export interface UseXCommandQuest extends Omit<ClaimXQuest, "x" | "hintCommand"> {
+export interface UseXCommandQuest extends Omit<ClaimXQuest, "x" | "hintCommand" | "type"> {
     command: string;
+    type: "UseXCommandQuest";
 }
 
-export interface WaitQuest extends Omit<Quest, "completed" | "emoji" | "hintCommand"> {
+export interface WaitQuest extends Omit<Quest, "completed" | "emoji" | "hintCommand" | "type"> {
     end: number; // Date.now() + ms
     email?: Email["id"];
     quest?: Quest["id"];
     claimed?: boolean;
+    mustRead?: boolean;
+    type: "wait";
 }
 
+export interface RaidBossQuest extends Omit<FightNPCQuest, "type"> {
+    maxParticipants: number;
+    type: "raidBoss";
+}
 export interface Action {
     id: string;
     execute: (ctx: CommandInteractionContext) => Promise<boolean>;

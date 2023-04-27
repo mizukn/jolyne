@@ -84,12 +84,13 @@ export const getQuestsStats = (
     for (const quest of quests) {
         let completed = false;
         let questPercent = 0;
+        /*
         if (Functions.isMustReadEmailQuest(quest) || Functions.isActionQuest(quest)) {
             if (quest.completed) {
                 completed = true;
                 questPercent = 100;
             }
-        }
+        }*/
 
         if (Functions.isWaitQuest(quest)) {
             questPercent = (Date.now() * 100) / quest.end;
@@ -98,20 +99,18 @@ export const getQuestsStats = (
                 questPercent = 100;
             }
 
-            let content = `${ctx.client.localEmojis.timerIcon} ${Functions.generateDiscordTimestamp(
-                quest.end,
-                "FROM_NOW"
-            )}`;
+            let content = `${
+                ctx.client.localEmojis.timerIcon
+            } Quest ends ${Functions.generateDiscordTimestamp(quest.end, "FROM_NOW")}`;
 
             if (quest.email) {
                 const mailData = Functions.findEmail(quest.email);
-                content += ` (+:envelope: ${mailData.subject})`;
+                content += ` (You'll receive an email: +:envelope:  ${mailData.subject})`;
             }
             if (quest.quest) content += ` (+:scroll: ${quest.quest})`;
             content += ` ||(${questPercent}%)||`;
             message.push(content);
             totalPercent += questPercent;
-            console.log(questPercent);
             continue;
         }
 
@@ -218,9 +217,7 @@ export const getQuestsStats = (
             continue;
         }
 
-        // is base quest
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (Object.keys(quest).length === 1 || (quest as any as Quest).hintCommand) {
+        if (Functions.isBaseQuest(quest)) {
             const originalQuest = Object.values(QuestsL).find((v) => v.id === quest.id);
             if (!originalQuest) {
                 message.push(
@@ -241,7 +238,7 @@ export const getQuestsStats = (
             continue;
         }
         // is action quest
-        if (Object.keys(quest).length === 2) {
+        if (Functions.isActionQuest(quest)) {
             const originalQuest = Object.values(ActionQuestsL).find((v) => v.id === quest.id);
             if (!originalQuest) {
                 message.push(
@@ -259,6 +256,23 @@ export const getQuestsStats = (
                 } (${ctx.client.getSlashCommandMention("action")}) ||(${questPercent === 100 ? ":white_check_mark:" : ":x:"})||`
             );
             totalPercent += questPercent;
+            continue;
+        }
+        if (Functions.isMustReadEmailQuest(quest)) {
+            const emailData = Functions.findEmail(quest.email);
+            if (!emailData) {
+                totalPercent += 100;
+                message.push(`??? Unknown Email (${quest.email}) ???::: ${JSON.stringify(quest)}`);
+            } else {
+                totalPercent += quest.completed ? 100 : 0;
+                message.push(
+                    `:envelope: Read the e-mail from **${emailData.author.name}** (subject: ${
+                        emailData.subject
+                    }) (${ctx.client.getSlashCommandMention("emails view")}) ||(${
+                        quest.completed ? ":white_check_mark:" : ":x:"
+                    })||`
+                );
+            }
             continue;
         }
         message.push(`??? Unknown Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`);

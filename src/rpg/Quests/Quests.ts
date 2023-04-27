@@ -3,6 +3,7 @@ import * as Emojis from "../../emojis.json";
 import * as Functions from "../../utils/Functions";
 
 export const AwakenYourStand: Quest = {
+    type: "baseQuest",
     id: "getstand",
     i18n_key: "AWAKE_STAND",
     emoji: Emojis.mysterious_arrow,

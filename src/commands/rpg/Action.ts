@@ -58,7 +58,7 @@ const slashCommand: SlashCommandFile = {
             ...userData.sideQuests.map((v) => v.quests),
         ]) {
             for (const quest of quests) {
-                if (Object.keys(quest).length === 2 && !quest.completed) {
+                if (Functions.isActionQuest(quest) && !quest.completed) {
                     const originalQuest = Object.values(ActionQuestsL).find(
                         (v) => v.id === quest.id
                     );
@@ -74,6 +74,7 @@ const slashCommand: SlashCommandFile = {
                                     from = `[FROM YOUR SIDE QUESTS: ${sideQuest.id}]`;
                             }
                         }
+                        console.log(quest, "action");
                         if (originalQuest.id.toLowerCase().startsWith(currentInput.toLowerCase()))
                             toRespond.push({
                                 name:

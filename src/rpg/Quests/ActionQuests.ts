@@ -2,6 +2,7 @@ import { ButtonStyle, ButtonBuilder, MessageComponentInteraction } from "discord
 import { ActionQuest, Quests, RPGUserQuest } from "../../@types";
 import * as Functions from "../../utils/Functions";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
+import * as Emails from "../Emails";
 
 function validateQuest(ctx: CommandInteractionContext, questId: string): void {
     for (const quests of [
@@ -31,6 +32,7 @@ function pushQuest(ctx: CommandInteractionContext, quest: Quests, questId: strin
 }
 
 export const RemoveFleshbudToKakyoin: ActionQuest = {
+    type: "action",
     id: "remove_fleshbud_to_kakyoin",
     completed: false,
     i18n_key: "REMOVE_FLESHBUD",
@@ -170,6 +172,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
 };
 
 export const AnalyseHair: ActionQuest = {
+    type: "action",
     id: "analyse_hair",
     completed: false,
     i18n_key: "ANALYSE_HAIR",
@@ -179,7 +182,13 @@ export const AnalyseHair: ActionQuest = {
             components: [],
         });
 
-        const quest = Functions.generateWaitQuest(60000 * 5, "p1c2:speedwagon_diohair");
+        const quest = Functions.generateWaitQuest(
+            60000 * 5,
+            "p1c2:speedwagon_diohair",
+            null,
+            null,
+            true
+        );
 
         pushQuest(ctx, quest, "analyse_hair");
         validateQuest(ctx, "analyse_hair");
@@ -189,6 +198,7 @@ export const AnalyseHair: ActionQuest = {
 };
 
 export const TakeKakyoinToHospital: ActionQuest = {
+    type: "action",
     id: "take_kakyoin_to_hospital",
     completed: false,
     i18n_key: "BRING_KAKYOIN_HOSPITAL",
@@ -208,9 +218,10 @@ export const TakeKakyoinToHospital: ActionQuest = {
 
         const quest = Functions.generateWaitQuest(
             60000 * 5,
-            "p1c1:kakyoin_back",
+            Emails.P1C2_KAKYOINBACK.id,
             null,
-            "WAIT_KAKYOIN_BACK"
+            "WAIT_KAKYOIN_BACK",
+            true
         );
 
         pushQuest(ctx, quest, "take_kakyoin_to_hospital");
