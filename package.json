@@ -43,6 +43,7 @@
         "ioredis": "^5.0.4",
         "moment-timezone": "^0.5.34",
         "node-fetch": "^2.6.7",
+        "openai": "^3.2.1",
         "patreon": "^0.4.1",
         "pg": "^8.8.0",
         "redis": "^4.5.1",

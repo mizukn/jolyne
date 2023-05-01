@@ -13,5 +13,3 @@ yarn*.log
 .env
 
 logs
-
-src/scripts
