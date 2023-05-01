@@ -138,20 +138,21 @@ const client = new JolyneClient({
 });
 
 for (const NPC of Object.values(FightableNPCs)) {
+    client.log(`Checking ${NPC.name} NPC...`);
     if (!Functions.skillPointsIsOK(NPC)) {
         Functions.generateSkillPoints(NPC);
         client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
         console.log(NPC.skillPoints);
     }
     if (!NPC.rewards) NPC.rewards = {};
-    if (NPC.rewards.xp === undefined) {
+    if (NPC.rewards.xp === undefined || NPC.rewards.coins === undefined) {
         // shouldn't do if ! at the beginning because it's an number and if it's 0, it will be false
         NPC.rewards.xp = 50;
         NPC.rewards.coins = 50;
         NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 700;
         NPC.rewards.coins += Functions.getMaxXp(NPC.level) / 5000;
 
-        NPC.rewards.xp += NPC.level * 1.25;
+        NPC.rewards.xp += NPC.level * 125;
         NPC.rewards.coins += NPC.level * 0.65;
 
         if (Functions.findStand(NPC.stand)) {
@@ -159,8 +160,8 @@ for (const NPC of Object.values(FightableNPCs)) {
             NPC.rewards.coins += standPrices[Functions.findStand(NPC.stand).rarity] / 1000;
         }
 
-        NPC.rewards.xp = Math.round(NPC.rewards.xp);
-        NPC.rewards.coins = Math.round(NPC.rewards.coins);
+        NPC.rewards.xp = Math.round(NPC.rewards.xp) * 3;
+        NPC.rewards.coins = Math.round(NPC.rewards.coins) * 15;
 
         console.log(NPC.rewards);
     }
