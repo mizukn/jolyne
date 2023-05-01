@@ -167,6 +167,23 @@ export const findEmail = (query: string): Email => {
     return email;
 };
 
+export const editNPCLevel = (npc: NPC, level: number): NPC | FightableNPC => {
+    const newNPC = JSON.parse(JSON.stringify({ ...npc })) as FightableNPC;
+    newNPC.level = level;
+    generateSkillPoints(newNPC);
+    newNPC.rewards.xp = 50;
+    newNPC.rewards.coins = 50;
+    newNPC.rewards.xp += getMaxXp(newNPC.level) / 700;
+    newNPC.rewards.coins += getMaxXp(newNPC.level) / 5000;
+
+    newNPC.rewards.xp += newNPC.level * 225;
+    newNPC.rewards.coins += newNPC.level * 0.65;
+
+    newNPC.rewards.xp = Math.round(newNPC.rewards.xp) * 3;
+    newNPC.rewards.coins = Math.round(newNPC.rewards.coins) * 15;
+
+    return newNPC;
+};
 export const generateFightQuest = (
     npc: NPC,
     pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
@@ -293,6 +310,10 @@ export const findNPC = <T extends NPC | FightableNPC>(npc: string, fightable?: b
     if (!npc) return null;
 
     const npcs = fightable ? Object.values(FightableNPCS) : Object.values(NPCs);
+
+    if (npcs.find((r) => r.id.toLowerCase() === npc.toLowerCase()))
+        return npcs.find((r) => r.id.toLowerCase() === npc.toLowerCase()) as T;
+
     const foundNPC = npcs.find(
         (npcClass) =>
             npcClass.id === npc ||
@@ -788,7 +809,7 @@ export const removeItem = (
     if (userData.inventory[item.id] === 0) delete userData.inventory[item.id];
 };
 
-export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): void {
+export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): number {
     userData.coins += amount;
     if (amount < 0) return;
 
@@ -801,9 +822,10 @@ export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: num
             (quest as ClaimXQuest).amount += amount;
         }
     }
+    return amount;
 };
 
-export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): void {
+export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): number {
     userData.xp += amount;
     for (const quests of [
         userData.daily.quests,
@@ -814,6 +836,7 @@ export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): 
             (quest as ClaimXQuest).amount += amount;
         }
     }
+    return amount;
 };
 
 export const addEmail = function addEmail(userData: RPGUserDataJSON, email: string): void {
@@ -921,4 +944,17 @@ export const makeNPCString = function makeNPCString(
     emoji?: string
 ): string {
     return `${emoji ?? npc.emoji} **${npc.name}**: ${message}`;
+};
+
+export const calculeSkillPointsLeft = function calculeSkillPointsLeft(
+    userData: RPGUserDataJSON
+): number {
+    return (
+        userData.level * 4 -
+        (userData.skillPoints.perception +
+            userData.skillPoints.strength +
+            userData.skillPoints.stamina +
+            userData.skillPoints.perception +
+            userData.skillPoints.speed)
+    );
 };

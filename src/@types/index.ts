@@ -240,6 +240,7 @@ export interface RPGUserDataJSON {
         lastClaimed: number;
         quests: RPGUserQuest[];
         questsStreak: number;
+        lastDailyQuestsReset: number;
     };
     /**
      * The user's side quests.
@@ -649,6 +650,7 @@ export interface FightNPCQuest
     completed: boolean;
     npc: NPC["id"];
     type: "fight";
+    customLevel?: number;
 }
 
 export interface ClaimXQuest

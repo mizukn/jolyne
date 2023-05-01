@@ -56,9 +56,9 @@ export const P1C2_KAKYOINBACK: Email = {
     id: "p1c2:kakyoin_back",
     author: NPCs.Kakyoin,
     subject: "Yoooooo!",
-    content: `Yooooooo **{{userName}}** !\n\nWe haven't seen each other for a long time... I'm sorry for what happened, I know you'll find it hard to believe but I was manipulated...\nI wonder how you got your stand... Well, to make it up to you, I'll buy you 10 pizzas. I know it's nothing but it's better than nothing ¯\\(ツ)_/¯
+    content: `Yooooooo **{{userName}}** !\n\nWe haven't seen each other for a long time... I'm sorry for what happened, I know you'll find it hard to believe but I was manipulated...\nI wonder how you got your stand... Well, to make it up to you, I'll buy you 10 pizzas and uhhh a weird arrow that I found somewhere.
         
-    BTW today some **bandits** attacked my sister, but I can't do anything since i'm in the hospital. Please beat their asses for me !1!1!!1`,
+BTW today some **bandits** attacked my sister, but I can't do anything since i'm in the hospital. Please beat their asses for me !1!1!!1`,
     footer: "DONT LOOOOOSE!l1kjghf2c::!!!!!!",
     chapterQuests: [
         generateFightQuest(fNPCs.Bandit),
@@ -78,6 +78,10 @@ export const P1C2_KAKYOINBACK: Email = {
             {
                 item: "pizza",
                 amount: 10,
+            },
+            {
+                item: "stand_arrow",
+                amount: 1,
             },
         ],
     },

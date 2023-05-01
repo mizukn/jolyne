@@ -158,6 +158,33 @@ const Event: EventFile = {
                         }
                     }
                 }
+                // while checker if userData xp greater than maxXp
+                if (ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level)) {
+                    ctx.userData.xp -= Functions.getMaxXp(ctx.userData.level);
+                    ctx.userData.level++;
+                    ctx.followUpQueue.push({
+                        content: `:up: | **${ctx.user.username}** leveled up to level **${
+                            ctx.userData.level
+                        }**!\n\nUse the ${ctx.client.getSlashCommandMention(
+                            "skill points invest"
+                        )} command to invest your skill points!`,
+                    });
+                }
+
+                if (
+                    ctx.userData.daily.lastDailyQuestsReset !== new Date().setUTCHours(0, 0, 0, 0)
+                ) {
+                    ctx.userData.daily.quests = Functions.generateDailyQuests(ctx.userData.level);
+                    ctx.userData.daily.lastDailyQuestsReset = new Date().setUTCHours(0, 0, 0, 0);
+                    ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
+                    ctx.followUpQueue.push({
+                        content: `:scroll:${ctx.client.localEmojis.timerIcon} | **${
+                            ctx.user.username
+                        }**, you have new daily quests! Use the ${ctx.client.getSlashCommandMention(
+                            "daily quests"
+                        )} command to see them!`,
+                    });
+                }
                 if (oldDataJSON !== JSON.stringify(ctx.userData))
                     ctx.client.database.saveUserData(ctx.userData);
             }

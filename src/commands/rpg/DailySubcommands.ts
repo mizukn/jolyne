@@ -51,11 +51,15 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
-        const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
+        const dateAtMidnight = new Date().setUTCHours(0, 0, 0, 0);
         const nextDate = dateAtMidnight + 86400000;
         switch (ctx.interaction.options.getSubcommand()) {
             case "claim": {
-                if (ctx.userData.daily.lastClaimed == dateAtMidnight) {
+                if (
+                    ctx.userData.daily.lastClaimed &&
+                    ctx.userData.daily.lastClaimed >= dateAtMidnight &&
+                    ctx.userData.daily.lastClaimed < nextDate
+                ) {
                     return ctx.sendTranslated("daily:ALREADY_CLAIMED", {
                         time: Functions.generateDiscordTimestamp(
                             Date.now() + (nextDate - Date.now()),

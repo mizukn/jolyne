@@ -106,13 +106,27 @@ const slashCommand: SlashCommandFile = {
                     const winContent: string[] = [];
 
                     if (npc.rewards.xp) {
-                        Functions.addXp(ctx.userData, npc.rewards.xp);
-                        winContent.push(`+${npc.rewards.xp} ${ctx.client.localEmojis.xp}`);
+                        const xp = Functions.addXp(
+                            ctx.userData,
+                            fightType === FightTypes.DailyQuest
+                                ? Math.round(npc.rewards.xp / 55)
+                                : npc.rewards.xp
+                        );
+                        winContent.push(
+                            `+${xp.toLocaleString("en-US")} ${ctx.client.localEmojis.xp}`
+                        );
                     }
 
                     if (npc.rewards.coins) {
-                        Functions.addCoins(ctx.userData, npc.rewards.coins);
-                        winContent.push(`+${npc.rewards.coins} ${ctx.client.localEmojis.jocoins}`);
+                        const coins = Functions.addCoins(
+                            ctx.userData,
+                            fightType === FightTypes.DailyQuest
+                                ? Math.round(npc.rewards.coins / 350)
+                                : npc.rewards.coins
+                        );
+                        winContent.push(
+                            `+${coins.toLocaleString("en-US")} ${ctx.client.localEmojis.jocoins}`
+                        );
                     }
 
                     if (quest.pushItemWhenCompleted)
@@ -123,7 +137,7 @@ const slashCommand: SlashCommandFile = {
                                 item.amount
                             );
                             winContent.push(
-                                `+${item.amount} ${Functions.findItem(item.item).name} ${
+                                `${item.amount}x ${Functions.findItem(item.item).name} ${
                                     Functions.findItem(item.item).emoji
                                 }`
                             );

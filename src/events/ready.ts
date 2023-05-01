@@ -67,11 +67,11 @@ const Event: EventFile = {
 			}
 
     
-            const dailyQuestsJob = new CronJob("0 0 * * *", resetDailyQuests, null, true, "Europe/Paris");
-            dailyQuestsJob.start();
+            const dailyQuestsJob = new CronJob("0 0 * * *", resetDailyQuests, null, true, "UTC");
+            // dailyQuestsJob.start();
     
     
-            client.log("Started daily quests cron job", "ready");
+            // client.log("Started daily quests cron job", "ready");
     
 		}
         client._cachedCommands = await client.application.commands.fetch();

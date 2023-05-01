@@ -339,7 +339,7 @@ export const OhMyGod: Ability = {
 export const VineSlap: Ability = {
     name: "Vine Slap",
     description: "extends {{standName}}'s vines to whip twice in the opponent's direction",
-    cooldown: 0,
+    cooldown: 4,
     damage: 30,
     blockable: true,
     dodgeable: true,

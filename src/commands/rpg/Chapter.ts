@@ -105,7 +105,7 @@ export const getQuestsStats = (
 
             if (quest.email) {
                 const mailData = Functions.findEmail(quest.email);
-                content += ` (You'll receive an email: +:envelope:  ${mailData.subject})`;
+                content += ` (:envelope: You'll receive an email from **${mailData.author.name}**)`;
             }
             if (quest.quest) content += ` (+:scroll: ${quest.quest})`;
             content += ` ||(${questPercent}%)||`;
