@@ -67,7 +67,7 @@ export const isSpecial = (item: Item): item is Special => {
 export const isBaseQuest = (quest: Quests | RPGUserQuest): quest is Quest => {
     return (quest as Quest).type === "baseQuest";
 };
-
+//dam
 export const isFightNPCQuest = (quest: Quests | RPGUserQuest): quest is FightNPCQuest => {
     return (quest as FightNPCQuest).type === "fight";
 };
