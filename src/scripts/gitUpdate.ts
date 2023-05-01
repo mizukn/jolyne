@@ -36,6 +36,13 @@ function addFolders(dir: string) {
         }
         addFolders(folderPath);
     });
+
+    execSync("cd /home/mizuki/jolyne/jolyne-rework/ && git add .todo .gitignore package.json");
+    try {
+        execSync(
+            `git commit -m "${emojis[Math.floor(Math.random() * emojis.length)]} root changes"`
+        );
+    } catch (_) {}
 }
 
 addFolders(rootDir);
