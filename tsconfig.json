@@ -12,7 +12,8 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "lib": ["es2021"]
     },
-    "include": ["./src/**/*"]
+    "include": ["./src/**/*", "dist/prv/gitUpdate.ts"]
 }
