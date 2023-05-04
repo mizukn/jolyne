@@ -1,4 +1,12 @@
-import { SlashCommandFile, Leaderboard } from "../../@types";
+import {
+    SlashCommandFile,
+    Leaderboard,
+    equipableItemTypes,
+    equipableItemTypesLimit,
+    formattedEquipableItemTypes,
+    EquipableItem,
+    SkillPoints,
+} from "../../@types";
 import { Message, APIEmbed, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -154,14 +162,49 @@ const slashCommand: SlashCommandFile = {
                     inline: true,
                 },
                 {
-                    name: "Combat Infos",
-                    value: `✊ ATK Damage: ${Functions.getAttackDamages(rpgData).toLocaleString(
-                        "en-US"
-                    )}\n:leaves: Dodge score: ${Functions.getDodgeScore(rpgData).toLocaleString(
-                        "en-US"
-                    )}\n🔄 Speed score: ${Functions.getSpeedScore(rpgData).toLocaleString(
-                        "en-US"
-                    )}`,
+                    name: "Equipped Items",
+                    value: `${Object.keys(equipableItemTypesLimit)
+                        .map((w) => {
+                            const formattedType =
+                                formattedEquipableItemTypes[
+                                    parseInt(w) as keyof typeof formattedEquipableItemTypes
+                                ];
+                            const equippedItems = Object.keys(ctx.userData.equippedItems).filter(
+                                (r) => Functions.findItem<EquipableItem>(r).type === parseInt(w)
+                            );
+
+                            return {
+                                type: formattedType,
+                                items: equippedItems
+                                    .map((i) => {
+                                        const item = Functions.findItem<EquipableItem>(i);
+                                        return `${item.emoji} \`${item.name}\``;
+                                    })
+                                    .join("\n"),
+                            };
+                        })
+                        .filter((r) => r.items.length > 0)
+                        .map((x) => `${x.items}`)
+                        .join("\n")}`,
+                    inline: true,
+                },
+                {
+                    name: "Player Bonuses (from items)",
+                    value: `Health: ${
+                        Functions.calcEquipableItemsBonus(rpgData).health
+                    }\nStamina: ${Functions.calcEquipableItemsBonus(rpgData).stamina}\nXP Boost: ${
+                        Functions.calcEquipableItemsBonus(rpgData).xpBoost
+                    }%\n${Object.keys(Functions.calcEquipableItemsBonus(rpgData).skillPoints)
+                        .map((x) => {
+                            const bonus =
+                                Functions.calcEquipableItemsBonus(rpgData).skillPoints[
+                                    x as keyof SkillPoints
+                                ];
+                            if (bonus === 0) return;
+                            return `[SP] ${Functions.capitalize(x)}: ${bonus}`;
+                        })
+                        .filter((r) => r)
+                        .join("\n")}`,
                     inline: true,
                 },
                 {
@@ -174,6 +217,17 @@ const slashCommand: SlashCommandFile = {
                               }] Abilities: ${stand.abilities.map((a) => a.name).join(", ")}`;
                           })()
                         : "Stand-less",
+                    inline: true,
+                },
+                {
+                    name: "Combat Infos",
+                    value: `✊ ATK Damage: ${Functions.getAttackDamages(rpgData).toLocaleString(
+                        "en-US"
+                    )}\n:leaves: Dodge score: ${Functions.getDodgeScore(rpgData).toLocaleString(
+                        "en-US"
+                    )}\n🔄 Speed score: ${Functions.getSpeedScore(rpgData).toLocaleString(
+                        "en-US"
+                    )}`,
                     inline: true,
                 },
             ],

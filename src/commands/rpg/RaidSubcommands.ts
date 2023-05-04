@@ -207,9 +207,28 @@ const slashCommand: SlashCommandFile = {
             interaction.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
             const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
             if (!usrData) return;
+            if (Functions.userIsCommunityBanned(usrData)) {
+                interaction.reply({
+                    content: `You are community banned and cannot participate in raids, trade and other RPG features that involve other users. If you think this is a mistake, please [contact the developers](https://discord.gg/jolyne). Reason: \`${Functions.userIsCommunityBanned(
+                        usrData
+                    )}\``,
+                    ephemeral: true,
+                });
+                return;
+            }
+
+            if (Functions.userIsCommunityBanned(ctx.userData)) {
+                interaction.reply({
+                    content: `The host of this raid is community banned and cannot participate in raids, trade and other RPG features that involve other users.`,
+                    ephemeral: true,
+                });
+                return;
+            }
             if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
-                ctx.interaction.followUp({
-                    content: `${usrData.tag} tried to join but they are too low on health.`,
+                interaction.reply({
+                    content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
+                        "inventory use"
+                    )} or ${ctx.client.getSlashCommandMention("shop")})`,
                     ephemeral: true,
                 });
                 return;
@@ -217,8 +236,8 @@ const slashCommand: SlashCommandFile = {
             switch (interaction.customId) {
                 case joinRaidID: {
                     if (joinedUsers.length >= raid.maxPlayers) {
-                        ctx.interaction.followUp({
-                            content: `${usrData.tag} tried to join but the raid is full.`,
+                        interaction.reply({
+                            content: `Unofortunately, the raid is full. Better luck next time! (or just be faster next time smh)`,
                             ephemeral: true,
                         });
                         return;
@@ -268,7 +287,7 @@ const slashCommand: SlashCommandFile = {
                         return;
                     }
                     if (joinedUsers.length <= 1) {
-                        ctx.interaction.followUp({
+                        interaction.reply({
                             content: "There is no one to ban!",
                             ephemeral: true,
                         });
@@ -278,14 +297,14 @@ const slashCommand: SlashCommandFile = {
                         (r) => r.id === (interaction as StringSelectMenuInteraction).values[0]
                     );
                     if (!userToBan) {
-                        ctx.interaction.followUp({
+                        interaction.reply({
                             content: "That user doesn't exist!",
                             ephemeral: true,
                         });
                         return;
                     }
                     if (userToBan.id === ctx.userData.id) {
-                        ctx.interaction.followUp({
+                        interaction.reply({
                             content: "You can't ban yourself!",
                             ephemeral: true,
                         });
@@ -297,7 +316,7 @@ const slashCommand: SlashCommandFile = {
                         1
                     );
                     ctx.client.database.deleteCooldown(usrData.id);
-                    ctx.interaction.followUp({
+                    interaction.reply({
                         content: `You have banned ${userToBan.tag} from the raid!`,
                         ephemeral: true,
                     });
