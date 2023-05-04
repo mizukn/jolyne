@@ -26,6 +26,7 @@ import {
     WaitQuest,
     Consumable,
     Special,
+    EquipableItem,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -44,6 +45,7 @@ import * as Items from "../rpg/Items";
 import Canvas from "canvas";
 import * as BaseQuests from "../rpg/Quests/Quests";
 import * as Emails from "../rpg/Emails";
+import * as EquipableItems from "../rpg/Items/EquipableItems";
 
 export const generateRandomId = (): string => {
     return (
@@ -337,16 +339,30 @@ export const getSkillPointsBonus = (
                 stand.skillPoints[id as keyof typeof stand.skillPoints];
         }
     }
+    for (const itemId of Object.keys(rpgData.equippedItems)) {
+        const itemData = findItem<EquipableItem>(itemId);
+        if (!itemData) continue;
+        if (itemData.effects.skillPoints) {
+            for (const skill of Object.keys(itemData.effects.skillPoints)) {
+                skillPoints[skill as keyof SkillPoints] +=
+                    itemData.effects.skillPoints[skill as keyof SkillPoints];
+            }
+        }
+    }
     return skillPoints;
 };
 
-export const getBaseHealth = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+export const getBaseHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     return 100 + Math.trunc(rpgData.level / 2);
 };
 
 export const getBaseStamina = 60;
 
-export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC): number => {
+export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    return Math.round(getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health);
+};
+
+export const getMaxHealthNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     const skillPoints = getSkillPointsBonus(rpgData);
     const baseHealth = getBaseHealth(rpgData);
 
@@ -359,11 +375,15 @@ export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC): number =>
     );
 };
 
-export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
+export const getMaxStaminaNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     const skillPoints = getSkillPointsBonus(rpgData);
     const baseStamina = getBaseStamina;
 
-    return Math.round(baseStamina + skillPoints.stamina * 1.25 + rpgData.level / 3);
+    return Math.round(baseStamina + skillPoints.stamina * 1.35 + rpgData.level / 3);
+};
+
+export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    return Math.round(getMaxStaminaNoItem(rpgData) + calcEquipableItemsBonus(rpgData).stamina);
 };
 
 export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
@@ -584,11 +604,15 @@ export const isClaimXQuest = (quest: RPGUserQuest): quest is ClaimXQuest => {
     return (quest as ClaimXQuest).type === "claimX";
 };
 
-export const findItem = (name: string): Item => {
-    return (
-        Object.values(Items.default).find(
-            (item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()
-        ) ||
+export const isEquipableItem = (item: Item): item is EquipableItem => {
+    const equipables = Object.values(EquipableItems);
+    return equipables.some((i) => i.id === item.id);
+};
+
+export const findItem = <T extends Item | EquipableItem | Special>(name: string): T => {
+    return (Object.values(Items.default).find(
+        (item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()
+    ) ||
         Object.values(Items.default).find((item) =>
             item.id.toLocaleLowerCase().includes(name.toLocaleLowerCase())
         ) ||
@@ -615,8 +639,7 @@ export const findItem = (name: string): Item => {
         ) ||
         Object.values(Items.default).find((item) =>
             item.name.toLocaleLowerCase().includes(name.toLocaleLowerCase().replace(/ /g, ""))
-        )
-    );
+        )) as T;
 };
 
 export const romanize = (num: number): string => {
@@ -770,6 +793,7 @@ export const addItem = (userData: RPGUserDataJSON, item: Item | string, amount?:
         item = findItem(item);
     }
     if (!item) return;
+    if (!item.storable) return;
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {
         userData.inventory[item.id] += amount;
@@ -826,6 +850,10 @@ export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: num
 };
 
 export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): number {
+    if (calcEquipableItemsBonus(userData).xpBoost > 0) {
+        amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
+    }
+
     userData.xp += amount;
     for (const quests of [
         userData.daily.quests,
@@ -957,4 +985,67 @@ export const calculeSkillPointsLeft = function calculeSkillPointsLeft(
             userData.skillPoints.perception +
             userData.skillPoints.speed)
     );
+};
+
+export const userIsCommunityBanned = function userIsCommunityBanned(
+    userData: RPGUserDataJSON
+): string {
+    const activeCommunityBans = userData.communityBans.filter((v) => v.until > Date.now());
+    if (activeCommunityBans.length === 0) return;
+    return activeCommunityBans[0].reason;
+};
+
+export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
+    userData: RPGUserDataJSON | FightableNPC | Fighter
+): {
+    stamina: number;
+    health: number;
+    skillPoints: SkillPoints;
+    xpBoost: number;
+} {
+    let stamina = 0;
+    let health = 0;
+    let xpBoost = 0;
+    const skillPoints: SkillPoints = {
+        strength: 0,
+        perception: 0,
+        stamina: 0,
+        speed: 0,
+        defense: 0,
+    };
+
+    for (const itemId of Object.keys(userData.equippedItems)) {
+        const itemData = findItem<EquipableItem>(itemId);
+        if (!itemData) continue;
+        if (itemData.effects.stamina)
+            stamina +=
+                typeof itemData.effects.stamina === "number"
+                    ? itemData.effects.stamina
+                    : getMaxHealthNoItem(userData) * (parseInt(itemData.effects.stamina) / 100);
+        if (itemData.effects.health)
+            health +=
+                typeof itemData.effects.health === "number"
+                    ? itemData.effects.health
+                    : getMaxHealthNoItem(userData) * (parseInt(itemData.effects.health) / 100);
+        if (itemData.effects.skillPoints) {
+            for (const skill of Object.keys(itemData.effects.skillPoints)) {
+                skillPoints[skill as keyof SkillPoints] +=
+                    itemData.effects.skillPoints[skill as keyof SkillPoints];
+            }
+        }
+        if (itemData.effects.xpBoost) {
+            xpBoost += itemData.effects.xpBoost;
+        }
+    }
+
+    return {
+        stamina,
+        health,
+        skillPoints,
+        xpBoost,
+    };
+};
+
+export const capitalize = function capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 };
