@@ -6,14 +6,15 @@
     "scripts": {
         "test": "node dist/scripts/test.js",
         "start": "node dist/Cluster.js",
-        "init-db": "node dist/scripts/InitDatabase.js",
-        "init-db-reset": "node dist/scripts/InitDatabase.js --reset",
-        "init-db-update": "node dist/scripts/InitDatabase.js --update-psql",
+        "init-db": "node dist/scripts/initDatabase.js",
+        "init-db-reset": "node dist/scripts/initDatabase.js --reset",
+        "init-db-update": "node dist/scripts/initDatabase.js --update-psql",
         "redis-start": "sudo redis-server --port 6380 --loadmodule /var/lib/redis/modules/redisearch.so --loadmodule /var/lib/redis/modules/librejson.so",
         "redis-cli": "redis-cli -p 6380",
         "clear-redis": "redis-cli -p 6380 FLUSHALL",
         "clear-logs": "rm -rf logs/*",
-        "update": "git pull && cd src/structures && git pull"
+        "update": "git pull && cd src/structures && git pull && cd ../../scripts && git pull && cd ../.. && npm i",
+        "git": "node dist/scripts/gitUpdate.js"
     },
     "repository": {
         "type": "git",
