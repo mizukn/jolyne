@@ -29,7 +29,8 @@ export const Kakyoin: FightableNPC = {
         coins: 100,
         xp: 350,
     },
-    //stand: "Hierophant Green",
+    stand: "hierophant_green",
+    equippedItems: {},
 };
 
 export const Harry_Lester: FightableNPC = {
@@ -42,7 +43,8 @@ export const Harry_Lester: FightableNPC = {
         perception: 1,
         stamina: 0,
     },
-    stand: "Hierophant Green",
+    stand: "hermit_purple",
+    equippedItems: {},
 };
 
 export const Jotaro: FightableNPC = {
@@ -55,14 +57,16 @@ export const Jotaro: FightableNPC = {
         perception: 100,
         stamina: 100,
     },
-    //stand: "Star Platinum",
+    equippedItems: {},
+    stand: "star_platinum",
 };
 
 export const Dio: FightableNPC = {
     ...NPCs.Dio,
     level: Jotaro.level,
     skillPoints: Jotaro.skillPoints,
-    //stand: "The World",
+    equippedItems: {},
+    stand: "the_world",
 };
 
 export const Heaven_Ascended_Dio: FightableNPC = {
@@ -75,6 +79,7 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         perception: Dio.skillPoints.perception * 5,
         stamina: Dio.skillPoints.stamina * 5,
     },
+    equippedItems: {},
     //stand: "The World: Over Heaven",
 };
 
@@ -83,10 +88,12 @@ export const BanditLeader: FightableNPC = {
     level: 20, // is raid boss
     skillPoints: baseSP,
     stand: "Hierophant Green",
+    equippedItems: {},
 };
 
 export const Bandit: FightableNPC = {
     ...NPCs.Bandit,
     level: 5,
     skillPoints: baseSP,
+    equippedItems: {},
 };
