@@ -107,7 +107,7 @@ export const getQuestsStats = (
                 const mailData = Functions.findEmail(quest.email);
                 content += ` (:envelope: You'll receive an email from **${mailData.author.name}**)`;
             }
-            if (quest.quest) content += ` (+:scroll: ${quest.quest})`;
+            if (quest.quest) content += ` (+📜 ${quest.quest})`;
             content += ` ||(${questPercent}%)||`;
             message.push(content);
             totalPercent += questPercent;
@@ -399,7 +399,7 @@ const slashCommand: SlashCommandFile = {
                 ctx.followUp({
                     content: `${makeChapterTitle(chapter, ctx.userData)}\n\`\`\`\n${
                         chapter.description[ctx.userData.language]
-                    }\n\`\`\`\n\n:scroll: **__Quests:__** (${status.percent.toFixed(2)}%)\n${
+                    }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${
                         status.message
                     }`,
                 });
@@ -415,9 +415,7 @@ const slashCommand: SlashCommandFile = {
                 isChapterPart(chapter)
                     ? chapter.parent.description[ctx.userData.language]
                     : chapter.description[ctx.userData.language]
-            }\n\`\`\`\n\n:scroll: **__Quests:__** (${status.percent.toFixed(2)}%)\n${
-                status.message
-            }`,
+            }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
             components: components.length === 0 ? [] : [Functions.actionRow(components)],
         });
     },

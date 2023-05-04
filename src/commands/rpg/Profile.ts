@@ -184,7 +184,7 @@ const slashCommand: SlashCommandFile = {
                             };
                         })
                         .filter((r) => r.items.length > 0)
-                        .map((x) => `${x.items}`)
+                        .map((x) => `[${x.type[0]}] ${x.items}`)
                         .join("\n")}`,
                     inline: true,
                 },

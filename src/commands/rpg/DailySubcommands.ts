@@ -245,7 +245,7 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 ctx.makeMessage({
-                    content: `:scroll: **__Daily Quests:__** (${status.percent.toFixed(2)}%)\n${
+                    content: `📜 **__Daily Quests:__** (${status.percent.toFixed(2)}%)\n${
                         status.message
                     }\n\n${ctx.translate("daily:REWARDS_MESSAGE", {
                         coins: coinReward.toLocaleString("en-US"),
