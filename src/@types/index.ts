@@ -276,7 +276,47 @@ export interface RPGUserDataJSON {
      * The unix timestamp of when the user started their adventure.
      */
     adventureStartedAt: string;
+    equippedItems: {
+        [key: Item["id"]]: number;
+    };
+    communityBans: {
+        reason: string;
+        bannedAt: number;
+        until: number;
+    }[];
 }
+
+export enum equipableItemTypes {
+    HEAD = 1,
+    CHEST = 2,
+    LEGS = 3,
+    FEET = 4,
+    HANDS = 5,
+    WEAPON = 6,
+    ACCESSORY = 7,
+}
+
+export const equipableItemTypesLimit = {
+    [equipableItemTypes.HEAD]: 1,
+    [equipableItemTypes.CHEST]: 1,
+    [equipableItemTypes.LEGS]: 1,
+    [equipableItemTypes.FEET]: 1,
+    [equipableItemTypes.HANDS]: 1,
+    [equipableItemTypes.WEAPON]: 1,
+    [equipableItemTypes.ACCESSORY]: 2,
+};
+
+export const formattedEquipableItemTypes = {
+    [equipableItemTypes.HEAD]: "Head",
+    [equipableItemTypes.CHEST]: "Chest",
+    [equipableItemTypes.LEGS]: "Legs",
+    [equipableItemTypes.FEET]: "Feet",
+    [equipableItemTypes.HANDS]: "Hands",
+    [equipableItemTypes.WEAPON]: "Weapon",
+    [equipableItemTypes.ACCESSORY]: "Accessory",
+};
+
+export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
 
 export interface ReminderJSON {
     author: RPGUserDataJSON["id"];
@@ -413,6 +453,20 @@ export interface ScrollCraft extends Item {
     requirements: CraftRequirements;
 }
 
+export interface EquipableItem extends Item {
+    type: possibleEquippedItems;
+    effects: {
+        skillPoints?: SkillPoints;
+        health?: numOrPerc;
+        stamina?: numOrPerc;
+        xpBoost?: number;
+    };
+    requirements?: {
+        level?: number;
+        skillPoints?: SkillPoints;
+    };
+}
+
 /**
  * NPC
  */
@@ -461,6 +515,7 @@ export interface FightableNPC extends NPC {
         lose?: string;
         raid?: string;
     };
+    equippedItems: RPGUserDataJSON["equippedItems"];
 }
 
 /**
