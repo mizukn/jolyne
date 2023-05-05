@@ -21,6 +21,9 @@ export const JotarosHat: EquipableItem = {
     rarity: "S",
     tradable: true,
     storable: true,
+    requirements: {
+        level: 10000,
+    },
 };
 
 export const MeguminsHat: EquipableItem = {
