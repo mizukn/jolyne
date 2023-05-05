@@ -1,14 +1,15 @@
-import { FightableNPC, RPGUserQuest, SlashCommandFile } from "../../@types";
+import { FightableNPC, RPGUserQuest, SlashCommandFile, RPGUserDataJSON } from "../../@types";
 import {
     Message,
     APIEmbed,
     ApplicationCommandOptionType,
     StringSelectMenuBuilder,
     MessageComponentInteraction,
+    StringSelectMenuInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { FightHandler, FightTypes } from "../../structures/FightHandler";
+import { FightHandler, FightTypes, Fighter } from "../../structures/FightHandler";
 import { FightableNPCS } from "../../rpg/NPCs";
 import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
 import { Harry_Lester } from "../../rpg/NPCs/NPCs";
@@ -18,6 +19,10 @@ import { InteractionType } from "discord.js";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 
+function getTeamIdx(fighter: RPGUserDataJSON, teams: RPGUserDataJSON[][]): number {
+    return teams.findIndex((team) => team.includes(fighter));
+}
+
 const slashCommand: SlashCommandFile = {
     data: {
         name: "fight",
@@ -25,12 +30,12 @@ const slashCommand: SlashCommandFile = {
         options: [
             {
                 name: "npc",
-                description: "npc",
+                description: "Fight against an NPC from your chapter/side/daily quests ONLY",
                 type: 1,
             },
             {
                 name: "player",
-                description: "player",
+                description: "Fight against a real player",
                 type: 1,
                 options: [
                     {
@@ -40,9 +45,144 @@ const slashCommand: SlashCommandFile = {
                     },
                 ],
             },
+            {
+                name: "custom",
+                description: "Starts a custom fight",
+                type: 1,
+            },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+        if (ctx.interaction.options.getSubcommand() === "custom") {
+            let teams: RPGUserDataJSON[][] = [[ctx.userData]];
+            const endLimit = Date.now() + 30000;
+            const joinTeamId = Functions.generateRandomId();
+            const leaveButtonId = Functions.generateRandomId();
+            const createTeamButtonId = Functions.generateRandomId();
+            const joinTeamSelectMenu = () =>
+                new StringSelectMenuBuilder()
+                    .setCustomId(joinTeamId)
+                    .setPlaceholder("Select a team to join")
+                    .addOptions(
+                        teams.map((team, idx) => {
+                            return {
+                                label: `Team ${idx + 1}`,
+                                value: idx.toString(),
+                            };
+                        })
+                    );
+            const leaveButton = new ButtonBuilder()
+                .setCustomId(leaveButtonId)
+                .setLabel("Leave Team")
+                .setStyle(ButtonStyle.Danger);
+            const createTeamButton = new ButtonBuilder()
+                .setCustomId(createTeamButtonId)
+                .setLabel("Create Team")
+                .setStyle(ButtonStyle.Primary);
+
+            // eslint-disable-next-line
+            function makeMessage(): void {
+                // check if there are no enough players (only one team or there is no player at all)
+                if (teams.length === 1 || teams.every((team) => team.length === 0)) {
+                    collector.stop();
+                    ctx.makeMessage({
+                        content:
+                            "There are not enough players to start the fight. Fight cancelled.",
+                        components: [],
+                        embeds: [],
+                    });
+                    return;
+                }
+                const embed: APIEmbed = {
+                    title: "⚔️ Custom Fight",
+                    description: `This is a custom fight. No rewards will be credited to winners, nothing will change. This is a friendly fight.\n\n> \`Starts (auto)\`: ${Functions.generateDiscordTimestamp(
+                        endLimit,
+                        "FROM_NOW"
+                    )}`,
+                    fields: [],
+                };
+
+                for (let i = 0; i < teams.length; i++) {
+                    embed.fields.push({
+                        name: `Team ${i + 1}`,
+                        value: teams[i]
+                            .map((x) => {
+                                return `- ${x.tag} (Health: ${Functions.getMaxHealth(
+                                    x
+                                )})) [LEVEL: ${x.level}]`;
+                            })
+                            .join("\n"),
+                    });
+                }
+
+                ctx.makeMessage({
+                    embeds: [embed],
+                    components: [
+                        Functions.actionRow([createTeamButton, leaveButton]),
+                        Functions.actionRow([joinTeamSelectMenu()]),
+                    ],
+                });
+            }
+            // eslint-disable-next-line
+            function removeUserFromTeam(user: RPGUserDataJSON["id"]): void {
+                teams = teams.map((team) => team.filter((x) => x.id !== user));
+                teams = teams.filter((team) => team.length > 0);
+            }
+
+            makeMessage();
+            const collector = ctx.channel.createMessageComponentCollector({
+                filter: (i) =>
+                    i.customId === joinTeamId ||
+                    i.customId === leaveButtonId ||
+                    i.customId === createTeamButtonId,
+                time: endLimit - Date.now(),
+            });
+
+            collector.on("end", async () => {
+                if (teams.length === 1 || teams.every((team) => team.length === 0)) return;
+                const fightHandler = new FightHandler(ctx, teams, FightTypes.Friendly);
+
+                fightHandler.on("end", async (winners) => {
+                    ctx.followUp({
+                        content: `The fight has ended. The winners are: ${winners
+                            .map((x) => x.name)
+                            .join(", ")}`,
+                    });
+                });
+                fightHandler.on("unexpectedEnd", (reason) => {
+                    ctx.followUp({
+                        content: `The fight has ended unexpectedly due to an error. Reason: ${reason}`,
+                    });
+                });
+            });
+            collector.on("collect", async (i: MessageComponentInteraction) => {
+                const userData = await ctx.client.database.getRPGUserData(i.user.id);
+                if (!userData) return;
+                i.deferUpdate().catch(() => {}); // eslint-disable-line
+
+                switch (i.customId) {
+                    case joinTeamId: {
+                        removeUserFromTeam(userData.id);
+                        teams[parseInt((i as StringSelectMenuInteraction).values[0])].push(
+                            userData
+                        );
+                        makeMessage();
+                        break;
+                    }
+                    case leaveButtonId: {
+                        removeUserFromTeam(userData.id);
+                        makeMessage();
+                        break;
+                    }
+                    case createTeamButtonId: {
+                        if (teams.find((team) => team.includes(userData))) break;
+                        teams.push([userData]);
+                        makeMessage();
+                        break;
+                    }
+                }
+            });
+        }
         // todo: ADD FightTypes.SideQuest and support for it
         function startFight(
             questId: string,

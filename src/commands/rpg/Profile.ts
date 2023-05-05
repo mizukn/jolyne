@@ -190,18 +190,20 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Player Bonuses (from items)",
-                    value: `Health: ${
+                    value: `\`[+]\` Health: **${
                         Functions.calcEquipableItemsBonus(rpgData).health
-                    }\nStamina: ${Functions.calcEquipableItemsBonus(rpgData).stamina}\nXP Boost: ${
+                    }**\n\`[+]\` Stamina: **${
+                        Functions.calcEquipableItemsBonus(rpgData).stamina
+                    }**\n${ctx.client.localEmojis.xp} XP Boost: **${
                         Functions.calcEquipableItemsBonus(rpgData).xpBoost
-                    }%\n${Object.keys(Functions.calcEquipableItemsBonus(rpgData).skillPoints)
+                    }%**\n${Object.keys(Functions.calcEquipableItemsBonus(rpgData).skillPoints)
                         .map((x) => {
                             const bonus =
                                 Functions.calcEquipableItemsBonus(rpgData).skillPoints[
                                     x as keyof SkillPoints
                                 ];
                             if (bonus === 0) return;
-                            return `[SP] ${Functions.capitalize(x)}: ${bonus}`;
+                            return `\`[SP]\` ${Functions.capitalize(x)}: **${bonus}**`;
                         })
                         .filter((r) => r)
                         .join("\n")}`,

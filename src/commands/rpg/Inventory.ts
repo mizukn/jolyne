@@ -28,7 +28,7 @@ const slashCommand: SlashCommandFile = {
         options: [
             {
                 name: "view",
-                description: "dd",
+                description: "Shows your inventory",
                 type: 1,
             },
             {
@@ -38,14 +38,14 @@ const slashCommand: SlashCommandFile = {
                 options: [
                     {
                         name: "item",
-                        description: "dd",
+                        description: "The item you want to use. ",
                         type: 3,
                         required: true,
                         autocomplete: true,
                     },
                     {
                         name: "amount",
-                        description: "dd",
+                        description: "How many times do you want to use that item? (default: 1)",
                         type: 4,
                         required: false,
                     },
@@ -53,12 +53,26 @@ const slashCommand: SlashCommandFile = {
             },
             {
                 name: "equip",
-                description: "dd",
+                description: "Equips an item. You can only equip items that are equipable.",
                 type: 1,
                 options: [
                     {
                         name: "item",
-                        description: "dd",
+                        description: "The item you want to equip.",
+                        type: 3,
+                        required: true,
+                        autocomplete: true,
+                    },
+                ],
+            },
+            {
+                name: "info",
+                description: "Shows info about an item that you own.",
+                type: 1,
+                options: [
+                    {
+                        name: "item",
+                        description: "The item you want to view info about.",
                         type: 3,
                         required: true,
                         autocomplete: true,
@@ -67,12 +81,12 @@ const slashCommand: SlashCommandFile = {
             },
             {
                 name: "unequip",
-                description: "dd",
+                description: "Unequips an item. You can only unequip items that are equipable.",
                 type: 1,
                 options: [
                     {
                         name: "item",
-                        description: "dd",
+                        description: "The item you want to unequip.",
                         type: 3,
                         required: true,
                         autocomplete: true,
@@ -200,6 +214,103 @@ const slashCommand: SlashCommandFile = {
                 }
                 goToPage();
             });
+        } else if (ctx.interaction.options.getSubcommand() === "info") {
+            const itemString = ctx.interaction.options.getString("item", true);
+            const itemData = Functions.findItem(itemString);
+
+            if (!itemData) {
+                ctx.makeMessage({
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                });
+                return;
+            }
+
+            const embed: APIEmbed = {
+                title: itemData.emoji + " " + itemData.name,
+                description: itemData.description,
+                fields: [
+                    {
+                        name: "Rarity",
+                        value: itemData.rarity,
+                        inline: true,
+                    },
+                    {
+                        name: "Price",
+                        value: `${ctx.client.localEmojis.jocoins} ${
+                            itemData.price ?? "N/A (unbuyable/not sellable)"
+                        }`,
+                        inline: true,
+                    },
+                    {
+                        name: "Tradable?",
+                        value: itemData.tradable ? "Yes" : "Unofortunately not :pensive:",
+                        inline: true,
+                    },
+                ],
+            };
+
+            if (Functions.isEquipableItem(itemData)) {
+                embed.fields.push({
+                    name: "Bonus if equipped",
+                    value: `${ctx.client.localEmojis.xp} XP Boost: **${
+                        itemData.effects.xpBoost ?? 0
+                    }%**\n\`[+]\` Health: **${itemData.effects.health ?? 0}**\n\`[+]\` Stamina: **${
+                        itemData.effects.stamina ?? 0
+                    }**\n${
+                        itemData.effects.skillPoints
+                            ? Object.keys(itemData.effects.skillPoints)
+                                  .map((x) => {
+                                      return `\`[SP]\` ${Functions.capitalize(x)}: **${
+                                          itemData.effects.skillPoints[x as keyof SkillPoints]
+                                      }**`;
+                                  })
+                                  .join("\n")
+                            : ""
+                    }`,
+                    inline: true,
+                });
+                if (itemData.requirements)
+                    embed.fields.push({
+                        name: "Requirements to equip",
+                        value: `Level: ${itemData.requirements.level ?? 0}\n${
+                            itemData.requirements.skillPoints
+                                ? Object.keys(itemData.requirements.skillPoints)
+                                      .map((x) => {
+                                          return `[SP] ${Functions.capitalize(x)}: ${
+                                              itemData.requirements.skillPoints[
+                                                  x as keyof SkillPoints
+                                              ]
+                                          }`;
+                                      })
+                                      .join("\n")
+                                : ""
+                        }`,
+                        inline: true,
+                    });
+            } else if (Functions.isConsumable(itemData)) {
+                embed.fields.push({
+                    name: "Effects",
+                    value: `${
+                        itemData.effects.health
+                            ? `\`[+]\` Health: **${
+                                  itemData.effects.health +
+                                  (typeof itemData.effects.health === "string" ? "%" : "")
+                              }**\n`
+                            : ""
+                    }${
+                        itemData.effects.stamina
+                            ? `\`[+]\` stamina: **${
+                                  itemData.effects.health +
+                                  (typeof itemData.effects.health === "string" ? "%" : "")
+                              }**\n`
+                            : ""
+                    }`,
+                });
+            }
+
+            ctx.makeMessage({
+                embeds: [embed],
+            });
         } else if (ctx.interaction.options.getSubcommand() === "unequip") {
             const itemString = ctx.interaction.options.getString("item", true);
             const itemData = Functions.findItem(itemString);
@@ -289,9 +400,9 @@ const slashCommand: SlashCommandFile = {
                         }
                     if (!meetReqs) {
                         ctx.makeMessage({
-                            content: `You don't meet the requirements to equip this item.\nRequired level: ${
-                                itemData.requirements.level ?? "None"
-                            }`,
+                            content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
+                                "inventory info"
+                            )} command to get more informations.`,
                         });
                         return;
                     }
@@ -413,6 +524,39 @@ const slashCommand: SlashCommandFile = {
                         return {
                             value: i.id,
                             name: `${i.name} (x${i.amount} left)`,
+                            description: i,
+                        };
+                    })
+                    .filter(
+                        (item) =>
+                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                            item.value.toLowerCase().includes(currentInput.toLowerCase())
+                    )
+            );
+        } else if (interaction.options.getSubcommand() === "info") {
+            for (const item of Object.keys(userData.equippedItems)) {
+                Functions.addItem(userData, item, 1);
+            }
+
+            const userItems = Object.keys(userData.inventory).map((v) => {
+                const item = Functions.findItem(v);
+                if (!item) return;
+                if (userData.inventory[v] === 0) return;
+
+                return {
+                    name: item.name,
+                    amount: userData.inventory[v],
+                    id: v,
+                };
+            });
+
+            interaction.respond(
+                userItems
+                    .filter((r) => r)
+                    .map((i) => {
+                        return {
+                            value: i.id,
+                            name: `${i.name}`,
                             description: i,
                         };
                     })
