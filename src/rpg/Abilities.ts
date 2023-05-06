@@ -113,6 +113,22 @@ export const Manipulation: Ability = {
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const baseTarget = { ...target };
+        let unmanipulated = false;
+
+        const unmanipulate = (fight: {
+            turns: {
+                logs: string[];
+            }[];
+        }) => {
+            if (unmanipulated) return;
+            target.id = baseTarget.id;
+            target.name = baseTarget.name;
+            target.manipulatedBy = undefined;
+            fight.turns[ctx.turns.length - 1].logs.push(
+                `${user.stand.emoji} (target: ${target.name}) has been released from manipulation.`
+            );
+            unmanipulated = true;
+        };
 
         if (user.manipulatedBy) {
             return `**${user.manipulatedBy.name}:** [ERROR: cannot manipulate if already manipulated]`;
@@ -125,12 +141,17 @@ export const Manipulation: Ability = {
             ctx.nextRoundPromises.push({
                 cooldown: 2,
                 promise: (fight: { turns: { logs: string[] }[] }) => {
-                    target.id = baseTarget.id;
-                    target.name = baseTarget.name;
-                    target.manipulatedBy = undefined;
-                    fight.turns[ctx.turns.length - 1].logs.push(
-                        `${user.stand.emoji} (target: ${target.name}) has been released from manipulation.`
-                    );
+                    unmanipulate(fight);
+                },
+                id: "" + Date.now() + Math.random() + "",
+            });
+
+            ctx.nextTurnPromises.push({
+                cooldown: 10,
+                promise: (fight: { turns: { logs: string[] }[] }) => {
+                    if (target.health <= 0) {
+                        unmanipulate(fight);
+                    }
                 },
                 id: "" + Date.now() + Math.random() + "",
             });
