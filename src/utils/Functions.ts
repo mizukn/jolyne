@@ -1049,3 +1049,45 @@ export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
 export const capitalize = function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
+
+export const fixFields = function fixFields(
+    fields: { name: string; value: string; inline?: boolean }[]
+): { name: string; value: string; inline?: boolean }[] {
+    const MAX_FIELD_LENGTH = 1024;
+    const fixedFields: { name: string; value: string; inline?: boolean }[] = [];
+
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+        const value = field.value;
+        const valueLength = value.length;
+
+        if (valueLength <= MAX_FIELD_LENGTH) {
+            // If the field value is within the limit, add it to the fixed fields array
+            fixedFields.push(field);
+        } else {
+            // If the field value exceeds the limit, split it into multiple fields
+            const numFields = Math.ceil(valueLength / MAX_FIELD_LENGTH);
+            for (let j = 0; j < numFields; j++) {
+                const start = j * MAX_FIELD_LENGTH;
+                const end = start + MAX_FIELD_LENGTH;
+                const fieldValue = value.substring(start, end);
+                const fieldName = j === 0 ? field.name : "\u200B";
+                fixedFields.push({
+                    name: fieldName,
+                    value: fieldValue,
+                    inline: field.inline,
+                });
+            }
+        }
+
+        // Add a blank field after every 25th field
+        if ((i + 1) % 25 === 0) {
+            fixedFields.push({
+                name: "\u200B",
+                value: "\u200B",
+            });
+        }
+    }
+
+    return fixedFields;
+};
