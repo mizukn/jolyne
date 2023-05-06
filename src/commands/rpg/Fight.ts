@@ -83,7 +83,7 @@ const slashCommand: SlashCommandFile = {
             // eslint-disable-next-line
             function makeMessage(): void {
                 // check if there are no enough players (only one team or there is no player at all)
-                if (teams.length === 1 || teams.every((team) => team.length === 0)) {
+                if (teams.every((team) => team.length === 0)) {
                     collector.stop();
                     ctx.makeMessage({
                         content:
@@ -139,7 +139,18 @@ const slashCommand: SlashCommandFile = {
             });
 
             collector.on("end", async () => {
-                if (teams.length === 1 || teams.every((team) => team.length === 0)) return;
+                // check if there are no enough players (only one team or there is no player at all)
+                if (teams.length === 1 || teams.every((team) => team.length === 0)) {
+                    console.log(teams);
+                    collector.stop();
+                    ctx.makeMessage({
+                        content:
+                            "There are not enough players to start the fight. Fight cancelled.",
+                        components: [],
+                        embeds: [],
+                    });
+                    return;
+                }
                 const fightHandler = new FightHandler(ctx, teams, FightTypes.Friendly);
 
                 fightHandler.on("end", async (winners) => {
@@ -162,6 +173,7 @@ const slashCommand: SlashCommandFile = {
 
                 switch (i.customId) {
                     case joinTeamId: {
+                        console.log((i as StringSelectMenuInteraction).values[0]);
                         removeUserFromTeam(userData.id);
                         teams[parseInt((i as StringSelectMenuInteraction).values[0])].push(
                             userData
@@ -182,6 +194,7 @@ const slashCommand: SlashCommandFile = {
                     }
                 }
             });
+            return;
         }
         // todo: ADD FightTypes.SideQuest and support for it
         function startFight(
