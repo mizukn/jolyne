@@ -26,7 +26,7 @@ const slashCommand: SlashCommandFile = {
         description: "Assaults a random NPC that matches your level.",
         options: [],
     },
-    checkRPGCooldown: "raid",
+    checkRPGCooldown: "assault",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
             ctx.makeMessage({
@@ -39,9 +39,116 @@ const slashCommand: SlashCommandFile = {
             return;
         }
 
-        const NPC = Functions.randomArray(
+        const normalNPC = Functions.randomArray(
             Object.values(FightableNPCS).filter((r) => r.level <= ctx.userData.level)
         ) as FightableNPC;
+        const highNPC = (Functions.randomArray(
+            Object.values(FightableNPCS).filter((r) => r.level > ctx.userData.level)
+        ) || Functions.randomArray(Object.values(FightableNPCS))) as FightableNPC;
+        const randomNPC = Functions.randomArray(Object.values(FightableNPCS)) as FightableNPC;
+
+        const normalNPCButton = new ButtonBuilder()
+            .setCustomId("normal")
+            .setLabel(normalNPC.name)
+            .setEmoji(normalNPC.emoji)
+            .setStyle(ButtonStyle.Primary);
+        const highNPCButton = new ButtonBuilder()
+            .setCustomId("high")
+            .setLabel(highNPC.name)
+            .setEmoji(highNPC.emoji)
+            .setStyle(
+                highNPC.level < ctx.userData.level ? ButtonStyle.Secondary : ButtonStyle.Danger
+            );
+        const randomNPCButton = new ButtonBuilder()
+            .setCustomId("random")
+            .setLabel(randomNPC.name)
+            .setEmoji(randomNPC.emoji)
+            .setStyle(
+                randomNPC.level < ctx.userData.level ? ButtonStyle.Secondary : ButtonStyle.Danger
+            );
+
+        await ctx.makeMessage({
+            embeds: [
+                {
+                    author: {
+                        name: ctx.user.tag,
+                        icon_url: ctx.user.displayAvatarURL(),
+                    },
+                    description: `You're about to assault an NPC. Choose your target wisely.`,
+                    color: 0x70926c,
+                },
+            ],
+            components: [Functions.actionRow([normalNPCButton, randomNPCButton, highNPCButton])],
+        });
+        await ctx.client.database.setRPGCooldown(ctx.user.id, "assault", 60000 * 5);
+        ctx.client.database.setCooldown(
+            ctx.userData.id,
+            `You're currently assaulting someone. Please make a selection!`
+        );
+
+        const filter = (i: MessageComponentInteraction) =>
+            (i.user.id === ctx.user.id && i.customId === "normal") ||
+            (i.user.id === ctx.user.id && i.customId === "high") ||
+            (i.user.id === ctx.user.id && i.customId === "random");
+        const collector = ctx.channel.createMessageComponentCollector({
+            filter,
+            time: 30000,
+        });
+
+        collector.on("end", async () => {
+            if (
+                (await ctx.client.database.getCooldown(ctx.userData.id)) ===
+                `You're currently assaulting someone. Please make a selection!`
+            ) {
+                ctx.client.database.deleteCooldown(ctx.userData.id);
+                ctx.followUp({
+                    content: `You didn't select a target in time. Please try again next time`,
+                });
+            }
+        });
+
+        collector.on("collect", async (i: MessageComponentInteraction) => {
+            // eslint-disable-next-line
+            await i.deferUpdate().catch(() => {});
+            const npc =
+                i.customId === "normal" ? normalNPC : i.customId === "high" ? highNPC : randomNPC;
+            ctx.interaction.fetchReply().then((r) => {
+                ctx.client.database.setCooldown(
+                    ctx.userData.id,
+                    `You're currently assaulting ${normalNPC.emoji} **${normalNPC.name}**. Lost your battle ? Click here --> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+                );
+            });
+            const fightHandler = new FightHandler(ctx, [[ctx.userData], [npc]], FightTypes.Assault);
+
+            fightHandler.on("end", async (winners, losers) => {
+                ctx.client.database.deleteCooldown(ctx.userData.id);
+                if (winners.find((r) => r.id === ctx.userData.id)) {
+                    const xp = Functions.addXp(
+                        ctx.userData,
+                        npc.rewards?.xp / 25 ?? npc.level * 1000
+                    );
+                    const coins = Functions.addCoins(
+                        ctx.userData,
+                        npc.rewards?.coins / 25 ?? npc.level * 250
+                    );
+                    ctx.followUp({
+                        content: `You assaulted ${npc.name} and won! You got ${xp.toLocaleString(
+                            "en-US"
+                        )} ${ctx.client.localEmojis.xp} and ${coins.toLocaleString("en-US")} ${
+                            ctx.client.localEmojis.jocoins
+                        }.`,
+                    });
+                } else {
+                    ctx.userData.health = 0;
+                    ctx.userData.stamina = 0;
+
+                    ctx.followUp({
+                        content: `You assaulted ${npc.name} and lost! You lost all your health and stamina. Better luck next time or train yourself more.`,
+                    });
+                }
+                ctx.client.database.saveUserData(ctx.userData);
+            });
+        });
     },
 };
 

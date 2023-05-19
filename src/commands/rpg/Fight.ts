@@ -50,6 +50,21 @@ const slashCommand: SlashCommandFile = {
                 description: "Starts a custom fight",
                 type: 1,
             },
+            {
+                name: "train",
+                description:
+                    "Starts a custom fight against an NPC that you've selected. It's a friendly fight.",
+                type: 1,
+                options: [
+                    {
+                        name: "npc",
+                        description: "The NPC that you want to fight against",
+                        type: ApplicationCommandOptionType.String, // 3
+                        autocomplete: true,
+                        required: true,
+                    },
+                ],
+            },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -188,6 +203,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     case createTeamButtonId: {
                         if (teams.find((team) => team.includes(userData))) break;
+                        removeUserFromTeam(userData.id);
                         teams.push([userData]);
                         makeMessage();
                         break;
@@ -200,7 +216,7 @@ const slashCommand: SlashCommandFile = {
         function startFight(
             questId: string,
             npcId: string,
-            type: FightTypes.DailyQuest | FightTypes.ChapterQuest
+            type: FightTypes.DailyQuest | FightTypes.ChapterQuest | FightTypes.SideQuest
         ) {
             if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
                 return ctx.makeMessage({
@@ -238,7 +254,11 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.stamina = userDataFighter.stamina;
 
                     ctx.followUp({
-                        content: `:skull: You lost against ${npc.name}... Better luck next time or train yourself more.`,
+                        content: `:skull: You lost against ${
+                            npc.name
+                        }... Better luck next time or train yourself more.\n\nTIP: You can use ${ctx.client.getSlashCommandMention(
+                            "fight train"
+                        )} to fight this NPC without losing any health or stamina.`,
                     });
                 } else {
                     const userDataFighter = winners.find((r) => r.id === ctx.userData.id);
@@ -250,8 +270,12 @@ const slashCommand: SlashCommandFile = {
 
                     if (fightType === FightTypes.DailyQuest) {
                         quest = ctx.userData.daily.quests.find((r) => r.id === questId);
-                    } else {
+                    } else if (fightType === FightTypes.ChapterQuest) {
                         quest = ctx.userData.chapter.quests.find((r) => r.id === questId);
+                    } else if (fightType === FightTypes.SideQuest) {
+                        quest = Object.values(ctx.userData.sideQuests)
+                            .find((r) => r.quests.find((r) => r.id === questId))
+                            .quests.find((r) => r.id === questId);
                     }
 
                     quest.completed = true;
@@ -306,6 +330,7 @@ const slashCommand: SlashCommandFile = {
                     }
 
                     /// to be continued
+                    /*
                     if (quest.pushEmailWhenCompleted) {
                         Functions.addEmail(ctx.userData, quest.pushEmailWhenCompleted.email);
                         let winContentContent = `+:envelope: \`${quest.pushEmailWhenCompleted.email}\``;
@@ -329,7 +354,7 @@ const slashCommand: SlashCommandFile = {
                             winContentContent += " (must read)";
                         }
                         winContent.push(winContentContent);
-                    }
+                    }*/
 
                     // todo: add rewards
                     // todo: check if quest has to add chapter quests and/or emails
@@ -348,6 +373,22 @@ const slashCommand: SlashCommandFile = {
                 const dailyQuestsNPC = ctx.userData.daily.quests.filter(
                     (r) => Functions.isFightNPCQuest(r) && !r.completed
                 );
+                const notFormattedSideQuestsNPC = Object.values(ctx.userData.sideQuests)
+                    .filter(
+                        (r) =>
+                            r.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed)
+                                .length !== 0
+                    )
+                    .map((x) => {
+                        return x.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed);
+                    })
+                    .map((x) => x);
+                const sideQuestsNPC: RPGUserQuest[] = [];
+                for (const quest of notFormattedSideQuestsNPC) {
+                    for (const quest2 of quest) {
+                        sideQuestsNPC.push(quest2);
+                    }
+                }
 
                 const nextFightButton = new ButtonBuilder()
                     .setCustomId(ctx.interaction.id + "nfight")
@@ -355,7 +396,9 @@ const slashCommand: SlashCommandFile = {
                     .setEmoji(ctx.client.localEmojis.arrowRight);
 
                 if (
-                    (chapterQuestsNPC.length !== 0 || dailyQuestsNPC.length !== 0) &&
+                    (chapterQuestsNPC.length !== 0 ||
+                        dailyQuestsNPC.length !== 0 ||
+                        sideQuestsNPC.length !== 0) &&
                     ctx.userData.health > 10
                 ) {
                     ctx.makeMessage({
@@ -390,23 +433,73 @@ const slashCommand: SlashCommandFile = {
                 const dailyQuestsNPC = ctx.userData.daily.quests.filter(
                     (r) => Functions.isFightNPCQuest(r) && !r.completed
                 );
-
-                if (chapterQuestsNPC.length === 0 && dailyQuestsNPC.length === 0) {
+                const notFormattedSideQuestsNPC = Object.values(ctx.userData.sideQuests)
+                    .filter(
+                        (r) =>
+                            r.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed)
+                                .length !== 0
+                    )
+                    .map((x) => {
+                        return x.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed);
+                    })
+                    .map((x) => x);
+                const sideQuestsNPC: RPGUserQuest[] = [];
+                for (const quest of notFormattedSideQuestsNPC) {
+                    for (const quest2 of quest) {
+                        sideQuestsNPC.push(quest2);
+                    }
+                }
+                if (
+                    chapterQuestsNPC.length === 0 &&
+                    dailyQuestsNPC.length === 0 &&
+                    sideQuestsNPC.length === 0
+                ) {
                     ctx.sendTranslated("fight:NOBODY_TO_FIGHT");
                     break;
                 }
                 let quest;
                 let type = FightTypes.ChapterQuest;
 
-                if (chapterQuestsNPC.length === 0 && dailyQuestsNPC.length !== 0) {
+                if (
+                    chapterQuestsNPC.length === 0 &&
+                    dailyQuestsNPC.length !== 0 &&
+                    sideQuestsNPC.length === 0
+                ) {
                     quest = dailyQuestsNPC[0];
                     type = FightTypes.DailyQuest;
-                } else if (chapterQuestsNPC.length !== 0 && dailyQuestsNPC.length === 0) {
+                } else if (
+                    chapterQuestsNPC.length !== 0 &&
+                    dailyQuestsNPC.length === 0 &&
+                    sideQuestsNPC.length === 0
+                ) {
                     quest = chapterQuestsNPC[0];
                     type = FightTypes.ChapterQuest;
+                } else if (
+                    chapterQuestsNPC.length === 0 &&
+                    dailyQuestsNPC.length === 0 &&
+                    sideQuestsNPC.length !== 0
+                ) {
+                    quest = sideQuestsNPC[0];
+                    type = FightTypes.SideQuest;
                 } else {
                     chapterQuestsNPC.length = 12;
                     dailyQuestsNPC.length = 12; // max string menu select options length = 25
+                    sideQuestsNPC.length = 12;
+                    // maxOptions limit = 25, so check if there are more than 25 quests
+                    if (
+                        chapterQuestsNPC.length + dailyQuestsNPC.length + sideQuestsNPC.length >
+                        25
+                    ) {
+                        // prioritize more side quests
+                        if (sideQuestsNPC.length > 12) {
+                            chapterQuestsNPC.length = Math.trunc((25 - 12) / 2);
+                            dailyQuestsNPC.length = Math.trunc((25 - 12) / 2);
+                            sideQuestsNPC.length = 12;
+                        } else {
+                            chapterQuestsNPC.length = Math.trunc((25 - sideQuestsNPC.length) / 2);
+                            dailyQuestsNPC.length = Math.trunc((25 - sideQuestsNPC.length) / 2);
+                        }
+                    }
 
                     const selectMenu = new StringSelectMenuBuilder()
                         .setCustomId(ctx.interaction.id + "fight")
@@ -426,6 +519,16 @@ const slashCommand: SlashCommandFile = {
                                 .map((r) => ({
                                     label: Functions.findNPC(r.npc, true).name,
                                     description: ctx.translate("fight:FROM_DAILY"),
+                                    value: r.id,
+                                    emoji: Functions.findNPC(r.npc, true).emoji,
+                                }))
+                                .filter((r) => r)
+                        )
+                        .addOptions(
+                            sideQuestsNPC
+                                .map((r) => ({
+                                    label: Functions.findNPC(r.npc, true).name,
+                                    description: ctx.translate("fight:FROM_SIDE_QUEST"),
                                     value: r.id,
                                     emoji: Functions.findNPC(r.npc, true).emoji,
                                 }))
@@ -471,9 +574,37 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 if (quest) startFight(quest.id, quest.npc, type);
+                break;
+            }
+
+            case "train": {
+                const npc = ctx.interaction.options.getString("npc", true);
+                const npcData = Functions.findNPC<FightableNPC>(npc, true);
+                if (!npcData || typeof npcData.level !== "number") {
+                    console.log(npcData, npc);
+                    ctx.sendTranslated("fight:INVALID_NPC");
+                    return;
+                }
+
+                new FightHandler(ctx, [[ctx.userData], [npcData]], FightTypes.Friendly);
             }
         }
         return;
+    },
+    autoComplete: async (interaction, userData, currentInput) => {
+        const NPCs = Object.values(FightableNPCS);
+        const filteredNPCs = NPCs.filter(
+            (r) =>
+                r.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                r.id.toLowerCase().includes(currentInput.toLowerCase())
+        );
+        const options = filteredNPCs.map((r) => ({
+            value: r.id,
+            name: r.name,
+        }));
+        if (options.length > 25) options.length = 25;
+
+        interaction.respond(options);
     },
 };
 
