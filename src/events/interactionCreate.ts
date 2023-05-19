@@ -116,6 +116,50 @@ const Event: EventFile = {
                     ...ctx.userData.sideQuests.map((v) => v.quests),
                 ]) {
                     for (const quest of quests) {
+                        if (quest.pushEmailWhenCompleted) {
+                            const mailData = Functions.findEmail(
+                                quest.pushEmailWhenCompleted.email
+                            );
+                            if (quest.pushEmailWhenCompleted.timeout) {
+                                quests.push(
+                                    Functions.generateWaitQuest(
+                                        quest.pushEmailWhenCompleted.timeout,
+                                        mailData.id,
+                                        null,
+                                        null,
+                                        quest.pushEmailWhenCompleted.mustRead
+                                    )
+                                );
+                            } else {
+                                Functions.addEmail(
+                                    ctx.userData,
+                                    quest.pushEmailWhenCompleted.email
+                                );
+                                if (quest.pushEmailWhenCompleted.mustRead) {
+                                    quests.push(Functions.generateMustReadEmailQuest(mailData));
+                                }
+                            }
+                        }
+
+                        if (quest.pushQuestWhenCompleted) quests.push(quest.pushQuestWhenCompleted);
+                        if (quest.pushItemWhenCompleted) {
+                            for (const item of quest.pushItemWhenCompleted) {
+                                const itemData = Functions.findItem(item.item);
+                                if (itemData) continue;
+                                if (item.chance)
+                                    if (Functions.RNG(0, item.chance)) {
+                                        Functions.addItem(ctx.userData, item.item, item.amount);
+                                        ctx.followUpQueue.push({
+                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`,
+                                        });
+                                    } else {
+                                        Functions.addItem(ctx.userData, item.item, item.amount);
+                                        ctx.followUpQueue.push({
+                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`,
+                                        });
+                                    }
+                            }
+                        }
                         if (Functions.isUseXCommandQuest(quest) && quest.command === commandName) {
                             quest.amount++;
                         }
