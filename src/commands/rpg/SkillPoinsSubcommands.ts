@@ -146,6 +146,9 @@ const slashCommand: SlashCommandFile = {
             ctx.userData.skillPoints[
                 ctx.options.getString("to") as keyof typeof ctx.userData.skillPoints
             ] += ctx.options.getInteger("amount");
+            console.log(
+                `Gave ${ctx.user.username} ${amount} points in ${ctx.options.getString("to")} [1]`
+            );
 
             if (ctx.options.getString("to2") || ctx.options.getInteger("amount2")) {
                 if (!ctx.options.getInteger("amount2") || !ctx.options.getString("to2"))
@@ -182,6 +185,11 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.skillPoints[
                         ctx.options.getString("to2") as keyof typeof ctx.userData.skillPoints
                     ] += ctx.options.getInteger("amount2");
+                    console.log(
+                        `Gave ${ctx.user.username} ${amount2} points in ${
+                            ctx.options.getString("to2") as keyof typeof ctx.userData.skillPoints
+                        } [2]`
+                    );
                     ctx.followUpQueue.push({
                         content: Functions.makeNPCString(
                             NPCs.Dio,
@@ -193,7 +201,6 @@ const slashCommand: SlashCommandFile = {
                         ),
                     });
                 }
-                ctx.client.database.saveUserData(ctx.userData);
             }
 
             //setTimeout(() => {
@@ -206,6 +213,7 @@ const slashCommand: SlashCommandFile = {
                 ),
             });
             //}, 2000);
+            await ctx.client.database.saveUserData(ctx.userData);
         }
 
         ctx.sendTranslated("skill-points:BASE_MESSAGE", {

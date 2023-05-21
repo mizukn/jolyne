@@ -100,7 +100,9 @@ export const getQuestsStats = (
             }
 
             let content = `${
-                ctx.client.localEmojis.timerIcon
+                quest.i18n_key
+                    ? ctx.translate(`quest:${quest.i18n_key}.CHAP_DESC`)
+                    : ctx.client.localEmojis.timerIcon
             } Quest ends ${Functions.generateDiscordTimestamp(quest.end, "FROM_NOW")}`;
 
             if (quest.email) {
@@ -397,8 +399,8 @@ const slashCommand: SlashCommandFile = {
                 await ctx.client.database.saveUserData(ctx.userData);
 
                 ctx.followUp({
-                    content: `${makeChapterTitle(chapter, ctx.userData)}\n\`\`\`\n${
-                        chapter.description[ctx.userData.language]
+                    content: `${makeChapterTitle(newChap, ctx.userData)}\n\`\`\`\n${
+                        newChap.description[ctx.userData.language]
                     }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${
                         status.message
                     }`,
@@ -412,9 +414,7 @@ const slashCommand: SlashCommandFile = {
 
         ctx.makeMessage({
             content: `${makeChapterTitle(chapter, ctx.userData)}\n\`\`\`\n${
-                isChapterPart(chapter)
-                    ? chapter.parent.description[ctx.userData.language]
-                    : chapter.description[ctx.userData.language]
+                chapter.description[ctx.userData.language]
             }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
             components: components.length === 0 ? [] : [Functions.actionRow(components)],
         });
