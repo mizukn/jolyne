@@ -37,6 +37,7 @@ import {
     StringSelectMenuBuilder,
     APIEmbed,
     Utils,
+    Message,
 } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
@@ -740,20 +741,20 @@ export const generateStandCart = async function standCart(stand: Stand): Promise
     ctx.drawImage(card_image, 0, 0, 230, 345);
     ctx.fillStyle = "white";
     if (stand.name.length === 10) {
-        ctx.font = "22px Impact";
+        ctx.font = "22px Arial";
         const content = stand.name.substring(0, 10);
         ctx.fillText(content, 50, 40);
     } else if (stand.name.length <= 7) {
-        ctx.font = "30px Impact";
+        ctx.font = "30px Arial";
         ctx.fillText(stand.name, 74, 40);
     } else if (stand.name.length <= 11) {
-        ctx.font = "25px Impact";
+        ctx.font = "25px Arial";
         ctx.fillText(`${stand.name}`, 55, 45 - (12 - stand.name.length));
     } else if (stand.name.length <= 14) {
-        ctx.font = "22px Impact";
+        ctx.font = "22px Arial";
         ctx.fillText(`${stand.name}`, 40, 43 - (15 - stand.name.length));
     } else {
-        ctx.font = "20px Impact";
+        ctx.font = "20px Arial";
         let content;
         if (stand.name.length >= 15) {
             content =
@@ -1090,4 +1091,8 @@ export const fixFields = function fixFields(
     }
 
     return fixedFields;
+};
+
+export const generateMessageLink = function generateMessageLink(r: Message<boolean>): string {
+    return `https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`;
 };
