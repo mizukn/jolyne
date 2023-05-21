@@ -325,7 +325,7 @@ export const InfiniteRotation = {
 export const OhMyGod: Ability = {
     name: "Oh My God",
     description: "BOOSTS ALL YOUR STATS BY 100% FOR 3 TURNS LETS GOOOOO",
-    cooldown: 0,
+    cooldown: 3,
     damage: 0,
     blockable: false,
     dodgeable: false,

@@ -90,9 +90,9 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             return invisibleBTN2;
         }
 
-        function makeMessage(): void {
+        async function makeMessage(): Promise<void> {
             map[planeDirection] = "👆";
-            ctx.makeMessage({
+            await ctx.makeMessage({
                 components: [
                     Functions.actionRow([
                         generateInvisibleBTN(),
@@ -118,7 +118,13 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
                 ],
             });
         }
-        makeMessage();
+        await makeMessage();
+        ctx.interaction.fetchReply().then((r) => {
+            ctx.client.database.setCooldown(
+                ctx.user.id,
+                `You're currently removing Kakyoin's fleshbud. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+            );
+        });
         const filter = async (i: MessageComponentInteraction) => {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             i.deferUpdate().catch(() => {});
@@ -220,7 +226,7 @@ export const TakeKakyoinToHospital: ActionQuest = {
             60000 * 5,
             Emails.P1C2_KAKYOINBACK.id,
             null,
-            "WAIT_KAKYOIN_BACK",
+            null,
             true
         );
 
@@ -228,5 +234,109 @@ export const TakeKakyoinToHospital: ActionQuest = {
         validateQuest(ctx, "take_kakyoin_to_hospital");
 
         ctx.client.database.saveUserData(ctx.userData);
+    },
+};
+
+export const AlertYourGrandFatherAboutDioAndYourStand: ActionQuest = {
+    type: "action",
+    id: "alert_your_grandfather_about_dio_and_your_stand",
+    completed: false,
+    i18n_key: "TYGAD",
+    emoji: "📞",
+    use: async (ctx) => {
+        const quest = Functions.generateWaitQuest(
+            60000 * 15,
+            Emails.C2P1_GRANDFADIOALERTSTAND.id,
+            null,
+            null,
+            true
+        );
+        pushQuest(ctx, quest, "alert_your_grandfather_about_dio_and_your_stand");
+        validateQuest(ctx, "alert_your_grandfather_about_dio_and_your_stand");
+        ctx.client.database.saveUserData(ctx.userData);
+        ctx.sendTranslated("action:TYGAD.SUCCESS");
+    },
+};
+
+export const GoToAirport: ActionQuest = {
+    type: "action",
+    id: "go_to_airport",
+    completed: false,
+    i18n_key: "GO_TO_AIRPORT",
+    emoji: "🛫",
+    use: async (ctx) => {
+        const slowPrice = 5000;
+        const fastPrice = 15000;
+        const slowPriceTime = 60000 * 60 * 2;
+        const fastPriceTime = (60000 * 60) / 2;
+        const slowPriceID = Functions.generateRandomId();
+        const fastPriceID = Functions.generateRandomId();
+        const slowPriceBTN = new ButtonBuilder()
+            .setCustomId(slowPriceID)
+            .setLabel(slowPrice.toLocaleString("en-US"))
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji(ctx.client.localEmojis.jocoins);
+        const fastPriceBTN = new ButtonBuilder()
+            .setCustomId(fastPriceID)
+            .setLabel(fastPrice.toLocaleString("en-US"))
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji(ctx.client.localEmojis.jocoins);
+
+        await ctx.sendTranslated("action:GO_TO_AIRPORT.BASE", {
+            components: [Functions.actionRow([slowPriceBTN, fastPriceBTN])],
+            slowPrice: slowPrice.toLocaleString("en-US"),
+        });
+        ctx.interaction.fetchReply().then((m) => {
+            ctx.client.database.setCooldown(
+                ctx.userData.id,
+                `Please finish your selection ---> ${Functions.generateMessageLink(m)}`
+            );
+        });
+
+        const filter = (i: MessageComponentInteraction) => {
+            return (
+                (i.customId === slowPriceID || i.customId === fastPriceID) &&
+                i.user.id === ctx.user.id
+            );
+        };
+
+        const collector = ctx.interaction.channel.createMessageComponentCollector({
+            filter,
+            time: 30000,
+        });
+
+        collector.on("end", () => {
+            ctx.client.database.deleteCooldown(ctx.userData.id);
+        });
+
+        collector.on("collect", async (i: MessageComponentInteraction) => {
+            const quest = Functions.generateWaitQuest(
+                i.customId === slowPriceID ? slowPriceTime : fastPriceTime,
+                null,
+                null,
+                "GO_TO_AIRPORT"
+            );
+            const price = i.customId === slowPriceID ? slowPrice : fastPrice;
+
+            if (ctx.userData.coins < price) {
+                await ctx.makeMessage({
+                    content:
+                        "You don't have enough coins. Try claiming your daily, fighting mobs from your daily quests or selling items and try again.",
+                    components: [],
+                });
+                collector.stop("finished");
+                return;
+            }
+            ctx.sendTranslated(
+                `action:GO_TO_AIRPORT.${i.customId === slowPriceID ? "SLOW" : "FAST"}`,
+                {
+                    components: [],
+                }
+            );
+            Functions.addCoins(ctx.userData, -price);
+            pushQuest(ctx, quest, "go_to_airport");
+            validateQuest(ctx, "go_to_airport");
+            ctx.client.database.saveUserData(ctx.userData);
+        });
     },
 };

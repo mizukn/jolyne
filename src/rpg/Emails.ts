@@ -86,3 +86,13 @@ BTW today some **bandits** attacked my sister, but I can't do anything since i'm
         ],
     },
 };
+
+export const C2P1_GRANDFADIOALERTSTAND: Email = {
+    id: "c2p1:grandfadioalertstand",
+    author: NPCs.Harry_Lester,
+    subject: "Dio...",
+    content:
+        "Damn so Dio isn't dead... Also the abilities you mentioned are called stands. I'll explain it to you later. Come to the airport, I'm already there with Kakyoin.",
+    footer: "please hurry up",
+    chapterQuests: [],
+};

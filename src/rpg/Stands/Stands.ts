@@ -188,6 +188,7 @@ export const SexPistols: Stand = {
         },
         emoji: Emojis.sexPistols,
         handleAttack: (ctx, user, target, damages) => {
+            damages *= 1.3;
             console.log("handleAttack triggered");
             const bulletId = `${ctx.id}_${user.id}`;
             const cooldown = (ctx.ctx.client.fightCache.get(bulletId) as number) || 0;
@@ -207,47 +208,49 @@ export const SexPistols: Stand = {
                 last = true;
             }
 
-            const status = target.removeHealth(damages, user, last, last); // damages, user, isGBreakble, isDodgeable
-            const emoji = user.stand.customAttack.emoji;
-            status.amount = Math.round(status.amount);
+            if (target.health > 0) {
+                const status = target.removeHealth(damages, user, last, last); // damages, user, isGBreakble, isDodgeable
+                const emoji = user.stand.customAttack.emoji;
+                status.amount = Math.round(status.amount);
 
-            if (status.type === FighterRemoveHealthTypes.Defended) {
-                ctx.turns[ctx.turns.length - 1].logs.push(
-                    `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they defended theirselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
-                );
-            } else if (status.type === FighterRemoveHealthTypes.Dodged) {
-                ctx.turns[ctx.turns.length - 1].logs.push(
-                    `${emoji}:x: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they dodged`
-                );
-            } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
-                ctx.turns[ctx.turns.length - 1].logs.push(
-                    `${last ? "💥" : ""}${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${
-                        target.name
-                    }**' and broke their guard; -**${
-                        status.amount
-                    }** HP :heart: instead of **${damages}**`
-                );
-            } else if (status.type === FighterRemoveHealthTypes.Normal) {
-                ctx.turns[ctx.turns.length - 1].logs.push(
-                    `${last ? "💥" : ""}${emoji} \`${ctx.whosTurn.name}\` shoots **${
-                        target.name
-                    }** and deals **${status.amount}** damages`
-                );
-            }
+                if (status.type === FighterRemoveHealthTypes.Defended) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they defended theirselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.Dodged) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji}:x: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they dodged`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${last ? "💥" : ""}${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${
+                            target.name
+                        }**' and broke their guard; -**${
+                            status.amount
+                        }** HP :heart: instead of **${damages}**`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.Normal) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${last ? "💥" : ""}${emoji} \`${ctx.whosTurn.name}\` shoots **${
+                            target.name
+                        }** and deals **${status.amount}** damages`
+                    );
+                }
 
-            if (cooldown + 1 === 6)
-                ctx.turns[ctx.turns.length - 1].logs.push(
-                    `:exclamation: ${user.name} will have to reload in order to shoot again...`
-                );
-            else if (!ctx.ctx.client.fightCache.get(bulletId + "fireX"))
-                ctx.turns[ctx.turns.length - 1].logs.push(
-                    `${emoji} [BULLETS LEFT: ${6 - cooldown - 1}/6]`
-                );
+                if (cooldown + 1 === 6)
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `:exclamation: ${user.name} will have to reload in order to shoot again...`
+                    );
+                else if (!ctx.ctx.client.fightCache.get(bulletId + "fireX"))
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji} [BULLETS LEFT: ${6 - cooldown - 1}/6]`
+                    );
 
-            if (target.health <= 0) {
-                ctx.turns[ctx.turns.length - 1].logs.push(
-                    `> :skull_crossbones: \`${target.name}\` has been defeated`
-                );
+                if (target.health <= 0) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `> :skull_crossbones: \`${target.name}\` has been defeated`
+                    );
+                }
             }
             if (!ctx.ctx.client.fightCache.get(bulletId + "fireX")) ctx.nextTurn();
         },

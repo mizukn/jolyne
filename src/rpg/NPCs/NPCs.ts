@@ -69,3 +69,9 @@ export const Pucci: NPC = {
     name: "Enrico Pucci",
     emoji: Emojis.Pucci,
 };
+
+export const Daniel_J_DArby: NPC = {
+    id: "daniel_j_darby",
+    name: "Daniel J. D'Arby",
+    emoji: Emojis.daniel,
+};
