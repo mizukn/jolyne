@@ -89,7 +89,7 @@ const slashCommand: SlashCommandFile = {
         const playerTotal = calculateHandTotal(playerCards);
         let botTotal = calculateHandTotal(botCards);
         let content: string;
-        let betMultiplier = 1.15;
+        let betMultiplier = 1.03;
         // if bet is equal or greater than 50% of the user's coins, then the bet multiplier is 2.25. if 25% then 1.75. If it is 100% then 3. otherwise 1.15
         if (bet >= ctx.userData.coins) {
             betMultiplier = 1.75;
