@@ -49,7 +49,7 @@ export const Harry_Lester: FightableNPC = {
 
 export const Jotaro: FightableNPC = {
     ...NPCs.Jotaro,
-    level: 100,
+    level: 150,
     skillPoints: {
         defense: 100,
         strength: 100,

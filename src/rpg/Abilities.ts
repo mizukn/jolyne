@@ -8,7 +8,7 @@ export const StandBarrage: Ability = {
     description: "Performs an astoundingly fast flurry of punches that deals small damage per hit",
     cooldown: 5,
     extraTurns: 1,
-    damage: 5,
+    damage: 10,
     stamina: 10,
     dodgeable: true,
     blockable: false,
@@ -19,7 +19,7 @@ export const KickBarrage: Ability = {
     description: "Performs an astoundingly fast flurry of kicks that deals small damage per hit",
     cooldown: 3,
     extraTurns: 0,
-    damage: 3,
+    damage: 8,
     stamina: 10,
     dodgeable: true,
     blockable: true,
@@ -30,7 +30,7 @@ export const StarFinger: Ability = {
     description: "Extends {standName}'s finger and stabs the target in the eyes",
     cooldown: 8,
     extraTurns: 1,
-    damage: 12.5,
+    damage: 20,
     stamina: 18,
     dodgeable: true,
     blockable: false,
@@ -214,6 +214,27 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) =
     });
 };
 
+const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
+    ctx.nextRoundPromises.push({
+        cooldown: 3,
+        promise: (fight: { turns: { logs: string[] }[] }) => {
+            fight.turns[ctx.turns.length - 1].logs.push(
+                `🩸 **${target.name}** took **${damage}** bleed damage`
+            );
+            if (target.health > 0) {
+                target.health -= damage;
+                if (target.health <= 0) {
+                    target.health = 0;
+                    fight.turns[ctx.turns.length - 1].logs.push(
+                        `🩸 **${target.name}** died from bleed damage`
+                    );
+                }
+            }
+        },
+        id: "" + Date.now() + Math.random() + "",
+    });
+};
+
 export const CrossfireHurricane: Ability = {
     name: "Crossfire Hurricane",
     description: "launches 1 cross in the shape of an ankh at the oppenent",
@@ -380,7 +401,7 @@ export const VineBarrage: Ability = {
 export const BulletsRafale: Ability = {
     name: "Bullets Rafale",
     description: "fires all your bullets at once",
-    cooldown: 1,
+    cooldown: 3,
     damage: 0,
     blockable: false,
     dodgeable: false,
@@ -390,7 +411,7 @@ export const BulletsRafale: Ability = {
         const bulletId = `${ctx.id}_${user.id}`;
         ctx.ctx.client.fightCache.set(bulletId + "fireX", true);
 
-        const bullets: number = ctx.ctx.client.fightCache.get(bulletId) as number;
+        const bullets: number = (ctx.ctx.client.fightCache.get(bulletId) as number) || 0;
         if (bullets === 6) {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `${ctx.ctx.client.localEmojis.sexPistols} **${user.name}** has no bullets left... You just wasted your ability & stamina omg you're so dumb`
@@ -411,5 +432,22 @@ export const BulletsRafale: Ability = {
             );
         }
         ctx.ctx.client.fightCache.delete(bulletId + "fireX");
+    },
+};
+
+export const DeterminationFlurry: Ability = {
+    name: "Determination Flurry",
+    description: "A Barrage with multiple Slashs (+ bleed damage)",
+    cooldown: 5,
+    damage: 50,
+    blockable: true,
+    dodgeable: true,
+    stamina: 40,
+    extraTurns: 0,
+    useMessage: (user, target, damage, ctx) => {
+        const burnDamageCalc = Math.round(
+            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+        );
+        bleedDamagePromise(ctx, target, burnDamageCalc);
     },
 };

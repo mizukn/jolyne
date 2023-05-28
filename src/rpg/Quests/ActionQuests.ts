@@ -2,7 +2,6 @@ import { ButtonStyle, ButtonBuilder, MessageComponentInteraction } from "discord
 import { ActionQuest, Quests, RPGUserQuest } from "../../@types";
 import * as Functions from "../../utils/Functions";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
-import * as Emails from "../Emails";
 
 function validateQuest(ctx: CommandInteractionContext, questId: string): void {
     for (const quests of [
@@ -224,7 +223,7 @@ export const TakeKakyoinToHospital: ActionQuest = {
 
         const quest = Functions.generateWaitQuest(
             60000 * 5,
-            Emails.P1C2_KAKYOINBACK.id,
+            Functions.findEmail("p1c2:kakyoin_back").id,
             null,
             null,
             true
@@ -246,7 +245,7 @@ export const AlertYourGrandFatherAboutDioAndYourStand: ActionQuest = {
     use: async (ctx) => {
         const quest = Functions.generateWaitQuest(
             60000 * 15,
-            Emails.C2P1_GRANDFADIOALERTSTAND.id,
+            Functions.findEmail("c2p1:grandfadioalertstand").id,
             null,
             null,
             true
@@ -336,6 +335,7 @@ export const GoToAirport: ActionQuest = {
             Functions.addCoins(ctx.userData, -price);
             pushQuest(ctx, quest, "go_to_airport");
             validateQuest(ctx, "go_to_airport");
+            ctx.client.database.deleteCooldown(ctx.userData.id);
             ctx.client.database.saveUserData(ctx.userData);
         });
     },

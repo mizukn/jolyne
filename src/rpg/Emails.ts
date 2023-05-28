@@ -1,6 +1,7 @@
 import type { Email } from "../@types";
 import * as NPCs from "./NPCs/NPCs";
 import * as fNPCs from "./NPCs/FightableNPCs";
+import * as ActionQuests from "./Quests/ActionQuests";
 import { Quest, FightNPCQuest, NPC } from "../@types";
 
 /**
@@ -94,5 +95,5 @@ export const C2P1_GRANDFADIOALERTSTAND: Email = {
     content:
         "Damn so Dio isn't dead... Also the abilities you mentioned are called stands. I'll explain it to you later. Come to the airport, I'm already there with Kakyoin.",
     footer: "please hurry up",
-    chapterQuests: [],
+    chapterQuests: [ActionQuests.GoToAirport],
 };

@@ -163,7 +163,7 @@ export const HermitPurple: Stand = {
 export const SexPistols: Stand = {
     id: "sex_pistols",
     name: "Sex Pistols",
-    rarity: "B",
+    rarity: "A",
     description: "later",
     abilities: [Abilities.BulletsRafale],
     emoji: Emojis.sexPistols,
@@ -203,8 +203,7 @@ export const SexPistols: Stand = {
             let last = false;
 
             if (cooldown + 1 === 6) {
-                damages *= 2.9;
-                damages = Math.round(damages);
+                damages = Math.round(damages * 1.7);
                 last = true;
             }
 
