@@ -208,46 +208,18 @@ const slashCommand: SlashCommandFile = {
             const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
             if (!usrData) return;
             if (Functions.userIsCommunityBanned(usrData)) {
-                interaction
-                    .reply({
-                        content: `You are community banned and cannot participate in raids, trade and other RPG features that involve other users. If you think this is a mistake, please [contact the developers](https://discord.gg/jolyne). Reason: \`${Functions.userIsCommunityBanned(
-                            usrData
-                        )}\``,
-                        ephemeral: true,
-                    })
-                    .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                 return;
             }
 
             if (Functions.userIsCommunityBanned(ctx.userData)) {
-                interaction
-                    .reply({
-                        content: `The host of this raid is community banned and cannot participate in raids, trade and other RPG features that involve other users.`,
-                        ephemeral: true,
-                    })
-                    .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                 return;
             }
             if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
-                interaction
-                    .reply({
-                        content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
-                            "inventory use"
-                        )} or ${ctx.client.getSlashCommandMention("shop")})`,
-                        ephemeral: true,
-                    })
-                    .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                 return;
             }
             switch (interaction.customId) {
                 case joinRaidID: {
                     if (joinedUsers.length >= raid.maxPlayers) {
-                        interaction
-                            .reply({
-                                content: `Unofortunately, the raid is full. Better luck next time! (or just be faster next time smh)`,
-                                ephemeral: true,
-                            })
-                            .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                         return;
                     }
                     if (bannedUsers.find((r) => r.id === interaction.user.id)) {
@@ -285,12 +257,6 @@ const slashCommand: SlashCommandFile = {
                         1
                     );
                     ctx.client.database.deleteCooldown(usrData.id);
-                    ctx.interaction
-                        .followUp({
-                            content: `${usrData.tag} has left the raid!`,
-                            ephemeral: true,
-                        })
-                        .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                     makeMenuMessage();
                     break;
                 }
@@ -299,27 +265,15 @@ const slashCommand: SlashCommandFile = {
                         return;
                     }
                     if (joinedUsers.length <= 1) {
-                        interaction.reply({
-                            content: "There is no one to ban!",
-                            ephemeral: true,
-                        });
                         return;
                     }
                     const userToBan = joinedUsers.find(
                         (r) => r.id === (interaction as StringSelectMenuInteraction).values[0]
                     );
                     if (!userToBan) {
-                        interaction.reply({
-                            content: "That user doesn't exist!",
-                            ephemeral: true,
-                        });
                         return;
                     }
                     if (userToBan.id === ctx.userData.id) {
-                        interaction.reply({
-                            content: "You can't ban yourself!",
-                            ephemeral: true,
-                        });
                         return;
                     }
                     bannedUsers.push(userToBan);
@@ -328,10 +282,6 @@ const slashCommand: SlashCommandFile = {
                         1
                     );
                     ctx.client.database.deleteCooldown(usrData.id);
-                    interaction.reply({
-                        content: `You have banned ${userToBan.tag} from the raid!`,
-                        ephemeral: true,
-                    });
                     makeMenuMessage();
                     break;
                 }

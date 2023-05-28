@@ -296,7 +296,7 @@ const slashCommand: SlashCommandFile = {
                                     break;
                                 case "string":
                                     // %
-                                    addX(ctx.userData, Math.round((x() / maxX) * parseInt(amount)));
+                                    addX(ctx.userData, parseInt(amount) * 0.01 * maxX);
                                     winContentArray.push(
                                         `+${x() - oldX} ${emoji} (${x()}/${maxX})`
                                     );
