@@ -203,7 +203,7 @@ const Event: EventFile = {
                     }
                 }
                 // while checker if userData xp greater than maxXp
-                if (ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level)) {
+                while (ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level)) {
                     ctx.userData.xp -= Functions.getMaxXp(ctx.userData.level);
                     ctx.userData.level++;
                     ctx.followUpQueue.push({
