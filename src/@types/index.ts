@@ -467,6 +467,15 @@ export interface EquipableItem extends Item {
     };
 }
 
+export interface Weapon extends EquipableItem {
+    type: equipableItemTypes.WEAPON;
+    abilities: Ability[];
+    attackName: string;
+    useMessageAttack: string;
+    staminaCost: number;
+    color: number;
+}
+
 /**
  * NPC
  */
