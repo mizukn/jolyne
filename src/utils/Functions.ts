@@ -27,6 +27,8 @@ import {
     Consumable,
     Special,
     EquipableItem,
+    Weapon,
+    equipableItemTypes,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -557,6 +559,76 @@ export const standAbilitiesEmbed = (
     return embed;
 };
 
+export const getEmojiId = (emoji: string): string => {
+    const match = emoji.match(/(?<=:)\d+(?=>)/);
+    if (!match) return emoji;
+    return match[0];
+};
+
+export const weaponAbilitiesEmbed = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    cooldowns?: FightInfos["cooldowns"]
+): APIEmbed => {
+    const weapon = isFighter(user)
+        ? user.weapon
+        : findItem<Weapon>(
+              Object.keys(user.equippedItems).find(
+                  (r) => user.equippedItems[r] === equipableItemTypes.WEAPON
+              )
+          );
+    const totalWeaponSkillPoints = Object.values(weapon.effects.skillPoints).reduce(
+        (a, b) => a + b,
+        0
+    );
+
+    const embed: APIEmbed = {
+        title: weapon.name,
+        description:
+            weapon.description +
+            `\n\n**BONUSES:** +${totalWeaponSkillPoints} skill-points:\n${Object.entries(
+                weapon.effects.skillPoints
+            )
+                .map(([key, value]) => `• +${value} ${key}`)
+                .join("\n")}`,
+        color: weapon.color,
+        footer: {
+            text: `Rarity: ${weapon.rarity}`,
+        },
+        thumbnail: {
+            url: `https://cdn.discordapp.com/emojis/${getEmojiId(weapon.emoji)}.png`,
+        },
+        fields: [],
+    };
+
+    for (const ability of weapon.abilities) {
+        let content = `\`Damages:\` ${getAbilityDamage(user, ability)}\n\`Stamina cost:\` ${
+            ability.stamina
+        }`;
+
+        let cooldown: number;
+        if (cooldowns)
+            cooldown =
+                cooldowns.find((c) => c.move === ability.name && c.id === user.id)?.cooldown ?? 0;
+        else cooldown = ability.cooldown;
+
+        content += `\n\`Cooldown:\` ${cooldown} turns\n\n${ability.description.replace(
+            /{weaponName}/gi,
+            weapon.name
+        )}\n`;
+
+        if (ability.special) content += "��";
+        else content += "▬▬▬▬▬▬▬▬▬";
+
+        embed.fields.push({
+            name: ability.name + (ability.special ? " ⭐" : ""),
+            value: content,
+            inline: ability.special ? false : true,
+        });
+    }
+
+    return embed;
+};
+
 export const getSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): number => {
     const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
     return user.level * 3 - totalSkillPoints;
@@ -610,7 +682,8 @@ export const isEquipableItem = (item: Item): item is EquipableItem => {
     return equipables.some((i) => i.id === item.id);
 };
 
-export const findItem = <T extends Item | EquipableItem | Special>(name: string): T => {
+export const findItem = <T extends Item | EquipableItem | Special | Weapon>(name: string): T => {
+    if (!name) return null;
     return (Object.values(Items.default).find(
         (item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()
     ) ||
@@ -983,7 +1056,7 @@ export const calculeSkillPointsLeft = function calculeSkillPointsLeft(
         (userData.skillPoints.perception +
             userData.skillPoints.strength +
             userData.skillPoints.stamina +
-            userData.skillPoints.perception +
+            userData.skillPoints.defense +
             userData.skillPoints.speed)
     );
 };
