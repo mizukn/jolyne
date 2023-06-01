@@ -145,10 +145,10 @@ const slashCommand: SlashCommandFile = {
                             );
                         }
                         if (raid.baseRewards.xp) {
-                            const xp = Math.round(
+                            let xp = Math.round(
                                 winner.health === 0 ? raid.baseRewards.xp / 4 : raid.baseRewards.xp
                             );
-                            Functions.addXp(winnerData, xp);
+                            xp = Functions.addXp(winnerData, xp);
                             winContent.push(
                                 `+**${xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}`
                             );
@@ -166,7 +166,8 @@ const slashCommand: SlashCommandFile = {
                             }
                         }
                         winnerData.health = winner.health;
-                        winnerData.stamina = winner.stamina;
+                        if (winnerData.stamina > winner.stamina)
+                            winnerData.stamina = winner.stamina;
 
                         ctx.followUp({
                             content: `<@${winner.id}> won the raid ${

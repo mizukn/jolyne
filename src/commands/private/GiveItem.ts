@@ -43,11 +43,11 @@ const slashCommand: SlashCommandFile = {
             });
             return;
         }
-        const itemAmount = userData.inventory[itemData.name] || 0;
-        userData.inventory[itemData.name] = itemAmount + 1;
+        const itemAmount = userData.inventory[itemData.id] || 0;
+        userData.inventory[itemData.id] = itemAmount + 1;
         await ctx.client.database.saveUserData(userData);
         ctx.makeMessage({
-            content: `Gave ${userMention(user.id)} ${itemData.name}.`,
+            content: `${itemData.emoji} Gave ${userMention(user.id)} ${itemData.name}.`,
         });
     },
 };

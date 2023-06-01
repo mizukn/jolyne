@@ -264,7 +264,8 @@ const slashCommand: SlashCommandFile = {
                     const userDataFighter = winners.find((r) => r.id === ctx.userData.id);
 
                     ctx.userData.health = userDataFighter.health;
-                    ctx.userData.stamina = userDataFighter.stamina;
+                    if (ctx.userData.stamina > userDataFighter.stamina)
+                        ctx.userData.stamina = userDataFighter.stamina;
 
                     let quest: RPGUserQuest;
 
