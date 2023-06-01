@@ -23,7 +23,7 @@ export const JotarosHat: EquipableItem = {
     tradable: true,
     storable: true,
     requirements: {
-        level: 10000,
+        level: 1,
     },
 };
 
@@ -114,7 +114,7 @@ export const BlueJeans: EquipableItem = {
     description: "A pair of blue jeans.",
     type: equipableItemTypes.LEGS,
     effects: {
-        xpBoost: 0.2,
+        xpBoost: 100,
         health: 3,
         stamina: 5,
         skillPoints: {

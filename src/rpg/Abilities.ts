@@ -439,7 +439,7 @@ export const DeterminationFlurry: Ability = {
     name: "Determination Flurry",
     description: "A Barrage with multiple Slashs (+ bleed damage)",
     cooldown: 5,
-    damage: 50,
+    damage: 25,
     blockable: true,
     dodgeable: true,
     stamina: 40,
