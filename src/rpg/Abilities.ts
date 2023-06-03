@@ -109,7 +109,7 @@ export const LittleBoy: Ability = {
 export const Manipulation: Ability = {
     name: "Manipulation",
     description: "Manipulates the opponent's body, causing them unable to control therseivles",
-    cooldown: 6,
+    cooldown: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const baseTarget = { ...target };
@@ -121,7 +121,6 @@ export const Manipulation: Ability = {
             }[];
         }) => {
             if (unmanipulated) return;
-            target.id = baseTarget.id;
             target.name = baseTarget.name;
             target.manipulatedBy = undefined;
             fight.turns[ctx.turns.length - 1].logs.push(
@@ -135,7 +134,6 @@ export const Manipulation: Ability = {
         } else if (target.manipulatedBy) {
             return `**${user.name}:** [ERROR: cannot manipulate ${target.name} because they are already manipulated by ${target.manipulatedBy.name}]`;
         } else {
-            target.id = user.id;
             target.name += " (Manipulated)";
             target.manipulatedBy = user;
             ctx.nextRoundPromises.push({
@@ -146,15 +144,6 @@ export const Manipulation: Ability = {
                 id: "" + Date.now() + Math.random() + "",
             });
 
-            ctx.nextTurnPromises.push({
-                cooldown: 10,
-                promise: (fight: { turns: { logs: string[] }[] }) => {
-                    if (target.health <= 0) {
-                        unmanipulate(fight);
-                    }
-                },
-                id: "" + Date.now() + Math.random() + "",
-            });
             return `${user.stand.emoji} **${user.name}:** ${user.stand.name}: Manipulation! (target: ${target.name})`;
         }
     },
