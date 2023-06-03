@@ -53,7 +53,8 @@ const slashCommand: SlashCommandFile = {
             color: 0x70926c,
             fields: [],
         };
-        await ctx.makeMessage({ embeds: [embed] });
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        await ctx.makeMessage({ embeds: [embed] }).catch(() => {});
         let currentPage = 1;
 
         embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
@@ -134,7 +135,6 @@ const slashCommand: SlashCommandFile = {
                 ],
             });
         }
-
         updateMessage(currentPage);
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({

@@ -29,17 +29,21 @@ export const isChapterPart = (chapter: Chapter | ChapterPart): chapter is Chapte
     return (chapter as ChapterPart).parent !== undefined;
 };
 
-// do a function that for example if questPercent is 99.99999658242203, then it returns 65.8242203 and if 99.973456789 then it returns 73.456789
-function calculatePercentage(questPercent: number): number {
-    while (questPercent < 0 || questPercent > 100) {
-        if (questPercent < 0) {
-            questPercent += 100;
-        } else {
-            questPercent -= 100;
-        }
+export const nextChapter = (chapterId: number): Chapter | ChapterPart => {
+    const chapters = Object.values(Chapters).sort((a, b) => a.id - b.id);
+    const parts = Object.values(ChapterParts).sort((a, b) => a.id - b.id);
+
+    const chapter = chapters.find((v) => v.id === chapterId);
+    if (chapter) {
+        // warning: chapters are not 1, 2, 3 etc... it can be 1.1, 2.6 etc...
+        const nextChapters = chapters.filter((v) => v.id > chapter.id);
+        const nextPars = parts.filter((v) => v.id > chapter.id);
+        if (nextChapters[0]?.id > nextPars[0]?.id) return nextPars[0];
+        else return nextChapters[0];
     }
-    return Math.round(questPercent * 10000000) / 100000;
-}
+    return null;
+};
+
 export const makeChapterTitle = (
     chapter: Chapter | ChapterPart,
     userData: CommandInteractionContext["RPGUserData"]
@@ -340,7 +344,7 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
 
-                const newChap = getChapterOrChapterPartInfos(ctx.userData.chapter.id + 1);
+                const newChap = nextChapter(ctx.userData.chapter.id);
 
                 if (!newChap || newChap.private) {
                     collector.stop();
