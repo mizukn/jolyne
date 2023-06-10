@@ -18,6 +18,7 @@ export const C1: Chapter = {
         "de-DE": "Prologue",
         "it-IT": "Prologue",
     },
+    /*
     description: {
         "en-US":
             "You live an ordinary life until you are 15 years old. It's your first day in high school, you're on your way home from school and you see an old classmate. It's Kakyoin ! You greet him but but he runs into you and attacks you. It appears he's being manipulated.\n\nP.S: He's a stand user...",
@@ -52,6 +53,44 @@ export const C1: Chapter = {
             },
         ]),
         Quests.AwakenYourStand,
+    ],*/
+    description: {
+        "en-US":
+            "You’re 17 years old and living an ordinary life until one day you are mailed a Mysterious Arrow, as you go to grab it your hand starts bleeding and you feel a lot stronger all of a sudden. You are walking down a alleyway until you are stopped by a Thief and he tries to steal your wallet…",
+        "fr-FR":
+            "Vous avez 17 ans et menez une vie ordinaire jusqu'au jour où vous recevez une flèche mystérieuse par la poste, lorsque vous allez la saisir, votre main commence à saigner et vous vous sentez tout à coup beaucoup plus fort. Vous marchez dans une ruelle jusqu'à ce qu'un voleur vous arrête et essaie de vous voler votre portefeuille...",
+        "es-ES":
+            "Tienes 17 años y llevas una vida ordinaria hasta que un día te envían por correo una flecha misteriosa, cuando vas a agarrarla tu mano comienza a sangrar y de repente te sientes mucho más fuerte. Estás caminando por un callejón hasta que un ladrón te detiene y trata de robarte la billetera...",
+        "pt-BR":
+            "Você tem 17 anos e leva uma vida comum até que um dia recebe uma Flecha Misteriosa pelo correio, quando você vai pegá-la sua mão começa a sangrar e você se sente muito mais forte de repente. Você está andando por um beco até que é parado por um Ladrão e ele tenta roubar sua carteira...",
+        "ru-RU":
+            "Вам 17 лет, и вы ведете обычную жизнь, пока однажды вам не присылают по почте Таинственную Стрелу, когда вы хотите схватить ее, ваша рука начинает кровоточить, и вы чувствуете себя намного сильнее. Вы идете по переулку, пока вас не останавливает вор, и он пытается украсть ваш кошелек...",
+        "ja-JP":
+            "あなたは17歳で、普通の生活を送っていましたが、ある日、不思議な矢が郵送されてきました。それをつかもうとすると、手が出血し、突然とても強くなったように感じます。あなたは路地を歩いていると、突然泥棒に止められ、財布を盗もうとします...",
+        "ko-KR":
+            "당신은 17살이고 평범한 삶을 살고 있습니다. 어느 날, 당신에게 신비한 화살이 우편으로 보내졌습니다. 당신이 그것을 잡으려고 하면서 당신의 손이 피를 흘리기 시작하고 갑자기 훨씬 강해진 것 같습니다. 당신은 골목길을 걷고 있습니다. 도둑에게 막히고 그는 당신의 지갑을 훔치려고 시도합니다...",
+        "zh-CN":
+            "你今年17岁，过着平凡的生活，直到有一天你收到了一支神秘的箭，当你去抓它时，你的手开始流血，你突然感觉自己变得更强壮了。你走在小巷里，直到你被一个小偷拦住，他试图偷你的钱包...",
+        "zh-TW":
+            "你今年17歲，過著平凡的生活，直到有一天你收到了一支神秘的箭，當你去抓它時，你的手開始流血，你突然感覺自己變得更強壯了。你走在小巷裡，直到你被一個小偷攔住，他試圖偷你的錢包...",
+        "it-IT":
+            "Hai 17 anni e stai vivendo una vita ordinaria fino a quando un giorno ti viene spedita una Freccia Misteriosa, mentre vai a prenderla la tua mano inizia a sanguinare e ti senti molto più forte all'improvviso. Stai camminando in un vicolo fino a quando non vieni fermato da un Ladro e cerca di rubarti il portafoglio...",
+    },
+    quests: [
+        Quests.AwakenYourStand,
+        Functions.generateClaimXQuest("daily", 1),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit, null, null, [
+            {
+                item: Functions.findItem("Stand Arrow").name,
+                amount: 1,
+            },
+        ]),
+        Functions.generateClaimXQuest("coin", 650),
     ],
 };
 

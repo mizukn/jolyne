@@ -1,9 +1,237 @@
-import { Special, Stand } from "../../@types";
+import { Special, Stand, Item } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import * as Stands from "../Stands/Stands";
 import * as Functions from "../../utils/Functions";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import { AttachmentBuilder } from "discord.js";
+import * as Consumables from "./ConsumableItems";
+import * as Items from "./Items";
+
+interface boxLoot {
+    percent: number;
+    loot?: string;
+    xp?: number;
+    coins?: number;
+    mult?: number;
+}
+
+async function useBox(
+    ctx: CommandInteractionContext,
+    loot: boxLoot[][],
+    name: string,
+    superator: string,
+    emoji: string,
+    shakingEmoji: string
+): Promise<boolean> {
+    await ctx.makeMessage({
+        content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
+    });
+    await Functions.sleep(2000);
+
+    loot = loot.filter((r) => r.length > 0);
+    const winContent: string[] = [`▬▬▬▬▬**「${emoji} ${name.toUpperCase()}」**▬▬▬▬▬▬`];
+    const updateMessage = () => ctx.makeMessage({ content: winContent.join("\n") });
+    updateMessage();
+    let counter = 0;
+    for await (const lootBox of loot) {
+        counter++;
+        if (counter !== 1) {
+            winContent.push(superator);
+            await Functions.sleep(1000);
+            updateMessage();
+        }
+
+        for await (const reward of lootBox) {
+            await Functions.sleep(1000);
+            if (reward.xp) {
+                const xp = Functions.addXp(ctx.userData, reward.xp);
+                winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
+            } else if (reward.coins) {
+                const coins = Functions.addXp(ctx.userData, reward.coins);
+                winContent.push(`- **${coins.toLocaleString("en-US")}** ${Emojis.jocoins} coins`);
+            } else {
+                const item = Functions.findItem(reward.loot);
+                if (!item) continue;
+                Functions.addItem(ctx.userData, reward.loot, reward.mult ?? 1);
+                winContent.push(`- ${reward.mult ?? 1}x **${item.emoji} ${item.name}**`);
+            }
+            updateMessage();
+        }
+        updateMessage();
+    }
+    await Functions.sleep(1000);
+    winContent.push(superator);
+    updateMessage();
+
+    return true;
+}
+
+export const Box: Special = {
+    id: "box",
+    name: "Box",
+    description: "A box.",
+    rarity: "B",
+    emoji: "📦",
+    price: 5000,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const possibleConsumables = Object.values(Consumables).filter(
+            (r) => r.tradable && r.storable
+        );
+        const midItemsList1 = Object.values(Items).filter(
+            (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B"
+        );
+        const standList = Object.values(Stands).filter(
+            (r) => r.available && r.rarity !== "SS" && r.rarity !== "T"
+        );
+
+        const midItems = [
+            ...possibleConsumables,
+            ...midItemsList1,
+            ...standList
+                .filter((r) => r.rarity === "C")
+                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
+        ].filter((r) => r);
+        const okItems = [Items.Diamond, Items.AncientScroll];
+        const rareItems = [
+            ...standList
+                .filter((r) => r.rarity === "B")
+                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
+            ...Object.values(Items).filter(
+                (r) =>
+                    (r.tradable && r.storable && r.rarity === "B") ||
+                    (r.tradable && r.storable && r.rarity === "A")
+            ),
+            Functions.findItem("stand_arrow"),
+        ].filter((r) => r);
+
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    coins: Functions.randomNumber(1000, 5000),
+                },
+                {
+                    percent: 100,
+                    xp: Functions.randomNumber(
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 50
+                    ),
+                },
+            ],
+            [],
+            [],
+        ];
+
+        for (const item of midItems.filter((r) => Functions.percent(70))) {
+            const target = finalLoot[1];
+
+            if (!Functions.percent(50)) continue;
+            target.push({
+                percent: 100,
+                loot: item.id,
+            });
+        }
+
+        for (const item of rareItems.filter((r) => Functions.percent(50))) {
+            const target = finalLoot[2];
+
+            if (!Functions.percent(50)) continue;
+            target.push({
+                percent: 100,
+                loot: item.id,
+            });
+        }
+        return useBox(ctx, finalLoot, "box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "📦", Emojis.box_shaking);
+    },
+};
+
+export const MoneyBox: Special = {
+    id: "money_box",
+    name: "Money Box",
+    description: "A money box.",
+    rarity: "B",
+    emoji: Emojis.moneyBox,
+    price: 35000,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    coins: Functions.randomNumber(20000, 5000),
+                },
+                {
+                    percent: 100,
+                    xp: Functions.randomNumber(
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 50
+                    ),
+                },
+            ],
+            [],
+            [],
+        ];
+
+        return useBox(
+            ctx,
+            finalLoot,
+            "Money Box",
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            Emojis.moneyBox,
+            "<a:money_box_shaking:962388845540823100>"
+        );
+    },
+};
+
+export const PatreonBox: Special = {
+    id: "patron_box",
+    name: "Patron Box",
+    description: "A patron box.",
+    rarity: "S",
+    emoji: "<:patronbox:1056324158524502036>",
+    price: 200000,
+    tradable: false,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const standList = Object.values(Stands).filter((r) => r.available && r.rarity === "S");
+
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    coins: 100000,
+                },
+                {
+                    percent: 100,
+                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
+                },
+            ],
+            [
+                {
+                    percent: 100,
+                    loot: standList[Math.floor(Math.random() * standList.length)].id + ".$disc$",
+                },
+                {
+                    percent: 100,
+                    loot: StandArrow.id,
+                    mult: 30,
+                },
+            ],
+        ];
+
+        return useBox(
+            ctx,
+            finalLoot,
+            "Patron Box",
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            "<:x:1056324158524502036>",
+            "<a:x:1056324219639701504>"
+        );
+    },
+};
 
 export const StandArrow: Special = {
     id: "stand_arrow",

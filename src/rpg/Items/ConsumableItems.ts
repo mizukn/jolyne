@@ -195,3 +195,93 @@ export const Salad_Bowl: Consumable = {
         stamina: 25,
     },
 };
+
+export const DeadRat: Consumable = {
+    id: "dead_rat",
+    name: "Dead Rat",
+    description: "A dead rat. Eat it for a full health & stamina restore.",
+    emoji: "🐀",
+    price: 69,
+    rarity: "C",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: -99999999,
+        stamina: -99999999,
+    },
+};
+
+export const Candy: Consumable = {
+    id: "candy",
+    name: "Candy",
+    description: "A piece of candy",
+    emoji: "🍬",
+    price: 100,
+    rarity: "C",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 10,
+        stamina: 10,
+    },
+};
+
+export const Sandwich: Consumable = {
+    id: "sandwich",
+    name: "Sandwich",
+    description: "A sandwich",
+    emoji: "🥪",
+    price: 250,
+    rarity: "C",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 20,
+        stamina: 15,
+    },
+};
+
+export const Coconut: Consumable = {
+    id: "coconut",
+    name: "Coconut",
+    description: "A coconut",
+    emoji: "🥥",
+    price: 100,
+    rarity: "C",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 10,
+        stamina: 10,
+    },
+};
+
+export const Burger: Consumable = {
+    id: "burger",
+    name: "Burger",
+    description: "A burger. Not very healthy, but tasty!",
+    emoji: "🍔",
+    price: 225,
+    rarity: "C",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 10,
+        stamina: 15,
+    },
+};
+
+export const ChocolateBar: Consumable = {
+    id: "chocolate_bar",
+    name: "Chocolate Bar",
+    description: "A chocolate bar",
+    emoji: "🍫",
+    price: 100,
+    rarity: "C",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 0,
+        stamina: 20,
+    },
+};

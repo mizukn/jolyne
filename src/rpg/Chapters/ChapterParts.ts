@@ -20,7 +20,34 @@ export const C1_P2: ChapterPart = {
     quests: [
         ActionQuests.RemoveFleshbudToKakyoin,
         ActionQuests.AnalyseHair,
-        Functions.generateClaimItemQuest("pizza", 2),
+        Functions.generateClaimItemQuest(Functions.findItem("pizza").id, 2),
+        Functions.generateClaimItemQuest(Functions.findItem("cola").id, 2),
+    ],
+    parent: Chapters.C1,
+    private: false,
+};
+
+export const C1_P2L: ChapterPart = {
+    id: 1.1,
+    description: {
+        "en-US":
+            "After you’ve beaten the hell out of that Thief you continue walking to Jotaro’s House and you see your fellow classmate, Noriaki Kakyoin, he looks at you with a blank expression and some green tentacles fly at you, your stand blocks it, you prepare to fight…",
+        "fr-FR":
+            "Après avoir battu le voleur, tu continues à marcher vers la maison de Jotaro et tu vois ton camarade de classe, Noriaki Kakyoin, il te regarde avec une expression vide et des tentacules vertes volent vers toi, ton stand le bloque, tu te prépares à combattre...",
+        "es-ES":
+            "Después de haber derrotado al ladrón, sigues caminando hacia la casa de Jotaro y ves a tu compañero de clase, Noriaki Kakyoin, te mira con una expresión vacía y unos tentáculos verdes vuelan hacia ti, tu stand lo bloquea, te preparas para luchar...",
+        "de-DE":
+            "Nachdem du den Dieb besiegt hast, gehst du weiter zum Haus von Jotaro und du siehst deinen Klassenkameraden, Noriaki Kakyoin, er sieht dich mit einem leeren Ausdruck an und einige grüne Tentakel fliegen auf dich zu, dein Stand blockiert es, du bereitest dich auf den Kampf vor...",
+    },
+    quests: [
+        Functions.generateFightQuest(NPCs.Kakyoin, null, null, [
+            {
+                item: Functions.findItem("Stand Arrow").name,
+                amount: 1,
+            },
+        ]),
+        Functions.generateUseXCommandQuest("loot", 1),
+        Functions.generateUseXCommandQuest("assault", 1),
     ],
     parent: Chapters.C1,
     private: false,

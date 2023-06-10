@@ -209,16 +209,6 @@ export const TakeKakyoinToHospital: ActionQuest = {
     i18n_key: "BRING_KAKYOIN_HOSPITAL",
     emoji: "🏥",
     use: async (ctx) => {
-        if (ctx.userData.coins < 2500) {
-            await ctx.sendTranslated("action:BRING_KAKYOIN_HOSPITAL.MONEY");
-            ctx.followUp({
-                content:
-                    "You need 2,500 coins to do this. Try claiming your daily, fighting mobs from your daily quests or selling items.",
-                ephemeral: true,
-            });
-            return;
-        }
-        ctx.userData.coins -= 5000;
         ctx.sendTranslated("action:BRING_KAKYOIN_HOSPITAL.SUCCESS");
 
         const quest = Functions.generateWaitQuest(
