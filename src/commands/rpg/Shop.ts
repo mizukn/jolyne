@@ -186,7 +186,7 @@ const slashCommand: SlashCommandFile = {
                 const Shop = Shops[shop as keyof typeof Shops];
                 handleShop(Shop);
             }
-            // handleShop(createUserBlackMarket());
+            handleShop(createUserBlackMarket());
             const shopSelectMenu = new StringSelectMenuBuilder()
                 .setCustomId("shop")
                 .setPlaceholder("Select a shop")

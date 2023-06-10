@@ -33,7 +33,8 @@ export const nextChapter = (chapterId: number): Chapter | ChapterPart => {
     const chapters = Object.values(Chapters).sort((a, b) => a.id - b.id);
     const parts = Object.values(ChapterParts).sort((a, b) => a.id - b.id);
 
-    const chapter = chapters.find((v) => v.id === chapterId);
+    const chapter =
+        chapters.find((v) => v.id === chapterId) || parts.find((v) => v.id === chapterId);
     if (chapter) {
         // warning: chapters are not 1, 2, 3 etc... it can be 1.1, 2.6 etc...
         const nextChapters = chapters.filter((v) => v.id > chapter.id);
@@ -44,6 +45,7 @@ export const nextChapter = (chapterId: number): Chapter | ChapterPart => {
     return null;
 };
 
+console.log(nextChapter(1));
 export const makeChapterTitle = (
     chapter: Chapter | ChapterPart,
     userData: CommandInteractionContext["RPGUserData"]
