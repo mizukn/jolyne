@@ -862,7 +862,12 @@ export const getRewards = (
     return rewards;
 };
 
-export const addItem = (userData: RPGUserDataJSON, item: Item | string, amount?: number): void => {
+export const addItem = (
+    userData: RPGUserDataJSON,
+    item: Item | string,
+    amount?: number,
+    ignoreQuests?: boolean
+): void => {
     if (typeof item === "string") {
         item = findItem(item);
     }
@@ -875,6 +880,7 @@ export const addItem = (userData: RPGUserDataJSON, item: Item | string, amount?:
         userData.inventory[item.id]++;
     }
 
+    if (ignoreQuests) return;
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,
@@ -1168,4 +1174,13 @@ export const fixFields = function fixFields(
 
 export const generateMessageLink = function generateMessageLink(r: Message<boolean>): string {
     return `https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`;
+};
+
+export const shuffle = function shuffle<T>(array: T[]): T[] {
+    const shuffledArray = [...array];
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    }
+    return shuffledArray;
 };
