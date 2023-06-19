@@ -13,14 +13,16 @@ const Event: EventFile = {
 
             if (
                 command.ownerOnly &&
-                !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
+                !process.env.OWNER_IDS.split(",").includes(interaction.user.id) &&
+                command.data.name !== "giveitem"
             )
                 return interaction.reply({
                     content: interaction.client.localEmojis["jolyne"],
                 });
             if (
                 command.adminOnly &&
-                !process.env.ADMIN_IDS.split(",").includes(interaction.user.id)
+                !process.env.ADMIN_IDS.split(",").includes(interaction.user.id) &&
+                command.data.name !== "giveitem"
             )
                 return interaction.reply({
                     content: interaction.client.localEmojis["jolyne"],
@@ -73,7 +75,7 @@ const Event: EventFile = {
                     );
                     if (cooldown && cooldown > Date.now()) {
                         return ctx.makeMessage({
-                            content: `You can use this command again ${Functions.generateDiscordTimestamp(
+                            content: `You can use this RPG command again ${Functions.generateDiscordTimestamp(
                                 cooldown,
                                 "FROM_NOW"
                             )}`,
@@ -85,30 +87,45 @@ const Event: EventFile = {
             if (command.category === "rpg" && ctx.userData) {
                 const isONCD = await ctx.client.database.getCooldown(ctx.user.id);
                 if (isONCD) {
-                    await ctx.interaction.reply({
-                        content: isONCD,
-                    });
-                    if (
-                        !(await ctx.client.database.redis.get(
-                            `tempCache_cooldown:${ctx.user.id}_toldWarning`
-                        ))
-                    ) {
-                        ctx.followUp({
-                            content: `Reminder: If you can't find the command or someone deleted it, just wait a few minutes and your cooldown will be automatically deleted. If this problem still persists, please contact us at https://discord.gg/jolyne`,
-                            ephemeral: true,
+                    let dox = false;
+                    if (command.data.name === "trade") {
+                        if (ctx.interaction.options.getSubcommand() !== "trade") {
+                        } else dox = true;
+                    } else dox = true;
+                    if (dox) {
+                        await ctx.interaction.reply({
+                            content: isONCD,
                         });
-                        await ctx.client.database.redis.set(
-                            `tempCache_cooldown:${ctx.user.id}_toldWarning`,
-                            "true"
-                        );
+                        if (
+                            !(await ctx.client.database.redis.get(
+                                `tempCache_cooldown:${ctx.user.id}_toldWarning`
+                            ))
+                        ) {
+                            ctx.followUp({
+                                content: `Reminder: If you can't find the command or someone deleted it, just wait a few minutes and your cooldown will be automatically deleted. If this problem still persists, please contact us at https://discord.gg/jolyne`,
+                                ephemeral: true,
+                            });
+                            await ctx.client.database.redis.set(
+                                `tempCache_cooldown:${ctx.user.id}_toldWarning`,
+                                "true"
+                            );
+                        }
+                        return;
                     }
-                    return;
                 }
                 let commandName = command.data.name;
                 if (command.data.options.filter((r) => r.type === 1).length !== 0) {
                     commandName += ` ${interaction.options.getSubcommand()}`;
                 }
                 const oldDataJSON = JSON.stringify(ctx.userData);
+
+                // check if in inventory it has something like { stand_arrow: null } and fix nulls
+                ctx.userData.tag = ctx.user.tag;
+                for (const item in ctx.userData.inventory) {
+                    if (ctx.userData.inventory[item] === null) {
+                        delete ctx.userData.inventory[item];
+                    }
+                }
 
                 for (const quests of [
                     ctx.userData.daily.quests,
@@ -214,6 +231,41 @@ const Event: EventFile = {
                         )} command to invest your skill points!`,
                     });
                 }
+                if (new Date().getDay() === 0 && command.data.name !== "shop") {
+                    if (!ctx.client.otherCache.get(`black_market:${ctx.user.id}`)) {
+                        const data = await ctx.client.database.getJSONData(
+                            Functions.getBlackMarketString(ctx.user.id)
+                        );
+                        if (!data) {
+                            ctx.followUpQueue.push({
+                                content: `🃏 | **${
+                                    ctx.user.username
+                                }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
+                                    "shop"
+                                )} command to see what's available! [$$]`,
+                            });
+                        } else ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
+                    } else
+                        ctx.followUpQueue.push({
+                            content: `🃏 | **${
+                                ctx.user.username
+                            }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
+                                "shop"
+                            )} command to see what's available! [$]`,
+                        });
+                }
+
+                if (Functions.calculeSkillPointsLeft(ctx.userData) > 0) {
+                    ctx.followUpQueue.push({
+                        content: `:arrow_up: | **${
+                            ctx.user.username
+                        }**, you have **${Functions.calculeSkillPointsLeft(
+                            ctx.userData
+                        )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
+                            "skill points invest"
+                        )} command to invest them!`,
+                    });
+                }
 
                 if (
                     ctx.userData.daily.lastDailyQuestsReset !== new Date().setUTCHours(0, 0, 0, 0)
@@ -255,7 +307,10 @@ const Event: EventFile = {
                 interaction.respond([]);
                 return;
             }
-            if (await interaction.client.database.getCooldown(userData.id)) {
+            if (
+                (await interaction.client.database.getCooldown(userData.id)) &&
+                command.data.name !== "trade"
+            ) {
                 interaction.respond([]);
                 return;
             }
