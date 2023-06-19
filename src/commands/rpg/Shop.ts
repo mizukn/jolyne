@@ -59,7 +59,7 @@ const slashCommand: SlashCommandFile = {
         let shops: cShop[] = [];
         let currentShop: cShop | undefined;
 
-        function createUserBlackMarket(): Shop {
+        async function createUserBlackMarket(): Promise<Shop> {
             const BM: Shop = {
                 name: "Black Market",
                 owner: {
@@ -71,26 +71,50 @@ const slashCommand: SlashCommandFile = {
                 items: [
                     {
                         item: Functions.findItem("stand_arrow").id,
+                        price: Functions.findItem("stand_arrow").price ?? 10000,
                     },
                 ],
             };
-            for (const stand in Stands) {
-                /*if (
-                    Functions.RNG(0, 100) >
-                    standPercent[Stands[stand as keyof typeof Stands].rarity]
-                )
-                    continue;*/
-
-                BM.items.push({
-                    item: Functions.findItem(Stands[stand as keyof typeof Stands].id).id,
-                    price: standPrice[Stands[stand as keyof typeof Stands].rarity],
-                });
+            const hasAlreadyBlackMarket = (await ctx.client.database.getJSONData(
+                Functions.getBlackMarketString(ctx.user.id)
+            )) as Shop["items"];
+            if (!hasAlreadyBlackMarket) {
+                for (const stand in Stands) {
+                    BM.items.push({
+                        item: Functions.findItem(Stands[stand as keyof typeof Stands].id).id,
+                        price: standPrice[Stands[stand as keyof typeof Stands].rarity],
+                    });
+                }
+                BM.items = Functions.shuffle(BM.items);
+                BM.items.length = ctx.client.patreons.find((x) => x.id === ctx.user.id)
+                    ? Functions.RNG(
+                          ctx.client.patreons.find((x) => x.id === ctx.user.id).level + 2,
+                          ctx.client.patreons.find((x) => x.id === ctx.user.id).level * 2 + 7
+                      )
+                    : Functions.RNG(3, 7);
+                if (ctx.client.patreons.find((x) => x.id === ctx.user.id)) {
+                    const priceMult = {
+                        1: 0.85,
+                        2: 0.75,
+                        3: 0.5,
+                        4: 0.25,
+                    }[ctx.client.patreons.find((x) => x.id === ctx.user.id).level];
+                    for (const item of BM.items) {
+                        item.price = Math.round(item.price * priceMult);
+                    }
+                }
+                await ctx.client.database.setJSONData(
+                    Functions.getBlackMarketString(ctx.user.id),
+                    BM.items
+                );
+            } else {
+                BM.items = hasAlreadyBlackMarket;
             }
 
             return BM;
         }
 
-        function sendMenuEmbed(): void {
+        async function sendMenuEmbed(): Promise<void> {
             shops = [];
             const embed: APIEmbed = {
                 title: ":shopping_cart: Morioh City Shop",
@@ -186,7 +210,7 @@ const slashCommand: SlashCommandFile = {
                 const Shop = Shops[shop as keyof typeof Shops];
                 handleShop(Shop);
             }
-            handleShop(createUserBlackMarket());
+            if (new Date().getDay() === 0) handleShop(await createUserBlackMarket());
             const shopSelectMenu = new StringSelectMenuBuilder()
                 .setCustomId("shop")
                 .setPlaceholder("Select a shop")

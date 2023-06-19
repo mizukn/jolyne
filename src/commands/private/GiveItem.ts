@@ -21,6 +21,12 @@ const slashCommand: SlashCommandFile = {
                 type: 6,
                 required: false,
             },
+            {
+                name: "amount",
+                description: "ssss",
+                type: 4,
+                required: false,
+            },
         ],
     },
     ownerOnly: true,
@@ -31,6 +37,7 @@ const slashCommand: SlashCommandFile = {
         const itemData = Functions.findItem(item);
         const user = ctx.options.getUser("user", false) || ctx.user;
         const userData = await ctx.client.database.getRPGUserData(user.id);
+        const amount = ctx.options.getInteger("amount", false) || 1;
         if (!userData) {
             ctx.makeMessage({
                 content: `${userMention(user.id)} doesn't have a RPG account.`,
@@ -44,10 +51,11 @@ const slashCommand: SlashCommandFile = {
             return;
         }
         const itemAmount = userData.inventory[itemData.id] || 0;
-        userData.inventory[itemData.id] = itemAmount + 1;
+        userData.inventory[itemData.id] = itemAmount + amount;
+
         await ctx.client.database.saveUserData(userData);
         ctx.makeMessage({
-            content: `${itemData.emoji} Gave ${userMention(user.id)} ${itemData.name}.`,
+            content: `${itemData.emoji} Gave ${userMention(user.id)} x${amount} ${itemData.name}.`,
         });
     },
 };

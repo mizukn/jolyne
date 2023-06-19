@@ -38,12 +38,12 @@ const slashCommand: SlashCommandFile = {
         options: [
             {
                 name: "claim",
-                description: "Starts your bizarre adventure.",
+                description: "Claim your daily rewards.",
                 type: 1,
             },
             {
                 name: "quests",
-                description: "Resets all your data from our database.",
+                description: "Shows your daily quests.",
                 type: 1,
             },
         ],

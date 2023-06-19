@@ -58,12 +58,12 @@ const slashCommand: SlashCommandFile = {
         options: [
             {
                 name: "view",
-                description: "b",
+                description: "Shows your non-archived emails",
                 type: 1,
             },
             {
                 name: "archived",
-                description: "c",
+                description: "Shows your archived emails",
                 type: 1,
             },
         ],

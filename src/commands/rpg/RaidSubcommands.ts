@@ -19,6 +19,7 @@ import { InteractionType } from "discord.js";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import * as Bosses from "../../rpg/Raids";
+import { raidWebhook } from "../../utils/Webhooks";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -126,6 +127,62 @@ const slashCommand: SlashCommandFile = {
                     ctx.client.database.deleteCooldown(user.id);
                     await ctx.client.database.setRPGCooldown(user.id, "raid", 60000 * 10);
                 }
+                raidWebhook.send({
+                    embeds: [
+                        {
+                            title: `${raid.boss.name} Raid`,
+                            description: `${joinedUsers
+                                .map((x) => "**" + x.tag + "**")
+                                .join(", ")} raided **${raid.boss.name}** and ${
+                                joinedUsers.find((r) => r.id === winners[0].id) ? "won" : "lost"
+                            }!`,
+                            color: 0x70926c,
+                            fields: [
+                                {
+                                    name: "Host",
+                                    value: ctx.user.username,
+                                    inline: true,
+                                },
+                                {
+                                    name: "Winners",
+                                    value: winners.map((r) => r.name).join(", "),
+                                    inline: true,
+                                },
+                                {
+                                    name: "Losers",
+                                    value: losers
+                                        .map((team) => team.map((r) => r.name).join(", "))
+                                        .join("\n"),
+                                    inline: true,
+                                },
+                                {
+                                    name: "Guild info",
+                                    value: `${ctx.guild.name} (${ctx.guild.id})`,
+                                    inline: true,
+                                },
+                                {
+                                    name: "Total damages",
+                                    value: [...winners, ...losers.flat()]
+                                        .sort((a, b) => b.totalDamageDealt - a.totalDamageDealt)
+                                        .map(
+                                            (r) =>
+                                                `- ${r.name}: **${r.totalDamageDealt.toLocaleString(
+                                                    "en-US"
+                                                )}**`
+                                        )
+                                        .join("\n"),
+                                },
+                            ],
+                            thumbnail: {
+                                url:
+                                    raid.boss.avatarURL ??
+                                    `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
+                                        raid.boss.emoji
+                                    )}.png`,
+                            },
+                        },
+                    ],
+                });
                 if (joinedUsers.find((r) => r.id === winners[0].id)) {
                     for (const winner of winners) {
                         const winnerData = await ctx.client.database.getRPGUserData(winner.id);

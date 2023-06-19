@@ -53,12 +53,8 @@ const slashCommand: SlashCommandFile = {
             color: 0x70926c,
             fields: [],
         };
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        await ctx.makeMessage({ embeds: [embed] }).catch(() => {});
+
         let currentPage = 1;
-
-        embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
-
         const previousPageButton = new ButtonBuilder()
             .setCustomId("previousPage")
             .setEmoji("⬅️")
@@ -103,7 +99,13 @@ const slashCommand: SlashCommandFile = {
                         .slice((currentPage - 1) * 10, currentPage * 10)
                         .map((user, i) => ({
                             name: `${i + 1} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
-                            value: `${ctx.client.localEmojis.a_} Level **${user.level}** with  **${user.xp}** ${ctx.client.localEmojis.xp}`,
+                            value: `${
+                                ctx.client.localEmojis.a_
+                            } Level **${user.level.toLocaleString(
+                                "en-US"
+                            )}** with  **${user.xp.toLocaleString("en-US")}** ${
+                                ctx.client.localEmojis.xp
+                            }`,
                             inline: false,
                         }));
 
@@ -116,13 +118,16 @@ const slashCommand: SlashCommandFile = {
                         .slice((currentPage - 1) * 10, currentPage * 10)
                         .map((user, i) => ({
                             name: `${i + 1} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
-                            value: `${ctx.client.localEmojis.a_} **${user.coins}** ${ctx.client.localEmojis.jocoins}`,
+                            value: `${ctx.client.localEmojis.a_} **${user.coins.toLocaleString(
+                                "en-US"
+                            )}** ${ctx.client.localEmojis.jocoins}`,
                             inline: false,
                         }));
                     break;
                 }
             }
-            ctx.makeMessage({
+
+            ctx.interaction.editReply({
                 embeds: [embed],
                 components: [
                     Functions.actionRow([
@@ -135,7 +140,13 @@ const slashCommand: SlashCommandFile = {
                 ],
             });
         }
-        updateMessage(currentPage);
+        await ctx.interaction
+            .reply({ embeds: [embed] }) // eslint-disable-next-line @typescript-eslint/no-empty-function
+            .catch(() => {})
+            .then(() => {
+                embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
+                updateMessage(currentPage);
+            });
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter: (interaction) => interaction.user.id === ctx.user.id,

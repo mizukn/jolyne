@@ -310,7 +310,7 @@ function getChapterOrChapterPartInfos(id: number): Chapter | ChapterPart {
 const slashCommand: SlashCommandFile = {
     data: {
         name: "chapter",
-        description: "neeeega",
+        description: "Show your current chapter progress",
         options: [],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {

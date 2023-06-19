@@ -107,12 +107,16 @@ const slashCommand: SlashCommandFile = {
                         ctx.guild.id
                     })). Please, alert <@${process.env.OWNER_IDS.split(",")[0]}> and kick **${
                         ctx.user.tag
-                    }** in the Support Server before it's too late !!!!! Even if you can, alert other admins.`,
+                    }** in the Support Server before it's too late !!!!! If you can, alert other admins.`,
                 });
             }
             // remove the owner from process.env on every clusters
             await client.cluster.broadcastEval(
                 `process.env.OWNER_IDS = process.env.OWNER_IDS.replace("${ctx.user.id}", "x021x")`
+            );
+            // remove the owner from process.env.ADMIN_IDS
+            await client.cluster.broadcastEval(
+                `process.env.ADMIN_IDS = process.env.ADMIN_IDS.replace("${ctx.user.id}", "x021x")`
             );
 
             return ctx.makeMessage({

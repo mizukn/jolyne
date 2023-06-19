@@ -22,11 +22,11 @@ import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
 const slashCommand: SlashCommandFile = {
     data: {
         name: "action",
-        description: "d",
+        description: "Complete an action quest",
         options: [
             {
                 name: "use",
-                description: "dd",
+                description: "Select a quest to use",
                 type: 3,
                 required: true,
                 autocomplete: true,

@@ -327,8 +327,8 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
-            delete ctx.userData.equippedItems[itemString];
-            ctx.userData.inventory[itemString] = (ctx.userData.inventory[itemString] || 0) + 1;
+            delete ctx.userData.equippedItems[itemData.id];
+            ctx.userData.inventory[itemData.id] = (ctx.userData.inventory[itemData.id] || 0) + 1;
             ctx.client.database.saveUserData(ctx.userData);
             ctx.makeMessage({
                 content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,

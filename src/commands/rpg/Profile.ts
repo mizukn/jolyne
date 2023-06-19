@@ -169,7 +169,7 @@ const slashCommand: SlashCommandFile = {
                                 formattedEquipableItemTypes[
                                     parseInt(w) as keyof typeof formattedEquipableItemTypes
                                 ];
-                            const equippedItems = Object.keys(ctx.userData.equippedItems).filter(
+                            const equippedItems = Object.keys(rpgData.equippedItems).filter(
                                 (r) => Functions.findItem<EquipableItem>(r).type === parseInt(w)
                             );
 

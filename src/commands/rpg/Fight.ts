@@ -26,7 +26,7 @@ function getTeamIdx(fighter: RPGUserDataJSON, teams: RPGUserDataJSON[][]): numbe
 const slashCommand: SlashCommandFile = {
     data: {
         name: "fight",
-        description: "neeeega",
+        description: "l",
         options: [
             {
                 name: "npc",
