@@ -40,6 +40,7 @@ import {
     APIEmbed,
     Utils,
     Message,
+    MessageActionRowComponent,
 } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
@@ -1020,11 +1021,13 @@ export const isConsumable = (item: Item | "string"): item is Consumable => {
 };
 
 export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: number): void {
+    if (userData.health < 0) userData.health = 0;
     userData.health += amount;
     if (userData.health > getMaxHealth(userData)) userData.health = getMaxHealth(userData);
 };
 
 export const addStamina = function addStamina(userData: RPGUserDataJSON, amount: number): void {
+    if (userData.stamina < 0) userData.stamina = 0;
     userData.stamina += amount;
     if (userData.stamina > getMaxStamina(userData)) userData.stamina = getMaxStamina(userData);
 };
@@ -1183,4 +1186,14 @@ export const shuffle = function shuffle<T>(array: T[]): T[] {
         [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
     }
     return shuffledArray;
+};
+
+export const getBlackMarketString = function getBlackMarketString(id: string): string {
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `black_market:${id}_(${day < 10 ? "0" + day : day}/${
+        month < 10 ? "0" + month : month
+    }/${year})`;
 };
