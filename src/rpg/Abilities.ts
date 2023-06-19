@@ -109,7 +109,7 @@ export const LittleBoy: Ability = {
 export const Manipulation: Ability = {
     name: "Manipulation",
     description: "Manipulates the opponent's body, causing them unable to control therseivles",
-    cooldown: 0,
+    cooldown: 10,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const baseTarget = { ...target };

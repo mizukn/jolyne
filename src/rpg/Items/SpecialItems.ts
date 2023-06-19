@@ -61,6 +61,7 @@ async function useBox(
     }
     await Functions.sleep(1000);
     winContent.push(superator);
+    ctx.client.database.saveUserData(ctx.userData);
     updateMessage();
 
     return true;
