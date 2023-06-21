@@ -642,6 +642,7 @@ export interface Ability {
     stamina: number;
     special?: boolean;
     thumbnail?: string;
+    dodgeScore: number;
 }
 
 export interface RequiemStand extends Stand {
