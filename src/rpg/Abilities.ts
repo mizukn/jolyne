@@ -12,6 +12,7 @@ export const StandBarrage: Ability = {
     stamina: 10,
     dodgeable: true,
     blockable: false,
+    dodgeScore: 1,
 };
 
 export const KickBarrage: Ability = {
@@ -23,6 +24,7 @@ export const KickBarrage: Ability = {
     stamina: 10,
     dodgeable: true,
     blockable: true,
+    dodgeScore: 1,
 };
 
 export const StarFinger: Ability = {
@@ -34,6 +36,7 @@ export const StarFinger: Ability = {
     stamina: 18,
     dodgeable: true,
     blockable: false,
+    dodgeScore: 2,
 };
 
 export const RoadRoller: Ability = {
@@ -73,6 +76,7 @@ export const TheWorld: Ability = {
         }
         return `**${user.name}:** ${user.stand.name}: TOKI WO TOMARE!`;
     },
+    dodgeScore: 20,
 };
 
 export const EmeraldSplash: Ability = {
@@ -84,6 +88,7 @@ export const EmeraldSplash: Ability = {
     stamina: 15,
     dodgeable: true,
     blockable: false,
+    dodgeScore: 10,
 };
 
 export const VolaBarrage: Ability = {
@@ -92,6 +97,7 @@ export const VolaBarrage: Ability = {
     description: "Sends a wave of bullets in the direction the user is facing.",
     thumbnail:
         "https://cdn.discordapp.com/attachments/940949551911690311/1100382611634913391/AdorableRemoteBigmouthbass-mobile.gif",
+    dodgeScore: 3,
 };
 
 export const LittleBoy: Ability = {
@@ -104,12 +110,13 @@ export const LittleBoy: Ability = {
     stamina: 20,
     dodgeable: false,
     blockable: false,
+    dodgeScore: 3,
 };
 
 export const Manipulation: Ability = {
     name: "Manipulation",
     description: "Manipulates the opponent's body, causing them unable to control therseivles",
-    cooldown: 10,
+    cooldown: 2,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const baseTarget = { ...target };
@@ -153,6 +160,7 @@ export const Manipulation: Ability = {
     stamina: TheWorld.stamina,
     extraTurns: 0,
     thumbnail: "https://media.tenor.com/zOTu19A7VoEAAAAC/jojo-hierophant-green.gif",
+    dodgeScore: 1,
 };
 
 export const LightSpeedBarrage: Ability = {
@@ -165,6 +173,7 @@ export const LightSpeedBarrage: Ability = {
     stamina: 15,
     extraTurns: 1,
     thumbnail: "https://media.tenor.com/X1JHf1sGkwIAAAAd/okuyasu-the-hand.gif",
+    dodgeScore: 4,
 };
 
 export const DeadlyErasure: Ability = {
@@ -180,6 +189,7 @@ export const DeadlyErasure: Ability = {
     special: true,
     thumbnail:
         "https://cdn.discordapp.com/attachments/940949551911690311/1100382190166081647/RawDaringEeve-mobile.gif",
+    dodgeScore: 4,
 };
 
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
@@ -240,6 +250,7 @@ export const CrossfireHurricane: Ability = {
         burnDamagePromise(ctx, target, burnDamageCalc);
     },
     thumbnail: "https://media.tenor.com/n79QWE9azhEAAAAC/magicians-red-avdol.gif",
+    dodgeScore: 1,
 };
 
 export const RedBind: Ability = {
@@ -255,6 +266,7 @@ export const RedBind: Ability = {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, RedBind) / 10);
         burnDamagePromise(ctx, target, burnDamageCalc);
     },
+    dodgeScore: 2,
 };
 
 export const Bakugo: Ability = {
@@ -271,6 +283,7 @@ export const Bakugo: Ability = {
         burnDamagePromise(ctx, target, burnDamageCalc);
     },
     special: true,
+    dodgeScore: 3,
 };
 
 export const NailShot: Ability = {
@@ -282,6 +295,7 @@ export const NailShot: Ability = {
     dodgeable: true,
     stamina: 20,
     extraTurns: 0,
+    dodgeScore: 3,
 };
 
 export const NailSpin: Ability = {
@@ -293,6 +307,7 @@ export const NailSpin: Ability = {
     dodgeable: true,
     stamina: 20,
     extraTurns: 0,
+    dodgeScore: 1,
 };
 
 export const GoldenRectangleNails: Ability = {
@@ -304,6 +319,7 @@ export const GoldenRectangleNails: Ability = {
     dodgeable: true,
     stamina: 30,
     extraTurns: 0,
+    dodgeScore: 1,
 };
 
 export const SpatialWormhole: Ability = {
@@ -315,6 +331,7 @@ export const SpatialWormhole: Ability = {
     dodgeable: false,
     stamina: 40,
     extraTurns: 0,
+    dodgeScore: 1,
 };
 
 export const InfiniteRotation = {
@@ -326,6 +343,7 @@ export const InfiniteRotation = {
     dodgeable: false,
     stamina: 60,
     extraTurns: 0,
+    dodgeScore: 1,
 };
 
 /**
@@ -365,6 +383,7 @@ export const OhMyGod: Ability = {
         });
     },
     thumbnail: "https://media.tenor.com/RQtghGnCYxEAAAAd/jojo-oh-my-god.gif",
+    dodgeScore: 0,
 };
 
 export const VineSlap: Ability = {
@@ -376,6 +395,7 @@ export const VineSlap: Ability = {
     dodgeable: true,
     stamina: 20,
     extraTurns: 1,
+    dodgeScore: 2,
 };
 
 export const VineBarrage: Ability = {
@@ -422,6 +442,7 @@ export const BulletsRafale: Ability = {
         }
         ctx.ctx.client.fightCache.delete(bulletId + "fireX");
     },
+    dodgeScore: 0,
 };
 
 export const DeterminationFlurry: Ability = {
@@ -439,4 +460,5 @@ export const DeterminationFlurry: Ability = {
         );
         bleedDamagePromise(ctx, target, burnDamageCalc);
     },
+    dodgeScore: 2,
 };
