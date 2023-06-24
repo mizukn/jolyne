@@ -66,9 +66,7 @@ const Event: EventFile = {
                     } else return ctx.sendTranslated("base:NO_ADVENTURE");
                 }
 
-                // eslint-disable-next-line
-                if (false) {
-                    //(command.checkRPGCooldown) {
+                if (command.checkRPGCooldown) {
                     const cooldown = await interaction.client.database.getRPGCooldown(
                         ctx.user.id,
                         command.checkRPGCooldown
@@ -255,7 +253,10 @@ const Event: EventFile = {
                         });
                 }
 
-                if (Functions.calculeSkillPointsLeft(ctx.userData) > 0) {
+                if (
+                    Functions.calculeSkillPointsLeft(ctx.userData) > 0 &&
+                    command.data.name !== "skill"
+                ) {
                     ctx.followUpQueue.push({
                         content: `:arrow_up: | **${
                             ctx.user.username

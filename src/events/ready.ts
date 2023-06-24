@@ -130,6 +130,12 @@ const Event: EventFile = {
             client.log("Clearing old patrons", "ready");
     
             const keys = await client.database.redis.keys("patron:*");
+            const oldPatrons = await Promise.all(keys.map(async (v) => {
+                return {
+                    id: v.split(":")[1],
+                    level: parseInt(await client.database.redis.get(v)),
+                };
+            }));
             for (const key of keys) client.database.redis.del(key);
             client.patreons = [];
     
@@ -144,6 +150,11 @@ const Event: EventFile = {
                 else if (patron.currently_entitled_amount_cents >= 1000) tier = 3; // HEAVEN ASCENDED SUPPORTER
                 else if (patron.currently_entitled_amount_cents >= 450) tier = 2; // ASCENDED SUPPORTER
                 else tier = 1; // SUPPORTER
+
+                if (patron.discord_id) client.database.redis.set(`patronCache_${patron.full_name}`, patron.discord_id);
+                if (!patron.discord_id) {
+                    patron.discord_id = await client.database.redis.get(`patronCache_${patron.full_name}`);
+                }
     
                 client.log(`Fetched patron ${patron.full_name} is tier ${tier}, currently_entitled_amount_cents: ${patron.currently_entitled_amount_cents} (discordID: ${patron.discord_id})`);
                 client.database.redis.set(`patron:${patron.discord_id}`, String(tier));
@@ -151,7 +162,11 @@ const Event: EventFile = {
                     id: patron.discord_id,
                     level: tier,
                 });
+                if (oldPatrons.find((v) => v.id === patron.discord_id)?.level !== tier) {
+                    // give rewards here
+                }
             }
+            console.log(client.patreons, oldPatrons);
         } else {
             setTimeout(fetchPatreonsFromCache, 1000 * 15);
         }
