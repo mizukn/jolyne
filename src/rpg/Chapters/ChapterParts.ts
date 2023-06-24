@@ -25,6 +25,11 @@ export const C1_P2: ChapterPart = {
     ],
     parent: Chapters.C1,
     private: false,
+    hints: (ctx) => [
+        `You can claim some pizzas and colas by using the ${ctx.client.getSlashCommandMention(
+            "shop"
+        )} command!`,
+    ],
 };
 
 export const C1_P2L: ChapterPart = {
@@ -50,5 +55,41 @@ export const C1_P2L: ChapterPart = {
         Functions.generateUseXCommandQuest("assault", 1),
     ],
     parent: Chapters.C1,
+    private: false,
+};
+
+export const C2_P1: ChapterPart = {
+    id: 3.1,
+    description: {
+        "en-US":
+            "You enter the airport and meet Mohammed Avdol. You also saw your grandfather and your friend Kakyoin again. You are now ready to go to Egypt to find and defeat DIO.",
+        "fr-FR":
+            "Tu entres dans l'aéroport et rencontres Mohammed Avdol. Tu as aussi revu ton grand-père et ton ami Kakyoin. Tu es maintenant prêt à aller en Égypte pour trouver et vaincre DIO.",
+        "es-ES":
+            "Entrás en el aeropuerto y conocés a Mohammed Avdol. También viste a tu abuelo y a tu amigo Kakyoin de nuevo. Ahora estás listo para ir a Egipto para encontrar y derrotar a DIO.",
+        "de-DE":
+            "Du betrittst den Flughafen und triffst Mohammed Avdol. Du hast auch deinen Großvater und deinen Freund Kakyoin wieder gesehen. Du bist jetzt bereit, nach Ägypten zu gehen, um DIO zu finden und zu besiegen.",
+    },
+    quests: [
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, [
+            {
+                item: Functions.findItem("Stand Arrow").name,
+                amount: 1,
+            },
+        ]),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
+        Functions.generateUseXCommandQuest("loot", 1),
+        Functions.generateUseXCommandQuest("assault", 1),
+    ],
+    parent: Chapters.C2,
     private: false,
 };

@@ -75,3 +75,15 @@ export const Daniel_J_DArby: NPC = {
     name: "Daniel J. D'Arby",
     emoji: Emojis.daniel,
 };
+
+export const SecurityGuard: NPC = {
+    id: "security_guard",
+    name: "Security Guard",
+    emoji: "💂",
+};
+
+export const TaxiDriver: NPC = {
+    id: "taxi_driver",
+    name: "Taxi Driver",
+    emoji: "🚕",
+};

@@ -93,6 +93,13 @@ export const BanditLeader: FightableNPC = {
 
 export const Bandit: FightableNPC = {
     ...NPCs.Bandit,
+    level: 0,
+    skillPoints: baseSP,
+    equippedItems: {},
+};
+
+export const SecurityGuard: FightableNPC = {
+    ...NPCs.SecurityGuard,
     level: 5,
     skillPoints: baseSP,
     equippedItems: {},
