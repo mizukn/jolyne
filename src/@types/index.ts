@@ -816,6 +816,7 @@ export interface Chapter {
      */
     quests: QuestArray;
     private?: boolean;
+    hints?: (ctx: CommandInteractionContext) => string[];
 }
 
 export interface Email {
