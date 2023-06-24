@@ -50,6 +50,7 @@ import Canvas from "canvas";
 import * as BaseQuests from "../rpg/Quests/Quests";
 import * as Emails from "../rpg/Emails";
 import * as EquipableItems from "../rpg/Items/EquipableItems";
+import { Command } from "ioredis";
 
 export const generateRandomId = (): string => {
     return (
@@ -1017,7 +1018,10 @@ export const isConsumable = (item: Item | "string"): item is Consumable => {
         item = findItem(item);
     }
     if (!item) return false;
-    return (item as Consumable)["effects"] !== undefined;
+    return (
+        (item as Consumable)["effects"] !== undefined &&
+        (item as EquipableItem)["requirements"] === undefined
+    );
 };
 
 export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: number): void {
@@ -1171,12 +1175,45 @@ export const fixFields = function fixFields(
             });
         }
     }
+    if (fixedFields.length > 25) {
+        // only show the last 25 fields
+        fixedFields.splice(fixedFields.length - 25, fixedFields.length);
+    }
 
     return fixedFields;
 };
 
 export const generateMessageLink = function generateMessageLink(r: Message<boolean>): string {
     return `https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`;
+};
+
+export const calcStandDiscLimit = function calcStandDiscLimit(
+    ctx: CommandInteractionContext,
+    userData?: RPGUserDataJSON
+): number {
+    let limit = Object.values(Stands.Stands).filter((x) => x.rarity === "S").length;
+    // every 50 levels, the limit increases by 1
+    const realUserData = userData ?? ctx.userData;
+    limit += Math.floor(realUserData.level / 50);
+    const patronTier = ctx.client.patreons.find((v) => v.id === ctx.user.id)?.level;
+    if (patronTier) {
+        switch (patronTier) {
+            case 1:
+                limit += 4;
+                break;
+            case 2:
+                limit += 8;
+                break;
+            case 3:
+                limit += 99999999999;
+                break;
+            case 4:
+                limit += 99999999999;
+                break;
+        }
+    }
+
+    return limit;
 };
 
 export const shuffle = function shuffle<T>(array: T[]): T[] {
@@ -1196,4 +1233,17 @@ export const getBlackMarketString = function getBlackMarketString(id: string): s
     return `black_market:${id}_(${day < 10 ? "0" + day : day}/${
         month < 10 ? "0" + month : month
     }/${year})`;
+};
+
+export const hasExceedStandLimit = function hasExceedStandLimit(
+    ctx: CommandInteractionContext,
+    userData?: RPGUserDataJSON
+): boolean {
+    const realUserData = userData ?? ctx.userData;
+    const limit = calcStandDiscLimit(ctx, realUserData);
+    let discCount = 0;
+    for (const item of Object.keys(realUserData.inventory)) {
+        if (item.includes("$disc$")) discCount += realUserData.inventory[item];
+    }
+    return discCount >= limit;
 };
