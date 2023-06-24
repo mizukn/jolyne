@@ -207,6 +207,7 @@ const slashCommand: SlashCommandFile = {
             let accepted: string[] = [];
             const callback = (item: string, amount: number) => {
                 accepted = [];
+                if (Functions.hasExceedStandLimit(ctx)) return;
                 if (targetOffer[item]) {
                     targetOffer[item] += amount;
                 } else {
@@ -215,6 +216,7 @@ const slashCommand: SlashCommandFile = {
                 makeMessage();
             };
             const callback2 = (item: string, amount: number) => {
+                if (Functions.hasExceedStandLimit(ctx, targetData)) return;
                 accepted = [];
                 if (userOffer[item]) {
                     userOffer[item] += amount;

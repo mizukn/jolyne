@@ -136,6 +136,12 @@ const slashCommand: SlashCommandFile = {
                 break;
             }
             case "store": {
+                const limit = Functions.calcStandDiscLimit(ctx);
+                if (Functions.hasExceedStandLimit(ctx)) {
+                    ctx.makeMessage({
+                        content: `Unofrtunately, you can't store more than ${limit} stand discs in your inventory. But hey, did you know that `,
+                    });
+                }
                 const stand = Functions.findStand(ctx.userData.stand);
                 if (!stand) {
                     ctx.sendTranslated("base:NO_STAND");

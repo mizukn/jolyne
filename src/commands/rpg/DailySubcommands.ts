@@ -243,6 +243,18 @@ const slashCommand: SlashCommandFile = {
                             .setDisabled(alreadyClaimed === "true")
                     );
                 }
+                console.log(
+                    `📜 **__Daily Quests:__** (${status.percent.toFixed(2)}%)\n${
+                        status.message
+                    }\n\n${ctx.translate("daily:REWARDS_MESSAGE", {
+                        coins: coinReward.toLocaleString("en-US"),
+                        xp: xpReward.toLocaleString("en-US"),
+                        discordUnix: Functions.generateDiscordTimestamp(
+                            dateAtMidnight + 86400000,
+                            "FROM_NOW"
+                        ),
+                    })}`
+                );
 
                 ctx.makeMessage({
                     content: `📜 **__Daily Quests:__** (${status.percent.toFixed(2)}%)\n${

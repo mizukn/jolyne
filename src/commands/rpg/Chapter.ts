@@ -36,12 +36,14 @@ export const nextChapter = (chapterId: number): Chapter | ChapterPart => {
     const chapter =
         chapters.find((v) => v.id === chapterId) || parts.find((v) => v.id === chapterId);
     if (chapter) {
-        // warning: chapters are not 1, 2, 3 etc... it can be 1.1, 2.6 etc...
         const nextChapters = chapters.filter((v) => v.id > chapter.id);
         const nextPars = parts.filter((v) => v.id > chapter.id);
+        if (nextPars[0] && !nextChapters[0]) return nextPars[0];
+        else if (!nextPars[0] && nextChapters[0]) return nextChapters[0];
         if (nextChapters[0]?.id > nextPars[0]?.id) return nextPars[0];
         else return nextChapters[0];
     }
+    console.log("nextChapter: chapter not found");
     return null;
 };
 
@@ -198,9 +200,11 @@ export const getQuestsStats = (
             ) {
                 if (!message.join(" ").includes(npc.name))
                     message.push(
-                        `Defeat ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
-                            "fight npc"
-                        )}) ||(${questPercent === 1 ? ":white_check_mark:" : ":x:"})||`
+                        `Defeat ${npc.name} ${npc.emoji} (LVL ${
+                            npc.level
+                        }) (${ctx.client.getSlashCommandMention("fight npc")}) ||(${
+                            questPercent === 1 ? ":white_check_mark:" : ":x:"
+                        })||`
                     );
             } else {
                 if (!message.join(" ").includes(npc.name))
@@ -210,7 +214,7 @@ export const getQuestsStats = (
                                 .length
                         } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
                             "fight npc"
-                        )}) ||(${
+                        )}) (LVL ${npc.level}) ||(${
                             quests.filter(
                                 (r) =>
                                     Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
@@ -347,6 +351,7 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 const newChap = nextChapter(ctx.userData.chapter.id);
+                console.log(newChap);
 
                 if (!newChap || newChap.private) {
                     collector.stop();
@@ -421,7 +426,15 @@ const slashCommand: SlashCommandFile = {
         ctx.makeMessage({
             content: `${makeChapterTitle(chapter, ctx.userData)}\n\`\`\`\n${
                 chapter.description[ctx.userData.language]
-            }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
+            }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}${
+                chapter.hints
+                    ? "\n\n" +
+                      chapter
+                          .hints(ctx)
+                          .map((x) => `:exclamation: HINT: ${x}`)
+                          .join("\n")
+                    : ""
+            }`,
             components: components.length === 0 ? [] : [Functions.actionRow(components)],
         });
     },
