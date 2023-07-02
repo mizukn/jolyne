@@ -299,18 +299,35 @@ export const generateUseXCommandQuest = (
     return quest;
 };
 
-export const findStand = (stand: string): Stand => {
+export const findStand = (stand: string, evolution?: number): Stand => {
     if (!stand) return null;
 
-    const stands = Object.values({ ...Stands.Stands });
-    const foundStand = stands.find(
+    const stands = Object.values({ ...Stands.Stands, ...Stands.EvolutionStands });
+    let foundStand = stands.find(
         (standClass) =>
             standClass.id === stand ||
-            standClass.name === stand ||
-            standClass.name.toLocaleLowerCase() === stand.toLocaleLowerCase()
+            ((standClass as Stand).name !== undefined && (standClass as Stand).name === stand) ||
+            ((standClass as Stand).name !== undefined &&
+                (standClass as Stand).name.toLocaleLowerCase() === stand.toLocaleLowerCase())
     );
 
-    return foundStand;
+    if ((foundStand as EvolutionStand).evolutions) {
+        if (!evolution) evolution = 0;
+        foundStand = {
+            id: foundStand.id,
+            name: (foundStand as EvolutionStand).evolutions[evolution].name,
+            description: (foundStand as EvolutionStand).evolutions[evolution].description,
+            image: (foundStand as EvolutionStand).evolutions[evolution].image,
+            color: (foundStand as EvolutionStand).evolutions[evolution].color,
+            rarity: (foundStand as EvolutionStand).evolutions[evolution].rarity,
+            abilities: (foundStand as EvolutionStand).evolutions[evolution].abilities,
+            skillPoints: (foundStand as EvolutionStand).evolutions[evolution].skillPoints,
+            customAttack: (foundStand as EvolutionStand).evolutions[evolution].customAttack,
+            available: (foundStand as EvolutionStand).evolutions[evolution].available,
+        } as Stand;
+    }
+
+    return foundStand as Stand;
 };
 
 export const findNPC = <T extends NPC | FightableNPC>(npc: string, fightable?: boolean): T => {
