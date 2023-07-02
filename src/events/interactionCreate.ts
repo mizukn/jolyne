@@ -13,8 +13,7 @@ const Event: EventFile = {
 
             if (
                 command.ownerOnly &&
-                !process.env.OWNER_IDS.split(",").includes(interaction.user.id) &&
-                command.data.name !== "giveitem"
+                !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
             )
                 return interaction.reply({
                     content: interaction.client.localEmojis["jolyne"],
@@ -66,7 +65,8 @@ const Event: EventFile = {
                     } else return ctx.sendTranslated("base:NO_ADVENTURE");
                 }
 
-                if (command.checkRPGCooldown) {
+                if (false) {
+                    //if (command.checkRPGCooldown) {
                     const cooldown = await interaction.client.database.getRPGCooldown(
                         ctx.user.id,
                         command.checkRPGCooldown
