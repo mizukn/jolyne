@@ -224,6 +224,8 @@ const slashCommand: SlashCommandFile = {
                     }))
                 );
 
+            embed.fields = Functions.fixFields(embed.fields);
+
             ctx.makeMessage({
                 embeds: [embed],
                 components: [Functions.actionRow([shopSelectMenu])],
