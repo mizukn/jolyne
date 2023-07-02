@@ -644,6 +644,7 @@ export interface Ability {
     special?: boolean;
     thumbnail?: string;
     dodgeScore: number;
+    ally?: boolean;
 }
 
 export interface RequiemStand extends Stand {
