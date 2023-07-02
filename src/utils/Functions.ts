@@ -324,6 +324,7 @@ export const findStand = (stand: string, evolution?: number): Stand => {
             skillPoints: (foundStand as EvolutionStand).evolutions[evolution].skillPoints,
             customAttack: (foundStand as EvolutionStand).evolutions[evolution].customAttack,
             available: (foundStand as EvolutionStand).evolutions[evolution].available,
+            emoji: (foundStand as EvolutionStand).evolutions[evolution].emoji,
         } as Stand;
     }
 
@@ -936,6 +937,7 @@ export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: num
     userData.coins += amount;
     if (amount < 0) return;
 
+    amount = Math.round(amount);
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,
@@ -953,6 +955,7 @@ export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): 
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
 
+    amount = Math.round(amount);
     userData.xp += amount;
     for (const quests of [
         userData.daily.quests,
