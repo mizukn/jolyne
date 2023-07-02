@@ -6,6 +6,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import { AttachmentBuilder } from "discord.js";
 import * as Consumables from "./ConsumableItems";
 import * as Items from "./Items";
+import { EvolutionStands } from "../Stands";
 
 interface boxLoot {
     percent: number;
@@ -251,6 +252,11 @@ export const StandArrow: Special = {
     ],
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const standArray = Object.values(Stands);
+        standArray.push({
+            id: "silver_chariot",
+            ...EvolutionStands.SilverChariot.evolutions[0],
+        });
+
         const percent = Math.floor(Math.random() * 100);
 
         if (Functions.findStand(ctx.userData.stand)) {

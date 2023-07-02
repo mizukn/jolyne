@@ -1,4 +1,4 @@
-import { Ability } from "../@types";
+import { Ability, FightableNPC } from "../@types";
 import { FightHandler, Fighter } from "../structures/FightHandler";
 import * as Stands from "./Stands/Stands";
 import * as Functions from "../utils/Functions";
@@ -484,4 +484,266 @@ export const Finisher: Ability = {
         bleedDamagePromise(ctx, target, burnDamageCalc);
     },
     dodgeScore: 2,
+};
+
+export const LifeTransference: Ability = {
+    name: "Life Transference",
+    description:
+        "Transfers life force between individuals, healing allies by 30% of their max health or heavily damaging enemies ",
+    cooldown: 0,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 60,
+    ally: true,
+    extraTurns: 0,
+    useMessage: (user, target, damage, ctx) => {
+        if (
+            ctx.getTeamIdx(user.manipulatedBy ? user.manipulatedBy : user) ===
+            ctx.getTeamIdx(target.manipulatedBy ? target.manipulatedBy : target)
+        ) {
+            // Heal the target by transferring life force
+            const healAmount = Math.round(target.maxHealth * 0.3); // Adjust the heal amount as desired
+            const oldHealth = target.health;
+            target.incrHealth(healAmount);
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `${user.stand.emoji} LIFE TRANSFERENCE: ${target.name} has been healed for **${(
+                    target.health - oldHealth
+                ).toLocaleString("en-US")}** health.`
+            );
+        } else {
+            // Drain the life force of the enemy
+            const drainAmount = Functions.getAttackDamages(user) * 3;
+            const oldHealth = target.health;
+            target.incrHealth(-drainAmount);
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `${user.stand.emoji} LIFE TRANSFERENCE: ${target.name} has lost **${(
+                    oldHealth - target.health
+                ).toLocaleString("en-US")}** health due to life force drain.`
+            );
+        }
+    },
+    dodgeScore: 0,
+};
+
+export const RequiemArrowBlast: Ability = {
+    name: "Requiem Arrow Blast",
+    description: "Unleashes **__an extremely powerful__** blast of energy using its requiem arrow.",
+    cooldown: 12,
+    damage: 400,
+    blockable: true,
+    dodgeable: true,
+    stamina: 60,
+    extraTurns: 0,
+    dodgeScore: 2,
+};
+
+export const EternalSleep: Ability = {
+    name: "Eternal Sleep",
+    description:
+        "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it.",
+    cooldown: 0,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 50,
+    extraTurns: 0,
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter((x) => x.id !== user.id)
+            .forEach((x) => {
+                const dodgeResults: boolean[] = [];
+
+                for (let i = 0; i < 3; i++) {
+                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
+                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
+
+                    const randomNumber = Functions.randomNumber(0, 100);
+                    const dodgeThreshold =
+                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
+
+                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
+                }
+                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                    x.frozenFor = 3;
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.stand.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 3 turns...`
+                    );
+                } else {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.stand.emoji} ETERNAL SLEEP: **${user.name}** resisted.`
+                    );
+                }
+            });
+
+        target.frozenFor = 3;
+    },
+    dodgeScore: 0,
+};
+
+export const StandDisc: Ability = {
+    name: "Stand Disc",
+    description: "Removes temporarily the stand of the target",
+    cooldown: 9,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 50,
+    special: true,
+    extraTurns: 0,
+    dodgeScore: 7,
+    useMessage: (user, target, damage, ctx) => {
+        const stand = target.stand;
+        target.stand = null;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} STAND DISC: **${user.name}** has removed temporarily the stand of **${target.name}**... (${stand.name} ${stand.emoji})`
+        );
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                target.stand = stand;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} STAND DISC: **${target.name}** has recovered his stand... (${stand.name} ${stand.emoji})`
+                );
+            },
+        });
+    },
+};
+
+export const Hallucinogen: Ability = {
+    name: "Hallucinogen",
+    description:
+        "Creates a hallucinogen that decreases EVERYONE's (except your allies) perception & speed BY 90%",
+    cooldown: 7,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 50,
+    special: true,
+    extraTurns: 0,
+    dodgeScore: 0,
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter((x) => x.id !== user.id && ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
+            .forEach((x) => {
+                x.skillPoints.perception = Math.round(x.skillPoints.perception * 0.1);
+                x.skillPoints.speed = Math.round(x.skillPoints.speed * 0.1);
+            });
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} HALLUCINOGEN: **${user.name}** has created a hallucinogen that decreases EVERYONE's (except your allies) perception & speed BY 90%...`
+        );
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                ctx.fighters
+                    .filter((x) => x.id !== user.id && ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
+                    .forEach((x) => {
+                        x.skillPoints.perception = Math.round(x.skillPoints.perception / 0.1);
+                        x.skillPoints.speed = Math.round(x.skillPoints.speed / 0.1);
+                    });
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} HALLUCINOGEN: **${user.name}**'s hallucinogen EFFECT has disappeared...`
+                );
+            },
+        });
+    },
+};
+
+export const Heal: Ability = {
+    name: "Heal",
+    description: "Heals the target by 15% of their max health",
+    cooldown: 4,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 25,
+    extraTurns: 0,
+    dodgeScore: 0,
+    useMessage: (user, target, damage, ctx) => {
+        const heal = Math.round(target.maxHealth * 0.15);
+        target.health += heal;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} HEAL: **${user.name}** has healed **${
+                target.name
+            }** by **${heal}** health... ${
+                ctx.getTeamIdx(user) === ctx.getTeamIdx(target)
+                    ? ""
+                    : "(wtf dude you just healed an enemy lol)"
+            }`
+        );
+    },
+};
+
+export const LifeShot: Ability = {
+    name: "Life Shot",
+    description: "Causes your opponent's soul to leave their body for some turns",
+    cooldown: 11,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 50,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        target.frozenFor = 3;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} LIFE SHOT: **${user.name}** has caused **${target.name}**'s soul to leave their body for 3 turns...`
+        );
+    },
+};
+
+export const LifeGiver: Ability = {
+    name: "Life Giver",
+    description:
+        "Gold Experience can imbue inanimate objects with life, creating living organisms. These organisms can be used for various purposes, such as attacking enemies or providing support to allies",
+    cooldown: 0,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 50,
+    extraTurns: 0,
+    dodgeScore: 3,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const teamIndex = ctx.getTeamIdx(user);
+        const team = ctx.teams[teamIndex];
+
+        const NPC: FightableNPC = {
+            id: Functions.randomArray(["speedwagon_foundation", "kakyoin", "jotaro", "dio"]),
+            name: `${user.name}'s Life Giver [${target.name} CLONE]`,
+            skillPoints: {
+                strength: Math.round(target.skillPoints.strength) / 10,
+                perception: Math.round(target.skillPoints.perception) / 10,
+                speed: Math.round(target.skillPoints.speed) / 10,
+                defense: Math.round(target.skillPoints.defense) / 10,
+                stamina: Math.round(target.skillPoints.stamina) / 10,
+            },
+            level: target.level / 10,
+            stand: target.stand?.id,
+            equippedItems: target.equippedItems,
+            standsEvolved: target.standsEvolved,
+            emoji: target.stand?.emoji ?? "🤷‍♂️",
+        };
+        team.push(new Fighter(NPC));
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} LIFE GIVER: **${user.name}** has created a clone of **${target.name}**...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                const idx = team.findIndex((x) => x.id === NPC.id);
+                if (idx !== -1) {
+                    team.splice(idx, 1);
+                    fight.turns[fight.turns.length - 1].logs.push(
+                        `- ${user.stand.emoji} LIFE GIVER: **${user.name}**'s clone of **${target.name}** has disappeared...`
+                    );
+                }
+            },
+        });
+    },
 };

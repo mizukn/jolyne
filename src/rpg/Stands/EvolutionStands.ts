@@ -94,7 +94,7 @@ export const Tusk: EvolutionStand = {
 */
 
 export const SilverChariot: EvolutionStand = {
-    id: "Silver_chariot",
+    id: "silver_chariot",
     evolutions: [
         {
             name: "Silver Chariot",
@@ -114,12 +114,60 @@ export const SilverChariot: EvolutionStand = {
             },
             available: true,
         },
-        /*
+
         {
             name: "Silver Chariot Requiem",
             description:
                 "Silver Chariot Requiem is the requiem form of Silver Chariot, evolved by obtaining a Requiem Arrow. It is featured in Vento Aureo. It is known for being one of the most powerful and frightening Stands introduced in the series.",
             rarity: "SS",
-        }*/
+            abilities: [
+                Abilities.FencingBarrage,
+                Abilities.Finisher,
+                Abilities.RequiemArrowBlast,
+                Abilities.LifeTransference,
+                Abilities.EternalSleep,
+            ],
+            image: "https://static.jojowiki.com/images/1/12/latest/20211210020712/Chariot_Requiem_Infobox_Anime.png",
+            color: 0x000000,
+            emoji: "<:scr:1125037583286669332>",
+            skillPoints: {
+                strength: 15,
+                perception: 15,
+                speed: 15,
+                defense: 15,
+                stamina: 15,
+            },
+            available: true,
+        },
+    ],
+};
+
+export const GoldExperience: EvolutionStand = {
+    id: "gold_experience",
+    evolutions: [
+        {
+            name: "Gold Experience",
+            description:
+                "Gold Experience is the Stand of [Giorno Giovanna](https://jojo.fandom.com/wiki/Giorno_Giovanna), featured in Vento Aureo. It is a Stand that is said to have the power to create life. It is a close-range Stand, with a range of 2 meters from its user.",
+            rarity: "S",
+            abilities: [
+                Abilities.StandBarrage,
+                Abilities.Heal,
+                Abilities.LifeShot,
+                Abilities.LifeGiver,
+            ],
+            image: "https://static.jojowiki.com/images/8/81/latest/20210707053105/Gold_Experience_Infobox_Anime.png",
+            // yellow color
+            color: 0xffff00,
+            emoji: Emojis.gold_experience,
+            skillPoints: {
+                strength: 5,
+                perception: 5,
+                speed: 5,
+                defense: 5,
+                stamina: 5,
+            },
+            available: true,
+        },
     ],
 };
