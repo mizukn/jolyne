@@ -87,3 +87,9 @@ export const TaxiDriver: NPC = {
     name: "Taxi Driver",
     emoji: "🚕",
 };
+
+export const Polnareff: NPC = {
+    id: "polnareff",
+    name: "Jean Pierre Polnareff",
+    emoji: Emojis.Polnareff,
+};

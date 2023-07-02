@@ -93,3 +93,20 @@ export const C2_P1: ChapterPart = {
     parent: Chapters.C2,
     private: false,
 };
+
+export const C2_P2: ChapterPart = {
+    id: 3.2,
+    description: {
+        "en-US":
+            "As you and your recently acquired friends continue their journey, you are attacked by yet another stand user. The swordsman challenges you, after he managed to beat your friends. He says that if you win, he won't kill them.",
+        "fr-FR":
+            "Alors que toi et tes amis récemment acquis continuez votre voyage, vous êtes attaqués par un autre utilisateur de stand. Le bretteur vous défie, après avoir réussi à battre vos amis. Il dit que si vous gagnez, il ne les tuera pas.",
+        "es-ES":
+            "Mientras vos y tus amigos recientemente adquiridos continúan su viaje, son atacados por otro usuario de stand. El espadachín te desafía, después de haber logrado vencer a tus amigos. Él dice que si ganás, no los matará.",
+        "de-DE":
+            "Während du und deine kürzlich erworbenen Freunde ihre Reise fortsetzen, werdet ihr von einem weiteren Stand-Benutzer angegriffen. Der Schwertkämpfer fordert dich heraus, nachdem er es geschafft hat, deine Freunde zu schlagen. Er sagt, dass er sie nicht töten wird, wenn du gewinnst.",
+    },
+    quests: [],
+    parent: Chapters.C2,
+    private: false,
+};

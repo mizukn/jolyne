@@ -462,3 +462,26 @@ export const DeterminationFlurry: Ability = {
     },
     dodgeScore: 2,
 };
+
+export const FencingBarrage: Ability = {
+    ...StandBarrage,
+    name: "Fencing Barrage",
+    description: "A Barrage with multiple Slashs",
+};
+
+export const Finisher: Ability = {
+    name: "Finisher",
+    description:
+        "attacks or finish the opponent by aiming at one of his vital parts [CRITICAL, BLEED DAMAGES]",
+    cooldown: 8,
+    damage: 300,
+    blockable: true,
+    dodgeable: true,
+    stamina: 40,
+    extraTurns: 1,
+    useMessage: (user, target, damage, ctx) => {
+        const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Finisher) / 10);
+        bleedDamagePromise(ctx, target, burnDamageCalc);
+    },
+    dodgeScore: 2,
+};

@@ -31,6 +31,7 @@ export const Kakyoin: FightableNPC = {
     },
     stand: "hierophant_green",
     equippedItems: {},
+    standsEvolved: {},
 };
 
 export const Harry_Lester: FightableNPC = {
@@ -45,6 +46,7 @@ export const Harry_Lester: FightableNPC = {
     },
     stand: "hermit_purple",
     equippedItems: {},
+    standsEvolved: {},
 };
 
 export const Jotaro: FightableNPC = {
@@ -59,6 +61,7 @@ export const Jotaro: FightableNPC = {
     },
     equippedItems: {},
     stand: "star_platinum",
+    standsEvolved: {},
 };
 
 export const Dio: FightableNPC = {
@@ -66,6 +69,8 @@ export const Dio: FightableNPC = {
     level: Jotaro.level,
     skillPoints: Jotaro.skillPoints,
     equippedItems: {},
+    standsEvolved: {},
+
     stand: "the_world",
 };
 
@@ -80,6 +85,7 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         stamina: Dio.skillPoints.stamina * 5,
     },
     equippedItems: {},
+    standsEvolved: {},
     //stand: "The World: Over Heaven",
 };
 
@@ -87,8 +93,9 @@ export const BanditLeader: FightableNPC = {
     ...NPCs.BanditLeader,
     level: 20, // is raid boss
     skillPoints: baseSP,
-    stand: "Hierophant Green",
+    stand: "hierophant_green",
     equippedItems: {},
+    standsEvolved: {},
 };
 
 export const Bandit: FightableNPC = {
@@ -96,6 +103,7 @@ export const Bandit: FightableNPC = {
     level: 0,
     skillPoints: baseSP,
     equippedItems: {},
+    standsEvolved: {},
 };
 
 export const SecurityGuard: FightableNPC = {
@@ -103,4 +111,14 @@ export const SecurityGuard: FightableNPC = {
     level: 5,
     skillPoints: baseSP,
     equippedItems: {},
+    standsEvolved: {},
+};
+
+export const Polnareff: FightableNPC = {
+    ...NPCs.Polnareff,
+    level: 10,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "silver_chariot",
+    standsEvolved: {},
 };

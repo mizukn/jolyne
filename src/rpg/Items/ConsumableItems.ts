@@ -20,7 +20,7 @@ export const Spaghetti_Bowl: Consumable = {
     id: "spaghetti_bowl",
     name: "Spaghetti",
     description: "A bowl of spaghetti",
-    emoji: "🥗",
+    emoji: "🍝",
     price: 2000,
     rarity: "C",
     tradable: false,
@@ -77,7 +77,7 @@ export const ToniosSpecialRecipe: Consumable = {
 
 export const Ramen_Bowl: Consumable = {
     id: "ramen_bowl",
-    name: "ramen_bowl",
+    name: "Ramen Bowl",
     description: "A bowl of ramen",
     emoji: "🍜",
     price: 1500,

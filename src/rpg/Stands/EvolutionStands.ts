@@ -1,6 +1,8 @@
 import { EvolutionStand, Stand } from "../../@types";
 import * as Abilities from "../Abilities";
+import * as Emojis from "../../emojis.json";
 
+/*
 export const Tusk: EvolutionStand = {
     id: "Tusk",
     name: "Tusk",
@@ -21,7 +23,6 @@ export const Tusk: EvolutionStand = {
     evolutions: [
         {
             name: "$name$ Act 1",
-            tier: 1,
             rarity: "B",
             abilities: [Abilities.NailShot, Abilities.NailSpin],
             skillPoints: {
@@ -31,10 +32,14 @@ export const Tusk: EvolutionStand = {
                 strength: 5,
                 perception: 5,
             },
+            description: "Tusk Act 1 is the first evolution of Tusk.",
+            color: 0x000000,
+            image: "https://static.wikia.nocookie.net/jjba/images/5/58/TuskAct1color.png/revision/latest?cb=20140813205839",
+            emoji: "🦏",
+            available: true,
         },
         {
             name: "$name$ Act 2",
-            tier: 2,
             rarity: "A",
             abilities: [Abilities.GoldenRectangleNails],
             skillPoints: {
@@ -44,10 +49,14 @@ export const Tusk: EvolutionStand = {
                 strength: 10,
                 perception: 10,
             },
+            description: "Tusk Act 1 is the first evolution of Tusk.",
+            color: 0x000000,
+            image: "https://static.wikia.nocookie.net/jjba/images/5/58/TuskAct1color.png/revision/latest?cb=20140813205839",
+            emoji: "🦏",
+            available: true,
         },
         {
             name: "$name$ Act 3",
-            tier: 3,
             rarity: "S",
             abilities: [Abilities.SpatialWormhole],
             skillPoints: {
@@ -57,10 +66,14 @@ export const Tusk: EvolutionStand = {
                 strength: 15,
                 perception: 15,
             },
+            description: "Tusk Act 1 is the first evolution of Tusk.",
+            color: 0x000000,
+            image: "https://static.wikia.nocookie.net/jjba/images/5/58/TuskAct1color.png/revision/latest?cb=20140813205839",
+            emoji: "🦏",
+            available: true,
         },
         {
             name: "$name$ Act 4",
-            tier: 4,
             rarity: "SS",
             abilities: [Abilities.InfiniteRotation],
             skillPoints: {
@@ -70,6 +83,43 @@ export const Tusk: EvolutionStand = {
                 strength: 20,
                 perception: 20,
             },
+            description: "Tusk Act 1 is the first evolution of Tusk.",
+            color: 0x000000,
+            image: "https://static.wikia.nocookie.net/jjba/images/5/58/TuskAct1color.png/revision/latest?cb=20140813205839",
+            emoji: "🦏",
+            available: true,
         },
+    ],
+};
+*/
+
+export const SilverChariot: EvolutionStand = {
+    id: "Silver_chariot",
+    evolutions: [
+        {
+            name: "Silver Chariot",
+            description:
+                "Silver Chariot appears as a thin, robotic humanoid clad in silver, medieval armor, armed with a basket-hilted foil. It is the Stand of [Jean Pierre Polnareff](https://jojo.fandom.com/wiki/Jean_Pierre_Polnareff), primarily featured in Stardust Crusaders",
+            rarity: "C",
+            abilities: [Abilities.FencingBarrage, Abilities.Finisher],
+            image: "https://static.wikia.nocookie.net/jjba/images/7/7c/SilverChariot.png/revision/latest?cb=20180609123743",
+            color: 0x808080,
+            emoji: Emojis.Silverchariot,
+            skillPoints: {
+                strength: 2,
+                perception: 5,
+                speed: 5,
+                defense: 1,
+                stamina: 0,
+            },
+            available: true,
+        },
+        /*
+        {
+            name: "Silver Chariot Requiem",
+            description:
+                "Silver Chariot Requiem is the requiem form of Silver Chariot, evolved by obtaining a Requiem Arrow. It is featured in Vento Aureo. It is known for being one of the most powerful and frightening Stands introduced in the series.",
+            rarity: "SS",
+        }*/
     ],
 };
