@@ -525,6 +525,7 @@ export interface FightableNPC extends NPC {
         raid?: string;
     };
     equippedItems: RPGUserDataJSON["equippedItems"];
+    standsEvolved: RPGUserDataJSON["standsEvolved"];
 }
 
 /**
@@ -660,11 +661,12 @@ export interface Evolutions
     tier: number;
 }
 
-export interface EvolutionStand extends Stand {
+export interface EvolutionStand {
+    id: string;
     /**
      * The stand's evolution level.
      */
-    evolutions: Evolutions[];
+    evolutions: Omit<Stand, "id">[];
 }
 
 export type itemRewards = {
