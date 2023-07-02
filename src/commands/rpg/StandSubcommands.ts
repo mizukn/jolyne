@@ -71,7 +71,10 @@ const slashCommand: SlashCommandFile = {
             case "display": {
                 const stand = Functions.findStand(ctx.userData.stand);
                 const standCartBuffer = await Functions.generateStandCart(
-                    Functions.findStand(ctx.userData.stand)
+                    Functions.findStand(
+                        ctx.userData.stand,
+                        ctx.userData.standsEvolved[ctx.userData.stand]
+                    )
                 );
                 const file = new AttachmentBuilder(standCartBuffer, { name: "stand.png" });
 
@@ -142,7 +145,10 @@ const slashCommand: SlashCommandFile = {
                         content: `Unofrtunately, you can't store more than ${limit} stand discs in your inventory. But hey, did you know that `,
                     });
                 }
-                const stand = Functions.findStand(ctx.userData.stand);
+                const stand = Functions.findStand(
+                    ctx.userData.stand,
+                    ctx.userData.standsEvolved[ctx.userData.stand]
+                );
                 if (!stand) {
                     ctx.sendTranslated("base:NO_STAND");
                     return;
@@ -211,7 +217,10 @@ const slashCommand: SlashCommandFile = {
                     ctx.sendTranslated("base:NO_STAND");
                     return;
                 }
-                const stand = Functions.findStand(ctx.userData.stand);
+                const stand = Functions.findStand(
+                    ctx.userData.stand,
+                    ctx.userData.standsEvolved[ctx.userData.stand]
+                );
                 const price = 1000;
 
                 await ctx.makeMessage({

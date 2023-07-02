@@ -76,6 +76,7 @@ const slashCommand: SlashCommandFile = {
             },
             stand: ctx.options.getString("stand", false) || undefined,
             equippedItems: {},
+            standsEvolved: {},
         };
         const fighter: Fighter = new Fighter(npc);
 

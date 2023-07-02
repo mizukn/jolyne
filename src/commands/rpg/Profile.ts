@@ -120,8 +120,9 @@ const slashCommand: SlashCommandFile = {
             color: 0x70926c,
             thumbnail: {
                 url: rpgData.stand
-                    ? Functions.findStand(rpgData.stand)
-                        ? Functions.findStand(rpgData.stand).image
+                    ? Functions.findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand])
+                        ? Functions.findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand])
+                              .image
                         : undefined
                     : undefined,
             },
@@ -213,7 +214,10 @@ const slashCommand: SlashCommandFile = {
                     name: "Stand",
                     value: rpgData.stand
                         ? (() => {
-                              const stand = Functions.findStand(rpgData.stand);
+                              const stand = Functions.findStand(
+                                  rpgData.stand,
+                                  rpgData.standsEvolved[rpgData.stand]
+                              );
                               return `${stand.emoji} **${stand.name}** (${stand.rarity}):\n[${
                                   stand.abilities.length
                               }] Abilities: ${stand.abilities.map((a) => a.name).join(", ")}`;
