@@ -306,6 +306,7 @@ const slashCommand: SlashCommandFile = {
                     prize: String(coins),
                 };
             }
+            ctx.client.database.saveUserData(ctx.userData);
 
             ctx.makeMessage({
                 components: [],

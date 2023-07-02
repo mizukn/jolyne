@@ -46,7 +46,9 @@ const slashCommand: SlashCommandFile = {
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        if (!Functions.findStand(ctx.userData.stand)) {
+        if (
+            !Functions.findStand(ctx.userData.stand, ctx.userData.standsEvolved[ctx.userData.stand])
+        ) {
             ctx.sendTranslated("base:NO_STAND");
             return;
         }
@@ -69,7 +71,10 @@ const slashCommand: SlashCommandFile = {
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "display": {
-                const stand = Functions.findStand(ctx.userData.stand);
+                const stand = Functions.findStand(
+                    ctx.userData.stand,
+                    ctx.userData.standsEvolved[ctx.userData.stand]
+                );
                 const standCartBuffer = await Functions.generateStandCart(
                     Functions.findStand(
                         ctx.userData.stand,
