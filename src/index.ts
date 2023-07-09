@@ -31,7 +31,15 @@ const standPrices = {
     T: 69,
 };
 
-for (const stand of Object.values(Stands.Stands)) {
+for (const stand of [
+    ...Object.values(Stands.Stands),
+    ...Object.values(Stands.EvolutionStands).map((x) => {
+        return {
+            ...x.evolutions[0],
+            id: x.id,
+        };
+    }),
+]) {
     if (!stand.available) continue;
     console.log(`Adding ${stand.name} Stand Disc`);
     const standDisc: Special = {
@@ -62,6 +70,29 @@ for (const stand of Object.values(Stands.Stands)) {
     };
     // @ts-expect-error because it's a dynamic property
     Items.default[standDisc.id] = standDisc;
+
+    // @ts-expect-error because it's a dynamic property
+    NPCs[`${stand.name.replace(" ", "")}User`] = {
+        id: `${stand.name.replace(" ", "")}_user`,
+        name: stand.name + " User",
+        emoji: stand.emoji,
+    };
+    // @ts-expect-error because it's a dynamic property
+    FightableNPCs[`${stand.name.replace(" ", "")}User`] = {
+        // @ts-expect-error it exists
+        ...NPCs[`${stand.name.replace(" ", "")}User`],
+        level: Functions.randomNumber(1, 50),
+        skillPoints: {
+            defense: 1,
+            strength: 1,
+            speed: 1,
+            perception: 1,
+            stamina: 0,
+        },
+        stand: stand.id,
+        equippedItems: {},
+        standsEvolved: {},
+    };
 }
 
 for (const item of Object.values(Items.default)) {
@@ -137,6 +168,10 @@ const client = new JolyneClient({
     }),
 });
 
+for (const NPC of [...Object.values(NPCs), ...Object.values(FightableNPCs)]) {
+    if (!NPC.avatarURL)
+        NPC.avatarURL = `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(NPC.emoji)}.png`;
+}
 for (const NPC of Object.values(FightableNPCs)) {
     client.log(`Checking ${NPC.name} NPC...`);
     if (!Functions.skillPointsIsOK(NPC)) {
@@ -149,10 +184,10 @@ for (const NPC of Object.values(FightableNPCs)) {
         // shouldn't do if ! at the beginning because it's an number and if it's 0, it will be false
         NPC.rewards.xp = 50;
         NPC.rewards.coins = 50;
-        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 700;
+        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 500;
         NPC.rewards.coins += Functions.getMaxXp(NPC.level) / 5000;
 
-        NPC.rewards.xp += NPC.level * 125;
+        NPC.rewards.xp += NPC.level * 255;
         NPC.rewards.coins += NPC.level * 0.65;
 
         if (Functions.findStand(NPC.stand)) {
@@ -162,6 +197,7 @@ for (const NPC of Object.values(FightableNPCs)) {
 
         NPC.rewards.xp = Math.round(NPC.rewards.xp) * 3;
         NPC.rewards.coins = Math.round(NPC.rewards.coins) * 15;
+        if (NPC.level < 4) NPC.rewards.xp = 2500;
 
         console.log(NPC.rewards);
     }
