@@ -43,7 +43,8 @@
     },
     "GO_TO_AIRPORT": {
         "TITLE": "Get to the airport",
-        "DESCRIPTION": "Find a taxi that goes to the Morioh's International Airport"
+        "DESCRIPTION": "Find a taxi that goes to the Morioh's International Airport",
+        "CHAP_DESC": "Wait for the taxi to arrive."
     },
     "REMOVE_FLESHBUD_POLNAREFF": {
         "TITLE": "Remove the fleshbud",
