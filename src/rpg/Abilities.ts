@@ -1,4 +1,4 @@
-import { Ability, FightableNPC } from "../@types";
+import { Ability, FightableNPC, SkillPoints } from "../@types";
 import { FightHandler, Fighter } from "../structures/FightHandler";
 import * as Stands from "./Stands/Stands";
 import * as Functions from "../utils/Functions";
@@ -728,6 +728,7 @@ export const LifeGiver: Ability = {
             emoji: target.stand?.emoji ?? "🤷‍♂️",
         };
         team.push(new Fighter(NPC));
+        ctx.fighters.push(new Fighter(NPC));
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand.emoji} LIFE GIVER: **${user.name}** has created a clone of **${target.name}**...`
         );
@@ -743,7 +744,169 @@ export const LifeGiver: Ability = {
                         `- ${user.stand.emoji} LIFE GIVER: **${user.name}**'s clone of **${target.name}** has disappeared...`
                     );
                 }
+                ctx.fighters = ctx.fighters.filter((x) => x.id !== NPC.id);
             },
         });
+    },
+};
+
+// sand clone ability, similar to life giver
+export const SandClone: Ability = {
+    name: "Sand Clone",
+    description:
+        "The Fool can create clones of itself out of sand, which can be used to attack or defend",
+    cooldown: 0,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 50,
+    extraTurns: 0,
+    dodgeScore: 3,
+    useMessage: (user, target, damage, ctx) => {
+        const teamIndex = ctx.getTeamIdx(user);
+        const team = ctx.teams[teamIndex];
+        console.log(team);
+
+        const NPC: FightableNPC = {
+            id: Functions.randomArray(["speedwagon_foundation", "kakyoin", "jotaro", "dio"]),
+            name: `${user.name}'s Sand Clone`,
+            skillPoints: {
+                strength: Math.round(user.skillPoints.strength) / 10,
+                perception: Math.round(user.skillPoints.perception) / 10,
+                speed: Math.round(user.skillPoints.speed) / 10,
+                defense: Math.round(user.skillPoints.defense) / 10,
+                stamina: Math.round(user.skillPoints.stamina) / 10,
+            },
+            level: user.level / 10,
+            stand: user.stand?.id,
+            equippedItems: user.equippedItems,
+            standsEvolved: user.standsEvolved,
+            emoji: user.stand?.emoji ?? "🤷‍♂️",
+        };
+        team.push(new Fighter(NPC));
+        ctx.fighters.push(new Fighter(NPC));
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} SAND CLONE: **${user.name}** has created a clone of **${user.name}**...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                const idx = team.findIndex((x) => x.id === NPC.id);
+                if (idx !== -1) {
+                    team.splice(idx, 1);
+                    fight.turns[fight.turns.length - 1].logs.push(
+                        `- ${user.stand.emoji} SAND CLONE: **${user.name}**'s clone of **${user.name}** has disappeared...`
+                    );
+                }
+                ctx.fighters = ctx.fighters.filter((x) => x.id !== NPC.id);
+            },
+        });
+    },
+};
+
+export const SandProjectiles: Ability = {
+    name: "Sand Projectiles",
+    description: "shoot or propel sand at high speeds towards its targets",
+    cooldown: 5,
+    damage: 20,
+    blockable: true,
+    dodgeable: true,
+    stamina: 20,
+    extraTurns: 1,
+    dodgeScore: 2,
+};
+
+export const SandMimicry: Ability = {
+    name: "Sand Mimicry",
+    description:
+        "The Fool can disperse its body to avoid physical attacks or slip through narrow spaces, attacking remotely (x100 perception huge boost for **3 turns**)",
+    cooldown: 6,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    useMessage: (user, target, damage, ctx) => {
+        const oldSkillPoints = user.skillPoints;
+        user.skillPoints.perception *= 100;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} SAND MIMICRY: **${user.name}**'s perception has been boosted by x100...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                user.skillPoints = oldSkillPoints;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} SAND MIMICRY: **${user.name}**'s perception has been reset...`
+                );
+            },
+        });
+    },
+};
+
+export const SandStorm: Ability = {
+    name: "Sand Storm",
+    description:
+        "has the ability to create sandstorms, hindering visibility and disorienting opponents",
+    cooldown: 9,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 30,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const oldSkillPoints: { [key: string]: SkillPoints } = {};
+        for (const fighter of ctx.fighters.filter(
+            (w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0
+        )) {
+            oldSkillPoints[fighter.id] = fighter.skillPoints;
+            fighter.skillPoints.perception = Math.round(fighter.skillPoints.perception * 0.1);
+            fighter.skillPoints.speed = Math.round(fighter.skillPoints.speed * 0.1);
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand.emoji} SAND STORM: **${user.name}** has decreased **${fighter.name}**'s perception & speed by 90%...`
+            );
+        }
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                for (const fighter of ctx.fighters.filter(
+                    (w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0
+                )) {
+                    fighter.skillPoints = oldSkillPoints[fighter.id];
+                    fight.turns[fight.turns.length - 1].logs.push(
+                        `- ${user.stand.emoji} SAND STORM: **${user.name}**'s sand storm EFFECT has disappeared...`
+                    );
+                }
+            },
+        });
+    },
+};
+
+export const SandSelfHealing: Ability = {
+    name: "Sand Self Healing",
+    description:
+        "can heal itself (+15% max health) by reforming its sand particles around injuries and aiding in the recovery process",
+    cooldown: 8,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 15,
+    extraTurns: 0,
+    dodgeScore: 0,
+    useMessage: (user, target, damage, ctx) => {
+        const heal = Math.round(user.maxHealth * 0.15);
+        user.health += heal;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} SAND SELF HEALING: **${user.name}** has healed himself by **${heal}** health...`
+        );
     },
 };

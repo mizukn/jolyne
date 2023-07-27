@@ -255,3 +255,28 @@ export const SexPistols: Stand = {
         },
     },
 };
+
+export const TheFool: Stand = {
+    id: "the_fool",
+    name: "The Fool",
+    rarity: "A",
+    description: "",
+    abilities: [
+        Abilities.SandProjectiles,
+        Abilities.SandClone,
+        Abilities.SandMimicry,
+        Abilities.SandStorm,
+    ],
+    emoji: Emojis.JolyneAhhhhh,
+    skillPoints: {
+        strength: 2,
+
+        defense: 8,
+        perception: 2,
+        speed: 2,
+        stamina: 1,
+    },
+    color: 0x800080,
+    available: true,
+    image: "https://static.jojowiki.com/images/thumb/1/10/latest/20210312225357/The_Fool_Infobox_Anime.png/400px-The_Fool_Infobox_Anime.png",
+};
