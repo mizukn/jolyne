@@ -3,6 +3,7 @@ import { Events, Interaction } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
+import * as SideQuests from "../rpg/SideQuests";
 
 const Event: EventFile = {
     name: Events.InteractionCreate,
@@ -20,8 +21,7 @@ const Event: EventFile = {
                 });
             if (
                 command.adminOnly &&
-                !process.env.ADMIN_IDS.split(",").includes(interaction.user.id) &&
-                command.data.name !== "giveitem"
+                !process.env.ADMIN_IDS.split(",").includes(interaction.user.id)
             )
                 return interaction.reply({
                     content: interaction.client.localEmojis["jolyne"],
@@ -65,8 +65,8 @@ const Event: EventFile = {
                     } else return ctx.sendTranslated("base:NO_ADVENTURE");
                 }
 
-                if (false) {
-                    //if (command.checkRPGCooldown) {
+                //if (false) {
+                if (command.checkRPGCooldown) {
                     const cooldown = await interaction.client.database.getRPGCooldown(
                         ctx.user.id,
                         command.checkRPGCooldown
@@ -111,14 +111,72 @@ const Event: EventFile = {
                         return;
                     }
                 }
+                if (ctx.userData.restingAtCampfire && command.data.name !== "campfire") {
+                    ctx.makeMessage({
+                        content: `🔥🪵 You're currently resting at the campfire. Use the ${ctx.client.getSlashCommandMention(
+                            "campfire leave"
+                        )} command to leave.`,
+                    });
+                    return;
+                }
                 let commandName = command.data.name;
                 if (command.data.options.filter((r) => r.type === 1).length !== 0) {
                     commandName += ` ${interaction.options.getSubcommand()}`;
                 }
+                // check if ctx.userData.health is lower than 10% of their Functions.getMaxHealth(ctx.userData) and/or for stamina
+                if (
+                    (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1 ||
+                        ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.1) &&
+                    (command.data.name !== "shop" ||
+                        commandName !== "inventory use" || // @ts-expect-error wtf is that error bro lemme do my own exceptions
+                        command.data.name !== "campfire")
+                ) {
+                    ctx.followUpQueue.push({
+                        content: `🩸 | You're low in health/stamina. You should heal yourself. You can use the ${ctx.client.getSlashCommandMention(
+                            "shop"
+                        )} command to use consumables. If you already have consumables in your inventory, use the ${ctx.client.getSlashCommandMention(
+                            "inventory use"
+                        )} command. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
+                            "campfire"
+                        )}`,
+                    });
+                }
                 const oldDataJSON = JSON.stringify(ctx.userData);
+                for (const SideQuest of Object.values(SideQuests)) {
+                    if (await SideQuest.requirements(ctx)) {
+                        if (!ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)) {
+                            const fixedQuests = SideQuest.quests.map((v) => Functions.pushQuest(v));
+                            ctx.userData.sideQuests.push({
+                                id: SideQuest.id,
+                                quests: fixedQuests,
+                            });
+                            ctx.followUpQueue.push({
+                                content: `${SideQuest.emoji} | **${
+                                    ctx.user.username
+                                }**, you now have the **${
+                                    SideQuest.title
+                                }** SideQuest! (${ctx.client.getSlashCommandMention(
+                                    "side quest view"
+                                )})`,
+                            });
+                        }
+                    } else {
+                        if (
+                            ctx.userData.sideQuests.find((r) => r.id === SideQuest.id) &&
+                            SideQuest.cancelQuestIfRequirementsNotMetAnymore
+                        ) {
+                            ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
+                                (r) => r.id !== SideQuest.id
+                            );
+                            ctx.followUpQueue.push({
+                                content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.`,
+                            });
+                        }
+                    }
+                }
 
                 // check if in inventory it has something like { stand_arrow: null } and fix nulls
-                ctx.userData.tag = ctx.user.tag;
+                ctx.userData.tag = ctx.user.username;
                 for (const item in ctx.userData.inventory) {
                     if (ctx.userData.inventory[item] === null) {
                         delete ctx.userData.inventory[item];
