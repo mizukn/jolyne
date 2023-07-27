@@ -284,6 +284,7 @@ export interface RPGUserDataJSON {
         bannedAt: number;
         until: number;
     }[];
+    restingAtCampfire: number;
 }
 
 export enum equipableItemTypes {
@@ -333,6 +334,7 @@ export interface SideQuest {
      * The side quest's title.
      */
     title: string;
+    emoji: string;
     /**
      * The side quest's description.
      */
@@ -344,11 +346,14 @@ export interface SideQuest {
     /**
      * The side quest's rewards.
      */
-    rewards: Rewards;
+    rewards: (ctx: CommandInteractionContext) => boolean | Promise<boolean>;
     /**
      * The side quest's requirements.
      */
-    requirements: Requirements;
+    requirements: (ctx: CommandInteractionContext) => boolean | Promise<boolean>;
+    requirementsMessage?: string;
+    cancelQuestIfRequirementsNotMetAnymore?: boolean;
+    canRedoSideQuest?: boolean;
 }
 
 /*
