@@ -156,7 +156,6 @@ const slashCommand: SlashCommandFile = {
             collector.on("end", async () => {
                 // check if there are no enough players (only one team or there is no player at all)
                 if (teams.length === 1 || teams.every((team) => team.length === 0)) {
-                    console.log(teams);
                     collector.stop();
                     ctx.makeMessage({
                         content:
@@ -188,7 +187,6 @@ const slashCommand: SlashCommandFile = {
 
                 switch (i.customId) {
                     case joinTeamId: {
-                        console.log((i as StringSelectMenuInteraction).values[0]);
                         removeUserFromTeam(userData.id);
                         teams[parseInt((i as StringSelectMenuInteraction).values[0])].push(
                             userData
@@ -566,6 +564,13 @@ const slashCommand: SlashCommandFile = {
                             } else {
                                 quest = ctx.userData.chapter.quests.find((r) => r.id === questId);
                                 type = FightTypes.ChapterQuest;
+
+                                if (!quest) {
+                                    quest = Object.values(ctx.userData.sideQuests)
+                                        .find((r) => r.quests.find((r) => r.id === questId))
+                                        .quests.find((r) => r.id === questId);
+                                    type = FightTypes.SideQuest;
+                                }
                             }
 
                             if (quest) startFight(quest.id, quest.npc, type);
@@ -582,7 +587,6 @@ const slashCommand: SlashCommandFile = {
                 const npc = ctx.interaction.options.getString("npc", true);
                 const npcData = Functions.findNPC<FightableNPC>(npc, true);
                 if (!npcData || typeof npcData.level !== "number") {
-                    console.log(npcData, npc);
                     ctx.sendTranslated("fight:INVALID_NPC");
                     return;
                 }

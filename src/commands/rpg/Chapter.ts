@@ -43,11 +43,9 @@ export const nextChapter = (chapterId: number): Chapter | ChapterPart => {
         if (nextChapters[0]?.id > nextPars[0]?.id) return nextPars[0];
         else return nextChapters[0];
     }
-    console.log("nextChapter: chapter not found");
     return null;
 };
 
-console.log(nextChapter(1));
 export const makeChapterTitle = (
     chapter: Chapter | ChapterPart,
     userData: CommandInteractionContext["RPGUserData"]
@@ -351,7 +349,6 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 const newChap = nextChapter(ctx.userData.chapter.id);
-                console.log(newChap);
 
                 if (!newChap || newChap.private) {
                     collector.stop();

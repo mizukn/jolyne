@@ -265,7 +265,7 @@ const slashCommand: SlashCommandFile = {
             interaction.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
             const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
             if (!usrData) return;
-            if (Functions.userIsCommunityBanned(usrData)) {
+            if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
                 return;
             }
 

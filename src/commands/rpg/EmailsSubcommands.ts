@@ -127,7 +127,6 @@ const slashCommand: SlashCommandFile = {
             for (const email of emails) {
                 const emailData = Functions.findEmail(email.id);
                 if (!emailData) continue;
-                console.log(email.id);
                 EmailsSelection.addOptions([
                     {
                         label: emailData.subject,

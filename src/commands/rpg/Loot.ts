@@ -42,6 +42,8 @@ const slashCommand: SlashCommandFile = {
     },
     checkRPGCooldown: "loot",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+        await ctx.client.database.setRPGCooldown(ctx.user.id, "loot", 60000 * 10);
+
         const rng: Loot[] = [
             {
                 pr: "in a",
@@ -223,7 +225,7 @@ const slashCommand: SlashCommandFile = {
         await ctx.makeMessage({
             embeds: [
                 {
-                    author: { name: ctx.user.tag, icon_url: ctx.user.displayAvatarURL() },
+                    author: { name: ctx.user.username, icon_url: ctx.user.displayAvatarURL() },
                     description: `Where do you want to search ?`,
                     color: 0x2f3136,
                 },

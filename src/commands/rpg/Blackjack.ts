@@ -63,7 +63,6 @@ const slashCommand: SlashCommandFile = {
             return;
         }
         if (bet > ctx.userData.coins) {
-            console.log(bet, ctx.userData.coins);
             ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.Daniel_J_DArby,

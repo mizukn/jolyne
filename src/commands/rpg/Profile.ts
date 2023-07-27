@@ -102,9 +102,14 @@ const slashCommand: SlashCommandFile = {
         ) as Leaderboard) || { lastUpdated: 0, data: [] };
         const coinsLbPos = coinsLb.data.findIndex((x) => x.id === userOption.id) + 1;
 
+        let discCount = 0;
+        for (const item of Object.keys(rpgData.inventory)) {
+            if (item.includes("$disc$")) discCount += rpgData.inventory[item];
+        }
+
         const embed: APIEmbed = {
             author: {
-                name: userOption.tag,
+                name: userOption.username,
                 icon_url: userOption.displayAvatarURL({ extension: "gif" }),
             },
             description: ctx.translate("profile:ADVENTUREAT", {
@@ -234,6 +239,17 @@ const slashCommand: SlashCommandFile = {
                     )}\n🔄 Speed score: ${Functions.getSpeedScore(rpgData).toLocaleString(
                         "en-US"
                     )}`,
+                    inline: true,
+                },
+                {
+                    name: "Stand Disc Capacity",
+                    value: `- Limit: ${Functions.calcStandDiscLimit(ctx).toLocaleString("en-US")} ${
+                        ctx.client.localEmojis.disk
+                    }\n- Used: ${discCount.toLocaleString("en-US")} ${
+                        ctx.client.localEmojis.disk
+                    }\n- Available: ${(
+                        Functions.calcStandDiscLimit(ctx) - discCount
+                    ).toLocaleString("en-US")} ${ctx.client.localEmojis.disk}`,
                     inline: true,
                 },
             ],

@@ -71,7 +71,7 @@ const slashCommand: SlashCommandFile = {
             embeds: [
                 {
                     author: {
-                        name: ctx.user.tag,
+                        name: ctx.user.username,
                         icon_url: ctx.user.displayAvatarURL(),
                     },
                     description: `You're about to assault an NPC. Choose your target wisely.`,

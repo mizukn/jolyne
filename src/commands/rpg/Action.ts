@@ -74,7 +74,6 @@ const slashCommand: SlashCommandFile = {
                                     from = `[FROM YOUR SIDE QUESTS: ${sideQuest.id}]`;
                             }
                         }
-                        console.log(quest, "action");
                         if (originalQuest.id.toLowerCase().startsWith(currentInput.toLowerCase()))
                             toRespond.push({
                                 name:

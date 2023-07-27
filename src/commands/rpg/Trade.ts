@@ -110,7 +110,11 @@ const slashCommand: SlashCommandFile = {
             const targetData = await ctx.client.database.getRPGUserData(target.id);
             const tradeID = Functions.generateRandomId();
 
-            if ((await ctx.client.database.getCooldown(target.id)) || !targetData) {
+            if (
+                (await ctx.client.database.getCooldown(target.id)) ||
+                !targetData ||
+                targetData.restingAtCampfire
+            ) {
                 ctx.makeMessage({
                     content: `**${target.tag}** is currently on cooldown or haven't started their adventure yet!`,
                 });
@@ -244,6 +248,7 @@ const slashCommand: SlashCommandFile = {
                                 collector.stop();
                                 break;
                             }
+
                             ctx.interaction
                                 .fetchReply()
                                 .then((m) => {
