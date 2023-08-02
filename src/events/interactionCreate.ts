@@ -9,6 +9,12 @@ const Event: EventFile = {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction & { client: JolyneClient }) {
         if (interaction.isCommand() && interaction.isChatInputCommand()) {
+            if (!interaction.client.allCommands) {
+                return interaction.reply({
+                    content: "I'm still loading, please wait a few seconds.",
+                    ephemeral: true,
+                });
+            }
             const command = interaction.client.commands.get(interaction.commandName);
             if (!command || !interaction.guild) return;
 
@@ -65,8 +71,8 @@ const Event: EventFile = {
                     } else return ctx.sendTranslated("base:NO_ADVENTURE");
                 }
 
-                //if (false) {
-                if (command.checkRPGCooldown) {
+                //if (command.checkRPGCooldown) {
+                if (false) {
                     const cooldown = await interaction.client.database.getRPGCooldown(
                         ctx.user.id,
                         command.checkRPGCooldown
@@ -358,6 +364,7 @@ const Event: EventFile = {
                     .catch(() => {});
             }
         } else if (interaction.isAutocomplete()) {
+            if (!interaction.client.allCommands) return;
             const command = interaction.client.commands.get(interaction.commandName);
             if (!command || !interaction.guild) return;
 
