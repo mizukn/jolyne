@@ -122,3 +122,14 @@ export const Polnareff: FightableNPC = {
     stand: "silver_chariot",
     standsEvolved: {},
 };
+
+export const RequiemPolnareff: FightableNPC = {
+    ...NPCs.RequiemPolnareff,
+    level: 200,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "silver_chariot",
+    standsEvolved: {
+        silver_chariot: 1,
+    },
+};

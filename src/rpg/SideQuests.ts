@@ -32,18 +32,25 @@ export const RequiemArrowEvolve: SideQuest = {
     },
     quests: RequiemArrowEvolveQuests,
     requirements: (ctx) => {
-        return false;
         if (
             ctx.userData.stand === Functions.findStand("gold_experience").id ||
             ctx.userData.stand === Functions.findStand("silver_chariot").id
         ) {
-            if (ctx.userData.level > 50 && ctx.userData.skillPoints.perception >= 25) return true;
-        }
-
-        return false;
+            if (ctx.userData.level > 50 && ctx.userData.skillPoints.perception >= 25) {
+                if (
+                    Object.keys(ctx.userData.inventory).find(
+                        (x) => x === "requiem_arrow" && ctx.userData.inventory[x] >= 2
+                    )
+                ) {
+                    if (ctx.client.patreons.find((x) => x.id === ctx.userData.id)) {
+                        return true;
+                    } else return false;
+                } else return true;
+            }
+        } else return false;
     },
     requirementsMessage:
-        "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quent will cancel automatically if you don't meet the requirements anymore, so be careful.",
+        "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n-If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quent will cancel automatically if you don't meet the requirements anymore, so be careful.",
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: true,
 };

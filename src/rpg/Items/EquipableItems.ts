@@ -164,3 +164,74 @@ export const BloodyKnife: Weapon = {
     },
     abilities: [Abilities.DeterminationFlurry],
 };
+
+export const Katana: Weapon = {
+    id: "Basic Katana",
+    name: "Katana",
+    emoji: "<:emoji_176:1136201240087384104>",
+    description: "A basic and elegant katana.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "slash",
+    useMessageAttack: "slashes",
+    staminaCost: 3,
+    color: 0xffcc00,
+    effects: {
+        skillPoints: {
+            strength: 4,
+            perception: 0,
+            defense: 0,
+            speed: 4,
+            stamina: 0,
+        },
+    },
+    rarity: "B",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 3,
+        skillPoints: {
+            strength: 5,
+            perception: 0,
+            defense: 0,
+            speed: 0,
+            stamina: 0,
+        },
+    },
+    abilities: [Abilities.SwiftStrike],
+};
+
+export const GauntletsOfTheBerserker: Weapon = {
+    id: "gauntlets_of_the_berserker",
+    name: "Gauntlets of the Berserker",
+    emoji: "<:emoji_177:1136204824803819651>",
+    description:
+        "Ancient gauntlets infused with the primal rage of berserkers. Tap into your inner fury for immense power.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "Crush",
+    useMessageAttack: "crushes",
+    staminaCost: 4,
+    color: 0x83311f,
+    effects: {
+        skillPoints: {
+            strength: 25,
+            defense: 25,
+            speed: 5,
+            stamina: -10,
+            perception: -10,
+        },
+    },
+    rarity: "A",
+    tradable: false,
+    storable: true,
+    requirements: {
+        level: 30,
+        skillPoints: {
+            strength: 50,
+            defense: 20,
+            speed: 25,
+            stamina: 20,
+            perception: 15,
+        },
+    },
+    abilities: [Abilities.BerserkersFury, Abilities.BerserkersRampage],
+};

@@ -13,6 +13,7 @@ export const StandBarrage: Ability = {
     dodgeable: true,
     blockable: false,
     dodgeScore: 1,
+    target: "enemy",
 };
 
 export const KickBarrage: Ability = {
@@ -25,6 +26,7 @@ export const KickBarrage: Ability = {
     dodgeable: true,
     blockable: true,
     dodgeScore: 1,
+    target: "enemy",
 };
 
 export const StarFinger: Ability = {
@@ -37,6 +39,7 @@ export const StarFinger: Ability = {
     dodgeable: true,
     blockable: false,
     dodgeScore: 2,
+    target: "enemy",
 };
 
 export const RoadRoller: Ability = {
@@ -77,6 +80,7 @@ export const TheWorld: Ability = {
         return `**${user.name}:** ${user.stand.name}: TOKI WO TOMARE!`;
     },
     dodgeScore: 20,
+    target: "enemy",
 };
 
 export const EmeraldSplash: Ability = {
@@ -89,6 +93,7 @@ export const EmeraldSplash: Ability = {
     dodgeable: true,
     blockable: false,
     dodgeScore: 10,
+    target: "enemy",
 };
 
 export const VolaBarrage: Ability = {
@@ -98,6 +103,7 @@ export const VolaBarrage: Ability = {
     thumbnail:
         "https://cdn.discordapp.com/attachments/940949551911690311/1100382611634913391/AdorableRemoteBigmouthbass-mobile.gif",
     dodgeScore: 3,
+    target: "enemy",
 };
 
 export const LittleBoy: Ability = {
@@ -111,6 +117,7 @@ export const LittleBoy: Ability = {
     dodgeable: false,
     blockable: false,
     dodgeScore: 3,
+    target: "enemy",
 };
 
 export const Manipulation: Ability = {
@@ -161,6 +168,7 @@ export const Manipulation: Ability = {
     extraTurns: 0,
     thumbnail: "https://media.tenor.com/zOTu19A7VoEAAAAC/jojo-hierophant-green.gif",
     dodgeScore: 1,
+    target: "enemy",
 };
 
 export const LightSpeedBarrage: Ability = {
@@ -174,6 +182,7 @@ export const LightSpeedBarrage: Ability = {
     extraTurns: 1,
     thumbnail: "https://media.tenor.com/X1JHf1sGkwIAAAAd/okuyasu-the-hand.gif",
     dodgeScore: 4,
+    target: "enemy",
 };
 
 export const DeadlyErasure: Ability = {
@@ -190,6 +199,7 @@ export const DeadlyErasure: Ability = {
     thumbnail:
         "https://cdn.discordapp.com/attachments/940949551911690311/1100382190166081647/RawDaringEeve-mobile.gif",
     dodgeScore: 4,
+    target: "enemy",
 };
 
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
@@ -251,6 +261,7 @@ export const CrossfireHurricane: Ability = {
     },
     thumbnail: "https://media.tenor.com/n79QWE9azhEAAAAC/magicians-red-avdol.gif",
     dodgeScore: 1,
+    target: "enemy",
 };
 
 export const RedBind: Ability = {
@@ -267,6 +278,7 @@ export const RedBind: Ability = {
         burnDamagePromise(ctx, target, burnDamageCalc);
     },
     dodgeScore: 2,
+    target: "enemy",
 };
 
 export const Bakugo: Ability = {
@@ -284,6 +296,7 @@ export const Bakugo: Ability = {
     },
     special: true,
     dodgeScore: 3,
+    target: "enemy",
 };
 
 export const NailShot: Ability = {
@@ -296,6 +309,7 @@ export const NailShot: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 3,
+    target: "enemy",
 };
 
 export const NailSpin: Ability = {
@@ -308,6 +322,7 @@ export const NailSpin: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 1,
+    target: "enemy",
 };
 
 export const GoldenRectangleNails: Ability = {
@@ -320,6 +335,7 @@ export const GoldenRectangleNails: Ability = {
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 1,
+    target: "enemy",
 };
 
 export const SpatialWormhole: Ability = {
@@ -332,6 +348,7 @@ export const SpatialWormhole: Ability = {
     stamina: 40,
     extraTurns: 0,
     dodgeScore: 1,
+    target: "enemy",
 };
 
 export const InfiniteRotation = {
@@ -344,6 +361,7 @@ export const InfiniteRotation = {
     stamina: 60,
     extraTurns: 0,
     dodgeScore: 1,
+    target: "enemy",
 };
 
 /**
@@ -384,6 +402,7 @@ export const OhMyGod: Ability = {
     },
     thumbnail: "https://media.tenor.com/RQtghGnCYxEAAAAd/jojo-oh-my-god.gif",
     dodgeScore: 0,
+    target: "self",
 };
 
 export const VineSlap: Ability = {
@@ -396,12 +415,14 @@ export const VineSlap: Ability = {
     stamina: 20,
     extraTurns: 1,
     dodgeScore: 2,
+    target: "enemy",
 };
 
 export const VineBarrage: Ability = {
     ...StandBarrage,
     name: "Vine Barrage",
     description: "extends {{standName}}'s vines to whip the opponent",
+    target: "enemy",
 };
 
 /**
@@ -443,6 +464,7 @@ export const BulletsRafale: Ability = {
         ctx.ctx.client.fightCache.delete(bulletId + "fireX");
     },
     dodgeScore: 0,
+    target: "enemy",
 };
 
 export const DeterminationFlurry: Ability = {
@@ -461,12 +483,14 @@ export const DeterminationFlurry: Ability = {
         bleedDamagePromise(ctx, target, burnDamageCalc);
     },
     dodgeScore: 2,
+    target: "enemy",
 };
 
 export const FencingBarrage: Ability = {
     ...StandBarrage,
     name: "Fencing Barrage",
     description: "A Barrage with multiple Slashs",
+    target: "enemy",
 };
 
 export const Finisher: Ability = {
@@ -484,6 +508,7 @@ export const Finisher: Ability = {
         bleedDamagePromise(ctx, target, burnDamageCalc);
     },
     dodgeScore: 2,
+    target: "enemy",
 };
 
 export const LifeTransference: Ability = {
@@ -524,24 +549,26 @@ export const LifeTransference: Ability = {
         }
     },
     dodgeScore: 0,
+    target: "any",
 };
 
 export const RequiemArrowBlast: Ability = {
     name: "Requiem Arrow Blast",
     description: "Unleashes **__an extremely powerful__** blast of energy using its requiem arrow.",
     cooldown: 12,
-    damage: 400,
+    damage: 150,
     blockable: true,
     dodgeable: true,
     stamina: 60,
     extraTurns: 0,
     dodgeScore: 2,
+    target: "enemy",
 };
 
 export const EternalSleep: Ability = {
     name: "Eternal Sleep",
     description:
-        "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it.",
+        "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it [real dodge score: 3]",
     cooldown: 0,
     damage: 0,
     blockable: false,
@@ -571,14 +598,13 @@ export const EternalSleep: Ability = {
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.stand.emoji} ETERNAL SLEEP: **${user.name}** resisted.`
+                        `- ${user.stand.emoji} ETERNAL SLEEP: **${x.name}** resisted.`
                     );
                 }
             });
-
-        target.frozenFor = 3;
     },
     dodgeScore: 0,
+    target: "self",
 };
 
 export const StandDisc: Ability = {
@@ -609,6 +635,7 @@ export const StandDisc: Ability = {
             },
         });
     },
+    target: "enemy",
 };
 
 export const Hallucinogen: Ability = {
@@ -649,6 +676,7 @@ export const Hallucinogen: Ability = {
             },
         });
     },
+    target: "self",
 };
 
 export const Heal: Ability = {
@@ -674,6 +702,7 @@ export const Heal: Ability = {
             }`
         );
     },
+    target: "ally",
 };
 
 export const LifeShot: Ability = {
@@ -693,13 +722,14 @@ export const LifeShot: Ability = {
             `- ${user.stand.emoji} LIFE SHOT: **${user.name}** has caused **${target.name}**'s soul to leave their body for 3 turns...`
         );
     },
+    target: "enemy",
 };
 
 export const LifeGiver: Ability = {
     name: "Life Giver",
     description:
         "Gold Experience can imbue inanimate objects with life, creating living organisms. These organisms can be used for various purposes, such as attacking enemies or providing support to allies",
-    cooldown: 0,
+    cooldown: 5,
     damage: 0,
     blockable: false,
     dodgeable: false,
@@ -709,7 +739,7 @@ export const LifeGiver: Ability = {
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const teamIndex = ctx.getTeamIdx(user);
-        const team = ctx.teams[teamIndex];
+        const team = ctx.teams[teamIndex + 1];
 
         const NPC: FightableNPC = {
             id: Functions.randomArray(["speedwagon_foundation", "kakyoin", "jotaro", "dio"]),
@@ -727,6 +757,7 @@ export const LifeGiver: Ability = {
             standsEvolved: target.standsEvolved,
             emoji: target.stand?.emoji ?? "🤷‍♂️",
         };
+        console.log(team);
         team.push(new Fighter(NPC));
         ctx.fighters.push(new Fighter(NPC));
         ctx.turns[ctx.turns.length - 1].logs.push(
@@ -748,6 +779,7 @@ export const LifeGiver: Ability = {
             },
         });
     },
+    target: "self",
 };
 
 // sand clone ability, similar to life giver
@@ -755,17 +787,16 @@ export const SandClone: Ability = {
     name: "Sand Clone",
     description:
         "The Fool can create clones of itself out of sand, which can be used to attack or defend",
-    cooldown: 0,
+    cooldown: 5,
     damage: 0,
     blockable: false,
     dodgeable: false,
     stamina: 50,
     extraTurns: 0,
-    dodgeScore: 3,
+    dodgeScore: 0,
     useMessage: (user, target, damage, ctx) => {
         const teamIndex = ctx.getTeamIdx(user);
         const team = ctx.teams[teamIndex];
-        console.log(team);
 
         const NPC: FightableNPC = {
             id: Functions.randomArray(["speedwagon_foundation", "kakyoin", "jotaro", "dio"]),
@@ -804,6 +835,7 @@ export const SandClone: Ability = {
             },
         });
     },
+    target: "self",
 };
 
 export const SandProjectiles: Ability = {
@@ -816,6 +848,7 @@ export const SandProjectiles: Ability = {
     stamina: 20,
     extraTurns: 1,
     dodgeScore: 2,
+    target: "enemy",
 };
 
 export const SandMimicry: Ability = {
@@ -847,6 +880,7 @@ export const SandMimicry: Ability = {
             },
         });
     },
+    target: "self",
 };
 
 export const SandStorm: Ability = {
@@ -889,6 +923,7 @@ export const SandStorm: Ability = {
             },
         });
     },
+    target: "enemy",
 };
 
 export const SandSelfHealing: Ability = {
@@ -909,4 +944,107 @@ export const SandSelfHealing: Ability = {
             `- ${user.stand.emoji} SAND SELF HEALING: **${user.name}** has healed himself by **${heal}** health...`
         );
     },
+    target: "self",
+};
+
+export const SwiftStrike: Ability = {
+    name: "Swift Strike",
+    description: "Unleash a lightning-fast strike with your katana, dealing massive damage.",
+    cooldown: 5,
+    damage: 28,
+    blockable: true,
+    dodgeable: true,
+    stamina: 30,
+    extraTurns: 1,
+    dodgeScore: 3,
+    target: "enemy",
+};
+
+export const BerserkersFury: Ability = {
+    name: "Berserker's Fury",
+    description:
+        "Enter a state of berserk fury, greatly increasing your attack power for a limited time.",
+    cooldown: 6,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 20,
+    extraTurns: 4,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const strengthIncrease = Math.round(user.skillPoints.strength * 0.25); // 25% strength increase
+        const defenseDecrease = Math.round(user.skillPoints.defense * 0.1); // 10% defense decrease
+        const maxHealth = Math.round(user.maxHealth * 0.1); // 10% decrease in max health
+        const health = Math.round(user.health * 0.1); // 10% decrease in current health
+
+        user.skillPoints.strength += strengthIncrease;
+        user.skillPoints.defense -= defenseDecrease;
+        user.health -= health; // 10% decrease in current health
+        user.maxHealth -= maxHealth; // 10% decrease in max health
+        user.maxHealth -= Math.round(user.maxHealth * 0.1); // 10% decrease in max health
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `<:emoji_177:1136204824803819651> **${user.name}** enters a state of berserker's fury! Their strength is increased by **${strengthIncrease}**, but their defense and max health suffer.`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight: { turns: { logs: string[] }[] }) => {
+                user.skillPoints.strength -= strengthIncrease;
+                user.skillPoints.defense += defenseDecrease;
+                user.maxHealth += maxHealth;
+                user.health += health;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `<:emoji_177:1136204824803819651> **${user.name}**'s berserker's fury has worn off.`
+                );
+            },
+        });
+    },
+    dodgeScore: 0,
+    target: "self",
+};
+
+export const BerserkersRampage: Ability = {
+    name: "Berserker's Rampage",
+    description:
+        "Enter a state of berserk ramapage, attacking every enemies with a flurry of strikes. [true dodge score: 4]",
+    cooldown: 7,
+    damage: 0,
+    blockable: false,
+    dodgeable: false,
+    stamina: 20,
+    extraTurns: 4,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter((x) => x.id !== user.id)
+            .forEach((x) => {
+                const dodgeResults: boolean[] = [];
+
+                for (let i = 0; i < 4; i++) {
+                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
+                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
+
+                    const randomNumber = Functions.randomNumber(0, 100);
+                    const dodgeThreshold =
+                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
+
+                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
+                }
+                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                    const damages = Math.round(Functions.getAttackDamages(user) * 1.75);
+                    x.health -= damages;
+                    if (x.health <= 0) x.health = 0;
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.weapon.emoji} RAMPAGE: **${user.name}** has dealt **${damages}** damages to **${x.name}**.`
+                    );
+                } else {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.stand.emoji} RAMPAGE: **${x.name}** dodged.`
+                    );
+                }
+            });
+    },
+    dodgeScore: 0,
+    target: "self",
 };

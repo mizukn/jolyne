@@ -320,3 +320,42 @@ export const StandArrow: Special = {
         return true;
     },
 };
+
+export const RequiemArrow: Special = {
+    id: "requiem_arrow",
+    name: "Requiem Arrow",
+    description:
+        "A requiem arrow. It can be used to evolve your stand if you have Gold Experience or Silver Chariot.",
+    rarity: "SS",
+    emoji: Emojis["requiem_arrow"],
+    price: 5000000,
+    tradable: true,
+    storable: true,
+    craft: [],
+    use: async (ctx: CommandInteractionContext, ...args: string[]) => {
+        const stand = Functions.findStand(ctx.userData.stand);
+
+        if (ctx.userData.stand !== "gold_experience" && ctx.userData.stand !== "silver_chariot") {
+            await ctx.sendTranslated("items:REQUIEM_ARROW.NOT_REQUIEM");
+            return false;
+        }
+        if (ctx.userData.level < 50) {
+            ctx.makeMessage({
+                content: "You are not worthy of this arrow yet...",
+            });
+            return false;
+        }
+        if (ctx.userData.standsEvolved[stand.id] === 1) {
+            await ctx.sendTranslated("items:REQUIEM_ARROW.ALREADY_REQUIEM", {
+                stand: stand.name,
+            });
+            return false;
+        }
+        ctx.userData.standsEvolved[stand.id] = 1;
+        await ctx.sendTranslated("items:REQUIEM_ARROW.EVOLVING", {
+            stand: stand.name,
+        });
+        ctx.client.database.saveUserData(ctx.userData);
+        return true;
+    },
+};

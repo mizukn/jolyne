@@ -169,5 +169,29 @@ export const GoldExperience: EvolutionStand = {
             },
             available: true,
         },
+        {
+            name: "Gold Experience Requiem",
+            description:
+                "Gold Experience Requiem is the requiem form of Gold Experience, created by the Stand Arrow. It is featured in Vento Aureo. It is arguably one of the most powerful Stand in the series.",
+            rarity: "SS",
+            abilities: [
+                Abilities.StandBarrage,
+                Abilities.Heal,
+                Abilities.LifeShot,
+                Abilities.LifeGiver,
+                Abilities.RequiemArrowBlast,
+            ],
+            image: "https://static.jojowiki.com/images/thumb/1/13/latest/20210525092302/GER_Infobox_Manga.png/400px-GER_Infobox_Manga.png",
+            color: 0x8b8000,
+            emoji: "<:scr:1125037583286669332>",
+            skillPoints: {
+                strength: 15,
+                perception: 15,
+                speed: 15,
+                defense: 15,
+                stamina: 15,
+            },
+            available: true,
+        },
     ],
 };
