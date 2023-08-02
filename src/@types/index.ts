@@ -479,6 +479,7 @@ export interface Weapon extends EquipableItem {
     useMessageAttack: string;
     staminaCost: number;
     color: number;
+    handleAttack?: (ctx: FightHandler, user: Fighter, target: Fighter, damages: number) => void;
 }
 
 /**
@@ -650,6 +651,7 @@ export interface Ability {
     thumbnail?: string;
     dodgeScore: number;
     ally?: boolean;
+    target: "enemy" | "ally" | "onlyAlly" | "self" | "any";
 }
 
 export interface RequiemStand extends Stand {
@@ -931,4 +933,5 @@ export interface RaidBoss {
     level: number;
     maxLevel: number;
     maxPlayers: number;
+    cooldown: number;
 }
