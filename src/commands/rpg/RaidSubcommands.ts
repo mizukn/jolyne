@@ -66,6 +66,7 @@ const slashCommand: SlashCommandFile = {
         const leaveRaidID = Functions.generateRandomId();
         const banUserFromRaidID = Functions.generateRandomId();
         const startRaidID = Functions.generateRandomId();
+        const cooldownedUsers: string[] = [];
 
         const joinedUsers: RPGUserDataJSON[] = [ctx.userData];
         const bannedUsers: RPGUserDataJSON[] = [];
@@ -125,7 +126,7 @@ const slashCommand: SlashCommandFile = {
             fight.on("end", async (winners, losers) => {
                 for (const user of joinedUsers) {
                     ctx.client.database.deleteCooldown(user.id);
-                    await ctx.client.database.setRPGCooldown(user.id, "raid", 60000 * 10);
+                    await ctx.client.database.setRPGCooldown(user.id, "raid", raid.cooldown);
                 }
                 raidWebhook.send({
                     embeds: [
@@ -202,9 +203,14 @@ const slashCommand: SlashCommandFile = {
                             );
                         }
                         if (raid.baseRewards.xp) {
-                            let xp = Math.round(
+                            // only give xps based of winner.totalDamageDealt . If totalDamageDealth is the boss.raid.health or higher, give full xp. Faites le proportionnellement
+                            let xp = /*Math.round(
                                 winner.health === 0 ? raid.baseRewards.xp / 4 : raid.baseRewards.xp
+                            );*/ Math.round(
+                                (winner.totalDamageDealt / Functions.getMaxHealth(raid.boss)) *
+                                    raid.baseRewards.xp
                             );
+
                             xp = Functions.addXp(winnerData, xp);
                             winContent.push(
                                 `+**${xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}`
@@ -212,7 +218,10 @@ const slashCommand: SlashCommandFile = {
                         }
                         if (raid.baseRewards.items.length > 0) {
                             for (const item of raid.baseRewards.items) {
-                                const chance = winner.health === 0 ? item.chance / 2 : item.chance;
+                                const chance = Math.round(
+                                    (winner.totalDamageDealt / Functions.getMaxHealth(raid.boss)) *
+                                        item.chance
+                                );
                                 if (item.chance && Functions.RNG(0, 100) > chance) continue;
                                 const itemData = Functions.findItem(item.item);
                                 if (!itemData) continue;
@@ -266,18 +275,43 @@ const slashCommand: SlashCommandFile = {
             const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
             if (!usrData) return;
             if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
+                if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                    ctx.followUp({
+                        content: `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`,
+                    });
+                    cooldownedUsers.push(interaction.user.id);
+                }
                 return;
             }
 
             if (Functions.userIsCommunityBanned(ctx.userData)) {
+                if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                    ctx.followUp({
+                        content: `<@${ctx.userData.id}> tried to join the raid but the host is community banned.`,
+                    });
+                    cooldownedUsers.push(interaction.user.id);
+                }
+
                 return;
             }
             if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
+                if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                    ctx.followUp({
+                        content: `<@${interaction.user.id}> tried to join the raid but they low in health.`,
+                    });
+                    cooldownedUsers.push(interaction.user.id);
+                }
                 return;
             }
             switch (interaction.customId) {
                 case joinRaidID: {
                     if (joinedUsers.length >= raid.maxPlayers) {
+                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                            ctx.followUp({
+                                content: `<@${interaction.user.id}> tried to join the raid but it is full.`,
+                            });
+                            cooldownedUsers.push(interaction.user.id);
+                        }
                         return;
                     }
                     if (bannedUsers.find((r) => r.id === interaction.user.id)) {
@@ -290,9 +324,20 @@ const slashCommand: SlashCommandFile = {
                         return;
                     }
                     if (usrData.level < raid.level) {
+                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                            ctx.followUp({
+                                content: `<@${interaction.user.id}> tried to join the raid but they are too low level.`,
+                            });
+                            cooldownedUsers.push(interaction.user.id);
+                        }
+
                         return;
                     }
                     joinedUsers.push(usrData);
+                    cooldownedUsers.slice(
+                        cooldownedUsers.findIndex((r) => r === interaction.user.id),
+                        1
+                    );
                     ctx.interaction
                         .followUp({
                             content: `${usrData.tag} has joined the raid.`,
@@ -377,8 +422,10 @@ const slashCommand: SlashCommandFile = {
                 description: `> \`Min Level Requirement:\` ${
                     raid.level
                 }\n> \`Max Level Requirement:\` ${
-                    raid.level
-                }\n> \`Starts (auto):\` ${Functions.generateDiscordTimestamp(
+                    raid.maxLevel
+                }\n> \`Cooldown:\` ${Functions.msToString(
+                    raid.cooldown
+                )}\n> \`Starts (auto):\` ${Functions.generateDiscordTimestamp(
                     startRaid,
                     "FROM_NOW"
                 )}`,
@@ -397,10 +444,14 @@ const slashCommand: SlashCommandFile = {
                                 if (!itemData) return null;
                                 return `- **${i.amount.toLocaleString("en-US")}x** ${
                                     itemData.name
-                                } ${itemData.emoji}${i.chance ? ` (${i.chance}%)` : ""}`;
+                                } ${itemData.emoji}${i.chance ? ` (${i.chance}% \\*\\*)` : ""}`;
                             })
                             .filter((r) => r)
-                            .join("\n")}`,
+                            .join("\n")}${
+                            raid.baseRewards.items.length !== 0
+                                ? "\n\n\\*\\* The drop rates of items are determined by the damage you inflict. For instance, if you deal 100% of the boss's health, and it indicates a 50% chance of receiving an item, you will indeed have a 50% chance of obtaining the item. However, if you only deal 50% of the boss's health, your chance of getting the arrow will be reduced to 25%, and so on."
+                                : ""
+                        }`,
                     },
                     {
                         name: `Joined Users [${joinedUsers.length}/${raid.maxPlayers}]:`,

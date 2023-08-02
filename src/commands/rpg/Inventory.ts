@@ -8,6 +8,7 @@ import {
     formattedEquipableItemTypes,
     equipableItemTypesLimit,
     SkillPoints,
+    Weapon,
 } from "../../@types";
 import {
     Message,
@@ -93,6 +94,41 @@ const slashCommand: SlashCommandFile = {
                     },
                 ],
             },
+            {
+                name: "throw",
+                description:
+                    "Throws an item away. Can be re-claimed by using the /inventory claim command [args: ID]",
+                type: 1,
+                options: [
+                    {
+                        name: "item",
+                        description: "The item you want to throw away.",
+                        type: 3,
+                        required: true,
+                        autocomplete: true,
+                    },
+                    {
+                        name: "amount",
+                        description:
+                            "How many times do you want to throw that item away? (default: 1)",
+                        type: 4,
+                        required: false,
+                    },
+                ],
+            },
+            {
+                name: "claim",
+                description: "Claims an item that you or someone threw away.",
+                type: 1,
+                options: [
+                    {
+                        name: "id",
+                        description: "The ID of the item you want to claim.",
+                        type: 3,
+                        required: true,
+                    },
+                ],
+            },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -138,6 +174,7 @@ const slashCommand: SlashCommandFile = {
             });
 
         if (ctx.interaction.options.getSubcommand() === "view") {
+            console.log("SUBCOMMAND VIEW");
             const content: string[][] = [[]];
             const contentPhaseMaxLength = 2048;
 
@@ -215,6 +252,7 @@ const slashCommand: SlashCommandFile = {
                 goToPage();
             });
         } else if (ctx.interaction.options.getSubcommand() === "info") {
+            console.log("SUBCOMMAND INFO");
             const itemString = ctx.interaction.options.getString("item", true);
             const itemData = Functions.findItem(itemString);
 
@@ -228,6 +266,7 @@ const slashCommand: SlashCommandFile = {
             const embed: APIEmbed = {
                 title: itemData.emoji + " " + itemData.name,
                 description: itemData.description,
+                color: (itemData as Weapon).color,
                 fields: [
                     {
                         name: "Rarity",
@@ -312,6 +351,7 @@ const slashCommand: SlashCommandFile = {
                 embeds: [embed],
             });
         } else if (ctx.interaction.options.getSubcommand() === "unequip") {
+            console.log("SUBCOMMAND UNEQUIP");
             const itemString = ctx.interaction.options.getString("item", true);
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
@@ -333,7 +373,7 @@ const slashCommand: SlashCommandFile = {
             ctx.makeMessage({
                 content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,
             });
-        } else {
+        } else if (ctx.interaction.options.getSubcommand() === "equip") {
             const itemString = ctx.interaction.options.getString("item", true);
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
             const left = ctx.userData.inventory[itemString] || 0;
@@ -359,148 +399,245 @@ const slashCommand: SlashCommandFile = {
                 });
                 return;
             }
-            if (ctx.interaction.options.getSubcommand() === "equip") {
-                if (!Functions.isEquipableItem(itemData)) {
-                    ctx.makeMessage({
-                        content: `You can't equip this item. Nice try`,
-                    });
-                    return;
-                }
-                if (
-                    Object.values(ctx.userData.equippedItems).filter((r) => r === itemData.type)
-                        .length >= equipableItemTypesLimit[itemData.type]
-                ) {
-                    ctx.makeMessage({
-                        content: `You can't equip more than ${
-                            equipableItemTypesLimit[itemData.type]
-                        } items of this type.`,
-                    });
-                    return;
-                }
-                if (Object.keys(ctx.userData.equippedItems).find((r) => r === itemData.id)) {
-                    ctx.makeMessage({
-                        content: `You already have this item equipped.`,
-                    });
-                }
-
-                if (itemData.requirements) {
-                    let meetReqs = true;
-                    if (
-                        itemData.requirements.level &&
-                        itemData.requirements.level > ctx.userData.level
-                    )
-                        meetReqs = false;
-                    if (itemData.requirements.skillPoints)
-                        for (const skill in itemData.requirements.skillPoints) {
-                            if (
-                                ctx.userData.skillPoints[skill as keyof SkillPoints] <
-                                itemData.requirements.skillPoints[skill as keyof SkillPoints]
-                            )
-                                meetReqs = false;
-                        }
-                    if (!meetReqs) {
-                        ctx.makeMessage({
-                            content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
-                                "inventory info"
-                            )} command to get more informations.`,
-                        });
-                        return;
-                    }
-                }
-                ctx.userData.equippedItems[itemData.id] = itemData.type;
-                ctx.userData.inventory[itemData.id] -= amountX;
+            if (!Functions.isEquipableItem(itemData)) {
                 ctx.makeMessage({
-                    content: ` [${formattedEquipableItemTypes[itemData.type]}] You equipped ${
-                        itemData.emoji
-                    } \`${itemData.name}\``,
+                    content: `You can't equip this item. Nice try`,
                 });
-                ctx.client.database.saveUserData(ctx.userData);
-            } else {
-                const winContent = `You used ${itemData.emoji} x${amountX} \`${itemData.name}\` and got:`;
-                const winContentArray: string[] = [];
-
-                // eslint-disable-next-line no-inner-declarations
-                function addHealthOrStamina(amount: numOrPerc, type: "health" | "stamina"): void {
-                    const emoji = type === "health" ? ":heart:" : ":zap:";
-                    const addX = type === "health" ? Functions.addHealth : Functions.addStamina;
-                    const x =
-                        type === "health" ? () => ctx.userData.health : () => ctx.userData.stamina;
-                    const oldX = x();
-
-                    const maxX =
-                        type === "health"
-                            ? Functions.getMaxHealth(ctx.userData)
-                            : Functions.getMaxStamina(ctx.userData);
-
-                    switch (typeof amount) {
-                        case "number":
-                            addX(ctx.userData, amount);
-                            winContentArray.push(`+${x() - oldX} ${emoji} (${x()}/${maxX})`);
-                            break;
-                        case "string":
-                            // %
-                            addX(ctx.userData, Math.round((x() / maxX) * parseInt(amount)));
-                            winContentArray.push(`+${x() - oldX} ${emoji} (${x()}/${maxX})`);
-                            break;
-                        // default: impossible
-                    }
-                }
-
-                if (Functions.isConsumable(itemData)) {
-                    Functions.removeItem(ctx.userData, itemString, amountX);
-                    for (let i = 0; i < amountX; i++) {
-                        if (itemData.effects.health !== undefined)
-                            addHealthOrStamina(itemData.effects.health, "health");
-                        if (itemData.effects.stamina !== undefined)
-                            addHealthOrStamina(itemData.effects.stamina, "stamina");
-
-                        if (itemData.effects.items) {
-                            const items = Object.keys(itemData.effects.items);
-
-                            for (const item of items) {
-                                const itemData2 = Functions.findItem(item);
-                                // if (!itemData2) impossible;
-
-                                Functions.addItem(ctx.userData, item, itemData.effects.items[item]);
-                                winContentArray.push(
-                                    `[${i + 1}] +${itemData.effects.items[item]} ${
-                                        itemData2.name
-                                    } ${itemData2.emoji}`
-                                );
-                            }
-                        }
-                    }
-                } else if (Functions.isSpecial(itemData)) {
-                    const oldData = { ...ctx.userData } as RPGUserDataJSON;
-                    await ctx.client.database.setCooldown(
-                        ctx.user.id,
-                        "You're currently using an item."
-                    );
-                    try {
-                        const status = await itemData.use(ctx);
-                        if (status) {
-                            Functions.removeItem(ctx.userData, itemString);
-                            ctx.client.database.saveUserData(ctx.userData);
-                        }
-                    } catch (e) {
-                        ctx.client.database.deleteCooldown(ctx.user.id);
-                        ctx.followUp({
-                            content:
-                                "An error occured while using this item. Your data has been saved.",
-                        });
-                        ctx.RPGUserData = oldData;
-                        ctx.client.database.saveUserData(ctx.userData);
-                        throw e;
-                    }
-                    await ctx.client.database.deleteCooldown(ctx.user.id);
-                    return;
-                    // TODO: If used multiple times
-                }
-                ctx.client.database.saveUserData(ctx.userData);
+                return;
+            }
+            if (
+                Object.values(ctx.userData.equippedItems).filter((r) => r === itemData.type)
+                    .length >= equipableItemTypesLimit[itemData.type]
+            ) {
                 ctx.makeMessage({
-                    content: winContent + " " + winContentArray.join(", "),
+                    content: `You can't equip more than ${
+                        equipableItemTypesLimit[itemData.type]
+                    } items of this type.`,
+                });
+                return;
+            }
+            if (Object.keys(ctx.userData.equippedItems).find((r) => r === itemData.id)) {
+                ctx.makeMessage({
+                    content: `You already have this item equipped.`,
                 });
             }
+
+            if (itemData.requirements) {
+                let meetReqs = true;
+                if (itemData.requirements.level && itemData.requirements.level > ctx.userData.level)
+                    meetReqs = false;
+                if (itemData.requirements.skillPoints)
+                    for (const skill in itemData.requirements.skillPoints) {
+                        if (
+                            ctx.userData.skillPoints[skill as keyof SkillPoints] <
+                            itemData.requirements.skillPoints[skill as keyof SkillPoints]
+                        )
+                            meetReqs = false;
+                    }
+                if (!meetReqs) {
+                    ctx.makeMessage({
+                        content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
+                            "inventory info"
+                        )} command to get more informations.`,
+                    });
+                    return;
+                }
+            }
+            ctx.userData.equippedItems[itemData.id] = itemData.type;
+            ctx.userData.inventory[itemData.id] -= amountX;
+            ctx.makeMessage({
+                content: ` [${formattedEquipableItemTypes[itemData.type]}] You equipped ${
+                    itemData.emoji
+                } \`${itemData.name}\``,
+            });
+            ctx.client.database.saveUserData(ctx.userData);
+        } else if (ctx.interaction.options.getSubcommand() === "use") {
+            const itemString = ctx.interaction.options.getString("item", true);
+            const amountX = ctx.interaction.options.getInteger("amount") || 1;
+            const left = ctx.userData.inventory[itemString] || 0;
+
+            if (left === 0) {
+                ctx.makeMessage({
+                    content: "This item does not exist or you don't have any left. Nice try",
+                });
+                return;
+            }
+
+            if (left < amountX) {
+                ctx.makeMessage({
+                    content: `You don't have enough of this item. You have ${left} left.`,
+                });
+                return;
+            }
+
+            const itemData = Functions.findItem(itemString);
+            if (!itemData) {
+                ctx.makeMessage({
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                });
+                return;
+            }
+            const winContent = `You used ${itemData.emoji} x${amountX} \`${itemData.name}\` and got:`;
+            const winContentArray: string[] = [];
+
+            // eslint-disable-next-line no-inner-declarations
+            function addHealthOrStamina(amount: numOrPerc, type: "health" | "stamina"): void {
+                const emoji = type === "health" ? ":heart:" : ":zap:";
+                const addX = type === "health" ? Functions.addHealth : Functions.addStamina;
+                const x =
+                    type === "health" ? () => ctx.userData.health : () => ctx.userData.stamina;
+                const oldX = x();
+
+                const maxX =
+                    type === "health"
+                        ? Functions.getMaxHealth(ctx.userData)
+                        : Functions.getMaxStamina(ctx.userData);
+
+                switch (typeof amount) {
+                    case "number":
+                        addX(ctx.userData, amount);
+                        winContentArray.push(`+${x() - oldX} ${emoji} (${x()}/${maxX})`);
+                        break;
+                    case "string":
+                        // %
+                        addX(ctx.userData, Math.round((x() / maxX) * parseInt(amount)));
+                        winContentArray.push(`+${x() - oldX} ${emoji} (${x()}/${maxX})`);
+                        break;
+                    // default: impossible
+                }
+            }
+
+            if (Functions.isConsumable(itemData)) {
+                Functions.removeItem(ctx.userData, itemString, amountX);
+                for (let i = 0; i < amountX; i++) {
+                    if (itemData.effects.health !== undefined)
+                        addHealthOrStamina(itemData.effects.health, "health");
+                    if (itemData.effects.stamina !== undefined)
+                        addHealthOrStamina(itemData.effects.stamina, "stamina");
+
+                    if (itemData.effects.items) {
+                        const items = Object.keys(itemData.effects.items);
+
+                        for (const item of items) {
+                            const itemData2 = Functions.findItem(item);
+                            // if (!itemData2) impossible;
+
+                            Functions.addItem(ctx.userData, item, itemData.effects.items[item]);
+                            winContentArray.push(
+                                `[${i + 1}] +${itemData.effects.items[item]} ${itemData2.name} ${
+                                    itemData2.emoji
+                                }`
+                            );
+                        }
+                    }
+                }
+            } else if (Functions.isSpecial(itemData)) {
+                const oldData = { ...ctx.userData } as RPGUserDataJSON;
+                await ctx.client.database.setCooldown(
+                    ctx.user.id,
+                    "You're currently using an item."
+                );
+                try {
+                    const status = await itemData.use(ctx);
+                    if (status) {
+                        Functions.removeItem(ctx.userData, itemString);
+                        ctx.client.database.saveUserData(ctx.userData);
+                    }
+                } catch (e) {
+                    ctx.client.database.deleteCooldown(ctx.user.id);
+                    ctx.followUp({
+                        content:
+                            "An error occured while using this item. Your data has been saved.",
+                    });
+                    ctx.RPGUserData = oldData;
+                    ctx.client.database.saveUserData(ctx.userData);
+                    throw e;
+                }
+                await ctx.client.database.deleteCooldown(ctx.user.id);
+                return;
+                // TODO: If used multiple times
+            }
+            ctx.client.database.saveUserData(ctx.userData);
+            ctx.makeMessage({
+                content: winContent + " " + winContentArray.join(", "),
+            });
+        } else if (ctx.interaction.options.getSubcommand() === "throw") {
+            const itemString = ctx.interaction.options.getString("item", true);
+            const left = ctx.userData.inventory[itemString] || 0;
+            const amountX = ctx.interaction.options.getInteger("amount") || 1;
+
+            if (left === 0) {
+                ctx.makeMessage({
+                    content: "This item does not exist or you don't have any left. Nice try",
+                });
+                return;
+            }
+
+            const itemData = Functions.findItem(itemString);
+            if (!itemData) {
+                ctx.makeMessage({
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                });
+                return;
+            }
+
+            if (left < amountX) {
+                ctx.makeMessage({
+                    content: `You don't have enough of this item. You have ${left} left.`,
+                });
+                return;
+            }
+
+            const itemId = Functions.generateRandomId();
+            const itemDataJSON = {
+                item: itemData.id,
+                amount: amountX,
+                droppedBy: ctx.user.id,
+                droppedAt: Date.now(),
+            };
+            await ctx.client.database.redis.set(
+                "thrownItem_" + itemId,
+                JSON.stringify(itemDataJSON)
+            );
+            Functions.removeItem(ctx.userData, itemString, amountX);
+            ctx.client.database.saveUserData(ctx.userData);
+            ctx.makeMessage({
+                content: `You threw ${itemData.emoji} x${amountX} \`${
+                    itemData.name
+                }\`! (You can pick it up again with the ${ctx.client.getSlashCommandMention(
+                    "inventory claim"
+                )} command [ID: \`${itemId}\`])`,
+            });
+        } else if (ctx.interaction.options.getSubcommand() === "claim") {
+            const itemId = ctx.interaction.options.getString("id", true);
+            const itemData = await ctx.client.database.redis.get("thrownItem_" + itemId);
+            if (!itemData) {
+                ctx.makeMessage({
+                    content:
+                        "This item does not exist or has already been claimed [ERROR: not in redis cache].",
+                });
+                return;
+            }
+
+            const itemDataJSON: {
+                item: string;
+                amount: number;
+            } = JSON.parse(itemData);
+            const item = Functions.findItem(itemDataJSON?.item);
+            if (!item) {
+                ctx.makeMessage({
+                    content:
+                        "This item does not exist or has already been claimed [ERROR: item does not exist].",
+                });
+                return;
+            }
+            await ctx.client.database.redis.del(itemId);
+
+            Functions.addItem(ctx.userData, itemDataJSON.item, itemDataJSON.amount, true);
+            ctx.client.database.saveUserData(ctx.userData);
+            ctx.makeMessage({
+                content: `You claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`!`,
+            });
         }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
@@ -518,22 +655,23 @@ const slashCommand: SlashCommandFile = {
                 };
             });
 
-            interaction.respond(
-                userItems
-                    .filter((r) => r)
-                    .map((i) => {
-                        return {
-                            value: i.id,
-                            name: `${i.name} (x${i.amount} left)`,
-                            description: i,
-                        };
-                    })
-                    .filter(
-                        (item) =>
-                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                            item.value.toLowerCase().includes(currentInput.toLowerCase())
-                    )
-            );
+            const finalItems = userItems
+                .filter((r) => r)
+                .map((i) => {
+                    return {
+                        value: i.id,
+                        name: `${i.name} (x${i.amount} left)`,
+                        description: i,
+                    };
+                })
+                .filter(
+                    (item) =>
+                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                        item.value.toLowerCase().includes(currentInput.toLowerCase())
+                );
+            if (finalItems.length > 25) finalItems.length = 25;
+
+            interaction.respond(finalItems);
         } else if (interaction.options.getSubcommand() === "info") {
             for (const item of Object.keys(userData.equippedItems)) {
                 Functions.addItem(userData, item, 1);
@@ -551,22 +689,23 @@ const slashCommand: SlashCommandFile = {
                 };
             });
 
-            interaction.respond(
-                userItems
-                    .filter((r) => r)
-                    .map((i) => {
-                        return {
-                            value: i.id,
-                            name: `${i.name}`,
-                            description: i,
-                        };
-                    })
-                    .filter(
-                        (item) =>
-                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                            item.value.toLowerCase().includes(currentInput.toLowerCase())
-                    )
-            );
+            const finalItems = userItems
+                .filter((r) => r)
+                .map((i) => {
+                    return {
+                        value: i.id,
+                        name: `${i.name}`,
+                        description: i,
+                    };
+                })
+                .filter(
+                    (item) =>
+                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                        item.value.toLowerCase().includes(currentInput.toLowerCase())
+                );
+            if (finalItems.length > 25) finalItems.length = 25;
+
+            interaction.respond(finalItems);
         } else if (interaction.options.getSubcommand() === "equip") {
             const userItems = Object.keys(userData.inventory).map((v) => {
                 const item = Functions.findItem(v);
@@ -581,22 +720,23 @@ const slashCommand: SlashCommandFile = {
                 };
             });
 
-            interaction.respond(
-                userItems
-                    .filter((r) => r)
-                    .map((i) => {
-                        return {
-                            value: i.id,
-                            name: `${i.name} (x${i.amount} left)`,
-                            description: i,
-                        };
-                    })
-                    .filter(
-                        (item) =>
-                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                            item.value.toLowerCase().includes(currentInput.toLowerCase())
-                    )
-            );
+            const finalItems = userItems
+                .filter((r) => r)
+                .map((i) => {
+                    return {
+                        value: i.id,
+                        name: `${i.name} (x${i.amount} left)`,
+                        description: i,
+                    };
+                })
+                .filter(
+                    (item) =>
+                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                        item.value.toLowerCase().includes(currentInput.toLowerCase())
+                );
+            if (finalItems.length > 25) finalItems.length = 25;
+
+            interaction.respond(finalItems);
         } else if (interaction.options.getSubcommand() === "unequip") {
             const userItems = Object.keys(userData.equippedItems).map((v) => {
                 const item = Functions.findItem(v);
@@ -608,23 +748,57 @@ const slashCommand: SlashCommandFile = {
                     id: v,
                 };
             });
+            const realItems = userItems
+                .filter((r) => r)
+                .map((i) => {
+                    return {
+                        value: i.id,
+                        name: i.name,
+                        description: i,
+                    };
+                })
+                .filter(
+                    (item) =>
+                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                        item.value.toLowerCase().includes(currentInput.toLowerCase())
+                );
+            if (realItems.length > 25) realItems.length = 25;
 
-            interaction.respond(
-                userItems
-                    .filter((r) => r)
-                    .map((i) => {
-                        return {
-                            value: i.id,
-                            name: i.name,
-                            description: i,
-                        };
-                    })
-                    .filter(
-                        (item) =>
-                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                            item.value.toLowerCase().includes(currentInput.toLowerCase())
-                    )
-            );
+            interaction.respond(realItems);
+        } else if (
+            interaction.options.getSubcommand() === "sell" ||
+            interaction.options.getSubcommand() === "throw"
+        ) {
+            // all items
+            const userItems = Object.keys(userData.inventory).map((v) => {
+                const item = Functions.findItem(v);
+                if (!item) return;
+                if (userData.inventory[v] === 0) return;
+
+                return {
+                    name: item.name,
+                    amount: userData.inventory[v],
+                    id: v,
+                };
+            });
+
+            const finalItems = userItems
+                .filter((r) => r)
+                .map((i) => {
+                    return {
+                        value: i.id,
+                        name: `${i.name} (x${i.amount} left)`,
+                        description: i,
+                    };
+                })
+                .filter(
+                    (item) =>
+                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                        item.value.toLowerCase().includes(currentInput.toLowerCase())
+                );
+            if (finalItems.length > 25) finalItems.length = 25;
+
+            interaction.respond(finalItems);
         }
     },
 };

@@ -70,16 +70,6 @@ const slashCommand: SlashCommandFile = {
                     staminaWon += Functions.getMaxStamina(ctx.userData) / 100;
                     msElapsed -= 120000;
                 }
-                if (healthWon !== 0) {
-                    healthWon = Math.round(ctx.userData.health - healthWon);
-                    if (healthWon > Functions.getMaxHealth(ctx.userData))
-                        healthWon = Functions.getMaxHealth(ctx.userData);
-                }
-                if (staminaWon !== 0) {
-                    staminaWon = Math.round(ctx.userData.stamina - staminaWon);
-                    if (staminaWon > Functions.getMaxStamina(ctx.userData))
-                        staminaWon = Functions.getMaxStamina(ctx.userData);
-                }
             }
 
             return {
@@ -132,25 +122,23 @@ const slashCommand: SlashCommandFile = {
                         });
                     } else {
                         ctx.userData.restingAtCampfire = 0;
+                        ctx.userData.health += stats.health;
+                        ctx.userData.stamina += stats.stamina;
                         ctx.makeMessage({
                             content: `🔥🪵 You've gained **${stats.health.toLocaleString(
                                 "en-US"
                             )}** :heart: and **${stats.stamina.toLocaleString(
                                 "en-US"
-                            )}** :zap:. (${stats.currentHealth.toLocaleString(
+                            )}** :zap:. (${ctx.userData.health.toLocaleString(
                                 "en-US"
                             )}/${Functions.getMaxHealth(ctx.userData).toLocaleString(
                                 "en-US"
-                            )} :heart:)[${stats.currentHealth.toLocaleString(
+                            )} :heart:)[${ctx.userData.stamina.toLocaleString(
                                 "en-US"
                             )}/${Functions.getMaxStamina(ctx.userData).toLocaleString(
                                 "en-US"
-                            )} :zap:].\n You can leave the campfire with ${ctx.client.getSlashCommandMention(
-                                "campfire leave"
-                            )} command.`,
+                            )} :zap:]`,
                         });
-                        ctx.userData.health = stats.currentHealth;
-                        ctx.userData.stamina = stats.currentStamina;
                         await ctx.client.database.saveUserData(ctx.userData);
                     }
                 });
