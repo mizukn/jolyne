@@ -33,6 +33,7 @@
         "chalk": "^4.1.2",
         "chartjs-node-canvas": "^3.2.0",
         "cron": "^2.2.0",
+        "crypto": "^1.0.1",
         "csv-parse": "^5.3.8",
         "discord-api-types": "^0.37.26",
         "discord-hybrid-sharding": "^2.0.4",
