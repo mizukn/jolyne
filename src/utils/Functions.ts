@@ -1267,3 +1267,21 @@ export const hasExceedStandLimit = function hasExceedStandLimit(
     }
     return discCount >= limit;
 };
+
+export const msToString = function msToString(ms: number): string {
+    let seconds = Math.floor(ms / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    seconds %= 60;
+    minutes %= 60;
+    hours %= 24;
+
+    const dayStr = days ? `${days} day${days > 1 ? "s" : ""}` : "";
+    const hourStr = hours ? `${hours} hour${hours > 1 ? "s" : ""}` : "";
+    const minuteStr = minutes ? `${minutes} minute${minutes > 1 ? "s" : ""}` : "";
+    const secondStr = seconds ? `${seconds} second${seconds > 1 ? "s" : ""}` : "";
+
+    return `${dayStr} ${hourStr} ${minuteStr} ${secondStr}`;
+};
