@@ -415,7 +415,7 @@ export interface Item {
     /**
      * If the item is craftable, so its requirements.
      */
-    readonly craft?: itemRewards;
+    readonly craft?: RPGUserDataJSON["inventory"];
 }
 
 /**
