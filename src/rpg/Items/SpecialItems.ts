@@ -244,12 +244,9 @@ export const StandArrow: Special = {
     price: 35000,
     tradable: true,
     storable: true,
-    craft: [
-        {
-            item: "pizza",
-            amount: 4,
-        },
-    ],
+    craft: {
+        pizza: 4,
+    },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const standArray = Object.values(Stands);
         standArray.push({
@@ -331,7 +328,11 @@ export const RequiemArrow: Special = {
     price: 5000000,
     tradable: true,
     storable: true,
-    craft: [],
+    craft: {
+        ancient_scroll: 150,
+        stand_arrow: 300,
+        broken_arrow: 150,
+    },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const stand = Functions.findStand(ctx.userData.stand);
 
