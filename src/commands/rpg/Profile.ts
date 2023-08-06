@@ -89,8 +89,8 @@ const slashCommand: SlashCommandFile = {
 
         if (!rpgData) return ctx.sendTranslated("base:USER_NO_ADVENTURE");
         const chapter =
-            Object.values(Chapters).find((c) => c.id === ctx.userData.chapter.id) ||
-            Object.values(ChapterParts).find((c) => c.id === ctx.userData.chapter.id);
+            Object.values(Chapters).find((c) => c.id === rpgData.chapter.id) ||
+            Object.values(ChapterParts).find((c) => c.id === rpgData.chapter.id);
 
         const levelLb = (JSON.parse(
             await ctx.client.database.getString(`${ctx.client.user.id}_leaderboard:level`)
@@ -243,12 +243,12 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Stand Disc Capacity",
-                    value: `- Limit: ${Functions.calcStandDiscLimit(ctx).toLocaleString("en-US")} ${
-                        ctx.client.localEmojis.disk
-                    }\n- Used: ${discCount.toLocaleString("en-US")} ${
-                        ctx.client.localEmojis.disk
-                    }\n- Available: ${(
-                        Functions.calcStandDiscLimit(ctx) - discCount
+                    value: `- Limit: ${Functions.calcStandDiscLimit(ctx, rpgData).toLocaleString(
+                        "en-US"
+                    )} ${ctx.client.localEmojis.disk}\n- Used: ${discCount.toLocaleString(
+                        "en-US"
+                    )} ${ctx.client.localEmojis.disk}\n- Available: ${(
+                        Functions.calcStandDiscLimit(ctx, rpgData) - discCount
                     ).toLocaleString("en-US")} ${ctx.client.localEmojis.disk}`,
                     inline: true,
                 },

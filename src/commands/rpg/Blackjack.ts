@@ -91,11 +91,15 @@ const slashCommand: SlashCommandFile = {
         let betMultiplier = 1.03;
         // if bet is equal or greater than 50% of the user's coins, then the bet multiplier is 2.25. if 25% then 1.75. If it is 100% then 3. otherwise 1.15
         if (bet >= ctx.userData.coins) {
-            betMultiplier = 1.75;
+            betMultiplier = 2.25;
         } else if (bet >= ctx.userData.coins * 0.5) {
-            betMultiplier = 1.25;
+            betMultiplier = 1.55;
         } else if (bet >= ctx.userData.coins * 0.25) {
+            betMultiplier = 1.25;
+        } else if (bet >= ctx.userData.coins * 0.1) {
             betMultiplier = 1.15;
+        } else if (bet >= ctx.userData.coins * 0.05) {
+            betMultiplier = 1.09;
         }
         const moneyGive = Math.round(bet * betMultiplier);
         const coinsAfterWin = ctx.userData.coins + moneyGive;

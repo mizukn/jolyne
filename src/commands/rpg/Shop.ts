@@ -73,19 +73,23 @@ const slashCommand: SlashCommandFile = {
                         item: Functions.findItem("stand_arrow").id,
                         price: Functions.findItem("stand_arrow").price ?? 10000,
                     },
+                    {
+                        item: Functions.findItem("ancient_scroll").id,
+                        price: Functions.findItem("ancient_scroll").price ?? 10000,
+                    },
                 ],
             };
             const hasAlreadyBlackMarket = (await ctx.client.database.getJSONData(
                 Functions.getBlackMarketString(ctx.user.id)
             )) as Shop["items"];
             if (!hasAlreadyBlackMarket) {
+                BM.items = Functions.shuffle(BM.items);
                 for (const stand in Stands) {
                     BM.items.push({
                         item: Functions.findItem(Stands[stand as keyof typeof Stands].id).id,
                         price: standPrice[Stands[stand as keyof typeof Stands].rarity],
                     });
                 }
-                BM.items = Functions.shuffle(BM.items);
                 BM.items.length = ctx.client.patreons.find((x) => x.id === ctx.user.id)
                     ? Functions.RNG(
                           ctx.client.patreons.find((x) => x.id === ctx.user.id).level + 2,

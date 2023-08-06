@@ -27,26 +27,16 @@ import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import * as Bosses from "../../rpg/Raids";
 import * as Items from "../../rpg/Items";
+
 const craftableItems = Object.values(Items.default).filter((r) => r.craft);
-
-function fetchCraftableItems(inventory: RPGUserDataJSON["inventory"]): Item[] {
-    const items: Item[] = [];
-
-    for (const item of craftableItems) {
-        for (const xitem of item.craft) {
-            if (inventory[xitem.item] === undefined) {
-                inventory[xitem.item] = 0;
-            }
-            if (inventory[xitem.item as keyof typeof inventory] < xitem.amount) {
-                continue;
-            }
-            inventory[xitem.item as keyof typeof inventory] -= xitem.amount;
-            items.push(item);
-        }
-    }
-
-    return items;
-}
+const rarityValue = {
+    SS: 100,
+    T: 100,
+    S: 50,
+    A: 25,
+    B: 15,
+    C: 0,
+};
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -54,81 +44,141 @@ const slashCommand: SlashCommandFile = {
         description: "neeeega",
         options: [
             {
-                name: "make",
-                description: "Make an item",
-                type: 1,
-            },
-            {
-                name: "recipes",
-                description: "View all recipes you can craft",
-                type: 1,
-                options: [
-                    {
-                        name: "item",
-                        description: "npc",
-                        type: ApplicationCommandOptionType.String, // 3
-                        autocomplete: true,
-                        required: true,
-                    },
-                ],
+                name: "item",
+                description: "Item to make",
+                type: 3,
+                required: true,
+                autocomplete: true,
             },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        if (ctx.interaction.options.getSubcommand() === "recipes") {
-            const itemChosen = ctx.options.getString("item", true);
-            const item = Functions.findItem(itemChosen);
-            if (!item) {
-                ctx.makeMessage({
-                    content: "This item is uhhh... not a thing?",
-                });
-                return;
-            }
-            let hasLearnedItem = true;
-            if (!ctx.userData.learnedItems.includes(item.id)) {
-                hasLearnedItem = false;
-            }
+        const itemChosen = ctx.options.getString("item", true);
+        const item = Functions.findItem(itemChosen);
 
-            const youGiveContent: string[] = [];
-            let meetAllRequirements = true;
-            for (const xitem of Object.values(item.craft)) {
-                const xitemData = Functions.findItem(xitem.item);
-                if (!xitemData) {
-                    await ctx.makeMessage({
-                        content:
-                            "An error occured... You can't craft this item, please contact us on our support server to possibly get a refund (https://discord.gg/jolyne)",
-                    });
-                    break;
-                }
-                youGiveContent.push(`- \`${xitem.amount}x ${xitemData.name}\` ${xitemData.emoji}`);
-                if (
-                    ctx.userData.inventory[xitem.item] === undefined ||
-                    ctx.userData.inventory[xitem.item] < xitem.amount
-                ) {
-                    meetAllRequirements = false;
-                    youGiveContent[youGiveContent.length - 1] += ` (you need ${
-                        xitem.amount - (ctx.userData.inventory[xitem.item] ?? 0)
-                    } more)`;
-                }
-            }
-            if (ctx.interaction.replied) return;
-            ctx.makeMessage({
-                embeds: [
-                    {
-                        fields: [
-                            {
-                                name: `${item.emoji} ${item.name} recipe:${
-                                    hasLearnedItem ? "" : " (not learned)"
-                                }`,
-                                value: `${youGiveContent.join("\n")}`,
-                            },
-                        ],
-                        color: 0x964b00,
-                    },
-                ],
+        const contentCraft: string[][] = [[]];
+        const contentPhaseMaxLengthCraft = 2048;
+        const craftItems = Object.keys(item.craft)
+            .map((v) => {
+                const xitem = Functions.findItem(v);
+                if (!xitem) return;
+                if (item.craft[v] === 0) return;
+                return {
+                    name: xitem.name,
+                    emoji: xitem.emoji,
+                    rarity: xitem.rarity,
+                    price: xitem.price,
+                    amount: item.craft[v],
+                    id: xitem.id,
+                };
+            })
+            .filter((v) => v !== undefined)
+            .sort((a, b) => {
+                let aVal = rarityValue[a.rarity];
+                let bVal = rarityValue[b.rarity];
+
+                if (a.name.toLowerCase().includes("disc")) aVal += 15;
+                if (b.name.toLowerCase().includes("disc")) bVal += 15;
+
+                if (a.name.toLowerCase().includes("arrow")) aVal += 10;
+                if (b.name.toLowerCase().includes("arrow")) bVal += 10;
+
+                if (a.name.toLowerCase().includes("box")) aVal += 9;
+                if (b.name.toLowerCase().includes("box")) bVal += 9;
+
+                if (a.name.length > b.name.length) aVal += 5;
+                if (b.name.length > a.name.length) bVal += 5;
+
+                return aVal - bVal;
             });
-        } else {
-            const itemsPut: itemRewards = [];
+
+        for (const item of craftItems) {
+            const emoji =
+                item === craftItems[craftItems.length - 1]
+                    ? ctx.client.localEmojis.replyEnd
+                    : ctx.client.localEmojis.reply;
+
+            const itemString = `${emoji} ${item.emoji} \`${item.name} (x${item.amount})\` (${
+                ctx.userData.inventory[item.id] ?? 0
+            }/${item.amount})`;
+            if (
+                contentCraft[contentCraft.length - 1].join("\n").length + itemString.length >
+                contentPhaseMaxLengthCraft
+            )
+                contentCraft.push([]);
+            contentCraft[contentCraft.length - 1].push(itemString);
+        }
+        const meetRequirements = // item.craft & ctx.userData.inventory have the same type: { [key: string]: number }
+            Object.keys(item.craft).every((v) => {
+                const xitem = Functions.findItem(v);
+                if (!xitem) return false;
+                if (item.craft[v] === 0) return true;
+                return (
+                    ctx.userData.inventory[v] &&
+                    ctx.userData.inventory[v] >= item.craft[v] &&
+                    ctx.userData.inventory[v] >= 0
+                );
+            });
+
+        ctx.makeMessage({
+            embeds: [
+                {
+                    title: `${item.emoji} ${item.name}`,
+                    description: `In order to craft this item, you need the following items:\n\n${contentCraft[0].join(
+                        "\n"
+                    )}`,
+                    thumbnail: {
+                        url: `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
+                            item.emoji
+                        )}.png`,
+                    },
+                    fields: [
+                        {
+                            name: "Requirements met?",
+                            value: meetRequirements
+                                ? "✅, click the button below if you wish to craft this item"
+                                : "❌",
+                        },
+                    ],
+                },
+            ],
+            components: meetRequirements
+                ? [
+                      Functions.actionRow([
+                          new ButtonBuilder()
+                              .setCustomId(`craft_${ctx.interaction.id}`)
+                              .setEmoji(item.emoji)
+                              .setStyle(ButtonStyle.Secondary),
+                      ]),
+                  ]
+                : [],
+        });
+
+        if (meetRequirements) {
+            const collector = ctx.channel.createMessageComponentCollector({
+                filter: (i) =>
+                    i.customId === `craft_${ctx.interaction.id}` && i.user.id === ctx.userData.id,
+                time: 60000,
+                max: 1,
+            });
+
+            collector.on("collect", async (i) => {
+                i.deferUpdate().catch(() => {}); // eslint-disable-line
+                if (await ctx.antiCheat(true)) return;
+
+                // remove items from inventory
+                for (const item of craftItems) {
+                    Functions.removeItem(ctx.userData, item.id, item.amount);
+                }
+
+                // add item to inventory
+                Functions.addItem(ctx.userData, item.id, 1);
+
+                ctx.interaction.followUp({
+                    content: `You have successfully crafted ${item.emoji} \`${item.name}\`!`,
+                });
+                ctx.client.database.saveUserData(ctx.userData);
+            });
         }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
@@ -140,14 +190,15 @@ const slashCommand: SlashCommandFile = {
                 r.id.toLowerCase().includes(currentInput.toLowerCase())
         );
 
-        interaction.respond(
-            items.map((x) => {
-                return {
-                    name: x.name + (userData.learnedItems.includes(x.id) ? "" : " (not learned)"),
-                    value: x.id,
-                };
-            })
-        );
+        const realItems = items.map((x) => {
+            return {
+                name: x.name,
+                value: x.id,
+            };
+        });
+        if (realItems.length > 24) realItems.length = 24;
+
+        interaction.respond(realItems);
     },
 };
 

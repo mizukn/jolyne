@@ -257,11 +257,13 @@ const slashCommand: SlashCommandFile = {
                             return;
                         }
                         Functions.addCoins(ctx.userData, -price);
-                        ctx.userData.stand = null;
-                        ctx.client.database.saveUserData(ctx.userData);
                         ctx.sendTranslated("base:YOUR_STAND_HAS_BEEN_RESET", {
                             components: [],
+                            stand: stand,
                         });
+
+                        ctx.userData.stand = null;
+                        ctx.client.database.saveUserData(ctx.userData);
                     } else collector.stop();
                 });
                 break;
