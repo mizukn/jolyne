@@ -1215,7 +1215,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
     // every 50 levels, the limit increases by 1
     const realUserData = userData ?? ctx.userData;
     limit += Math.floor(realUserData.level / 50);
-    const patronTier = ctx.client.patreons.find((v) => v.id === ctx.user.id)?.level;
+    const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
     if (patronTier) {
         switch (patronTier) {
             case 1:
