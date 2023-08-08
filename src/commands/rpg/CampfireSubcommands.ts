@@ -55,8 +55,8 @@ const slashCommand: SlashCommandFile = {
             currentHealth: number;
             currentStamina: number;
         }> {
-            const restedDate = ctx.userData.restingAtCampfire
-                ? new Date(ctx.userData.restingAtCampfire)
+            const restedDate = Number(ctx.userData.restingAtCampfire)
+                ? new Date(Number(ctx.userData.restingAtCampfire))
                 : undefined;
             let healthWon;
             let staminaWon;

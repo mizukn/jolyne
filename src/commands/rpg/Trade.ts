@@ -211,7 +211,12 @@ const slashCommand: SlashCommandFile = {
             let accepted: string[] = [];
             const callback = (item: string, amount: number) => {
                 accepted = [];
-                if (Functions.hasExceedStandLimit(ctx)) return;
+                if (Functions.hasExceedStandLimit(ctx) && item.includes("$disc$")) {
+                    ctx.interaction.followUp({
+                        content: `<@${ctx.user.id}> has exceeded the stand disc limit. Please add another item.`,
+                    });
+                    return;
+                }
                 if (targetOffer[item]) {
                     targetOffer[item] += amount;
                 } else {
@@ -220,7 +225,12 @@ const slashCommand: SlashCommandFile = {
                 makeMessage();
             };
             const callback2 = (item: string, amount: number) => {
-                if (Functions.hasExceedStandLimit(ctx, targetData)) return;
+                if (Functions.hasExceedStandLimit(ctx, targetData) && item.includes("$disc$")) {
+                    ctx.interaction.followUp({
+                        content: `<@${target.id}> has exceeded the stand disc limit. Please add another item.`,
+                    });
+                    return;
+                }
                 accepted = [];
                 if (userOffer[item]) {
                     userOffer[item] += amount;
@@ -608,6 +618,7 @@ const slashCommand: SlashCommandFile = {
                         item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
                         item.value.toLowerCase().includes(currentInput.toLowerCase())
                 )
+                .slice(0, 25)
         );
     },
 };

@@ -21,6 +21,8 @@ import {
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
+import { NPCs } from "../../rpg/NPCs";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -126,6 +128,26 @@ const slashCommand: SlashCommandFile = {
                         description: "The ID of the item you want to claim.",
                         type: 3,
                         required: true,
+                    },
+                ],
+            },
+            {
+                name: "sell",
+                description: "Sells an item.",
+                type: 1,
+                options: [
+                    {
+                        name: "item",
+                        description: "The item you want to sell.",
+                        type: 3,
+                        required: true,
+                        autocomplete: true,
+                    },
+                    {
+                        name: "amount",
+                        description: "How many times do you want to sell that item? (default: 1)",
+                        type: 4,
+                        required: false,
                     },
                 ],
             },
@@ -601,6 +623,16 @@ const slashCommand: SlashCommandFile = {
             );
             Functions.removeItem(ctx.userData, itemString, amountX);
             ctx.client.database.saveUserData(ctx.userData);
+            thrownItemsWebhook.send({
+                embeds: [
+                    {
+                        title: "Item thrown",
+                        description: `**${ctx.user.tag}** threw ${itemData.emoji} x${amountX} \`${itemData.name}\`! (ID: \`${itemId}\`)`,
+                        color: 0x00ff00,
+                        timestamp: new Date().toISOString(),
+                    },
+                ],
+            });
             ctx.makeMessage({
                 content: `You threw ${itemData.emoji} x${amountX} \`${
                     itemData.name
@@ -631,12 +663,135 @@ const slashCommand: SlashCommandFile = {
                 });
                 return;
             }
-            await ctx.client.database.redis.del(itemId);
+            if (item.id.includes("$disc$") && Functions.hasExceedStandLimit(ctx)) {
+                ctx.makeMessage({
+                    content: "Nice try.",
+                });
+                return;
+            }
 
             Functions.addItem(ctx.userData, itemDataJSON.item, itemDataJSON.amount, true);
+            await ctx.client.database.redis.del(itemId);
+
             ctx.client.database.saveUserData(ctx.userData);
+            claimedItemsWebhook.send({
+                embeds: [
+                    {
+                        title: "Item claimed",
+                        description: `**${ctx.user.tag}** claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\` in guild **${ctx.guild.name}** (ItemID: \`${itemId}\`)`,
+                        color: 0x00ff00,
+                        timestamp: new Date().toISOString(),
+                    },
+                ],
+            });
             ctx.makeMessage({
                 content: `You claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`!`,
+            });
+        } else if (ctx.interaction.options.getSubcommand() === "sell") {
+            const itemString = ctx.interaction.options.getString("item", true);
+            const amountX = ctx.interaction.options.getInteger("amount") || 1;
+            const left = ctx.userData.inventory[itemString] || 0;
+
+            if (left === 0) {
+                ctx.makeMessage({
+                    content: "This item does not exist or you don't have any left. Nice try",
+                });
+                return;
+            }
+
+            if (left < amountX) {
+                ctx.makeMessage({
+                    content: `You don't have enough of this item. You have ${left} left.`,
+                });
+                return;
+            }
+
+            const itemData = Functions.findItem(itemString);
+            if (!itemData) {
+                ctx.makeMessage({
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                });
+                return;
+            }
+
+            if (itemData.rarity === "C") {
+                ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Pucci,
+                        "bro, don't sell me trash items. wtf is that"
+                    ),
+                });
+                return;
+            }
+
+            if (!itemData.price) {
+                ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Pucci,
+                        "sorry, I don't know what that item is. that's weird..."
+                    ),
+                });
+                return;
+            }
+            const itemTaxes = {
+                T: 3,
+                SS: 3,
+                S: 1,
+                A: 0.9,
+                B: 0.75,
+                C: 0,
+            };
+            ctx.makeMessage({
+                content: Functions.makeNPCString(
+                    NPCs.Pucci,
+                    `Hmm, since this item is ${itemData.rarity} tier, I'll give you ${
+                        itemTaxes[itemData.rarity] * 100
+                    }% of the original price, which means you'll get ${Math.round(
+                        itemData.price * itemTaxes[itemData.rarity] * amountX
+                    ).toLocaleString("en-US")} coins. (x${amountX} ${itemData.emoji} ${
+                        itemData.name
+                    })`
+                ),
+                components: [
+                    Functions.actionRow([
+                        new ButtonBuilder()
+                            .setCustomId(`${ctx.interaction.id}_sell`)
+                            .setLabel("Sell")
+                            .setEmoji(ctx.client.localEmojis.jocoins)
+                            .setStyle(ButtonStyle.Secondary),
+                    ]),
+                ],
+            });
+
+            const collector = ctx.channel.createMessageComponentCollector({
+                filter: (i) =>
+                    i.customId === `${ctx.interaction.id}_sell` && i.user.id === ctx.user.id,
+                time: 60000,
+                max: 1,
+            });
+
+            collector.on("collect", async (i) => {
+                if (await ctx.antiCheat(true)) {
+                    collector.stop("cheat");
+                    return;
+                }
+                i.deferUpdate().catch(() => {}); // eslint-disable-line
+                ctx.userData.coins += Math.round(
+                    itemData.price * itemTaxes[itemData.rarity] * amountX
+                );
+                Functions.removeItem(ctx.userData, itemString, amountX);
+                ctx.client.database.saveUserData(ctx.userData);
+                ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Pucci,
+                        `Thanks for selling me ${itemData.emoji} x${amountX} \`${
+                            itemData.name
+                        }\`! (+${Math.round(
+                            itemData.price * itemTaxes[itemData.rarity] * amountX
+                        ).toLocaleString("en-US")} ${ctx.client.localEmojis.jocoins})`
+                    ),
+                    components: [],
+                });
             });
         }
     },
@@ -767,7 +922,8 @@ const slashCommand: SlashCommandFile = {
             interaction.respond(realItems);
         } else if (
             interaction.options.getSubcommand() === "sell" ||
-            interaction.options.getSubcommand() === "throw"
+            interaction.options.getSubcommand() === "throw" ||
+            interaction.options.getSubcommand() === "sell"
         ) {
             // all items
             const userItems = Object.keys(userData.inventory).map((v) => {

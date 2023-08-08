@@ -55,6 +55,7 @@ const slashCommand: SlashCommandFile = {
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         const itemChosen = ctx.options.getString("item", true);
         const item = Functions.findItem(itemChosen);
+        let craftValuePrice = 0;
 
         const contentCraft: string[][] = [[]];
         const contentPhaseMaxLengthCraft = 2048;
@@ -97,6 +98,7 @@ const slashCommand: SlashCommandFile = {
                 item === craftItems[craftItems.length - 1]
                     ? ctx.client.localEmojis.replyEnd
                     : ctx.client.localEmojis.reply;
+            if (item.price !== undefined) craftValuePrice += item.price * item.amount;
 
             const itemString = `${emoji} ${item.emoji} \`${item.name} (x${item.amount})\` (${
                 ctx.userData.inventory[item.id] ?? 0
@@ -133,6 +135,12 @@ const slashCommand: SlashCommandFile = {
                         )}.png`,
                     },
                     fields: [
+                        {
+                            name: "Craft value (price)",
+                            value: `${craftValuePrice.toLocaleString("en-US")} ${
+                                ctx.client.localEmojis.jocoins
+                            }`,
+                        },
                         {
                             name: "Requirements met?",
                             value: meetRequirements

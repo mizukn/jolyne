@@ -139,6 +139,8 @@ const slashCommand: SlashCommandFile = {
                     case redoQuestID: {
                         ctx.userData.sideQuests.find((x) => x.id === sideQuest).quests =
                             SideQuest.quests.map((x) => Functions.pushQuest(x));
+                        ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize =
+                            false;
                         ctx.client.database.saveUserData(ctx.userData);
                         collector.stop();
                         ctx.followUp({

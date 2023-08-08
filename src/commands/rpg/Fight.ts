@@ -32,6 +32,15 @@ const slashCommand: SlashCommandFile = {
                 name: "npc",
                 description: "Fight against an NPC from your chapter/side/daily quests ONLY",
                 type: 1,
+                options: [
+                    {
+                        name: "npc",
+                        description: "The NPC that you want to fight against",
+                        type: ApplicationCommandOptionType.String, // 3
+                        autocomplete: true,
+                        required: true,
+                    },
+                ],
             },
             {
                 name: "player",
@@ -67,7 +76,10 @@ const slashCommand: SlashCommandFile = {
             },
         ],
     },
-    execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+    execute: async (
+        ctx: CommandInteractionContext,
+        nfight?: boolean
+    ): Promise<Message<boolean> | void> => {
         if (ctx.interaction.options.getSubcommand() === "custom") {
             let teams: RPGUserDataJSON[][] = [[ctx.userData]];
             const endLimit = Date.now() + 30000;
@@ -319,13 +331,30 @@ const slashCommand: SlashCommandFile = {
                             );
                         }
 
+                    let command: string;
+                    if (fightType === FightTypes.DailyQuest) {
+                        command = ctx.client.getSlashCommandMention("daily quests");
+                    } else if (fightType === FightTypes.ChapterQuest) {
+                        command = ctx.client.getSlashCommandMention("chapter");
+                    } else if (fightType === FightTypes.SideQuest) {
+                        command = ctx.client.getSlashCommandMention("side quest view");
+                    }
+
                     if (quest.pushQuestWhenCompleted) {
-                        ctx.userData.chapter.quests.push(quest.pushQuestWhenCompleted);
-                        winContent.push(
-                            `+:scroll: \`${
-                                quest.pushQuestWhenCompleted.id
-                            }\` (use the ${ctx.client.getSlashCommandMention("chapter")} command)`
-                        );
+                        if (fightType === FightTypes.DailyQuest) {
+                            ctx.userData.daily.quests.push(quest.pushQuestWhenCompleted);
+                            command = ctx.client.getSlashCommandMention("daily quests");
+                        } else if (fightType === FightTypes.ChapterQuest) {
+                            command = ctx.client.getSlashCommandMention("chapter");
+                            ctx.userData.chapter.quests.push(quest.pushQuestWhenCompleted);
+                        } else if (fightType === FightTypes.SideQuest) {
+                            command = ctx.client.getSlashCommandMention("side quest view");
+                            Object.values(ctx.userData.sideQuests)
+                                .find((r) => r.quests.find((r) => r.id === questId))
+                                .quests.push(quest.pushQuestWhenCompleted);
+                        }
+
+                        winContent.push(`+:scroll: \`${quest.pushQuestWhenCompleted.id}\``);
                     }
 
                     /// to be continued
@@ -361,9 +390,12 @@ const slashCommand: SlashCommandFile = {
                     ctx.followUp({
                         content: `:crossed_swords: Congratulations on beating **${
                             npc.name
-                        }**, you got the following rewards: \n${winContent.join(" ")}`,
+                        }**, you got the following rewards: \n${winContent.join(
+                            " "
+                        )}\n\n---> Use the ${command} command to see your progression.`,
                     });
                 }
+
                 ctx.client.database.saveUserData(ctx.userData);
 
                 const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
@@ -419,167 +451,208 @@ const slashCommand: SlashCommandFile = {
                             collector.stop();
                             return;
                         }
-                        return ctx.client.commands.get("fight").execute(ctx);
+                        return ctx.client.commands.get("fight").execute(ctx, true);
                     });
                 }
             });
         }
         switch (ctx.interaction.options.getSubcommand()) {
             case "npc": {
-                const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
-                    (r) => Functions.isFightNPCQuest(r) && !r.completed
-                );
-                const dailyQuestsNPC = ctx.userData.daily.quests.filter(
-                    (r) => Functions.isFightNPCQuest(r) && !r.completed
-                );
-                const notFormattedSideQuestsNPC = Object.values(ctx.userData.sideQuests)
-                    .filter(
-                        (r) =>
-                            r.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed)
-                                .length !== 0
-                    )
-                    .map((x) => {
-                        return x.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed);
-                    })
-                    .map((x) => x);
-                const sideQuestsNPC: RPGUserQuest[] = [];
-                for (const quest of notFormattedSideQuestsNPC) {
-                    for (const quest2 of quest) {
-                        sideQuestsNPC.push(quest2);
+                if (nfight) {
+                    const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
+                        (r) => Functions.isFightNPCQuest(r) && !r.completed
+                    );
+                    const dailyQuestsNPC = ctx.userData.daily.quests.filter(
+                        (r) => Functions.isFightNPCQuest(r) && !r.completed
+                    );
+                    const notFormattedSideQuestsNPC = Object.values(ctx.userData.sideQuests)
+                        .filter(
+                            (r) =>
+                                r.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed)
+                                    .length !== 0
+                        )
+                        .map((x) => {
+                            return x.quests.filter(
+                                (r) => Functions.isFightNPCQuest(r) && !r.completed
+                            );
+                        })
+                        .map((x) => x);
+                    const sideQuestsNPC: RPGUserQuest[] = [];
+                    for (const quest of notFormattedSideQuestsNPC) {
+                        for (const quest2 of quest) {
+                            sideQuestsNPC.push(quest2);
+                        }
                     }
-                }
-                if (
-                    chapterQuestsNPC.length === 0 &&
-                    dailyQuestsNPC.length === 0 &&
-                    sideQuestsNPC.length === 0
-                ) {
-                    ctx.sendTranslated("fight:NOBODY_TO_FIGHT");
-                    break;
-                }
-                let quest;
-                let type = FightTypes.ChapterQuest;
-
-                if (
-                    chapterQuestsNPC.length === 0 &&
-                    dailyQuestsNPC.length !== 0 &&
-                    sideQuestsNPC.length === 0
-                ) {
-                    quest = dailyQuestsNPC[0];
-                    type = FightTypes.DailyQuest;
-                } else if (
-                    chapterQuestsNPC.length !== 0 &&
-                    dailyQuestsNPC.length === 0 &&
-                    sideQuestsNPC.length === 0
-                ) {
-                    quest = chapterQuestsNPC[0];
-                    type = FightTypes.ChapterQuest;
-                } else if (
-                    chapterQuestsNPC.length === 0 &&
-                    dailyQuestsNPC.length === 0 &&
-                    sideQuestsNPC.length !== 0
-                ) {
-                    quest = sideQuestsNPC[0];
-                    type = FightTypes.SideQuest;
-                } else {
-                    chapterQuestsNPC.length = 12;
-                    dailyQuestsNPC.length = 12; // max string menu select options length = 25
-                    sideQuestsNPC.length = 12;
-                    // maxOptions limit = 25, so check if there are more than 25 quests
                     if (
-                        chapterQuestsNPC.length + dailyQuestsNPC.length + sideQuestsNPC.length >
-                        25
+                        chapterQuestsNPC.length === 0 &&
+                        dailyQuestsNPC.length === 0 &&
+                        sideQuestsNPC.length === 0
                     ) {
-                        // prioritize more side quests
-                        if (sideQuestsNPC.length > 12) {
-                            chapterQuestsNPC.length = Math.trunc((25 - 12) / 2);
-                            dailyQuestsNPC.length = Math.trunc((25 - 12) / 2);
-                            sideQuestsNPC.length = 12;
-                        } else {
-                            chapterQuestsNPC.length = Math.trunc((25 - sideQuestsNPC.length) / 2);
-                            dailyQuestsNPC.length = Math.trunc((25 - sideQuestsNPC.length) / 2);
-                        }
+                        ctx.sendTranslated("fight:NOBODY_TO_FIGHT");
+                        break;
                     }
+                    let quest;
+                    let type = FightTypes.ChapterQuest;
 
-                    const selectMenu = new StringSelectMenuBuilder()
-                        .setCustomId(ctx.interaction.id + "fight")
-                        .setPlaceholder(ctx.translate("fight:PLACEHOLDER"))
-                        .addOptions(
-                            chapterQuestsNPC
-                                .map((r) => ({
-                                    label: Functions.findNPC(r.npc, true).name,
-                                    description: ctx.translate("fight:FROM_CHAPTER"),
-                                    value: r.id,
-                                    emoji: Functions.findNPC(r.npc, true).emoji,
-                                }))
-                                .filter((r) => r)
-                        )
-                        .addOptions(
-                            dailyQuestsNPC
-                                .map((r) => ({
-                                    label: Functions.findNPC(r.npc, true).name,
-                                    description: ctx.translate("fight:FROM_DAILY"),
-                                    value: r.id,
-                                    emoji: Functions.findNPC(r.npc, true).emoji,
-                                }))
-                                .filter((r) => r)
-                        )
-                        .addOptions(
-                            sideQuestsNPC
-                                .map((r) => ({
-                                    label: Functions.findNPC(r.npc, true).name,
-                                    description: ctx.translate("fight:FROM_SIDE_QUEST"),
-                                    value: r.id,
-                                    emoji: Functions.findNPC(r.npc, true).emoji,
-                                }))
-                                .filter((r) => r)
-                        )
-                        .setMinValues(1)
-                        .setMaxValues(1);
-                    ctx.makeMessage({
-                        content: ctx.translate("fight:TOO_MANY_ENEMIES"),
-                        components: [Functions.actionRow([selectMenu])],
-                        embeds: [],
-                    });
-
-                    const filter = (i: MessageComponentInteraction) =>
-                        i.user.id === ctx.interaction.user.id &&
-                        i.customId.startsWith(ctx.interaction.id);
-                    const collector = ctx.channel.createMessageComponentCollector({
-                        filter,
-                        time: 15000,
-                    });
-
-                    collector.on("collect", async (i) => {
-                        i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                        if (await ctx.antiCheat(true)) {
-                            collector.stop();
-                            return;
+                    if (
+                        chapterQuestsNPC.length === 0 &&
+                        dailyQuestsNPC.length !== 0 &&
+                        sideQuestsNPC.length === 0
+                    ) {
+                        quest = dailyQuestsNPC[0];
+                        type = FightTypes.DailyQuest;
+                    } else if (
+                        chapterQuestsNPC.length !== 0 &&
+                        dailyQuestsNPC.length === 0 &&
+                        sideQuestsNPC.length === 0
+                    ) {
+                        quest = chapterQuestsNPC[0];
+                        type = FightTypes.ChapterQuest;
+                    } else if (
+                        chapterQuestsNPC.length === 0 &&
+                        dailyQuestsNPC.length === 0 &&
+                        sideQuestsNPC.length !== 0
+                    ) {
+                        quest = sideQuestsNPC[0];
+                        type = FightTypes.SideQuest;
+                    } else {
+                        chapterQuestsNPC.length = 12;
+                        dailyQuestsNPC.length = 12; // max string menu select options length = 25
+                        sideQuestsNPC.length = 12;
+                        // maxOptions limit = 25, so check if there are more than 25 quests
+                        if (
+                            chapterQuestsNPC.length + dailyQuestsNPC.length + sideQuestsNPC.length >
+                            25
+                        ) {
+                            // prioritize more side quests
+                            if (sideQuestsNPC.length > 12) {
+                                chapterQuestsNPC.length = Math.trunc((25 - 12) / 2);
+                                dailyQuestsNPC.length = Math.trunc((25 - 12) / 2);
+                                sideQuestsNPC.length = 12;
+                            } else {
+                                chapterQuestsNPC.length = Math.trunc(
+                                    (25 - sideQuestsNPC.length) / 2
+                                );
+                                dailyQuestsNPC.length = Math.trunc((25 - sideQuestsNPC.length) / 2);
+                            }
                         }
 
-                        if (i.isStringSelectMenu()) {
-                            const questId = i.values[0];
-                            quest = ctx.userData.daily.quests.find((r) => r.id === questId);
-                            if (quest) {
-                                type = FightTypes.DailyQuest;
-                            } else {
-                                quest = ctx.userData.chapter.quests.find((r) => r.id === questId);
-                                type = FightTypes.ChapterQuest;
+                        const selectMenu = new StringSelectMenuBuilder()
+                            .setCustomId(ctx.interaction.id + "fight")
+                            .setPlaceholder(ctx.translate("fight:PLACEHOLDER"))
+                            .addOptions(
+                                chapterQuestsNPC
+                                    .map((r) => ({
+                                        label: Functions.findNPC(r.npc, true).name,
+                                        description: ctx.translate("fight:FROM_CHAPTER"),
+                                        value: r.id,
+                                        emoji: Functions.findNPC(r.npc, true).emoji,
+                                    }))
+                                    .filter((r) => r)
+                            )
+                            .addOptions(
+                                dailyQuestsNPC
+                                    .map((r) => ({
+                                        label: Functions.findNPC(r.npc, true).name,
+                                        description: ctx.translate("fight:FROM_DAILY"),
+                                        value: r.id,
+                                        emoji: Functions.findNPC(r.npc, true).emoji,
+                                    }))
+                                    .filter((r) => r)
+                            )
+                            .addOptions(
+                                sideQuestsNPC
+                                    .map((r) => ({
+                                        label: Functions.findNPC(r.npc, true).name,
+                                        description: ctx.translate("fight:FROM_SIDE_QUEST"),
+                                        value: r.id,
+                                        emoji: Functions.findNPC(r.npc, true).emoji,
+                                    }))
+                                    .filter((r) => r)
+                            )
+                            .setMinValues(1)
+                            .setMaxValues(1);
+                        ctx.makeMessage({
+                            content: ctx.translate("fight:TOO_MANY_ENEMIES"),
+                            components: [Functions.actionRow([selectMenu])],
+                            embeds: [],
+                        });
 
-                                if (!quest) {
-                                    quest = Object.values(ctx.userData.sideQuests)
-                                        .find((r) => r.quests.find((r) => r.id === questId))
-                                        .quests.find((r) => r.id === questId);
-                                    type = FightTypes.SideQuest;
-                                }
+                        const filter = (i: MessageComponentInteraction) =>
+                            i.user.id === ctx.interaction.user.id &&
+                            i.customId.startsWith(ctx.interaction.id);
+                        const collector = ctx.channel.createMessageComponentCollector({
+                            filter,
+                            time: 15000,
+                        });
+
+                        collector.on("collect", async (i) => {
+                            i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                            if (await ctx.antiCheat(true)) {
+                                collector.stop();
+                                return;
                             }
 
-                            if (quest) startFight(quest.id, quest.npc, type);
-                            collector.stop();
-                        }
-                    });
+                            if (i.isStringSelectMenu()) {
+                                const questId = i.values[0];
+                                quest = ctx.userData.daily.quests.find((r) => r.id === questId);
+                                if (quest) {
+                                    type = FightTypes.DailyQuest;
+                                } else {
+                                    quest = ctx.userData.chapter.quests.find(
+                                        (r) => r.id === questId
+                                    );
+                                    type = FightTypes.ChapterQuest;
+
+                                    if (!quest) {
+                                        quest = Object.values(ctx.userData.sideQuests)
+                                            .find((r) => r.quests.find((r) => r.id === questId))
+                                            .quests.find((r) => r.id === questId);
+                                        type = FightTypes.SideQuest;
+                                    }
+                                }
+
+                                if (quest) startFight(quest.id, quest.npc, type);
+                                collector.stop();
+                            }
+                        });
+                    }
+
+                    if (quest) startFight(quest.id, quest.npc, type);
+                } else {
+                    const NPC = ctx.interaction.options.getString("npc");
+                    let type:
+                        | FightTypes.DailyQuest
+                        | FightTypes.ChapterQuest
+                        | FightTypes.SideQuest;
+                    let realNPC;
+                    if (ctx.userData.chapter.quests.find((x) => x.id === NPC)) {
+                        realNPC = ctx.userData.chapter.quests.find((x) => x.id === NPC);
+                        type = FightTypes.ChapterQuest;
+                    } else if (ctx.userData.daily.quests.find((x) => x.id === NPC)) {
+                        type = FightTypes.DailyQuest;
+                        realNPC = ctx.userData.daily.quests.find((x) => x.id === NPC);
+                    } else if (
+                        ctx.userData.sideQuests
+                            .find((x) => x.quests.find((c) => c.id === NPC))
+                            .quests.find((v) => v.id === NPC)
+                    ) {
+                        type = FightTypes.SideQuest;
+                        realNPC = ctx.userData.sideQuests
+                            .find((x) => x.quests.find((c) => c.id === NPC))
+                            .quests.find((v) => v.id === NPC);
+                    }
+
+                    if (!realNPC) {
+                        ctx.makeMessage({
+                            content: "FATAL ERROR: COULD NOT FIND NPC",
+                        });
+                        return;
+                    }
+
+                    startFight(NPC, realNPC.npc, type);
                 }
 
-                if (quest) startFight(quest.id, quest.npc, type);
                 break;
             }
 
@@ -597,6 +670,59 @@ const slashCommand: SlashCommandFile = {
         return;
     },
     autoComplete: async (interaction, userData, currentInput) => {
+        if (interaction.options.getSubcommand() === "npc") {
+            const chapterQuestsNPC = userData.chapter.quests.filter(
+                (r) => Functions.isFightNPCQuest(r) && !r.completed
+            );
+            const dailyQuestsNPC = userData.daily.quests.filter(
+                (r) => Functions.isFightNPCQuest(r) && !r.completed
+            );
+            const notFormattedSideQuestsNPC = Object.values(userData.sideQuests)
+                .filter(
+                    (r) =>
+                        r.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed)
+                            .length !== 0
+                )
+                .map((x) => {
+                    return x.quests.filter((r) => Functions.isFightNPCQuest(r) && !r.completed);
+                })
+                .map((x) => x);
+            const sideQuestsNPC: RPGUserQuest[] = [];
+            for (const quest of notFormattedSideQuestsNPC) {
+                for (const quest2 of quest) {
+                    sideQuestsNPC.push(quest2);
+                }
+            }
+
+            const NPCs = [...chapterQuestsNPC, ...dailyQuestsNPC, ...sideQuestsNPC];
+
+            interaction.respond(
+                NPCs.map((r) => ({
+                    value: r.id,
+                    name:
+                        Functions.findNPC(r.npc, true).name +
+                        " [" +
+                        (userData.chapter.quests.find((x) => x.id === r.id)
+                            ? "FROM YOUR CHAPTER QUESTS"
+                            : userData.daily.quests.find((x) => x.id === r.id)
+                            ? "FROM YOUR DAILY QUESTS"
+                            : `FROM YOUR SIDE QUEST: ${
+                                  userData.sideQuests.find((xx) =>
+                                      xx.quests.find((qq) => qq.id === r.id)
+                                  ).id
+                              }`) +
+                        "]",
+                }))
+                    .filter(
+                        (r) =>
+                            r.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                            r.value.toLowerCase().includes(currentInput.toLowerCase())
+                    )
+                    .slice(0, 25)
+            );
+
+            return;
+        }
         const NPCs = Object.values(FightableNPCS);
         const filteredNPCs = NPCs.filter(
             (r) =>

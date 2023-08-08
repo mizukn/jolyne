@@ -119,10 +119,6 @@ const slashCommand: SlashCommandFile = {
                         percent: 95,
                         loot: Functions.randomNumber(1, 1000),
                     },
-                    {
-                        percent: 100,
-                        loot: Items.Pizza,
-                    },
                 ],
             },
             {

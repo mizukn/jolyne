@@ -206,7 +206,7 @@ const slashCommand: SlashCommandFile = {
                 const status = getQuestsStats(ctx.userData.daily.quests, ctx);
 
                 let coinReward = 0;
-                let xpReward = 0;
+                let xpReward = 2500;
 
                 for (const quest of ctx.userData.daily.quests) {
                     if (Functions.isClaimItemQuest(quest) || Functions.isClaimXQuest(quest)) {
@@ -219,8 +219,8 @@ const slashCommand: SlashCommandFile = {
                         const npc = Object.values(FightableNPCS).find((r) => r.id === quest.npc);
                         if (!npc) continue;
 
-                        coinReward += npc.level * 100;
-                        xpReward += npc.level * 10;
+                        coinReward += (npc.level + 1) * 100;
+                        xpReward += (npc.level + 1) * 10;
                         continue;
                     }
 
