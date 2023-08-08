@@ -295,6 +295,7 @@ export enum equipableItemTypes {
     HANDS = 5,
     WEAPON = 6,
     ACCESSORY = 7,
+    FACE = 8,
 }
 
 export const equipableItemTypesLimit = {
@@ -305,6 +306,7 @@ export const equipableItemTypesLimit = {
     [equipableItemTypes.HANDS]: 1,
     [equipableItemTypes.WEAPON]: 1,
     [equipableItemTypes.ACCESSORY]: 2,
+    [equipableItemTypes.FACE]: 1,
 };
 
 export const formattedEquipableItemTypes = {
@@ -315,6 +317,7 @@ export const formattedEquipableItemTypes = {
     [equipableItemTypes.HANDS]: "Hands",
     [equipableItemTypes.WEAPON]: "Weapon",
     [equipableItemTypes.ACCESSORY]: "Accessory",
+    [equipableItemTypes.FACE]: "Face",
 };
 
 export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
