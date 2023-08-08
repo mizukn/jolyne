@@ -245,7 +245,7 @@ export const StandArrow: Special = {
     tradable: true,
     storable: true,
     craft: {
-        pizza: 4,
+        broken_arrow: 3,
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const standArray = Object.values(Stands);

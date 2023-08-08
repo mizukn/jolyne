@@ -78,6 +78,7 @@ export const C1: Chapter = {
     },
     quests: [
         Quests.AwakenYourStand,
+        Quests.CompleteBeginnerSideQuest,
         Functions.generateClaimXQuest("daily", 1),
         Functions.generateFightQuest(NPCs.Bandit),
         Functions.generateFightQuest(NPCs.Bandit),
@@ -91,6 +92,11 @@ export const C1: Chapter = {
             },
         ]),
         Functions.generateClaimXQuest("coin", 650),
+    ],
+    hints: (ctx) => [
+        `Do not forget to complete your **Beginner** side quest! (${ctx.client.getSlashCommandMention(
+            "side quest view"
+        )})! You can get a Stand Arrow and a Money Box (gives you between 20k and 50k coins)`,
     ],
 };
 

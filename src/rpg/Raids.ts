@@ -12,14 +12,51 @@ export const Dio: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
+                chance: 100,
+            },
+            {
+                item: Functions.findItem("dios_knives").id,
+                amount: 1,
+                chance: 3,
             },
         ],
     },
     level: 0,
     maxLevel: Infinity,
     maxPlayers: 10,
-    // 10 minutes
-    cooldown: 10 * 60 * 1000,
+    // 5 minutes
+    cooldown: 5 * 60 * 1000,
+};
+
+export const Jotaro: RaidBoss = {
+    boss: FightableNPCs.Jotaro,
+    minions: [],
+    baseRewards: {
+        xp: FightableNPCs.Jotaro.rewards.xp,
+        coins: FightableNPCs.Jotaro.rewards.coins,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 100,
+            },
+            {
+                item: Functions.findItem("jotaro").id,
+                amount: 1,
+                chance: 3,
+            },
+            {
+                item: Functions.findItem("star_platinum").id,
+                amount: 1,
+                chance: 25,
+            },
+        ],
+    },
+    level: 0,
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    // 5 minutes
+    cooldown: 5 * 60 * 1000,
 };
 
 export const BanditBoss: RaidBoss = {
@@ -39,16 +76,16 @@ export const BanditBoss: RaidBoss = {
     level: 0,
     maxLevel: FightableNPCs.BanditLeader.level + 5,
     maxPlayers: 5,
-    // 5 minutes
-    cooldown: 5 * 60 * 1000,
+    // 2 minutes
+    cooldown: 2 * 60 * 1000,
 };
 
 export const Kakyoin: RaidBoss = {
     boss: FightableNPCs.Kakyoin,
     minions: [],
     baseRewards: {
-        xp: FightableNPCs.BanditLeader.rewards.xp,
-        coins: FightableNPCs.BanditLeader.rewards.coins,
+        xp: 5000,
+        coins: FightableNPCs.Kakyoin.rewards.coins,
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
@@ -60,7 +97,7 @@ export const Kakyoin: RaidBoss = {
     level: 0,
     maxLevel: 15,
     maxPlayers: 5,
-    // 3 minutes
+    // 2 minutes
     cooldown: 2 * 60 * 1000,
 };
 

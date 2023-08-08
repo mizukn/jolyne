@@ -26,11 +26,18 @@ export const Kakyoin: FightableNPC = {
         stamina: 0,
     },
     rewards: {
-        coins: 100,
-        xp: 350,
+        items: [
+            {
+                item: "kakyoins_snazzy_shades",
+                chance: 25,
+                amount: 1,
+            },
+        ],
     },
     stand: "hierophant_green",
-    equippedItems: {},
+    equippedItems: {
+        kakyoins_snazzy_shades: 9,
+    },
     standsEvolved: {},
 };
 
@@ -68,10 +75,25 @@ export const Dio: FightableNPC = {
     ...NPCs.Dio,
     level: Jotaro.level,
     skillPoints: Jotaro.skillPoints,
-    equippedItems: {},
+    equippedItems: {
+        dios_knives: 6,
+    },
     standsEvolved: {},
-
     stand: "the_world",
+    rewards: {
+        items: [
+            {
+                item: "the_world.$disc$",
+                amount: 1,
+                chance: 2,
+            },
+            {
+                item: "dios_knives",
+                amount: 1,
+                chance: 1,
+            },
+        ],
+    },
 };
 
 export const Heaven_Ascended_Dio: FightableNPC = {

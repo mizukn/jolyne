@@ -25,6 +25,13 @@ export const JotarosHat: EquipableItem = {
     requirements: {
         level: 1,
     },
+    craft: {
+        green_cloth: 25,
+        yellow_cloth: 25,
+        purple_cloth: 25,
+        "star_platinum.$disc$": 5,
+        string: 50,
+    },
 };
 
 export const MeguminsHat: EquipableItem = {
@@ -62,6 +69,10 @@ export const BlueHoodieJacket: EquipableItem = {
     rarity: "B",
     tradable: true,
     storable: true,
+    craft: {
+        blue_cloth: 10,
+        string: 10,
+    },
 };
 
 export const GreenHoodieJacket: EquipableItem = {
@@ -83,6 +94,10 @@ export const GreenHoodieJacket: EquipableItem = {
     rarity: "B",
     tradable: true,
     storable: true,
+    craft: {
+        green_cloth: 10,
+        string: 10,
+    },
 };
 
 export const SBRBoots: EquipableItem = {
@@ -105,6 +120,11 @@ export const SBRBoots: EquipableItem = {
     rarity: "A",
     tradable: true,
     storable: true,
+    craft: {
+        brown_cloth: 50,
+        steel_ball: 5,
+        fiber: 50,
+    },
 };
 
 export const BlueJeans: EquipableItem = {
@@ -114,7 +134,6 @@ export const BlueJeans: EquipableItem = {
     description: "A pair of blue jeans.",
     type: equipableItemTypes.LEGS,
     effects: {
-        xpBoost: 100,
         health: 3,
         stamina: 5,
         skillPoints: {
@@ -128,6 +147,10 @@ export const BlueJeans: EquipableItem = {
     rarity: "B",
     tradable: true,
     storable: true,
+    craft: {
+        blue_cloth: 10,
+        string: 10,
+    },
 };
 
 export const BloodyKnife: Weapon = {
@@ -234,4 +257,56 @@ export const GauntletsOfTheBerserker: Weapon = {
         },
     },
     abilities: [Abilities.BerserkersFury, Abilities.BerserkersRampage],
+};
+
+export const DiosKnives: Weapon = {
+    id: "dios_knives",
+    name: "Dio's Knives",
+    emoji: "<:dio_knives:1138111014618021898>",
+    description:
+        "A pair of knives that belonged to Dio Brando. [PASSIVE: During time stop, it throws knives to every enemies.]",
+    type: equipableItemTypes.WEAPON,
+    // it throws knives
+    attackName: "throw",
+    useMessageAttack: "throws a knife at",
+    staminaCost: 2,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 15,
+            perception: 0,
+            speed: 20,
+            stamina: 0,
+            defense: 0,
+        },
+    },
+    rarity: "S",
+    abilities: [Abilities.KnivesThrow],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};
+
+export const KakyoinsSnazzyShades: EquipableItem = {
+    id: "kakyoins_snazzy_shades",
+    name: "Kakyoin's Snazzy Shades",
+    emoji: "<:kakyoin_snazzy_shades:1138203500283707452>",
+    description: "Kakyoin's snazzy shades.",
+    type: equipableItemTypes.FACE,
+
+    effects: {
+        skillPoints: {
+            strength: 4,
+            perception: 4,
+            speed: 4,
+            stamina: 4,
+            defense: 4,
+        },
+    },
+    rarity: "B",
+
+    tradable: true,
+    storable: true,
 };

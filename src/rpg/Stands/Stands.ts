@@ -260,14 +260,14 @@ export const TheFool: Stand = {
     id: "the_fool",
     name: "The Fool",
     rarity: "A",
-    description: "",
+    description: "waf waf sand grr wuwu",
     abilities: [
         Abilities.SandProjectiles,
         Abilities.SandClone,
         Abilities.SandMimicry,
         Abilities.SandStorm,
     ],
-    emoji: Emojis.JolyneAhhhhh,
+    emoji: "<:the_fool:1133820601904152626>",
     skillPoints: {
         strength: 2,
 

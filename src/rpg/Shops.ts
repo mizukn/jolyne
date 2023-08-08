@@ -37,3 +37,35 @@ export const GroceryStore: Shop = {
         }, // to be continued
     ],
 };
+
+export const ClothStore: Shop = {
+    name: "Cloth Store",
+    emoji: "🏪",
+    items: [
+        { item: Items.default.String.id },
+        {
+            item: Items.default.GreenCloth.id,
+        }, // brown green blue red yellow black white purple
+        {
+            item: Items.default.BlueCloth.id,
+        },
+        {
+            item: Items.default.RedCloth.id,
+        },
+        {
+            item: Items.default.YellowCloth.id,
+        },
+        {
+            item: Items.default.PurpleCloth.id,
+        },
+        {
+            item: Items.default.BlackCloth.id,
+        },
+        {
+            item: Items.default.WhiteCloth.id,
+        },
+        {
+            item: Items.default.BrownCloth.id,
+        },
+    ],
+};

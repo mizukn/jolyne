@@ -83,8 +83,8 @@ export const Beginner: SideQuest = {
         Functions.generateUseXCommandQuest("loot", 1),
     ],
     requirements: (ctx) => {
-        return true;
-        if (ctx.userData.chapter.id <= 3) return true;
+        if (ctx.userData.chapter.id === 1) return true;
+        if (ctx.userData.level < 10) return true;
         return false;
     },
     requirementsMessage: "- You need to be at least at Chapter 1 Part 1 to do this quest.",

@@ -52,7 +52,7 @@ export const RoadRoller: Ability = {
 export const TheWorld: Ability = {
     name: "The World",
     description: "Stops time for 5 turns",
-    cooldown: 10,
+    cooldown: 2,
     extraTurns: 5,
     damage: 0,
     stamina: 25,
@@ -73,14 +73,20 @@ export const TheWorld: Ability = {
         user.hasStoppedTime = true;
 
         if (user.stand.name === Stands.TheWorld.name) {
-            return `**${user.name}:** THE WORLD! TOKI WO TOMARE!`;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `**${user.name}:** THE WORLD! TOKI WO TOMARE!`
+            );
         } else if (user.stand.name === Stands.StarPlatinum.name) {
-            return `**${user.name}:** STAR PLATINUM: THE WORLD! TOKI WO TOMARE!`;
-        }
-        return `**${user.name}:** ${user.stand.name}: TOKI WO TOMARE!`;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `**${user.name}:** STAR PLATINUM: THE WORLD! TOKI WO TOMARE!`
+            );
+        } else
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `**${user.name}:** ${user.stand.name}: TOKI WO TOMARE!`
+            );
     },
-    dodgeScore: 20,
-    target: "enemy",
+    dodgeScore: 0,
+    target: "self",
 };
 
 export const EmeraldSplash: Ability = {
@@ -144,9 +150,15 @@ export const Manipulation: Ability = {
         };
 
         if (user.manipulatedBy) {
-            return `**${user.manipulatedBy.name}:** [ERROR: cannot manipulate if already manipulated]`;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `**${user.manipulatedBy.name}:** [ERROR: cannot manipulate if already manipulated]`
+            );
+            return;
         } else if (target.manipulatedBy) {
-            return `**${user.name}:** [ERROR: cannot manipulate ${target.name} because they are already manipulated by ${target.manipulatedBy.name}]`;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `**${user.name}:** [ERROR: cannot manipulate ${target.name} because they are already manipulated by ${target.manipulatedBy.name}]`
+            );
+            return;
         } else {
             target.name += " (Manipulated)";
             target.manipulatedBy = user;
@@ -158,7 +170,9 @@ export const Manipulation: Ability = {
                 id: "" + Date.now() + Math.random() + "",
             });
 
-            return `${user.stand.emoji} **${user.name}:** ${user.stand.name}: Manipulation! (target: ${target.name})`;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `${user.stand.emoji} **${user.name}:** ${user.stand.name}: Manipulation! (target: ${target.name})`
+            );
         }
     },
     blockable: false,
@@ -1017,7 +1031,7 @@ export const BerserkersRampage: Ability = {
     special: true,
     useMessage: (user, target, damage, ctx) => {
         ctx.fighters
-            .filter((x) => x.id !== user.id)
+            .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
                 const dodgeResults: boolean[] = [];
 
@@ -1047,4 +1061,43 @@ export const BerserkersRampage: Ability = {
     },
     dodgeScore: 0,
     target: "self",
+};
+
+export const KnivesThrow: Ability = {
+    name: "Knives Throw",
+    description:
+        "Throw a flurry of knives at your opponent, dealing damage and reducing their stamina by 3% of their max stamina",
+    cooldown: 5,
+    damage: 0,
+    blockable: true,
+    dodgeable: true,
+    dodgeScore: 0,
+    stamina: 30,
+    extraTurns: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        for (let i = 0; i < 4; i++) {
+            const dodgeScore = Functions.getDodgeScore(target) + 5 + target.level / 10;
+            const userSpeedScore = Functions.getSpeedScore(user) + 10 + user.level / 10;
+
+            const randomNumber = Functions.randomNumber(0, 100);
+            const dodgeThreshold = dodgeScore / (userSpeedScore * 2 + dodgeScore);
+
+            if (randomNumber < dodgeThreshold * 100) {
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.weapon.emoji} KNIVES THROW: **${target.name}** dodged.`
+                );
+            } else {
+                const damages = Math.round(Functions.getAttackDamages(user) * 0.75);
+                target.health -= damages;
+                if (target.health <= 0) target.health = 0;
+                const stamina = Math.round(target.maxStamina * 0.03);
+                target.stamina -= stamina;
+                if (target.stamina <= 0) target.stamina = 0;
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.weapon.emoji} KNIVES THROW: **${user.name}** has dealt **${damages}** damages to **${target.name}** and reduced their stamina by **${stamina}**.`
+                );
+            }
+        }
+    },
 };

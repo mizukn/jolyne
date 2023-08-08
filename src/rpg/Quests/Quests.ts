@@ -14,3 +14,19 @@ export const AwakenYourStand: Quest = {
     },
     hintCommand: "inventory use",
 };
+
+export const CompleteBeginnerSideQuest: Quest = {
+    type: "baseQuest",
+    id: "complete_beginner_side_quest",
+    i18n_key: "COMPLETE_BEGINNER_SIDE_QUEST",
+    emoji: Emojis.mysterious_arrow,
+    completed: (user) => {
+        if (user.sideQuests.find((x) => x.id === "Beginner")) {
+            if (user.sideQuests.find((x) => x.id === "Beginner").claimedPrize) return 100;
+            return 0;
+        }
+
+        return 100;
+    },
+    hintCommand: "side quest view",
+};
