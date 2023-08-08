@@ -15,21 +15,6 @@ const Event: EventFile = {
         });
         fetchPatreonsFromCache();
 
-        async function resetDailyQuests() {
-            const RPGUsers = (await client.database.postgresql
-                .query(`SELECT * FROM "RPGUsers"`)
-                .then((r) => r.rows)) as RPGUserDataJSON[];
-
-            for (const RPGUser of RPGUsers) {
-                console.log(RPGUser.id, "reset daily");
-                RPGUser.daily.quests = Functions.generateDailyQuests(RPGUser.level);
-                client.database.saveUserData(RPGUser);
-
-                // removing claimed daily quests from cache
-                client.database.redis.del(`daily-quests-${RPGUser.id}`);
-            }
-        }
-
         // prettier-ignore
         if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
             
@@ -66,9 +51,7 @@ const Event: EventFile = {
 				client.log("Updated private slash commands");
 			}
 
-    
-            const dailyQuestsJob = new CronJob("0 0 * * *", resetDailyQuests, null, true, "UTC");
-            // dailyQuestsJob.start();
+                // dailyQuestsJob.start();
     
     
             // client.log("Started daily quests cron job", "ready");
@@ -107,7 +90,6 @@ const Event: EventFile = {
             ];
             client.user.setActivity(Functions.randomArray(activies));
         }, 1000 * 60 * 1);
-
 
         async function fetchPatreonsFromCache() {
             const patrons = await client.database.redis.keys("patron:*");
@@ -184,40 +166,49 @@ const Event: EventFile = {
         }
 
         const allCommandsV1 = client.commands
-        .filter((r) => r.category !== "private")
-        .map((v) => {
-            if (
-                v.data?.options?.length !== 0 &&
-                v.data.options instanceof Array &&
-                v.data.options
-                    .filter((r) => !r.choices)
-                    .filter((r) => r.type !== 3)
-                    .filter((r) => r.type !== 6)
-                    .filter((r) => r.type !== 4).length !== 0
-            ) {
-                return v.data.options.map((c) => {
+            .filter((r) => r.category !== "private")
+            .map((v) => {
+                if (
+                    v.data?.options?.length !== 0 &&
+                    v.data.options instanceof Array &&
+                    v.data.options
+                        .filter((r) => !r.choices)
+                        .filter((r) => r.type !== 3)
+                        .filter((r) => r.type !== 6)
+                        .filter((r) => r.type !== 4).length !== 0
+                ) {
+                    return v.data.options.map((c) => {
+                        return {
+                            cooldown: v.cooldown,
+                            category: v.category,
+                            options: v.data?.options?.filter((r) => r.name === c.name)[0]?.options,
+                            name: `${v.data.name} ${c.name}`,
+                            description: removeEmoji(c.description),
+                        };
+                    });
+                } else
                     return {
                         cooldown: v.cooldown,
                         category: v.category,
-                        options: v.data?.options?.filter((r) => r.name === c.name)[0]?.options,
-                        name: `${v.data.name} ${c.name}`,
-                        description: removeEmoji(c.description),
+                        options: v.data?.options?.filter(
+                            (r) => r.type === 3 || r.type === 6 || r.type === 4
+                        ),
+                        name: v.data.name,
+                        description: removeEmoji(v.data.description),
                     };
-                });
-            } else
-                return {
-                    cooldown: v.cooldown,
-                    category: v.category,
-                    options: v.data?.options?.filter(
-                        (r) => r.type === 3 || r.type === 6 || r.type === 4
-                    ),
-                    name: v.data.name,
-                    description: removeEmoji(v.data.description),
-                };
-        })
-        .map((v) => {
-            if (v instanceof Array) {
-                return v.map((v) => {
+            })
+            .map((v) => {
+                if (v instanceof Array) {
+                    return v.map((v) => {
+                        return {
+                            cooldown: v.cooldown,
+                            category: v.category,
+                            options: v.options,
+                            name: v.name,
+                            description: v.description,
+                        };
+                    });
+                } else
                     return {
                         cooldown: v.cooldown,
                         category: v.category,
@@ -225,42 +216,31 @@ const Event: EventFile = {
                         name: v.name,
                         description: v.description,
                     };
-                });
-            } else
-                return {
-                    cooldown: v.cooldown,
-                    category: v.category,
-                    options: v.options,
-                    name: v.name,
-                    description: v.description,
-                };
-        });
-    const commandsV2 = [];
-    for (const command of allCommandsV1) {
-        if (command instanceof Array) {
-            for (const commandx of command) {
-                commandsV2.push(commandx);
-            }
-        } else commandsV2.push(command);
-    }
-    const commandsV3 = [];
-    for (const commands of commandsV2) {
-        if (commands.options?.find((x) => x.type === 1)) {
-            for (const command of commands.options) {
-                commandsV3.push({
-                    cooldown: commands.cooldown,
-                    category: commands.category,
-                    options: command.options,
-                    name: `${commands.name} ${command.name}`,
-                    description: command.description,
-                });
-            }
-        } else commandsV3.push(commands);
-    }
-    client.allCommands = commandsV3;
-    client.log(`Logged in as ${client.user?.tag}`, "ready");
-
-
+            });
+        const commandsV2 = [];
+        for (const command of allCommandsV1) {
+            if (command instanceof Array) {
+                for (const commandx of command) {
+                    commandsV2.push(commandx);
+                }
+            } else commandsV2.push(command);
+        }
+        const commandsV3 = [];
+        for (const commands of commandsV2) {
+            if (commands.options?.find((x) => x.type === 1)) {
+                for (const command of commands.options) {
+                    commandsV3.push({
+                        cooldown: commands.cooldown,
+                        category: commands.category,
+                        options: command.options,
+                        name: `${commands.name} ${command.name}`,
+                        description: command.description,
+                    });
+                }
+            } else commandsV3.push(commands);
+        }
+        client.allCommands = commandsV3;
+        client.log(`Logged in as ${client.user?.tag}`, "ready");
     },
 };
 export default Event;

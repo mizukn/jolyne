@@ -117,7 +117,9 @@ const Event: EventFile = {
                         return;
                     }
                 }
-                if (ctx.userData.restingAtCampfire && command.data.name !== "campfire") {
+                if (typeof ctx.userData.restingAtCampfire !== "number")
+                    ctx.userData.restingAtCampfire = 0;
+                if (Number(ctx.userData.restingAtCampfire) && command.data.name !== "campfire") {
                     ctx.makeMessage({
                         content: `🔥🪵 You're currently resting at the campfire. Use the ${ctx.client.getSlashCommandMention(
                             "campfire leave"
@@ -143,8 +145,8 @@ const Event: EventFile = {
                         )} command to use consumables. If you already have consumables in your inventory, use the ${ctx.client.getSlashCommandMention(
                             "inventory use"
                         )} command. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
-                            "campfire"
-                        )}`,
+                            "campfire rest"
+                        )} (1% of your max health every 2 minutes)`,
                     });
                 }
                 const oldDataJSON = JSON.stringify(ctx.userData);
@@ -298,6 +300,8 @@ const Event: EventFile = {
                         const data = await ctx.client.database.getJSONData(
                             Functions.getBlackMarketString(ctx.user.id)
                         );
+                        ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
+
                         if (!data) {
                             ctx.followUpQueue.push({
                                 content: `🃏 | **${
@@ -306,15 +310,8 @@ const Event: EventFile = {
                                     "shop"
                                 )} command to see what's available! [$$]`,
                             });
-                        } else ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
-                    } else
-                        ctx.followUpQueue.push({
-                            content: `🃏 | **${
-                                ctx.user.username
-                            }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
-                                "shop"
-                            )} command to see what's available! [$]`,
-                        });
+                        }
+                    }
                 }
 
                 if (
