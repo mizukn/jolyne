@@ -801,6 +801,7 @@ const slashCommand: SlashCommandFile = {
                 const item = Functions.findItem(v);
                 if (!item) return;
                 if (userData.inventory[v] === 0) return;
+                if (Functions.isEquipableItem(item)) return;
                 if (!Functions.isConsumable(item) && !Functions.isSpecial(item)) return;
 
                 return {

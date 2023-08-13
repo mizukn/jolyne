@@ -190,7 +190,12 @@ const slashCommand: SlashCommandFile = {
                             };
                         })
                         .filter((r) => r.items.length > 0)
-                        .map((x) => `[${x.type[0]}] ${x.items}`)
+                        .map(
+                            (x) =>
+                                `[${x.type[0] === "F" ? x.type[0] + x.type[1] : x.type[0]}] ${
+                                    x.items
+                                }`
+                        )
                         .join("\n")}`,
                     inline: true,
                 },

@@ -316,6 +316,14 @@ const slashCommand: SlashCommandFile = {
         options: [],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+        if (ctx.userData.chapter.quests.length === 0) {
+            ctx.userData.chapter.quests = getChapterOrChapterPartInfos(
+                ctx.userData.chapter.id
+            ).quests.map((x) => Functions.pushQuest(x));
+            if (ctx.userData.chapter.quests.length !== 0)
+                ctx.client.database.saveUserData(ctx.userData);
+        }
+
         const status = getQuestsStats(ctx.userData.chapter.quests, ctx);
         const chapter =
             Object.values(Chapters).find((c) => c.id === ctx.userData.chapter.id) ||
