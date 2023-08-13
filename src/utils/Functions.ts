@@ -379,10 +379,10 @@ export const getBaseHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
     return 100 + Math.trunc(rpgData.level / 2);
 };
 
-export const getBaseStamina = 60;
+export const getBaseStamina = 100;
 
 export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    return Math.round(getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health);
+    return Math.round((getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health) * 2);
 };
 
 export const getMaxHealthNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
@@ -1202,7 +1202,57 @@ export const fixFields = function fixFields(
 
     return fixedFields;
 };
+/*
+export const fixFields = function fixFields(
+    fields: { name: string; value: string; inline?: boolean }[]
+): { name: string; value: string; inline?: boolean }[] {
+    const MAX_FIELD_LENGTH = 1024;
+    const fixedFields: { name: string; value: string; inline?: boolean }[] = [];
 
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+        const value = field.value;
+        const lines = value.split("\n");
+
+        for (const line of lines) {
+            const valueLength = line.length;
+
+            if (valueLength <= MAX_FIELD_LENGTH) {
+                // If the line is within the limit, add it to the fixed fields array
+                fixedFields.push({ ...field, value: line });
+            } else {
+                // If the line exceeds the limit, split it into multiple lines
+                const numLines = Math.ceil(valueLength / MAX_FIELD_LENGTH);
+                for (let j = 0; j < numLines; j++) {
+                    const start = j * MAX_FIELD_LENGTH;
+                    const end = start + MAX_FIELD_LENGTH;
+                    const lineValue = line.substring(start, end);
+                    const fieldName = j === 0 ? field.name : "\u200B";
+                    fixedFields.push({
+                        name: fieldName,
+                        value: lineValue,
+                        inline: field.inline,
+                    });
+                }
+            }
+        }
+
+        // Add a blank field after every 25th field
+        if ((i + 1) % 25 === 0) {
+            fixedFields.push({
+                name: "\u200B",
+                value: "\u200B",
+            });
+        }
+    }
+    if (fixedFields.length > 25) {
+        // only show the last 25 fields
+        fixedFields.splice(fixedFields.length - 25, fixedFields.length);
+    }
+
+    return fixedFields;
+};
+*/
 export const generateMessageLink = function generateMessageLink(r: Message<boolean>): string {
     return `https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`;
 };
@@ -1233,7 +1283,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
         }
     }
 
-    return limit;
+    return limit + 4; // remove +4 later
 };
 
 export const shuffle = function shuffle<T>(array: T[]): T[] {
@@ -1285,3 +1335,83 @@ export const msToString = function msToString(ms: number): string {
 
     return `${dayStr} ${hourStr} ${minuteStr} ${secondStr}`;
 };
+
+export function splitEmbedIfExceedsLimit(embed: APIEmbed): APIEmbed[] {
+    const embeds: APIEmbed[] = [];
+    const MAX_EMBED_SIZE = 5000;
+    const EMBED_HEADER_SIZE = 24; // Approximate size of the JSON header
+
+    let currentEmbed: APIEmbed = {};
+    let currentLength = EMBED_HEADER_SIZE;
+
+    function pushCurrentEmbed() {
+        if (embeds.length === 0) embeds.push(currentEmbed);
+        else
+            for (const embed of splitEmbedIfExceedsLimit(currentEmbed)) {
+                embeds.push(embed);
+            }
+        currentEmbed = {} as APIEmbed;
+        currentLength = EMBED_HEADER_SIZE;
+    }
+
+    function canAddContent(content: string) {
+        return currentLength + content.length <= MAX_EMBED_SIZE;
+    }
+
+    // Copy fields from the input embed to the current embed, splitting if necessary
+    function copyFields(fields: APIEmbed["fields"]) {
+        const remainingFields = fields;
+        while (remainingFields.length > 0) {
+            const nextField = remainingFields.shift();
+            if (!nextField) break;
+
+            // Check if the current field can fit in the current embed
+            if (canAddContent(nextField.name) && canAddContent(nextField.value)) {
+                if (!currentEmbed.fields) currentEmbed.fields = [];
+                currentEmbed.fields.push(nextField);
+                currentLength += nextField.name.length + nextField.value.length;
+            } else {
+                // If the field doesn't fit, push the current embed and start a new one
+                pushCurrentEmbed();
+                copyFields([nextField, ...remainingFields]); // Recursively process the remaining fields
+                return;
+            }
+        }
+    }
+
+    // Copy basic properties from the input embed to the current embed
+    function copyProperties(properties: (keyof APIEmbed)[]) {
+        properties.forEach((prop) => {
+            if (embed[prop] !== undefined) {
+                // @ts-expect-error Idk
+                currentEmbed[prop] = embed[prop] as (typeof currentEmbed)[typeof prop];
+                currentLength += JSON.stringify(embed[prop]).length;
+            }
+        });
+    }
+
+    copyProperties([
+        "title",
+        "type",
+        "description",
+        "url",
+        "timestamp",
+        "color",
+        "footer",
+        "image",
+        "thumbnail",
+        "video",
+        "provider",
+        "author",
+    ]);
+    if (embed.fields && embed.fields.length > 0) {
+        copyFields(embed.fields);
+    }
+
+    if (Object.keys(currentEmbed).length > 0) {
+        // Push the last embed if it contains any content
+        pushCurrentEmbed();
+    }
+
+    return embeds;
+}
