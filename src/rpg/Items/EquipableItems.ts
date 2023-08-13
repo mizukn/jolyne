@@ -121,9 +121,9 @@ export const SBRBoots: EquipableItem = {
     tradable: true,
     storable: true,
     craft: {
-        brown_cloth: 50,
+        brown_cloth: 25,
         steel_ball: 5,
-        fiber: 50,
+        string: 25,
     },
 };
 

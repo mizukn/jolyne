@@ -46,7 +46,7 @@ export const RoadRoller: Ability = {
     ...StarFinger,
     name: "Road Roller",
     description:
-        "jumps high into the sky, bringing a steamroller down with them, slamming it down where they were previously standing",
+        "jumps high into the sky, bringing a steamroller down with them, slamming it down where they were previously standing. CAN STACK FREE TURNS IF ENOUGH SPEED!",
 };
 
 export const TheWorld: Ability = {
@@ -62,9 +62,9 @@ export const TheWorld: Ability = {
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
             cooldown: 6,
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
-                    `**${user.name}:** Toki wo Ugokidasu...`
+                    `> ${user.stand.emoji} **${user.name}:** Toki wo Ugokidasu...`
                 );
                 user.hasStoppedTime = false;
             },
@@ -74,15 +74,15 @@ export const TheWorld: Ability = {
 
         if (user.stand.name === Stands.TheWorld.name) {
             ctx.turns[ctx.turns.length - 1].logs.push(
-                `**${user.name}:** THE WORLD! TOKI WO TOMARE!`
+                `> ${user.stand.emoji} **${user.name}:** THE WORLD! TOKI WO TOMARE!`
             );
         } else if (user.stand.name === Stands.StarPlatinum.name) {
             ctx.turns[ctx.turns.length - 1].logs.push(
-                `**${user.name}:** STAR PLATINUM: THE WORLD! TOKI WO TOMARE!`
+                `> ${user.stand.emoji} **${user.name}:** STAR PLATINUM: THE WORLD! TOKI WO TOMARE!`
             );
         } else
             ctx.turns[ctx.turns.length - 1].logs.push(
-                `**${user.name}:** ${user.stand.name}: TOKI WO TOMARE!`
+                `> ${user.stand.emoji} **${user.name}:** ${user.stand.name}: TOKI WO TOMARE!`
             );
     },
     dodgeScore: 0,
@@ -164,7 +164,7 @@ export const Manipulation: Ability = {
             target.manipulatedBy = user;
             ctx.nextRoundPromises.push({
                 cooldown: 2,
-                promise: (fight: { turns: { logs: string[] }[] }) => {
+                promise: (fight) => {
                     unmanipulate(fight);
                 },
                 id: "" + Date.now() + Math.random() + "",
@@ -219,7 +219,7 @@ export const DeadlyErasure: Ability = {
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
     ctx.nextRoundPromises.push({
         cooldown: 3,
-        promise: (fight: { turns: { logs: string[] }[] }) => {
+        promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
                 `:fire: **${target.name}** took **${damage}** burn damage`
             );
@@ -240,7 +240,7 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) =
 const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
     ctx.nextRoundPromises.push({
         cooldown: 3,
-        promise: (fight: { turns: { logs: string[] }[] }) => {
+        promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
                 `🩸 **${target.name}** took **${damage}** bleed damage`
             );
@@ -402,7 +402,7 @@ export const OhMyGod: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
                     `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are back...`
                 );
@@ -512,7 +512,7 @@ export const Finisher: Ability = {
     description:
         "attacks or finish the opponent by aiming at one of his vital parts [CRITICAL, BLEED DAMAGES]",
     cooldown: 8,
-    damage: 300,
+    damage: 100,
     blockable: true,
     dodgeable: true,
     stamina: 40,
@@ -582,8 +582,8 @@ export const RequiemArrowBlast: Ability = {
 export const EternalSleep: Ability = {
     name: "Eternal Sleep",
     description:
-        "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it [real dodge score: 3]",
-    cooldown: 0,
+        "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it [real dodge score: 3].",
+    cooldown: 5,
     damage: 0,
     blockable: false,
     dodgeable: false,
@@ -641,7 +641,7 @@ export const StandDisc: Ability = {
         ctx.nextRoundPromises.push({
             cooldown: 3,
             id: Functions.generateRandomId(),
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 target.stand = stand;
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand.emoji} STAND DISC: **${target.name}** has recovered his stand... (${stand.name} ${stand.emoji})`
@@ -677,7 +677,7 @@ export const Hallucinogen: Ability = {
         ctx.nextRoundPromises.push({
             cooldown: 3,
             id: Functions.generateRandomId(),
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 ctx.fighters
                     .filter((x) => x.id !== user.id && ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
                     .forEach((x) => {
@@ -753,7 +753,7 @@ export const LifeGiver: Ability = {
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const teamIndex = ctx.getTeamIdx(user);
-        const team = ctx.teams[teamIndex + 1];
+        const team = ctx.teams[teamIndex];
 
         const NPC: FightableNPC = {
             id: Functions.randomArray(["speedwagon_foundation", "kakyoin", "jotaro", "dio"]),
@@ -781,7 +781,7 @@ export const LifeGiver: Ability = {
         ctx.nextRoundPromises.push({
             cooldown: 3,
             id: Functions.generateRandomId(),
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 const idx = team.findIndex((x) => x.id === NPC.id);
                 if (idx !== -1) {
                     team.splice(idx, 1);
@@ -801,7 +801,7 @@ export const SandClone: Ability = {
     name: "Sand Clone",
     description:
         "The Fool can create clones of itself out of sand, which can be used to attack or defend",
-    cooldown: 5,
+    cooldown: 2,
     damage: 0,
     blockable: false,
     dodgeable: false,
@@ -837,7 +837,7 @@ export const SandClone: Ability = {
         ctx.nextRoundPromises.push({
             cooldown: 3,
             id: Functions.generateRandomId(),
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 const idx = team.findIndex((x) => x.id === NPC.id);
                 if (idx !== -1) {
                     team.splice(idx, 1);
@@ -886,7 +886,8 @@ export const SandMimicry: Ability = {
         ctx.nextRoundPromises.push({
             cooldown: 3,
             id: Functions.generateRandomId(),
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
+                if (!fight.fighters.find((x) => x.id === user.id)) return;
                 user.skillPoints = oldSkillPoints;
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand.emoji} SAND MIMICRY: **${user.name}**'s perception has been reset...`
@@ -925,10 +926,11 @@ export const SandStorm: Ability = {
         ctx.nextRoundPromises.push({
             cooldown: 3,
             id: Functions.generateRandomId(),
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 for (const fighter of ctx.fighters.filter(
                     (w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0
                 )) {
+                    if (!fight.fighters.find((x) => x.id === fighter.id)) return;
                     fighter.skillPoints = oldSkillPoints[fighter.id];
                     fight.turns[fight.turns.length - 1].logs.push(
                         `- ${user.stand.emoji} SAND STORM: **${user.name}**'s sand storm EFFECT has disappeared...`
@@ -1003,7 +1005,7 @@ export const BerserkersFury: Ability = {
         ctx.nextRoundPromises.push({
             cooldown: 3,
             id: Functions.generateRandomId(),
-            promise: (fight: { turns: { logs: string[] }[] }) => {
+            promise: (fight) => {
                 user.skillPoints.strength -= strengthIncrease;
                 user.skillPoints.defense += defenseDecrease;
                 user.maxHealth += maxHealth;

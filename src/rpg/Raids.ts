@@ -12,12 +12,27 @@ export const Dio: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 100,
+                chance: 300,
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 300,
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 300,
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 300,
             },
             {
                 item: Functions.findItem("dios_knives").id,
                 amount: 1,
-                chance: 3,
+                chance: 5,
             },
         ],
     },
@@ -92,6 +107,11 @@ export const Kakyoin: RaidBoss = {
                 amount: 1,
                 chance: 100,
             },
+            {
+                item: "kakyoins_snazzy_shades",
+                chance: 25,
+                amount: 1,
+            },
         ],
     },
     level: 0,
@@ -116,7 +136,7 @@ export const JeanPierrePolnareffRequiem: RaidBoss = {
             {
                 item: Functions.findItem("Requiem Arrow").id,
                 amount: 1,
-                chance: 3,
+                chance: 5,
             },
         ],
     },

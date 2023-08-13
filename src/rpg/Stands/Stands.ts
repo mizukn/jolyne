@@ -263,9 +263,9 @@ export const TheFool: Stand = {
     description: "waf waf sand grr wuwu",
     abilities: [
         Abilities.SandProjectiles,
-        Abilities.SandClone,
-        Abilities.SandMimicry,
-        Abilities.SandStorm,
+        //Abilities.SandClone,
+        //Abilities.SandMimicry,
+        //Abilities.SandStorm,
     ],
     emoji: "<:the_fool:1133820601904152626>",
     skillPoints: {
