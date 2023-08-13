@@ -311,13 +311,13 @@ export const equipableItemTypesLimit = {
 
 export const formattedEquipableItemTypes = {
     [equipableItemTypes.HEAD]: "Head",
+    [equipableItemTypes.FACE]: "Face",
     [equipableItemTypes.CHEST]: "Chest",
     [equipableItemTypes.LEGS]: "Legs",
     [equipableItemTypes.FEET]: "Feet",
     [equipableItemTypes.HANDS]: "Hands",
     [equipableItemTypes.WEAPON]: "Weapon",
     [equipableItemTypes.ACCESSORY]: "Accessory",
-    [equipableItemTypes.FACE]: "Face",
 };
 
 export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
