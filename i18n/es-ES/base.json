@@ -51,5 +51,7 @@
     "STAND_DISK_LIMIT_PATREON": "{{npc.jolyne}} Oh oh, you've reached your limit. You can only store **{{limit}}** stand discs. You can increase this limit by upgrading your [patreon tier](https://https://patreon.com/mizuki54.com/mizuki54)",
     "YES": "yes",
     "NO": "no",
-    "test": "{{command.leaderboard level}} ok"
+    "test": "{{command.leaderboard level}} ok",
+    "YOUR_STAND_HAS_BEEN_RESET": "{{npc.pucci}} You have successfully erased your stand **{{stand.name}}**",
+    "NOT_ENOUGH_COINS": "{{emojis.pucci}} You don't have enough coins."
 }
