@@ -776,8 +776,9 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
                 i.deferUpdate().catch(() => {}); // eslint-disable-line
-                ctx.userData.coins += Math.round(
-                    itemData.price * itemTaxes[itemData.rarity] * amountX
+                Functions.addCoins(
+                    ctx.userData,
+                    Math.round(itemData.price * itemTaxes[itemData.rarity] * amountX)
                 );
                 Functions.removeItem(ctx.userData, itemString, amountX);
                 ctx.client.database.saveUserData(ctx.userData);

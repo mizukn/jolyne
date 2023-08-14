@@ -76,6 +76,7 @@ const slashCommand: SlashCommandFile = {
             },
         ];
 
+
         const languageMenu = new StringSelectMenuBuilder()
             .setCustomId(ctx.interaction.id + "language")
             .setPlaceholder("Select a language")

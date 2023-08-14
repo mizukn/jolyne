@@ -18,6 +18,18 @@ import * as Items from "./rpg/Items";
 import * as Stands from "./rpg/Stands";
 import * as Emojis from "./emojis.json";
 import * as NPCs from "./rpg/NPCs/NPCs";
+import * as StandUsersNPCS from "./rpg/standUsersNPCS.json";
+
+import * as Sentry from "@sentry/node";
+
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+});
+
+/*
+Sentry.Handlers.requestHandler();
+Sentry.Handlers.tracingHandler();
+Sentry.Handlers.errorHandler();*/
 
 /**
  * Temp code starts from here
@@ -54,7 +66,9 @@ for (const stand of [
         use: async (ctx) => {
             if (Functions.findStand(ctx.userData.stand)) {
                 ctx.makeMessage({
-                    content: "no",
+                    content: `Dawg you already have a stand. If you'd like to change your stand, please either erase your current one (${ctx.client.getSlashCommandMention(
+                        "stand delete"
+                    )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`,
                 });
                 return false;
             }
@@ -66,7 +80,7 @@ for (const stand of [
                 ),
             });
             return true;
-        },
+        }
     };
     // @ts-expect-error because it's a dynamic property
     Items.default[standDisc.id] = standDisc;
@@ -181,7 +195,7 @@ for (const NPC of Object.values(FightableNPCs)) {
     }
     if (!NPC.rewards) NPC.rewards = {};
     if (NPC.rewards.xp === undefined || NPC.rewards.coins === undefined) {
-        // shouldn't do if ! at the beginning because it's an number and if it's 0, it will be false
+        // shouldn't do if ! at the beginning because it's a number and if it's 0, it will be false
         NPC.rewards.xp = 50;
         NPC.rewards.coins = 50;
         NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 500;
@@ -222,7 +236,7 @@ process.on("exit", () => {
     client.database.redis.quit();
 });
 
-process.on("unhandledRejection", (error) => {
+process.on("unhandledRejection", (error: Error) => {
     console.error("Unhandled promise rejection:", error);
 });
 

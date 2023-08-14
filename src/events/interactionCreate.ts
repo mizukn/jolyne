@@ -15,6 +15,7 @@ const Event: EventFile = {
                     ephemeral: true,
                 });
             }
+
             const command = interaction.client.commands.get(interaction.commandName);
             if (!command || !interaction.guild) return;
 
@@ -131,6 +132,12 @@ const Event: EventFile = {
                 if (command.data.options.filter((r) => r.type === 1).length !== 0) {
                     commandName += ` ${interaction.options.getSubcommand()}`;
                 }
+
+                console.log(
+                    `[RPG] ${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
+                        interaction.options["data"]
+                    )} `
+                );
                 // check if ctx.userData.health is lower than 10% of their Functions.getMaxHealth(ctx.userData) and/or for stamina
                 if (
                     (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1 ||

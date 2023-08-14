@@ -216,7 +216,7 @@ export const DeadlyErasure: Ability = {
     target: "enemy",
 };
 
-const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
+const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
     ctx.nextRoundPromises.push({
         cooldown: 3,
         promise: (fight) => {
@@ -225,6 +225,7 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) =
             );
             if (target.health > 0) {
                 target.health -= damage;
+                user.totalDamageDealt += damage;
                 if (target.health <= 0) {
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
@@ -237,7 +238,7 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) =
     });
 };
 
-const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) => {
+const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
     ctx.nextRoundPromises.push({
         cooldown: 3,
         promise: (fight) => {
@@ -246,6 +247,7 @@ const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number) 
             );
             if (target.health > 0) {
                 target.health -= damage;
+                user.totalDamageDealt += damage;
                 if (target.health <= 0) {
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
@@ -271,7 +273,7 @@ export const CrossfireHurricane: Ability = {
         const burnDamageCalc = Math.round(
             Functions.getAbilityDamage(user, CrossfireHurricane) / 10
         );
-        burnDamagePromise(ctx, target, burnDamageCalc);
+        burnDamagePromise(ctx, target, burnDamageCalc, user);
     },
     thumbnail: "https://media.tenor.com/n79QWE9azhEAAAAC/magicians-red-avdol.gif",
     dodgeScore: 1,
@@ -289,7 +291,7 @@ export const RedBind: Ability = {
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, RedBind) / 10);
-        burnDamagePromise(ctx, target, burnDamageCalc);
+        burnDamagePromise(ctx, target, burnDamageCalc, user);
     },
     dodgeScore: 2,
     target: "enemy",
@@ -306,7 +308,7 @@ export const Bakugo: Ability = {
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Bakugo) / 10);
-        burnDamagePromise(ctx, target, burnDamageCalc);
+        burnDamagePromise(ctx, target, burnDamageCalc, user);
     },
     special: true,
     dodgeScore: 3,
@@ -494,7 +496,7 @@ export const DeterminationFlurry: Ability = {
         const burnDamageCalc = Math.round(
             Functions.getAbilityDamage(user, CrossfireHurricane) / 10
         );
-        bleedDamagePromise(ctx, target, burnDamageCalc);
+        bleedDamagePromise(ctx, target, burnDamageCalc, user);
     },
     dodgeScore: 2,
     target: "enemy",
@@ -519,7 +521,7 @@ export const Finisher: Ability = {
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Finisher) / 10);
-        bleedDamagePromise(ctx, target, burnDamageCalc);
+        bleedDamagePromise(ctx, target, burnDamageCalc, user);
     },
     dodgeScore: 2,
     target: "enemy",
@@ -555,6 +557,7 @@ export const LifeTransference: Ability = {
             const drainAmount = Functions.getAttackDamages(user) * 3;
             const oldHealth = target.health;
             target.incrHealth(-drainAmount);
+            user.totalDamageDealt += drainAmount;
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `${user.stand.emoji} LIFE TRANSFERENCE: ${target.name} has lost **${(
                     oldHealth - target.health
@@ -1050,6 +1053,7 @@ export const BerserkersRampage: Ability = {
                 if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
                     const damages = Math.round(Functions.getAttackDamages(user) * 1.75);
                     x.health -= damages;
+                    user.totalDamageDealt += damage;
                     if (x.health <= 0) x.health = 0;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon.emoji} RAMPAGE: **${user.name}** has dealt **${damages}** damages to **${x.name}**.`
@@ -1092,6 +1096,7 @@ export const KnivesThrow: Ability = {
             } else {
                 const damages = Math.round(Functions.getAttackDamages(user) * 0.75);
                 target.health -= damages;
+                user.totalDamageDealt += damage;
                 if (target.health <= 0) target.health = 0;
                 const stamina = Math.round(target.maxStamina * 0.03);
                 target.stamina -= stamina;

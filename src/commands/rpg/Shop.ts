@@ -245,12 +245,12 @@ const slashCommand: SlashCommandFile = {
                     embeds: [
                         {
                             title: ":shopping_cart: Morioh City Shop",
-                            fields: [
+                            fields: Functions.fixFields([
                                 {
                                     name: shop.emoji + " " + shop.name,
                                     value: createShopString(shop),
                                 },
-                            ],
+                            ]),
                             color: 0x70926c,
                             footer: {
                                 text: `You have ${ctx.userData.coins.toLocaleString(

@@ -200,7 +200,7 @@ const slashCommand: SlashCommandFile = {
                         }
                         Functions.addCoins(ctx.userData, -Functions.standPrices[stand.rarity]);
                         ctx.userData.stand = null;
-                        Functions.addItem(ctx.userData, Functions.findItem(stand.name), 1);
+                        Functions.addItem(ctx.userData, Functions.findItem(stand.id), 1);
                         ctx.client.database.saveUserData(ctx.userData);
                         ctx.sendTranslated("base:YOUR_STAND_DISC_HAS_BEEN_STORED", {
                             components: [],

@@ -934,7 +934,7 @@ export const removeItem = (
 };
 
 export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): number {
-    userData.coins += amount;
+    userData.coins += Math.round(amount);
     if (amount < 0) return;
 
     amount = Math.round(amount);
