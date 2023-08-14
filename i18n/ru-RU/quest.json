@@ -18,6 +18,9 @@
     "AWAKE_STAND": {
         "DESCRIPTION": "Awaken your stand"
     },
+    "COMPLETE_BEGINNER_SIDE_QUEST": {
+        "DESCRIPTION": "Complete the beginner side quest and claim its rewards!"
+    },
     "LOOT_COINS": {
         "DESCRIPTION": "Loot {{cc}} coins (using the {{command.loot}} command)"
     },
