@@ -1,4 +1,4 @@
-import { EvolutionStand, Stand } from "../../@types";
+import { EvolutionStand } from "../../@types";
 import * as Abilities from "../Abilities";
 import * as Emojis from "../../emojis.json";
 
@@ -110,9 +110,9 @@ export const SilverChariot: EvolutionStand = {
                 perception: 5,
                 speed: 5,
                 defense: 1,
-                stamina: 0,
+                stamina: 0
             },
-            available: true,
+            available: true
         },
 
         {
@@ -125,7 +125,7 @@ export const SilverChariot: EvolutionStand = {
                 Abilities.Finisher,
                 Abilities.RequiemArrowBlast,
                 Abilities.LifeTransference,
-                Abilities.EternalSleep,
+                Abilities.EternalSleep
             ],
             image: "https://static.jojowiki.com/images/1/12/latest/20211210020712/Chariot_Requiem_Infobox_Anime.png",
             color: 0x000000,
@@ -135,11 +135,11 @@ export const SilverChariot: EvolutionStand = {
                 perception: 15,
                 speed: 15,
                 defense: 15,
-                stamina: 15,
+                stamina: 15
             },
-            available: true,
-        },
-    ],
+            available: true
+        }
+    ]
 };
 
 export const GoldExperience: EvolutionStand = {
@@ -154,7 +154,7 @@ export const GoldExperience: EvolutionStand = {
                 Abilities.StandBarrage,
                 Abilities.Heal,
                 Abilities.LifeShot,
-                Abilities.LifeGiver,
+                Abilities.LifeGiver
             ],
             image: "https://static.jojowiki.com/images/8/81/latest/20210707053105/Gold_Experience_Infobox_Anime.png",
             // yellow color
@@ -165,9 +165,9 @@ export const GoldExperience: EvolutionStand = {
                 perception: 5,
                 speed: 5,
                 defense: 5,
-                stamina: 5,
+                stamina: 5
             },
-            available: true,
+            available: true
         },
         {
             name: "Gold Experience Requiem",
@@ -179,19 +179,47 @@ export const GoldExperience: EvolutionStand = {
                 Abilities.Heal,
                 Abilities.LifeShot,
                 Abilities.LifeGiver,
-                Abilities.RequiemArrowBlast,
+                Abilities.RequiemArrowBlast
             ],
             image: "https://static.jojowiki.com/images/thumb/1/13/latest/20210525092302/GER_Infobox_Manga.png/400px-GER_Infobox_Manga.png",
             color: 0x8b8000,
-            emoji: "<:scr:1125037583286669332>",
+            emoji: "<:gold_experience_requiem:1141091756314738850>",
             skillPoints: {
                 strength: 15,
                 perception: 15,
                 speed: 15,
                 defense: 15,
-                stamina: 15,
+                stamina: 15
             },
-            available: true,
-        },
-    ],
+            available: true
+        }
+    ]
+};
+
+export const Whitesnake: EvolutionStand = {
+    id: "whitesnake",
+    evolutions: [
+        {
+            name: "Whitesnake",
+            description: "Whitesnake is a humanoid Stand of a height and build similar to [Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci)'s. It is sparsely clothed in black, with a mask covering its face to the bottom of where its nose would be, in a piece that rises above its head by half its height in a row of peaks, like a crown.",
+            rarity: "S",
+            abilities: [
+                Abilities.StandBarrage,
+                Abilities.Hallucinogen,
+                Abilities.StandDisc
+            ],
+            image: "https://static.wikia.nocookie.net/jjba/images/e/ea/WhitesnakeAnime1.png/revision/latest?cb=20211202052847&path-prefix=pt-br",
+            // white color hex code
+            color: 0xffffff,
+            emoji: Emojis.whitesnake,
+            skillPoints: {
+                strength: 3,
+                perception: 10,
+                speed: 5,
+                defense: 5,
+                stamina: 5
+            },
+            available: true
+        }
+    ]
 };

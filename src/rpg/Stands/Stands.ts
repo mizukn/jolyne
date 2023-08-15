@@ -2,11 +2,12 @@ import { Stand, Ability } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 import * as Abilities from "../Abilities";
+import { MysteriousGas, Transformation } from "../Abilities";
 
 function addGif(ability: Ability, gif: string): Ability {
     return {
         ...ability,
-        thumbnail: gif,
+        thumbnail: gif
     };
 }
 
@@ -25,17 +26,17 @@ export const StarPlatinum: Stand = {
         ),
         Abilities.KickBarrage,
         Abilities.StarFinger,
-        Abilities.TheWorld,
+        Abilities.TheWorld
     ],
     skillPoints: {
         strength: 10,
         defense: 5,
         perception: 5,
         speed: 5,
-        stamina: 2,
+        stamina: 2
     },
     color: 0x985ca3,
-    available: true,
+    available: true
 };
 
 export const TheWorld: Stand = {
@@ -53,11 +54,11 @@ export const TheWorld: Stand = {
         ),
         Abilities.KickBarrage,
         Abilities.RoadRoller,
-        Abilities.TheWorld,
+        Abilities.TheWorld
     ],
     skillPoints: StarPlatinum.skillPoints,
     color: 0xffff00,
-    available: true,
+    available: true
 };
 
 export const HierophantGreen: Stand = {
@@ -74,10 +75,10 @@ export const HierophantGreen: Stand = {
         defense: 0,
         perception: 5,
         speed: 3,
-        stamina: 1,
+        stamina: 1
     },
     color: 0x6ad398,
-    available: true,
+    available: true
 };
 
 export const Aerosmith: Stand = {
@@ -91,13 +92,13 @@ export const Aerosmith: Stand = {
         defense: 0,
         perception: 2,
         speed: 2,
-        stamina: 1,
+        stamina: 1
     },
     image: "https://static.wikia.nocookie.net/jjba/images/6/66/Aerosmithcolor.png/revision/latest?cb=20180414181107&path-prefix=fr",
     emoji: Emojis.aerosmith,
     abilities: [Abilities.VolaBarrage, Abilities.LittleBoy],
     color: 0x0981d1,
-    available: true,
+    available: true
 };
 
 export const TheHand: Stand = {
@@ -112,12 +113,12 @@ export const TheHand: Stand = {
         defense: 0,
         perception: 0,
         stamina: 0,
-        speed: 0,
+        speed: 0
     },
     image: "https://static.wikia.nocookie.net/jjba/images/4/46/The_Hand_Anime.png/revision/latest?cb=20161217225524&path-prefix=fr",
     emoji: Emojis.the_hand,
     color: 0x1d57e5,
-    available: true,
+    available: true
 };
 
 export const MagiciansRed: Stand = {
@@ -134,10 +135,10 @@ export const MagiciansRed: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     color: 0xff0000,
-    available: true,
+    available: true
 };
 
 export const HermitPurple: Stand = {
@@ -154,10 +155,10 @@ export const HermitPurple: Stand = {
         defense: 0,
         perception: 2,
         speed: 2,
-        stamina: 1,
+        stamina: 1
     },
     color: 0x800080,
-    available: true,
+    available: true
 };
 
 export const SexPistols: Stand = {
@@ -172,7 +173,7 @@ export const SexPistols: Stand = {
         defense: 0,
         perception: 3,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     color: 0x800080,
     available: true,
@@ -188,7 +189,7 @@ export const SexPistols: Stand = {
         },
         emoji: Emojis.sexPistols,
         handleAttack: (ctx, user, target, damages) => {
-            damages *= 1.3;
+            damages *= 1.1;
             console.log("handleAttack triggered");
             const bulletId = `${ctx.id}_${user.id}`;
             const cooldown = (ctx.ctx.client.fightCache.get(bulletId) as number) || 0;
@@ -208,7 +209,7 @@ export const SexPistols: Stand = {
             }
 
             if (target.health > 0) {
-                const status = target.removeHealth(damages, user, last, last); // damages, user, isGBreakble, isDodgeable
+                const status = target.removeHealth(damages, user); // damages, user, isGBreakble, isDodgeable
                 const emoji = user.stand.customAttack.emoji;
                 status.amount = Math.round(status.amount);
 
@@ -252,8 +253,8 @@ export const SexPistols: Stand = {
                 }
             }
             if (!ctx.ctx.client.fightCache.get(bulletId + "fireX")) ctx.nextTurn();
-        },
-    },
+        }
+    }
 };
 
 export const TheFool: Stand = {
@@ -262,7 +263,7 @@ export const TheFool: Stand = {
     rarity: "A",
     description: "waf waf sand grr wuwu",
     abilities: [
-        Abilities.SandProjectiles,
+        Abilities.SandProjectiles
         //Abilities.SandClone,
         //Abilities.SandMimicry,
         //Abilities.SandStorm,
@@ -274,9 +275,72 @@ export const TheFool: Stand = {
         defense: 8,
         perception: 2,
         speed: 2,
-        stamina: 1,
+        stamina: 1
     },
     color: 0x800080,
     available: true,
-    image: "https://static.jojowiki.com/images/thumb/1/10/latest/20210312225357/The_Fool_Infobox_Anime.png/400px-The_Fool_Infobox_Anime.png",
+    image: "https://static.jojowiki.com/images/thumb/1/10/latest/20210312225357/The_Fool_Infobox_Anime.png/400px-The_Fool_Infobox_Anime.png"
+};
+
+export const WheelOfFortune: Stand = {
+    id: "wheel_of_fortune",
+    name: "Wheel Of Fortune",
+    rarity: "B",
+    description: "Wheel of Fortune is the Stand ZZ. As a Stand bound to a car, it is capable of morphing its exterior to suit the needs of its driver. (jojowiki.com)",
+    abilities: [
+        Abilities.GasolineBullets,
+        Abilities.CarCrash,
+        Abilities.Transformation
+    ],
+    emoji: "<:wheeloffortunaweeeeeeee:1100153453642272909>",
+    available: true,
+    skillPoints: {
+        strength: 0,
+        defense: 0,
+        perception: 0,
+        speed: 0,
+        stamina: 0
+    },
+    color: 0xff0000,
+    image: "https://static.wikia.nocookie.net/jjba/images/2/28/WOF_AnimeAV.png/revision/latest?cb=20160414095637"
+};
+
+export const PurpleHaze: Stand = {
+    id: "purple_haze",
+    name: "Purple Haze",
+    rarity: "A",
+    description: "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
+    image: "https://cdn.discordapp.com/attachments/576020336902930434/986670882695041034/400px-Purple_Haze_Infobox_Manga.png",
+    abilities: [Abilities.Rage],
+    emoji: Emojis.purple_haze,
+    skillPoints: {
+        strength: 10,
+        defense: 0,
+        perception: 0,
+        speed: 0,
+        stamina: 0
+    },
+    available: true,
+    color: 0x800080
+};
+
+export const HalloweenSpooks: Stand = {
+    id: "halloween_spooks",
+    name: "Halloween Spooks",
+    rarity: "T",
+    description: "Halloween Spooks is a limited stand, was available during the Halloween event (2022).",
+    image: "https://media.discordapp.net/attachments/1028000883092508803/1031942138717556856/Screenshot_20221007-1101012.png",
+    abilities: [Abilities.Rage, Abilities.ScytheSlash, Abilities.MysteriousGas],
+    emoji: "🎃",
+    skillPoints: {
+        // event stands have 0 skill points
+        strength: 0,
+        defense: 0,
+        perception: 0,
+        speed: 0,
+        stamina: 0
+    },
+    available: true,
+    // purple hex code
+    color: 0x800080
 };
