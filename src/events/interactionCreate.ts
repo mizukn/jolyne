@@ -12,7 +12,7 @@ const Event: EventFile = {
             if (!interaction.client.allCommands) {
                 return interaction.reply({
                     content: "I'm still loading, please wait a few seconds.",
-                    ephemeral: true,
+                    ephemeral: true
                 });
             }
 
@@ -24,14 +24,14 @@ const Event: EventFile = {
                 !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
             )
                 return interaction.reply({
-                    content: interaction.client.localEmojis["jolyne"],
+                    content: interaction.client.localEmojis["jolyne"]
                 });
             if (
                 command.adminOnly &&
                 !process.env.ADMIN_IDS.split(",").includes(interaction.user.id)
             )
                 return interaction.reply({
-                    content: interaction.client.localEmojis["jolyne"],
+                    content: interaction.client.localEmojis["jolyne"]
                 });
 
             // cooldown
@@ -46,7 +46,7 @@ const Event: EventFile = {
                             content: `You can use this command again in ${(timeLeft / 1000).toFixed(
                                 2
                             )} seconds.`,
-                            ephemeral: true,
+                            ephemeral: true
                         });
                     } else
                         interaction.client.cooldowns.delete(
@@ -83,7 +83,7 @@ const Event: EventFile = {
                             content: `You can use this RPG command again ${Functions.generateDiscordTimestamp(
                                 cooldown,
                                 "FROM_NOW"
-                            )}`,
+                            )}`
                         });
                     }
                 }
@@ -99,7 +99,7 @@ const Event: EventFile = {
                     } else dox = true;
                     if (dox) {
                         await ctx.interaction.reply({
-                            content: isONCD,
+                            content: isONCD
                         });
                         if (
                             !(await ctx.client.database.redis.get(
@@ -108,7 +108,7 @@ const Event: EventFile = {
                         ) {
                             ctx.followUp({
                                 content: `Reminder: If you can't find the command or someone deleted it, just wait a few minutes and your cooldown will be automatically deleted. If this problem still persists, please contact us at https://discord.gg/jolyne`,
-                                ephemeral: true,
+                                ephemeral: true
                             });
                             await ctx.client.database.redis.set(
                                 `tempCache_cooldown:${ctx.user.id}_toldWarning`,
@@ -124,7 +124,7 @@ const Event: EventFile = {
                     ctx.makeMessage({
                         content: `🔥🪵 You're currently resting at the campfire. Use the ${ctx.client.getSlashCommandMention(
                             "campfire leave"
-                        )} command to leave.`,
+                        )} command to leave.`
                     });
                     return;
                 }
@@ -133,10 +133,10 @@ const Event: EventFile = {
                     commandName += ` ${interaction.options.getSubcommand()}`;
                 }
 
-                console.log(
-                    `[RPG] ${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
+                interaction.client.log(
+                    `[${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
                         interaction.options["data"]
-                    )} `
+                    )}`, "command"
                 );
                 // check if ctx.userData.health is lower than 10% of their Functions.getMaxHealth(ctx.userData) and/or for stamina
                 if (
@@ -153,7 +153,7 @@ const Event: EventFile = {
                             "inventory use"
                         )} command. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
                             "campfire rest"
-                        )} (1% of your max health every 2 minutes)`,
+                        )} (1% of your max health every 2 minutes)`
                     });
                 }
                 const oldDataJSON = JSON.stringify(ctx.userData);
@@ -163,7 +163,7 @@ const Event: EventFile = {
                             const fixedQuests = SideQuest.quests.map((v) => Functions.pushQuest(v));
                             ctx.userData.sideQuests.push({
                                 id: SideQuest.id,
-                                quests: fixedQuests,
+                                quests: fixedQuests
                             });
                             ctx.followUpQueue.push({
                                 content: `${SideQuest.emoji} | **${
@@ -172,7 +172,7 @@ const Event: EventFile = {
                                     SideQuest.title
                                 }** SideQuest! (${ctx.client.getSlashCommandMention(
                                     "side quest view"
-                                )})`,
+                                )})`
                             });
                         }
                     } else {
@@ -184,7 +184,7 @@ const Event: EventFile = {
                                 (r) => r.id !== SideQuest.id
                             );
                             ctx.followUpQueue.push({
-                                content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.`,
+                                content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.`
                             });
                         }
                     }
@@ -201,7 +201,7 @@ const Event: EventFile = {
                 for (const quests of [
                     ctx.userData.daily.quests,
                     ctx.userData.chapter.quests,
-                    ...ctx.userData.sideQuests.map((v) => v.quests),
+                    ...ctx.userData.sideQuests.map((v) => v.quests)
                 ]) {
                     for (const quest of quests) {
                         if (quest.pushEmailWhenCompleted) {
@@ -238,12 +238,12 @@ const Event: EventFile = {
                                     if (Functions.RNG(0, item.chance)) {
                                         Functions.addItem(ctx.userData, item.item, item.amount);
                                         ctx.followUpQueue.push({
-                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`,
+                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`
                                         });
                                     } else {
                                         Functions.addItem(ctx.userData, item.item, item.amount);
                                         ctx.followUpQueue.push({
-                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`,
+                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`
                                         });
                                     }
                             }
@@ -299,7 +299,7 @@ const Event: EventFile = {
                             ctx.userData.level
                         }**!\n\nUse the ${ctx.client.getSlashCommandMention(
                             "skill points invest"
-                        )} command to invest your skill points!`,
+                        )} command to invest your skill points!`
                     });
                 }
                 if (new Date().getDay() === 0 && command.data.name !== "shop") {
@@ -315,7 +315,7 @@ const Event: EventFile = {
                                     ctx.user.username
                                 }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
                                     "shop"
-                                )} command to see what's available! [$$]`,
+                                )} command to see what's available! [$$]`
                             });
                         }
                     }
@@ -332,7 +332,7 @@ const Event: EventFile = {
                             ctx.userData
                         )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
                             "skill points invest"
-                        )} command to invest them!`,
+                        )} command to invest them!`
                     });
                 }
 
@@ -347,7 +347,7 @@ const Event: EventFile = {
                             ctx.user.username
                         }**, you have new daily quests! Use the ${ctx.client.getSlashCommandMention(
                             "daily quests"
-                        )} command to see them!`,
+                        )} command to see them!`
                     });
                 }
                 if (oldDataJSON !== JSON.stringify(ctx.userData))
@@ -363,9 +363,10 @@ const Event: EventFile = {
                         content: `There was an error while executing this command. Please try again later.\nError: ${
                             (error as Error)["message"]
                         }`,
-                        ephemeral: true,
+                        ephemeral: true
                     }) // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    .catch(() => {});
+                    .catch(() => {
+                    });
             }
         } else if (interaction.isAutocomplete()) {
             if (!interaction.client.allCommands) return;
@@ -391,7 +392,7 @@ const Event: EventFile = {
                 interaction.options.getFocused().toString()
             );
         }
-    },
+    }
 };
 
 export default Event;
