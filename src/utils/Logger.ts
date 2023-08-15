@@ -21,7 +21,7 @@ const getDatePrefix = () => {
     );
 };
 
-export default function log(content: string, type = "log"): void {
+export default function log(content: string, type: string): void {
     const clusterID = process.env.TOTAL_SHARDS
         ? `Cluster ${process.env.CLUSTER}/${parseInt(process.env.CLUSTER_COUNT) - 1} `
         : "";
