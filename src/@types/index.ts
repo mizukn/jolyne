@@ -6,6 +6,7 @@ import { FightHandler, Fighter } from "../structures/FightHandler";
 
 export type numOrPerc = number | `${number}%`;
 
+// TODO: Remove blockable and dodgeable from abilities since they're not used anymore
 export interface DJSMessage extends Message {
     client: JolyneClient;
 }
@@ -70,6 +71,7 @@ export interface EventFile {
      * If this event must be called only once.
      */
     once?: boolean;
+
     /**
      * The function that will be called when the event is triggered.
      * @param args The arguments passed by the event.
@@ -265,9 +267,9 @@ export interface RPGUserDataJSON {
      */
     emails: RPGUserEmail[];
     voteHistory: {
-        total: number;
-        [key: string]: number;
+        [key: string]: number[];
     };
+    totalVotes: number;
     standsEvolved: {
         [key: Stand["id"]]: number;
     };
@@ -306,7 +308,7 @@ export const equipableItemTypesLimit = {
     [equipableItemTypes.HANDS]: 1,
     [equipableItemTypes.WEAPON]: 1,
     [equipableItemTypes.ACCESSORY]: 2,
-    [equipableItemTypes.FACE]: 1,
+    [equipableItemTypes.FACE]: 1
 };
 
 export const formattedEquipableItemTypes = {
@@ -317,7 +319,7 @@ export const formattedEquipableItemTypes = {
     [equipableItemTypes.FEET]: "Feet",
     [equipableItemTypes.HANDS]: "Hands",
     [equipableItemTypes.WEAPON]: "Weapon",
-    [equipableItemTypes.ACCESSORY]: "Accessory",
+    [equipableItemTypes.ACCESSORY]: "Accessory"
 };
 
 export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
@@ -538,19 +540,19 @@ export interface FightableNPC extends NPC {
 }
 
 /**
-export class FightableNPC implements FightableNPC {
-	constructor(options: FightableNPC) {
-		this.id = options.id;
-		this.name = options.name;
-		this.email = options.email;
-		this.emoji = options.emoji;
-		this.avatarURL = options.avatarURL;
-		this.level = options.level;
-		this.skill_points = options.skill_points;
-		this.stand = options.stand;
-	}
-}
-*/
+ export class FightableNPC implements FightableNPC {
+ constructor(options: FightableNPC) {
+ this.id = options.id;
+ this.name = options.name;
+ this.email = options.email;
+ this.emoji = options.emoji;
+ this.avatarURL = options.avatarURL;
+ this.level = options.level;
+ this.skill_points = options.skill_points;
+ this.stand = options.stand;
+ }
+ }
+ */
 
 /**
  * Stand interface
@@ -638,14 +640,7 @@ export interface Ability {
      * The ability's base damage.
      */
     damage: number;
-    /**
-     * If the ability is dodgeable.
-     */
-    dodgeable: boolean;
-    /**
-     * If the ability is blockable.
-     */
-    blockable: boolean;
+
     /**
      * If the ability's stamina usage.
      */
@@ -705,6 +700,7 @@ export interface Quest {
     hintCommand?: string;
     type: "baseQuest";
 }
+
 /**
  * MustReadEmailQuest interface
  * @description A quest that must be completed by reading an email.
@@ -762,6 +758,7 @@ export interface RaidBossQuest extends Omit<FightNPCQuest, "type"> {
     maxParticipants: number;
     type: "raidBoss";
 }
+
 export interface Action {
     id: string;
     execute: (ctx: CommandInteractionContext) => Promise<boolean>;
@@ -875,6 +872,7 @@ export interface RPGUserEmail {
     date: number;
     //claimedRewards?: boolean;
 }
+
 export interface ChapterPart extends Omit<Chapter, "title"> {
     title?: Chapter["title"];
     /**
