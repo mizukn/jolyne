@@ -1,11 +1,7 @@
 import {
     SlashCommandFile,
-    Leaderboard,
     Shop,
-    RPGUserDataJSON,
-    numOrPerc,
-    FightNPCQuest,
-    MustReadEmailQuest,
+    FightNPCQuest
 } from "../../@types";
 import {
     Message,
@@ -14,15 +10,10 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
     ButtonBuilder,
-    ButtonStyle,
+    ButtonStyle
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { makeChapterTitle } from "./Chapter";
-import * as Chapters from "../../rpg/Chapters/Chapters";
-import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
-import * as Shops from "../../rpg/Shops";
-import * as Stands from "../../rpg/Stands/Stands";
 import * as Emojis from "../../emojis.json";
 
 const standPercent = {
@@ -31,7 +22,7 @@ const standPercent = {
     A: 14,
     B: 38,
     C: 50,
-    T: 2,
+    T: 2
 };
 
 export const standPrice = {
@@ -40,7 +31,7 @@ export const standPrice = {
     A: 50000,
     B: 25000,
     C: 10000,
-    T: 6969696969696969,
+    T: 6969696969696969
 };
 
 type cShop = {
@@ -59,14 +50,14 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "view",
                 description: "Shows your non-archived emails",
-                type: 1,
+                type: 1
             },
             {
                 name: "archived",
                 description: "Shows your archived emails",
-                type: 1,
-            },
-        ],
+                type: 1
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -78,7 +69,7 @@ const slashCommand: SlashCommandFile = {
                 : ctx.userData.emails.filter((email) => email.archived);
         if (!emails.length) {
             ctx.makeMessage({
-                content: "You don't have any emails..",
+                content: "You don't have any emails.."
             });
             return;
         }
@@ -117,11 +108,11 @@ const slashCommand: SlashCommandFile = {
             const menuEmbed: APIEmbed = {
                 author: {
                     name: "Inbox",
-                    icon_url: ctx.user.displayAvatarURL(),
+                    icon_url: ctx.user.displayAvatarURL()
                 },
                 description: `${emoji} You have ${emails.length} ${name} e-mails.`,
                 fields: [],
-                color: 0x70926c,
+                color: 0x70926c
             };
 
             for (const email of emails) {
@@ -132,8 +123,8 @@ const slashCommand: SlashCommandFile = {
                         label: emailData.subject,
                         description: `From: ${emailData.author.email ?? emailData.author.name}`,
                         value: email.id,
-                        emoji: emailData.emoji ?? emailData.author.emoji,
-                    },
+                        emoji: emailData.emoji ?? emailData.author.emoji
+                    }
                 ]);
                 menuEmbed.fields.push({
                     name:
@@ -148,13 +139,13 @@ const slashCommand: SlashCommandFile = {
                     } Date: ${Functions.generateDiscordTimestamp(
                         email.date,
                         "FULL_DATE"
-                    )} (${Functions.generateDiscordTimestamp(email.date, "FROM_NOW")})`,
+                    )} (${Functions.generateDiscordTimestamp(email.date, "FROM_NOW")})`
                 });
             }
 
             ctx.makeMessage({
                 embeds: [menuEmbed],
-                components: [Functions.actionRow([EmailsSelection])],
+                components: [Functions.actionRow([EmailsSelection])]
             });
         }
 
@@ -177,12 +168,12 @@ const slashCommand: SlashCommandFile = {
                     "FROM_NOW"
                 )})\n\n${emailData.content.replace(/{{userName}}/gi, ctx.user.username)}`,
                 footer: {
-                    text: emailData.footer,
+                    text: emailData.footer
                 },
                 color: 0x70926c,
                 image: {
-                    url: emailData.image,
-                },
+                    url: emailData.image
+                }
             };
 
             if (!emailBrut.read) {
@@ -192,7 +183,7 @@ const slashCommand: SlashCommandFile = {
                 for (const quests of [
                     ctx.userData.daily.quests,
                     ctx.userData.chapter.quests,
-                    ...ctx.userData.sideQuests.map((v) => v.quests),
+                    ...ctx.userData.sideQuests.map((v) => v.quests)
                 ]) {
                     for (const quest of quests) {
                         if (Functions.isMustReadEmailQuest(quest) && quest.email === email) {
@@ -256,8 +247,8 @@ const slashCommand: SlashCommandFile = {
                     emailEmbed.fields = [
                         {
                             name: ":gift: You got:",
-                            value: winContent.join("\n"),
-                        },
+                            value: winContent.join("\n")
+                        }
                     ];
                     ctx.client.database.saveUserData(ctx.userData);
                 }
@@ -267,8 +258,8 @@ const slashCommand: SlashCommandFile = {
                 components: [
                     Functions.actionRow([deleteEmailBtn, actionBtn]),
                     Functions.actionRow([EmailsSelection]),
-                    Functions.actionRow([goBackButton]),
-                ],
+                    Functions.actionRow([goBackButton])
+                ]
             });
         }
 
@@ -280,11 +271,11 @@ const slashCommand: SlashCommandFile = {
                 interaction.customId === deleteEmailID ||
                 interaction.customId === EmailsSelectionID ||
                 interaction.customId === actionID,
-            time: 60000,
+            time: 60000
         });
 
         collector.on("collect", async (interaction) => {
-            interaction.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+            interaction.deferUpdate();
             if (await ctx.antiCheat(true)) return;
 
             switch (interaction.customId) {
@@ -296,7 +287,7 @@ const slashCommand: SlashCommandFile = {
                     break;
             }
         });
-    },
+    }
 };
 
 export default slashCommand;

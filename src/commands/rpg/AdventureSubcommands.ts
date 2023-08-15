@@ -13,7 +13,7 @@ import {
     UserSelectMenuInteraction,
     RoleSelectMenuInteraction,
     InteractionResponse,
-    MessageComponentInteraction,
+    MessageComponentInteraction
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -25,25 +25,20 @@ import { ApplicationCommandOptionType } from "discord-api-types/v10";
 const slashCommand: SlashCommandFile = {
     data: {
         name: "adventure",
-        description: "[...]",
+        description: "Start your bizarre adventure! Or change your settings.",
         type: ApplicationCommandOptionType.Subcommand,
         options: [
             {
                 name: "start",
                 description: "Starts your bizarre adventure.",
-                type: 1,
-            },
-            {
-                name: "reset",
-                description: "Resets all your data from our database.",
-                type: 1,
+                type: 1
             },
             {
                 name: "language",
                 description: "Changes your adventure language.",
-                type: 1,
-            },
-        ],
+                type: 1
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -52,28 +47,28 @@ const slashCommand: SlashCommandFile = {
             {
                 label: "English",
                 value: "en-US",
-                emoji: "🇺🇸",
+                emoji: "🇺🇸"
             },
             {
                 label: "German",
                 value: "de-DE",
-                emoji: "🇩🇪",
+                emoji: "🇩🇪"
             },
             {
                 label: "French",
                 value: "fr-FR",
-                emoji: "🇫🇷",
+                emoji: "🇫🇷"
             },
             {
                 label: "Spanish",
                 value: "es-ES",
-                emoji: "🇪🇸",
+                emoji: "🇪🇸"
             },
             {
                 label: "Russian",
                 value: "ru-RU",
-                emoji: "🇷🇺",
-            },
+                emoji: "🇷🇺"
+            }
         ];
 
 
@@ -103,7 +98,7 @@ const slashCommand: SlashCommandFile = {
 
                 await ctx
                     .sendTranslated("adventure:CONFIRM", {
-                        components: [Functions.actionRow([acceptButton, declineButton])],
+                        components: [Functions.actionRow([acceptButton, declineButton])]
                     })
                     .catch(() => {
                         ctx.client.database.deleteCooldown(ctx.user.id);
@@ -114,7 +109,7 @@ const slashCommand: SlashCommandFile = {
 
                 const collector = ctx.interaction.channel.createMessageComponentCollector({
                     filter,
-                    time: 60000,
+                    time: 60000
                 });
 
                 collector.on("end", () => {
@@ -122,16 +117,18 @@ const slashCommand: SlashCommandFile = {
                 });
 
                 collector.on("collect", async (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                    i.deferUpdate().catch(() => {
+                    }); // eslint-disable-line @typescript-eslint/no-empty-function
 
                     switch (i.customId.slice(ctx.interaction.id.length)) {
                         case "decline":
-                            ctx.interaction.deleteReply().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                            ctx.interaction.deleteReply().catch(() => {
+                            }); // eslint-disable-line @typescript-eslint/no-empty-function
                             ctx.client.database.deleteCooldown(ctx.user.id);
                             break;
                         case "accept":
                             ctx.sendTranslated("adventure:SELECT_LANGUAGE", {
-                                components: [Functions.actionRow([languageMenu])],
+                                components: [Functions.actionRow([languageMenu])]
                             });
                             break;
                         case "language":
@@ -143,92 +140,21 @@ const slashCommand: SlashCommandFile = {
                                 ctx.client.database.saveUserData(ctx.userData);
 
                             ctx.sendTranslated("adventure:ADVENTURE_COMPLETE", {
-                                components: [],
+                                components: []
                             });
                             ctx.client.database.deleteCooldown(ctx.user.id);
-                    }
-                });
-                break;
-            }
-            case "reset": {
-                if (await ctx.client.database.redis.get(`adventure:${ctx.user.id}`))
-                    return ctx
-                        .makeMessage({
-                            content: ctx.client.localEmojis.jolyne,
-                        })
-                        .catch(() => {
-                            ctx.client.database.deleteCooldown(ctx.user.id);
-                        });
-                ctx.client.database.setCooldown(
-                    ctx.user.id,
-                    `You're currently resetting your adventure!`
-                );
-
-                const yesButton = new ButtonBuilder()
-                    .setStyle(ButtonStyle.Success)
-                    .setLabel(ctx.translate("base:YES"))
-                    .setCustomId(ctx.interaction.id + "yes");
-                const noButton = new ButtonBuilder()
-                    .setStyle(ButtonStyle.Danger)
-                    .setLabel(ctx.translate("base:NO"))
-                    .setCustomId(ctx.interaction.id + "no");
-
-                await ctx
-                    .sendTranslated("adventure:ADVENTURE_RESET_BITE", {
-                        components: [Functions.actionRow([yesButton, noButton])],
-                    })
-                    .catch(() => {
-                        ctx.client.database.deleteCooldown(ctx.user.id);
-                    });
-
-                const filter = (i: MessageComponentInteraction) =>
-                    i.user.id === ctx.interaction.user.id &&
-                    i.customId.startsWith(ctx.interaction.id);
-
-                const collector = ctx.interaction.channel.createMessageComponentCollector({
-                    filter,
-                    time: 60000,
-                });
-
-                collector.on("end", () => {
-                    ctx.client.database.deleteCooldown(ctx.user.id);
-                });
-
-                collector.on("collect", async (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                    if (await ctx.antiCheat()) {
-                        collector.stop();
-                        return;
-                    }
-
-                    switch (i.customId.slice(ctx.interaction.id.length)) {
-                        case "yes":
-                            ctx.client.database.deleteCooldown(ctx.user.id);
-                            await ctx.client.database.deleteUserData(ctx.user.id);
-                            await ctx.sendTranslated("adventure:ADVENTURE_RESET_MESSAGE", {
-                                components: [],
-                            });
-                            await ctx.client.database.redis.set(
-                                `adventure:${ctx.user.id}`,
-                                "alreadyresetindeed"
-                            );
-                            break;
-                        case "no":
-                            ctx.interaction.deleteReply().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                            ctx.client.database.deleteCooldown(ctx.user.id);
-                            break;
                     }
                 });
                 break;
             }
             case "language": {
-                ctx.client.database.setCooldown(
+                await ctx.client.database.setCooldown(
                     ctx.user.id,
                     `You're currently editing your adventure language!`
                 );
 
                 ctx.sendTranslated("adventure:SELECT_LANGUAGE", {
-                    components: [Functions.actionRow([languageMenu])],
+                    components: [Functions.actionRow([languageMenu])]
                 }).catch(() => {
                     ctx.client.database.deleteCooldown(ctx.user.id);
                 });
@@ -239,7 +165,7 @@ const slashCommand: SlashCommandFile = {
 
                 const collector = ctx.interaction.channel.createMessageComponentCollector({
                     filter,
-                    time: 60000,
+                    time: 60000
                 });
 
                 collector.on("end", () => {
@@ -247,7 +173,8 @@ const slashCommand: SlashCommandFile = {
                 });
 
                 collector.on("collect", async (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                    i.deferUpdate().catch(() => {
+                    }); // eslint-disable-line @typescript-eslint/no-empty-function
                     if (await ctx.antiCheat()) {
                         collector.stop();
                         return;
@@ -260,14 +187,14 @@ const slashCommand: SlashCommandFile = {
 
                     ctx.client.database.saveUserData(ctx.userData);
                     ctx.sendTranslated("adventure:LANGUAGE_CHANGED", {
-                        components: [],
+                        components: []
                     });
                 });
 
                 break;
             }
         }
-    },
+    }
 };
 
 export default slashCommand;

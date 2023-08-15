@@ -3,21 +3,10 @@ import {
     Message,
     APIEmbed,
     ButtonBuilder,
-    StringSelectMenuBuilder,
-    ActionRowBuilder,
-    ButtonStyle,
-    InteractionCollector,
-    ButtonInteraction,
-    CacheType,
-    StringSelectMenuInteraction,
-    UserSelectMenuInteraction,
-    RoleSelectMenuInteraction,
+    ButtonStyle
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { FightHandler, FightTypes } from "../../structures/FightHandler";
-import { FightableNPCS } from "../../rpg/NPCs";
-import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 
 const slashCommand: SlashCommandFile = {
@@ -29,14 +18,14 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "level",
                 description: "Shows the level leaderboard",
-                type: 1,
+                type: 1
             },
             {
                 name: "coins",
                 description: "Shows the richest players",
-                type: 1,
-            },
-        ],
+                type: 1
+            }
+        ]
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         const lastLeaderboard = (JSON.parse(
@@ -51,7 +40,7 @@ const slashCommand: SlashCommandFile = {
             title: "Leaderboard",
             description: "Loading...",
             color: 0x70926c,
-            fields: [],
+            fields: []
         };
 
         let currentPage = 1;
@@ -88,7 +77,7 @@ const slashCommand: SlashCommandFile = {
             embed.footer = {
                 text: `Page ${currentPage}/${Math.ceil(
                     lastLeaderboard.data.length / 10
-                )} | Last updated: ${new Date(lastLeaderboard.lastUpdated).toLocaleString()}`,
+                )} | Last updated: ${new Date(lastLeaderboard.lastUpdated).toLocaleString()}`
             };
 
             switch (ctx.interaction.options.getSubcommand()) {
@@ -106,7 +95,7 @@ const slashCommand: SlashCommandFile = {
                             )}** with  **${user.xp.toLocaleString("en-US")}** ${
                                 ctx.client.localEmojis.xp
                             }`,
-                            inline: false,
+                            inline: false
                         }));
 
                     break;
@@ -121,7 +110,7 @@ const slashCommand: SlashCommandFile = {
                             value: `${ctx.client.localEmojis.a_} **${user.coins.toLocaleString(
                                 "en-US"
                             )}** ${ctx.client.localEmojis.jocoins}`,
-                            inline: false,
+                            inline: false
                         }));
                     break;
                 }
@@ -135,27 +124,30 @@ const slashCommand: SlashCommandFile = {
                         previousPageButton,
                         userPageButton,
                         nextPageButton,
-                        lastPageButton,
-                    ]),
-                ],
+                        lastPageButton
+                    ])
+                ]
             });
         }
+
         await ctx.interaction
             .reply({ embeds: [embed] }) // eslint-disable-next-line @typescript-eslint/no-empty-function
-            .catch(() => {})
+            .catch(() => {
+            })
             .then(() => {
                 embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
                 updateMessage(currentPage);
             });
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({
-            filter: (interaction) => interaction.user.id === ctx.user.id,
+            filter: (interaction) => interaction.user.id === ctx.user.id
         });
 
         collector.on("collect", (interaction) => {
             if (!interaction.isButton()) return;
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            interaction.deferUpdate().catch(() => {});
+            interaction.deferUpdate().catch(() => {
+            });
 
             switch (interaction.customId) {
                 case "previousPage":
@@ -182,13 +174,19 @@ const slashCommand: SlashCommandFile = {
             let query;
             switch (ctx.interaction.options.getSubcommand()) {
                 case "level":
-                    query = `SELECT id, tag, level, xp FROM "RPGUsers" ORDER BY level DESC, xp DESC`;
+                    query = `SELECT id, tag, level, xp
+                             FROM "RPGUsers"
+                             ORDER BY level DESC, xp DESC`;
                     break;
                 case "coins":
-                    query = `SELECT id, tag, coins FROM "RPGUsers" ORDER BY coins DESC`;
+                    query = `SELECT id, tag, coins
+                             FROM "RPGUsers"
+                             ORDER BY coins DESC`;
                     break;
                 default:
-                    query = `SELECT * FROM "RPGUsers" ORDER BY level DESC, xp DESC`;
+                    query = `SELECT *
+                             FROM "RPGUsers"
+                             ORDER BY level DESC, xp DESC`;
             }
             const data = await ctx.client.database.postgresql
                 .query(query)
@@ -201,11 +199,11 @@ const slashCommand: SlashCommandFile = {
                 `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`,
                 JSON.stringify({
                     lastUpdated: Date.now(),
-                    data: data,
+                    data: data
                 })
             );
         }
-    },
+    }
 };
 
 export default slashCommand;

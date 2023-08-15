@@ -1,21 +1,14 @@
-import { FightableNPC, RPGUserDataJSON, RPGUserQuest, SlashCommandFile } from "../../@types";
+import { RPGUserDataJSON, SlashCommandFile } from "../../@types";
 import {
     Message,
     APIEmbed,
     ApplicationCommandOptionType,
     StringSelectMenuBuilder,
-    MessageComponentInteraction,
-    StringSelectMenuInteraction,
+    StringSelectMenuInteraction
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
-import { FightableNPCS, NPCs } from "../../rpg/NPCs";
-import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
-import { Harry_Lester } from "../../rpg/NPCs/NPCs";
-import { RemoveFleshbudToKakyoin } from "../../rpg/Quests/ActionQuests";
-import { StandArrow } from "../../rpg/Items/SpecialItems";
-import { InteractionType } from "discord.js";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import * as Bosses from "../../rpg/Raids";
@@ -31,9 +24,9 @@ const slashCommand: SlashCommandFile = {
                 description: "npc",
                 type: ApplicationCommandOptionType.String, // 3
                 autocomplete: true,
-                required: true,
-            },
-        ],
+                required: true
+            }
+        ]
     },
     checkRPGCooldown: "raid",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -43,7 +36,7 @@ const slashCommand: SlashCommandFile = {
                     "inventory use"
                 )} or ${ctx.client.getSlashCommandMention("shop")})`,
                 embeds: [],
-                components: [],
+                components: []
             });
             return;
         }
@@ -52,13 +45,13 @@ const slashCommand: SlashCommandFile = {
         const raid = Object.values(Bosses).find((r) => r.boss.id === bossChosen);
         if (!raid) {
             ctx.makeMessage({
-                content: "That boss doesn't exist!",
+                content: "That boss doesn't exist!"
             });
             return;
         }
         if (raid.level > ctx.userData.level) {
             ctx.makeMessage({
-                content: "You can't raid this boss yet.",
+                content: "You can't raid this boss yet."
             });
             return;
         }
@@ -97,11 +90,12 @@ const slashCommand: SlashCommandFile = {
                     joinedUsers.map((r) => {
                         return {
                             label: `${r.tag} (LEVEL: ${r.level})`,
-                            value: r.id,
+                            value: r.id
                         };
                     })
                 );
         }
+
         const startRaid = Date.now() + 120000;
         const collector = ctx.channel.createMessageComponentCollector({
             filter: (interaction) =>
@@ -109,7 +103,7 @@ const slashCommand: SlashCommandFile = {
                 interaction.customId === leaveRaidID ||
                 interaction.customId === banUserFromRaidID ||
                 interaction.customId === startRaidID,
-            time: startRaid - Date.now(),
+            time: startRaid - Date.now()
         });
         ctx.client.database.setCooldown(
             ctx.userData.id,
@@ -142,24 +136,24 @@ const slashCommand: SlashCommandFile = {
                                 {
                                     name: "Host",
                                     value: ctx.user.username,
-                                    inline: true,
+                                    inline: true
                                 },
                                 {
                                     name: "Winners",
                                     value: winners.map((r) => r.name).join(", "),
-                                    inline: true,
+                                    inline: true
                                 },
                                 {
                                     name: "Losers",
                                     value: losers
                                         .map((team) => team.map((r) => r.name).join(", "))
                                         .join("\n"),
-                                    inline: true,
+                                    inline: true
                                 },
                                 {
                                     name: "Guild info",
                                     value: `${ctx.guild.name} (${ctx.guild.id})`,
-                                    inline: true,
+                                    inline: true
                                 },
                                 {
                                     name: "Total damages",
@@ -171,18 +165,18 @@ const slashCommand: SlashCommandFile = {
                                                     "en-US"
                                                 )}**`
                                         )
-                                        .join("\n"),
-                                },
+                                        .join("\n")
+                                }
                             ],
                             thumbnail: {
                                 url:
                                     raid.boss.avatarURL ??
                                     `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
                                         raid.boss.emoji
-                                    )}.png`,
-                            },
-                        },
-                    ],
+                                    )}.png`
+                            }
+                        }
+                    ]
                 });
                 if (joinedUsers.find((r) => r.id === winners[0].id)) {
                     for (const winner of winners) {
@@ -208,7 +202,7 @@ const slashCommand: SlashCommandFile = {
                                 winner.health === 0 ? raid.baseRewards.xp / 4 : raid.baseRewards.xp
                             );*/ Math.round(
                                 (winner.totalDamageDealt / Functions.getMaxHealth(raid.boss)) *
-                                    raid.baseRewards.xp
+                                raid.baseRewards.xp
                             );
 
                             xp = Functions.addXp(winnerData, xp);
@@ -220,7 +214,7 @@ const slashCommand: SlashCommandFile = {
                             for (const item of raid.baseRewards.items) {
                                 const chance = Math.round(
                                     (winner.totalDamageDealt / Functions.getMaxHealth(raid.boss)) *
-                                        item.chance
+                                    item.chance
                                 );
                                 if (item.chance && Functions.RNG(0, 100) > chance) continue;
                                 const itemData = Functions.findItem(item.item);
@@ -240,7 +234,7 @@ const slashCommand: SlashCommandFile = {
                                 winner.health === 0
                                     ? " but they died, so they only got the following rewards"
                                     : "and got the following rewards"
-                            }:\n${winContent.join(", ")}`,
+                            }:\n${winContent.join(", ")}`
                         });
                         ctx.client.database.saveUserData(winnerData);
                     }
@@ -252,7 +246,7 @@ const slashCommand: SlashCommandFile = {
                             loserData.health = 0;
                             loserData.stamina = 0;
                             ctx.followUp({
-                                content: `<@${loser.id}> lost the raid and died.`,
+                                content: `<@${loser.id}> lost the raid and died.`
                             });
                             ctx.client.database.saveUserData(loserData);
                         }
@@ -265,19 +259,20 @@ const slashCommand: SlashCommandFile = {
                     ctx.client.database.deleteCooldown(user.id);
                 }
                 ctx.followUp({
-                    content: `The raid ended unexpectedly due to an error: \`${error}\`. Please report this to the developers Your data has been saved and no cooldown has been set for you.`,
+                    content: `The raid ended unexpectedly due to an error: \`${error}\`. Please report this to the developers Your data has been saved and no cooldown has been set for you.`
                 });
             });
         });
 
         collector.on("collect", async (interaction) => {
-            interaction.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+            interaction.deferUpdate().catch(() => {
+            }); // eslint-disable-line @typescript-eslint/no-empty-function
             const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
             if (!usrData) return;
             if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
                 if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                     ctx.followUp({
-                        content: `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`,
+                        content: `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`
                     });
                     cooldownedUsers.push(interaction.user.id);
                 }
@@ -287,7 +282,7 @@ const slashCommand: SlashCommandFile = {
             if (Functions.userIsCommunityBanned(ctx.userData)) {
                 if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                     ctx.followUp({
-                        content: `<@${ctx.userData.id}> tried to join the raid but the host is community banned.`,
+                        content: `<@${ctx.userData.id}> tried to join the raid but the host is community banned.`
                     });
                     cooldownedUsers.push(interaction.user.id);
                 }
@@ -297,7 +292,7 @@ const slashCommand: SlashCommandFile = {
             if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
                 if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                     ctx.followUp({
-                        content: `<@${interaction.user.id}> tried to join the raid but they low in health.`,
+                        content: `<@${interaction.user.id}> tried to join the raid but they low in health.`
                     });
                     cooldownedUsers.push(interaction.user.id);
                 }
@@ -308,7 +303,7 @@ const slashCommand: SlashCommandFile = {
                     if (joinedUsers.length >= raid.maxPlayers) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                             ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but it is full.`,
+                                content: `<@${interaction.user.id}> tried to join the raid but it is full.`
                             });
                             cooldownedUsers.push(interaction.user.id);
                         }
@@ -326,7 +321,7 @@ const slashCommand: SlashCommandFile = {
                     if (usrData.level < raid.level) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                             ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but they are too low level.`,
+                                content: `<@${interaction.user.id}> tried to join the raid but they are too low level.`
                             });
                             cooldownedUsers.push(interaction.user.id);
                         }
@@ -341,9 +336,10 @@ const slashCommand: SlashCommandFile = {
                     ctx.interaction
                         .followUp({
                             content: `${usrData.tag} has joined the raid.`,
-                            ephemeral: true,
+                            ephemeral: true
                         })
-                        .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                        .catch(() => {
+                        }); // eslint-disable-line @typescript-eslint/no-empty-function
                     ctx.client.database.setCooldown(
                         usrData.id,
                         `You are on a raid: ${raid.boss.name} cooldown!`
@@ -403,7 +399,7 @@ const slashCommand: SlashCommandFile = {
                 ctx.makeMessage({
                     content: "The raid has been cancelled.",
                     components: [],
-                    embeds: [],
+                    embeds: []
                 });
                 collector.stop();
                 return;
@@ -411,7 +407,7 @@ const slashCommand: SlashCommandFile = {
 
             const components = [
                 Functions.actionRow([joinRaidButton]),
-                Functions.actionRow([startRaidButton, leaveRaidButton]),
+                Functions.actionRow([startRaidButton, leaveRaidButton])
             ];
             if (joinedUsers.length > 1) {
                 components.push(Functions.actionRow([generateBanUserFromRaid()]));
@@ -451,7 +447,7 @@ const slashCommand: SlashCommandFile = {
                             raid.baseRewards.items.length !== 0
                                 ? "\n\n\\*\\* The drop rates of items are determined by the damage you inflict. For instance, if you deal 100% of the boss's health, and it indicates a 50% chance of receiving an item, you will indeed have a 50% chance of obtaining the item. However, if you only deal 50% of the boss's health, your chance of getting the arrow will be reduced to 25%, and so on."
                                 : ""
-                        }`,
+                        }`
                     },
                     {
                         name: `Joined Users [${joinedUsers.length}/${raid.maxPlayers}]:`,
@@ -464,8 +460,8 @@ const slashCommand: SlashCommandFile = {
                                         "en-US"
                                     )} :heart:]`
                             )
-                            .join("\n")}`,
-                    },
+                            .join("\n")}`
+                    }
                     /*
                     {
                         name: "\u200b",
@@ -476,22 +472,23 @@ const slashCommand: SlashCommandFile = {
                     },*/
                 ],
                 thumbnail: {
-                    url: raid.boss.avatarURL,
+                    url: raid.boss.avatarURL
                 },
-                color: 0x70926c,
+                color: 0x70926c
             };
 
             if (bannedUsers.length !== 0) {
                 embed.fields.push({
                     name: `Banned Users [${bannedUsers.length}]:`,
-                    value: `\n${bannedUsers.map((r) => `${r.tag} (LEVEL: ${r.level})`).join("\n")}`,
+                    value: `\n${bannedUsers.map((r) => `${r.tag} (LEVEL: ${r.level})`).join("\n")}`
                 });
             }
             ctx.makeMessage({
                 embeds: [embed],
-                components,
+                components
             });
         }
+
         makeMenuMessage();
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
@@ -502,7 +499,7 @@ const slashCommand: SlashCommandFile = {
                 .map((r) => {
                     return {
                         name: `${r.boss.name} (LEVEL REQUIREMENT: ${r.level})`,
-                        value: r.boss.id,
+                        value: r.boss.id
                     };
                 })
                 .filter(
@@ -511,7 +508,7 @@ const slashCommand: SlashCommandFile = {
                         raid.value.toLowerCase().includes(currentInput.toLowerCase())
                 )
         );
-    },
+    }
 };
 
 export default slashCommand;

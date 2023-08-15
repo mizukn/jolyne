@@ -13,7 +13,7 @@ import {
     UserSelectMenuInteraction,
     RoleSelectMenuInteraction,
     InteractionResponse,
-    MessageComponentInteraction,
+    MessageComponentInteraction
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -25,95 +25,51 @@ import { ApplicationCommandOptionType } from "discord-api-types/v10";
 const slashCommand: SlashCommandFile = {
     data: {
         name: "skill",
-        description: "[...]",
+        description: "Invest your skill points or view them",
         type: 1,
         options: [
             {
                 name: "points",
-                description: "eeeeeeeeeee.",
+                description: "Invest your skill points or view them",
                 type: ApplicationCommandOptionType.SubcommandGroup,
                 options: [
                     {
                         name: "invest",
-                        description: "eeeeeeeeeee.",
+                        description: "Invest your skill points",
                         type: 1,
                         options: [
                             {
-                                name: "to",
-                                description: "d",
-                                type: 3,
-                                required: true,
-                                choices: [
-                                    {
-                                        name: "Strength",
-                                        value: "strength",
-                                    },
-                                    {
-                                        name: "Speed",
-                                        value: "speed",
-                                    },
-                                    {
-                                        name: "Defense",
-                                        value: "defense",
-                                    },
-                                    {
-                                        name: "Perception",
-                                        value: "perception",
-                                    },
-                                    {
-                                        name: "Stamina",
-                                        value: "stamina",
-                                    },
-                                ],
-                            },
-                            {
-                                name: "amount",
-                                description: "d",
+                                name: "strength",
                                 type: 4,
-                                required: true,
+                                description: "The amount of points you want to invest in strength"
                             },
                             {
-                                name: "to2",
-                                description: "d",
-                                type: 3,
-                                choices: [
-                                    {
-                                        name: "Strength",
-                                        value: "strength",
-                                    },
-                                    {
-                                        name: "Speed",
-                                        value: "speed",
-                                    },
-                                    {
-                                        name: "Defense",
-                                        value: "defense",
-                                    },
-                                    {
-                                        name: "Perception",
-                                        value: "perception",
-                                    },
-                                    {
-                                        name: "Stamina",
-                                        value: "stamina",
-                                    },
-                                ],
-                            },
-                            {
-                                name: "amount2",
-                                description: "d",
+                                name: "defense",
                                 type: 4,
-                            },
-                        ],
+                                description: "The amount of points you want to invest in defense"
+                            }, {
+                                name: "speed",
+                                type: 4,
+                                description: "The amount of points you want to invest in speed"
+                            }, {
+                                name: "perception",
+                                type: 4,
+                                description: "The amount of points you want to invest in perception"
+                            }, {
+                                name: "stamina",
+                                type: 4,
+                                description: "The amount of points you want to invest in stamina"
+                            }
+                        ]
                     },
                     {
                         name: "view",
-                        description: "eeeeeeeeeee.",
-                        type: 1,
-                    },
-                ],
-            },
-        ],
+                        description: "View your skill points without investing them",
+                        type: 1
+                    }
+                ]
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -121,17 +77,26 @@ const slashCommand: SlashCommandFile = {
         const subcommand = ctx.options.getSubcommand();
 
         if (subcommand === "invest") {
-            const amount = ctx.options.getInteger("amount");
-            if (amount < 1)
-                return ctx.makeMessage({
+            const strength = ctx.options.getInteger("strength") ?? 0;
+            const defense = ctx.options.getInteger("defense") ?? 0;
+            const speed = ctx.options.getInteger("speed") ?? 0;
+            const perception = ctx.options.getInteger("perception") ?? 0;
+            const stamina = ctx.options.getInteger("stamina") ?? 0;
+
+            const totalAmount = strength + defense + speed + perception + stamina;
+            // check if any options is < 1
+            if (strength && strength < 1 || defense && defense < 1 || speed && speed < 1 || perception && perception < 1 || stamina && stamina < 1)
+
+                return await ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Dio,
                         "You can't invest less than 1 point... smh",
-                        ctx.client.localEmojis.dioangry
-                    ),
+                        ctx.client.localEmojis.dioangry)
                 });
-            if (amount > Functions.calculeSkillPointsLeft(ctx.userData))
-                return ctx.makeMessage({
+
+
+            if (totalAmount > Functions.calculeSkillPointsLeft(ctx.userData))
+                return await ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Dio,
                         `Maths don't work like that, ${
@@ -140,75 +105,23 @@ const slashCommand: SlashCommandFile = {
                             ctx.userData
                         )}** points... WRYY`,
                         ctx.client.localEmojis.dioangry
-                    ),
+                    )
                 });
 
-            ctx.userData.skillPoints[
-                ctx.options.getString("to") as keyof typeof ctx.userData.skillPoints
-            ] += ctx.options.getInteger("amount");
-
-            if (ctx.options.getString("to2") || ctx.options.getInteger("amount2")) {
-                if (!ctx.options.getInteger("amount2") || !ctx.options.getString("to2"))
-                    ctx.followUpQueue.push({
-                        content: Functions.makeNPCString(
-                            NPCs.Dio,
-                            `Hey, if you want to invest in another skill, you need to specify the skill and the amount of points you want to invest in it...`,
-                            ctx.client.localEmojis.dioangry
-                        ),
-                    });
-                else {
-                    const amount2 = ctx.options.getInteger("amount2");
-                    if (amount2 < 1)
-                        return ctx.makeMessage({
-                            content: Functions.makeNPCString(
-                                NPCs.Dio,
-                                "You can't invest less than 1 point... smh",
-                                ctx.client.localEmojis.dioangry
-                            ),
-                        });
-                    if (amount2 > Functions.calculeSkillPointsLeft(ctx.userData))
-                        return ctx.makeMessage({
-                            content: Functions.makeNPCString(
-                                NPCs.Dio,
-                                `Maths don't work like that [to2, amount2], ${
-                                    ctx.user.username
-                                }... You can only invest **${Functions.calculeSkillPointsLeft(
-                                    ctx.userData
-                                )}** points... WRYY`,
-                                ctx.client.localEmojis.dioangry
-                            ),
-                        });
-
-                    ctx.userData.skillPoints[
-                        ctx.options.getString("to2") as keyof typeof ctx.userData.skillPoints
-                    ] += ctx.options.getInteger("amount2");
-                    ctx.followUpQueue.push({
-                        content: Functions.makeNPCString(
-                            NPCs.Dio,
-                            `You invested ${amount2} points in ${
-                                ctx.options.getString(
-                                    "to2"
-                                ) as keyof typeof ctx.userData.skillPoints
-                            }`
-                        ),
-                    });
-                }
-            }
-
-            //setTimeout(() => {
-            ctx.followUpQueue.push({
-                content: Functions.makeNPCString(
-                    NPCs.Dio,
-                    `You invested ${amount} points in ${
-                        ctx.options.getString("to") as keyof typeof ctx.userData.skillPoints
-                    }`
-                ),
-            });
             //}, 2000);
+            await ctx.client.database.saveUserData(ctx.userData);
+            for (const key of Object.keys(ctx.userData.skillPoints).filter(key => ctx.options.getInteger(key))) {
+                ctx.userData.skillPoints[key as keyof typeof ctx.userData.skillPoints] += ctx.options.getInteger(key);
+                ctx.followUpQueue.push({
+                    content: Functions.makeNPCString(
+                        NPCs.Dio,
+                        `You've invested **${ctx.options.getInteger(key)}** points in **${key}**!`)
+                });
+            }
             await ctx.client.database.saveUserData(ctx.userData);
         }
 
-        ctx.sendTranslated("skill-points:BASE_MESSAGE", {
+        await ctx.sendTranslated("skill-points:BASE_MESSAGE", {
             userData: ctx.userData,
             atkDMG: Functions.getAttackDamages(ctx.userData).toLocaleString("en-US"),
             dodgeScore: Functions.getDodgeScore(ctx.userData).toLocaleString("en-US"),
@@ -222,11 +135,11 @@ const slashCommand: SlashCommandFile = {
                         .setLabel(`${Functions.calculeSkillPointsLeft(ctx.userData)} points left`)
                         .setEmoji("925416226547707924")
                         .setDisabled(true)
-                        .setStyle(ButtonStyle.Secondary),
-                ]),
-            ],
+                        .setStyle(ButtonStyle.Secondary)
+                ])
+            ]
         });
-    },
+    }
 };
 
 export default slashCommand;

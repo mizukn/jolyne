@@ -1,4 +1,4 @@
-import { SlashCommandFile, Leaderboard, Shop, RPGUserDataJSON, numOrPerc } from "../../@types";
+import { SlashCommandFile, Shop, RPGUserDataJSON, numOrPerc } from "../../@types";
 import {
     Message,
     APIEmbed,
@@ -6,25 +6,13 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
     ButtonBuilder,
-    ButtonStyle,
+    ButtonStyle
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { makeChapterTitle } from "./Chapter";
-import * as Chapters from "../../rpg/Chapters/Chapters";
-import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import * as Shops from "../../rpg/Shops";
 import * as Stands from "../../rpg/Stands/Stands";
 import * as Emojis from "../../emojis.json";
-
-const standPercent = {
-    SS: 2,
-    S: 4,
-    A: 14,
-    B: 38,
-    C: 50,
-    T: 2,
-};
 
 export const standPrice = {
     SS: 2000000000000000,
@@ -32,7 +20,7 @@ export const standPrice = {
     A: 50000,
     B: 25000,
     C: 10000,
-    T: 6969696969696969,
+    T: 6969696969696969
 };
 
 type cShop = {
@@ -51,11 +39,11 @@ const slashCommand: SlashCommandFile = {
     data: {
         name: "shop",
         description: "SAGASHI MONO SAGASHI NI YUKU NO SA!!",
-        options: [],
+        options: []
     },
     execute: async (
         ctx: CommandInteractionContext
-    ): Promise<Message<boolean> | void | InteractionResponse> => {
+    ): Promise<Message | void | InteractionResponse> => {
         let shops: cShop[] = [];
         let currentShop: cShop | undefined;
 
@@ -65,19 +53,19 @@ const slashCommand: SlashCommandFile = {
                 owner: {
                     name: ctx.user.username,
                     id: ctx.user.id,
-                    emoji: ":x:",
+                    emoji: ":x:"
                 },
                 emoji: "🃏",
                 items: [
                     {
                         item: Functions.findItem("stand_arrow").id,
-                        price: Functions.findItem("stand_arrow").price ?? 10000,
+                        price: Functions.findItem("stand_arrow").price ?? 10000
                     },
                     {
                         item: Functions.findItem("ancient_scroll").id,
-                        price: Functions.findItem("ancient_scroll").price ?? 10000,
-                    },
-                ],
+                        price: Functions.findItem("ancient_scroll").price ?? 10000
+                    }
+                ]
             };
             const hasAlreadyBlackMarket = (await ctx.client.database.getJSONData(
                 Functions.getBlackMarketString(ctx.user.id)
@@ -87,21 +75,21 @@ const slashCommand: SlashCommandFile = {
                 for (const stand in Stands) {
                     BM.items.push({
                         item: Functions.findItem(Stands[stand as keyof typeof Stands].id).id,
-                        price: standPrice[Stands[stand as keyof typeof Stands].rarity],
+                        price: standPrice[Stands[stand as keyof typeof Stands].rarity]
                     });
                 }
                 BM.items.length = ctx.client.patreons.find((x) => x.id === ctx.user.id)
                     ? Functions.RNG(
-                          ctx.client.patreons.find((x) => x.id === ctx.user.id).level + 2,
-                          ctx.client.patreons.find((x) => x.id === ctx.user.id).level * 2 + 7
-                      )
+                        ctx.client.patreons.find((x) => x.id === ctx.user.id).level + 2,
+                        ctx.client.patreons.find((x) => x.id === ctx.user.id).level * 2 + 7
+                    )
                     : Functions.RNG(3, 7);
                 if (ctx.client.patreons.find((x) => x.id === ctx.user.id)) {
                     const priceMult = {
                         1: 0.85,
                         2: 0.75,
                         3: 0.5,
-                        4: 0.25,
+                        4: 0.25
                     }[ctx.client.patreons.find((x) => x.id === ctx.user.id).level];
                     for (const item of BM.items) {
                         item.price = Math.round(item.price * priceMult);
@@ -127,8 +115,8 @@ const slashCommand: SlashCommandFile = {
                 fields: [],
                 color: 0x70926c,
                 footer: {
-                    text: `You have ${ctx.userData.coins.toLocaleString("en-US")} 🪙 left.`,
-                },
+                    text: `You have ${ctx.userData.coins.toLocaleString("en-US")} 🪙 left.`
+                }
             };
 
             function handleShop(Shop: Shop): void {
@@ -155,8 +143,8 @@ const slashCommand: SlashCommandFile = {
                                     emoji:
                                         xitem.emoji.split("<").length === 3
                                             ? "<" + xitem.emoji.split("<")[1]
-                                            : xitem.emoji,
-                                },
+                                            : xitem.emoji
+                                }
                             ]);
 
                             str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
@@ -170,7 +158,7 @@ const slashCommand: SlashCommandFile = {
                                         (x) =>
                                             `+**${xitem.effects[
                                                 x as keyof typeof xitem.effects
-                                            ].toLocaleString("en-US")}** ${x}`
+                                                ].toLocaleString("en-US")}** ${x}`
                                     )
                                     .join(`, `)}`;
                             str += "\n";
@@ -179,10 +167,10 @@ const slashCommand: SlashCommandFile = {
                             name: (Shop.owner ? Shop.owner.name + "'s " : "") + Shop.name,
                             data: shopSelect,
                             emoji: Shop.emoji ?? Shop.owner?.emoji ?? "",
-                            items: Shop.items,
+                            items: Shop.items
                         });
                         return str;
-                    })(),
+                    })()
                 });
             }
 
@@ -202,7 +190,7 @@ const slashCommand: SlashCommandFile = {
                                 (x) =>
                                     `+**${xitem.effects[
                                         x as keyof typeof xitem.effects
-                                    ].toLocaleString("en-US")}** ${x}`
+                                        ].toLocaleString("en-US")}** ${x}`
                             )
                             .join(`, `)}`;
                     str += "\n";
@@ -224,7 +212,7 @@ const slashCommand: SlashCommandFile = {
                     shops.map((x) => ({
                         label: x.name,
                         value: x.name,
-                        emoji: x.emoji,
+                        emoji: x.emoji
                     }))
                 );
 
@@ -232,12 +220,12 @@ const slashCommand: SlashCommandFile = {
 
             ctx.makeMessage({
                 embeds: [embed],
-                components: [Functions.actionRow([shopSelectMenu])],
+                components: [Functions.actionRow([shopSelectMenu])]
             });
 
             const collector = ctx.channel.createMessageComponentCollector({
                 filter: (i) => i.user.id === ctx.user.id,
-                time: 60000,
+                time: 60000
             });
 
             function makeShopEmbed(shop: cShop): void {
@@ -248,26 +236,27 @@ const slashCommand: SlashCommandFile = {
                             fields: Functions.fixFields([
                                 {
                                     name: shop.emoji + " " + shop.name,
-                                    value: createShopString(shop),
-                                },
+                                    value: createShopString(shop)
+                                }
                             ]),
                             color: 0x70926c,
                             footer: {
                                 text: `You have ${ctx.userData.coins.toLocaleString(
                                     "en-US"
-                                )} 🪙 left.`,
-                            },
-                        },
+                                )} 🪙 left.`
+                            }
+                        }
                     ],
                     components: [
                         Functions.actionRow([shop.data]),
-                        Functions.actionRow([goBackButton]),
-                    ],
+                        Functions.actionRow([goBackButton])
+                    ]
                 });
             }
 
             collector.on("collect", async (i) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                i.deferUpdate().catch(() => {
+                }); // eslint-disable-line @typescript-eslint/no-empty-function
                 if (await ctx.client.database.getCooldown(ctx.user.id)) return;
                 ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
                 if (i.customId === "goBack") {
@@ -291,13 +280,14 @@ const slashCommand: SlashCommandFile = {
                     if (ctx.userData.coins < price) {
                         ctx.followUp({
                             content: `You don't have enough ${ctx.client.localEmojis.jocoins} to buy this item!`,
-                            ephemeral: true,
+                            ephemeral: true
                         });
                         return;
                     }
                     Functions.addCoins(ctx.userData, -price);
                     if (!xitem.storable) {
                         const winContentArray: string[] = [];
+
                         // eslint-disable-next-line no-inner-declarations
                         function addHealthOrStamina(
                             amount: numOrPerc,
@@ -362,7 +352,7 @@ const slashCommand: SlashCommandFile = {
                             ctx.followUp({
                                 content: `${currentShop.emoji} **${currentShop.name}**: You used ${
                                     xitem.emoji
-                                } **${xitem.name}** and got: ${winContentArray.join(", ")}`,
+                                } **${xitem.name}** and got: ${winContentArray.join(", ")}`
                             });
                         } else if (Functions.isSpecial(xitem)) {
                             const oldData = { ...ctx.userData } as RPGUserDataJSON;
@@ -374,19 +364,19 @@ const slashCommand: SlashCommandFile = {
                                 const status = await xitem.use(ctx);
                                 if (status) {
                                     Functions.addItem(ctx.userData, xitem, 1);
-                                    ctx.followUp({
-                                        content: `You couldn't use the item. Your data has been saved. Added the item back to your inventory.`,
+                                    await ctx.followUp({
+                                        content: `You couldn't use the item. Your data has been saved. Added the item back to your inventory.`
                                     });
-                                    ctx.client.database.saveUserData(ctx.userData);
+                                    await ctx.client.database.saveUserData(ctx.userData);
                                 }
                             } catch (e) {
-                                ctx.client.database.deleteCooldown(ctx.user.id);
-                                ctx.followUp({
+                                await ctx.client.database.deleteCooldown(ctx.user.id);
+                                await ctx.followUp({
                                     content:
-                                        "An error occured while using this item. Your data has been saved.",
+                                        "An error occured while using this item. Your data has been saved."
                                 });
                                 ctx.RPGUserData = oldData;
-                                ctx.client.database.saveUserData(ctx.userData);
+                                await ctx.client.database.saveUserData(ctx.userData);
                                 throw e;
                             }
                             await ctx.client.database.deleteCooldown(ctx.user.id);
@@ -400,7 +390,7 @@ const slashCommand: SlashCommandFile = {
                                 xitem.emoji
                             } **${xitem.name}** for **${price.toLocaleString("en-US")}** ${
                                 ctx.client.localEmojis.jocoins
-                            }`,
+                            }`
                         });
                     }
                     await ctx.client.database.saveUserData(ctx.userData);
@@ -408,8 +398,9 @@ const slashCommand: SlashCommandFile = {
                 }
             });
         }
+
         sendMenuEmbed();
-    },
+    }
 };
 
 export default slashCommand;

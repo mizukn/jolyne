@@ -1,37 +1,25 @@
 import {
     SlashCommandFile,
-    Leaderboard,
-    equipableItemTypes,
-    equipableItemTypesLimit,
-    formattedEquipableItemTypes,
-    EquipableItem,
-    SkillPoints,
-    RPGUserDataJSON,
+    RPGUserDataJSON
 } from "../../@types";
 import {
     Message,
-    APIEmbed,
     InteractionResponse,
     ButtonBuilder,
     ButtonStyle,
     ButtonInteraction,
     MessageComponentInteraction,
-    MessageActionRowComponent,
-    Attachment,
-    AttachmentBuilder,
+    AttachmentBuilder
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { makeChapterTitle } from "./Chapter";
-import * as Chapters from "../../rpg/Chapters/Chapters";
-import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { tradeWebhook } from "../../utils/Webhooks";
 import { createCanvas, loadImage } from "canvas";
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "trade",
-        description: "trade with a yuser",
+        description: "trade with a user",
         options: [
             {
                 name: "start",
@@ -42,9 +30,9 @@ const slashCommand: SlashCommandFile = {
                         name: "user",
                         description: "The user you want to trade with",
                         type: 6,
-                        required: true,
-                    },
-                ],
+                        required: true
+                    }
+                ]
             },
             {
                 name: "add",
@@ -56,15 +44,15 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to add to the trade",
                         type: 3,
                         required: true,
-                        autocomplete: true,
+                        autocomplete: true
                     },
                     {
                         name: "amount",
                         description: "The amount of the item you want to add to the trade",
                         type: 4,
-                        required: true,
-                    },
-                ],
+                        required: true
+                    }
+                ]
             },
             {
                 name: "remove",
@@ -76,15 +64,15 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to remove from the trade",
                         type: 3,
                         required: true,
-                        autocomplete: true,
+                        autocomplete: true
                     },
                     {
                         name: "amount",
                         description: "The amount of the item you want to remove from the trade",
                         type: 4,
-                        required: true,
-                    },
-                ],
+                        required: true
+                    }
+                ]
             },
             {
                 name: "view",
@@ -96,15 +84,15 @@ const slashCommand: SlashCommandFile = {
                         description: "ID of the trade you want to view",
                         type: 3,
                         required: true,
-                        autocomplete: true,
-                    },
-                ],
-            },
-        ],
+                        autocomplete: true
+                    }
+                ]
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
-    ): Promise<Message<boolean> | void | InteractionResponse> => {
+    ): Promise<Message | void | InteractionResponse> => {
         if (ctx.interaction.options.getSubcommand() === "start") {
             const target = ctx.options.getUser("user") || ctx.user;
             const targetData = await ctx.client.database.getRPGUserData(target.id);
@@ -115,8 +103,8 @@ const slashCommand: SlashCommandFile = {
                 !targetData ||
                 targetData.restingAtCampfire
             ) {
-                ctx.makeMessage({
-                    content: `**${target.tag}** is currently on cooldown or haven't started their adventure yet!`,
+                await ctx.makeMessage({
+                    content: `**${target.tag}** is currently on cooldown or haven't started their adventure yet!`
                 });
                 return;
             }
@@ -152,7 +140,7 @@ const slashCommand: SlashCommandFile = {
                                                     Functions.findItem(item).name
                                                 }`
                                         )
-                                        .join("\n"),
+                                        .join("\n")
                                 },
                                 {
                                     name: `${target.tag}'s offers`,
@@ -163,11 +151,11 @@ const slashCommand: SlashCommandFile = {
                                                     Functions.findItem(item).name
                                                 }`
                                         )
-                                        .join("\n"),
-                                },
-                            ],
-                        },
-                    ],
+                                        .join("\n")
+                                }
+                            ]
+                        }
+                    ]
                 });
             }
 
@@ -194,7 +182,7 @@ const slashCommand: SlashCommandFile = {
                     time,
                     "FROM_NOW"
                 )})`,
-                components: [Functions.actionRow([acceptBTN, rejectBTN])],
+                components: [Functions.actionRow([acceptBTN, rejectBTN])]
             });
 
             const filter = (i: MessageComponentInteraction): boolean => {
@@ -206,14 +194,14 @@ const slashCommand: SlashCommandFile = {
 
             const collector = ctx.channel.createMessageComponentCollector({
                 filter,
-                time: time - Date.now(),
+                time: time - Date.now()
             });
             let accepted: string[] = [];
             const callback = (item: string, amount: number) => {
                 accepted = [];
                 if (Functions.hasExceedStandLimit(ctx) && item.includes("$disc$")) {
                     ctx.interaction.followUp({
-                        content: `<@${ctx.user.id}> has exceeded the stand disc limit. Please add another item.`,
+                        content: `<@${ctx.user.id}> has exceeded the stand disc limit. Please add another item.`
                     });
                     return;
                 }
@@ -227,7 +215,7 @@ const slashCommand: SlashCommandFile = {
             const callback2 = (item: string, amount: number) => {
                 if (Functions.hasExceedStandLimit(ctx, targetData) && item.includes("$disc$")) {
                     ctx.interaction.followUp({
-                        content: `<@${target.id}> has exceeded the stand disc limit. Please add another item.`,
+                        content: `<@${target.id}> has exceeded the stand disc limit. Please add another item.`
                     });
                     return;
                 }
@@ -242,7 +230,8 @@ const slashCommand: SlashCommandFile = {
             };
 
             collector.on("collect", async (i: ButtonInteraction) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line
+                i.deferUpdate().catch(() => {
+                }); // eslint-disable-line
                 switch (i.customId) {
                     case acceptID: {
                         if (stage === 0 && i.user.id === target.id) {
@@ -253,7 +242,7 @@ const slashCommand: SlashCommandFile = {
                             ) {
                                 ctx.makeMessage({
                                     content: `:warning: Trade cancelled:: one of the users is on cooldown. This is weird and we think you are trying to find a glitch to duplicate items. If this is the case, please note that trying to find glitches or cheat by any means is against the ToS of the RPG.`,
-                                    components: [],
+                                    components: []
                                 });
                                 collector.stop();
                                 break;
@@ -288,7 +277,7 @@ const slashCommand: SlashCommandFile = {
                             if (accepted.length === 2) {
                                 ctx.makeMessage({
                                     content: `:white_check_mark: Trade completed! (ID: \`${tradeID}\`)`,
-                                    components: [],
+                                    components: []
                                 });
                                 collector.stop();
                                 ctx.client.cluster.off(`trade_${ctx.user.id}`, callback2);
@@ -326,7 +315,7 @@ const slashCommand: SlashCommandFile = {
                                 ctx2.drawImage(image2, 512, 0, 512, 512);
 
                                 const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-                                    name: "trade.png",
+                                    name: "trade.png"
                                 });
 
                                 tradeWebhook.send({
@@ -346,7 +335,7 @@ const slashCommand: SlashCommandFile = {
                                                                     Functions.findItem(item).name
                                                                 }`
                                                         )
-                                                        .join("\n"),
+                                                        .join("\n")
                                                 },
                                                 {
                                                     name: `${target.username}'s offer`,
@@ -360,21 +349,22 @@ const slashCommand: SlashCommandFile = {
                                                                     Functions.findItem(item).name
                                                                 }`
                                                         )
-                                                        .join("\n"),
-                                                },
+                                                        .join("\n")
+                                                }
                                             ],
                                             color: 0x70926c,
                                             image: {
-                                                url: "attachment://trade.png",
+                                                url: "attachment://trade.png"
                                             },
-                                            timestamp: new Date().toISOString(),
-                                        },
+                                            timestamp: new Date().toISOString()
+                                        }
                                     ],
-                                    files: [attachment],
+                                    files: [attachment]
                                 });
 
                                 ctx.client.database.postgresql.query(
-                                    `INSERT INTO trades (id, user_id, target_id, server_id, user_offers, target_offers, date) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                                    `INSERT INTO trades (id, user_id, target_id, server_id, user_offers, target_offers, date)
+                                     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                                     [
                                         tradeID,
                                         ctx.user.id,
@@ -382,12 +372,12 @@ const slashCommand: SlashCommandFile = {
                                         ctx.guild.id,
                                         JSON.stringify(userOffer),
                                         JSON.stringify(targetOffer),
-                                        Date.now(),
+                                        Date.now()
                                     ]
                                 );
                             } else
                                 ctx.makeMessage({
-                                    content: `:white_check_mark: <@${i.user.id}> accepted the trade...`,
+                                    content: `:white_check_mark: <@${i.user.id}> accepted the trade...`
                                 });
                         }
                         break;
@@ -396,7 +386,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.makeMessage({
                             content: `:x: Trade cancelled.`,
                             embeds: [],
-                            components: [],
+                            components: []
                         });
                         collector.stop();
                         if (stage !== 0) {
@@ -413,7 +403,7 @@ const slashCommand: SlashCommandFile = {
             const msg = await ctx.client.database.getCooldown(ctx.user.id);
             if (!msg || !msg.includes("trading")) {
                 ctx.makeMessage({
-                    content: `:x: You are not trading.`,
+                    content: `:x: You are not trading.`
                 });
                 return;
             }
@@ -421,14 +411,14 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 ctx.makeMessage({
-                    content: `:x: Item not found.`,
+                    content: `:x: Item not found.`
                 });
                 return;
             }
             const amount = ctx.interaction.options.getInteger("amount", true);
             if (amount <= 0) {
                 ctx.makeMessage({
-                    content: `:x: Invalid amount.`,
+                    content: `:x: Invalid amount.`
                 });
                 return;
             }
@@ -436,26 +426,26 @@ const slashCommand: SlashCommandFile = {
                 ctx.makeMessage({
                     content: `:x: You don't have enough of this item (you have only ${
                         ctx.userData.inventory[itemData.id]
-                    }).`,
+                    }).`
                 });
                 return;
             }
             if (!itemData.tradable) {
                 ctx.makeMessage({
-                    content: `:x: This item is not tradable.`,
+                    content: `:x: This item is not tradable.`
                 });
                 return;
             }
             ctx.client.cluster.emit(`trade_${ctx.user.id}`, itemData.id, amount);
             ctx.makeMessage({
                 content: `:white_check_mark:`,
-                ephemeral: true,
+                ephemeral: true
             });
         } else if (ctx.interaction.options.getSubcommand() === "remove") {
             const msg = await ctx.client.database.getCooldown(ctx.user.id);
             if (!msg || !msg.includes("trading")) {
                 ctx.makeMessage({
-                    content: `:x: You are not trading.`,
+                    content: `:x: You are not trading.`
                 });
                 return;
             }
@@ -463,42 +453,44 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 ctx.makeMessage({
-                    content: `:x: Item not found.`,
+                    content: `:x: Item not found.`
                 });
                 return;
             }
             const amount = ctx.interaction.options.getInteger("amount", true);
             if (amount <= 0) {
                 ctx.makeMessage({
-                    content: `:x: Invalid amount.`,
+                    content: `:x: Invalid amount.`
                 });
                 return;
             }
             ctx.client.cluster.emit(`trade_${ctx.user.id}`, itemData.id, -amount);
             ctx.makeMessage({
                 content: `:white_check_mark:`,
-                ephemeral: true,
+                ephemeral: true
             });
         } else if (ctx.interaction.options.getSubcommand() === "view") {
             const tradeId = ctx.interaction.options.getString("id", true);
             const rows = await ctx.client.database.postgresql.query(
-                `SELECT * FROM trades WHERE id = $1`,
+                `SELECT *
+                 FROM trades
+                 WHERE id = $1`,
                 [tradeId]
             );
             const trade = rows.rows[0];
             if (!trade) {
-                ctx.makeMessage({
-                    content: `:x: Trade not found.`,
+                await ctx.makeMessage({
+                    content: `:x: Trade not found.`
                 });
                 return;
             }
             const userData = (await ctx.client.database.getRPGUserData(trade.user_id)) || {
                 tag: "Deleted User",
-                id: trade.user_id,
+                id: trade.user_id
             };
             const targetData = (await ctx.client.database.getRPGUserData(trade.target_id)) || {
                 tag: "Deleted User",
-                id: trade.target_id,
+                id: trade.target_id
             };
 
             ctx.makeMessage({
@@ -521,7 +513,7 @@ const slashCommand: SlashCommandFile = {
                                                 Functions.findItem(item).name
                                             }`
                                     )
-                                    .join("\n"),
+                                    .join("\n")
                             },
                             {
                                 name: `${targetData.tag}'s offers`,
@@ -532,18 +524,21 @@ const slashCommand: SlashCommandFile = {
                                                 Functions.findItem(item).name
                                             }`
                                     )
-                                    .join("\n"),
-                            },
-                        ],
-                    },
-                ],
+                                    .join("\n")
+                            }
+                        ]
+                    }
+                ]
             });
         }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
         if (interaction.options.getSubcommand() === "view") {
             const rows = await interaction.client.database.postgresql.query(
-                `SELECT * FROM trades WHERE user_id = $1 OR target_id = $1`,
+                `SELECT *
+                 FROM trades
+                 WHERE user_id = $1
+                    OR target_id = $1`,
                 [interaction.user.id]
             );
             const trades = rows.rows;
@@ -573,14 +568,14 @@ const slashCommand: SlashCommandFile = {
                     otherTrader
                 )) || {
                     tag: "Deleted User",
-                    id: otherTrader,
+                    id: otherTrader
                 };
 
                 choices.push({
                     name: `${trade.id} |  ${otherTraderData.tag} (${
                         otherTraderData.id
                     }) at ${new Date(Number(trade.date)).toLocaleString()}`,
-                    value: trade.id,
+                    value: trade.id
                 });
             }
             interaction.respond(choices);
@@ -599,7 +594,7 @@ const slashCommand: SlashCommandFile = {
             return {
                 name: item.name,
                 amount: userData.inventory[v],
-                id: v,
+                id: v
             };
         });
 
@@ -610,7 +605,7 @@ const slashCommand: SlashCommandFile = {
                     return {
                         value: i.id,
                         name: `${i.name} (x${i.amount} left)`,
-                        description: i,
+                        description: i
                     };
                 })
                 .filter(
@@ -620,7 +615,7 @@ const slashCommand: SlashCommandFile = {
                 )
                 .slice(0, 25)
         );
-    },
+    }
 };
 
 export default slashCommand;

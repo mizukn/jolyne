@@ -2,26 +2,19 @@ import {
     SlashCommandFile,
     Chapter,
     ChapterPart,
-    RPGUserQuest,
-    ClaimXQuest,
-    Quest,
+    RPGUserQuest
 } from "../../@types";
 import {
     Message,
-    APIEmbed,
     ButtonBuilder,
     ButtonStyle,
-    MessageComponentInteraction,
+    MessageComponentInteraction
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
-import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { FightableNPCS } from "../../rpg/NPCs";
-import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
-import { Harry_Lester } from "../../rpg/NPCs/NPCs";
-import { RemoveFleshbudToKakyoin } from "../../rpg/Quests/ActionQuests";
 import * as QuestsL from "../../rpg/Quests/Quests";
 import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
 
@@ -56,6 +49,7 @@ export const makeChapterTitle = (
     function getChapterNumber(chapter: Chapter): number {
         return chapters.indexOf(chapter) + 1;
     }
+
     function getPartNumber(part: ChapterPart): number {
         const commonParts = parts.filter((v) => v.parent.id === part.parent.id);
         return commonParts.indexOf(part) + 2;
@@ -150,20 +144,20 @@ export const getQuestsStats = (
                     cc: quest.goal.toLocaleString("en-US"),
                     s: Functions.s(quest.goal),
                     name: Functions.findItem(quest.item).name,
-                    emoji: Functions.findItem(quest.item).emoji,
+                    emoji: Functions.findItem(quest.item).emoji
                 });
             } else if (Functions.isUseXCommandQuest(quest)) {
                 const cmd = ctx.client.getSlashCommandMention(quest.command);
                 questMessage = ctx.translate("quest:USE_COMMAND", {
                     cmd,
                     cc: quest.goal.toLocaleString("en-US"),
-                    s: Functions.s(quest.goal),
+                    s: Functions.s(quest.goal)
                 });
             } else {
                 const emoji = {
                     daily: "📆",
                     coin: ctx.client.localEmojis.jocoins,
-                    xp: ctx.client.localEmojis.xp,
+                    xp: ctx.client.localEmojis.xp
                 }[quest.x];
 
                 questMessage = ctx.translate("quest:CLAIMX", {
@@ -174,7 +168,7 @@ export const getQuestsStats = (
                         quest.x +
                         (quest.x === "daily"
                             ? ` (${ctx.client.getSlashCommandMention("daily claim")})`
-                            : ""),
+                            : "")
                 });
             }
 
@@ -297,7 +291,7 @@ export const getQuestsStats = (
                 else return `${ctx.client.localEmojis.reply} ${v}`;
             })
             .join("\n"),
-        percent: totalPercent / quests.length,
+        percent: totalPercent / quests.length
     };
 };
 
@@ -313,7 +307,7 @@ const slashCommand: SlashCommandFile = {
     data: {
         name: "chapter",
         description: "Show your current chapter progress",
-        options: [],
+        options: []
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.chapter.quests.length === 0) {
@@ -321,7 +315,7 @@ const slashCommand: SlashCommandFile = {
                 ctx.userData.chapter.id
             ).quests.map((x) => Functions.pushQuest(x));
             if (ctx.userData.chapter.quests.length !== 0)
-                ctx.client.database.saveUserData(ctx.userData);
+                await ctx.client.database.saveUserData(ctx.userData);
         }
 
         const status = getQuestsStats(ctx.userData.chapter.quests, ctx);
@@ -340,12 +334,13 @@ const slashCommand: SlashCommandFile = {
                     .setStyle(ButtonStyle.Primary)
             );
             const filter = (i: MessageComponentInteraction) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                i.deferUpdate().catch(() => {
+                }); // eslint-disable-line @typescript-eslint/no-empty-function
                 return i.customId === "next" && i.user.id === ctx.user.id;
             };
             const collector = ctx.interaction.channel.createMessageComponentCollector({
                 filter,
-                time: 30000,
+                time: 30000
             });
             collector.on("collect", async (i) => {
                 if (await ctx.antiCheat(true)) return;
@@ -362,7 +357,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop();
                     ctx.followUp({
                         content: `We're sorry, but this is the last chapter for now. We're working on new content!`,
-                        ephemeral: true,
+                        ephemeral: true
                     });
                     return;
                 }
@@ -403,7 +398,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.followUp({
                         content: `You have completed the chapter and received the following rewards:\n${winContent.join(
                             ", "
-                        )}`,
+                        )}`
                     });
                 }
 
@@ -419,7 +414,7 @@ const slashCommand: SlashCommandFile = {
                         newChap.description[ctx.userData.language]
                     }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${
                         status.message
-                    }`,
+                    }`
                 });
 
                 // TODO: if chap dialogues...
@@ -434,15 +429,15 @@ const slashCommand: SlashCommandFile = {
             }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}${
                 chapter.hints
                     ? "\n\n" +
-                      chapter
-                          .hints(ctx)
-                          .map((x) => `:exclamation: HINT: ${x}`)
-                          .join("\n")
+                    chapter
+                        .hints(ctx)
+                        .map((x) => `:exclamation: HINT: ${x}`)
+                        .join("\n")
                     : ""
             }`,
-            components: components.length === 0 ? [] : [Functions.actionRow(components)],
+            components: components.length === 0 ? [] : [Functions.actionRow(components)]
         });
-    },
+    }
 };
 
 export default slashCommand;

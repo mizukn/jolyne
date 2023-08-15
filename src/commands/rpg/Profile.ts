@@ -1,11 +1,10 @@
 import {
     SlashCommandFile,
     Leaderboard,
-    equipableItemTypes,
     equipableItemTypesLimit,
     formattedEquipableItemTypes,
     EquipableItem,
-    SkillPoints,
+    SkillPoints
 } from "../../@types";
 import { Message, APIEmbed, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
@@ -47,7 +46,7 @@ const slashCommand: SlashCommandFile = {
             th: "ดูโปรไฟล์ของคุณ (หรือของใครบางคน)",
             tr: "Profilinizi görüntüleyin (veya başkasının)",
             uk: "Перегляньте свій профіль (або когось іншого)",
-            vi: "Xem hồ sơ của bạn (hoặc của ai đó)",
+            vi: "Xem hồ sơ của bạn (hoặc của ai đó)"
         },
         options: [
             {
@@ -72,12 +71,12 @@ const slashCommand: SlashCommandFile = {
                     lt: "Vartotojas, kurio profilį norite peržiūrėti",
                     no: "Brukeren hvis profil du vil se",
                     pl: "Użytkownik, którego profil chcesz zobaczyć",
-                    "pt-BR": "O usuário cujo perfil você deseja ver",
+                    "pt-BR": "O usuário cujo perfil você deseja ver"
                 },
                 type: 6,
-                required: false,
-            },
-        ],
+                required: false
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -110,7 +109,7 @@ const slashCommand: SlashCommandFile = {
         const embed: APIEmbed = {
             author: {
                 name: userOption.username,
-                icon_url: userOption.displayAvatarURL({ extension: "gif" }),
+                icon_url: userOption.displayAvatarURL({ extension: "gif" })
             },
             description: ctx.translate("profile:ADVENTUREAT", {
                 rUnix: Functions.generateDiscordTimestamp(
@@ -120,16 +119,16 @@ const slashCommand: SlashCommandFile = {
                 dUnix: Functions.generateDiscordTimestamp(
                     parseInt(rpgData.adventureStartedAt),
                     "DATE"
-                ), //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
+                ) //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
             }),
             color: 0x70926c,
             thumbnail: {
                 url: rpgData.stand
                     ? Functions.findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand])
                         ? Functions.findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand])
-                              .image
+                            .image
                         : undefined
-                    : undefined,
+                    : undefined
             },
             fields: [
                 {
@@ -143,7 +142,7 @@ const slashCommand: SlashCommandFile = {
                     )}/${Functions.localeNumber(
                         Functions.getMaxStamina(rpgData)
                     )}\n${makeChapterTitle(chapter, rpgData)}`,
-                    inline: true,
+                    inline: true
                 },
                 {
                     name: "Ranking",
@@ -154,7 +153,7 @@ const slashCommand: SlashCommandFile = {
                     } \`${coinsLbPos.toLocaleString(
                         "en-US"
                     )}\`/\`${coinsLb.data.length.toLocaleString("en-US")}\``,
-                    inline: true,
+                    inline: true
                 },
                 {
                     name: "Player Stats",
@@ -165,7 +164,7 @@ const slashCommand: SlashCommandFile = {
                     ).toLocaleString("en-US")}\n${
                         ctx.client.localEmojis.jocoins
                     } Coins: ${rpgData.coins.toLocaleString()}`,
-                    inline: true,
+                    inline: true
                 },
                 {
                     name: "Equipped Items",
@@ -174,7 +173,7 @@ const slashCommand: SlashCommandFile = {
                             const formattedType =
                                 formattedEquipableItemTypes[
                                     parseInt(w) as keyof typeof formattedEquipableItemTypes
-                                ];
+                                    ];
                             const equippedItems = Object.keys(rpgData.equippedItems).filter(
                                 (r) => Functions.findItem<EquipableItem>(r).type === parseInt(w)
                             );
@@ -186,7 +185,7 @@ const slashCommand: SlashCommandFile = {
                                         const item = Functions.findItem<EquipableItem>(i);
                                         return `${item.emoji} \`${item.name}\``;
                                     })
-                                    .join("\n"),
+                                    .join("\n")
                             };
                         })
                         .filter((r) => r.items.length > 0)
@@ -197,7 +196,7 @@ const slashCommand: SlashCommandFile = {
                                 }`
                         )
                         .join("\n")}`,
-                    inline: true,
+                    inline: true
                 },
                 {
                     name: "Player Bonuses (from items)",
@@ -212,28 +211,28 @@ const slashCommand: SlashCommandFile = {
                             const bonus =
                                 Functions.calcEquipableItemsBonus(rpgData).skillPoints[
                                     x as keyof SkillPoints
-                                ];
+                                    ];
                             if (bonus === 0) return;
                             return `\`[SP]\` ${Functions.capitalize(x)}: **${bonus}**`;
                         })
                         .filter((r) => r)
                         .join("\n")}`,
-                    inline: true,
+                    inline: true
                 },
                 {
                     name: "Stand",
                     value: rpgData.stand
                         ? (() => {
-                              const stand = Functions.findStand(
-                                  rpgData.stand,
-                                  rpgData.standsEvolved[rpgData.stand]
-                              );
-                              return `${stand.emoji} **${stand.name}** (${stand.rarity}):\n[${
-                                  stand.abilities.length
-                              }] Abilities: ${stand.abilities.map((a) => a.name).join(", ")}`;
-                          })()
+                            const stand = Functions.findStand(
+                                rpgData.stand,
+                                rpgData.standsEvolved[rpgData.stand]
+                            );
+                            return `${stand.emoji} **${stand.name}** (${stand.rarity}):\n[${
+                                stand.abilities.length
+                            }] Abilities: ${stand.abilities.map((a) => a.name).join(", ")}`;
+                        })()
                         : "Stand-less",
-                    inline: true,
+                    inline: true
                 },
                 {
                     name: "Combat Infos",
@@ -244,7 +243,7 @@ const slashCommand: SlashCommandFile = {
                     )}\n🔄 Speed score: ${Functions.getSpeedScore(rpgData).toLocaleString(
                         "en-US"
                     )}`,
-                    inline: true,
+                    inline: true
                 },
                 {
                     name: "Stand Disc Capacity",
@@ -255,15 +254,15 @@ const slashCommand: SlashCommandFile = {
                     )} ${ctx.client.localEmojis.disk}\n- Available: ${(
                         Functions.calcStandDiscLimit(ctx, rpgData) - discCount
                     ).toLocaleString("en-US")} ${ctx.client.localEmojis.disk}`,
-                    inline: true,
-                },
-            ],
+                    inline: true
+                }
+            ]
         };
 
         ctx.makeMessage({
-            embeds: [embed],
+            embeds: [embed]
         });
-    },
+    }
 };
 
 export default slashCommand;

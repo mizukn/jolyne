@@ -1,30 +1,20 @@
-import { FightableNPC, RPGUserDataJSON, RPGUserQuest, SlashCommandFile } from "../../@types";
+import { FightableNPC, SlashCommandFile } from "../../@types";
 import {
     Message,
-    APIEmbed,
-    ApplicationCommandOptionType,
-    StringSelectMenuBuilder,
-    MessageComponentInteraction,
-    StringSelectMenuInteraction,
+    MessageComponentInteraction
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { FightableNPCS, NPCs } from "../../rpg/NPCs";
-import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
-import { Harry_Lester } from "../../rpg/NPCs/NPCs";
-import { RemoveFleshbudToKakyoin } from "../../rpg/Quests/ActionQuests";
-import { StandArrow } from "../../rpg/Items/SpecialItems";
-import { InteractionType } from "discord.js";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
-import * as Bosses from "../../rpg/Raids";
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "assault",
         description: "Assaults a random NPC that matches your level.",
-        options: [],
+        options: []
     },
     checkRPGCooldown: "assault",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -34,7 +24,7 @@ const slashCommand: SlashCommandFile = {
                     "inventory use"
                 )} or ${ctx.client.getSlashCommandMention("shop")})`,
                 embeds: [],
-                components: [],
+                components: []
             });
             return;
         }
@@ -72,13 +62,13 @@ const slashCommand: SlashCommandFile = {
                 {
                     author: {
                         name: ctx.user.username,
-                        icon_url: ctx.user.displayAvatarURL(),
+                        icon_url: ctx.user.displayAvatarURL()
                     },
                     description: `You're about to assault an NPC. Choose your target wisely.`,
-                    color: 0x70926c,
-                },
+                    color: 0x70926c
+                }
             ],
-            components: [Functions.actionRow([normalNPCButton, randomNPCButton, highNPCButton])],
+            components: [Functions.actionRow([normalNPCButton, randomNPCButton, highNPCButton])]
         });
         await ctx.client.database.setRPGCooldown(ctx.user.id, "assault", 60000 * 5);
         ctx.client.database.setCooldown(
@@ -92,7 +82,7 @@ const slashCommand: SlashCommandFile = {
             (i.user.id === ctx.user.id && i.customId === "random");
         const collector = ctx.channel.createMessageComponentCollector({
             filter,
-            time: 30000,
+            time: 30000
         });
 
         collector.on("end", async () => {
@@ -102,14 +92,15 @@ const slashCommand: SlashCommandFile = {
             ) {
                 ctx.client.database.deleteCooldown(ctx.userData.id);
                 ctx.followUp({
-                    content: `You didn't select a target in time. Please try again next time`,
+                    content: `You didn't select a target in time. Please try again next time`
                 });
             }
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
             // eslint-disable-next-line
-            await i.deferUpdate().catch(() => {});
+            await i.deferUpdate().catch(() => {
+            });
             const npc =
                 i.customId === "normal" ? normalNPC : i.customId === "high" ? highNPC : randomNPC;
             ctx.interaction.fetchReply().then((r) => {
@@ -136,20 +127,20 @@ const slashCommand: SlashCommandFile = {
                             "en-US"
                         )} ${ctx.client.localEmojis.xp} and ${coins.toLocaleString("en-US")} ${
                             ctx.client.localEmojis.jocoins
-                        }.`,
+                        }.`
                     });
                 } else {
                     ctx.userData.health = 0;
                     ctx.userData.stamina = 0;
 
                     ctx.followUp({
-                        content: `You assaulted ${npc.name} and lost! You lost all your health and stamina. Better luck next time or train yourself more.`,
+                        content: `You assaulted ${npc.name} and lost! You lost all your health and stamina. Better luck next time or train yourself more.`
                     });
                 }
                 ctx.client.database.saveUserData(ctx.userData);
             });
         });
-    },
+    }
 };
 
 export default slashCommand;

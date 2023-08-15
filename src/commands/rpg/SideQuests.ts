@@ -13,7 +13,7 @@ import {
     UserSelectMenuInteraction,
     RoleSelectMenuInteraction,
     InteractionResponse,
-    MessageComponentInteraction,
+    MessageComponentInteraction
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -29,31 +29,31 @@ const sideQuestsArr = Object.values(SideQuests);
 const slashCommand: SlashCommandFile = {
     data: {
         name: "side",
-        description: "[...]",
+        description: "Shows your side quests",
         type: 1,
         options: [
             {
                 name: "quest",
-                description: "eeeeeeeeeee.",
+                description: "Shows your progress about a specific side quest",
                 type: ApplicationCommandOptionType.SubcommandGroup,
                 options: [
                     {
                         name: "view",
-                        description: "eeeeeeeeeee.",
+                        description: "Shows your progress about a specific side quest",
                         type: 1,
                         options: [
                             {
                                 name: "side_quest",
-                                description: "d",
+                                description: "The side quest you want to view",
                                 type: 3,
                                 required: true,
-                                autocomplete: true,
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
+                                autocomplete: true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -61,13 +61,13 @@ const slashCommand: SlashCommandFile = {
         const sideQuest = ctx.options.getString("side_quest", true);
         if (!ctx.userData.sideQuests.find((x) => x.id === sideQuest)) {
             ctx.makeMessage({
-                content: `UH OH! You don't have this side quest! Or it doesn't exist...`,
+                content: `UH OH! You don't have this side quest! Or it doesn't exist...`
             });
             return;
         }
         if (!sideQuestsArr.find((r) => r.id === sideQuest)) {
             ctx.makeMessage({
-                content: `${ctx.client.localEmojis.jolyne} Wow there! You've found a side quest that doesn't exist! Please report this to the developers at https://discord.gg/jolyne. They probably temporairly removed it.`,
+                content: `${ctx.client.localEmojis.jolyne} Wow there! You've found a side quest that doesn't exist! Please report this to the developers at https://discord.gg/jolyne. They probably temporairly removed it.`
             });
             return;
         }
@@ -109,7 +109,7 @@ const slashCommand: SlashCommandFile = {
                     ? `\n- � You'll be able to redo this SideQuest as much as you want`
                     : ""
             }\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
-            components: components.length === 0 ? [] : [Functions.actionRow(components)],
+            components: components.length === 0 ? [] : [Functions.actionRow(components)]
         });
 
         if (components.length !== 0) {
@@ -117,7 +117,7 @@ const slashCommand: SlashCommandFile = {
                 filter: (i) =>
                     (i.user.id === ctx.user.id && i.customId === rewardsButtonID) ||
                     (i.user.id === ctx.user.id && i.customId === redoQuestID),
-                time: 60000,
+                time: 60000
             });
             collector.on("collect", async (i) => {
                 switch (i.customId) {
@@ -130,7 +130,7 @@ const slashCommand: SlashCommandFile = {
                         }
                         if (SideQuest.canRedoSideQuest) {
                             ctx.followUp({
-                                content: `You've claimed the rewards! BTW this quest can be redone as much as you want, so use this command again if you want to re do it.`,
+                                content: `You've claimed the rewards! BTW this quest can be redone as much as you want, so use this command again if you want to re do it.`
                             });
                         }
                         collector.stop();
@@ -144,7 +144,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.client.database.saveUserData(ctx.userData);
                         collector.stop();
                         ctx.followUp({
-                            content: `You've redone the quest! Use this command again to see your progress.`,
+                            content: `You've redone the quest! Use this command again to see your progress.`
                         });
                     }
                 }
@@ -167,13 +167,13 @@ const slashCommand: SlashCommandFile = {
             .map((x) => {
                 return {
                     name: x.title,
-                    value: x.id,
+                    value: x.id
                 };
             });
         if (matchCurringInput.length > 24) matchCurringInput.length = 24;
 
         interaction.respond(matchCurringInput.filter((x) => x));
-    },
+    }
 };
 
 export default slashCommand;

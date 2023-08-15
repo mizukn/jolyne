@@ -1,50 +1,31 @@
 import { RPGUserDataJSON, SlashCommandFile, Leaderboard, i18n_key } from "../../@types";
 import {
     Message,
-    APIEmbed,
-    ButtonBuilder,
-    StringSelectMenuBuilder,
-    ActionRowBuilder,
-    ButtonStyle,
-    InteractionCollector,
-    ButtonInteraction,
-    CacheType,
-    StringSelectMenuInteraction,
-    UserSelectMenuInteraction,
-    RoleSelectMenuInteraction,
-    InteractionResponse,
-    MessageComponentInteraction,
+    InteractionResponse
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { FightHandler, FightTypes } from "../../structures/FightHandler";
-import { FightableNPCS, NPCs } from "../../rpg/NPCs";
-import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as SideQuests from "../../rpg/SideQuests";
-import { getQuestsStats } from "./Chapter";
-
-const sideQuestsArr = Object.values(SideQuests);
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "campfire",
-        description: "[...]",
+        description: "Rest at the campfire, or leave it.",
         type: 1,
         options: [
             {
                 name: "rest",
                 description: "Rest at the campfire. (+1% health +1% stamina every 2 minutes)",
                 type: 1,
-                options: [],
+                options: []
             },
             {
                 name: "leave",
                 description: "Leave the campfire.",
                 type: 1,
-                options: [],
-            },
-        ],
+                options: []
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -76,9 +57,10 @@ const slashCommand: SlashCommandFile = {
                 health: healthWon,
                 stamina: staminaWon,
                 currentHealth: ctx.userData.health + healthWon,
-                currentStamina: ctx.userData.stamina + staminaWon,
+                currentStamina: ctx.userData.stamina + staminaWon
             };
         }
+
         switch (ctx.interaction.options.getSubcommand()) {
             case "rest": {
                 getStats().then(async (stats) => {
@@ -87,7 +69,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.makeMessage({
                             content: `🔥🪵 You're now resting at the campfire. Use this command again to see what you've gained. You can leave the campfire with ${ctx.client.getSlashCommandMention(
                                 "campfire leave"
-                            )} command.`,
+                            )} command.`
                         });
                         ctx.client.database.saveUserData(ctx.userData);
                     } else {
@@ -106,7 +88,7 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )} :zap:].\n You can leave the campfire with ${ctx.client.getSlashCommandMention(
                                 "campfire leave"
-                            )} command.`,
+                            )} command.`
                         });
                     }
                 });
@@ -118,7 +100,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.makeMessage({
                             content: `You're not resting at the campfire. Use ${ctx.client.getSlashCommandMention(
                                 "campfire rest"
-                            )} to rest.`,
+                            )} to rest.`
                         });
                     } else {
                         ctx.userData.restingAtCampfire = 0;
@@ -137,14 +119,14 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )}/${Functions.getMaxStamina(ctx.userData).toLocaleString(
                                 "en-US"
-                            )} :zap:]`,
+                            )} :zap:]`
                         });
                         await ctx.client.database.saveUserData(ctx.userData);
                     }
                 });
             }
         }
-    },
+    }
 };
 
 export default slashCommand;
