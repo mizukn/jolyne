@@ -1,7 +1,7 @@
-import "dotenv/config";
 import { ClusterManager } from "discord-hybrid-sharding";
 import redis from "ioredis";
-const TempRedis = new redis({ db: 0 });
+
+const TempRedis = new redis({ db: Number(process.env.REDIS_DB) });
 
 (async () => {
     await TempRedis.keys("*tempCache_*").then((keys) => {
@@ -42,7 +42,7 @@ const manager = new ClusterManager(`${__dirname}/index.js`, {
     totalShards: "auto",
     shardsPerClusters: 8,
     mode: "process",
-    token: process.env.CLIENT_TOKEN,
+    token: process.env.CLIENT_TOKEN
 });
 
 manager.on("clusterCreate", (cluster) =>
@@ -54,7 +54,7 @@ manager.spawn({ timeout: -1 }).catch((e) => {
     //const response = JSON.parse(e.message);
     console.log(
         "DISCORD API LIMIT: ERROR, YOU HAVE BEEN RATELIMITED. PLEASE TRY AGAIN IN " +
-            e.headers.get("Retry-After") +
-            " SECONDS."
+        e.headers.get("Retry-After") +
+        " SECONDS."
     );
 });

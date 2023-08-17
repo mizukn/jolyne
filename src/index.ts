@@ -4,7 +4,7 @@ import type {
     SlashCommand,
     Special,
     FightableNPC,
-    Item,
+    Item
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
@@ -23,7 +23,7 @@ import * as StandUsersNPCS from "./rpg/standUsersNPCS.json";
 import * as Sentry from "@sentry/node";
 
 Sentry.init({
-    dsn: process.env.SENTRY_DSN,
+    dsn: process.env.SENTRY_DSN
 });
 
 /*
@@ -40,7 +40,7 @@ const standPrices = {
     A: 25000,
     B: 10000,
     C: 5000,
-    T: 69,
+    T: 69
 };
 
 for (const stand of [
@@ -48,9 +48,9 @@ for (const stand of [
     ...Object.values(Stands.EvolutionStands).map((x) => {
         return {
             ...x.evolutions[0],
-            id: x.id,
+            id: x.id
         };
-    }),
+    })
 ]) {
     if (!stand.available) continue;
     console.log(`Adding ${stand.name} Stand Disc`);
@@ -68,7 +68,7 @@ for (const stand of [
                 ctx.makeMessage({
                     content: `Dawg you already have a stand. If you'd like to change your stand, please either erase your current one (${ctx.client.getSlashCommandMention(
                         "stand delete"
-                    )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`,
+                    )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`
                 });
                 return false;
             }
@@ -77,7 +77,7 @@ for (const stand of [
                 content: Functions.makeNPCString(
                     NPCs.Pucci,
                     "You have successfully equipped " + stand.name + " " + stand.emoji + " !"
-                ),
+                )
             });
             return true;
         }
@@ -89,7 +89,7 @@ for (const stand of [
     NPCs[`${stand.name.replace(" ", "")}User`] = {
         id: `${stand.name.replace(" ", "")}_user`,
         name: stand.name + " User",
-        emoji: stand.emoji,
+        emoji: stand.emoji
     };
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[`${stand.name.replace(" ", "")}User`] = {
@@ -101,14 +101,14 @@ for (const stand of [
             strength: 1,
             speed: 1,
             perception: 1,
-            stamina: 0,
+            stamina: 0
         },
         stand: stand.id,
         equippedItems: {},
-        standsEvolved: {},
+        standsEvolved: {}
     };
 }
-
+/*
 for (const item of Object.values(Items.default)) {
     if (item.craft) {
         const itemScroll: Special = {
@@ -126,7 +126,7 @@ for (const item of Object.values(Items.default)) {
             use: async (ctx) => {
                 if (ctx.userData.learnedItems.includes(item.id)) {
                     ctx.makeMessage({
-                        content: item.emoji + " | You have already learned this recipe!",
+                        content: item.emoji + " | You have already learned this recipe!"
                     });
                     return false;
                 }
@@ -137,15 +137,15 @@ for (const item of Object.values(Items.default)) {
                         item.emoji +
                         " | You have successfully learned the recipe for " +
                         item.name +
-                        "!",
+                        "!"
                 });
-            },
+            }
         };
         // @ts-expect-error because it's a dynamic property
         Items.default[itemScroll.id] = itemScroll;
     }
 }
-
+*/
 /**
  * Temp code ends here
  */
@@ -178,8 +178,8 @@ const client = new JolyneClient({
         GuildScheduledEventManager: 0,
         GuildStickerManager: 0,
         GuildInviteManager: 0,
-        MessageManager: 0,
-    }),
+        MessageManager: 0
+    })
 });
 
 for (const NPC of [...Object.values(NPCs), ...Object.values(FightableNPCs)]) {
@@ -187,7 +187,7 @@ for (const NPC of [...Object.values(NPCs), ...Object.values(FightableNPCs)]) {
         NPC.avatarURL = `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(NPC.emoji)}.png`;
 }
 for (const NPC of Object.values(FightableNPCs)) {
-    client.log(`Checking ${NPC.name} NPC...`);
+    client.log(`Checking ${NPC.name} NPC...`, "npc");
     if (!Functions.skillPointsIsOK(NPC)) {
         Functions.generateSkillPoints(NPC);
         client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
@@ -217,7 +217,7 @@ for (const NPC of Object.values(FightableNPCs)) {
     }
 }
 
-// when process interrupted or exited, close redis connection
+/*
 process.on("SIGINT", () => {
     client.database.postgresql.end();
     client.database.redis.quit();
@@ -243,6 +243,7 @@ process.on("unhandledRejection", (error: Error) => {
 process.on("uncaughtException", (error) => {
     console.error("Uncaught exception:", error);
 });
+ */
 
 // @ts-expect-error because the typings are wrong
 client.cluster = new ClusterClient(client);
@@ -276,11 +277,11 @@ async function init() {
         for (const commandFile of commands) {
             const command: SlashCommandFile = await import(
                 path.resolve(__dirname, "commands", category, commandFile)
-            ).then((m) => m.default);
+                ).then((m) => m.default);
             client.commands.set(command.data.name, {
                 ...command,
                 category,
-                path: `./commands/${category}/${commandFile}`,
+                path: `./commands/${category}/${commandFile}`
             });
             client.log(`Loaded command ${command.data.name}`, "command");
         }
