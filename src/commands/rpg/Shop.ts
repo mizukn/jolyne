@@ -1,4 +1,4 @@
-import { SlashCommandFile, Shop, RPGUserDataJSON, numOrPerc } from "../../@types";
+import { SlashCommandFile, Shop, RPGUserDataJSON, numOrPerc, Item } from "../../@types";
 import {
     Message,
     APIEmbed,
@@ -13,6 +13,7 @@ import * as Functions from "../../utils/Functions";
 import * as Shops from "../../rpg/Shops";
 import * as Stands from "../../rpg/Stands/Stands";
 import * as Emojis from "../../emojis.json";
+import { cloneDeep } from "lodash";
 
 export const standPrice = {
     SS: 2000000000000000,
@@ -30,6 +31,17 @@ type cShop = {
     emoji: string;
 };
 
+const choices: {
+    value: string;
+    label: string;
+}[] = [];
+for (let i = 0; i < 25; i++) {
+    choices.push({
+        value: (i + 1).toString(),
+        label: (i + 1).toString()
+    });
+}
+
 const goBackButton = new ButtonBuilder()
     .setStyle(ButtonStyle.Primary)
     .setEmoji(Emojis.arrowLeft)
@@ -38,7 +50,7 @@ const goBackButton = new ButtonBuilder()
 const slashCommand: SlashCommandFile = {
     data: {
         name: "shop",
-        description: "SAGASHI MONO SAGASHI NI YUKU NO SA!!",
+        description: "Shows the shop.",
         options: []
     },
     execute: async (
@@ -106,6 +118,8 @@ const slashCommand: SlashCommandFile = {
             return BM;
         }
 
+        let selectedItem: Item;
+
         async function sendMenuEmbed(): Promise<void> {
             shops = [];
             const embed: APIEmbed = {
@@ -121,7 +135,7 @@ const slashCommand: SlashCommandFile = {
 
             function handleShop(Shop: Shop): void {
                 const shopSelect = new StringSelectMenuBuilder()
-                    .setCustomId(`shop_${Shop.name}`)
+                    .setCustomId(`shop_${ctx.interaction.id}_${Shop.name}`)
                     .setPlaceholder("Select an item")
                     .setMinValues(1)
                     .setMaxValues(1);
@@ -204,7 +218,7 @@ const slashCommand: SlashCommandFile = {
             }
             if (new Date().getDay() === 0) handleShop(await createUserBlackMarket());
             const shopSelectMenu = new StringSelectMenuBuilder()
-                .setCustomId("shop")
+                .setCustomId(`shop_${ctx.interaction.id}`)
                 .setPlaceholder("Select a shop")
                 .setMinValues(1)
                 .setMaxValues(1)
@@ -261,14 +275,14 @@ const slashCommand: SlashCommandFile = {
                 ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
                 if (i.customId === "goBack") {
                     sendMenuEmbed();
-                } else if (i.customId === "shop") {
+                } else if (i.customId === `shop_${ctx.interaction.id}`) {
                     const shop = shops.find(
                         (x) => x.name === (i as StringSelectMenuInteraction).values[0]
                     );
                     if (!shop) return;
                     currentShop = shop;
                     makeShopEmbed(shop);
-                } else if (i.customId.includes("shop")) {
+                } else if (i.customId.includes(`shop_${ctx.interaction.id}`)) {
                     // selected item
                     const item = currentShop?.items.find(
                         (x) => x.item === (i as StringSelectMenuInteraction).values[0]
@@ -276,17 +290,38 @@ const slashCommand: SlashCommandFile = {
                     if (!item) return;
                     const xitem = Functions.findItem(item.item);
                     if (!xitem) return;
-                    const price = item.price ?? xitem.price;
+                    selectedItem = xitem;
+
+                    await ctx.makeMessage({
+                        components: [
+                            Functions.actionRow([
+                                new StringSelectMenuBuilder()
+                                    .setCustomId(`amount_${ctx.interaction.id}`)
+                                    .setPlaceholder("Select an amount")
+                                    .setMinValues(1)
+                                    .setMaxValues(1)
+                                    .addOptions(choices)]
+                            )
+                        ]
+                    });
+                } else if (i.customId === `amount_${ctx.interaction.id}`) {
+                    console.log("here");
+                    const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
+
+                    const price = (selectedItem.price ?? 10000) * amount;
+
                     if (ctx.userData.coins < price) {
-                        ctx.followUp({
-                            content: `You don't have enough ${ctx.client.localEmojis.jocoins} to buy this item!`,
-                            ephemeral: true
+                        sendMenuEmbed().then(() => {
+                            ctx.followUp({
+                                content: `You don't have enough ${ctx.client.localEmojis.jocoins} to buy this item!`,
+                                ephemeral: true
+                            });
                         });
                         return;
                     }
                     Functions.addCoins(ctx.userData, -price);
-                    if (!xitem.storable) {
-                        const winContentArray: string[] = [];
+                    const oldData = cloneDeep(ctx.userData);
+                    if (!selectedItem.storable) {
 
                         // eslint-disable-next-line no-inner-declarations
                         function addHealthOrStamina(
@@ -310,91 +345,66 @@ const slashCommand: SlashCommandFile = {
                             switch (typeof amount) {
                                 case "number":
                                     addX(ctx.userData, amount);
-                                    winContentArray.push(
-                                        `+${x() - oldX} ${emoji} (${x()}/${maxX})`
-                                    );
                                     break;
                                 case "string":
                                     // %
                                     addX(ctx.userData, parseInt(amount) * 0.01 * maxX);
-                                    winContentArray.push(
-                                        `+${x() - oldX} ${emoji} (${x()}/${maxX})`
-                                    );
                                     break;
                                 // default: impossible
                             }
                         }
 
-                        if (Functions.isConsumable(xitem)) {
-                            if (xitem.effects.health !== undefined)
-                                addHealthOrStamina(xitem.effects.health, "health");
-                            if (xitem.effects.stamina !== undefined)
-                                addHealthOrStamina(xitem.effects.stamina, "stamina");
+                        if (Functions.isConsumable(selectedItem)) {
+                            if (selectedItem.effects.health !== undefined)
+                                for (let i = 0; i < amount; i++) addHealthOrStamina(selectedItem.effects.health, "health");
+                            if (selectedItem.effects.stamina !== undefined)
+                                for (let i = 0; i < amount; i++) addHealthOrStamina(selectedItem.effects.stamina, "stamina");
 
-                            if (xitem.effects.items) {
-                                const items = Object.keys(xitem.effects.items);
+                            if (selectedItem.effects.items) {
+                                const items = Object.keys(selectedItem.effects.items);
 
-                                for (const item of items) {
+                                for (let i = 0; i < amount; i++) for (const item of items) {
                                     const itemData2 = Functions.findItem(item);
                                     // if (!itemData2) impossible;
 
                                     Functions.addItem(
                                         ctx.userData,
                                         item,
-                                        xitem.effects.items[item]
-                                    );
-                                    winContentArray.push(
-                                        `+${xitem.effects.items[item]} ${itemData2.name} ${itemData2.emoji}`
+                                        selectedItem.effects.items[item]
                                     );
                                 }
                             }
 
                             ctx.followUp({
-                                content: `${currentShop.emoji} **${currentShop.name}**: You used ${
-                                    xitem.emoji
-                                } **${xitem.name}** and got: ${winContentArray.join(", ")}`
+                                content: `${currentShop.emoji} x${amount} **${currentShop.name}**: You used ${
+                                    selectedItem.emoji
+                                } **${selectedItem.name}** and got: ${Functions.getRewardsCompareData(oldData, ctx.userData).join(", ")}`.slice(0, 500)
                             });
-                        } else if (Functions.isSpecial(xitem)) {
-                            const oldData = { ...ctx.userData } as RPGUserDataJSON;
-                            await ctx.client.database.setCooldown(
-                                ctx.user.id,
-                                "You're currently using an item."
-                            );
-                            try {
-                                const status = await xitem.use(ctx);
-                                if (status) {
-                                    Functions.addItem(ctx.userData, xitem, 1);
-                                    await ctx.followUp({
-                                        content: `You couldn't use the item. Your data has been saved. Added the item back to your inventory.`
-                                    });
-                                    await ctx.client.database.saveUserData(ctx.userData);
-                                }
-                            } catch (e) {
-                                await ctx.client.database.deleteCooldown(ctx.user.id);
-                                await ctx.followUp({
-                                    content:
-                                        "An error occured while using this item. Your data has been saved."
-                                });
-                                ctx.RPGUserData = oldData;
-                                await ctx.client.database.saveUserData(ctx.userData);
-                                throw e;
-                            }
-                            await ctx.client.database.deleteCooldown(ctx.user.id);
-                            return;
-                            // TODO: If used multiple times
+                        } else {
+                            Functions.addItem(ctx.userData, selectedItem, amount);
+
+                            await ctx.followUp({
+                                content: `${currentShop.emoji} **${currentShop.name}**: You bought x${amount} ${
+                                    selectedItem.emoji
+                                } **${selectedItem.name}** for **${price.toLocaleString("en-US")}** ${
+                                    ctx.client.localEmojis.jocoins
+                                }`
+                            });
                         }
                     } else {
-                        Functions.addItem(ctx.userData, xitem, 1);
-                        ctx.followUp({
-                            content: `${currentShop.emoji} **${currentShop.name}**: You bought ${
-                                xitem.emoji
-                            } **${xitem.name}** for **${price.toLocaleString("en-US")}** ${
+                        Functions.addItem(ctx.userData, selectedItem, amount);
+
+                        await ctx.followUp({
+                            content: `${currentShop.emoji} **${currentShop.name}**: You bought x${amount} ${
+                                selectedItem.emoji
+                            } **${selectedItem.name}** for **${price.toLocaleString("en-US")}** ${
                                 ctx.client.localEmojis.jocoins
                             }`
                         });
                     }
                     await ctx.client.database.saveUserData(ctx.userData);
                     makeShopEmbed(currentShop);
+
                 }
             });
         }

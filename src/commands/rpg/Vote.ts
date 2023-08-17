@@ -6,7 +6,7 @@ import { generateDiscordTimestamp, TopGGVoteRewards } from "../../utils/Function
 const slashCommand: SlashCommandFile = {
     data: {
         name: "vote",
-        description: "View your profile (or someone else's)",
+        description: "Vote for Jolyne in Top.GG",
         options: []
     },
     execute: async (
@@ -38,7 +38,7 @@ const slashCommand: SlashCommandFile = {
                 // fields: [
                 // {
                 name: "Thank you for voting!",
-                value: `You have been given **${voteRewards.coins.toLocaleString("en-US")}** ${ctx.client.localEmojis.jocoins} and **${voteRewards.xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp} for voting.${ctx.userData.totalVotes % 2 === 0 ? `\nYou have also been giving x2 ${ctx.client.localEmojis.mysterious_arrow} Stand Arrows for voting 2 times.` : `\nIf you vote 1 more time, you will be given x2 ${ctx.client.localEmojis.mysterious_arrow} Stand Arrows.`}`
+                value: `You have been given **${voteRewards.coins.toLocaleString("en-US")}** ${ctx.client.localEmojis.jocoins} and **${voteRewards.xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp} for voting ${generateDiscordTimestamp(lastVote, "FROM_NOW")}. ${ctx.userData.totalVotes % 2 === 0 ? `\nYou have also been giving x2 ${ctx.client.localEmojis.mysterious_arrow} Stand Arrows for voting 2 times.` : `\nIf you vote 1 more time, you will be given x2 ${ctx.client.localEmojis.mysterious_arrow} Stand Arrows.`}`
                 // }
                 // ]
             });

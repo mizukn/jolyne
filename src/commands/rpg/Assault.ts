@@ -19,7 +19,7 @@ const slashCommand: SlashCommandFile = {
     checkRPGCooldown: "assault",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
-            ctx.makeMessage({
+            await ctx.makeMessage({
                 content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
                     "inventory use"
                 )} or ${ctx.client.getSlashCommandMention("shop")})`,
@@ -71,7 +71,7 @@ const slashCommand: SlashCommandFile = {
             components: [Functions.actionRow([normalNPCButton, randomNPCButton, highNPCButton])]
         });
         await ctx.client.database.setRPGCooldown(ctx.user.id, "assault", 60000 * 5);
-        ctx.client.database.setCooldown(
+        await ctx.client.database.setCooldown(
             ctx.userData.id,
             `You're currently assaulting someone. Please make a selection!`
         );
@@ -90,8 +90,8 @@ const slashCommand: SlashCommandFile = {
                 (await ctx.client.database.getCooldown(ctx.userData.id)) ===
                 `You're currently assaulting someone. Please make a selection!`
             ) {
-                ctx.client.database.deleteCooldown(ctx.userData.id);
-                ctx.followUp({
+                await ctx.client.database.deleteCooldown(ctx.userData.id);
+                await ctx.followUp({
                     content: `You didn't select a target in time. Please try again next time`
                 });
             }
@@ -112,7 +112,7 @@ const slashCommand: SlashCommandFile = {
             const fightHandler = new FightHandler(ctx, [[ctx.userData], [npc]], FightTypes.Assault);
 
             fightHandler.on("end", async (winners, losers) => {
-                ctx.client.database.deleteCooldown(ctx.userData.id);
+                await ctx.client.database.deleteCooldown(ctx.userData.id);
                 if (winners.find((r) => r.id === ctx.userData.id)) {
                     const xp = Functions.addXp(
                         ctx.userData,
@@ -122,7 +122,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.userData,
                         npc.rewards?.coins / 25 ?? npc.level * 250
                     );
-                    ctx.followUp({
+                    await ctx.followUp({
                         content: `You assaulted ${npc.name} and won! You got ${xp.toLocaleString(
                             "en-US"
                         )} ${ctx.client.localEmojis.xp} and ${coins.toLocaleString("en-US")} ${
@@ -133,11 +133,11 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.health = 0;
                     ctx.userData.stamina = 0;
 
-                    ctx.followUp({
+                    await ctx.followUp({
                         content: `You assaulted ${npc.name} and lost! You lost all your health and stamina. Better luck next time or train yourself more.`
                     });
                 }
-                ctx.client.database.saveUserData(ctx.userData);
+                await ctx.client.database.saveUserData(ctx.userData);
             });
         });
     }

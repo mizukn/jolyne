@@ -20,7 +20,7 @@ import { getQuestsStats } from "./Chapter";
 const slashCommand: SlashCommandFile = {
     data: {
         name: "daily",
-        description: "[...]",
+        description: "Claim your daily or view your daily quests.",
         type: ApplicationCommandOptionType.Subcommand,
         options: [
             {

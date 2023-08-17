@@ -22,7 +22,7 @@ interface Loot {
 const slashCommand: SlashCommandFile = {
     data: {
         name: "loot",
-        description: "F",
+        description: "Loot something around the Morioh City",
         options: []
     },
     rpgCooldown: {

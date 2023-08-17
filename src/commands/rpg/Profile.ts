@@ -113,11 +113,11 @@ const slashCommand: SlashCommandFile = {
             },
             description: ctx.translate("profile:ADVENTUREAT", {
                 rUnix: Functions.generateDiscordTimestamp(
-                    parseInt(rpgData.adventureStartedAt),
+                    Number(rpgData.adventureStartedAt),
                     "FROM_NOW"
                 ), //`<t:${(userData.adventureat/1000).toFixed(0)}:R>`,
                 dUnix: Functions.generateDiscordTimestamp(
-                    parseInt(rpgData.adventureStartedAt),
+                    Number(rpgData.adventureStartedAt),
                     "DATE"
                 ) //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
             }),

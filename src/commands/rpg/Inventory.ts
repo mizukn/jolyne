@@ -22,7 +22,7 @@ import { NPCs } from "../../rpg/NPCs";
 const slashCommand: SlashCommandFile = {
     data: {
         name: "inventory",
-        description: "dd",
+        description: "Show information about your inventory",
         options: [
             {
                 name: "view",
@@ -51,7 +51,7 @@ const slashCommand: SlashCommandFile = {
             },
             {
                 name: "equip",
-                description: "Equips an item. You can only equip items that are equipable.",
+                description: "Equips an item. You can only equip items that are equippable.",
                 type: 1,
                 options: [
                     {

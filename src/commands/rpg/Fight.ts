@@ -17,7 +17,7 @@ import { ButtonStyle } from "discord.js";
 const slashCommand: SlashCommandFile = {
     data: {
         name: "fight",
-        description: "l",
+        description: "Starts a fight.",
         options: [
             {
                 name: "npc",

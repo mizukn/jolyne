@@ -23,7 +23,7 @@ const rarityValue = {
 const slashCommand: SlashCommandFile = {
     data: {
         name: "craft",
-        description: "neeeega",
+        description: "Craft an item, or view the requirements to craft an item",
         options: [
             {
                 name: "item",

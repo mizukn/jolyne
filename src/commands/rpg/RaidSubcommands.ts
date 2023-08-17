@@ -17,11 +17,11 @@ import { raidWebhook } from "../../utils/Webhooks";
 const slashCommand: SlashCommandFile = {
     data: {
         name: "raid",
-        description: "neeeega",
+        description: "Raid a boss.",
         options: [
             {
                 name: "npc",
-                description: "npc",
+                description: "It is preferred to raid a NPC with other players, unless you're the same level as the Boss.",
                 type: ApplicationCommandOptionType.String, // 3
                 autocomplete: true,
                 required: true

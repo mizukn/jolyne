@@ -44,7 +44,7 @@ type cShop = {
 const slashCommand: SlashCommandFile = {
     data: {
         name: "emails",
-        description: "a",
+        description: "View your emails",
         type: 1,
         options: [
             {
