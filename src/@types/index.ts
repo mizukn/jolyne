@@ -277,7 +277,7 @@ export interface RPGUserDataJSON {
     /**
      * The unix timestamp of when the user started their adventure.
      */
-    adventureStartedAt: string;
+    adventureStartedAt: number;
     equippedItems: {
         [key: Item["id"]]: number;
     };
@@ -287,6 +287,7 @@ export interface RPGUserDataJSON {
         until: number;
     }[];
     restingAtCampfire: number;
+    lastPatreonReward: number;
 }
 
 export enum equipableItemTypes {
@@ -935,4 +936,95 @@ export interface RaidBoss {
     maxLevel: number;
     maxPlayers: number;
     cooldown: number;
+}
+
+/**
+ * OLD V2 Player's Data Interface.
+ */
+export interface V2UserData {
+    /**
+     * The user's Discord ID.
+     * @readonly
+     */
+    readonly id: string;
+    /**
+     * The user's Discord Tag.
+     */
+    tag: string;
+    /**
+     * The user's inventory.
+     */
+    items: Item["id"][];
+    /**
+     * The user's level.
+     */
+    level: number;
+    /**
+     * The user's xp.
+     */
+    xp: number;
+    /**
+     * The user's health.
+     */
+    health: number;
+    /**
+     * The user's max health (skill points, level, stand bonuses).
+     */
+    max_health: number;
+    /**
+     * The user's stamina.
+     */
+    stamina: number;
+    /**
+     * The user's max stamina (skill points, level, stand bonuses).
+     */
+    max_stamina: number;
+    /**
+     * The user's chapter.
+     */
+    chapter: number;
+    /**
+     * The user's money.
+     */
+    money: number;
+    /**
+     * The user's prefered language.
+     */
+    language: string;
+    /**
+     * The user's stand.
+     */
+    stand?: Stand["name"];
+    /**
+     * The user's skill points.
+     */
+    skill_points: SkillPoints;
+    /**
+     * The user's chapter quests.
+     */
+    chapter_quests: Quest[];
+    /**
+     * The user's side quests.
+     */
+    side_quests: Quest[];
+    /**
+     * The date when the user started their adventure.
+     */
+    adventureat: number;
+    /**
+     * The user's skill points (including bonuses).
+     */
+    spb?: SkillPoints;
+    /**
+     * The user's dodge chances.
+     */
+    dodge_chances?: number;
+    /**
+     * Daily infos.
+     */
+    daily: {
+        claimedAt: number,
+        streak: number,
+        quests: Quest[]
+    },
 }
