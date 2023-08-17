@@ -4,6 +4,8 @@ import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
+import { cloneDeep } from "lodash";
+
 
 const Event: EventFile = {
     name: Events.InteractionCreate,
@@ -60,7 +62,7 @@ const Event: EventFile = {
             }
             let ctx: CommandInteractionContext;
 
-            if (command.category === "rpg" || command.ownerOnly || command.adminOnly) {
+            if (command.category === "rpg") {
                 const userData = await interaction.client.database.getRPGUserData(
                     interaction.user.id
                 );
@@ -134,7 +136,7 @@ const Event: EventFile = {
                 }
 
                 interaction.client.log(
-                    `[${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
+                    `${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
                         interaction.options["data"]
                     )}`, "command"
                 );
@@ -157,6 +159,16 @@ const Event: EventFile = {
                     });
                 }
                 const oldDataJSON = JSON.stringify(ctx.userData);
+                if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
+                    if (ctx.userData.lastPatreonReward !== ctx.client.patreons.find((r) => r.id === ctx.user.id).lastPatreonCharge) {
+                        const oldDataPatreon = cloneDeep(ctx.userData);
+                        Functions.givePatreonRewards(ctx.userData, ctx.client.patreons.find((r) => r.id === ctx.user.id).level);
+                        ctx.followUpQueue.push({
+                            content: `:heart:<:patronbox:1056324158524502036> | **${ctx.user.username}**, you received your monthly Patreon rewards! You got the following rewards:\n${Functions.getRewardsCompareData(oldDataPatreon, ctx.userData).join(", ")}`
+                        });
+                        ctx.userData.lastPatreonReward = ctx.client.patreons.find((r) => r.id === ctx.user.id).lastPatreonCharge;
+                    }
+                }
                 for (const SideQuest of Object.values(SideQuests)) {
                     if (await SideQuest.requirements(ctx)) {
                         if (!ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)) {
@@ -385,6 +397,7 @@ const Event: EventFile = {
                 interaction.respond([]);
                 return;
             }
+            console.log(`[AUTOCOMPLETE] ${interaction.user.username} used ${interaction.commandName} with options: ${JSON.stringify(interaction.options["data"])} (${command})`);
 
             command.autoComplete(
                 interaction,

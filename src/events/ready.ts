@@ -94,10 +94,11 @@ const Event: EventFile = {
         async function fetchPatreonsFromCache() {
             const patrons = await client.database.redis.keys("patron:*");
             for (const patron of patrons) {
-                const tier = await client.database.redis.get(patron);
+                const data = await client.database.redis.get(patron);
                 client.patreons.push({
                     id: patron.split(":")[1],
-                    level: parseInt(tier)
+                    level: parseInt(data.split(":")[0]) as (1 | 2 | 3 | 4),
+                    lastPatreonCharge: parseInt(data.split(":")[1])
                 });
             }
         }
@@ -118,13 +119,19 @@ const Event: EventFile = {
                     };
                 }));
                 for (const key of keys) client.database.redis.del(key);
-                client.patreons = [];
+                client.patreons = [
+                    {
+                        id: "239739781238620160",
+                        level: 1,
+                        lastPatreonCharge: Date.now()
+                    }
+                ];
 
                 for (const patron of patrons) {
                     if (new Date(patron.last_charge_date).getTime() + 1000 * 60 * 60 * 24 * 31 < Date.now() || patron.currently_entitled_amount_cents === 0) {
                         continue;
                     }
-                    let tier;
+                    let tier: 1 | 2 | 3 | 4;
 
                     if (patron.currently_entitled_amount_cents >= 1600) tier = 4; // OVER HEAVEN SUPPORTER
                     else if (patron.currently_entitled_amount_cents >= 1000) tier = 3; // HEAVEN ASCENDED SUPPORTER
@@ -137,10 +144,11 @@ const Event: EventFile = {
                     }
 
                     client.log(`Fetched patron ${patron.full_name} is tier ${tier}, currently_entitled_amount_cents: ${patron.currently_entitled_amount_cents} (discordID: ${patron.discord_id})`, "patron");
-                    client.database.redis.set(`patron:${patron.discord_id}`, String(tier));
+                    client.database.redis.set(`patron:${patron.discord_id}`, String(tier) + ":" + new Date(patron.last_charge_date).getTime());
                     client.patreons.push({
                         id: patron.discord_id,
-                        level: tier
+                        level: tier,
+                        lastPatreonCharge: new Date(patron.last_charge_date).getTime()
                     });
                     if (oldPatrons.find((v) => v.id === patron.discord_id)?.level !== tier) {
                         // give rewards here
@@ -154,7 +162,7 @@ const Event: EventFile = {
 
         if (process.env.IGNORE_PATREONS !== "true") {
             const fetchPatreonsJob = new CronJob(
-                "0 0 * * *",
+                "*/2 * * * *",
                 fetchPatreons,
                 null,
                 true,
@@ -239,7 +247,9 @@ const Event: EventFile = {
             } else commandsV3.push(commands);
         }
         client.allCommands = commandsV3;
+        console.log(client.allCommands);
         client.log(`Logged in as ${client.user?.tag}`, "ready");
+        client.database.migrateData();
     }
 };
 export default Event;
