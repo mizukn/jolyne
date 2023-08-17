@@ -25,7 +25,7 @@ async function useBox(
     shakingEmoji: string
 ): Promise<boolean> {
     await ctx.makeMessage({
-        content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
+        content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`
     });
     await Functions.sleep(2000);
 
@@ -93,7 +93,7 @@ export const Box: Special = {
             ...midItemsList1,
             ...standList
                 .filter((r) => r.rarity === "C")
-                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
+                .map((x) => Functions.findItem(`${x.id}.$disc$`))
         ].filter((r) => r);
         const okItems = [Items.Diamond, Items.AncientScroll];
         const rareItems = [
@@ -105,25 +105,25 @@ export const Box: Special = {
                     (r.tradable && r.storable && r.rarity === "B") ||
                     (r.tradable && r.storable && r.rarity === "A")
             ),
-            Functions.findItem("stand_arrow"),
+            Functions.findItem("stand_arrow")
         ].filter((r) => r);
 
         const finalLoot: boxLoot[][] = [
             [
                 {
                     percent: 100,
-                    coins: Functions.randomNumber(1000, 5000),
+                    coins: Functions.randomNumber(1000, 5000)
                 },
                 {
                     percent: 100,
                     xp: Functions.randomNumber(
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                    ),
-                },
+                    )
+                }
             ],
             [],
-            [],
+            []
         ];
 
         for (const item of midItems.filter((r) => Functions.percent(70))) {
@@ -132,7 +132,7 @@ export const Box: Special = {
             if (!Functions.percent(50)) continue;
             target.push({
                 percent: 100,
-                loot: item.id,
+                loot: item.id
             });
         }
 
@@ -142,11 +142,11 @@ export const Box: Special = {
             if (!Functions.percent(50)) continue;
             target.push({
                 percent: 100,
-                loot: item.id,
+                loot: item.id
             });
         }
         return useBox(ctx, finalLoot, "box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "📦", Emojis.box_shaking);
-    },
+    }
 };
 
 export const MoneyBox: Special = {
@@ -163,18 +163,18 @@ export const MoneyBox: Special = {
             [
                 {
                     percent: 100,
-                    coins: Functions.randomNumber(20000, 5000),
+                    coins: Functions.randomNumber(20000, 5000)
                 },
                 {
                     percent: 100,
                     xp: Functions.randomNumber(
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                    ),
-                },
+                    )
+                }
             ],
             [],
-            [],
+            []
         ];
 
         return useBox(
@@ -185,7 +185,7 @@ export const MoneyBox: Special = {
             Emojis.moneyBox,
             "<a:money_box_shaking:962388845540823100>"
         );
-    },
+    }
 };
 
 export const PatreonBox: Special = {
@@ -204,24 +204,24 @@ export const PatreonBox: Special = {
             [
                 {
                     percent: 100,
-                    coins: 100000,
+                    coins: 100000
                 },
                 {
                     percent: 100,
-                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
-                },
+                    xp: Functions.getMaxXp(ctx.userData.level ?? 1)
+                }
             ],
             [
                 {
                     percent: 100,
-                    loot: standList[Math.floor(Math.random() * standList.length)].id + ".$disc$",
+                    loot: standList[Math.floor(Math.random() * standList.length)].id + ".$disc$"
                 },
                 {
                     percent: 100,
                     loot: StandArrow.id,
-                    mult: 30,
-                },
-            ],
+                    mult: 30
+                }
+            ]
         ];
 
         return useBox(
@@ -232,7 +232,7 @@ export const PatreonBox: Special = {
             "<:x:1056324158524502036>",
             "<a:x:1056324219639701504>"
         );
-    },
+    }
 };
 
 export const StandArrow: Special = {
@@ -245,13 +245,21 @@ export const StandArrow: Special = {
     tradable: true,
     storable: true,
     craft: {
-        broken_arrow: 3,
+        broken_arrow: 3
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const standArray = Object.values(Stands);
         standArray.push({
             id: "silver_chariot",
-            ...EvolutionStands.SilverChariot.evolutions[0],
+            ...EvolutionStands.SilverChariot.evolutions[0]
+        });
+        standArray.push({
+            id: "gold_experience",
+            ...EvolutionStands.GoldExperience.evolutions[0]
+        });
+        standArray.push({
+            id: "whitesnake",
+            ...EvolutionStands.Whitesnake.evolutions[0]
         });
 
         const percent = Math.floor(Math.random() * 100);
@@ -309,13 +317,13 @@ export const StandArrow: Special = {
                         stand.skillPoints
                     )
                         .map(([key, value]) => `• +${value} ${key}`)
-                        .join("\n")}`,
-                },
-            ],
+                        .join("\n")}`
+                }
+            ]
         });
         await ctx.client.database.saveUserData(ctx.userData);
         return true;
-    },
+    }
 };
 
 export const RequiemArrow: Special = {
@@ -331,7 +339,7 @@ export const RequiemArrow: Special = {
     craft: {
         ancient_scroll: 150,
         stand_arrow: 300,
-        broken_arrow: 150,
+        broken_arrow: 150
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const stand = Functions.findStand(ctx.userData.stand);
@@ -342,21 +350,123 @@ export const RequiemArrow: Special = {
         }
         if (ctx.userData.level < 50) {
             ctx.makeMessage({
-                content: "You are not worthy of this arrow yet...",
+                content: "You are not worthy of this arrow yet..."
             });
             return false;
         }
         if (ctx.userData.standsEvolved[stand.id] === 1) {
             await ctx.sendTranslated("items:REQUIEM_ARROW.ALREADY_REQUIEM", {
-                stand: stand.name,
+                stand: stand.name
             });
             return false;
         }
         ctx.userData.standsEvolved[stand.id] = 1;
         await ctx.sendTranslated("items:REQUIEM_ARROW.EVOLVING", {
-            stand: stand.name,
+            stand: stand.name
         });
         ctx.client.database.saveUserData(ctx.userData);
         return true;
-    },
+    }
+};
+
+export const SkillPointsResetPotion: Special = {
+    id: "skill_points_reset_potion",
+    name: "Skill Points Reset Potion",
+    description: "A potion that resets your skill points.",
+    rarity: "A",
+    emoji: Emojis.sp_potion,
+    price: 59000,
+    tradable: true,
+    storable: true,
+    use: async (ctx, ars) => {
+        for (const [key, value] of Object.entries(ctx.userData.skillPoints)) {
+            ctx.userData.skillPoints[key as keyof typeof ctx.userData["skillPoints"]] = 0;
+        }
+        ctx.client.database.saveUserData(ctx.userData).catch(() => {
+            return false;
+        });
+
+        return true;
+    }
+};
+
+export const ChristmasGift: Special = {
+    id: "christmas_gift",
+    name: "Christmas Gift",
+    description: "A gift that can be available/obtained during Christmas.",
+    rarity: "B",
+    emoji: "📦",
+    price: 5000,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const possibleConsumables = Object.values(Consumables).filter(
+            (r) => r.tradable && r.storable
+        );
+        const midItemsList1 = Object.values(Items).filter(
+            (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B"
+        );
+        const standList = Object.values(Stands).filter(
+            (r) => r.available && r.rarity !== "SS" && r.rarity !== "T"
+        );
+
+        const midItems = [
+            ...possibleConsumables,
+            ...midItemsList1,
+            ...standList
+                .filter((r) => r.rarity === "C")
+                .map((x) => Functions.findItem(`${x.id}.$disc$`))
+        ].filter((r) => r);
+        const okItems = [Items.Diamond, Items.AncientScroll];
+        const rareItems = [
+            ...standList
+                .filter((r) => r.rarity === "B")
+                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
+            ...Object.values(Items).filter(
+                (r) =>
+                    (r.tradable && r.storable && r.rarity === "B") ||
+                    (r.tradable && r.storable && r.rarity === "A")
+            ),
+            Functions.findItem("stand_arrow")
+        ].filter((r) => r);
+
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    coins: Functions.randomNumber(1000, 5000)
+                },
+                {
+                    percent: 100,
+                    xp: Functions.randomNumber(
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 50
+                    )
+                }
+            ],
+            [],
+            []
+        ];
+
+        for (const item of midItems.filter((r) => Functions.percent(70))) {
+            const target = finalLoot[1];
+
+            if (!Functions.percent(50)) continue;
+            target.push({
+                percent: 100,
+                loot: item.id
+            });
+        }
+
+        for (const item of rareItems.filter((r) => Functions.percent(50))) {
+            const target = finalLoot[2];
+
+            if (!Functions.percent(50)) continue;
+            target.push({
+                percent: 100,
+                loot: item.id
+            });
+        }
+        return useBox(ctx, finalLoot, "box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "📦", Emojis.box_shaking);
+    }
 };

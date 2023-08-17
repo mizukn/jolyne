@@ -7,12 +7,12 @@ const baseSP = {
     strength: 1,
     speed: 1,
     perception: 1,
-    stamina: 0,
+    stamina: 0
 };
 
 const baseRewards = {
     coins: 100,
-    xp: 350,
+    xp: 350
 };
 
 export const Kakyoin: FightableNPC = {
@@ -23,22 +23,22 @@ export const Kakyoin: FightableNPC = {
         strength: 1,
         speed: 1,
         perception: 100,
-        stamina: 0,
+        stamina: 0
     },
     rewards: {
         items: [
             {
                 item: "kakyoins_snazzy_shades",
                 chance: 25,
-                amount: 1,
-            },
-        ],
+                amount: 1
+            }
+        ]
     },
     stand: "hierophant_green",
     equippedItems: {
-        kakyoins_snazzy_shades: 9,
+        kakyoins_snazzy_shades: 9
     },
-    standsEvolved: {},
+    standsEvolved: {}
 };
 
 export const Harry_Lester: FightableNPC = {
@@ -49,34 +49,34 @@ export const Harry_Lester: FightableNPC = {
         strength: 1,
         speed: 1,
         perception: 1,
-        stamina: 0,
+        stamina: 0
     },
     stand: "hermit_purple",
     equippedItems: {},
-    standsEvolved: {},
+    standsEvolved: {}
 };
 
 export const Jotaro: FightableNPC = {
     ...NPCs.Jotaro,
-    level: 150,
+    level: 200,
     skillPoints: {
         defense: 100,
         strength: 100,
         speed: 100,
         perception: 100,
-        stamina: 100,
+        stamina: 100
     },
     equippedItems: {},
     stand: "star_platinum",
-    standsEvolved: {},
+    standsEvolved: {}
 };
 
 export const Dio: FightableNPC = {
     ...NPCs.Dio,
-    level: Jotaro.level,
+    level: 150,
     skillPoints: Jotaro.skillPoints,
     equippedItems: {
-        dios_knives: 6,
+        dios_knives: 6
     },
     standsEvolved: {},
     stand: "the_world",
@@ -85,15 +85,15 @@ export const Dio: FightableNPC = {
             {
                 item: "the_world.$disc$",
                 amount: 1,
-                chance: 2,
+                chance: 2
             },
             {
                 item: "dios_knives",
                 amount: 1,
-                chance: 1,
-            },
-        ],
-    },
+                chance: 1
+            }
+        ]
+    }
 };
 
 export const Heaven_Ascended_Dio: FightableNPC = {
@@ -104,10 +104,10 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         strength: Dio.skillPoints.strength * 5,
         speed: Dio.skillPoints.speed * 5,
         perception: Dio.skillPoints.perception * 5,
-        stamina: Dio.skillPoints.stamina * 5,
+        stamina: Dio.skillPoints.stamina * 5
     },
     equippedItems: {},
-    standsEvolved: {},
+    standsEvolved: {}
     //stand: "The World: Over Heaven",
 };
 
@@ -117,7 +117,7 @@ export const BanditLeader: FightableNPC = {
     skillPoints: baseSP,
     stand: "hierophant_green",
     equippedItems: {},
-    standsEvolved: {},
+    standsEvolved: {}
 };
 
 export const Bandit: FightableNPC = {
@@ -125,7 +125,7 @@ export const Bandit: FightableNPC = {
     level: 0,
     skillPoints: baseSP,
     equippedItems: {},
-    standsEvolved: {},
+    standsEvolved: {}
 };
 
 export const SecurityGuard: FightableNPC = {
@@ -133,7 +133,7 @@ export const SecurityGuard: FightableNPC = {
     level: 5,
     skillPoints: baseSP,
     equippedItems: {},
-    standsEvolved: {},
+    standsEvolved: {}
 };
 
 export const Polnareff: FightableNPC = {
@@ -142,7 +142,7 @@ export const Polnareff: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "silver_chariot",
-    standsEvolved: {},
+    standsEvolved: {}
 };
 
 export const RequiemPolnareff: FightableNPC = {
@@ -152,6 +152,6 @@ export const RequiemPolnareff: FightableNPC = {
     equippedItems: {},
     stand: "silver_chariot",
     standsEvolved: {
-        silver_chariot: 1,
-    },
+        silver_chariot: 1
+    }
 };

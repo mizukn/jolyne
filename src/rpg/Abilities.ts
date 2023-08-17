@@ -974,7 +974,7 @@ export const KnivesThrow: Ability = {
             } else {
                 const damages = Math.round(Functions.getAttackDamages(user) * 0.75);
                 target.health -= damages;
-                user.totalDamageDealt += damage;
+                user.totalDamageDealt += damages;
                 if (target.health <= 0) target.health = 0;
                 const stamina = Math.round(target.maxStamina * 0.03);
                 target.stamina -= stamina;
@@ -1015,7 +1015,7 @@ export const GasolineBullets: Ability = {
                 if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
                     const damages = Math.round(Functions.getAttackDamages(user) * 0.45);
                     x.health -= damages;
-                    user.totalDamageDealt += damage;
+                    user.totalDamageDealt += damages;
                     if (x.health <= 0) x.health = 0;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon.emoji} GASOLINE BULLETS: **${user.name}** has dealt **${damages}** damages to **${x.name}**.`
