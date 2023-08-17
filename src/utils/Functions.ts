@@ -51,6 +51,7 @@ import * as BaseQuests from "../rpg/Quests/Quests";
 import * as Emails from "../rpg/Emails";
 import * as EquipableItems from "../rpg/Items/EquipableItems";
 import { Command } from "ioredis";
+import * as Emojis from "../emojis.json";
 
 export const generateRandomId = (): string => {
     return (
@@ -310,6 +311,7 @@ export const findStand = (stand: string, evolution?: number): Stand => {
             ((standClass as Stand).name !== undefined &&
                 (standClass as Stand).name.toLocaleLowerCase() === stand.toLocaleLowerCase())
     );
+    if (!foundStand) return null;
 
     if ((foundStand as EvolutionStand).evolutions) {
         if (!evolution) evolution = 0;
@@ -1431,4 +1433,47 @@ export const TopGGVoteRewards = (userData: RPGUserDataJSON): { coins: number; xp
 
 export const isEvolvableStand = (stand: (Stand | EvolutionStand)): boolean => {
     return (stand as EvolutionStand).evolutions !== undefined;
+};
+
+export const plusOrMinus = (num: number, num2: number): string => {
+    if (num2 > num) return "+";
+    else if (num2 < num) return "-";
+    else return "=~";
+};
+
+export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserDataJSON): string[] => {
+
+    const rewards: string[] = [];
+
+    if (data1.xp !== data2.xp) rewards.push(`**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString("en-US")}** ${Emojis.xp}`);
+    if (data1.coins !== data2.coins) rewards.push(`**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(data1.coins - data2.coins).toLocaleString("en-US")}** ${Emojis.jocoins}`);
+
+    if (JSON.stringify(data1.inventory) !== JSON.stringify(data2.inventory)) {
+        console.log("here");
+        // inventory example:
+        // {
+        //   "stand.disc": 1,
+        //   "pizza": 2
+        // }
+
+        for (const item of Object.keys(data2.inventory)) {
+            if ((data2.inventory[item] || 0) > (data1.inventory[item] || 0)) rewards.push(`**${plusOrMinus((data1.inventory[item] || 0), (data2.inventory[item] || 0))}${Math.abs((data1.inventory[item] || 0) - (data2.inventory[item] || 0)).toLocaleString("en-US")}** ${findItem(item).emoji} ${findItem(item).name}`);
+        }
+    } else console.log(JSON.stringify(data1.inventory), JSON.stringify(data2.inventory));
+
+    if (data1.health !== data2.health) rewards.push(`**${plusOrMinus(data1.health, data2.health)}${Math.abs(data1.health - data2.health).toLocaleString("en-US")}** :heart:`);
+    if (data1.stamina !== data2.stamina) rewards.push(`**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(data1.stamina - data2.stamina).toLocaleString("en-US")}** :zap:`);
+
+    return rewards;
+};
+
+export const givePatreonRewards = (userData: RPGUserDataJSON, tier: 1 | 2 | 3 | 4): void => {
+    const patronBox = {
+        1: 1,
+        2: 2,
+        3: 5,
+        4: 8
+    };
+
+    addItem(userData, findItem("patron_box").id, patronBox[tier]);
 };
