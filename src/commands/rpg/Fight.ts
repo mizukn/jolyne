@@ -45,6 +45,11 @@ const slashCommand: SlashCommandFile = {
                     }
                 ]
             },
+            /*{
+                name: "global",
+                description: "Fight against a random player. Ranked if the player matches your level, unranked otherwise.",
+                type: 1
+            },*/
             {
                 name: "custom",
                 description: "Starts a custom fight",
@@ -214,7 +219,10 @@ const slashCommand: SlashCommandFile = {
                 }
             });
             return;
-        }
+        } /*else if (ctx.interaction.options.getSubcommand() === "global") {
+            ctx.client.cluster.emit("matchmakingAdd", ctx);
+            return;
+        }*/
 
         // todo: ADD FightTypes.SideQuest and support for it
         function startFight(

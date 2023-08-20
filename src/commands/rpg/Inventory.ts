@@ -18,6 +18,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import * as Functions from "../../utils/Functions";
 import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
+import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -31,7 +32,7 @@ const slashCommand: SlashCommandFile = {
             },
             {
                 name: "use",
-                description: "dd",
+                description: "Uses an item. Consumes it.",
                 type: 1,
                 options: [
                     {
@@ -496,7 +497,7 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
             const winContent = `You used ${itemData.emoji} x${amountX} \`${itemData.name}\` and got:`;
-            const winContentArray: string[] = [];
+            const oldData = cloneDeep(ctx.userData);
 
             // eslint-disable-next-line no-inner-declarations
             function addHealthOrStamina(amount: numOrPerc, type: "health" | "stamina"): void {
@@ -514,12 +515,10 @@ const slashCommand: SlashCommandFile = {
                 switch (typeof amount) {
                     case "number":
                         addX(ctx.userData, amount);
-                        winContentArray.push(`+${x() - oldX} ${emoji} (${x()}/${maxX})`);
                         break;
                     case "string":
                         // %
                         addX(ctx.userData, Math.round((x() / maxX) * parseInt(amount)));
-                        winContentArray.push(`+${x() - oldX} ${emoji} (${x()}/${maxX})`);
                         break;
                     // default: impossible
                 }
@@ -541,11 +540,6 @@ const slashCommand: SlashCommandFile = {
                             // if (!itemData2) impossible;
 
                             Functions.addItem(ctx.userData, item, itemData.effects.items[item]);
-                            winContentArray.push(
-                                `[${i + 1}] +${itemData.effects.items[item]} ${itemData2.name} ${
-                                    itemData2.emoji
-                                }`
-                            );
                         }
                     }
                 }
@@ -577,7 +571,7 @@ const slashCommand: SlashCommandFile = {
             }
             ctx.client.database.saveUserData(ctx.userData);
             ctx.makeMessage({
-                content: winContent + " " + winContentArray.join(", ")
+                content: winContent + " " + Functions.getRewardsCompareData(oldData, ctx.userData).join(", ")
             });
         } else if (ctx.interaction.options.getSubcommand() === "throw") {
             const itemString = ctx.interaction.options.getString("item", true);
