@@ -4,6 +4,7 @@ import redis from "ioredis";
 const TempRedis = new redis({ db: Number(process.env.REDIS_DB) });
 
 (async () => {
+    // await TempRedis.set("rpgGlobalFightMatchmaking", JSON.stringify([]));
     await TempRedis.keys("*tempCache_*").then((keys) => {
         for (const key of keys) {
             TempRedis.del(key);
