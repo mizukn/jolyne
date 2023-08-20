@@ -92,6 +92,16 @@ const Event: EventFile = {
             } else ctx = new CommandInteractionContext(interaction);
 
             if (command.category === "rpg" && ctx.userData) {
+                if (ctx.userData.level === 1 && Functions.calculeSkillPointsLeft(ctx.userData) === 4) {
+                    await ctx.makeMessage({
+                        content: `:arrow_up: | **${ctx.user.username}**, you have **${Functions.calculeSkillPointsLeft(
+                            ctx.userData
+                        )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
+                            "skill points invest"
+                        )} command to invest them! It is crucial to invest your skill points to progress in the game, so please do it.`
+                    });
+                    return;
+                }
                 const isONCD = await ctx.client.database.getCooldown(ctx.user.id);
                 if (isONCD) {
                     let dox = false;

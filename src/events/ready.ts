@@ -4,6 +4,8 @@ import { Events, ActivityType, ActivityOptions } from "discord.js";
 import * as Stands from "../rpg/Stands/Stands";
 import Jolyne from "../structures/JolyneClient";
 import { CronJob } from "cron";
+import TopGG from "../utils/TopGG";
+import Matchmaking from "../utils/Matchmaking";
 
 const Event: EventFile = {
     name: Events.ClientReady,
@@ -17,6 +19,8 @@ const Event: EventFile = {
 
         // prettier-ignore
         if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
+            TopGG(client);
+            Matchmaking(client);
 
             const lastCommands = await client.database.getString(
                 `jolyne_${client.user.id}:commands`
@@ -154,7 +158,6 @@ const Event: EventFile = {
                         // give rewards here
                     }
                 }
-                console.log(client.patreons, oldPatrons);
             } else {
                 setTimeout(fetchPatreonsFromCache, 1000 * 15);
             }
@@ -247,9 +250,8 @@ const Event: EventFile = {
             } else commandsV3.push(commands);
         }
         client.allCommands = commandsV3;
-        console.log(client.allCommands);
         client.log(`Logged in as ${client.user?.tag}`, "ready");
-        client.database.migrateData();
+        // client.database.migrateData();
     }
 };
 export default Event;
