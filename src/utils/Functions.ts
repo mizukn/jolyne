@@ -1445,7 +1445,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
 
     const rewards: string[] = [];
 
-    if (data1.xp !== data2.xp) rewards.push(`**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString("en-US")}** ${Emojis.xp}`);
+    if (data1.xp !== data2.xp) rewards.push(`**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString("en-US")}** XP ${Emojis.xp}`);
     if (data1.coins !== data2.coins) rewards.push(`**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(data1.coins - data2.coins).toLocaleString("en-US")}** ${Emojis.jocoins}`);
 
     if (JSON.stringify(data1.inventory) !== JSON.stringify(data2.inventory)) {
@@ -1461,8 +1461,8 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         }
     } else console.log(JSON.stringify(data1.inventory), JSON.stringify(data2.inventory));
 
-    if (data1.health !== data2.health) rewards.push(`**${plusOrMinus(data1.health, data2.health)}${Math.abs(data1.health - data2.health).toLocaleString("en-US")}** :heart:`);
-    if (data1.stamina !== data2.stamina) rewards.push(`**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(data1.stamina - data2.stamina).toLocaleString("en-US")}** :zap:`);
+    if (data1.health !== data2.health) rewards.push(`**${plusOrMinus(data1.health, data2.health)}${Math.abs(data1.health - data2.health).toLocaleString("en-US")}** health :heart: (${data2.health.toLocaleString("en-US")}/${getMaxHealth(data2).toLocaleString("en-US")})`);
+    if (data1.stamina !== data2.stamina) rewards.push(`**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(data1.stamina - data2.stamina).toLocaleString("en-US")}** :zap: (${data2.stamina.toLocaleString("en-US")}/${getMaxStamina(data2).toLocaleString("en-US")})`);
 
     return rewards;
 };

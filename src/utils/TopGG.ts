@@ -1,4 +1,4 @@
-import TopGG from "@top-gg/sdk";
+import * as TopGG from "@top-gg/sdk";
 import JolyneClient from "../structures/JolyneClient";
 import { voteWebhook } from "./Webhooks";
 import express from "express";
