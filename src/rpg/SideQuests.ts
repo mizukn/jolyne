@@ -5,7 +5,7 @@ const RequiemArrowEvolveQuests: SideQuest["quests"] = [
     Functions.generateUseXCommandQuest("assault", 100),
     Functions.generateUseXCommandQuest("loot", 100),
     Functions.generateUseXCommandQuest("raid", 10),
-    Functions.generateUseXCommandQuest("blackjack", 25),
+    Functions.generateUseXCommandQuest("blackjack", 25)
 ];
 
 for (let i = 0; i < 50; i++) {
@@ -26,7 +26,7 @@ export const RequiemArrowEvolve: SideQuest = {
                 `Alright, thank you for your help. Here's your Requiem Arrow as promised. You may use it by using the ${ctx.client.getSlashCommandMention(
                     "inventory use"
                 )} command.`
-            ),
+            )
         });
         return true;
     },
@@ -52,7 +52,7 @@ export const RequiemArrowEvolve: SideQuest = {
     requirementsMessage:
         "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n-If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quent will cancel automatically if you don't meet the requirements anymore, so be careful.",
     cancelQuestIfRequirementsNotMetAnymore: true,
-    canRedoSideQuest: true,
+    canRedoSideQuest: true
 };
 
 export const Beginner: SideQuest = {
@@ -69,7 +69,7 @@ export const Beginner: SideQuest = {
                 "inventory use"
             )} command. However if you're still at Chapter 1 Part 1, you won't be able to use that arrow. Note that you can redo this quest anytime, just re-use the ${ctx.client.getSlashCommandMention(
                 "side quest view"
-            )} command.`,
+            )} command.`
         });
         return true;
     },
@@ -80,12 +80,11 @@ export const Beginner: SideQuest = {
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         Functions.generateFightQuest(Functions.findNPC("kakyoin")),
-        Functions.generateUseXCommandQuest("loot", 1),
+        Functions.generateUseXCommandQuest("loot", 1)
     ],
     requirements: (ctx) => {
-        if (ctx.userData.chapter.id === 1) return true;
         if (ctx.userData.level < 10) return true;
         return false;
     },
-    requirementsMessage: "- You need to be at least at Chapter 1 Part 1 to do this quest.",
+    requirementsMessage: "- You must be not over level 10"
 };
