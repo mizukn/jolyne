@@ -1,5 +1,6 @@
 import { ClusterManager } from "discord-hybrid-sharding";
 import redis from "ioredis";
+import "dotenv/config";
 
 const TempRedis = new redis({ db: Number(process.env.REDIS_DB) });
 
