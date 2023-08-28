@@ -102,7 +102,6 @@ export default (client: Jolyne): void => {
             });
         }
 
-
     }, 1000);
 
 

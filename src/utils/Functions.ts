@@ -412,11 +412,13 @@ export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
 };
 
 export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    if (rpgData.level === 0) return 0;
     const skillPoints = getSkillPointsBonus(rpgData);
     return Math.round(Math.round(rpgData.level / 5 + skillPoints.perception / 1.1));
 };
 
 export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    if (rpgData.level === 0) return 0;
     const skillPoints = getSkillPointsBonus(rpgData);
     return Math.round(Math.round(rpgData.level / 5 + skillPoints.speed / 1.1));
 };
@@ -449,7 +451,7 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
     if (level > 200) level = 200;
     if (level < 9) level = 9;
 
-    const NPCs = Object.values(FightableNPCS).filter((npc) => npc.level <= level);
+    const NPCs = shuffle(Object.values(FightableNPCS).filter((npc) => npc.level <= level)).slice(0, 15).sort((a, b) => b.level - a.level);
 
     // fight npcs
     let tflv = level;
@@ -553,7 +555,7 @@ export const standAbilitiesEmbed = (
     };
 
     for (const ability of stand.abilities) {
-        let content = `\`Damages:\` ${getAbilityDamage(user, ability)}\n\`Stamina cost:\` ${
+        let content = `\`Damages:\` ${getAbilityDamage(user, ability) ?? "??..."}\n\`Stamina cost:\` ${
             ability.stamina
         }`;
 
