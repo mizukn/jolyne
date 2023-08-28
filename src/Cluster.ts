@@ -52,7 +52,7 @@ manager.on("clusterCreate", (cluster) =>
     )
 );
 manager.spawn({ timeout: -1 }).catch((e) => {
-    console.log(process.env.CLIENT_TOKEN);
+    console.log(process.env);
     //const response = JSON.parse(e.message);
     console.log(
         "DISCORD API LIMIT: ERROR, YOU HAVE BEEN RATELIMITED. PLEASE TRY AGAIN IN " +
