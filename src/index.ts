@@ -3,7 +3,7 @@ import type {
     SlashCommandFile,
     SlashCommand,
     Special,
-    FightableNPC,
+    Weapon,
     Item
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
@@ -18,7 +18,14 @@ import * as Items from "./rpg/Items";
 import * as Stands from "./rpg/Stands";
 import * as Emojis from "./emojis.json";
 import * as NPCs from "./rpg/NPCs/NPCs";
-import * as StandUsersNPCS from "./rpg/standUsersNPCS.json";
+import * as StandUsersNPCS from "../src/NPCs.json";
+import * as EquipableItems from "./rpg/Items/EquipableItems";
+
+const weapons = Object.values(EquipableItems).filter(x => (x as Weapon).abilities !== undefined) as Weapon[];
+
+const formattedStandUsers = JSON.parse(JSON.stringify(StandUsersNPCS)) as {
+    [key: string]: number;
+};
 
 import * as Sentry from "@sentry/node";
 
@@ -91,11 +98,15 @@ for (const stand of [
         name: stand.name + " User",
         emoji: stand.emoji
     };
+
+    if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
+        formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(1, 50);
+    }
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[`${stand.name.replace(" ", "")}User`] = {
         // @ts-expect-error it exists
         ...NPCs[`${stand.name.replace(" ", "")}User`],
-        level: Functions.randomNumber(1, 50),
+        level: formattedStandUsers[`${stand.name.replace(" ", "")}User`], // Functions.randomNumber(1, 50),
         skillPoints: {
             defense: 1,
             strength: 1,
@@ -107,6 +118,39 @@ for (const stand of [
         equippedItems: {},
         standsEvolved: {}
     };
+
+    for (const weapon of weapons) {
+        // creating NPCs with stand and with a custom weapon
+        const ID = `${stand.name.replace(" ", "")}User${weapon.id}`;
+        // @ts-expect-error because it's a dynamic property
+        NPCs[ID] = {
+            id: ID,
+            name: stand.name + " [" + weapon.name + "] User",
+            emoji: stand.emoji
+        };
+
+        if (!formattedStandUsers[ID]) {
+            formattedStandUsers[ID] = Functions.randomNumber(1, 50);
+        }
+        // @ts-expect-error because it's a dynamic property
+        FightableNPCs[ID] = {
+            // @ts-expect-error it exists
+            ...NPCs[ID],
+            level: formattedStandUsers[ID], // Functions.randomNumber(1, 50),
+            skillPoints: {
+                defense: 1,
+                strength: 1,
+                speed: 1,
+                perception: 1,
+                stamina: 0
+            },
+            stand: stand.id,
+            equippedItems: {
+                [weapon.id]: 6
+            },
+            standsEvolved: {}
+        };
+    }
 }
 /*
 for (const item of Object.values(Items.default)) {
@@ -286,6 +330,14 @@ async function init() {
             client.log(`Loaded command ${command.data.name}`, "command");
         }
     }
+    // save standUsersNPCS.json
+    delete formattedStandUsers["default"];
+    fs.writeFileSync(
+        path.resolve(__dirname, "..", "src", "NPCs.json"),
+        JSON.stringify(formattedStandUsers, null, 4)
+    );
+    client.log("Saved standUsersNPCS.json", "file");
+
 }
 
 init();
