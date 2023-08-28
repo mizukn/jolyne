@@ -2,7 +2,7 @@ import { Stand, Ability } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 import * as Abilities from "../Abilities";
-import { MysteriousGas, Transformation } from "../Abilities";
+import { HealPunch, MysteriousGas, Transformation } from "../Abilities";
 
 function addGif(ability: Ability, gif: string): Ability {
     return {
@@ -190,13 +190,13 @@ export const SexPistols: Stand = {
         emoji: Emojis.sexPistols,
         handleAttack: (ctx, user, target, damages) => {
             damages *= 1.1;
-            console.log("handleAttack triggered");
+            damages = Math.round(damages);
             const bulletId = `${ctx.id}_${user.id}`;
             const cooldown = (ctx.ctx.client.fightCache.get(bulletId) as number) || 0;
 
             if (cooldown >= 6) {
                 ctx.ctx.client.fightCache.set(bulletId, 0);
-                ctx.turns[ctx.turns.length - 1].logs.push(`${user.name} reloaded his bullets...`);
+                ctx.turns[ctx.turns.length - 1].logs.push(`${user.name} reloaded their bullets...`);
                 ctx.nextTurn();
                 return;
             }
@@ -215,7 +215,7 @@ export const SexPistols: Stand = {
 
                 if (status.type === FighterRemoveHealthTypes.Defended) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they defended theirselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
+                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they defended themselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
                     );
                 } else if (status.type === FighterRemoveHealthTypes.Dodged) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
@@ -308,10 +308,10 @@ export const WheelOfFortune: Stand = {
 export const PurpleHaze: Stand = {
     id: "purple_haze",
     name: "Purple Haze",
-    rarity: "A",
+    rarity: "S",
     description: "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     image: "https://cdn.discordapp.com/attachments/576020336902930434/986670882695041034/400px-Purple_Haze_Infobox_Manga.png",
-    abilities: [Abilities.Rage],
+    abilities: [Abilities.StandBarrage, Abilities.CapsuleShot, Abilities.PoisonGas, Abilities.Rage],
     emoji: Emojis.purple_haze,
     skillPoints: {
         strength: 10,
@@ -343,4 +343,105 @@ export const HalloweenSpooks: Stand = {
     available: true,
     // purple hex code
     color: 0x800080
+};
+export const CrazyDiamond: Stand = {
+    id: "crazy_diamond",
+    name: "Crazy Diamond",
+    rarity: "S",
+    description: "Crazy Diamond is a humanoid Stand of a height and build similar to Josuke's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
+    image: "https://static.wikia.nocookie.net/jjba/images/7/7a/Crazy_Diamond_Anime.Infobox.png/revision/latest?cb=20180622215654&path-prefix=fr",
+    abilities: [Abilities.StandBarrage, Abilities.HealPunch, Abilities.HealBarrage, Abilities.Restoration, Abilities.YoAngelo], //[Abilities.Heal, Abilities.HealBarrage, Abilities.HealPunch],
+    emoji: Emojis.crazy_diamond,
+    skillPoints: {
+        defense: 5,
+        strength: 5,
+        perception: 5,
+        speed: 5,
+        stamina: 5
+    },
+    available: true,
+    // blue-white hex code
+    color: 0xD8DEEC
+};
+
+export const HangedMan: Stand = {
+    id: "hanged_man",
+    description: "Hanged Man is a Stand that attacks via reflections. It deals insane damages, consumes a bit of stamina and has low cooldowns.",
+    rarity: "A",
+    name: "Hanged Man",
+    image: "http://myanimeshelf.com//upload/dynamic/2015-08/07/jjba-stardust-crusaders-hanged-man-72.png",
+    abilities: [Abilities.LightManifestation, Abilities.WristKnives],
+    emoji: "<:hangedman:1051526743925739593>",
+    skillPoints: {
+        strength: 5,
+        perception: 7,
+        speed: 1,
+        stamina: 1,
+        defense: 1
+    },
+    available: true,
+    color: 0x964B00
+};
+
+export const Emperor: Stand = {
+    id: "emperor",
+    name: "Emperor",
+    description: "Emperor is a gun. It has infinite bullets, its only ability is powerful and is almost impossible to dodge.",
+    rarity: "A",
+    image: "https://static.wikia.nocookie.net/jjba/images/6/6b/Emperor_Anime.png/revision/latest?cb=20161217225524&path-prefix=fr",
+    abilities: [Abilities.HomingBullets],
+    emoji: "<:emperor:1051506731353640980>",
+    skillPoints: {
+        strength: 5,
+        perception: 0,
+        speed: 0,
+        stamina: 0,
+        defense: 0
+    },
+    available: true,
+    color: 0xD3D3D3,
+    customAttack: {
+        name: (ctx, user) => "Shoot",
+        emoji: "<:emperor:1051506731353640980>",
+        handleAttack: (ctx, user, target, damages) => {
+            damages = Math.round(damages);
+            if (target.health > 0) {
+                const status = target.removeHealth(damages, user); // damages, user, isGBreakble, isDodgeable
+                const emoji = user.stand.customAttack.emoji;
+                status.amount = Math.round(status.amount);
+
+                if (status.type === FighterRemoveHealthTypes.Defended) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they defended themselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.Dodged) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji}:x: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they dodged`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${
+                            target.name
+                        }**' and broke their guard; -**${
+                            status.amount
+                        }** HP :heart: instead of **${damages}**`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.Normal) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji} \`${ctx.whosTurn.name}\` shoots **${
+                            target.name
+                        }** and deals **${status.amount}** damages`
+                    );
+                }
+
+                if (target.health <= 0) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `> :skull_crossbones: \`${target.name}\` has been defeated`
+                    );
+                }
+            }
+
+            ctx.nextTurn();
+        }
+    }
 };

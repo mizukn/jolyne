@@ -8,7 +8,7 @@ export const Diamond: Item = {
     description: "A diamond. It's very shiny.",
     rarity: "B",
     emoji: "💎",
-    price: 100,
+    price: 20000,
     tradable: true,
     storable: true
 };

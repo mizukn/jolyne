@@ -31,6 +31,26 @@ export const Kakyoin: FightableNPC = {
                 item: "kakyoins_snazzy_shades",
                 chance: 25,
                 amount: 1
+            },
+            {
+                item: "broken_arrow",
+                chance: 100,
+                amount: 6
+            },
+            {
+                item: "broken_arrow",
+                chance: 80,
+                amount: 3
+            },
+            {
+                item: "broken_arrow",
+                chance: 50,
+                amount: 3
+            },
+            {
+                item: "broken_arrow",
+                chance: 10,
+                amount: 50
             }
         ]
     },
@@ -126,6 +146,7 @@ export const Bandit: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     standsEvolved: {}
+
 };
 
 export const SecurityGuard: FightableNPC = {

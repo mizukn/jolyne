@@ -41,7 +41,7 @@ export const Slice_Of_Pizza: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 200,
+        health: Math.round((Pizza.effects.health as number) / 8),
         stamina: 15
     }
 };
@@ -295,7 +295,22 @@ export const CandyCane: Consumable = {
     description: "A candy cane... was obtainable during the Christmas 2022 event.",
     emoji: "<:candy_cane:1055876219251466330>",
     price: 10000,
-    rarity: "SS",
+    rarity: "T",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 1000000,
+        stamina: 1000000
+    }
+};
+
+export const SpookyCandy: Consumable = {
+    id: "spooky_candy",
+    name: "Spooky Candy",
+    description: "A spooky candy... was obtainable during the Halloween 2022 event.",
+    emoji: "<:Spooky_Candy:1035118177450995742>",
+    price: 50000,
+    rarity: "T",
     tradable: true,
     storable: true,
     effects: {

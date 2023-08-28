@@ -30,7 +30,7 @@ export const StarFinger: Ability = {
     description: "Extends {standName}'s finger and stabs the target in the eyes",
     cooldown: 8,
     extraTurns: 1,
-    damage: 20,
+    damage: 25,
     stamina: 18,
     dodgeScore: 2,
     target: "enemy"
@@ -188,7 +188,7 @@ export const DeadlyErasure: Ability = {
     description:
         "uses their right hand to erase space and jump one you and use the effect of surprise to erase you",
     cooldown: 15,
-    damage: 100,
+    damage: 35,
     stamina: 35,
     extraTurns: 2,
     special: true,
@@ -199,7 +199,7 @@ export const DeadlyErasure: Ability = {
 };
 
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
-    ctx.nextRoundPromises.push({
+    ctx.nextTurnPromises.push({
         cooldown: 3,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
@@ -221,7 +221,7 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, u
 };
 
 const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
-    ctx.nextRoundPromises.push({
+    ctx.nextTurnPromises.push({
         cooldown: 3,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
@@ -279,7 +279,7 @@ export const Bakugo: Ability = {
     name: "Bakugo",
     description: "grabs the opponent before engulfing the opponent's head in flames",
     cooldown: 12,
-    damage: 35,
+    damage: 25,
     stamina: 30,
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
@@ -333,7 +333,7 @@ export const VineSlap: Ability = {
     name: "Vine Slap",
     description: "extends {{standName}}'s vines to whip twice in the opponent's direction",
     cooldown: 4,
-    damage: 30,
+    damage: 15,
     stamina: 20,
     extraTurns: 1,
     dodgeScore: 2,
@@ -416,7 +416,7 @@ export const Finisher: Ability = {
     description:
         "attacks or finish the opponent by aiming at one of his vital parts [CRITICAL, BLEED DAMAGES]",
     cooldown: 8,
-    damage: 100,
+    damage: 50,
     stamina: 40,
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
@@ -472,7 +472,7 @@ export const RequiemArrowBlast: Ability = {
     name: "Requiem Arrow Blast",
     description: "Unleashes **__an extremely powerful__** blast of energy using its requiem arrow.",
     cooldown: 12,
-    damage: 150,
+    damage: 65,
     stamina: 60,
     extraTurns: 0,
     dodgeScore: 2,
@@ -485,7 +485,6 @@ export const EternalSleep: Ability = {
         "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it [real dodge score: 3].",
     cooldown: 5,
     damage: 0,
-
     stamina: 50,
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
@@ -505,7 +504,7 @@ export const EternalSleep: Ability = {
                     if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                 }
                 if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
-                    x.frozenFor = 3;
+                    x.frozenFor += 3;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 3 turns...`
                     );
@@ -525,7 +524,6 @@ export const StandDisc: Ability = {
     description: "Removes temporarily the stand of the target",
     cooldown: 9,
     damage: 0,
-
     stamina: 50,
     special: true,
     extraTurns: 0,
@@ -542,7 +540,7 @@ export const StandDisc: Ability = {
             promise: (fight) => {
                 target.stand = stand;
                 fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand.emoji} STAND DISC: **${target.name}** has recovered his stand... (${stand.name} ${stand.emoji})`
+                    `- ${user.stand.emoji} STAND DISC: **${target.name}** has recovered their stand... (${stand.name} ${stand.emoji})`
                 );
             }
         });
@@ -556,7 +554,6 @@ export const Hallucinogen: Ability = {
         "Creates a hallucinogen that decreases EVERYONE's (except your allies) perception & speed BY 90%",
     cooldown: 7,
     damage: 0,
-
     stamina: 50,
     special: true,
     extraTurns: 0,
@@ -592,15 +589,14 @@ export const Hallucinogen: Ability = {
 
 export const Heal: Ability = {
     name: "Heal",
-    description: "Heals the target by 15% of their max health",
+    description: "Heals the target by 15% of the healer's max health",
     cooldown: 4,
     damage: 0,
-
     stamina: 25,
     extraTurns: 0,
     dodgeScore: 0,
     useMessage: (user, target, damage, ctx) => {
-        const heal = Math.round(target.maxHealth * 0.15);
+        const heal = Math.round(user.maxHealth * 0.15);
         target.health += heal;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand.emoji} HEAL: **${user.name}** has healed **${
@@ -625,7 +621,7 @@ export const LifeShot: Ability = {
     dodgeScore: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor = 3;
+        target.frozenFor += 3;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand.emoji} LIFE SHOT: **${user.name}** has caused **${target.name}**'s soul to leave their body for 3 turns...`
         );
@@ -639,10 +635,9 @@ export const LifeGiver: Ability = {
         "Gold Experience can imbue inanimate objects with life, creating living organisms. These organisms can be used for various purposes, such as attacking enemies or providing support to allies",
     cooldown: 5,
     damage: 0,
-
     stamina: 50,
     extraTurns: 0,
-    dodgeScore: 3,
+    dodgeScore: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const teamIndex = ctx.getTeamIdx(user);
@@ -748,7 +743,7 @@ export const SandProjectiles: Ability = {
     name: "Sand Projectiles",
     description: "shoot or propel sand at high speeds towards its targets",
     cooldown: 5,
-    damage: 20,
+    damage: 14,
     stamina: 20,
     extraTurns: 1,
     dodgeScore: 2,
@@ -761,7 +756,6 @@ export const SandMimicry: Ability = {
         "The Fool can disperse its body to avoid physical attacks or slip through narrow spaces, attacking remotely (x100 perception huge boost for **3 turns**)",
     cooldown: 6,
     damage: 0,
-
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,
@@ -793,7 +787,6 @@ export const SandStorm: Ability = {
         "has the ability to create sandstorms, hindering visibility and disorienting opponents",
     cooldown: 9,
     damage: 0,
-
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 0,
@@ -836,7 +829,6 @@ export const SandSelfHealing: Ability = {
         "can heal itself (+15% max health) by reforming its sand particles around injuries and aiding in the recovery process",
     cooldown: 8,
     damage: 0,
-
     stamina: 15,
     extraTurns: 0,
     dodgeScore: 0,
@@ -854,7 +846,7 @@ export const SwiftStrike: Ability = {
     name: "Swift Strike",
     description: "Unleash a lightning-fast strike with your katana, dealing massive damage.",
     cooldown: 5,
-    damage: 28,
+    damage: 15,
     stamina: 30,
     extraTurns: 1,
     dodgeScore: 3,
@@ -936,7 +928,7 @@ export const BerserkersRampage: Ability = {
                     user.totalDamageDealt += damage;
                     if (x.health <= 0) x.health = 0;
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.weapon.emoji} RAMPAGE: **${user.name}** has dealt **${damages}** damages to **${x.name}**.`
+                        `- ${user.weapon.emoji} RAMPAGE: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${x.name}**.`
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
@@ -980,7 +972,7 @@ export const KnivesThrow: Ability = {
                 target.stamina -= stamina;
                 if (target.stamina <= 0) target.stamina = 0;
                 ctx.turns[ctx.turns.length - 1].logs.push(
-                    `- ${user.weapon.emoji} KNIVES THROW: **${user.name}** has dealt **${damages}** damages to **${target.name}** and reduced their stamina by **${stamina}**.`
+                    `- ${user.weapon.emoji} KNIVES THROW: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${target.name}** and reduced their stamina by **${stamina}**.`
                 );
             }
         }
@@ -1018,7 +1010,7 @@ export const GasolineBullets: Ability = {
                     user.totalDamageDealt += damages;
                     if (x.health <= 0) x.health = 0;
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.weapon.emoji} GASOLINE BULLETS: **${user.name}** has dealt **${damages}** damages to **${x.name}**.`
+                        `- ${user.stand.emoji} GASOLINE BULLETS: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${x.name}**.`
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
@@ -1172,7 +1164,7 @@ export const MysteriousGas: Ability = {
                     if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                 }
                 if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
-                    x.frozenFor = 3;
+                    x.frozenFor += 3;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand.emoji} MYSTERIOUS GAS: **${user.name}** has confused **${x.name}** for 3 turns...`
                     );
@@ -1184,4 +1176,282 @@ export const MysteriousGas: Ability = {
             });
     },
     target: "self"
+};
+
+export const PoisonGas: Ability = {
+    name: "Poison Gas",
+    description:
+        "Release a poisonous gas that will poison every enemies for 3 turns This will also damage your teammates including you but 90% less", // deals your atk damage every turn to every opponents for some turns. 10% of your atk damage is also dealt to you every turn.
+    cooldown: 8,
+    damage: 0,
+
+    stamina: 30,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const poisonDamage = Math.round(Functions.getAttackDamages(user));
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `> ${user.stand.emoji} POISON GAS: **${user.name}** has released a poisonous gas...`
+        );
+
+        ctx.nextTurnPromises.push({
+            cooldown: 4,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                fight.fighters.forEach(fighter => {
+                    const damages = fight.getTeamIdx(fighter) !== fight.getTeamIdx(user) ? poisonDamage : Math.round(poisonDamage * 0.1);
+                    fighter.health -= damages;
+                    if (fighter.health <= 0) fighter.health = 0;
+                    fight.turns[fight.turns.length - 1].logs.push(
+                        `- ${user.stand.emoji} POISON GAS: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${fighter.name}**.`
+                    );
+                });
+            }
+        });
+
+
+    },
+    target: "self"
+};
+
+export const HealBarrage: Ability = {
+    name: "Heal Barrage",
+    description: "Basic Stand Barrage but heals your allies by 200% of the damages done",
+    cooldown: 4,
+    damage: 0,
+    stamina: 25,
+    extraTurns: 0,
+    dodgeScore: StandBarrage.dodgeScore,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const damages = Math.round(Functions.getAbilityDamage(user, StandBarrage));
+        const heal = Math.round(damages * 2);
+
+        target.health -= damages;
+        user.totalDamageDealt += damages;
+
+        if (target.health <= 0) target.health = 0;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `> ${user.stand.emoji} HEAL BARRAGE: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+
+        ctx.fighters
+            .filter((x) => ctx.getTeamIdx(x) === ctx.getTeamIdx(user))
+            .filter((w) => w.health > 0)
+            .filter(z => z.id !== user.id)
+            .forEach((x) => {
+                x.health += heal;
+
+                if (x.health > x.maxHealth) x.health = x.maxHealth;
+
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} HEAL BARRAGE: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
+                );
+            });
+
+    }
+};
+
+export const Restoration: Ability = {
+    name: "Restoration",
+    description: `Heals 10% of the healer's max health to every allies, except yourself. [Do not use this ability if you don't have any allies]`,
+    cooldown: 6,
+    damage: 0,
+    stamina: 35,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        const heal = Math.round(user.maxHealth * 0.1);
+
+        ctx.fighters
+            .filter((x) => ctx.getTeamIdx(x) === ctx.getTeamIdx(user)).filter(w => w.id !== user.id)
+            .forEach((x) => {
+                x.health += heal;
+
+                if (x.health > x.maxHealth) x.health = x.maxHealth;
+
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} RESTORATION: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
+                );
+            });
+    }
+};
+
+export const YoAngelo: Ability = {
+    name: "Yo Angelo",
+    description: "Transforms the target into a rock for 3 turns",
+    cooldown: 8,
+    damage: 0,
+    stamina: 50,
+    extraTurns: 0,
+    dodgeScore: 2,
+    target: "enemy",
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        target.frozenFor += 3;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} YO ANGELO: **${user.name}** has transformed **${target.name}** into a rock for 3 turns... LOL GET CLAPPED BOZO`
+        );
+    }
+};
+
+export const HealPunch: Ability = {
+    name: "Heal Punch",
+    description: "Punches the target, healing your teammates by 150% of the damage dealt",
+    cooldown: 4,
+    damage: 0,
+    stamina: 25,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const damages = Math.round(Functions.getAbilityDamage(user, StandBarrage) * 0.75);
+
+        target.health -= damages;
+        user.totalDamageDealt += damages;
+
+        if (target.health <= 0) target.health = 0;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `> ${user.stand.emoji} HEAL PUNCH: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+
+        ctx.fighters
+            .filter((x) => ctx.getTeamIdx(x) === ctx.getTeamIdx(user)).filter(w => w.id !== user.id)
+            .forEach((x) => {
+                const heal = Math.round(damages * 1.5);
+                x.health += heal;
+
+                if (x.health > x.maxHealth) x.health = x.maxHealth;
+
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} HEAL PUNCH: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
+                );
+            });
+    }
+};
+
+export const CoinBarrage: Ability = {
+    ...StandBarrage,
+    name: "Coin Barrage",
+    description: "Unleash a barrage of coins, that explode on impact\n"
+};
+
+const poisonDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter, cooldown: number) => {
+    ctx.nextTurnPromises.push({
+        cooldown,
+        promise: (fight) => {
+            fight.turns[ctx.turns.length - 1].logs.push(
+                `☠️🧪☣️ **${target.name}** took **${damage}** poison damage`
+            );
+            if (target.health > 0) {
+                target.health -= damage;
+                user.totalDamageDealt += damage;
+                if (target.health <= 0) {
+                    target.health = 0;
+                    fight.turns[ctx.turns.length - 1].logs.push(
+                        `☠️🧪☣️ **${target.name}** died from poison damage`
+                    );
+                }
+            }
+        },
+        id: "" + Date.now() + Math.random() + ""
+    });
+};
+
+export const CapsuleShot: Ability = {
+    name: "Capsule Shot",
+    description: "shoot the capsules from your fist at your enemy, poisoning them for 5 turns.",
+    cooldown: 7,
+    damage: 0,
+    stamina: 30,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const damageX = Functions.getAttackDamages(user);
+        target.health -= damageX;
+        user.totalDamageDealt += damageX;
+        if (target.health <= 0) target.health = 0;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `> ${user.stand.emoji} CAPSULE SHOT: **${user.name}** has dealt **${damageX.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+
+        const burnDamageCalc = Math.round(
+            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+        );
+        poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
+
+    }
+
+};
+
+export const LightManifestation: Ability = {
+    name: "Light Manifestation",
+    description: "Become light and slash your opponent for heavy, giving you 2 extra turns. Not dodgeable",
+    cooldown: 3,
+    damage: 35,
+    stamina: 15,
+    extraTurns: 2,
+    dodgeScore: 0,
+    target: "enemy",
+    thumbnail: "https://static.wikia.nocookie.net/jjba/images/8/8d/Hanged_man_powa.gif"
+};
+
+export const WristKnives: Ability = {
+    name: "Wrist Knives",
+    description: "Shoots knives from your wrists at all your enemies (x2 knives). [true dodge score: 3, hardly dodgeable]",
+    cooldown: 5,
+    damage: 0,
+    stamina: 15,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
+            .forEach((x) => {
+                for (let i = 0; i < 2; i++) {
+                    const dodgeResults: boolean[] = [];
+
+                    for (let i = 0; i < 3; i++) {
+                        const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
+                        const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
+
+                        const randomNumber = Functions.randomNumber(0, 100);
+                        const dodgeThreshold =
+                            userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
+
+                        if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
+                    }
+                    if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                        const damages = Math.round(Functions.getAttackDamages(user));
+                        x.health -= damages;
+                        user.totalDamageDealt += damages;
+                        if (x.health <= 0) x.health = 0;
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `- ${user.weapon.emoji} WRIST KNIVES: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${x.name}**.`
+                        );
+                    } else {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `- ${user.stand.emoji} WRIST KNIVES: **${x.name}** dodged.`
+                        );
+                    }
+                }
+            });
+    }
+};
+
+export const HomingBullets: Ability = {
+    name: "Homing Bullets",
+    description: "Shoots a bullet that will follow the enemy and hit him. This bullet can change its trajectory and is very hard to dodge.",
+    cooldown: 3,
+    damage: 35,
+    stamina: 30,
+    extraTurns: 0,
+    dodgeScore: 5,
+    target: "enemy"
 };

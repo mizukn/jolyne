@@ -163,7 +163,7 @@ export const MoneyBox: Special = {
             [
                 {
                     percent: 100,
-                    coins: Functions.randomNumber(20000, 5000)
+                    coins: Functions.randomNumber(20000, 50000)
                 },
                 {
                     percent: 100,
@@ -386,6 +386,10 @@ export const SkillPointsResetPotion: Special = {
             return false;
         });
 
+        ctx.makeMessage({
+            content: `You have successfully reset your skill points. You may want to use them again by using the ${ctx.client.getSlashCommandMention("skill points invest")} command. Should you need help or have any questions, please join our [support server](https://discord.gg/jolyne)`
+        });
+
         return true;
     }
 };
@@ -393,21 +397,21 @@ export const SkillPointsResetPotion: Special = {
 export const ChristmasGift: Special = {
     id: "christmas_gift",
     name: "Christmas Gift",
-    description: "A gift that can be available/obtained during Christmas.",
-    rarity: "B",
-    emoji: "📦",
+    description: "A gift that was available during Christmas.",
+    rarity: "T",
+    emoji: "<:xmasgift:1055916688568229938>",
     price: 5000,
     tradable: true,
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
         const possibleConsumables = Object.values(Consumables).filter(
-            (r) => r.tradable && r.storable
+            (r) => r.tradable && r.storable && r.rarity !== "T" && r.rarity !== "SS" && r.rarity !== "S"
         );
         const midItemsList1 = Object.values(Items).filter(
-            (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B"
+            (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B" && r.rarity !== "T" && r.rarity !== "SS" && r.rarity !== "S"
         );
         const standList = Object.values(Stands).filter(
-            (r) => r.available && r.rarity !== "SS" && r.rarity !== "T"
+            (r) => r.available && r.rarity !== "SS" && r.rarity !== "T" && r.rarity !== "S"
         );
 
         const midItems = [
@@ -434,39 +438,85 @@ export const ChristmasGift: Special = {
             [
                 {
                     percent: 100,
-                    coins: Functions.randomNumber(1000, 5000)
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                },
+                {
+                    percent: 85,
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                },
+                {
+                    percent: 75,
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                },
+                {
+                    percent: 50,
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                },
+                {
+                    percent: 35,
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                },
+                {
+                    percent: 25,
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                }
+            ],
+            [
+                {
+                    percent: 100,
+                    loot: Functions.findItem("stand_arrow").id
                 },
                 {
                     percent: 100,
-                    xp: Functions.randomNumber(
-                        Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
-                        Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                    )
+                    loot: Functions.findItem("stand_arrow").id
+                },
+                {
+                    percent: 100,
+                    loot: Functions.findItem("stand_arrow").id
+                },
+                {
+                    percent: 100,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 100,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 100,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 100,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 100,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 80,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 70,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 60,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 50,
+                    loot: Functions.findItem("candy_cane").id
+                },
+                {
+                    percent: 20,
+                    loot: Functions.findItem("candy_cane").id
                 }
-            ],
-            [],
-            []
+            ]
         ];
 
-        for (const item of midItems.filter((r) => Functions.percent(70))) {
-            const target = finalLoot[1];
-
-            if (!Functions.percent(50)) continue;
-            target.push({
-                percent: 100,
-                loot: item.id
-            });
-        }
-
-        for (const item of rareItems.filter((r) => Functions.percent(50))) {
-            const target = finalLoot[2];
-
-            if (!Functions.percent(50)) continue;
-            target.push({
-                percent: 100,
-                loot: item.id
-            });
-        }
-        return useBox(ctx, finalLoot, "box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "📦", Emojis.box_shaking);
+        return useBox(ctx, finalLoot, "Christmas Box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "<:xmasgift:1055916688568229938>", "<a:xmasgift_shake:1055916746613211216>");
     }
 };
