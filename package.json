@@ -52,6 +52,7 @@
         "pg": "^8.8.0",
         "redis": "^4.5.1",
         "request-promise-native": "^1.0.9",
+        "string-similarity": "^4.0.4",
         "sunflake": "^0.4.1",
         "turndown": "^7.1.1",
         "wikijs": "^6.3.3",
