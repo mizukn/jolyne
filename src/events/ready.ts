@@ -7,6 +7,43 @@ import { CronJob } from "cron";
 import TopGG from "../utils/TopGG";
 import Matchmaking from "../utils/Matchmaking";
 
+async function fetchSupportMembers(client: Jolyne): Promise<void> {
+    const members = await client.guilds.cache.get("923608916540145694").members.fetch().then(r => r.map(x => x));
+    const betaTesters = members.filter((v) => v.roles.cache.has("978041345245597818"));
+    const contributors = members.filter((v) => v.roles.cache.has("926829876990844989"));
+    const staff = members.filter((v) => v.roles.cache.has("926829641518424064"));
+    const boosters = members.filter((v) => v.roles.cache.has("938432687386005585"));
+
+    for (const member of betaTesters) {
+        client.database.redis.set(`jolyneRole_beta_tester_${member.id}`, "true");
+    }
+    for (const member of contributors) {
+        client.database.redis.set(`jolyneRole_contributor_${member.id}`, "true");
+    }
+    for (const member of staff) {
+        client.database.redis.set(`jolyneRole_staff_${member.id}`, "true");
+    }
+    for (const member of boosters) {
+        client.database.redis.set(`jolyneRole_booster_${member.id}`, "true");
+    }
+
+    // remove jolyne_beta_tester_ jolyne_contributor_ jolyne_staff_ from people that are not in the server anymore or dont have the role anymore
+    const keys = await client.database.redis.keys("jolyneRole_*");
+    for (const key of keys) {
+        const id = key.split("_")[2];
+        const role = key.split("_")[1];
+        if (role === "beta_tester" && !betaTesters.find((v) => v.id === id)) {
+            client.database.redis.del(key);
+        } else if (role === "contributor" && !contributors.find((v) => v.id === id)) {
+            client.database.redis.del(key);
+        } else if (role === "staff" && !staff.find((v) => v.id === id)) {
+            client.database.redis.del(key);
+        } else if (role === "booster" && !boosters.find((v) => v.id === id)) {
+            client.database.redis.del(key);
+        }
+    }
+}
+
 const Event: EventFile = {
     name: Events.ClientReady,
     once: true,
@@ -16,6 +53,14 @@ const Event: EventFile = {
             name: "bugs..."
         });
         fetchPatreonsFromCache();
+
+        if (client.guilds.cache.get("923608916540145694")) { // Jolyne Support Server
+            fetchSupportMembers(client);
+            setInterval(async () => {
+                fetchSupportMembers(client);
+            }, 1000 * 60 * 5);
+
+        }
 
         // prettier-ignore
         if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
@@ -123,13 +168,11 @@ const Event: EventFile = {
                     };
                 }));
                 for (const key of keys) client.database.redis.del(key);
-                client.patreons = [
-                    {
-                        id: "239739781238620160",
-                        level: 1,
-                        lastPatreonCharge: Date.now()
-                    }
-                ];
+                client.patreons = [{
+                    id: "239739781238620160",
+                    lastPatreonCharge: Date.now(),
+                    level: 4
+                }];
 
                 for (const patron of patrons) {
                     if (new Date(patron.last_charge_date).getTime() + 1000 * 60 * 60 * 24 * 31 < Date.now() || patron.currently_entitled_amount_cents === 0) {
@@ -154,9 +197,6 @@ const Event: EventFile = {
                         level: tier,
                         lastPatreonCharge: new Date(patron.last_charge_date).getTime()
                     });
-                    if (oldPatrons.find((v) => v.id === patron.discord_id)?.level !== tier) {
-                        // give rewards here
-                    }
                 }
             } else {
                 setTimeout(fetchPatreonsFromCache, 1000 * 15);

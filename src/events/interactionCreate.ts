@@ -92,7 +92,7 @@ const Event: EventFile = {
             } else ctx = new CommandInteractionContext(interaction);
 
             if (command.category === "rpg" && ctx.userData) {
-                if (ctx.userData.level === 1 && Functions.calculeSkillPointsLeft(ctx.userData) === 4) {
+                if (ctx.userData.level === 1 && Functions.calculeSkillPointsLeft(ctx.userData) === 4 && command.data.name !== "skill") {
                     await ctx.makeMessage({
                         content: `:arrow_up: | **${ctx.user.username}**, you have **${Functions.calculeSkillPointsLeft(
                             ctx.userData
@@ -154,9 +154,7 @@ const Event: EventFile = {
                 if (
                     (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1 ||
                         ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.1) &&
-                    (command.data.name !== "shop" ||
-                        commandName !== "inventory use" || // @ts-expect-error wtf is that error bro lemme do my own exceptions
-                        command.data.name !== "campfire")
+                    (command.data.name !== "shop" && command.data.name !== "inventory" && command.data.name !== "campfire")
                 ) {
                     ctx.followUpQueue.push({
                         content: `🩸 | You're low in health/stamina. You should heal yourself. You can use the ${ctx.client.getSlashCommandMention(
