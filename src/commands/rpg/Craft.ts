@@ -155,8 +155,10 @@ const slashCommand: SlashCommandFile = {
             collector.on("collect", async (i) => {
                 i.deferUpdate().catch(() => {
                 }); // eslint-disable-line
-                if (await ctx.antiCheat(true)) return;
-
+                if (await ctx.antiCheat(true)) {
+                    collector.stop();
+                    return;
+                }
                 // remove items from inventory
                 for (const item of craftItems) {
                     Functions.removeItem(ctx.userData, item.id, item.amount);

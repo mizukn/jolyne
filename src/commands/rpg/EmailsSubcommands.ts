@@ -276,8 +276,10 @@ const slashCommand: SlashCommandFile = {
 
         collector.on("collect", async (interaction) => {
             interaction.deferUpdate();
-            if (await ctx.antiCheat(true)) return;
-
+            if (await ctx.antiCheat(true)) {
+                collector.stop();
+                return;
+            }
             switch (interaction.customId) {
                 case goBackID:
                     menuEmbed();

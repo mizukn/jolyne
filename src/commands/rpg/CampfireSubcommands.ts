@@ -54,17 +54,17 @@ const slashCommand: SlashCommandFile = {
             }
 
             return {
-                health: healthWon,
-                stamina: staminaWon,
-                currentHealth: ctx.userData.health + healthWon,
-                currentStamina: ctx.userData.stamina + staminaWon
+                health: Math.round(healthWon),
+                stamina: Math.round(staminaWon),
+                currentHealth: ctx.userData.health + Math.round(healthWon),
+                currentStamina: ctx.userData.stamina + Math.round(staminaWon)
             };
         }
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "rest": {
                 getStats().then(async (stats) => {
-                    if (stats.health === undefined) {
+                    if ((stats.health === undefined) || isNaN(stats.health)) {
                         ctx.userData.restingAtCampfire = Date.now();
                         ctx.makeMessage({
                             content: `🔥🪵 You're now resting at the campfire. Use this command again to see what you've gained. You can leave the campfire with ${ctx.client.getSlashCommandMention(

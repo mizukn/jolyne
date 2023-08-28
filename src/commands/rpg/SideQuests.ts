@@ -17,9 +17,6 @@ import {
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { FightHandler, FightTypes } from "../../structures/FightHandler";
-import { FightableNPCS, NPCs } from "../../rpg/NPCs";
-import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as SideQuests from "../../rpg/SideQuests";
 import { getQuestsStats } from "./Chapter";

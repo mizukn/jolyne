@@ -192,7 +192,6 @@ const slashCommand: SlashCommandFile = {
             });
 
         if (ctx.interaction.options.getSubcommand() === "view") {
-            console.log("SUBCOMMAND VIEW");
             const content: string[][] = [[]];
             const contentPhaseMaxLength = 2048;
 
@@ -704,11 +703,11 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
-            if (itemData.rarity === "C") {
+            if (itemData.rarity === "C" && !itemData.id.includes("$")) {
                 await ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Pucci,
-                        "bro, don't sell me trash items. wtf is that"
+                        "bro, don't sell me trash items. wtf is that? you better throw that away."
                     )
                 });
                 return;
@@ -729,7 +728,7 @@ const slashCommand: SlashCommandFile = {
                 S: 1,
                 A: 0.9,
                 B: 0.75,
-                C: 0
+                C: 0.5
             };
             await ctx.makeMessage({
                 content: Functions.makeNPCString(
@@ -803,7 +802,8 @@ const slashCommand: SlashCommandFile = {
                 };
             });
 
-            const finalItems = userItems
+
+            await interaction.respond(userItems
                 .filter((r) => r)
                 .map((i) => {
                     return {
@@ -816,10 +816,7 @@ const slashCommand: SlashCommandFile = {
                     (item) =>
                         item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
                         item.value.toLowerCase().includes(currentInput.toLowerCase())
-                );
-            if (finalItems.length > 25) finalItems.length = 25;
-
-            interaction.respond(finalItems);
+                ).slice(0, 25));
         } else if (interaction.options.getSubcommand() === "info") {
             for (const item of Object.keys(userData.equippedItems)) {
                 Functions.addItem(userData, item, 1);

@@ -343,7 +343,10 @@ const slashCommand: SlashCommandFile = {
                 time: 30000
             });
             collector.on("collect", async (i) => {
-                if (await ctx.antiCheat(true)) return;
+                if (await ctx.antiCheat(true)) {
+                    collector.stop();
+                    return;
+                }
 
                 let status = getQuestsStats(ctx.userData.chapter.quests, ctx);
                 if (status.percent !== 100) {

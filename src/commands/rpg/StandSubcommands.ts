@@ -216,7 +216,7 @@ const slashCommand: SlashCommandFile = {
                 const limit = Functions.calcStandDiscLimit(ctx);
                 if (Functions.hasExceedStandLimit(ctx)) {
                     ctx.makeMessage({
-                        content: `Unofrtunately, you can't store more than ${limit} stand discs in your inventory. But hey, did you know that `
+                        content: `Unfortunately, you can't store more than **${limit}** stand discs in your inventory. This limit may increase the more S tier stands we add to the game. [Patreon members](https://patreon.com/mizuki54) have a higher limit btw.`
                     });
                 }
                 const stand = Functions.findStand(
@@ -259,7 +259,10 @@ const slashCommand: SlashCommandFile = {
                     filter
                 });
                 collector.on("collect", async (i: MessageComponentInteraction) => {
-                    if (await ctx.antiCheat(true)) return;
+                    if (await ctx.antiCheat(true)) {
+                        collector.stop();
+                        return;
+                    }
                     if (i.customId === confirmID) {
                         collector.stop("DONT_DISABLE_COMPONENTS");
                         if (ctx.userData.coins < Functions.standPrices[stand.rarity]) {
@@ -318,7 +321,10 @@ const slashCommand: SlashCommandFile = {
                     filter
                 });
                 collector.on("collect", async (i: MessageComponentInteraction) => {
-                    if (await ctx.antiCheat(true)) return;
+                    if (await ctx.antiCheat(true)) {
+                        collector.stop();
+                        return;
+                    }
                     if (i.customId === confirmID) {
                         collector.stop("DONT_DISABLE_COMPONENTS");
                         if (ctx.userData.coins < price) {
@@ -353,7 +359,7 @@ const slashCommand: SlashCommandFile = {
                 fields.push({
                     name: `${ability.special ? "⭐" : ""}${ability.name}`,
                     inline: ability.special ? false : true,
-                    value: `**\`Damages:\`** ${damage}
+                    value: `**\`Damages:\`** ${damage === 0 ? "??" : damage}
     **\`Stamina Cost:\`** ${ability.stamina}
     **\`Cooldown:\`** ${ability.cooldown} turns
     **\`Dodge score:\`** ${!ability.dodgeScore ? "not dodgeable" : ability.dodgeScore}

@@ -292,7 +292,7 @@ const slashCommand: SlashCommandFile = {
                     if (!xitem) return;
                     selectedItem = xitem;
 
-                    await ctx.makeMessage({
+                    ctx.makeMessage({
                         components: [
                             Functions.actionRow([
                                 new StringSelectMenuBuilder()
@@ -383,7 +383,7 @@ const slashCommand: SlashCommandFile = {
                         } else {
                             Functions.addItem(ctx.userData, selectedItem, amount);
 
-                            await ctx.followUp({
+                            ctx.followUp({
                                 content: `${currentShop.emoji} **${currentShop.name}**: You bought x${amount} ${
                                     selectedItem.emoji
                                 } **${selectedItem.name}** for **${price.toLocaleString("en-US")}** ${
@@ -394,7 +394,7 @@ const slashCommand: SlashCommandFile = {
                     } else {
                         Functions.addItem(ctx.userData, selectedItem, amount);
 
-                        await ctx.followUp({
+                        ctx.followUp({
                             content: `${currentShop.emoji} **${currentShop.name}**: You bought x${amount} ${
                                 selectedItem.emoji
                             } **${selectedItem.name}** for **${price.toLocaleString("en-US")}** ${

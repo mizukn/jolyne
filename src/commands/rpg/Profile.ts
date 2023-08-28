@@ -105,6 +105,35 @@ const slashCommand: SlashCommandFile = {
         for (const item of Object.keys(rpgData.inventory)) {
             if (item.includes("$disc$")) discCount += rpgData.inventory[item];
         }
+        const badges: string[] = [];
+        if (userOption.id === "239739781238620160") {
+            badges.push(`:crown: Jolyne's Developer`);
+        }
+        // staff
+        if (await ctx.client.database.redis.get(`jolyneRole_staff_${userOption.id}`)) {
+            badges.push(`:shield: Jolyne Staff Team`);
+        }
+        if (ctx.client.patreons.find(x => x.id === userOption.id)) {
+            badges.push(`<a:diamond_gif:927986118815809596> Patreon Member (Tier ${ctx.client.patreons.find(x => x.id === userOption.id).level})`);
+        }
+        // beta_tester
+        if (await ctx.client.database.redis.get(`jolyneRole_beta_tester_${userOption.id}`)) {
+            badges.push(`${ctx.client.localEmojis.a_} Beta Tester`);
+        }
+        // contributor
+        if (await ctx.client.database.redis.get(`jolyneRole_contributor_${userOption.id}`)) {
+            badges.push(`:white_check_mark: Contributor`);
+        }
+
+        // booster
+        if (await ctx.client.database.redis.get(`jolyneRole_booster_${userOption.id}`)) {
+            badges.push(`:sparkles: Support Server Booster`);
+        }
+
+        if (rpgData.adventureStartedAt <= 1648764000000) {
+            badges.push(`${ctx.client.localEmojis.jotaroHat} OG Player`);
+        }
+
 
         const embed: APIEmbed = {
             author: {
@@ -119,8 +148,8 @@ const slashCommand: SlashCommandFile = {
                 dUnix: Functions.generateDiscordTimestamp(
                     Number(rpgData.adventureStartedAt),
                     "DATE"
-                ) //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
-            }),
+                )  //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
+            }) + badges.find(x => x.toLowerCase().includes("staff")) ? "\n🛠️ This player is part of the staff team." : "",
             color: 0x70926c,
             thumbnail: {
                 url: rpgData.stand
@@ -255,6 +284,10 @@ const slashCommand: SlashCommandFile = {
                         Functions.calcStandDiscLimit(ctx, rpgData) - discCount
                     ).toLocaleString("en-US")} ${ctx.client.localEmojis.disk}`,
                     inline: true
+                },
+                {
+                    name: "Badges [" + badges.length + "]",
+                    value: badges.length > 0 ? badges.join("\n") : "None"
                 }
             ]
         };

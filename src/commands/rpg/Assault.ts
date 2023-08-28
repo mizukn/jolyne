@@ -38,19 +38,19 @@ const slashCommand: SlashCommandFile = {
         const randomNPC = Functions.randomArray(Object.values(FightableNPCS)) as FightableNPC;
 
         const normalNPCButton = new ButtonBuilder()
-            .setCustomId("normal")
+            .setCustomId("normal" + ctx.interaction.id)
             .setLabel(normalNPC.name)
             .setEmoji(normalNPC.emoji)
             .setStyle(ButtonStyle.Primary);
         const highNPCButton = new ButtonBuilder()
-            .setCustomId("high")
+            .setCustomId("high" + ctx.interaction.id)
             .setLabel(highNPC.name)
             .setEmoji(highNPC.emoji)
             .setStyle(
                 highNPC.level < ctx.userData.level ? ButtonStyle.Secondary : ButtonStyle.Danger
             );
         const randomNPCButton = new ButtonBuilder()
-            .setCustomId("random")
+            .setCustomId("random" + ctx.interaction.id)
             .setLabel(randomNPC.name)
             .setEmoji(randomNPC.emoji)
             .setStyle(
@@ -77,9 +77,9 @@ const slashCommand: SlashCommandFile = {
         );
 
         const filter = (i: MessageComponentInteraction) =>
-            (i.user.id === ctx.user.id && i.customId === "normal") ||
-            (i.user.id === ctx.user.id && i.customId === "high") ||
-            (i.user.id === ctx.user.id && i.customId === "random");
+            (i.user.id === ctx.user.id && i.customId === "normal" + ctx.interaction.id) ||
+            (i.user.id === ctx.user.id && i.customId === "high" + ctx.interaction.id) ||
+            (i.user.id === ctx.user.id && i.customId === "random" + ctx.interaction.id);
         const collector = ctx.channel.createMessageComponentCollector({
             filter,
             time: 30000
@@ -102,7 +102,7 @@ const slashCommand: SlashCommandFile = {
             await i.deferUpdate().catch(() => {
             });
             const npc =
-                i.customId === "normal" ? normalNPC : i.customId === "high" ? highNPC : randomNPC;
+                i.customId === "normal" + ctx.interaction.id ? normalNPC : i.customId === "high" + ctx.interaction.id ? highNPC : randomNPC;
             ctx.interaction.fetchReply().then((r) => {
                 ctx.client.database.setCooldown(
                     ctx.userData.id,
@@ -116,11 +116,11 @@ const slashCommand: SlashCommandFile = {
                 if (winners.find((r) => r.id === ctx.userData.id)) {
                     const xp = Functions.addXp(
                         ctx.userData,
-                        npc.rewards?.xp / 25 ?? npc.level * 1000
+                        npc.rewards?.xp / 5 ?? npc.level * 1000
                     );
                     const coins = Functions.addCoins(
                         ctx.userData,
-                        npc.rewards?.coins / 25 ?? npc.level * 250
+                        npc.rewards?.coins / 15 ?? npc.level * 250
                     );
                     await ctx.followUp({
                         content: `You assaulted ${npc.name} and won! You got ${xp.toLocaleString(

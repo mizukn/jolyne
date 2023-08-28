@@ -233,7 +233,9 @@ const slashCommand: SlashCommandFile = {
             collector.stop();
             if (!i.isButton()) return;
             // Anti-cheat
-            if (await ctx.antiCheat(true)) return;
+            if (await ctx.antiCheat(true)) {
+                return;
+            }
 
             const choosedLoot = shuffledLoots.find(
                 (loot) => loot.name === i.component.label.toLowerCase()
