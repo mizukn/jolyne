@@ -448,10 +448,10 @@ const slashCommand: SlashCommandFile = {
                     });
 
                     collector.on("collect", async (i) => {
+                        collector.stop();
                         await i.deferUpdate().catch(() => {
                         }); // eslint-disable-line @typescript-eslint/no-empty-function
                         if (await ctx.antiCheat(true)) {
-                            collector.stop();
                             return;
                         }
                         return ctx.client.commands.get("fight").execute(ctx, true);
