@@ -153,8 +153,8 @@ export const GoldExperience: EvolutionStand = {
             abilities: [
                 Abilities.StandBarrage,
                 Abilities.Heal,
-                Abilities.LifeShot,
-                Abilities.LifeGiver
+                Abilities.LifeShot
+                //Abilities.LifeGiver
             ],
             image: "https://static.jojowiki.com/images/8/81/latest/20210707053105/Gold_Experience_Infobox_Anime.png",
             // yellow color
