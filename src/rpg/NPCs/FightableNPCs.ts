@@ -176,3 +176,15 @@ export const RequiemPolnareff: FightableNPC = {
         silver_chariot: 1
     }
 };
+
+export const Golem: FightableNPC = {
+    ...NPCs.Golem,
+    level: 100,
+    skillPoints: {
+        defense: 100 * 3 - (100 / 5),
+        strength: 0,
+        speed: (100 / 5) / 2,
+        perception: (100 / 5) / 2,
+        stamina: 0
+    }
+};
