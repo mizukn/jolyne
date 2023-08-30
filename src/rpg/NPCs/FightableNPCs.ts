@@ -186,5 +186,7 @@ export const Golem: FightableNPC = {
         speed: (100 / 5) / 2,
         perception: (100 / 5) / 2,
         stamina: 0
-    }
+    },
+    equippedItems: {},
+    standsEvolved: {}
 };
