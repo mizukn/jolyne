@@ -23,11 +23,28 @@ import * as EquipableItems from "./rpg/Items/EquipableItems";
 
 const weapons = Object.values(EquipableItems).filter(x => (x as Weapon).abilities !== undefined) as Weapon[];
 
-const formattedStandUsers = JSON.parse(JSON.stringify(StandUsersNPCS)) as {
+const formattedStandUsers = balanceLevels(JSON.parse(JSON.stringify(StandUsersNPCS)) as {
     [key: string]: number;
-};
+}, 1, 200);
+
 
 import * as Sentry from "@sentry/node";
+
+function balanceLevels(args: { [key: string]: number }, lowest: number, biggest: number): { [key: string]: number } {
+    const levels = Object.values(args);
+    const minLevel = Math.min(...levels);
+    const maxLevel = Math.max(...levels);
+
+    const balancedLevels: { [key: string]: number } = {};
+
+    for (const key in args) {
+        const originalLevel = args[key];
+        const balancedLevel = ((originalLevel - minLevel) / (maxLevel - minLevel)) * (biggest - lowest) + lowest;
+        balancedLevels[key] = Math.round(balancedLevel);
+    }
+
+    return balancedLevels;
+}
 
 Sentry.init({
     dsn: process.env.SENTRY_DSN
@@ -130,7 +147,7 @@ for (const stand of [
         };
 
         if (!formattedStandUsers[ID]) {
-            formattedStandUsers[ID] = Functions.randomNumber(1, 50);
+            formattedStandUsers[ID] = Functions.randomNumber(25, 300);
         }
         // @ts-expect-error because it's a dynamic property
         FightableNPCs[ID] = {
