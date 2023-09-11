@@ -15,21 +15,21 @@ export const C1_P2: ChapterPart = {
         "es-ES":
             "Has derrotado a Kakyoin. Te notas una criatura extraña en su cabeza, concluyes que es por esta criatura que él es manipulado. En su espalda, también encontrás algunos pelos amarillos...",
         "de-DE":
-            "Du hast Kakyoin besiegt. Du siehst ein seltsames Wesen auf seinem Kopf, du weisst, dass es durch dieses Wesen ist manipuliert. Auf seinem Rücken, auch auf seinen Hüften, du findest auch einige gelbe Haare...",
+            "Du hast Kakyoin besiegt. Du siehst ein seltsames Wesen auf seinem Kopf, du weisst, dass es durch dieses Wesen ist manipuliert. Auf seinem Rücken, auch auf seinen Hüften, du findest auch einige gelbe Haare..."
     },
     quests: [
         ActionQuests.RemoveFleshbudToKakyoin,
         ActionQuests.AnalyseHair,
         Functions.generateClaimItemQuest(Functions.findItem("pizza").id, 2),
-        Functions.generateClaimItemQuest(Functions.findItem("cola").id, 2),
+        Functions.generateClaimItemQuest(Functions.findItem("cola").id, 2)
     ],
     parent: Chapters.C1,
     private: false,
     hints: (ctx) => [
         `You can claim some pizzas and colas by using the ${ctx.client.getSlashCommandMention(
             "shop"
-        )} command!`,
-    ],
+        )} command!`
+    ]
 };
 
 export const C1_P2L: ChapterPart = {
@@ -42,24 +42,24 @@ export const C1_P2L: ChapterPart = {
         "es-ES":
             "Después de haber derrotado al ladrón, sigues caminando hacia la casa de Jotaro y ves a tu compañero de clase, Noriaki Kakyoin, te mira con una expresión vacía y unos tentáculos verdes vuelan hacia ti, tu stand lo bloquea, te preparas para luchar...",
         "de-DE":
-            "Nachdem du den Dieb besiegt hast, gehst du weiter zum Haus von Jotaro und du siehst deinen Klassenkameraden, Noriaki Kakyoin, er sieht dich mit einem leeren Ausdruck an und einige grüne Tentakel fliegen auf dich zu, dein Stand blockiert es, du bereitest dich auf den Kampf vor...",
+            "Nachdem du den Dieb besiegt hast, gehst du weiter zum Haus von Jotaro und du siehst deinen Klassenkameraden, Noriaki Kakyoin, er sieht dich mit einem leeren Ausdruck an und einige grüne Tentakel fliegen auf dich zu, dein Stand blockiert es, du bereitest dich auf den Kampf vor..."
     },
     quests: [
         Functions.generateFightQuest(NPCs.Kakyoin, null, null, [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 5,
+                amount: 5
             },
             {
                 item: Functions.findItem("Box").id,
-                amount: 1,
-            },
+                amount: 1
+            }
         ]),
         Functions.generateUseXCommandQuest("loot", 1),
-        Functions.generateUseXCommandQuest("assault", 1),
+        Functions.generateUseXCommandQuest("assault", 1)
     ],
     parent: Chapters.C1,
-    private: false,
+    private: false
 };
 
 export const C2_P1: ChapterPart = {
@@ -72,14 +72,14 @@ export const C2_P1: ChapterPart = {
         "es-ES":
             "Entrás en el aeropuerto y conocés a Mohammed Avdol. También viste a tu abuelo y a tu amigo Kakyoin de nuevo. Ahora estás listo para ir a Egipto para encontrar y derrotar a DIO.",
         "de-DE":
-            "Du betrittst den Flughafen und triffst Mohammed Avdol. Du hast auch deinen Großvater und deinen Freund Kakyoin wieder gesehen. Du bist jetzt bereit, nach Ägypten zu gehen, um DIO zu finden und zu besiegen.",
+            "Du betrittst den Flughafen und triffst Mohammed Avdol. Du hast auch deinen Großvater und deinen Freund Kakyoin wieder gesehen. Du bist jetzt bereit, nach Ägypten zu gehen, um DIO zu finden und zu besiegen."
     },
     quests: [
         Functions.generateFightQuest(NPCs.SecurityGuard, null, null, [
             {
                 item: Functions.findItem("Stand Arrow").name,
-                amount: 1,
-            },
+                amount: 1
+            }
         ]),
         Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
         Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
@@ -92,10 +92,10 @@ export const C2_P1: ChapterPart = {
         Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
         Functions.generateFightQuest(NPCs.SecurityGuard, null, null, null),
         Functions.generateUseXCommandQuest("loot", 1),
-        Functions.generateUseXCommandQuest("assault", 1),
+        Functions.generateUseXCommandQuest("assault", 1)
     ],
     parent: Chapters.C2,
-    private: false,
+    private: false
 };
 
 export const C2_P2: ChapterPart = {
@@ -108,25 +108,26 @@ export const C2_P2: ChapterPart = {
         "es-ES":
             "Mientras vos y tus amigos recientemente adquiridos continúan su viaje, son atacados por otro usuario de stand. El espadachín te desafía, después de haber logrado vencer a tus amigos. Él dice que si ganás, no los matará.",
         "de-DE":
-            "Während du und deine kürzlich erworbenen Freunde ihre Reise fortsetzen, werdet ihr von einem weiteren Stand-Benutzer angegriffen. Der Schwertkämpfer fordert dich heraus, nachdem er es geschafft hat, deine Freunde zu schlagen. Er sagt, dass er sie nicht töten wird, wenn du gewinnst.",
+            "Während du und deine kürzlich erworbenen Freunde ihre Reise fortsetzen, werdet ihr von einem weiteren Stand-Benutzer angegriffen. Der Schwertkämpfer fordert dich heraus, nachdem er es geschafft hat, deine Freunde zu schlagen. Er sagt, dass er sie nicht töten wird, wenn du gewinnst."
     },
     quests: [
         Functions.generateFightQuest(NPCs.Polnareff, null, null, [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 2,
+                amount: 2
             },
             {
                 item: Functions.findItem("Money Box").id,
-                amount: 1,
-            },
+                amount: 1
+            }
         ]),
-        Functions.generateClaimXQuest("xp", 5000),
+        Functions.generateClaimXQuest("xp", 5000)
     ],
     parent: Chapters.C2,
-    private: false,
+    private: false
 };
 
+/*
 export const C2_P3: ChapterPart = {
     id: 3.3,
     description: {
@@ -172,3 +173,4 @@ export const C2_P4: ChapterPart = {
     parent: Chapters.C2,
     private: false,
 };
+*/
