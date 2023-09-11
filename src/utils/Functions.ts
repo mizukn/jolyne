@@ -507,7 +507,7 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
     return Math.round(
         baseDamage +
         Math.round(
-            skillPoints.strength * 0.475 + ((user.level / 10) + (baseDamage / 100) * 12.5) / 2
+            skillPoints.strength * 0.775 + ((user.level / 10) + (baseDamage / 100) * 12.5) / 2
         )
     );
 };
