@@ -149,7 +149,7 @@ const slashCommand: SlashCommandFile = {
                     Number(rpgData.adventureStartedAt),
                     "DATE"
                 )  //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
-            }) + badges.find(x => x.toLowerCase().includes("staff")) ? "\n🛠️ This player is part of the staff team." : "",
+            }) + (badges.find(x => x.toLowerCase().includes("staff")) ? "\n🛠️ This player is part of the staff team." : ""),
             color: 0x70926c,
             thumbnail: {
                 url: rpgData.stand
