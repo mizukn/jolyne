@@ -238,7 +238,7 @@ const Event: EventFile = {
                     ...ctx.userData.sideQuests.map((v) => v.quests)
                 ]) {
                     for (const quest of quests) {
-                        if (quest.pushEmailWhenCompleted) {
+                        if (quest.pushEmailWhenCompleted && quest.completed) {
                             const mailData = Functions.findEmail(
                                 quest.pushEmailWhenCompleted.email
                             );
@@ -261,14 +261,15 @@ const Event: EventFile = {
                                     quests.push(Functions.generateMustReadEmailQuest(mailData));
                                 }
                             }
+                            quest.pushEmailWhenCompleted = null;
                         }
 
-                        if (quest.pushQuestWhenCompleted) {
+                        if (quest.pushQuestWhenCompleted && quest.completed) {
                             if (!quests.find(x => x.id === quest.pushQuestWhenCompleted.id)) quests.push(quest.pushQuestWhenCompleted);
                             quest.pushQuestWhenCompleted = null;
                         }
 
-                        if (quest.pushItemWhenCompleted) {
+                        if (quest.pushItemWhenCompleted && quest.completed) {
                             for (const item of quest.pushItemWhenCompleted) {
                                 const itemData = Functions.findItem(item.item);
                                 if (!itemData) continue;
@@ -286,6 +287,7 @@ const Event: EventFile = {
                                     });
                                 }
                             }
+                            quest.pushItemWhenCompleted = null;
                         }
                         if (Functions.isUseXCommandQuest(quest) && quest.command === commandName) {
                             quest.amount++;
