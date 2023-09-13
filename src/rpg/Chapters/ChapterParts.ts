@@ -102,13 +102,13 @@ export const C2_P2: ChapterPart = {
     id: 3.2,
     description: {
         "en-US":
-            "You and your companions board the airplane headed for Egypt. As you settle in your seats, you notice a mysterious presence on the plane. Suddenly, a massive fly with gray wings appears, and it's none other than Gray Fly, one of Dio's henchmen. He threatens you and your group, revealing his Stand, Tower of Gray.",
+            "You and your companions board the airplane headed for Egypt. As you settle in your seats, you notice a mysterious presence on the plane. Suddenly, a massive fly with gray wings appears, and it's none other than Gray Fly, one of Dio's henchmen. He killed everyone on the plane, including the pilots. He now threatens you and your group, revealing his Stand, Tower of Gray.",
         "fr-FR":
-            "Toi et tes compagnons montent à bord de l'avion en direction de l'Égypte. Alors que vous vous installez dans vos sièges, vous remarquez une présence mystérieuse dans l'avion. Soudain, une grosse mouche aux ailes grises apparaît, et il s'agit de Gray Fly, l'un des sbires de Dio. Il vous menace, révélant son Stand, Tower of Gray.",
+            "Toi et tes compagnons montez à bord de l'avion à destination de l'Égypte. Alors que vous vous installez dans vos sièges, vous remarquez une présence mystérieuse dans l'avion. Soudain, une énorme mouche aux ailes grises apparaît, et c'est nul autre que Gray Fly, l'un des sbires de Dio. Il a tué tout le monde dans l'avion, y compris les pilotes. Il menace maintenant toi et ton groupe, révélant son Stand, Tower of Gray.",
         "es-ES":
-            "Tú y tus compañeros abordan el avión con destino a Egipto. Mientras te acomodas en tu asiento, notas una presencia misteriosa en el avión. De repente, aparece una mosca gigante con alas grises, y no es otro que Gray Fly, uno de los secuaces de Dio. Te amenaza a ti y a tu grupo, revelando su Stand, Tower of Gray.",
+            "Vos y tus compañeros abordan el avión con destino a Egipto. Mientras te acomodás en tu asiento, notás una presencia misteriosa en el avión. De repente, aparece una enorme mosca con alas grises, y no es otra que Gray Fly, uno de los secuaces de Dio. Mató a todos en el avión, incluidos los pilotos. Ahora amenaza a vos y a tu grupo, revelando su Stand, Tower of Gray.",
         "de-DE":
-            "Du und deine Begleiter besteigen das Flugzeug in Richtung Ägypten. Als du dich in deinen Sitzen einrichtest, bemerkst du eine mysteriöse Präsenz im Flugzeug. Plötzlich erscheint eine riesige Fliege mit grauen Flügeln, und es ist niemand anderes als Gray Fly, einer von Dios Handlangern. Er bedroht dich und deine Gruppe und enthüllt seinen Stand, Tower of Gray."
+            "Du und deine Gefährten besteigen das Flugzeug nach Ägypten. Als du dich in deinen Sitz setzt, bemerkst du eine mysteriöse Präsenz im Flugzeug. Plötzlich erscheint eine riesige Fliege mit grauen Flügeln, und es ist niemand anderes als Gray Fly, einer von Dios Handlangern. Er hat alle im Flugzeug getötet, einschließlich der Piloten. Er bedroht dich und deine Gruppe nun und enthüllt seinen Stand, Tower of Gray."
     },
     quests: [
         Functions.generateFightQuest(NPCs.GrayFly, Functions.pushQuest(ActionQuests.Drive_Airplane_To_Hongkong), null, null),
