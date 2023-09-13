@@ -75,6 +75,8 @@ const slashCommand: SlashCommandFile = {
                 stamina: ctx.options.getNumber("stamina", true),
             },
             stand: ctx.options.getString("stand", false) || undefined,
+            equippedItems: {},
+            standsEvolved: {},
         };
         const fighter: Fighter = new Fighter(npc);
 

@@ -1,6 +1,13 @@
--   support forfeit
--   add daily command
--   add timeout for user select
--   fix took too much to do a selection
--   add dodge
--   add attack again (speed)
+[NOW]
+-   stand handleAttack (for gun stands bullets & reload etc)
+-   add badges on profile
+-   add bumpstand, bumpchapter, bumplevel (private)
+-   add email subcommands + must read complete finish
+-   fix wait quest being 100% chapter
+-   fix WaitQuest.email === MustRead.email, fix pushQuestWhenCompleted etc
+
+[LATER]
+
+-   stand evolution support on stand disc
+-   fix embed field maximum length
+-   remove csv-parse module

@@ -1,7 +1,17 @@
-import { SlashCommandFile } from "../../@types";
+import {
+    SlashCommandFile,
+    Leaderboard,
+    equipableItemTypesLimit,
+    formattedEquipableItemTypes,
+    EquipableItem,
+    SkillPoints
+} from "../../@types";
 import { Message, APIEmbed, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import { makeChapterTitle } from "./Chapter";
+import * as Chapters from "../../rpg/Chapters/Chapters";
+import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -36,7 +46,7 @@ const slashCommand: SlashCommandFile = {
             th: "ดูโปรไฟล์ของคุณ (หรือของใครบางคน)",
             tr: "Profilinizi görüntüleyin (veya başkasının)",
             uk: "Перегляньте свій профіль (або когось іншого)",
-            vi: "Xem hồ sơ của bạn (hoặc của ai đó)",
+            vi: "Xem hồ sơ của bạn (hoặc của ai đó)"
         },
         options: [
             {
@@ -61,12 +71,12 @@ const slashCommand: SlashCommandFile = {
                     lt: "Vartotojas, kurio profilį norite peržiūrėti",
                     no: "Brukeren hvis profil du vil se",
                     pl: "Użytkownik, którego profil chcesz zobaczyć",
-                    "pt-BR": "O usuário cujo perfil você deseja ver",
+                    "pt-BR": "O usuário cujo perfil você deseja ver"
                 },
                 type: 6,
-                required: false,
-            },
-        ],
+                required: false
+            }
+        ]
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -77,19 +87,78 @@ const slashCommand: SlashCommandFile = {
             : ctx.userData;
 
         if (!rpgData) return ctx.sendTranslated("base:USER_NO_ADVENTURE");
-        const leaderboard = await ctx.client.database.searchRPGUser("* SORTBY level ASC");
-        console.log(leaderboard);
+        const chapter =
+            Object.values(Chapters).find((c) => c.id === rpgData.chapter.id) ||
+            Object.values(ChapterParts).find((c) => c.id === rpgData.chapter.id);
+
+        const levelLb = (JSON.parse(
+            await ctx.client.database.getString(`${ctx.client.user.id}_leaderboard:level`)
+        ) as Leaderboard) || { lastUpdated: 0, data: [] };
+        const levelLbPos = levelLb.data.findIndex((x) => x.id === userOption.id) + 1;
+
+        const coinsLb = (JSON.parse(
+            await ctx.client.database.getString(`${ctx.client.user.id}_leaderboard:coins`)
+        ) as Leaderboard) || { lastUpdated: 0, data: [] };
+        const coinsLbPos = coinsLb.data.findIndex((x) => x.id === userOption.id) + 1;
+
+        let discCount = 0;
+        for (const item of Object.keys(rpgData.inventory)) {
+            if (item.includes("$disc$")) discCount += rpgData.inventory[item];
+        }
+        const badges: string[] = [];
+        if (userOption.id === "239739781238620160") {
+            badges.push(`:crown: Jolyne's Developer`);
+        }
+        // staff
+        if (await ctx.client.database.redis.get(`jolyneRole_staff_${userOption.id}`)) {
+            badges.push(`:shield: Jolyne Staff Team`);
+        }
+        if (ctx.client.patreons.find(x => x.id === userOption.id)) {
+            badges.push(`<a:diamond_gif:927986118815809596> Patreon Member (Tier ${ctx.client.patreons.find(x => x.id === userOption.id).level})`);
+        }
+        // beta_tester
+        if (await ctx.client.database.redis.get(`jolyneRole_beta_tester_${userOption.id}`)) {
+            badges.push(`${ctx.client.localEmojis.a_} Beta Tester`);
+        }
+        // contributor
+        if (await ctx.client.database.redis.get(`jolyneRole_contributor_${userOption.id}`)) {
+            badges.push(`:white_check_mark: Contributor`);
+        }
+
+        // booster
+        if (await ctx.client.database.redis.get(`jolyneRole_booster_${userOption.id}`)) {
+            badges.push(`:sparkles: Support Server Booster`);
+        }
+
+        if (rpgData.adventureStartedAt <= 1648764000000) {
+            badges.push(`${ctx.client.localEmojis.jotaroHat} OG Player`);
+        }
+
 
         const embed: APIEmbed = {
             author: {
-                name: userOption.tag,
-                icon_url: userOption.displayAvatarURL({ extension: "gif" }),
+                name: userOption.username,
+                icon_url: userOption.displayAvatarURL({ extension: "gif" })
             },
             description: ctx.translate("profile:ADVENTUREAT", {
-                rUnix: Functions.generateDiscordTimestamp(rpgData.adventureStartedAt, "FROM_NOW"), //`<t:${(userData.adventureat/1000).toFixed(0)}:R>`,
-                dUnix: Functions.generateDiscordTimestamp(rpgData.adventureStartedAt, "DATE"), //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
-            }),
+                rUnix: Functions.generateDiscordTimestamp(
+                    Number(rpgData.adventureStartedAt),
+                    "FROM_NOW"
+                ), //`<t:${(userData.adventureat/1000).toFixed(0)}:R>`,
+                dUnix: Functions.generateDiscordTimestamp(
+                    Number(rpgData.adventureStartedAt),
+                    "DATE"
+                )  //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
+            }) + (badges.find(x => x.toLowerCase().includes("staff")) ? "\n🛠️ This player is part of the staff team." : ""),
             color: 0x70926c,
+            thumbnail: {
+                url: rpgData.stand
+                    ? Functions.findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand])
+                        ? Functions.findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand])
+                            .image
+                        : undefined
+                    : undefined
+            },
             fields: [
                 {
                     name: "Player Infos",
@@ -99,15 +168,134 @@ const slashCommand: SlashCommandFile = {
                         Functions.getMaxHealth(rpgData)
                     )}\n:zap: Stamina: ${Functions.localeNumber(
                         rpgData.stamina
-                    )}/${Functions.localeNumber(Functions.getMaxStamina(rpgData))}`,
+                    )}/${Functions.localeNumber(
+                        Functions.getMaxStamina(rpgData)
+                    )}\n${makeChapterTitle(chapter, rpgData)}`,
+                    inline: true
                 },
-            ],
+                {
+                    name: "Ranking",
+                    value: `:globe_with_meridians: \`${levelLbPos.toLocaleString(
+                        "en-US"
+                    )}\`/\`${levelLb.data.length.toLocaleString("en-US")}\`\n${
+                        ctx.client.localEmojis.jocoins
+                    } \`${coinsLbPos.toLocaleString(
+                        "en-US"
+                    )}\`/\`${coinsLb.data.length.toLocaleString("en-US")}\``,
+                    inline: true
+                },
+                {
+                    name: "Player Stats",
+                    value: `${ctx.client.localEmojis.a_} Level: ${rpgData.level}\n${
+                        ctx.client.localEmojis.xp
+                    } XP: ${rpgData.xp.toLocaleString("en-US")}/${Functions.getMaxXp(
+                        rpgData.level
+                    ).toLocaleString("en-US")}\n${
+                        ctx.client.localEmojis.jocoins
+                    } Coins: ${rpgData.coins.toLocaleString()}`,
+                    inline: true
+                },
+                {
+                    name: "Equipped Items",
+                    value: `${Object.keys(equipableItemTypesLimit)
+                        .map((w) => {
+                            const formattedType =
+                                formattedEquipableItemTypes[
+                                    parseInt(w) as keyof typeof formattedEquipableItemTypes
+                                    ];
+                            const equippedItems = Object.keys(rpgData.equippedItems).filter(
+                                (r) => Functions.findItem<EquipableItem>(r).type === parseInt(w)
+                            );
+
+                            return {
+                                type: formattedType,
+                                items: equippedItems
+                                    .map((i) => {
+                                        const item = Functions.findItem<EquipableItem>(i);
+                                        return `${item.emoji} \`${item.name}\``;
+                                    })
+                                    .join("\n")
+                            };
+                        })
+                        .filter((r) => r.items.length > 0)
+                        .map(
+                            (x) =>
+                                `[${x.type[0] === "F" ? x.type[0] + x.type[1] : x.type[0]}] ${
+                                    x.items
+                                }`
+                        )
+                        .join("\n")}`,
+                    inline: true
+                },
+                {
+                    name: "Player Bonuses (from items)",
+                    value: `\`[+]\` Health: **${
+                        Functions.calcEquipableItemsBonus(rpgData).health
+                    }**\n\`[+]\` Stamina: **${
+                        Functions.calcEquipableItemsBonus(rpgData).stamina
+                    }**\n${ctx.client.localEmojis.xp} XP Boost: **${
+                        Functions.calcEquipableItemsBonus(rpgData).xpBoost
+                    }%**\n${Object.keys(Functions.calcEquipableItemsBonus(rpgData).skillPoints)
+                        .map((x) => {
+                            const bonus =
+                                Functions.calcEquipableItemsBonus(rpgData).skillPoints[
+                                    x as keyof SkillPoints
+                                    ];
+                            if (bonus === 0) return;
+                            return `\`[SP]\` ${Functions.capitalize(x)}: **${bonus}**`;
+                        })
+                        .filter((r) => r)
+                        .join("\n")}`,
+                    inline: true
+                },
+                {
+                    name: "Stand",
+                    value: rpgData.stand
+                        ? (() => {
+                            const stand = Functions.findStand(
+                                rpgData.stand,
+                                rpgData.standsEvolved[rpgData.stand]
+                            );
+                            return `${stand.emoji} **${stand.name}** (${stand.rarity}):\n[${
+                                stand.abilities.length
+                            }] Abilities: ${stand.abilities.map((a) => a.name).join(", ")}`;
+                        })()
+                        : "Stand-less",
+                    inline: true
+                },
+                {
+                    name: "Combat Infos",
+                    value: `✊ ATK Damage: ${Functions.getAttackDamages(rpgData).toLocaleString(
+                        "en-US"
+                    )}\n:leaves: Dodge score: ${Functions.getDodgeScore(rpgData).toLocaleString(
+                        "en-US"
+                    )}\n🔄 Speed score: ${Functions.getSpeedScore(rpgData).toLocaleString(
+                        "en-US"
+                    )}`,
+                    inline: true
+                },
+                {
+                    name: "Stand Disc Capacity",
+                    value: `- Limit: ${Functions.calcStandDiscLimit(ctx, rpgData).toLocaleString(
+                        "en-US"
+                    )} ${ctx.client.localEmojis.disk}\n- Used: ${discCount.toLocaleString(
+                        "en-US"
+                    )} ${ctx.client.localEmojis.disk}\n- Available: ${(
+                        Functions.calcStandDiscLimit(ctx, rpgData) - discCount
+                    ).toLocaleString("en-US")} ${ctx.client.localEmojis.disk}`,
+                    inline: true
+                },
+                {
+                    name: "Badges [" + badges.length + "]",
+                    value: badges.length > 0 ? badges.join("\n") : "None"
+                }
+            ]
         };
 
         ctx.makeMessage({
-            embeds: [embed],
+            embeds: [embed]
         });
-    },
+    }
 };
 
 export default slashCommand;

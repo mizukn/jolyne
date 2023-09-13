@@ -1,6 +1,8 @@
 import { Chapter } from "../../@types";
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../NPCs/NPCs";
+import * as Quests from "../Quests/Quests";
+import * as ActionQuests from "../Quests/ActionQuests";
 
 export const C1: Chapter = {
     id: 1,
@@ -16,6 +18,7 @@ export const C1: Chapter = {
         "de-DE": "Prologue",
         "it-IT": "Prologue",
     },
+    /*
     description: {
         "en-US":
             "You live an ordinary life until you are 15 years old. It's your first day in high school, you're on your way home from school and you see an old classmate. It's Kakyoin ! You greet him but but he runs into you and attacks you. It appears he's being manipulated.\n\nP.S: He's a stand user...",
@@ -40,37 +43,98 @@ export const C1: Chapter = {
         "it-IT":
             "Vivi una vita normale fino ai 15 anni. È il tuo primo giorno di scuola superiore, stai tornando a casa dalla scuola e vedi un vecchio compagno di classe. È Kakyoin! Lo saluti, ma lui corre verso di te e ti attacca. Sembra essere manipolato.\n\nP.S: È un utente di stand...",
     },
-    hints: {
-        "en-US": [
-            "You may need the `/loot` command until you collect an amout of coins in order to complete some of your quests",
-        ],
-        "de-DE": [
-            "Du benötigst möglicherweise den `/loot` Befehl, bis du eine bestimmte Anzahl an Münzen sammelst, um einige deiner Quests abzuschließen",
-        ],
-        "fr-FR": [
-            "Vous aurez peut-être besoin de la commande `/loot` jusqu'à ce que vous collectiez une certaine quantité de pièces pour pouvoir terminer certaines de vos quêtes",
-        ],
-        "ja-JP": [
-            "あなたはいくつかのクエストを完了するためにコインを集めるまで、`/loot`コマンドを必要とするかもしれません",
-        ],
-        "ko-KR": [
-            "일부 퀘스트를 완료하기 위해 동전을 모을 때까지 `/loot` 명령어가 필요할 수 있습니다",
-        ],
-        "ru-RU": [
-            "Вам может понадобиться команда `/loot`, пока вы не соберете определенное количество монет, чтобы завершить некоторые из ваших квестов",
-        ],
-        "pt-BR": [
-            "Você pode precisar do comando `/loot` até coletar uma quantidade de moedas para concluir algumas de suas missões",
-        ],
-        "zh-CN": ["你可能需要 `/loot` 命令，直到你收集一定数量的硬币才能完成一些任务"],
-        "zh-TW": ["你可能需要 `/loot` 命令，直到你收集一定數量的硬幣才能完成一些任務"],
-        "it-IT": [
-            "Potresti aver bisogno del comando `/loot` fino a quando non collezioni una certa quantità di monete per completare alcune delle tue missioni",
-        ],
-    },
     quests: [
         Functions.generateClaimXQuest("daily", 1),
-        Functions.generateClaimXQuest("coins", 3500),
-        Functions.generateFightQuest(NPCs.Kakyoin),
+        Functions.generateClaimXQuest("coin", 650),
+        Functions.generateFightQuest(NPCs.Kakyoin, null, null, [
+            {
+                item: Functions.findItem("Stand Arrow").name,
+                amount: 1,
+            },
+        ]),
+        Quests.AwakenYourStand,
+    ],*/
+    description: {
+        "en-US":
+            "You’re 17 years old and living an ordinary life until one day you are mailed a Mysterious Arrow, as you go to grab it your hand starts bleeding and you feel a lot stronger all of a sudden. You are walking down a alleyway until you are stopped by a Thief and he tries to steal your wallet…",
+        "fr-FR":
+            "Vous avez 17 ans et menez une vie ordinaire jusqu'au jour où vous recevez une flèche mystérieuse par la poste, lorsque vous allez la saisir, votre main commence à saigner et vous vous sentez tout à coup beaucoup plus fort. Vous marchez dans une ruelle jusqu'à ce qu'un voleur vous arrête et essaie de vous voler votre portefeuille...",
+        "es-ES":
+            "Tienes 17 años y llevas una vida ordinaria hasta que un día te envían por correo una flecha misteriosa, cuando vas a agarrarla tu mano comienza a sangrar y de repente te sientes mucho más fuerte. Estás caminando por un callejón hasta que un ladrón te detiene y trata de robarte la billetera...",
+        "pt-BR":
+            "Você tem 17 anos e leva uma vida comum até que um dia recebe uma Flecha Misteriosa pelo correio, quando você vai pegá-la sua mão começa a sangrar e você se sente muito mais forte de repente. Você está andando por um beco até que é parado por um Ladrão e ele tenta roubar sua carteira...",
+        "ru-RU":
+            "Вам 17 лет, и вы ведете обычную жизнь, пока однажды вам не присылают по почте Таинственную Стрелу, когда вы хотите схватить ее, ваша рука начинает кровоточить, и вы чувствуете себя намного сильнее. Вы идете по переулку, пока вас не останавливает вор, и он пытается украсть ваш кошелек...",
+        "ja-JP":
+            "あなたは17歳で、普通の生活を送っていましたが、ある日、不思議な矢が郵送されてきました。それをつかもうとすると、手が出血し、突然とても強くなったように感じます。あなたは路地を歩いていると、突然泥棒に止められ、財布を盗もうとします...",
+        "ko-KR":
+            "당신은 17살이고 평범한 삶을 살고 있습니다. 어느 날, 당신에게 신비한 화살이 우편으로 보내졌습니다. 당신이 그것을 잡으려고 하면서 당신의 손이 피를 흘리기 시작하고 갑자기 훨씬 강해진 것 같습니다. 당신은 골목길을 걷고 있습니다. 도둑에게 막히고 그는 당신의 지갑을 훔치려고 시도합니다...",
+        "zh-CN":
+            "你今年17岁，过着平凡的生活，直到有一天你收到了一支神秘的箭，当你去抓它时，你的手开始流血，你突然感觉自己变得更强壮了。你走在小巷里，直到你被一个小偷拦住，他试图偷你的钱包...",
+        "zh-TW":
+            "你今年17歲，過著平凡的生活，直到有一天你收到了一支神秘的箭，當你去抓它時，你的手開始流血，你突然感覺自己變得更強壯了。你走在小巷裡，直到你被一個小偷攔住，他試圖偷你的錢包...",
+        "it-IT":
+            "Hai 17 anni e stai vivendo una vita ordinaria fino a quando un giorno ti viene spedita una Freccia Misteriosa, mentre vai a prenderla la tua mano inizia a sanguinare e ti senti molto più forte all'improvviso. Stai camminando in un vicolo fino a quando non vieni fermato da un Ladro e cerca di rubarti il portafoglio...",
+    },
+    quests: [
+        Quests.AwakenYourStand,
+        Quests.CompleteBeginnerSideQuest,
+        Functions.generateClaimXQuest("daily", 1),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit),
+        Functions.generateFightQuest(NPCs.Bandit, null, null, [
+            {
+                item: Functions.findItem("Stand Arrow").name,
+                amount: 1,
+            },
+        ]),
+        Functions.generateClaimXQuest("coin", 650),
     ],
+    hints: (ctx) => [
+        `Do not forget to complete your **Beginner** side quest! (${ctx.client.getSlashCommandMention(
+            "side quest view"
+        )})! You can get a Stand Arrow and a Money Box (gives you between 20k and 50k coins)`,
+    ],
+};
+
+export const C2: Chapter = {
+    id: 3,
+    title: {
+        "en-US": "The beginning of a mysterious journey",
+        "fr-FR": "Le début d'un voyage mystérieux",
+        "es-ES": "El comienzo de un viaje misterioso",
+        "pt-BR": "O começo de uma jornada misteriosa",
+        "ru-RU": "Начало таинственного путешествия",
+        "ja-JP": "不思議な旅の始まり",
+        "ko-KR": "신비한 여행의 시작",
+        "zh-CN": "神秘旅程的开始",
+        "zh-TW": "神秘旅程的開始",
+        "it-IT": "L'inizio di un viaggio misterioso",
+    },
+    description: {
+        "en-US":
+            "Kakyoin tells you that he has been manipulated by a certain Dio and asks you if you could stop Dio. You accept and you have the mission to contact your grandfather about Dio...",
+        "fr-FR":
+            "Kakyoin vous dit qu'il a été manipulé par un certain Dio et vous demande si vous pourriez arrêter Dio. Vous acceptez et vous avez pour mission de contacter votre grand-père à propos de Dio...",
+        "es-ES":
+            "Kakyoin te dice que ha sido manipulado por un tal Dio y te pregunta si podrías detener a Dio. Aceptas y tienes la misión de contactar a tu abuelo sobre Dio...",
+        "pt-BR":
+            "Kakyoin diz que foi manipulado por um certo Dio e pergunta se você poderia parar Dio. Você aceita e tem a missão de entrar em contato com seu avô sobre Dio...",
+        "ru-RU":
+            "Какёйн говорит вам, что его манипулировал определенный Дио, и спрашивает, не могли бы вы остановить Дио. Вы соглашаетесь, и у вас есть миссия связаться с вашим дедушкой о Дио...",
+        "ja-JP":
+            "カキヨインは、あるDioによって操られていると言い、Dioを止めることができるかどうか尋ねます。あなたは受け入れ、あなたはDioについてあなたの祖父に連絡するミッションを持っています...",
+        "ko-KR":
+            "카키요인은 어떤 디오에 의해 조종되었다고 말하고 디오를 멈출 수 있는지 묻습니다. 당신은 받아들이고 당신은 디오에 대해 당신의 할아버지에게 연락할 임무를 가지고 있습니다...",
+        "zh-CN":
+            "卡基约告诉你，他被某个Dio操纵，并问你是否可以阻止Dio。你接受了，你的任务是联系你的祖父关于Dio...",
+        "zh-TW":
+            "卡基約告訴你，他被某個Dio操縱，並問你是否可以阻止Dio。你接受了，你的任務是聯繫你的祖父關於Dio...",
+        "it-IT":
+            "Kakyoin ti dice che è stato manipolato da un certo Dio e ti chiede se potresti fermare Dio. Accetti e hai la missione di contattare tuo nonno su Dio...",
+    },
+    quests: [ActionQuests.AlertYourGrandFatherAboutDioAndYourStand],
 };

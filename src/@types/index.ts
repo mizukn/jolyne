@@ -1,9 +1,12 @@
-import type { User, Message } from "discord.js";
+import type { User, Message, AutocompleteInteraction } from "discord.js";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import JolyneClient from "../structures/JolyneClient";
 import { LocaleString, ApplicationCommandOptionType } from "discord-api-types/v10";
 import { FightHandler, Fighter } from "../structures/FightHandler";
 
+export type numOrPerc = number | `${number}%`;
+
+// TODO: Remove blockable and dodgeable from abilities since they're not used anymore
 export interface DJSMessage extends Message {
     client: JolyneClient;
 }
@@ -30,10 +33,11 @@ export interface DiscordSlashCommandsData {
     }[];
 }
 
+export type itemPrize = { [key: Item["id"]]: number };
+
 export interface SlashCommandFile {
     cooldown?: number;
     rpgCooldown?: {
-        i18n_key: string; // for cooldown msg
         base: number;
         patronCd?: {
             [tier: number]: number;
@@ -41,9 +45,16 @@ export interface SlashCommandFile {
     };
     ownerOnly?: boolean;
     adminOnly?: boolean;
+    checkRPGCooldown?: string;
     data: DiscordSlashCommandsData;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     execute: (ctx: CommandInteractionContext, ...args: any) => Promise<any>;
+    autoComplete?: (
+        interaction: AutocompleteInteraction & { client: JolyneClient },
+        userData: RPGUserDataJSON,
+        currentInput: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...args: any // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) => Promise<any>;
 }
 
 export interface SlashCommand extends SlashCommandFile {
@@ -60,6 +71,7 @@ export interface EventFile {
      * If this event must be called only once.
      */
     once?: boolean;
+
     /**
      * The function that will be called when the event is triggered.
      * @param args The arguments passed by the event.
@@ -230,6 +242,7 @@ export interface RPGUserDataJSON {
         lastClaimed: number;
         quests: RPGUserQuest[];
         questsStreak: number;
+        lastDailyQuestsReset: number;
     };
     /**
      * The user's side quests.
@@ -237,6 +250,7 @@ export interface RPGUserDataJSON {
     sideQuests: {
         id: SideQuest["id"];
         quests: RPGUserQuest[];
+        claimedPrize?: boolean;
     }[];
     /**
      * The user's skill points.
@@ -249,10 +263,67 @@ export interface RPGUserDataJSON {
         [key: Item["id"]]: number;
     };
     /**
+     * The user's emails.
+     */
+    emails: RPGUserEmail[];
+    voteHistory: {
+        [key: string]: number[];
+    };
+    totalVotes: number;
+    standsEvolved: {
+        [key: Stand["id"]]: number;
+    };
+    learnedItems: Item["id"][];
+    /**
      * The unix timestamp of when the user started their adventure.
      */
     adventureStartedAt: number;
+    equippedItems: {
+        [key: Item["id"]]: number;
+    };
+    communityBans: {
+        reason: string;
+        bannedAt: number;
+        until: number;
+    }[];
+    restingAtCampfire: number;
+    lastPatreonReward: number;
 }
+
+export enum equipableItemTypes {
+    HEAD = 1,
+    CHEST = 2,
+    LEGS = 3,
+    FEET = 4,
+    HANDS = 5,
+    WEAPON = 6,
+    ACCESSORY = 7,
+    FACE = 8,
+}
+
+export const equipableItemTypesLimit = {
+    [equipableItemTypes.HEAD]: 1,
+    [equipableItemTypes.CHEST]: 1,
+    [equipableItemTypes.LEGS]: 1,
+    [equipableItemTypes.FEET]: 1,
+    [equipableItemTypes.HANDS]: 1,
+    [equipableItemTypes.WEAPON]: 1,
+    [equipableItemTypes.ACCESSORY]: 2,
+    [equipableItemTypes.FACE]: 1
+};
+
+export const formattedEquipableItemTypes = {
+    [equipableItemTypes.HEAD]: "Head",
+    [equipableItemTypes.FACE]: "Face",
+    [equipableItemTypes.CHEST]: "Chest",
+    [equipableItemTypes.LEGS]: "Legs",
+    [equipableItemTypes.FEET]: "Feet",
+    [equipableItemTypes.HANDS]: "Hands",
+    [equipableItemTypes.WEAPON]: "Weapon",
+    [equipableItemTypes.ACCESSORY]: "Accessory"
+};
+
+export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
 
 export interface ReminderJSON {
     author: RPGUserDataJSON["id"];
@@ -269,6 +340,7 @@ export interface SideQuest {
      * The side quest's title.
      */
     title: string;
+    emoji: string;
     /**
      * The side quest's description.
      */
@@ -280,19 +352,23 @@ export interface SideQuest {
     /**
      * The side quest's rewards.
      */
-    rewards: Rewards;
+    rewards: (ctx: CommandInteractionContext) => boolean | Promise<boolean>;
     /**
      * The side quest's requirements.
      */
-    requirements: Requirements;
+    requirements: (ctx: CommandInteractionContext) => boolean | Promise<boolean>;
+    requirementsMessage?: string;
+    cancelQuestIfRequirementsNotMetAnymore?: boolean;
+    canRedoSideQuest?: boolean;
 }
 
+/*
 export interface Rewards {
     xp?: number;
     coins?: number;
     items?: Item[];
     stand?: Stand["id"];
-}
+}*/
 
 export interface Requirements {
     level?: number;
@@ -301,9 +377,9 @@ export interface Requirements {
 }
 
 export interface ConsumableEffects {
-    health?: number;
-    stamina?: number;
-    items?: Item[];
+    health?: numOrPerc;
+    stamina?: numOrPerc;
+    items?: itemPrize;
 }
 
 /**
@@ -343,16 +419,16 @@ export interface Item {
      */
     readonly emoji: string;
     /**
-     * Function to use the item
+     * If the item is craftable, so its requirements.
      */
-    // readonly use?: (ctx: CommandInteractionContext, userData: UserData, skip?: boolean, left?: number) => Promise<any>;
+    readonly craft?: RPGUserDataJSON["inventory"];
 }
 
 /**
  * Garment interface
  */
 export interface Garment extends Item {
-    skill_points: SkillPoints;
+    skillPoints: SkillPoints;
 }
 
 /**
@@ -366,17 +442,50 @@ export interface Consumable extends Item {
  * Special items interface
  */
 export interface Special extends Item {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    use: (...args: any) => Promise<any>;
+    /**
+     * Function to use the item
+     */
+    use: (ctx: CommandInteractionContext, ...args: string[]) => Promise<boolean>;
 }
+
+export type CraftRequirements = {
+    items: {
+        id: Item["id"];
+        amount: number;
+    }[];
+    coins?: number;
+    level?: number;
+};
 
 /**
  * Scroll craft interface
  */
 export interface ScrollCraft extends Item {
-    requirements: {
-        level: number;
+    requirements: CraftRequirements;
+}
+
+export interface EquipableItem extends Item {
+    type: possibleEquippedItems;
+    effects: {
+        skillPoints?: SkillPoints;
+        health?: numOrPerc;
+        stamina?: numOrPerc;
+        xpBoost?: number;
     };
+    requirements?: {
+        level?: number;
+        skillPoints?: SkillPoints;
+    };
+}
+
+export interface Weapon extends EquipableItem {
+    type: equipableItemTypes.WEAPON;
+    abilities: Ability[];
+    attackName: string;
+    useMessageAttack: string;
+    staminaCost: number;
+    color: number;
+    handleAttack?: (ctx: FightHandler, user: Fighter, target: Fighter, damages: number) => void;
 }
 
 /**
@@ -418,22 +527,33 @@ export interface FightableNPC extends NPC {
      * The NPC's stand.
      */
     stand?: string;
+    /**
+     * The NPC's rewards.
+     */
+    rewards?: Rewards;
+    dialogues?: {
+        win?: string;
+        lose?: string;
+        raid?: string;
+    };
+    equippedItems: RPGUserDataJSON["equippedItems"];
+    standsEvolved: RPGUserDataJSON["standsEvolved"];
 }
 
 /**
-export class FightableNPC implements FightableNPC {
-	constructor(options: FightableNPC) {
-		this.id = options.id;
-		this.name = options.name;
-		this.email = options.email;
-		this.emoji = options.emoji;
-		this.avatarURL = options.avatarURL;
-		this.level = options.level;
-		this.skill_points = options.skill_points;
-		this.stand = options.stand;
-	}
-}
-*/
+ export class FightableNPC implements FightableNPC {
+ constructor(options: FightableNPC) {
+ this.id = options.id;
+ this.name = options.name;
+ this.email = options.email;
+ this.emoji = options.emoji;
+ this.avatarURL = options.avatarURL;
+ this.level = options.level;
+ this.skill_points = options.skill_points;
+ this.stand = options.stand;
+ }
+ }
+ */
 
 /**
  * Stand interface
@@ -472,13 +592,9 @@ export interface Stand {
      * If the stand has a custom attack
      */
     customAttack?: {
-        name: string;
+        name: (ctx: FightHandler, user: Fighter) => string;
         emoji: string;
-        multiplier?: number;
-        cooldown?: {
-            cd: number;
-            fightLogs: Ability["useMessage"];
-        };
+        handleAttack?: (ctx: FightHandler, user: Fighter, target: Fighter, damages: number) => void;
     };
     color: number;
     /**
@@ -525,19 +641,16 @@ export interface Ability {
      * The ability's base damage.
      */
     damage: number;
-    /**
-     * If the ability is dodgeable.
-     */
-    dodgeable: boolean;
-    /**
-     * If the ability is blockable.
-     */
-    blockable: boolean;
+
     /**
      * If the ability's stamina usage.
      */
     stamina: number;
     special?: boolean;
+    thumbnail?: string;
+    dodgeScore: number;
+    ally?: boolean;
+    target: "enemy" | "ally" | "onlyAlly" | "self" | "any";
 }
 
 export interface RequiemStand extends Stand {
@@ -547,12 +660,27 @@ export interface RequiemStand extends Stand {
     base_stand: Stand;
 }
 
-export interface EvolutionStand extends RequiemStand {
+export interface Evolutions
+    extends Omit<
+        Stand,
+        "image" | "emoji" | "customAttack" | "color" | "available" | "id" | "description"
+    > {
+    tier: number;
+}
+
+export interface EvolutionStand {
+    id: string;
     /**
      * The stand's evolution level.
      */
-    evolution_level: number;
+    evolutions: Omit<Stand, "id">[];
 }
+
+export type itemRewards = {
+    item: Item["id"];
+    amount: number;
+    chance?: number;
+}[];
 
 // I don't have the faith to continue commenting everything...
 export interface Quest {
@@ -560,47 +688,76 @@ export interface Quest {
      * The quest's ID.
      */
     id: string;
-    completed: (ctx: CommandInteractionContext) => number;
+    completed: (user: RPGUserDataJSON) => number;
     i18n_key?: string;
-    pushQuestWhenCompleted?: Quest["id"];
+    pushQuestWhenCompleted?: RPGUserQuest;
     pushEmailWhenCompleted?: {
         timeout?: number;
         mustRead?: boolean;
         email: string; // Email["id"];
     };
+    pushItemWhenCompleted?: itemRewards;
+    emoji: string;
+    hintCommand?: string;
+    type: "baseQuest";
 }
+
 /**
  * MustReadEmailQuest interface
  * @description A quest that must be completed by reading an email.
  * @note Not initialized in /src/database/rpg/Quests, but automatically when a user completes a quest that has the pushEmailWhenCompleted?.mustRead property.
  */
-export interface MustReadEmailQuest extends Omit<Quest, "completed" | "i18n_key"> {
+export interface MustReadEmailQuest
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     completed: boolean;
     email: string; // Email["id"];
+    type: "mustRead";
 }
 
-export interface ActionQuest extends Omit<Quest, "completed" | "i18n_key"> {
+export interface ActionQuest extends Omit<Quest, "completed" | "hintCommand" | "type"> {
     completed: boolean;
-    action: string; // Action["id"];
+    type: "action";
+    use: (ctx: CommandInteractionContext) => Promise<void>;
 }
 
-export interface FightNPCQuest extends Omit<Quest, "completed" | "i18n_key"> {
+export interface FightNPCQuest
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     completed: boolean;
     npc: NPC["id"];
+    type: "fight";
+    customLevel?: number;
 }
 
-export interface ClaimXQuest extends Omit<Quest, "completed" | "i18n_key"> {
-    x: "coins" | "xp" | "daily";
+export interface ClaimXQuest
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+    x: "coin" | "xp" | "daily";
     amount: number;
     goal: number;
+    type: "claimX";
 }
 
-export interface ClaimItemQuest extends Omit<ClaimXQuest, "x"> {
+export interface ClaimItemQuest extends Omit<ClaimXQuest, "x" | "hintCommand" | "type"> {
     item: Item["id"];
+    type: "ClaimXQuest";
 }
 
-export interface UseXCommandQuest extends Omit<ClaimXQuest, "x"> {
+export interface UseXCommandQuest extends Omit<ClaimXQuest, "x" | "hintCommand" | "type"> {
     command: string;
+    type: "UseXCommandQuest";
+}
+
+export interface WaitQuest extends Omit<Quest, "completed" | "emoji" | "hintCommand" | "type"> {
+    end: number; // Date.now() + ms
+    email?: Email["id"];
+    quest?: Quest["id"];
+    claimed?: boolean;
+    mustRead?: boolean;
+    type: "wait";
+}
+
+export interface RaidBossQuest extends Omit<FightNPCQuest, "type"> {
+    maxParticipants: number;
+    type: "raidBoss";
 }
 
 export interface Action {
@@ -615,6 +772,7 @@ export type Quests =
     | FightNPCQuest
     | ClaimXQuest
     | ClaimItemQuest
+    | WaitQuest
     | UseXCommandQuest;
 export type QuestArray = Quests[];
 
@@ -625,9 +783,13 @@ export type RPGUserQuest = Omit<
     | FightNPCQuest
     | ClaimXQuest
     | ClaimItemQuest
+    | WaitQuest
     | UseXCommandQuest,
     "i18n_key"
->;
+> & {
+    completed?: boolean;
+    npc?: NPC["id"];
+};
 
 export interface Chapter {
     /**
@@ -647,12 +809,6 @@ export interface Chapter {
         [key in i18n_key]?: string;
     };
     /**
-     * Hints for the chapter
-     */
-    hints: {
-        [key in i18n_key]?: string[];
-    };
-    /**
      * Dialogs for the chapter
      */
     dialogs?: {
@@ -664,12 +820,14 @@ export interface Chapter {
     rewardsWhenComplete?: {
         coins: number;
         email: string;
-        items: Item[];
+        items: itemRewards;
     };
     /**
      * The chapter's quests
      */
     quests: QuestArray;
+    private?: boolean;
+    hints?: (ctx: CommandInteractionContext) => string[];
 }
 
 export interface Email {
@@ -700,25 +858,173 @@ export interface Email {
     /**
      * The email's rewards.
      */
+    emoji?: string;
     rewards?: {
         coins?: number;
-        items?: Item[];
+        items?: itemRewards;
     };
     chapterQuests?: QuestArray;
 }
 
-export interface Part extends Omit<Chapter, "description"> {
+export interface RPGUserEmail {
+    id: Email["id"];
+    read: number | false; // timestamp
+    archived: boolean;
+    date: number;
+    //claimedRewards?: boolean;
+}
+
+export interface ChapterPart extends Omit<Chapter, "title"> {
+    title?: Chapter["title"];
     /**
      * The part's parent.
      */
     parent: Chapter;
 }
 
-export type ChapterArray = (Chapter | Part)[];
+export type ChapterArray = (Chapter | ChapterPart)[];
 
 export interface RPGUserDataEmailsHash {
     id: Email["id"];
     read: boolean;
     date: number;
     archived: boolean;
+}
+
+export interface Leaderboard {
+    lastUpdated: number;
+    data: {
+        id: string;
+        tag: string;
+        level: number;
+        xp: number;
+        coins: number;
+    }[];
+}
+
+export interface Shop {
+    owner?: NPC;
+    emoji?: string;
+    name: string;
+    items: {
+        item: Item["id"];
+        price?: number; // If not specified, the item's price will be used.
+    }[];
+}
+
+export interface Passive {
+    name: string;
+
+    description: string;
+
+    cooldown: number;
+
+    execute: (ctx: CommandInteractionContext) => Promise<void>;
+}
+
+export interface Rewards {
+    coins?: number;
+    items?: itemRewards;
+    xp?: number;
+}
+
+export interface RaidBoss {
+    boss: FightableNPC;
+    minions: FightableNPC[];
+    baseRewards: Rewards;
+    level: number;
+    maxLevel: number;
+    maxPlayers: number;
+    cooldown: number;
+}
+
+/**
+ * OLD V2 Player's Data Interface.
+ */
+export interface V2UserData {
+    /**
+     * The user's Discord ID.
+     * @readonly
+     */
+    readonly id: string;
+    /**
+     * The user's Discord Tag.
+     */
+    tag: string;
+    /**
+     * The user's inventory.
+     */
+    items: Item["id"][];
+    /**
+     * The user's level.
+     */
+    level: number;
+    /**
+     * The user's xp.
+     */
+    xp: number;
+    /**
+     * The user's health.
+     */
+    health: number;
+    /**
+     * The user's max health (skill points, level, stand bonuses).
+     */
+    max_health: number;
+    /**
+     * The user's stamina.
+     */
+    stamina: number;
+    /**
+     * The user's max stamina (skill points, level, stand bonuses).
+     */
+    max_stamina: number;
+    /**
+     * The user's chapter.
+     */
+    chapter: number;
+    /**
+     * The user's money.
+     */
+    money: number;
+    /**
+     * The user's prefered language.
+     */
+    language: string;
+    /**
+     * The user's stand.
+     */
+    stand?: Stand["name"];
+    /**
+     * The user's skill points.
+     */
+    skill_points: SkillPoints;
+    /**
+     * The user's chapter quests.
+     */
+    chapter_quests: Quest[];
+    /**
+     * The user's side quests.
+     */
+    side_quests: Quest[];
+    /**
+     * The date when the user started their adventure.
+     */
+    adventureat: number;
+    /**
+     * The user's skill points (including bonuses).
+     */
+    spb?: SkillPoints;
+    /**
+     * The user's dodge chances.
+     */
+    dodge_chances?: number;
+    /**
+     * Daily infos.
+     */
+    daily: {
+        claimedAt: number,
+        streak: number,
+        quests: Quest[]
+    },
 }
