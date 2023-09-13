@@ -102,6 +102,29 @@ export const C2_P2: ChapterPart = {
     id: 3.2,
     description: {
         "en-US":
+            "You and your companions board the airplane headed for Egypt. As you settle in your seats, you notice a mysterious presence on the plane. Suddenly, a massive fly with gray wings appears, and it's none other than Gray Fly, one of Dio's henchmen. He threatens you and your group, revealing his Stand, Tower of Gray.",
+        "fr-FR":
+            "Toi et tes compagnons montent à bord de l'avion en direction de l'Égypte. Alors que vous vous installez dans vos sièges, vous remarquez une présence mystérieuse dans l'avion. Soudain, une grosse mouche aux ailes grises apparaît, et il s'agit de Gray Fly, l'un des sbires de Dio. Il vous menace, révélant son Stand, Tower of Gray.",
+        "es-ES":
+            "Tú y tus compañeros abordan el avión con destino a Egipto. Mientras te acomodas en tu asiento, notas una presencia misteriosa en el avión. De repente, aparece una mosca gigante con alas grises, y no es otro que Gray Fly, uno de los secuaces de Dio. Te amenaza a ti y a tu grupo, revelando su Stand, Tower of Gray.",
+        "de-DE":
+            "Du und deine Begleiter besteigen das Flugzeug in Richtung Ägypten. Als du dich in deinen Sitzen einrichtest, bemerkst du eine mysteriöse Präsenz im Flugzeug. Plötzlich erscheint eine riesige Fliege mit grauen Flügeln, und es ist niemand anderes als Gray Fly, einer von Dios Handlangern. Er bedroht dich und deine Gruppe und enthüllt seinen Stand, Tower of Gray."
+    },
+    quests: [
+        Functions.generateFightQuest(NPCs.GrayFly, Functions.pushQuest(ActionQuests.Drive_Airplane_To_Hongkong), null, null),
+        Functions.generateUseXCommandQuest("assault", 1),
+        Functions.generateUseXCommandQuest("loot", 1)
+
+    ],
+    parent: Chapters.C2,
+    private: false
+};
+
+/*
+export const C2_P2: ChapterPart = {
+    id: 3.2,
+    description: {
+        "en-US":
             "As you and your recently acquired friends continue their journey, you are attacked by yet another stand user. The swordsman challenges you, after he managed to beat your friends. He says that if you win, he won't kill them.",
         "fr-FR":
             "Alors que toi et tes amis récemment acquis continuez votre voyage, vous êtes attaqués par un autre utilisateur de stand. Le bretteur vous défie, après avoir réussi à battre vos amis. Il dit que si vous gagnez, il ne les tuera pas.",
@@ -125,7 +148,7 @@ export const C2_P2: ChapterPart = {
     ],
     parent: Chapters.C2,
     private: false
-};
+};*/
 
 /*
 export const C2_P3: ChapterPart = {
@@ -174,3 +197,19 @@ export const C2_P4: ChapterPart = {
     private: false,
 };
 */
+
+export const C2_P3: ChapterPart = {
+    id: 3.3,
+    description: {
+        "en-US": "After defeating Polnareff, you return to the hotel you were staying in with him, you realize that Devo is in a refrigerator. You think he is easily defeated, you don't remember him anymore. Later, you are attacked by a stand, you lose your precision because of lack of vision on the stand user, you try to defeat him",
+        "fr-FR": "Après avoir vaincu Polnareff, tu retournes à l'hôtel où tu étais avec lui, tu te rends compte que Devo est dans un réfrigérateur. Tu penses qu'il est facilement vaincu, tu ne te souviens plus de lui. Plus tard, tu es attaqué par un stand, tu perds ta précision à cause du manque de vision sur l'utilisateur de stand, tu essayes de le vaincre",
+        "es-ES": "Después de derrotar a Polnareff, regresas al hotel donde estabas con él, te das cuenta de que Devo está en un refrigerador. Crees que es fácilmente derrotado, ya no lo recuerdas. Más tarde, eres atacado por un stand, pierdes tu precisión por falta de visión sobre el usuario de stand, intentas derrotarlo",
+        "de-DE": "Nachdem du Polnareff besiegt hast, kehrst du in das Hotel zurück, in dem du mit ihm warst, du stellst fest, dass Devo in einem Kühlschrank ist. Du denkst, er ist leicht besiegt, du erinnerst dich nicht mehr an ihn. Später wirst du von einem Stand angegriffen, du verlierst deine Präzision wegen mangelnder Sicht auf den Stand-Benutzer, du versuchst, ihn zu besiegen"
+    },
+    quests: [
+        ActionQuests.RemoveFleshbudToPolnareff
+        // Attack devo
+    ],
+    parent: Chapters.C2,
+    private: false
+};

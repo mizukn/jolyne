@@ -105,3 +105,9 @@ export const Golem: NPC = {
     name: "Golem",
     emoji: "🗿"
 };
+
+export const GrayFly: NPC = {
+    id: "gray_fly",
+    name: "Gray Fly",
+    emoji: "🪰"
+};

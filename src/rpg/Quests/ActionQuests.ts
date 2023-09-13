@@ -7,7 +7,7 @@ function validateQuest(ctx: CommandInteractionContext, questId: string): void {
     for (const quests of [
         ctx.userData.daily.quests,
         ctx.userData.chapter.quests,
-        ...ctx.userData.sideQuests.map((v) => v.quests),
+        ...ctx.userData.sideQuests.map((v) => v.quests)
     ]) {
         for (const quest of quests.filter((r) => r.id === questId)) {
             quest.completed = true;
@@ -49,6 +49,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             Functions.shuffleArray(map2);
             for (const i of map2) map.push(i);
         }
+
         function splitEvery10Array(arr: string[]) {
             const result: string[][] = [];
             for (let i = 0; i < arr.length; i += 10) {
@@ -56,6 +57,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             }
             return result.map((v) => v.join(""));
         }
+
         let planeDirection = map.length - 5;
         map[planeDirection - 10] = "🔲"; // anti impossible
         let oldEmoji = "🔲";
@@ -96,27 +98,28 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         centerBTN,
-                        generateInvisibleBTN(),
+                        generateInvisibleBTN()
                     ]),
                     Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         bottomBTN,
-                        generateInvisibleBTN(),
-                    ]),
+                        generateInvisibleBTN()
+                    ])
                 ],
                 embeds: [
                     {
                         title: "🐛 Kakyoin's head",
                         description: splitEvery10Array(map).join("\n"),
                         footer: {
-                            text: "Remove the fleshbud.",
+                            text: "Remove the fleshbud."
                         },
-                        color: 0x70926c,
-                    },
-                ],
+                        color: 0x70926c
+                    }
+                ]
             });
         }
+
         await makeMessage();
         ctx.interaction.fetchReply().then((r) => {
             ctx.client.database.setCooldown(
@@ -126,7 +129,8 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         });
         const filter = async (i: MessageComponentInteraction) => {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            i.deferUpdate().catch(() => {});
+            i.deferUpdate().catch(() => {
+            });
             return (
                 (i.customId === backId ||
                     i.customId === centerId ||
@@ -137,7 +141,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         };
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 150000,
+            time: 150000
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
@@ -155,12 +159,12 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             if (map[planeDirection] === crashEmoji) {
                 collector.stop("crashed");
                 ctx.makeMessage({
-                    content: "You failed to remove the fleshbud. Try again.",
+                    content: "You failed to remove the fleshbud. Try again."
                 });
             } else if (map[planeDirection] === finishEmoji) {
                 collector.stop("finished");
                 ctx.makeMessage({
-                    content: "You succesfully removed the fleshbud.",
+                    content: "You succesfully removed the fleshbud."
                 });
                 validateQuest(ctx, "remove_fleshbud_to_kakyoin");
                 pushQuest(ctx, TakeKakyoinToHospital, "remove_fleshbud_to_kakyoin");
@@ -173,7 +177,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         collector.on("end", () => {
             ctx.client.database.deleteCooldown(ctx.userData.id);
         });
-    },
+    }
 };
 
 export const AnalyseHair: ActionQuest = {
@@ -184,7 +188,7 @@ export const AnalyseHair: ActionQuest = {
     emoji: "✉️",
     use: async (ctx) => {
         ctx.sendTranslated("action:ANALYSE_HAIR.SUCCESS", {
-            components: [],
+            components: []
         });
 
         const quest = Functions.generateWaitQuest(
@@ -199,7 +203,7 @@ export const AnalyseHair: ActionQuest = {
         validateQuest(ctx, "analyse_hair");
 
         ctx.client.database.saveUserData(ctx.userData);
-    },
+    }
 };
 
 export const TakeKakyoinToHospital: ActionQuest = {
@@ -223,7 +227,7 @@ export const TakeKakyoinToHospital: ActionQuest = {
         validateQuest(ctx, "take_kakyoin_to_hospital");
 
         ctx.client.database.saveUserData(ctx.userData);
-    },
+    }
 };
 
 export const AlertYourGrandFatherAboutDioAndYourStand: ActionQuest = {
@@ -244,7 +248,7 @@ export const AlertYourGrandFatherAboutDioAndYourStand: ActionQuest = {
         validateQuest(ctx, "alert_your_grandfather_about_dio_and_your_stand");
         ctx.client.database.saveUserData(ctx.userData);
         ctx.sendTranslated("action:TYGAD.SUCCESS");
-    },
+    }
 };
 
 export const GoToAirport: ActionQuest = {
@@ -273,7 +277,7 @@ export const GoToAirport: ActionQuest = {
 
         await ctx.sendTranslated("action:GO_TO_AIRPORT.BASE", {
             components: [Functions.actionRow([slowPriceBTN, fastPriceBTN])],
-            slowPrice: slowPrice.toLocaleString("en-US"),
+            slowPrice: slowPrice.toLocaleString("en-US")
         });
         ctx.interaction.fetchReply().then((m) => {
             ctx.client.database.setCooldown(
@@ -291,7 +295,7 @@ export const GoToAirport: ActionQuest = {
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 30000,
+            time: 30000
         });
 
         collector.on("end", () => {
@@ -311,7 +315,7 @@ export const GoToAirport: ActionQuest = {
                 await ctx.makeMessage({
                     content:
                         "You don't have enough coins. Try claiming your daily, fighting mobs from your daily quests or selling items and try again.",
-                    components: [],
+                    components: []
                 });
                 collector.stop("finished");
                 return;
@@ -319,7 +323,7 @@ export const GoToAirport: ActionQuest = {
             ctx.sendTranslated(
                 `action:GO_TO_AIRPORT.${i.customId === slowPriceID ? "SLOW" : "FAST"}`,
                 {
-                    components: [],
+                    components: []
                 }
             );
             Functions.addCoins(ctx.userData, -price);
@@ -328,5 +332,272 @@ export const GoToAirport: ActionQuest = {
             ctx.client.database.deleteCooldown(ctx.userData.id);
             ctx.client.database.saveUserData(ctx.userData);
         });
-    },
+    }
+};
+
+export const RemoveFleshbudToPolnareff: ActionQuest = {
+    type: "action",
+    id: "remove_fleshbud_to_polnareff",
+    completed: false,
+    i18n_key: "REMOVE_FLESHBUD_POLNAREFF",
+    emoji: "🐛",
+    use: async (ctx) => {
+        const finishEmoji = "🐛";
+        const map = ["🔲", "🔲", "🔲", "🔲", finishEmoji, "🔲", "🔲", "🔲", "🔲", "🔲"];
+        const crashEmoji = "<:redtick:1071137546819600424>";
+        for (let i = 0; i < 15; i++) {
+            const howMuch = Functions.randomNumber(1, 5);
+            const map2 = ["🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲"];
+            for (let i = 0; i < howMuch; i++) {
+                map2[i] = crashEmoji;
+            }
+            Functions.shuffleArray(map2);
+            for (const i of map2) map.push(i);
+        }
+
+        function splitEvery10Array(arr: string[]) {
+            const result: string[][] = [];
+            for (let i = 0; i < arr.length; i += 10) {
+                result.push(arr.slice(i, i + 10));
+            }
+            return result.map((v) => v.join(""));
+        }
+
+        let planeDirection = map.length - 5;
+        map[planeDirection - 10] = "🔲"; // anti impossible
+        let oldEmoji = "🔲";
+
+        const backId = ctx.interaction.id + "backId";
+        const centerId = ctx.interaction.id + "cennterId";
+        const forwardId = ctx.interaction.id + "forwardIdShinzoSasageyooo";
+
+        const backBTN = new ButtonBuilder()
+            .setCustomId(backId)
+            .setEmoji("⬅️")
+            .setStyle(ButtonStyle.Secondary);
+        const centerBTN = new ButtonBuilder()
+            .setCustomId(centerId)
+            .setEmoji("⬆️")
+            .setStyle(ButtonStyle.Secondary);
+        const forwardBTN = new ButtonBuilder()
+            .setCustomId(forwardId)
+            .setEmoji("➡️")
+            .setStyle(ButtonStyle.Secondary);
+        const bottomBTN = new ButtonBuilder()
+            .setCustomId("bottomId")
+            .setEmoji("🔽")
+            .setStyle(ButtonStyle.Secondary);
+
+        function generateInvisibleBTN() {
+            const invisibleBTN2 = new ButtonBuilder()
+                .setCustomId("invisibleId" + Functions.generateRandomId())
+                .setLabel("ㅤ")
+                .setStyle(ButtonStyle.Secondary);
+            return invisibleBTN2;
+        }
+
+        async function makeMessage(): Promise<void> {
+            map[planeDirection] = "👆";
+            await ctx.makeMessage({
+                components: [
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        centerBTN,
+                        generateInvisibleBTN()
+                    ]),
+                    Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        bottomBTN,
+                        generateInvisibleBTN()
+                    ])
+                ],
+                embeds: [
+                    {
+                        title: "🐛 Polnareff's head",
+                        description: splitEvery10Array(map).join("\n"),
+                        footer: {
+                            text: "Remove the fleshbud."
+                        },
+                        color: 0x70926c
+                    }
+                ]
+            });
+        }
+
+        await makeMessage();
+        ctx.interaction.fetchReply().then((r) => {
+            ctx.client.database.setCooldown(
+                ctx.user.id,
+                `You're currently removing Polnareff's fleshbud. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+            );
+        });
+        const filter = async (i: MessageComponentInteraction) => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            i.deferUpdate().catch(() => {
+            });
+            return (
+                (i.customId === backId ||
+                    i.customId === centerId ||
+                    i.customId === forwardId ||
+                    i.customId === "bottomId") &&
+                i.user.id === ctx.user.id
+            );
+        };
+        const collector = ctx.interaction.channel.createMessageComponentCollector({
+            filter,
+            time: 150000
+        });
+
+        collector.on("collect", async (i: MessageComponentInteraction) => {
+            map[planeDirection] = oldEmoji;
+            if (i.customId === backId) {
+                planeDirection -= 1;
+            } else if (i.customId === forwardId) {
+                planeDirection += 1;
+            } else if (i.customId === centerId) {
+                planeDirection -= 10;
+            } else if (i.customId === "bottomId") {
+                planeDirection += 10;
+            }
+
+            if (map[planeDirection] === crashEmoji) {
+                collector.stop("crashed");
+                ctx.makeMessage({
+                    content: "You failed to remove the fleshbud. Try again."
+                });
+            } else if (map[planeDirection] === finishEmoji) {
+                collector.stop("finished");
+                ctx.makeMessage({
+                    content: "You succesfully removed the fleshbud."
+                });
+                validateQuest(ctx, "remove_fleshbud_to_polnareff");
+                pushQuest(ctx, TakeKakyoinToHospital, "remove_fleshbud_to_polnareff");
+                ctx.client.database.saveUserData(ctx.userData);
+            }
+            oldEmoji = map[planeDirection];
+            makeMessage();
+        });
+
+        collector.on("end", () => {
+            ctx.client.database.deleteCooldown(ctx.userData.id);
+        });
+    }
+};
+
+export const Drive_Airplane_To_Hongkong: ActionQuest = {
+    type: "action",
+    id: "drive_airplane_to_hongkong",
+    i18n_key: "DRIVE_AIRPLANE_TO_HONGKONG",
+    emoji: "🛩",
+    completed: false,
+    use: async (ctx) => {
+        ctx.interaction.fetchReply().then((r) => {
+            ctx.client.database.setCooldown(
+                ctx.user.id,
+                `You're currently driving the airplaaane! Woohoo, can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+            );
+        });
+
+        const finishEmoji = "🔲";
+        const map = [
+            finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji
+        ];
+        const crashEmoji = "🪰";
+        for (let i = 0; i < 18; i++) {
+            const howMuch = Functions.randomNumber(2, 4);
+            let map2 = [
+                "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦"
+            ];
+            for (let i = 0; i < howMuch; i++) {
+                map2[i] = crashEmoji;
+            }
+            map2 = Functions.shuffle(map2);
+            for (const i of map2) map.push(i);
+        }
+
+        function splitEvery10Array(arr: string[]) {
+            const result: string[][] = [];
+            for (let i = 0; i < arr.length; i += 10) {
+                result.push(arr.slice(i, i + 10));
+            }
+            return result.map(v => v.join(""));
+        }
+
+        let planeDirection = map.length - 5;
+        map[planeDirection - 10] = "🟦"; // anti impossible
+        let oldEmoji = "🟦";
+
+        const backId = Functions.generateRandomId();
+        const centerId = Functions.generateRandomId();
+        const forwardId = Functions.generateRandomId();
+
+        const backBTN = new ButtonBuilder()
+            .setCustomId(backId)
+            .setEmoji("⬅️")
+            .setStyle(ButtonStyle.Secondary);
+        const centerBTN = new ButtonBuilder()
+            .setCustomId(centerId)
+            .setEmoji("⬆️")
+            .setStyle(ButtonStyle.Primary);
+        const forwardBTN = new ButtonBuilder()
+            .setCustomId(forwardId)
+            .setEmoji("➡️")
+            .setStyle(ButtonStyle.Secondary);
+
+        function makeMessage(): void {
+            map[planeDirection] = "✈️";
+            ctx.makeMessage({
+                components: [
+                    Functions.actionRow([backBTN, centerBTN, forwardBTN])
+                ],
+                embeds: [{
+                    title: "🌏 Hongkong",
+                    description: splitEvery10Array(map).join("\n"),
+                    footer: {
+                        text: "Drive the airplane to hongkong. Don't crash!"
+                    }
+                }]
+            });
+        }
+
+        makeMessage();
+        const filter = async (i: MessageComponentInteraction) => {
+            i.deferUpdate().catch(() => {
+            });
+            return (i.customId === backId || i.customId === centerId || i.customId === forwardId) && i.user.id === ctx.userData.id;
+        };
+        const collector = ctx.interaction.channel.createMessageComponentCollector({ filter, time: 150000 });
+
+        collector.on("collect", async (i: MessageComponentInteraction) => {
+            map[planeDirection] = oldEmoji;
+            if (i.customId === backId) {
+                planeDirection -= 1;
+            } else if (i.customId === forwardId) {
+                planeDirection += 1;
+            } else planeDirection -= 10;
+            if (map[planeDirection] === crashEmoji) {
+                collector.stop("crashed");
+                ctx.makeMessage({
+                    content: "💥 YOURE SO BAD YOU CRASHED THE AIRPLANE!"
+                });
+            } else if (map[planeDirection] === finishEmoji) {
+                collector.stop("finished");
+                ctx.makeMessage({
+                    content: "You successfully landed in Hongkong!"
+                });
+                // validate quest
+                validateQuest(ctx, "drive_airplane_to_hongkong");
+
+                ctx.client.database.saveUserData(ctx.userData);
+            }
+            oldEmoji = map[planeDirection];
+            makeMessage();
+
+        });
+
+        collector.on("end", () => {
+            ctx.client.database.deleteCooldown(ctx.userData.id);
+        });
+    }
 };

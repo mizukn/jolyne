@@ -159,7 +159,7 @@ export const SecurityGuard: FightableNPC = {
 
 export const Polnareff: FightableNPC = {
     ...NPCs.Polnareff,
-    level: 10,
+    level: 15,
     skillPoints: baseSP,
     equippedItems: {},
     stand: "silver_chariot",
@@ -189,4 +189,13 @@ export const Golem: FightableNPC = {
     },
     equippedItems: {},
     standsEvolved: {}
+};
+
+export const GrayFly: FightableNPC = {
+    ...NPCs.GrayFly,
+    level: 10,
+    skillPoints: baseSP,
+    equippedItems: {},
+    standsEvolved: {},
+    stand: "tower_of_gray"
 };

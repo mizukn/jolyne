@@ -1,5 +1,6 @@
 import { Ability, FightableNPC, SkillPoints } from "../@types";
 import { FightHandler, Fighter } from "../structures/FightHandler";
+import { cloneDeep } from "lodash";
 import * as Stands from "./Stands/Stands";
 import * as Functions from "../utils/Functions";
 
@@ -20,7 +21,7 @@ export const KickBarrage: Ability = {
     cooldown: 3,
     extraTurns: 0,
     damage: 8,
-    stamina: 10,
+    stamina: 6,
     dodgeScore: 1,
     target: "enemy"
 };
@@ -49,7 +50,7 @@ export const TheWorld: Ability = {
     cooldown: 10,
     extraTurns: 5,
     damage: 0,
-    stamina: 25,
+    stamina: 35,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
@@ -109,7 +110,7 @@ export const LittleBoy: Ability = {
     extraTurns: 1,
     extraTurnsIfGB: 1,
     damage: 15,
-    stamina: 20,
+    stamina: 8,
     dodgeScore: 3,
     target: "enemy"
 };
@@ -189,7 +190,7 @@ export const DeadlyErasure: Ability = {
         "uses their right hand to erase space and jump one you and use the effect of surprise to erase you",
     cooldown: 15,
     damage: 35,
-    stamina: 35,
+    stamina: 15,
     extraTurns: 2,
     special: true,
     thumbnail:
@@ -247,7 +248,7 @@ export const CrossfireHurricane: Ability = {
     description: "launches 1 cross in the shape of an ankh at the oppenent",
     cooldown: 5,
     damage: 10,
-    stamina: 15,
+    stamina: 12,
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
         const burnDamageCalc = Math.round(
@@ -265,7 +266,7 @@ export const RedBind: Ability = {
     description: "takes two swings at the opponent with fiery chains",
     cooldown: 7,
     damage: 17,
-    stamina: 20,
+    stamina: 15,
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, RedBind) / 10);
@@ -280,7 +281,7 @@ export const Bakugo: Ability = {
     description: "grabs the opponent before engulfing the opponent's head in flames",
     cooldown: 12,
     damage: 25,
-    stamina: 30,
+    stamina: 15,
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Bakugo) / 10);
@@ -297,9 +298,9 @@ export const Bakugo: Ability = {
 export const OhMyGod: Ability = {
     name: "Oh My God",
     description: "BOOSTS ALL YOUR STATS BY 100% FOR 3 TURNS LETS GOOOOO",
-    cooldown: 3,
+    cooldown: 4,
     damage: 0,
-    stamina: 30,
+    stamina: 0,
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
         for (const stat in user.skillPoints) {
@@ -311,7 +312,7 @@ export const OhMyGod: Ability = {
         );
 
         ctx.nextRoundPromises.push({
-            cooldown: 3,
+            cooldown: 4,
             promise: (fight) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
                     `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are back...`
@@ -355,7 +356,7 @@ export const BulletsRafale: Ability = {
     description: "fires all your bullets at once",
     cooldown: 3,
     damage: 0,
-    stamina: 30,
+    stamina: 35,
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
         const bulletId = `${ctx.id}_${user.id}`;
@@ -389,7 +390,7 @@ export const BulletsRafale: Ability = {
 
 export const DeterminationFlurry: Ability = {
     name: "Determination Flurry",
-    description: "A Barrage with multiple Slashs (+ bleed damage)",
+    description: "A Barrage with multiple slashes (+ bleed damage)",
     cooldown: 5,
     damage: 25,
     stamina: 40,
@@ -407,7 +408,7 @@ export const DeterminationFlurry: Ability = {
 export const FencingBarrage: Ability = {
     ...StandBarrage,
     name: "Fencing Barrage",
-    description: "A Barrage with multiple Slashs",
+    description: "A Barrage with multiple slashes",
     target: "enemy"
 };
 
@@ -1005,7 +1006,7 @@ export const GasolineBullets: Ability = {
                     if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                 }
                 if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
-                    const damages = Math.round(Functions.getAttackDamages(user) * 0.45);
+                    const damages = Math.round(Functions.getAttackDamages(user) * 3);
                     x.health -= damages;
                     user.totalDamageDealt += damages;
                     if (x.health <= 0) x.health = 0;
@@ -1014,7 +1015,7 @@ export const GasolineBullets: Ability = {
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.stand.emoji} GASOLINE BULLETS: **${x.name}** dodged every bullets...`
+                        `- ${user.stand.emoji} GASOLINE BULLETS: **${x.name}** dodged...`
                     );
                 }
             });
@@ -1043,7 +1044,7 @@ export const Transformation: Ability = {
     dodgeScore: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
-        const oldSkillPoints = user.skillPoints;
+        const oldSkillPoints = cloneDeep(user.skillPoints);
         user.skillPoints.strength *= 2;
         user.skillPoints.perception *= 2;
         user.skillPoints.speed *= 2;
@@ -1054,7 +1055,7 @@ export const Transformation: Ability = {
         );
 
         ctx.nextRoundPromises.push({
-            cooldown: 2,
+            cooldown: 3,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints = oldSkillPoints;
@@ -1453,5 +1454,16 @@ export const HomingBullets: Ability = {
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 5,
+    target: "enemy"
+};
+
+export const RapidStrikes: Ability = {
+    name: "Rapid Strikes - Wing Cutter",
+    description: "Tower of Gray's wings move at incredible speeds, delivering a flurry of razor-sharp strikes to the enemy.",
+    cooldown: 4,
+    damage: 20,
+    stamina: 25,
+    extraTurns: 0,
+    dodgeScore: 4,
     target: "enemy"
 };

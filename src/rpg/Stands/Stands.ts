@@ -2,7 +2,7 @@ import { Stand, Ability } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 import * as Abilities from "../Abilities";
-import { HealPunch, MysteriousGas, Transformation } from "../Abilities";
+import { HealPunch, MysteriousGas, RapidStrikes, Transformation } from "../Abilities";
 
 function addGif(ability: Ability, gif: string): Ability {
     return {
@@ -444,4 +444,23 @@ export const Emperor: Stand = {
             ctx.nextTurn();
         }
     }
+};
+
+export const TowerOfGray: Stand = {
+    id: "tower_of_gray",
+    name: "Tower Of Gray",
+    description: "Tower of Gray is a Stand bound to a fly. In the JJBA series, Tower of Gray's owner was [Gray Fly](https://jojo.fandom.com/wiki/Gray_Fly)",
+    rarity: "C",
+    image: "https://static.wikia.nocookie.net/jjba/images/8/80/Tower-of-Gray_AnimeAV.png/revision/latest?cb=20160414185549",
+    abilities: [Abilities.RapidStrikes],
+    emoji: "<:TowerOfGray:1151200535920250911>",
+    skillPoints: {
+        perception: 15, // 0
+        strength: 0,
+        speed: 0,
+        stamina: 0,
+        defense: 0
+    },
+    available: true,
+    color: 0x808080
 };
