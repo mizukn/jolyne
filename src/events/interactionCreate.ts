@@ -6,6 +6,14 @@ import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep } from "lodash";
 
+function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
+    const fixedQuests: RPGUserQuest[] = [];
+    for (const quest of quests) {
+        if (!fixedQuests.find((r) => r.id === quest.id)) fixedQuests.push(quest);
+    }
+    return fixedQuests;
+}
+
 
 const Event: EventFile = {
     name: Events.InteractionCreate,
@@ -167,6 +175,12 @@ const Event: EventFile = {
                     });
                 }
                 const oldDataJSON = JSON.stringify(ctx.userData);
+                // quests must be unique;
+                ctx.userData.chapter.quests = returnUniqueQuests(ctx.userData.chapter.quests);
+                ctx.userData.daily.quests = returnUniqueQuests(ctx.userData.daily.quests);
+                for (const sideQuest of ctx.userData.sideQuests) {
+                    sideQuest.quests = returnUniqueQuests(sideQuest.quests);
+                }
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
                     if (ctx.userData.lastPatreonReward !== ctx.client.patreons.find((r) => r.id === ctx.user.id).lastPatreonCharge) {
                         const oldDataPatreon = cloneDeep(ctx.userData);
@@ -249,23 +263,28 @@ const Event: EventFile = {
                             }
                         }
 
-                        if (quest.pushQuestWhenCompleted) quests.push(quest.pushQuestWhenCompleted);
+                        if (quest.pushQuestWhenCompleted) {
+                            if (!quests.find(x => x.id === quest.pushQuestWhenCompleted.id)) quests.push(quest.pushQuestWhenCompleted);
+                            quest.pushQuestWhenCompleted = null;
+                        }
+
                         if (quest.pushItemWhenCompleted) {
                             for (const item of quest.pushItemWhenCompleted) {
                                 const itemData = Functions.findItem(item.item);
-                                if (itemData) continue;
-                                if (item.chance)
+                                if (!itemData) continue;
+                                if (item.chance) {
                                     if (Functions.RNG(0, item.chance)) {
                                         Functions.addItem(ctx.userData, item.item, item.amount);
                                         ctx.followUpQueue.push({
                                             content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`
                                         });
-                                    } else {
-                                        Functions.addItem(ctx.userData, item.item, item.amount);
-                                        ctx.followUpQueue.push({
-                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`
-                                        });
                                     }
+                                } else {
+                                    Functions.addItem(ctx.userData, item.item, item.amount);
+                                    ctx.followUpQueue.push({
+                                        content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`
+                                    });
+                                }
                             }
                         }
                         if (Functions.isUseXCommandQuest(quest) && quest.command === commandName) {
