@@ -15,3 +15,6 @@ yarn*.log
 logs
 
 .idea
+
+# Bun
+bun.lockb
