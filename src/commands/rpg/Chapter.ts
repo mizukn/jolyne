@@ -268,7 +268,7 @@ export const getQuestsStats = (
                 totalPercent += 100;
                 message.push(`??? Unknown Email (${quest.email}) ???::: ${JSON.stringify(quest)}`);
             } else {
-                totalPercent += quest.completed ? 100 : 0;
+                totalPercent += (quest.completed || ctx.userData?.emails?.find(x => x.id === quest.email)?.read) ? 100 : 0;
                 message.push(
                     `:envelope: Read the e-mail from **${emailData.author.name}** (subject: ${
                         emailData.subject
