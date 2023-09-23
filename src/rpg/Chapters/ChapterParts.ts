@@ -182,11 +182,28 @@ export const C2_P6: ChapterPart = {
             "Nach der intensiven Konfrontation mit dem falschen Kapitän und der explosiven Sabotage des Schiffes gelingt es der Joestar-Gruppe, auf Rettungsbooten zu entkommen. Während sie in der offenen See treiben, ist ihre Erleichterung nur von kurzer Dauer, da sie eine ungewöhnliche Präsenz auf dem Rettungsboot bemerken - den Benutzer von 'Strength,' dem Stand, der die Form eines Orang-Utans auf dem Frachtschiff angenommen hatte. Es bricht ein Kampf aus, als sie dieser neuen Stand-Bedrohung gegenüberstehen."
     },
     quests: [
-        // Functions.generateFightQuest(NPCs.StrengthStandUser, null, null, null)
+        Functions.generateFightQuest(NPCs.Forever, Functions.pushQuest(ActionQuests.DriveBoatToSingapore), null, null)
     ],
     parent: Chapters.C2,
     private: false
 };
+
+// next chapter: defeat ebony devil
+/*
+export const C2_P7: ChapterPart = {
+    id: 3.6,
+    description: {
+        "en-US":
+            ""
+    },
+    quests: [
+        //Functions.generateFightQuest(NPCs.Forever, Functions.pushQuest(ActionQuests.DriveBoatToSingapore), null, null)
+    ],
+    parent: Chapters.C2,
+    private: false
+};
+*/
+
 
 /*
 export const C2_P2: ChapterPart = {

@@ -752,3 +752,153 @@ export const DriveBoatToRescue: ActionQuest = {
         });
     }
 };
+
+export const DriveBoatToSingapore: ActionQuest = {
+    type: "action",
+    id: "drive_boat_singapore",
+    completed: false,
+    i18n_key: "DRIVE_BOAT_SINGAPORE",
+    emoji: "🚤",
+    use: async (ctx) => {
+        const finishEmoji = "⚓";
+        const map = [finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji];
+        const crashEmoji = "<:Strength:1155080130142687323>"; //"<:redtick:1071137546819600424>";
+        for (let i = 0; i < 15; i++) {
+            const howMuch = Functions.randomNumber(1, 5);
+            const map2 = ["🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲"];
+            for (let i = 0; i < howMuch; i++) {
+                map2[i] = crashEmoji;
+            }
+            Functions.shuffleArray(map2);
+            for (const i of map2) map.push(i);
+        }
+
+        function splitEvery10Array(arr: string[]) {
+            const result: string[][] = [];
+            for (let i = 0; i < arr.length; i += 10) {
+                result.push(arr.slice(i, i + 10));
+            }
+            return result.map((v) => v.join(""));
+        }
+
+        let boatDirection = map.length - 5;
+        map[boatDirection - 10] = "🔲"; // anti impossible
+        let oldEmoji = "🔲";
+
+        const backId = ctx.interaction.id + "backId";
+        const centerId = ctx.interaction.id + "cennterId";
+        const forwardId = ctx.interaction.id + "forwardIdShinzoSasageyooo";
+
+        const backBTN = new ButtonBuilder()
+            .setCustomId(backId)
+            .setEmoji("⬅️")
+            .setStyle(ButtonStyle.Secondary);
+        const centerBTN = new ButtonBuilder()
+            .setCustomId(centerId)
+            .setEmoji("⬆️")
+            .setStyle(ButtonStyle.Secondary);
+        const forwardBTN = new ButtonBuilder()
+            .setCustomId(forwardId)
+            .setEmoji("➡️")
+            .setStyle(ButtonStyle.Secondary);
+        const bottomBTN = new ButtonBuilder()
+            .setCustomId("bottomId")
+            .setEmoji("🔽")
+            .setStyle(ButtonStyle.Secondary);
+
+        function generateInvisibleBTN() {
+            const invisibleBTN2 = new ButtonBuilder()
+                .setCustomId("invisibleId" + Functions.generateRandomId())
+                .setLabel("ㅤ")
+                .setStyle(ButtonStyle.Secondary);
+            return invisibleBTN2;
+        }
+
+        async function makeMessage(): Promise<void> {
+            map[boatDirection] = "👆";
+            await ctx.makeMessage({
+                components: [
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        centerBTN,
+                        generateInvisibleBTN()
+                    ]),
+                    Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        bottomBTN,
+                        generateInvisibleBTN()
+                    ])
+                ],
+                embeds: [
+                    {
+                        title: "🚤 Boat Navigation",
+                        description: splitEvery10Array(map).join("\n"),
+                        footer: {
+                            text: "Navigate the boat to Singapore."
+                        },
+                        color: 0x3366CC
+                    }
+                ]
+            });
+        }
+
+        await makeMessage();
+        ctx.interaction.fetchReply().then((r) => {
+            ctx.client.database.setCooldown(
+                ctx.user.id,
+                `You're currently navigating the boat. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+            );
+        });
+        const filter = async (i: MessageComponentInteraction) => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            i.deferUpdate().catch(() => {
+            });
+            return (
+                (i.customId === backId ||
+                    i.customId === centerId ||
+                    i.customId === forwardId ||
+                    i.customId === "bottomId") &&
+                i.user.id === ctx.user.id
+            );
+        };
+        const collector = ctx.interaction.channel.createMessageComponentCollector({
+            filter,
+            time: 150000
+        });
+
+        collector.on("collect", async (i: MessageComponentInteraction) => {
+            map[boatDirection] = oldEmoji;
+            if (i.customId === backId) {
+                boatDirection -= 1;
+            } else if (i.customId === forwardId) {
+                boatDirection += 1;
+            } else if (i.customId === centerId) {
+                boatDirection -= 10;
+            } else if (i.customId === "bottomId") {
+                boatDirection += 10;
+            }
+
+            if (map[boatDirection] === crashEmoji) {
+                collector.stop("crashed");
+                ctx.makeMessage({
+                    content: "You failed to navigate the boat. Try again."
+                });
+            } else if (map[boatDirection] === finishEmoji) {
+                collector.stop("finished");
+                ctx.makeMessage({
+                    content: "You successfully arrived to singapore."
+                });
+                validateQuest(ctx, "drive_boat_singapore");
+                for (let i = 0; i < 5; i++) ctx.userData.chapter.quests.push(Functions.pushQuest(Functions.generateFightQuest(NPCs.Bandit, null, null, null)));
+                ctx.client.database.saveUserData(ctx.userData);
+            }
+            oldEmoji = map[boatDirection];
+            makeMessage();
+        });
+
+        collector.on("end", () => {
+            ctx.client.database.deleteCooldown(ctx.userData.id);
+        });
+    }
+};
