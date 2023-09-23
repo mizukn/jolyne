@@ -33,7 +33,9 @@ export interface DiscordSlashCommandsData {
     }[];
 }
 
-export type itemPrize = { [key: Item["id"]]: number };
+export type itemPrize = {
+    [key: Item["id"]]: number
+};
 
 export interface SlashCommandFile {
     cooldown?: number;
@@ -50,7 +52,9 @@ export interface SlashCommandFile {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     execute: (ctx: CommandInteractionContext, ...args: any) => Promise<any>;
     autoComplete?: (
-        interaction: AutocompleteInteraction & { client: JolyneClient },
+        interaction: AutocompleteInteraction & {
+            client: JolyneClient
+        },
         userData: RPGUserDataJSON,
         currentInput: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...args: any // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -724,6 +728,7 @@ export interface FightNPCQuest
     extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     completed: boolean;
     npc: NPC["id"];
+    allies?: NPC["id"][];
     type: "fight";
     customLevel?: number;
 }
@@ -818,9 +823,9 @@ export interface Chapter {
      * The mail's rewards (when completed)
      */
     rewardsWhenComplete?: {
-        coins: number;
-        email: string;
-        items: itemRewards;
+        coins?: number;
+        email?: string;
+        items?: itemRewards;
     };
     /**
      * The chapter's quests
