@@ -199,3 +199,21 @@ export const GrayFly: FightableNPC = {
     standsEvolved: {},
     stand: "tower_of_gray"
 };
+
+export const CaptainTennilleImpostor: FightableNPC = {
+    ...NPCs.CaptainTennilleImpostor,
+    level: 20,
+    skillPoints: baseSP,
+    equippedItems: {},
+    standsEvolved: {},
+    stand: "dark_blue_moon"
+};
+
+export const Forever: FightableNPC = {
+    ...NPCs.Forever,
+    level: 25,
+    skillPoints: baseSP,
+    equippedItems: {},
+    standsEvolved: {},
+    stand: "strength"
+};

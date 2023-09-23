@@ -36,7 +36,7 @@ export const Dio: RaidBoss = {
             }
         ]
     },
-    level: 0,
+    level: 25,
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
@@ -83,13 +83,28 @@ export const BanditBoss: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
+                amount: 3,
+                chance: 100
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 3,
+                chance: 100
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 3,
+                chance: 100
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 3,
                 chance: 100
             }
         ]
     },
-    level: 0,
-    maxLevel: FightableNPCs.BanditLeader.level + 5,
+    level: 5,
+    maxLevel: 50,
     maxPlayers: 5,
     // 2 minutes
     cooldown: 2 * 60 * 1000
@@ -115,7 +130,7 @@ export const Kakyoin: RaidBoss = {
         ]
     },
     level: 0,
-    maxLevel: 15,
+    maxLevel: 25,
     maxPlayers: 5,
     // 2 minutes
     cooldown: 2 * 60 * 1000
@@ -130,8 +145,8 @@ export const JeanPierrePolnareffRequiem: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
-                chance: 70
+                amount: 10,
+                chance: 1000
             },
             {
                 item: Functions.findItem("Requiem Arrow").id,

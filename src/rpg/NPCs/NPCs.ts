@@ -111,3 +111,15 @@ export const GrayFly: NPC = {
     name: "Gray Fly",
     emoji: "🪰"
 };
+
+export const CaptainTennilleImpostor: NPC = {
+    id: "captain_tennille_impostor",
+    name: "Captain Tennille (Impostor)",
+    emoji: "<:CaptainTenilleImpostor:1155070740983451699>"
+};
+
+export const Forever: NPC = {
+    id: "forever",
+    name: "Forever",
+    emoji: "<:Forever:1155078866851864679>"
+};

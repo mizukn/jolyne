@@ -120,6 +120,74 @@ export const C2_P2: ChapterPart = {
     private: false
 };
 
+export const C2_P3: ChapterPart = {
+    id: 3.3,
+    description: {
+        "en-US":
+            "After a turbulent flight to Hong Kong, you and your companions finally arrive at a luxurious 5-star hotel. You're hoping for some relaxation and respite, but it seems trouble follows you everywhere. As you check in and make your way to your rooms, you encounter a stylish and flamboyant man in the hotel lobby. He introduces himself as Jean Pierre Polnareff, a Stand user manipulated by Dio.",
+        "fr-FR":
+            "Après un vol turbulent vers Hong Kong, toi et tes compagnons arrivez enfin dans un luxueux hôtel 5 étoiles. Vous espérez vous détendre un peu, mais il semble que les ennuis vous suivent partout. Lorsque vous vous enregistrez et vous dirigez vers vos chambres, vous rencontrez un homme élégant et flamboyant dans le hall de l'hôtel. Il se présente comme Jean Pierre Polnareff, un utilisateur de Stand manipulé par Dio.",
+        "es-ES":
+            "Después de un vuelo turbulento a Hong Kong, tú y tus compañeros finalmente llegan a un lujoso hotel de 5 estrellas. Esperan relajarse un poco, pero parece que los problemas los persiguen en todas partes. Mientras haces el check-in y te diriges a tus habitaciones, te encuentras con un hombre elegante y llamativo en el vestíbulo del hotel. Se presenta como Jean Pierre Polnareff, un usuario de Stand manipulado por Dio.",
+        "de-DE":
+            "Nach einem turbulenten Flug nach Hongkong kommst du und deine Begleiter endlich in einem luxuriösen 5-Sterne-Hotel an. Ihr hofft auf etwas Entspannung, aber anscheinend folgen euch die Probleme überall hin. Während ihr eincheckt und zu euren Zimmern geht, trefft ihr in der Hotellobby auf einen stilvollen und extravaganten Mann. Er stellt sich als Jean Pierre Polnareff vor, ein Stand-Benutzer, der von Dio manipuliert wird."
+    },
+    quests: [
+        Functions.generateFightQuest(NPCs.Polnareff, Functions.pushQuest(ActionQuests.RemoveFleshbudToPolnareff), null, null),
+        Functions.generateUseXCommandQuest("assault", 1),
+        Functions.generateUseXCommandQuest("loot", 1)
+    ],
+    parent: Chapters.C2,
+    private: false
+};
+
+export const C2_P5: ChapterPart = {
+    id: 3.4,
+    description: {
+        "en-US":
+            "As the Joestar group travels from Hong Kong to Singapore by ship, they discover a stowaway child in the ship's storage. The child falls into the shark-infested ocean but is saved by Jotaro's Stand, Star Platinum. They rescue the girl, realizing she is not affiliated with Dio. However, the ship's captain is revealed to be an impostor and a Stand user...", // During the confrontation, the ship is sabotaged with explosives. The group and the crew escape on emergency boats and spot a massive freighter on the horizon.
+        "fr-FR":
+            "Alors que le groupe Joestar voyage de Hong Kong à Singapour en bateau, ils découvrent un enfant clandestin dans la cale du navire. L'enfant tombe dans l'océan infesté de requins mais est sauvé par le Stand de Jotaro, Star Platinum. Ils sauvent la fille, se rendant compte qu'elle n'est pas affiliée à Dio. Cependant, le capitaine du navire est révélé comme un imposteur et un utilisateur de Stand...", // Au cours de la confrontation, le navire est saboté avec des explosifs. Le groupe et l'équipage s'échappent sur des bateaux de secours et aperçoivent un cargo massif à l'horizon.
+        "es-ES":
+            "Mientras el grupo Joestar viaja de Hong Kong a Singapur en barco, descubren a un niño clandestino en el almacén del barco. El niño cae al océano infestado de tiburones pero es salvado por el Stand de Jotaro, Star Platinum. Rescatan a la niña, dándose cuenta de que no está afiliada a Dio. Sin embargo, el capitán del barco resulta ser un impostor y un usuario de Stand...", // Durante el enfrentamiento, el barco es saboteado con explosivos. El grupo y la tripulación escapan en botes de emergencia y ven un carguero masivo en el horizonte.
+        "de-DE":
+            "Während die Joestar-Gruppe von Hongkong nach Singapur reist, entdecken sie ein Kind in der Schiffslagerung. Das Kind fällt in den von Haien verseuchten Ozean, wird aber von Jotaros Stand, Star Platinum, gerettet. Sie retten das Mädchen und erkennen, dass sie nicht mit Dio verbunden ist. Der Kapitän des Schiffes entpuppt sich jedoch als Betrüger und Stand-Benutzer..." // Während der Konfrontation wird das Schiff mit Sprengstoff sabotiert. Die Gruppe und die Besatzung fliehen auf Rettungsboote und entdecken einen massiven Frachter am Horizont.
+    },
+    quests: [
+        Functions.generateFightQuest(NPCs.CaptainTennilleImpostor, Functions.pushQuest(ActionQuests.DriveBoatToRescue), null, null)
+
+    ],
+    parent: Chapters.C2,
+    private: false,
+    rewardsWhenComplete: {
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 3
+            }
+        ]
+    }
+};
+
+export const C2_P6: ChapterPart = {
+    id: 3.5,
+    description: {
+        "en-US":
+            "After the intense confrontation with the impostor captain and the explosive sabotage of the ship, the Joestar group manages to escape on emergency boats. As they drift in the open sea, their relief is short-lived as they spot an unusual presence on the rescue boat—the Stand user controlling 'Strength,' the Stand that took the form of an orangutan on the freighter. A battle ensues as they face this new Stand threat.",
+        "fr-FR":
+            "Après l'intense confrontation avec le capitaine imposteur et le sabotage explosif du navire, le groupe Joestar parvient à s'échapper sur des bateaux de secours. Alors qu'ils dérivent en pleine mer, leur soulagement est de courte durée car ils repèrent une présence inhabituelle sur le bateau de secours : l'utilisateur de Stand contrôlant 'Strength,' le Stand qui avait pris la forme d'un orang-outan sur le cargo. S'ensuit un combat alors qu'ils font face à cette nouvelle menace de Stand.",
+        "es-ES":
+            "Después de la intensa confrontación con el capitán impostor y el sabotaje explosivo del barco, el grupo Joestar logra escapar en botes de emergencia. Mientras derivan en el mar abierto, su alivio es efímero ya que detectan una presencia inusual en el bote de rescate: el usuario de Stand que controla 'Strength,' el Stand que tomó la forma de un orangután en el carguero. Se desata una batalla mientras enfrentan esta nueva amenaza de Stand.",
+        "de-DE":
+            "Nach der intensiven Konfrontation mit dem falschen Kapitän und der explosiven Sabotage des Schiffes gelingt es der Joestar-Gruppe, auf Rettungsbooten zu entkommen. Während sie in der offenen See treiben, ist ihre Erleichterung nur von kurzer Dauer, da sie eine ungewöhnliche Präsenz auf dem Rettungsboot bemerken - den Benutzer von 'Strength,' dem Stand, der die Form eines Orang-Utans auf dem Frachtschiff angenommen hatte. Es bricht ein Kampf aus, als sie dieser neuen Stand-Bedrohung gegenüberstehen."
+    },
+    quests: [
+        // Functions.generateFightQuest(NPCs.StrengthStandUser, null, null, null)
+    ],
+    parent: Chapters.C2,
+    private: false
+};
+
 /*
 export const C2_P2: ChapterPart = {
     id: 3.2,
@@ -198,6 +266,7 @@ export const C2_P4: ChapterPart = {
 };
 */
 
+/*
 export const C2_P3: ChapterPart = {
     id: 3.3,
     description: {
@@ -212,4 +281,4 @@ export const C2_P3: ChapterPart = {
     ],
     parent: Chapters.C2,
     private: false
-};
+};*/

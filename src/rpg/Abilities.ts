@@ -1467,3 +1467,17 @@ export const RapidStrikes: Ability = {
     dodgeScore: 4,
     target: "enemy"
 };
+
+export const Razor_SharpScales: Ability = {
+    ...RapidStrikes,
+    name: "Razor-Sharp Scales",
+    description: "Dark Blue Moon can also use its scales as projectiles, throwing them against the enemy."
+};
+
+export const ObjectManipulation: Ability = {
+    ...KickBarrage,
+    name: "Object Manipulation",
+    description: "Strength is capable of manipulating objects to attack the enemy.",
+    cooldown: 0,
+    damage: 12
+};

@@ -2,7 +2,7 @@ import { Stand, Ability } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 import * as Abilities from "../Abilities";
-import { HealPunch, MysteriousGas, RapidStrikes, Transformation } from "../Abilities";
+import { HealPunch, MysteriousGas, RapidStrikes, Razor_SharpScales, Transformation } from "../Abilities";
 
 function addGif(ability: Ability, gif: string): Ability {
     return {
@@ -455,7 +455,7 @@ export const TowerOfGray: Stand = {
     abilities: [Abilities.RapidStrikes],
     emoji: "<:TowerOfGray:1151200535920250911>",
     skillPoints: {
-        perception: 15, // 0
+        perception: 15,
         strength: 0,
         speed: 0,
         stamina: 0,
@@ -463,4 +463,48 @@ export const TowerOfGray: Stand = {
     },
     available: true,
     color: 0x808080
+};
+
+export const DarkBlueMoon: Stand = {
+    id: "dark_blue_moon",
+    name: "Dark Blue Moon",
+    description: "Dark Blue Moon is a Stand bound to a shark. In the JJBA series, Dark Blue Moon's owner was [Impostor Captain Tennille](https://jojo.fandom.com/wiki/Impostor_Captain_Tennille)",
+    rarity: "C",
+    image: "https://static.wikia.nocookie.net/jjba/images/e/e9/DarkBlueMoon_AnimeAV.png/revision/latest?cb=20160414192329",
+    abilities: [
+        Abilities.Razor_SharpScales
+        // TODO: Abilities.Bernacles: Dark Blue Moon is capable of creating barnacles, specifically acorn barnaclesW, as seen when they attach to Star Platinum soon after making contact with Dark Blue Moon's skin.
+        //
+        // The barnacles drain the target of its strength and also allow Dark Blue Moon slight control over the infected body parts, allowing it to drag its foes back into the water if they try to escape it.[7]
+    ],
+    emoji: "<:DarkBlueMoon:1155070166808412160>",
+    skillPoints: {
+        perception: 0,
+        strength: 6,
+        speed: 6,
+        stamina: 0,
+        defense: 0
+    },
+    available: true,
+    color: 0x0000FF
+};
+
+export const Strength: Stand = {
+    id: "strength",
+    name: "Strength",
+    description: "Strength is a Stand bound to a ship. In the JJBA series, Strength's owner was [Forever](https://jojo.fandom.com/wiki/Forever). Its only ability has no cooldown and has a slow stamina usage.",
+    rarity: "C",
+    image: "https://static.wikia.nocookie.net/jjba/images/8/8b/Strength.png/revision/latest?cb=20140805151838",
+    abilities: [Abilities.ObjectManipulation],
+    emoji: "<:Strength:1155080130142687323>",
+    skillPoints: {
+        // 0 on everything
+        perception: 0,
+        strength: 0,
+        speed: 0,
+        stamina: 0,
+        defense: 0
+    },
+    available: true,
+    color: 0x964B00
 };
