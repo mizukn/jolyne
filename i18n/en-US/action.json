@@ -59,5 +59,13 @@
   "DRIVE_AIRPLANE_TO_HONGKONG": {
     "TITLE": "Drive the airplane",
     "DESCRIPTION": "Drive the airplane immediately to Hong Kong"
+  },
+  "DRIVE_BOAT_RESCUE": {
+    "TITLE": "Drive the boat",
+    "DESCRIPTION": "Drive the boat to the nearest rescue boat"
+  },
+  "REMOVE_FLESHBUD_POLNAREFF": {
+    "TITLE": "Remove the fleshbud",
+    "DESCRIPTION": "Remove the fleshbud from Polnareff"
   }
 }
