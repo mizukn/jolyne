@@ -1434,7 +1434,7 @@ export const WristKnives: Ability = {
                         user.totalDamageDealt += damages;
                         if (x.health <= 0) x.health = 0;
                         ctx.turns[ctx.turns.length - 1].logs.push(
-                            `- ${user.weapon.emoji} WRIST KNIVES: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${x.name}**.`
+                            `- ${user.stand.emoji} WRIST KNIVES: **${user.name}** has dealt **${damages.toLocaleString("en-US")}** damages to **${x.name}**.`
                         );
                     } else {
                         ctx.turns[ctx.turns.length - 1].logs.push(
@@ -1480,4 +1480,15 @@ export const ObjectManipulation: Ability = {
     description: "Strength is capable of manipulating objects to attack the enemy.",
     cooldown: 0,
     damage: 12
+};
+
+export const ViolentBurst: Ability = {
+    description: "Spice Girl quickly makes an object go back to its original state making a burst happen sending the enemy back",
+    name: "Violent Burst",
+    cooldown: 6,
+    damage: StandBarrage.damage + 4,
+    dodgeScore: 1,
+    stamina: 15,
+    extraTurns: 0,
+    target: "enemy"
 };
