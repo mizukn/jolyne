@@ -26,18 +26,18 @@
     "DESCRIPTION": "Расскажите деду про Дио"
   },
   "REMOVE_FLESHBUD": {
-    "DESCRIPTION": "Уберите паразита из Какёина."
+    "DESCRIPTION": "Уберите паразита из головы Какёина."
   },
   "REMOVE_FLESHBUD_POLNAREFF": {
     "TITLE": "Уберите паразита",
-    "DESCRIPTION": "Remove the fleshbud from Polnareff"
+    "DESCRIPTION": "Уберите паразита из головы Польнареффа"
   },
   "DRIVE_AIRPLANE_TO_HONGKONG": {
-    "TITLE": "Drive the airplane",
-    "DESCRIPTION": "Drive the airplane immediately to Hong Kong"
+    "TITLE": "Возьмите управление над самолётом на себя",
+    "DESCRIPTION": "Немедленно посадите самолёт в Гонг Конге"
   },
   "DRIVE_BOAT_RESCUE": {
-    "TITLE": "Drive the boat",
-    "DESCRIPTION": "Drive the boat to the nearest rescue boat"
+    "TITLE": "Возьмите управление над лодкой",
+    "DESCRIPTION": "Доплывите до ближайшей спасательной лодки"
   }
 }
