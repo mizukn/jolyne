@@ -1,74 +1,74 @@
 {
     "ANALYSE_HAIR": {
-        "TITLE": "Analyse these hairs",
-        "DESCRIPTION": "Send these yellow hairs to the SPEEDWAGON FOUNDATION"
+        "TITLE": "Изучите эти волосы",
+        "DESCRIPTION": "Отправьте эти волосы в Фонд Спидвагона на анализ"
     },
     "REMOVE_THING_KAKYOIN": {
-        "TITLE": "Remove the creature",
-        "DESCRIPTION": "Remove the creature on the head of the Kakyoin (50% success rate)"
+        "TITLE": "Уберите существо",
+        "DESCRIPTION": "Уберите существо с головы Какёина (шанс успеха 50%)"
     },
     "TELL_GRANDFATHER": {
-        "TITLE": "Tell to your grandfather about Dio",
-        "DESCRIPTION": "Send an e-mail to your grandfather"
+        "TITLE": "Расскажите своему деду про Дио",
+        "DESCRIPTION": "Отправьте письмо своему деду"
     },
     "BRING_KAKYOIN_HOSPITAL": {
-        "TITLE": "Bring Kakyoin to the hospital",
-        "DESCRIPTION": "Bring Kakyoin to the hospital"
+        "TITLE": "Отнесите Какёина в больницу",
+        "DESCRIPTION": "Отнесите Какёина в больницу"
     },
     "AWAKE_STAND": {
-        "DESCRIPTION": "Awaken your stand"
+        "DESCRIPTION": "Пробудите свой стенд"
     },
     "COMPLETE_BEGINNER_SIDE_QUEST": {
         "DESCRIPTION": "Complete the beginner side quest and claim its rewards!"
     },
     "LOOT_COINS": {
-        "DESCRIPTION": "Loot {{cc}} coins (using the {{command.loot}} command)"
+        "DESCRIPTION": "Найдите {{cc}} монет (используя команду {{command.loot}})"
     },
-    "CLAIMX": "Claim **{{cc}}** {{name}}{{s}} {{emoji}}",
-    "USE_COMMAND": "Use the {{cmd}} command {{cc}} time{{s}}",
+    "CLAIMX": "Получи **{{cc}}**{{name}}{{s}} {{emoji}}",
+    "USE_COMMAND": "Используй команду {{cmd}} {{cc}} раз{{s}}",
     "SPEEDWAGON_ANSWER": {
-        "TITLE": "Wait for the SPEEDWAGON to answer",
-        "DESCRIPTION": "Wait for the SPEEDWAGON to send you their results about these hairs"
+        "TITLE": "Дождись ответа Спидвагона",
+        "DESCRIPTION": "Дождись ответа Спидвагона по поводу анализа этих волос"
     },
     "KAKYOIN_BACK": {
-        "TITLE": "Wait for kakyoin to recover",
-        "DESCRIPTION": "Wait for kakyoin to recover from the hospital"
+        "TITLE": "Дождись выздоровления Какёина",
+        "DESCRIPTION": "Дождись выписки Какёина из больницы"
     },
     "TAXIUPGO": {
-        "DESCRIPTION": "Get at the Morioh airport 🚕"
+        "DESCRIPTION": "Доберись в аэропорт Морио 🚕"
     },
     "TYGAD": {
-        "TITLE": "Send an e-mail to your grandfather about the situation",
-        "DESCRIPTION": "Tell to your grandfather about Dio"
+        "TITLE": "Отправь письмо своему деду по поводу всей ситуации",
+        "DESCRIPTION": "Расскажи своему деду о Дио"
     },
     "TYGAD_ANSWER": {
-        "DESCRIPTION": "Wait for your grandfather to answer"
+        "DESCRIPTION": "Дождись ответа своего деда"
     },
     "GO_TO_AIRPORT": {
-        "TITLE": "Get to the airport",
-        "DESCRIPTION": "Find a taxi that goes to the Morioh's International Airport",
-        "CHAP_DESC": "Wait for the taxi to arrive."
+        "TITLE": "Доберись до аэропорта",
+        "DESCRIPTION": "Найди такси, ведущее к Международному Аэропорту Морио",
+        "CHAP_DESC": "Дождись приезда такси."
     },
     "REMOVE_FLESHBUD_POLNAREFF": {
-        "TITLE": "Remove the fleshbud",
-        "DESCRIPTION": "Remove the fleshbud on the head of the polnareff"
+        "TITLE": "Убери паразита",
+        "DESCRIPTION": "Убери паразита на голове Польнареффа"
     },
     "DRIVE_AIRPLANE_TO_HONGKONG": {
-        "TITLE": "Drive the airplane",
-        "DESCRIPTION": "Drive the airplane immediately to Hong Kong"
+        "TITLE": "Возьми управление самолёта на себя",
+        "DESCRIPTION": "Немедленно посади самолёт в Гонг Конге"
     },
     "THROW_RUBBER_SOUL_BODY_TO_THE_SEA": {
-        "TITLE": "Throw rubber soul's body",
-        "DESCRIPTION": "Throw rubber soul's body to the sea"
+        "TITLE": "Киньте тело Раббер Соула",
+        "DESCRIPTION": "Киньте тело Раббер Соула в море"
     },
     "GET_A_TRAM_AND_GO_TO_INDIA": {
-        "TITLE": "Get a tram",
-        "DESCRIPTION": "Get a tram and go to India"
+        "TITLE": "Найдите троллейбус",
+        "DESCRIPTION": "Найдите троллейбус и доберитесь до Индии"
     },
     "WAIT_FOR_THE_TRAM_TO_ARRIVE_IN_INDIA": {
-        "DESCRIPTION": "Wait for the tram to arrive in India"
+        "DESCRIPTION": "Дождитесь приезда в Индию"
     },
     "MUST_READ_EMAIL": {
-        "DESCRIPTION": "Read the e-mail from `{{email.author}}` ({{email.subject}}: {{command.emails view}})"
+        "DESCRIPTION": "Прочтите письмо от `{{email.author}}` ({{email.subject}}: {{command.emails view}})"
     }
 }
