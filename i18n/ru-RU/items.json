@@ -1,6 +1,6 @@
 {
     "MYSTERIOUS_ARROW": {
-        "NAME": "Таинственная стрела",
+        "NAME": "Таинственная Стрела",
         "DESCRIPTION": "Таинственная стрела...",
         "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Стрела не реагирует...",
         "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Стрела не реагирует...\n\nВидимо у вас уже есть стенд. Чтобы сбросить стенд, используйте команду `/stand delete` или положите его в хранилище командой `/stand store`, а затем попробуйте еще раз.",
@@ -10,6 +10,6 @@
     "REQUIEM_ARROW": {
         "NOT_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела: ** Для использования этого предмета требуется Голд Экспириенс или Сильвер Чариот...",
         "EVOLVING": "{{emojis.requiem_arrow}} **Реквием стрела:** {{stand}} эволюционировал в {{stand}} Реквием!",
-        "ALREADY_REQUIEM": "{{emojis.requiem_arrow}} **Requiem Arrow:** What are you trying to do? Are you really trying to evolve your {{stand}} Requiem into {{stand}} Requiem Requiem? That's impossible, mudada."
+        "ALREADY_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела:** Что? Что ты делаешь? Ты что правда пытаешься превратить {{stand}} Реквием в {{stand}} Реквием Реквием? Смешно."
     }
 }
