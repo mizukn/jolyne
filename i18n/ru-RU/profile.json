@@ -1,4 +1,4 @@
 {
-	"ADVENTUREAT": ":calendar: Started their adventure {{rUnix}} ({{dUnix}})",
-	"STATS": "Player Stats"
+	"ADVENTUREAT": ":calendar: Начал свое приключение {{rUnix}} ({{dUnix}})",
+	"STATS": "Статистика Игрока"
 }
