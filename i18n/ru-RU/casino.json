@@ -16,10 +16,10 @@
 		"{{emojis.daniel}} **__Дэниел Дж. Д'Арби:__** Лол, а ты чего ожидал, лошок?",
 		"{{emojis.daniel}} **__Дэниел Дж. Д'Арби:__** Мне очень жаль, в следующий раз повезёт...",
 		"{{emojis.daniel}} **__Дэниел Дж. Д'Арби:__** Хорошая попытка.",
-		"{{emojis.daniel}} **__Daniel J. D'Arby:__** It was really close... JK LOL YOU REALLY THINK YOU'RE GOING TO WIN ?!",
-		"{{emojis.daniel}} **__Daniel J. D'Arby:__** Damnnnn... You should try again",
-		"{{emojis.daniel}} **__Daniel J. D'Arby:__** That's exactly what i expected... Don't worry, i'm not cheating... *coughs*",
-		"{{emojis.daniel}} **__Daniel J. D'Arby:__** You're a bad bozo, you lost everything."
+		"{{emojis.daniel}} **__Даниель Джей. Д'Арби:__** это было очень близко... ШУТКА ЛОЛ ТЫ РЕАЛЬНО ДУМАЛ ЧТО ТЫ МОЖЕШЬ ПОБЕДИТЬ ?!",
+		"{{emojis.daniel}} **__Даниель Джей. Д'Арби__** Мдаааа... Ты должен попробовать ещё раз",
+		"{{emojis.daniel}} Даниель Джей. Д'Арби__** Это именно то что я ожидал... Не переживай, я не жульничаю... *кашляет*",
+		"{{emojis.daniel}} **__Даниель Джей. Д'Арби:__** Ты реально плох, ты потерял всё."
 	],
 	"CASINO_YOU_GOT": "You got **{{amount}}** coins {{emojis.jocoins}} !"
 }
