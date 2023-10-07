@@ -1311,7 +1311,8 @@ export const getBlackMarketString = function getBlackMarketString(id: string): s
 
 export const hasExceedStandLimit = function hasExceedStandLimit(
     ctx: CommandInteractionContext,
-    userData?: RPGUserDataJSON
+    userData?: RPGUserDataJSON,
+    canBeEqual?: boolean
 ): boolean {
     const realUserData = userData ?? ctx.userData;
     const limit = calcStandDiscLimit(ctx, realUserData);
@@ -1319,7 +1320,9 @@ export const hasExceedStandLimit = function hasExceedStandLimit(
     for (const item of Object.keys(realUserData.inventory)) {
         if (item.includes("$disc$")) discCount += realUserData.inventory[item];
     }
-    return discCount >= limit;
+
+    if (canBeEqual) return discCount >= limit;
+    else return discCount > limit;
 };
 
 export const msToString = function msToString(ms: number): string {
