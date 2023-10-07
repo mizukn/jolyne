@@ -290,7 +290,7 @@ const slashCommand: SlashCommandFile = {
                     if (!item) return;
                     const xitem = Functions.findItem(item.item);
                     if (!xitem) return;
-                    selectedItem = xitem;
+                    selectedItem = { ...cloneDeep(xitem), price: selectedItem.price ?? item.price };
 
                     ctx.makeMessage({
                         components: [
