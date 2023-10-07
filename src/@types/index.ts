@@ -292,6 +292,7 @@ export interface RPGUserDataJSON {
     }[];
     restingAtCampfire: number;
     lastPatreonReward: number;
+    lastSeen: Date;
 }
 
 export enum equipableItemTypes {
