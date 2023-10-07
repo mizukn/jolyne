@@ -79,7 +79,7 @@ export const Box: Special = {
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
         const possibleConsumables = Object.values(Consumables).filter(
-            (r) => r.tradable && r.storable
+            (r) => r.tradable && r.storable && r.rarity !== "SS" && r.rarity !== "S" && r.rarity !== "T"
         );
         const midItemsList1 = Object.values(Items).filter(
             (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B"
