@@ -518,7 +518,7 @@ export const SkeletalSpectre: Stand = {
     abilities: [
         Abilities.StandBarrage,
         Abilities.BoneSpear,
-        Abilities.BonesElargement,
+        Abilities.BonesEnlargement,
         Abilities.ArmSplitter,
         Abilities.FistEnlargement,
         Abilities.HeartBreaker
