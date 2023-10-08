@@ -1492,3 +1492,113 @@ export const ViolentBurst: Ability = {
     extraTurns: 0,
     target: "enemy"
 };
+
+/**
+ * Bones elargement: makes your bone biggers so it doubles your hp & max hp for 3 turns
+ */
+export const BonesElargement: Ability = {
+    name: "Bones Elargement",
+    description: "Makes your bones bigger, doubling your max health for 3 turns",
+    cooldown: 5,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const oldMaxHealth = user.maxHealth;
+        user.maxHealth *= 2;
+        user.health *= 2;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} BONES ELARGEMENT: **${user.name}**'s bones have been enlarged...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.maxHealth = oldMaxHealth;
+                user.health = Math.min(user.health, user.maxHealth);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} BONES ELARGEMENT: **${user.name}**'s bones have returned to their normal size...`
+                );
+            }
+        });
+    },
+    target: "self"
+};
+
+/**
+ * Arm splitter: You enclose your opponents arm bones until they snap, causing bleed damage and does dmg based on strength.
+ */
+export const ArmSplitter: Ability = {
+    name: "Arm Splitter",
+    description: "You enclose your opponents arm bones until they snap, causing bleed damage and does dmg based on strength.",
+    cooldown: 7,
+    damage: 0,
+
+    stamina: 30,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Finisher) / 10);
+        bleedDamagePromise(ctx, target, burnDamageCalc, user);
+
+        const armsplitterdmg = Math.round(Functions.getAttackDamages(user) * 1.89);
+        target.health -= armsplitterdmg;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += armsplitterdmg;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} ARM SPLITTER: **${user.name}** has dealt **${armsplitterdmg.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+    },
+    target: "enemy"
+};
+
+/**
+ * Fist enlargement: You enlarge your fist, throwing a giant fist at the enemy! Does damage based on strength.
+ */
+export const FistEnlargement: Ability = {
+    ...Finisher,
+    name: "Fist Enlargement",
+    description: "You enlarge your fist, throwing a giant fist at the enemy! Does damage based on strength."
+};
+
+/**
+ * Heart breaker:You enclose your opponents ribs, causing it to press down on the opponents lungs and heart. Bleed damage and does damage based on strength.
+ * ULTIMATE, DEALS A LOT OF DMG
+ */
+export const HeartBreaker: Ability = {
+    name: "Heart Breaker",
+    description: "You enclose your opponents ribs, causing it to press down on the opponents lungs and heart. Bleed damage and does damage based on strength, giving you an extra turn",
+    cooldown: 10,
+    damage: 0,
+
+    stamina: 70,
+    extraTurns: 1,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Finisher) / 10);
+        bleedDamagePromise(ctx, target, burnDamageCalc, user);
+
+        const heartbreakerdmg = Math.round(Functions.getAttackDamages(user) * 3.5);
+        target.health -= heartbreakerdmg;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += heartbreakerdmg;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} HEART BREAKER: **${user.name}** has dealt **${heartbreakerdmg.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+    },
+    target: "enemy"
+};
+
+/**
+ * Bone Spear: basic ability, does damage based on strength.
+ */
+export const BoneSpear: Ability = {
+    ...KickBarrage,
+    name: "Bone Spear",
+    description: "You throw a spear made of bone at the enemy."
+};

@@ -508,3 +508,31 @@ export const Strength: Stand = {
     available: true,
     color: 0x964B00
 };
+
+export const SkeletalSpectre: Stand = {
+    id: "skeletal_spectre",
+    name: "Skeletal Spectre",
+    description: "Skeletal Spectre is an event stand, was available during the Halloween event (2023).",
+    rarity: "T",
+    image: "https://media.discordapp.net/attachments/1028000883092508803/1031942138717556856/Screenshot_20221007-1101012.png",
+    abilities: [
+        Abilities.StandBarrage,
+        Abilities.BoneSpear,
+        Abilities.BonesElargement,
+        Abilities.ArmSplitter,
+        Abilities.FistEnlargement,
+        Abilities.HeartBreaker
+    ],
+    emoji: "💀",
+    skillPoints: {
+        // event stands have 0 skill points
+        perception: 0,
+        strength: 0,
+        speed: 0,
+        stamina: 0,
+        defense: 0
+    },
+    available: true,
+    color: // grey
+        0x808080
+};

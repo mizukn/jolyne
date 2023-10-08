@@ -88,3 +88,29 @@ export const Beginner: SideQuest = {
     },
     requirementsMessage: "- You must be not over level 10"
 };
+
+export const HalloweenEvent2023: SideQuest = {
+    id: "HalloweenEvent2023",
+    title: "Halloween Event 2023",
+    description: "Happy Halloween! Skeletons, zombies and lots more scary creatures have invaded Morioh City. Kill them all for souls & bones!",
+    emoji: "🎃",
+    canRedoSideQuest: true,
+    rewards: async (ctx) => {
+        Functions.addItem(ctx.userData, Functions.findItem("soul"), 1);
+        Functions.addItem(ctx.userData, Functions.findItem("bone"), 1);
+        ctx.followUp({
+            content: `You've completed the Halloween Event 2023 quest. You've been given a **Soul** and a **Bone**. You can use the **Soul** by using the ${ctx.client.getSlashCommandMention(
+                "inventory use"
+            )} command. Note that you can redo this quest anytime, just re-use the ${ctx.client.getSlashCommandMention(
+                "side quest view"
+            )} command.`
+        });
+        return true;
+    },
+    quests: [],
+    requirements: (ctx) => {
+        if (Date.now() > 1701385199) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
+        return true;
+    }
+
+};
