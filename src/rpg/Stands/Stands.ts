@@ -574,5 +574,6 @@ export const TheWorldRu: Stand = {
         stamina: 0,
         defense: 0
     },
+    color: TheWorld.color,
     available: true
 };
