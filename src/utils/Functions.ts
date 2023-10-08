@@ -435,7 +435,7 @@ export const generateDiscordTimestamp = (
 };
 
 export const localeNumber = (num: number): string => {
-    return num.toLocaleString("en-US");
+    return num?.toLocaleString("en-US");
 };
 
 export const RNG = (min: number, max: number): number => {
