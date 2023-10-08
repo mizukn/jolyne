@@ -305,7 +305,6 @@ const slashCommand: SlashCommandFile = {
                         ]
                     });
                 } else if (i.customId === `amount_${ctx.interaction.id}`) {
-                    console.log("here");
                     const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
 
                     const price = (selectedItem.price ?? 10000) * amount;
