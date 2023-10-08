@@ -73,6 +73,10 @@ export const TheWorld: Ability = {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `> ${user.stand.emoji} **${user.name}:** STAR PLATINUM: THE WORLD! TOKI WO TOMARE!`
             );
+        } else if (user.stand.id === Stands.TheWorldRu.id) {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `> ${user.stand.emoji} **${user.name}:** SUKA BLYAT! `
+            );
         } else
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `> ${user.stand.emoji} **${user.name}:** ${user.stand.name}: TOKI WO TOMARE!`

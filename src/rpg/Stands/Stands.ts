@@ -536,3 +536,43 @@ export const SkeletalSpectre: Stand = {
     color: // grey
         0x808080
 };
+
+/**
+ * The WORLD: Ru version (halloween 2023)
+ */
+export const TheWorldRu: Stand = {
+    id: "the_world_ru",
+    name: "The World (RU)",
+    description: "The World (Russian Ver.) is an event stand, was available during the Halloween event (2023).",
+    rarity: "T",
+    image: "https://media.jolyne.moe/KBp8PL/direct",
+    abilities: [
+        {
+            ...Abilities.StandBarrage,
+            name: "Suka Barrage",
+            description: "SUKA SUKA SUKA SUKA SUKA SUKA SUKA SUKA"
+        },
+        {
+            ...Abilities.KickBarrage,
+            name: "Bear Attack",
+            description: "The World summons its bear to attack the enemy"
+        }, {
+            ...Abilities.RoadRoller,
+            name: "AK-47",
+            description: "The World summons an AK-47 and shoots the enemy"
+        }, {
+            ...Abilities.TheWorld,
+            description: "SUKA BLYAT!"
+        }
+    ],
+    emoji: "<:TWRU:1160651318394884096>",
+    skillPoints: {
+        // event stands have 0 skill points
+        perception: 0,
+        strength: 0,
+        speed: 0,
+        stamina: 0,
+        defense: 0
+    },
+    available: true
+};
