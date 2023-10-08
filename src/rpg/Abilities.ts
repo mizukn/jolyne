@@ -1500,8 +1500,8 @@ export const ViolentBurst: Ability = {
 /**
  * Bones elargement: makes your bone biggers so it doubles your hp & max hp for 3 turns
  */
-export const BonesElargement: Ability = {
-    name: "Bones Elargement",
+export const BonesEnlargement: Ability = {
+    name: "Bones Enlargement",
     description: "Makes your bones bigger, doubling your max health for 3 turns",
     cooldown: 5,
     damage: 0,
