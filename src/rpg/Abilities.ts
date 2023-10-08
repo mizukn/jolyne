@@ -1504,7 +1504,6 @@ export const BonesElargement: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,
-    special: true,
     useMessage: (user, target, damage, ctx) => {
         const oldMaxHealth = user.maxHealth;
         user.maxHealth *= 2;
@@ -1540,7 +1539,6 @@ export const ArmSplitter: Ability = {
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 0,
-    special: true,
     useMessage: (user, target, damage, ctx) => {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Finisher) / 10);
         bleedDamagePromise(ctx, target, burnDamageCalc, user);
