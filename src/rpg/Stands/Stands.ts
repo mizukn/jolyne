@@ -310,7 +310,7 @@ export const PurpleHaze: Stand = {
     name: "Purple Haze",
     rarity: "S",
     description: "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
-    image: "https://cdn.discordapp.com/attachments/576020336902930434/986670882695041034/400px-Purple_Haze_Infobox_Manga.png",
+    image: "https://media.jolyne.moe/NNszFI/direct",
     abilities: [Abilities.StandBarrage, Abilities.CapsuleShot, Abilities.PoisonGas, Abilities.Rage],
     emoji: Emojis.purple_haze,
     skillPoints: {
@@ -329,7 +329,7 @@ export const HalloweenSpooks: Stand = {
     name: "Halloween Spooks",
     rarity: "T",
     description: "Halloween Spooks is a limited stand, was available during the Halloween event (2022).",
-    image: "https://media.discordapp.net/attachments/1028000883092508803/1031942138717556856/Screenshot_20221007-1101012.png",
+    image: "https://media.jolyne.moe/g3w4Ec/direct",
     abilities: [Abilities.Rage, Abilities.ScytheSlash, Abilities.MysteriousGas],
     emoji: "🎃",
     skillPoints: {
@@ -514,7 +514,7 @@ export const SkeletalSpectre: Stand = {
     name: "Skeletal Spectre",
     description: "Skeletal Spectre is an event stand, was available during the Halloween event (2023).",
     rarity: "T",
-    image: "https://media.discordapp.net/attachments/1028000883092508803/1031942138717556856/Screenshot_20221007-1101012.png",
+    image: "https://media.jolyne.moe/BZVkXX/direct",
     abilities: [
         Abilities.StandBarrage,
         Abilities.BoneSpear,
