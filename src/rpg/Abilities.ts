@@ -1478,7 +1478,7 @@ export const ObjectManipulation: Ability = {
     ...KickBarrage,
     name: "Object Manipulation",
     description: "Strength is capable of manipulating objects to attack the enemy.",
-    cooldown: 0,
+    cooldown: 2,
     damage: 12
 };
 
