@@ -545,7 +545,7 @@ export const TheWorldRu: Stand = {
     name: "The World (RU)",
     description: "The World (Russian Ver.) is an event stand, was available during the Halloween event (2023).",
     rarity: "T",
-    image: "https://media.jolyne.moe/KBp8PL/direct",
+    image: "https://media.jolyne.moe/4lLQMv/direct",
     abilities: [
         {
             ...Abilities.StandBarrage,
