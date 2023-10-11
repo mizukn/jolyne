@@ -144,10 +144,12 @@ const Event: EventFile = {
             const patrons = await client.database.redis.keys("patron:*");
             for (const patron of patrons) {
                 const data = await client.database.redis.get(patron);
+                const patreonData = await client.database.redis.get(`patronData:${patron.split(":")[1]}`);
                 client.patreons.push({
                     id: patron.split(":")[1],
                     level: parseInt(data.split(":")[0]) as (1 | 2 | 3 | 4),
-                    lastPatreonCharge: parseInt(data.split(":")[1])
+                    lastPatreonCharge: parseInt(data.split(":")[1]),
+                    data: JSON.parse(patreonData) as typeof client.fetchPatrons extends Promise<infer U> ? U : never
                 });
             }
         }
@@ -168,13 +170,13 @@ const Event: EventFile = {
                     };
                 }));
                 for (const key of keys) client.database.redis.del(key);
-                client.patreons = [{
-                    id: "239739781238620160",
-                    lastPatreonCharge: Date.now(),
-                    level: 4
-                }];
+                client.patreons = [];
 
                 for (const patron of patrons) {
+
+                    if (patron.discord_id) client.database.redis.set(`patronCache_${patron.full_name}`, patron.discord_id);
+                    client.database.redis.set(`patronData:${patron.discord_id}`, JSON.stringify(patron));
+
                     if (new Date(patron.last_charge_date).getTime() + 1000 * 60 * 60 * 24 * 31 < Date.now() || patron.currently_entitled_amount_cents === 0) {
                         continue;
                     }
@@ -185,7 +187,6 @@ const Event: EventFile = {
                     else if (patron.currently_entitled_amount_cents >= 450) tier = 2; // ASCENDED SUPPORTER
                     else tier = 1; // SUPPORTER
 
-                    if (patron.discord_id) client.database.redis.set(`patronCache_${patron.full_name}`, patron.discord_id);
                     if (!patron.discord_id) {
                         patron.discord_id = await client.database.redis.get(`patronCache_${patron.full_name}`);
                     }
@@ -195,7 +196,8 @@ const Event: EventFile = {
                     client.patreons.push({
                         id: patron.discord_id,
                         level: tier,
-                        lastPatreonCharge: new Date(patron.last_charge_date).getTime()
+                        lastPatreonCharge: new Date(patron.last_charge_date).getTime(),
+                        data: patron
                     });
                 }
             } else {

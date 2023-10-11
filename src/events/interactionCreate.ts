@@ -82,8 +82,7 @@ const Event: EventFile = {
                     } else return ctx.sendTranslated("base:NO_ADVENTURE");
                 }
 
-                //if (command.checkRPGCooldown) {
-                if (false) {
+                if (command.checkRPGCooldown) {
                     const cooldown = await interaction.client.database.getRPGCooldown(
                         ctx.user.id,
                         command.checkRPGCooldown
@@ -100,7 +99,7 @@ const Event: EventFile = {
             } else ctx = new CommandInteractionContext(interaction);
 
             if (command.category === "rpg" && ctx.userData) {
-                if (ctx.userData.level === 1 && Functions.calculeSkillPointsLeft(ctx.userData) === 4 && command.data.name !== "skill") {
+                if (ctx.userData.level === 1 && Functions.calculeSkillPointsLeft(ctx.userData) === 4 && command.data.name === "fight") {
                     await ctx.makeMessage({
                         content: `:arrow_up: | **${ctx.user.username}**, you have **${Functions.calculeSkillPointsLeft(
                             ctx.userData
@@ -140,6 +139,22 @@ const Event: EventFile = {
                 }
                 if (typeof ctx.userData.restingAtCampfire !== "number")
                     ctx.userData.restingAtCampfire = 0;
+
+                if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
+                    // if user data lastSeen is more than 1 hour and 5 minutes, put them to campfire at lastSeen + 1 hour
+                    if (ctx.userData.lastSeen &&
+                        new Date(ctx.userData.lastSeen).getTime() + 3900000 < Date.now() &&
+                        command.data.name !== "campfire"
+                    ) {
+                        ctx.userData.restingAtCampfire = new Date(ctx.userData.lastSeen).getTime();
+                        ctx.makeMessage({
+                            content: `🔥🪵 | **${ctx.user.username}**, you were resting at the campfire while you were offline. Use the ${ctx.client.getSlashCommandMention(
+                                "campfire leave"
+                            )} command to leave. [PATREON PASSIVE]`
+                        });
+                        return;
+                    }
+                }
                 if (Number(ctx.userData.restingAtCampfire) && command.data.name !== "campfire") {
                     ctx.makeMessage({
                         content: `🔥🪵 You're currently resting at the campfire. Use the ${ctx.client.getSlashCommandMention(
