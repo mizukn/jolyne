@@ -1485,7 +1485,6 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
     if (data1.coins !== data2.coins) rewards.push(`**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(data1.coins - data2.coins).toLocaleString("en-US")}** ${Emojis.jocoins}`);
 
     if (JSON.stringify(data1.inventory) !== JSON.stringify(data2.inventory)) {
-        console.log("here");
         // inventory example:
         // {
         //   "stand.disc": 1,
