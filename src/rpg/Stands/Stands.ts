@@ -4,7 +4,7 @@ import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 import * as Abilities from "../Abilities";
 import { HealPunch, MysteriousGas, RapidStrikes, Razor_SharpScales, Transformation } from "../Abilities";
 
-function addGif(ability: Ability, gif: string): Ability {
+function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
     return {
         ...ability,
         thumbnail: gif
@@ -344,6 +344,27 @@ export const HalloweenSpooks: Stand = {
     // purple hex code
     color: 0x800080
 };
+
+export const BuffOPlatinum: Stand = {
+    name: "Buff O' Platinum",
+    id: "buff_o_platinum",
+    rarity: "T",
+    description: "Buff O' Platinum is a limited stand, was available during the Christmas event (2022).",
+    image: "https://media.discordapp.net/attachments/1026886547460591647/1055873607726796820/Napalm_Christmas_Time_Star_Platinum_678444c9-593c-49d6-bfc9-b20ca76d8dce.png",
+    abilities: StarPlatinum.abilities,
+    emoji: "<:buffoplatinum:1055875166812524554>",
+    skillPoints: {
+        // event stands have 0 skill points
+        strength: 0,
+        defense: 0,
+        perception: 0,
+        speed: 0,
+        stamina: 0
+    },
+    available: true,
+    color: StarPlatinum.color
+};
+
 export const CrazyDiamond: Stand = {
     id: "crazy_diamond",
     name: "Crazy Diamond",
@@ -577,3 +598,28 @@ export const TheWorldRu: Stand = {
     color: TheWorld.color,
     available: true
 };
+
+export const StickyFingers: Stand = {
+    id: "sticky_fingers",
+    name: "Sticky Fingers",
+    description: "Sticky Fingers is the Stand of Bruno Bucciarati, featured in the fifth part of the JoJo's Bizarre Adventure series, Vento Aureo. Sticky Fingers is a short-range humanoid Stand that can create zippers on any surface",
+    rarity: "A",
+    image: "https://static.jojowiki.com/images/thumb/7/78/latest/20221006032155/Sticky_Fingers_Infobox_Anime.png/400px-Sticky_Fingers_Infobox_Anime.png",
+    color: 0x0000FF,
+    abilities: [
+        {
+            ...Abilities.StandBarrage,
+            name: "ARI Barrage",
+            description: "ARI ARI ARI ARI ARI ARI ARI ARI!"
+        }, Abilities.ZipperPunch, Abilities.DimensionUppercut, Abilities.Arrivederci
+    ],
+    emoji: Emojis.sticky_fingers,
+    skillPoints: {
+        perception: 7,
+        speed: 7,
+        strength: 3,
+        stamina: 3,
+        defense: 0
+    },
+    available: true
+}

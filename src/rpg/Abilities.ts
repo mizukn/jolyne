@@ -508,7 +508,7 @@ export const EternalSleep: Ability = {
 
                     if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                 }
-                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0 && x.skillPoints.perception !== Infinity) {
                     x.frozenFor += 3;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 3 turns...`
@@ -927,7 +927,7 @@ export const BerserkersRampage: Ability = {
 
                     if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                 }
-                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0 && x.skillPoints.perception !== Infinity) {
                     const damages = Math.round(Functions.getAttackDamages(user) * 1.75);
                     x.health -= damages;
                     user.totalDamageDealt += damage;
@@ -1009,7 +1009,7 @@ export const GasolineBullets: Ability = {
 
                     if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                 }
-                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0 && x.skillPoints.perception !== Infinity) {
                     const damages = Math.round(Functions.getAttackDamages(user) * 3);
                     x.health -= damages;
                     user.totalDamageDealt += damages;
@@ -1168,7 +1168,7 @@ export const MysteriousGas: Ability = {
 
                     if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                 }
-                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                if (dodgeResults.every((r) => r) && dodgeResults.length !== 0 && x.skillPoints.perception !== Infinity) {
                     x.frozenFor += 3;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand.emoji} MYSTERIOUS GAS: **${user.name}** has confused **${x.name}** for 3 turns...`
@@ -1432,7 +1432,7 @@ export const WristKnives: Ability = {
 
                         if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
                     }
-                    if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+                    if (dodgeResults.every((r) => r) && dodgeResults.length !== 0 && x.skillPoints.perception !== Infinity) {
                         const damages = Math.round(Functions.getAttackDamages(user));
                         x.health -= damages;
                         user.totalDamageDealt += damages;
@@ -1604,3 +1604,128 @@ export const BoneSpear: Ability = {
     name: "Bone Spear",
     description: "You throw a spear made of bone at the enemy."
 };
+
+export const SheerHeartAttackBTD: Ability = {
+    name: "Sheer Heart Attack [BTD ver.]",
+    description: "Creates a bomb that will explode TO EVERY ENEMIES in 3 turns.",
+    cooldown: 3,
+    damage: 0,
+    stamina: 10,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.nextTurnPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const bombDamage = Math.round(Functions.getAttackDamages(user) * 5);
+                fight.fighters
+                    .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
+                    .forEach((x) => {
+                        x.health -= bombDamage;
+                        if (x.health <= 0) x.health = 0;
+                        user.totalDamageDealt += bombDamage;
+                        fight.turns[fight.turns.length - 1].logs.push(
+                            `- ${user.stand.emoji} SHEER HEART ATTACK: **${user.name}**'s bomb exploded, dealing **${bombDamage.toLocaleString("en-US")}** damages to **${x.name}**.`
+                        );
+                    });
+            }
+        });
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} SHEER HEART ATTACK: **${user.name}**'s bomb is now targetting **EVERY ENEMIES**...`
+        );
+    }
+};
+
+// sheer heart attack but only to a specific target
+export const SheerHeartAttack: Ability = {
+    name: "Sheer Heart Attack",
+    description: "Creates a bomb that will explode in 3 turns.",
+    cooldown: 3,
+    damage: 0,
+    stamina: 10,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.nextTurnPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const bombDamage = Math.round(Functions.getAttackDamages(user) * 3.5);
+                target.health -= bombDamage;
+                if (target.health <= 0) target.health = 0;
+                user.totalDamageDealt += bombDamage;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} SHEER HEART ATTACK: **${user.name}**'s bomb exploded, dealing **${bombDamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+                );
+            }
+        });
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} SHEER HEART ATTACK: **${user.name}**'s bomb is now targetting **${target.name}**.`
+        );
+    }
+};
+
+export const BitesTheDust: Ability = {
+    name: "Bites The Dust",
+    description: "Goes back 5 turns behind and gives you Infinity perception for the next 5 turns",
+    cooldown: 10,
+    damage: 0,
+    stamina: 0,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        if (ctx.turns.length > 5) {
+            ctx.turns.length -= 5;
+            ctx.nextRoundPromises = ctx.turns[ctx.turns.length - 1].nextRoundPromises.filter(x => x.id.includes("bites"));
+            ctx.nextTurnPromises = ctx.turns[ctx.turns.length - 1].nextTurnPromises.filter(x => x.id.includes("bites"));
+            ctx.fighters = ctx.turns[ctx.turns.length - 1].fighters;
+            ctx.teams = ctx.turns[ctx.turns.length - 1].teams;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand.emoji} KILLER QUEEN! BITES THE DUST...`
+            );    
+        } else {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand.emoji} KILLER QUEEN! BITES THE DUST... (only perception boost)`
+            );    
+        }
+        user.skillPoints.perception = Infinity;
+        const oldSkillPoints = cloneDeep(user.skillPoints);
+
+        ctx.nextRoundPromises.push({
+            cooldown: 5,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.skillPoints = oldSkillPoints;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} KILLER QUEEN! BITES THE DUST: **${user.name}**'s perception boost has disappeared...`
+                );
+            }
+        });
+        
+    },
+    target: "self"
+};
+
+export const Arrivederci: Ability = {
+    ...Finisher,
+    name: "Arrivederci",
+    description: "Arrivederci.",
+    thumbnail: "https://i.pinimg.com/originals/65/ae/27/65ae270df87c3c4adcea997e48f60852.gif"
+};
+
+export const ZipperPunch: Ability = {
+    ...StandBarrage,
+    name: "Zipper Punch",
+    description: "Sticky Fingers delivers a lightning-fast punch, channeling the power of its zipper-enhanced fist",
+    damage: StandBarrage.damage + 7,
+}
+
+export const DimensionUppercut: Ability = {
+    ...StarFinger,
+    name: "Dimension Uppercut",
+    description: "You go into the zipper dimension and then fling yourself out underneath the opponent, giving a uppercut"
+}

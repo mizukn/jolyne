@@ -123,3 +123,10 @@ export const Forever: NPC = {
     name: "Forever",
     emoji: "<:Forever:1155078866851864679>"
 };
+
+export const JolyneTeam: NPC = {
+    id: "jolyne_team",
+    name: "Jolyne Team",
+    emoji: Emojis.JolyneTray,
+    email: "mizu@jolyne.moe"
+};
