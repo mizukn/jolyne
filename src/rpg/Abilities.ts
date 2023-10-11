@@ -1729,3 +1729,9 @@ export const DimensionUppercut: Ability = {
     name: "Dimension Uppercut",
     description: "You go into the zipper dimension and then fling yourself out underneath the opponent, giving a uppercut"
 }
+
+export const CoinBomb: Ability = {
+    ...KickBarrage,
+    description: "Throw a coin bomb at one of your opponents moves",
+    name: "Coin Bomb"
+}

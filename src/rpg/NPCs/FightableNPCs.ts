@@ -17,7 +17,7 @@ const baseRewards = {
 
 export const Kakyoin: FightableNPC = {
     ...NPCs.Kakyoin,
-    level: 0,
+    level: 2,
     skillPoints: {
         defense: 1,
         strength: 1,
@@ -127,8 +127,8 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         stamina: Dio.skillPoints.stamina * 5
     },
     equippedItems: {},
-    standsEvolved: {}
-    //stand: "The World: Over Heaven",
+    standsEvolved: {},
+    stand: "The World",
 };
 
 export const BanditLeader: FightableNPC = {

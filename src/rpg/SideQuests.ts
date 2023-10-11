@@ -1,7 +1,8 @@
-import { SideQuest } from "../@types";
+import { SideQuest, QuestArray } from "../@types";
 import * as Functions from "../utils/Functions";
+import * as FightableNPCs from "./NPCs/FightableNPCs";
 
-const RequiemArrowEvolveQuests: SideQuest["quests"] = [
+const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 100),
     Functions.generateUseXCommandQuest("loot", 100),
     Functions.generateUseXCommandQuest("raid", 10),
@@ -30,7 +31,7 @@ export const RequiemArrowEvolve: SideQuest = {
         });
         return true;
     },
-    quests: RequiemArrowEvolveQuests,
+    quests: (ctx) => RequiemArrowEvolveQuests,
     requirements: (ctx) => {
         if (
             ctx.userData.stand === Functions.findStand("gold_experience").id ||
@@ -73,13 +74,13 @@ export const Beginner: SideQuest = {
         });
         return true;
     },
-    quests: [
+    quests: (ctx) => [
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         Functions.generateFightQuest(Functions.findNPC("bandit")),
-        Functions.generateFightQuest(Functions.findNPC("kakyoin")),
+        //Functions.generateFightQuest(Functions.findNPC("kakyoin")),
         Functions.generateUseXCommandQuest("loot", 1)
     ],
     requirements: (ctx) => {
@@ -107,10 +108,22 @@ export const HalloweenEvent2023: SideQuest = {
         });
         return true;
     },
-    quests: [],
+    quests: (ctx) => {
+        const quests = [];
+
+        const EventNPCs = Object.values(FightableNPCs).filter(w => {
+            (w.stand === "skeletal_spectre" || w.stand === Functions.findStand("The World (RU)").id) && w.level >= ctx.userData.level
+        });
+
+        for (let i = 0; i < (ctx.userData.level < 25 ? ctx.userData.level : 25); i++) {
+            quests.push(Functions.generateFightQuest(Functions.randomArray(EventNPCs)));
+        }
+
+        return quests;
+    },
     requirements: (ctx) => {
         if (Date.now() > 1701385199) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
         return true;
-    }
-
+    },
+    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(1701385199, "FROM_NOW")} (${Functions.generateDiscordTimestamp(1701385199, "DATE")})`
 };
