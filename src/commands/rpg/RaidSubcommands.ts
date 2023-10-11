@@ -1,4 +1,4 @@
-import { RPGUserDataJSON, SlashCommandFile } from "../../@types";
+import { RPGUserDataJSON, RaidNPCQuest, SlashCommandFile } from "../../@types";
 import {
     Message,
     APIEmbed,
@@ -229,6 +229,22 @@ const slashCommand: SlashCommandFile = {
                         if (winnerData.stamina > winner.stamina)
                             winnerData.stamina = winner.stamina;
 
+                        for (const quests of [
+                            winnerData.daily.quests,
+                            winnerData.chapter.quests,
+                            ...winnerData.sideQuests.map((v) => v.quests)
+                        ]) {
+                            for (const quest of quests.filter(x => Functions.isRaidNPCQuest(x))) {
+                                if ((quest as RaidNPCQuest).boss === raid.boss.id) {
+                                    quest.completed = true;
+                                    ctx.followUp({
+                                        content: `:white_check_mark: <@${winner.id}> Your RaidQUEST has been completed (\`${quest.id}\`)`
+                                    })
+                                    break;
+                                }
+                            }
+                        }        
+
                         ctx.followUp({
                             content: `<@${winner.id}> won the raid ${
                                 winner.health === 0
@@ -266,7 +282,7 @@ const slashCommand: SlashCommandFile = {
 
         collector.on("collect", async (interaction) => {
             interaction.deferUpdate().catch(() => {
-            }); // eslint-disable-line @typescript-eslint/no-empty-function
+            });
             const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
             if (!usrData) return;
             if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {

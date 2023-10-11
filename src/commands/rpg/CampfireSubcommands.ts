@@ -106,6 +106,12 @@ const slashCommand: SlashCommandFile = {
                         ctx.userData.restingAtCampfire = 0;
                         ctx.userData.health += stats.health;
                         ctx.userData.stamina += stats.stamina;
+                        if (ctx.userData.health > Functions.getMaxHealth(ctx.userData)) {
+                            ctx.userData.health = Functions.getMaxHealth(ctx.userData);
+                        }
+                        if (ctx.userData.stamina > Functions.getMaxStamina(ctx.userData)) {
+                            ctx.userData.stamina = Functions.getMaxStamina(ctx.userData);
+                        }
                         ctx.makeMessage({
                             content: `🔥🪵 You've gained **${stats.health.toLocaleString(
                                 "en-US"

@@ -2,7 +2,8 @@ import {
     SlashCommandFile,
     Chapter,
     ChapterPart,
-    RPGUserQuest
+    RPGUserQuest,
+    RaidNPCQuest
 } from "../../@types";
 import {
     Message,
@@ -17,6 +18,9 @@ import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { FightableNPCS } from "../../rpg/NPCs";
 import * as QuestsL from "../../rpg/Quests/Quests";
 import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
+import * as Raids from "../../rpg/Raids"
+
+const raids = Object.values(Raids);
 
 export const isChapterPart = (chapter: Chapter | ChapterPart): chapter is ChapterPart => {
     return (chapter as ChapterPart).parent !== undefined;
@@ -278,6 +282,38 @@ export const getQuestsStats = (
                 );
             }
             continue;
+        }
+
+        if (Functions.isRaidNPCQuest(quest)) {
+            const raid = raids.find(w => w.boss.id === (quest as RaidNPCQuest).boss);
+            if (raid) {
+                questPercent =
+                quests.filter(
+                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
+                ).length /
+                quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss).length;
+                if (questPercent === 1) completed = true;
+
+                const completedSlashTotal = quests.filter(
+                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
+                ).length + "/" + quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss).length;
+
+                const sMessage = `Raid ${quests.filter(
+                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
+                ).length !== 1 ? "x" + quests.filter(
+                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
+                ).length : ""} ${raid.boss.emoji} **${raid.boss.name}** (LVL: ${raid.boss.level}) (${ctx.client.getSlashCommandMention("raid")}) ||(${quests.filter(
+                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
+                ).length !== 1 ? completedSlashTotal : ""}) **${(questPercent * 100).toFixed(2)}%**||`
+                let found = message.find(messageX => messageX === sMessage);
+
+                if (!found) {
+                    totalPercent += questPercent * 100;
+                    message.push(sMessage);
+                }
+                continue;
+
+            }
         }
         message.push(`??? Unknown Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`);
         totalPercent += questPercent;

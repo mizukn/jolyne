@@ -148,7 +148,15 @@ const slashCommand: SlashCommandFile = {
                 dUnix: Functions.generateDiscordTimestamp(
                     Number(rpgData.adventureStartedAt),
                     "DATE"
-                )  //`<t:${(userData.adventureat/1000).toFixed(0)}:D>`,
+                ),
+                lastSeenRUnix: Functions.generateDiscordTimestamp(
+                    rpgData.lastSeen,
+                    "FROM_NOW"
+                ),
+                lastSeenDUnix: Functions.generateDiscordTimestamp(
+                    rpgData.lastSeen,
+                    "DATE"
+                )
             }) + (badges.find(x => x.toLowerCase().includes("staff")) ? "\n🛠️ This player is part of the staff team." : ""),
             color: 0x70926c,
             thumbnail: {

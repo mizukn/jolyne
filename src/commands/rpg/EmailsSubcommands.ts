@@ -166,7 +166,7 @@ const slashCommand: SlashCommandFile = {
                 )} (${Functions.generateDiscordTimestamp(
                     emailBrut.date,
                     "FROM_NOW"
-                )})\n\n${emailData.content.replace(/{{userName}}/gi, ctx.user.username)}`,
+                )})\n\n${emailData.content(ctx).replace(/{{userName}}/gi, ctx.user.username)}`,
                 footer: {
                     text: emailData.footer
                 },
