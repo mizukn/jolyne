@@ -209,7 +209,7 @@ const Event: EventFile = {
                 for (const SideQuest of Object.values(SideQuests)) {
                     if (await SideQuest.requirements(ctx)) {
                         if (!ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)) {
-                            const fixedQuests = SideQuest.quests.map((v) => Functions.pushQuest(v));
+                            const fixedQuests = SideQuest.quests(ctx).map((v) => Functions.pushQuest(v));
                             ctx.userData.sideQuests.push({
                                 id: SideQuest.id,
                                 quests: fixedQuests
