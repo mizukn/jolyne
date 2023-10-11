@@ -33,6 +33,7 @@ const slashCommand: SlashCommandFile = {
                     }
                 ]
             },
+            /*
             {
                 name: "player",
                 description: "Fight against a real player",
@@ -45,7 +46,7 @@ const slashCommand: SlashCommandFile = {
                     }
                 ]
             },
-            /*{
+            {
                 name: "global",
                 description: "Fight against a random player. Ranked if the player matches your level, unranked otherwise.",
                 type: 1

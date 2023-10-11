@@ -83,6 +83,12 @@ const slashCommand: SlashCommandFile = {
             const perception = ctx.options.getInteger("perception") ?? 0;
             const stamina = ctx.options.getInteger("stamina") ?? 0;
 
+            if (!strength && !defense && !speed && !perception && !stamina) {
+                return ctx.makeMessage({
+                    content: `Hey, what do you want to upgrade, uh? https://imgur.com/a/yVgD5AL`
+                })
+            }
+
             const totalAmount = strength + defense + speed + perception + stamina;
             // check if any options is < 1
             if (strength && strength < 1 || defense && defense < 1 || speed && speed < 1 || perception && perception < 1 || stamina && stamina < 1)
