@@ -353,7 +353,7 @@ export interface SideQuest {
     /**
      * The side quest's quests.
      */
-    quests: QuestArray;
+    quests: (ctx: CommandInteractionContext) => QuestArray;
     /**
      * The side quest's rewards.
      */
