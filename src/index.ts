@@ -109,6 +109,8 @@ for (const stand of [
     // @ts-expect-error because it's a dynamic property
     Items.default[standDisc.id] = standDisc;
 
+    if (stand.rarity === "T") continue;
+
     // @ts-expect-error because it's a dynamic property
     NPCs[`${stand.name.replace(" ", "")}User`] = {
         id: `${stand.name.replace(" ", "")}_user`,
