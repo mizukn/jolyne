@@ -28,7 +28,8 @@ import {
     Special,
     EquipableItem,
     Weapon,
-    equipableItemTypes
+    equipableItemTypes,
+    RaidNPCQuest
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -78,6 +79,10 @@ export const isBaseQuest = (quest: Quests | RPGUserQuest): quest is Quest => {
 //damx
 export const isFightNPCQuest = (quest: Quests | RPGUserQuest): quest is FightNPCQuest => {
     return (quest as FightNPCQuest).type === "fight";
+};
+
+export const isRaidNPCQuest = (quest: Quests | RPGUserQuest): quest is RaidNPCQuest => {
+    return (quest as RaidNPCQuest).type === "raid";
 };
 
 export const isMustReadEmailQuest = (quest: Quests | RPGUserQuest): quest is MustReadEmailQuest => {
@@ -210,6 +215,26 @@ export const generateFightQuest = (
 
     return quest;
 };
+
+export const generataRaidQuest = (
+    boss: NPC,
+    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
+    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
+    pushItemWhenCompleted?: Quest["pushItemWhenCompleted"]
+): RaidNPCQuest => {
+    const quest: RaidNPCQuest = {
+        type: "raid",
+        id: generateRandomId(),
+        completed: false,
+        boss: boss.id,
+        pushEmailWhenCompleted,
+        pushQuestWhenCompleted,
+        pushItemWhenCompleted
+    };
+
+    return quest;
+};
+
 
 export const generateMustReadEmailQuest = (
     email: Email,
@@ -384,7 +409,8 @@ export const getBaseHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
 export const getBaseStamina = 100;
 
 export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    return Math.round((getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health) * 2);
+    if (rpgData.level === 0) return 100;
+    return Math.round((getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health) * 3);
 };
 
 export const getMaxHealthNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
@@ -675,8 +701,13 @@ export const generateSkillPoints = (user: RPGUserDataJSON | FightableNPC): void 
 
     for (let i = 0; i < skillPointsLeft; i++) {
         const skill = randomArray(
-            Object.keys(user.skillPoints) as (keyof SkillPoints)[]
+            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter(x => user.skillPoints.stamina >= 100 ? x !== "stamina" : true)
         ) as keyof SkillPoints;
+
+        if (skill === 'stamina' && user.skillPoints.stamina >= 100) {
+            continue; // Skip increasing stamina if it's already 100
+        }
+
         user.skillPoints[skill]++;
     }
 };
