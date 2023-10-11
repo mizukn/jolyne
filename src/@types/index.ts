@@ -652,7 +652,7 @@ export interface Ability {
      */
     stamina: number;
     special?: boolean;
-    thumbnail?: string;
+    thumbnail?: `${"https" | "http"}://${string}`;
     dodgeScore: number;
     ally?: boolean;
     target: "enemy" | "ally" | "onlyAlly" | "self" | "any";
@@ -734,6 +734,13 @@ export interface FightNPCQuest
     customLevel?: number;
 }
 
+export interface RaidNPCQuest
+extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+    completed: boolean;
+    boss: NPC["id"];
+    type: "raid";
+}
+
 export interface ClaimXQuest
     extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     x: "coin" | "xp" | "daily";
@@ -761,11 +768,6 @@ export interface WaitQuest extends Omit<Quest, "completed" | "emoji" | "hintComm
     type: "wait";
 }
 
-export interface RaidBossQuest extends Omit<FightNPCQuest, "type"> {
-    maxParticipants: number;
-    type: "raidBoss";
-}
-
 export interface Action {
     id: string;
     execute: (ctx: CommandInteractionContext) => Promise<boolean>;
@@ -790,6 +792,7 @@ export type RPGUserQuest = Omit<
     | ClaimXQuest
     | ClaimItemQuest
     | WaitQuest
+    | RaidNPCQuest
     | UseXCommandQuest,
     "i18n_key"
 > & {
@@ -852,7 +855,7 @@ export interface Email {
     /**
      * The email's content.
      */
-    content: string;
+    content: (ctx: CommandInteractionContext) => string;
     /**
      * The email's image.
      */
