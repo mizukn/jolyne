@@ -654,6 +654,7 @@ export interface Ability {
     special?: boolean;
     thumbnail?: `${"https" | "http"}://${string}`;
     dodgeScore: number;
+    trueDodgeScore?: number;
     ally?: boolean;
     target: "enemy" | "ally" | "onlyAlly" | "self" | "any";
 }
