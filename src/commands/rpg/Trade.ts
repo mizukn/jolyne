@@ -111,6 +111,7 @@ const slashCommand: SlashCommandFile = {
 
             const targetOffer: RPGUserDataJSON["inventory"] = {};
             const userOffer: RPGUserDataJSON["inventory"] = {};
+            
             let stage = 0; // 1 = trade started
 
             // eslint-disable-next-line
