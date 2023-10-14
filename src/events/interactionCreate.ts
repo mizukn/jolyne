@@ -143,16 +143,21 @@ const Event: EventFile = {
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
                     // if user data lastSeen is more than 1 hour and 5 minutes, put them to campfire at lastSeen + 1 hour
                     if (ctx.userData.lastSeen &&
-                        new Date(ctx.userData.lastSeen).getTime() + 3900000 < Date.now() &&
-                        command.data.name !== "campfire"
+                        new Date(ctx.userData.lastSeen).getTime() + 3900000 < Date.now()
                     ) {
                         ctx.userData.restingAtCampfire = new Date(ctx.userData.lastSeen).getTime();
-                        ctx.makeMessage({
-                            content: `🔥🪵 | **${ctx.user.username}**, you were resting at the campfire while you were offline. Use the ${ctx.client.getSlashCommandMention(
+                        const options = {
+                            content: `🔥🪵 | Welcome back, **${ctx.user.username}**! You were resting at the campfire while you were offline. Use the ${ctx.client.getSlashCommandMention(
                                 "campfire leave"
                             )} command to leave. [PATREON PASSIVE]`
-                        });
-                        return;
+                        };
+                        if (command.data.name === "campfire") {
+                            ctx.followUpQueue.push(options);
+                        } else {
+                            ctx.makeMessage(options);
+                            ctx.client.database.saveUserData(ctx.userData);
+                            return;
+                        }
                     }
                 }
                 if (Number(ctx.userData.restingAtCampfire) && command.data.name !== "campfire") {
