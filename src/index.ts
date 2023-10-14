@@ -259,7 +259,7 @@ for (const NPC of Object.values(FightableNPCs)) {
         // shouldn't do if ! at the beginning because it's a number and if it's 0, it will be false
         NPC.rewards.xp = 50;
         NPC.rewards.coins = 50;
-        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 500;
+        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 1500;
         NPC.rewards.coins += Functions.getMaxXp(NPC.level) / 5000;
 
         NPC.rewards.xp += NPC.level * 255;
@@ -273,6 +273,10 @@ for (const NPC of Object.values(FightableNPCs)) {
         NPC.rewards.xp = Math.round(NPC.rewards.xp) * 3;
         NPC.rewards.coins = Math.round(NPC.rewards.coins) * 15;
         if (NPC.level < 4) NPC.rewards.xp = 2500;
+
+        if (NPC.level > 5) {
+            NPC.rewards.xp = Math.round(NPC.rewards.xp / 3);
+        }
 
         console.log(NPC.rewards);
     }
