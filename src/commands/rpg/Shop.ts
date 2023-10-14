@@ -76,6 +76,9 @@ const slashCommand: SlashCommandFile = {
                     {
                         item: Functions.findItem("ancient_scroll").id,
                         price: Functions.findItem("ancient_scroll").price ?? 10000
+                    }, 
+                    {
+                        item: 'skill_points_reset_potion',
                     }
                 ]
             };

@@ -658,9 +658,10 @@ const slashCommand: SlashCommandFile = {
                 });
                 return;
             }
+            // TODO: count stand discsc in inventory, anti bypass
 
             Functions.addItem(ctx.userData, itemDataJSON.item, itemDataJSON.amount, true);
-            await ctx.client.database.redis.del(itemId);
+            await ctx.client.database.redis.del("thrownItem_" + itemId);
 
             await ctx.client.database.saveUserData(ctx.userData);
             await claimedItemsWebhook.send({

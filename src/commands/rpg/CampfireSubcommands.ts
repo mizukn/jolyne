@@ -96,7 +96,7 @@ const slashCommand: SlashCommandFile = {
             }
             case "leave": {
                 getStats().then(async (stats) => {
-                    if (stats.health === undefined) {
+                    if (stats.health === undefined || isNaN(stats.health)) {
                         ctx.makeMessage({
                             content: `You're not resting at the campfire. Use ${ctx.client.getSlashCommandMention(
                                 "campfire rest"

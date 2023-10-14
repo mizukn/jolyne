@@ -273,9 +273,11 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Combat Infos",
-                    value: `✊ ATK Damage: ${Functions.getAttackDamages(rpgData).toLocaleString(
+                    value: `✊ ATK Damage: [${Math.round(Functions.getAttackDamages(rpgData) * 0.50).toLocaleString(
                         "en-US"
-                    )}\n:leaves: Dodge score: ${Functions.getDodgeScore(rpgData).toLocaleString(
+                    )} - ${Math.round(Functions.getAttackDamages(rpgData) * 1.1).toLocaleString(
+                        "en-US"
+                    )}]\n:leaves: Dodge score: ${Functions.getDodgeScore(rpgData).toLocaleString(
                         "en-US"
                     )}\n🔄 Speed score: ${Functions.getSpeedScore(rpgData).toLocaleString(
                         "en-US"

@@ -239,7 +239,7 @@ const slashCommand: SlashCommandFile = {
                                     quest.completed = true;
                                     ctx.followUp({
                                         content: `:white_check_mark: <@${winner.id}> Your RaidQUEST has been completed (\`${quest.id}\`)`
-                                    })
+                                    });
                                     break;
                                 }
                             }
