@@ -18,6 +18,9 @@
     "AWAKE_STAND": {
         "DESCRIPTION": "Пробудите свой стенд"
     },
+    "INVEST_SKILL_POINTS": {
+        "DESCRIPTION": "Invest your skill points"
+    },
     "COMPLETE_BEGINNER_SIDE_QUEST": {
         "DESCRIPTION": "Complete the beginner side quest and claim its rewards!"
     },
