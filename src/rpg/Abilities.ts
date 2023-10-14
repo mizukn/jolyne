@@ -307,33 +307,45 @@ export const OhMyGod: Ability = {
     stamina: 0,
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
+        // Flag to check if any stat exceeds 25
+        let statExceeds25 = false;
+
         for (const stat in user.skillPoints) {
-            user.skillPoints[stat as keyof typeof user.skillPoints] +=
-                user.skillPoints[stat as keyof typeof user.skillPoints];
+            const currentStat = user.skillPoints[stat as keyof typeof user.skillPoints];
+            
+            // Double the stat value
+            user.skillPoints[stat as keyof typeof user.skillPoints] = Math.min(currentStat * 2, 25);
+            
+            // Check if the stat exceeds 25
+            if (user.skillPoints[stat as keyof typeof user.skillPoints] > 25) {
+                statExceeds25 = true;
+            }
         }
+
         ctx.turns[ctx.turns.length - 1].logs.push(
             `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are boosted by 100% !1!1!1!!!!1!1`
         );
 
-        ctx.nextRoundPromises.push({
-            cooldown: 4,
-            promise: (fight) => {
-                fight.turns[ctx.turns.length - 1].logs.push(
-                    `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are back...`
-                );
-                for (const stat in user.skillPoints) {
-                    user.skillPoints[stat as keyof typeof user.skillPoints] -=
-                        user.skillPoints[stat as keyof typeof user.skillPoints] / 2;
-                }
-            },
-            id: "" + Date.now() + Math.random() + ""
-        });
+        // If any stat exceeds 25, set up a promise to reduce them back to 25
+        if (statExceeds25) {
+            ctx.nextRoundPromises.push({
+                cooldown: 4,
+                promise: (fight) => {
+                    fight.turns[ctx.turns.length - 1].logs.push(
+                        `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are back...`
+                    );
+                    for (const stat in user.skillPoints) {
+                        user.skillPoints[stat as keyof typeof user.skillPoints] = Math.min(user.skillPoints[stat as keyof typeof user.skillPoints] / 2, 25);
+                    }
+                },
+                id: "" + Date.now() + Math.random() + ""
+            });
+        }
     },
     thumbnail: "https://media.tenor.com/RQtghGnCYxEAAAAd/jojo-oh-my-god.gif",
     dodgeScore: 0,
     target: "self"
 };
-
 export const VineSlap: Ability = {
     name: "Vine Slap",
     description: "extends {{standName}}'s vines to whip twice in the opponent's direction",
@@ -487,8 +499,9 @@ export const RequiemArrowBlast: Ability = {
 export const EternalSleep: Ability = {
     name: "Eternal Sleep",
     description:
-        "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it [real dodge score: 3].",
+        "Induces a deep sleep on anyone within its range, even allies, except if they are strong enough to resist it.",
     cooldown: 5,
+    trueDodgeScore: 3,
     damage: 0,
     stamina: 50,
     extraTurns: 0,
@@ -904,12 +917,12 @@ export const BerserkersFury: Ability = {
 export const BerserkersRampage: Ability = {
     name: "Berserker's Rampage",
     description:
-        "Enter a state of berserk ramapage, attacking every enemies with a flurry of strikes. [true dodge score: 4]",
+        "Enter a state of berserk ramapage, attacking every enemies with a flurry of strikes.",
     cooldown: 7,
     damage: 0,
-
     stamina: 20,
     extraTurns: 4,
+    trueDodgeScore: 4,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         ctx.fighters
@@ -953,6 +966,7 @@ export const KnivesThrow: Ability = {
     cooldown: 5,
     damage: 0,
     dodgeScore: 0,
+    trueDodgeScore: 4,
     stamina: 30,
     extraTurns: 0,
     target: "enemy",
@@ -986,10 +1000,11 @@ export const KnivesThrow: Ability = {
 
 export const GasolineBullets: Ability = {
     name: "Gasoline Bullets",
-    description: "Shoots bullets made of gasoline to every enemies [true dodge score: 2]",
+    description: "Shoots bullets made of gasoline to every enemies",
     cooldown: 5,
     damage: 0,
     dodgeScore: 0,
+    trueDodgeScore: 2,
     stamina: 30,
     extraTurns: 0,
     target: "enemy",
@@ -1039,21 +1054,21 @@ export const CarCrash: Ability = {
 
 export const Transformation: Ability = {
     name: "Transformation",
-    description: "Boosts all your skill points by 100% for 2 turns",
+    description: "Boosts all your skill points by 100% (cap: 25) for 2 turns",
     cooldown: 5,
     damage: 0,
-
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         const oldSkillPoints = cloneDeep(user.skillPoints);
-        user.skillPoints.strength *= 2;
-        user.skillPoints.perception *= 2;
-        user.skillPoints.speed *= 2;
-        user.skillPoints.defense *= 2;
-        user.skillPoints.stamina *= 2;
+
+        for (const stat in user.skillPoints) {
+            // Double the stat value and cap it at 25
+            user.skillPoints[stat as keyof typeof user.skillPoints] = Math.min(user.skillPoints[stat as keyof typeof user.skillPoints] * 2, 25);
+        }
+
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand.emoji} TRANSFORMATION: **${user.name}**'s skill points have been boosted by 100%...`
         );
@@ -1071,6 +1086,7 @@ export const Transformation: Ability = {
     },
     target: "self"
 };
+
 
 export const Rage: Ability = {
     name: "Rage",
@@ -1144,13 +1160,13 @@ export const ScytheSlash: Ability = {
 export const MysteriousGas: Ability = {
     name: "Mysterious Gas",
     description:
-        "Release a mysterious gas that will confuse every enemies for 3 turns [true dodge score: 3]", // every fighters except allies frozenFor += 3
+        "Release a mysterious gas that will confuse every enemies for 3 turns", // every fighters except allies frozenFor += 3
     cooldown: 7,
     damage: 0,
-
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 0,
+    trueDodgeScore: 3,
     special: true,
     useMessage: (user, target, damage, ctx) => {
         ctx.fighters
@@ -1408,12 +1424,13 @@ export const LightManifestation: Ability = {
 
 export const WristKnives: Ability = {
     name: "Wrist Knives",
-    description: "Shoots knives from your wrists at all your enemies (x2 knives). [true dodge score: 3, hardly dodgeable]",
+    description: "Shoots knives from your wrists at all your enemies (x2 knives)",
     cooldown: 5,
     damage: 0,
     stamina: 15,
     extraTurns: 0,
     dodgeScore: 0,
+    trueDodgeScore: 3,
     target: "self",
     useMessage: (user, target, damage, ctx) => {
         ctx.fighters
@@ -1576,7 +1593,6 @@ export const HeartBreaker: Ability = {
     description: "You enclose your opponents ribs, causing it to press down on the opponents lungs and heart. Bleed damage and does damage based on strength, giving you an extra turn",
     cooldown: 10,
     damage: 0,
-
     stamina: 70,
     extraTurns: 1,
     dodgeScore: 0,
@@ -1585,7 +1601,7 @@ export const HeartBreaker: Ability = {
         const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Finisher) / 10);
         bleedDamagePromise(ctx, target, burnDamageCalc, user);
 
-        const heartbreakerdmg = Math.round(Functions.getAttackDamages(user) * 3.5);
+        const heartbreakerdmg = Math.round(Functions.getAttackDamages(user) * 4.5);
         target.health -= heartbreakerdmg;
         if (target.health <= 0) target.health = 0;
         user.totalDamageDealt += heartbreakerdmg;
@@ -1619,7 +1635,7 @@ export const SheerHeartAttackBTD: Ability = {
             cooldown: 3,
             id: Functions.generateRandomId(),
             promise: (fight) => {
-                const bombDamage = Math.round(Functions.getAttackDamages(user) * 5);
+                const bombDamage = Math.round(Functions.getAttackDamages(user) * 3.5);
                 fight.fighters
                     .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
                     .forEach((x) => {
@@ -1642,7 +1658,7 @@ export const SheerHeartAttackBTD: Ability = {
 export const SheerHeartAttack: Ability = {
     name: "Sheer Heart Attack",
     description: "Creates a bomb that will explode in 3 turns.",
-    cooldown: 3,
+    cooldown: 4,
     damage: 0,
     stamina: 10,
     extraTurns: 0,
@@ -1653,7 +1669,7 @@ export const SheerHeartAttack: Ability = {
             cooldown: 3,
             id: Functions.generateRandomId(),
             promise: (fight) => {
-                const bombDamage = Math.round(Functions.getAttackDamages(user) * 3.5);
+                const bombDamage = Math.round(Functions.getAttackDamages(user) * 2);
                 target.health -= bombDamage;
                 if (target.health <= 0) target.health = 0;
                 user.totalDamageDealt += bombDamage;
@@ -1684,6 +1700,7 @@ export const BitesTheDust: Ability = {
             ctx.nextTurnPromises = ctx.turns[ctx.turns.length - 1].nextTurnPromises.filter(x => x.id.includes("bites"));
             ctx.fighters = ctx.turns[ctx.turns.length - 1].fighters;
             ctx.teams = ctx.turns[ctx.turns.length - 1].teams;
+            ctx.infos = ctx.turns[ctx.turns.length - 1].infos;
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `- ${user.stand.emoji} KILLER QUEEN! BITES THE DUST...`
             );    
@@ -1722,16 +1739,28 @@ export const ZipperPunch: Ability = {
     name: "Zipper Punch",
     description: "Sticky Fingers delivers a lightning-fast punch, channeling the power of its zipper-enhanced fist",
     damage: StandBarrage.damage + 7,
-}
+};
 
 export const DimensionUppercut: Ability = {
     ...StarFinger,
     name: "Dimension Uppercut",
     description: "You go into the zipper dimension and then fling yourself out underneath the opponent, giving a uppercut"
-}
+};
 
 export const CoinBomb: Ability = {
     ...KickBarrage,
     description: "Throw a coin bomb at one of your opponents moves",
     name: "Coin Bomb"
-}
+};
+
+// megumin's wand ability:
+export const Explosion: Ability = {
+    name: "Explosion",
+    description: "Explosion!",
+    cooldown: 4,
+    damage: 12,
+    stamina: 20,
+    extraTurns: 1,
+    dodgeScore: 0,
+    target: "enemy",
+};

@@ -217,3 +217,17 @@ export const Forever: FightableNPC = {
     standsEvolved: {},
     stand: "strength"
 };
+
+export const Megumin: FightableNPC = {
+    ...NPCs.Megumin,
+    level: 400,
+    skillPoints: baseSP,
+    equippedItems: {
+        megumins_hat: 1,
+        megumins_wand: 6
+    },
+    stand: "killer_queen",
+    standsEvolved: {
+        killer_queen: 1
+    }
+};

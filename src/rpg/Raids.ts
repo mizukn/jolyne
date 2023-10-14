@@ -40,7 +40,7 @@ export const Dio: RaidBoss = {
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
-    cooldown: 5 * 60 * 1000
+    cooldown: 7 * 60 * 1000
 };
 
 export const Jotaro: RaidBoss = {
@@ -71,7 +71,7 @@ export const Jotaro: RaidBoss = {
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
-    cooldown: 5 * 60 * 1000
+    cooldown: 7 * 60 * 1000
 };
 
 export const BanditBoss: RaidBoss = {
@@ -132,8 +132,7 @@ export const Kakyoin: RaidBoss = {
     level: 0,
     maxLevel: 25,
     maxPlayers: 5,
-    // 2 minutes
-    cooldown: 2 * 60 * 1000
+    cooldown: 0.5 * 60 * 1000
 };
 
 export const JeanPierrePolnareffRequiem: RaidBoss = {
@@ -192,6 +191,51 @@ export const Golem: RaidBoss = {
     level: 15,
     maxLevel: Infinity,
     maxPlayers: Math.round(100 / 15),
-    // 3 minutes
-    cooldown: 3 * 60 * 1000
+    cooldown: 1 * 60 * 1000
+};
+
+export const Megumin: RaidBoss = {
+    boss: FightableNPCs.Megumin,
+    minions: [],
+    baseRewards: {
+        xp: FightableNPCs.Megumin.rewards.xp,
+        coins: FightableNPCs.Megumin.rewards.coins,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 300
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 300
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 300
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 1,
+                chance: 300
+            },
+            {
+                item: Functions.findItem("megumins_hat").id,
+                amount: 1,
+                chance: 4
+            },            {
+                item: Functions.findItem("megumins_wand").id,
+                amount: 1,
+                chance: 4
+            }
+
+        ]
+    },
+    level: 25,
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    // 5 minutes
+    cooldown: 5 * 60 * 1000
 };

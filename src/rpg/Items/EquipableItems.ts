@@ -25,13 +25,14 @@ export const JotarosHat: EquipableItem = {
     requirements: {
         level: 1
     },
+    /*
     craft: {
         green_cloth: 25,
         yellow_cloth: 25,
         purple_cloth: 25,
         "star_platinum.$disc$": 5,
         string: 50
-    }
+    }*/
 };
 
 export const MeguminsHat: EquipableItem = {
@@ -329,4 +330,33 @@ export const AthleticShoes: EquipableItem = {
     rarity: "B",
     tradable: true,
     storable: true
+};
+
+export const MeguminsWand: Weapon = {
+    id: "megumins_wand",
+    name: "Megumin's Wand",
+    emoji: "<:MeguminsMagicWand:1162700280543068240>",
+    description: "LOSION, LOSION, EXPLOSION!",
+    type: equipableItemTypes.WEAPON,
+    attackName: "cast",
+    useMessageAttack: "casts an explosion at",
+    staminaCost: 5,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 20,
+            perception: 0,
+            speed: 15,
+            stamina: 0,
+            defense: 0
+        },
+        xpBoost: 1
+    },
+    rarity: "S",
+    abilities: [Abilities.Explosion],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50
+    }
 };

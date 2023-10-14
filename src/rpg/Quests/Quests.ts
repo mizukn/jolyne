@@ -15,6 +15,18 @@ export const AwakenYourStand: Quest = {
     hintCommand: "inventory use",
 };
 
+export const InvestSkillPoints: Quest = {
+    type: "baseQuest",
+    id: "invest_skill_points",
+    i18n_key: "INVEST_SKILL_POINTS",
+    emoji: "➕",
+    completed: (user) => {
+        return Functions.getSkillPointsLeft(user) / user.level * 3;
+    },
+    hintCommand: "skill points invest",
+};
+
+
 export const CompleteBeginnerSideQuest: Quest = {
     type: "baseQuest",
     id: "complete_beginner_side_quest",

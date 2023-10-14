@@ -100,7 +100,7 @@ export const SilverChariot: EvolutionStand = {
             name: "Silver Chariot",
             description:
                 "Silver Chariot appears as a thin, robotic humanoid clad in silver, medieval armor, armed with a basket-hilted foil. It is the Stand of [Jean Pierre Polnareff](https://jojo.fandom.com/wiki/Jean_Pierre_Polnareff), primarily featured in Stardust Crusaders",
-            rarity: "C",
+            rarity: "B",
             abilities: [Abilities.FencingBarrage, Abilities.Finisher],
             image: "https://static.wikia.nocookie.net/jjba/images/7/7c/SilverChariot.png/revision/latest?cb=20180609123743",
             color: 0x808080,

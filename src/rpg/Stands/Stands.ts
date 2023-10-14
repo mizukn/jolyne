@@ -408,7 +408,7 @@ export const Emperor: Stand = {
     id: "emperor",
     name: "Emperor",
     description: "Emperor is a gun. It has infinite bullets, its only ability is powerful and is almost impossible to dodge.",
-    rarity: "A",
+    rarity: "B",
     image: "https://static.wikia.nocookie.net/jjba/images/6/6b/Emperor_Anime.png/revision/latest?cb=20161217225524&path-prefix=fr",
     abilities: [Abilities.HomingBullets],
     emoji: "<:emperor:1051506731353640980>",

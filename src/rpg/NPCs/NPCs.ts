@@ -130,3 +130,10 @@ export const JolyneTeam: NPC = {
     emoji: Emojis.JolyneTray,
     email: "mizu@jolyne.moe"
 };
+
+export const Megumin: NPC = {
+    id: "megumin",
+    name: "Megumin",
+    emoji: "<:megumin:1140626462282616914>",
+    email: "losion.losion.explosion@jolyne.moe"
+}
