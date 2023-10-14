@@ -430,7 +430,7 @@ export const getMaxStaminaNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fi
     const skillPoints = getSkillPointsBonus(rpgData);
     const baseStamina = getBaseStamina;
 
-    return Math.round(baseStamina + skillPoints.stamina * 1.35 + rpgData.level / 3);
+    return Math.round(baseStamina + skillPoints.stamina * 1.98 + rpgData.level / 30);
 };
 
 export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
@@ -477,7 +477,7 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
     if (level > 200) level = 200;
     if (level < 9) level = 9;
 
-    const NPCs = shuffle(Object.values(FightableNPCS).filter((npc) => npc.level <= level)).slice(0, 15).sort((a, b) => b.level - a.level);
+    const NPCs = shuffle(Object.values(FightableNPCS).filter((npc) => npc.level <= level && !npc.id.includes("$private$"))).slice(0, 15).sort((a, b) => b.level - a.level);
 
     // fight npcs
     let tflv = level;
@@ -530,13 +530,34 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
     const skillPoints = getSkillPointsBonus(user);
     const baseDamage = 5;
 
-    return Math.round(
+    let staminaScaling = 1;
+
+    if (isFighter(user)) {
+        const percent = (user.stamina ?? 1) / user.maxStamina * 100;
+
+        if (percent <= 1) {
+            staminaScaling = 0.5;
+        } else if (percent >= 100) {
+            staminaScaling = 1.1;
+        } else {
+            // Use some piecewise function or formula to map percent to staminaScaling
+            // For example, you can use a quadratic function:
+            // staminaScaling = 0.5 + (percent / 100) ** 2 * 0.6;
+            // This quadratic function will smoothly scale between 0.5 and 1.1 as percent goes from 1 to 100.
+            staminaScaling = 0.5 + (percent / 100) ** 2 * 0.6;
+        }
+    }
+
+    const damages = Math.round(
         baseDamage +
         Math.round(
-            skillPoints.strength * 0.675 + ((user.level / 10) + (baseDamage / 100) * 12.5) / 2
+            (skillPoints.strength * 0.675 + ((user.level / 10) + (baseDamage / 100) * 12.5) / 2) * staminaScaling
         )
     );
+
+    return damages;
 };
+
 
 export const getDiffPercent = (a: number, b: number): number => {
     return Math.abs((a - b) / ((a + b) / 2)) * 100;
@@ -591,10 +612,11 @@ export const standAbilitiesEmbed = (
                 cooldowns.find((c) => c.move === ability.name && c.id === user.id)?.cooldown ?? 0;
         else cooldown = ability.cooldown;
 
+        const dodgeScore = ability.dodgeScore ?? ability.trueDodgeScore;
         content += `\n\`Cooldown:\` ${cooldown} turns\n\n${ability.description.replace(
             /{standName}/gi,
             stand.name
-        )}\nDodge score: ${!ability.dodgeScore ? "not dodgeable" : ability.dodgeScore}\n\n`;
+        )}\nDodge score: ${!dodgeScore ? "not dodgeable" : dodgeScore}\n\n`;
 
         if (ability.special) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
