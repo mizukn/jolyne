@@ -18,6 +18,9 @@
     "AWAKE_STAND": {
         "DESCRIPTION": "Awaken your stand"
     },
+    "INVEST_SKILL_POINTS": {
+        "DESCRIPTION": "Invest your skill points"
+    },
     "COMPLETE_BEGINNER_SIDE_QUEST": {
         "DESCRIPTION": "Complete the beginner side quest and claim its rewards!"
     },
