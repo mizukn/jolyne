@@ -1695,7 +1695,7 @@ export const BitesTheDust: Ability = {
     special: true,
     useMessage: (user, target, damage, ctx) => {
         if (ctx.turns.length > 5) {
-            ctx.turns.length -= 5;
+            ctx.turns = ctx.turns.slice(0, ctx.turns.length - 5);
             ctx.nextRoundPromises = ctx.turns[ctx.turns.length - 1].nextRoundPromises.filter(x => x.id.includes("bites"));
             ctx.nextTurnPromises = ctx.turns[ctx.turns.length - 1].nextTurnPromises.filter(x => x.id.includes("bites"));
             ctx.fighters = ctx.turns[ctx.turns.length - 1].fighters;
