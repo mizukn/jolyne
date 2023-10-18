@@ -34,7 +34,7 @@ export default (client: JolyneClient): void => {
 
             user.totalVotes++;
             // every 2 votes, gives 2 stand arrow
-            if (user.totalVotes % 2 === 0) {
+            if (user.totalVotes % 2 === 0 ) {
                 addItem(user, "stand_arrow", 2);
             }
 

@@ -430,7 +430,7 @@ export const getMaxStaminaNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fi
     const skillPoints = getSkillPointsBonus(rpgData);
     const baseStamina = getBaseStamina;
 
-    return Math.round(baseStamina + skillPoints.stamina * 1.98 + rpgData.level / 30);
+    return Math.round(baseStamina + skillPoints.stamina * 1.98 + rpgData.level / 300);
 };
 
 export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
