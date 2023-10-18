@@ -139,6 +139,7 @@ const slashCommand: SlashCommandFile = {
                 }
                 await ctx.client.database.saveUserData(ctx.userData);
             });
+            collector.stop("ok");
         });
     }
 };

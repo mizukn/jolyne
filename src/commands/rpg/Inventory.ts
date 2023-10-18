@@ -554,12 +554,13 @@ const slashCommand: SlashCommandFile = {
                         Functions.removeItem(ctx.userData, itemString);
                         ctx.client.database.saveUserData(ctx.userData);
                     }
-                } catch (e) {
+                } catch (e: any) {
                     ctx.client.database.deleteCooldown(ctx.user.id);
                     ctx.followUp({
                         content:
-                            "An error occured while using this item. Your data has been saved."
+                            `An error occured while using this item. Your data has been saved.\n\nLogs for developer: ${e.stack}`
                     });
+                    console.error(e)
                     ctx.RPGUserData = oldData;
                     ctx.client.database.saveUserData(ctx.userData);
                     throw e;
