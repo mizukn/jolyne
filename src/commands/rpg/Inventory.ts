@@ -560,7 +560,7 @@ const slashCommand: SlashCommandFile = {
                         content:
                             `An error occured while using this item. Your data has been saved.\n\nLogs for developer: ${e.stack}`
                     });
-                    console.error(e)
+                    console.error(e);
                     ctx.RPGUserData = oldData;
                     ctx.client.database.saveUserData(ctx.userData);
                     throw e;
@@ -644,6 +644,8 @@ const slashCommand: SlashCommandFile = {
             const itemDataJSON: {
                 item: string;
                 amount: number;
+                droppedBy: string;
+                droppedAt: number;
             } = JSON.parse(itemData);
             const item = Functions.findItem(itemDataJSON?.item);
             if (!item) {
@@ -657,6 +659,15 @@ const slashCommand: SlashCommandFile = {
                 await ctx.makeMessage({
                     content: "Nice try."
                 });
+                return;
+            }
+
+            // if item has been dropped for over a week, tell him it has been expired. If they think that is a mistake or bug, contact us at .gg/jolyne
+            if (Date.now() - itemDataJSON.droppedAt > 604800000) {
+                await ctx.makeMessage({
+                    content: `This item has expired [${item.emoji} x${itemDataJSON.amount} \`${item.name}\`]. You can't claim it anymore. If you think this is a mistake, contact us at https://discord.gg/jolyne`
+                });
+                await ctx.client.database.redis.del("thrownItem_" + itemId);
                 return;
             }
             // TODO: count stand discsc in inventory, anti bypass
