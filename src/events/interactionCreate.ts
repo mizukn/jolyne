@@ -201,6 +201,11 @@ const Event: EventFile = {
                 for (const sideQuest of ctx.userData.sideQuests) {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
                 }
+
+                if (Date.now() <= 1701385140000 && !ctx.userData.emails.find((r) => r.id === "halloween_2023")) {
+                    Functions.addEmail(ctx.userData, Functions.findEmail("halloween_2023").id);
+                }
+
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
                     if (ctx.userData.lastPatreonReward !== ctx.client.patreons.find((r) => r.id === ctx.user.id).lastPatreonCharge) {
                         const oldDataPatreon = cloneDeep(ctx.userData);
@@ -232,7 +237,8 @@ const Event: EventFile = {
                     } else {
                         if (
                             ctx.userData.sideQuests.find((r) => r.id === SideQuest.id) &&
-                            SideQuest.cancelQuestIfRequirementsNotMetAnymore
+                            SideQuest.cancelQuestIfRequirementsNotMetAnymore ||
+                            (ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)?.quests && ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)?.quests.length === 0)
                         ) {
                             ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
                                 (r) => r.id !== SideQuest.id
