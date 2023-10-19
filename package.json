@@ -14,7 +14,8 @@
     "clear-redis": "redis-cli -p 6380 FLUSHALL",
     "clear-logs": "rm -rf logs/*",
     "update": "git pull && cd src/structures && git pull && cd ../ && cd scripts && git pull && cd ../.. && npm i",
-    "git": "node dist/scripts/gitUpdate.js"
+    "git": "node dist/scripts/gitUpdate.js",
+    "restart": "pm2 restart 1 &&  pm2 logs 1"
   },
   "repository": {
     "type": "git",
