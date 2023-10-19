@@ -136,4 +136,4 @@ export const Megumin: NPC = {
     name: "Megumin",
     emoji: "<:megumin:1140626462282616914>",
     email: "losion.losion.explosion@jolyne.moe"
-}
+};

@@ -67,7 +67,7 @@ export const HierophantGreen: Stand = {
     description:
         "Hierophant Green is an elastic and remote Stand, capable of being deployed far away from its user and performing actions. It is the Stand of [Noriaki Kakyoin](https://jojowiki.com/Noriaki_Kakyoin), featured in Stardust Crusaders.",
     rarity: "A",
-    image: "https://static.wikia.nocookie.net/jjba/images/c/c8/HierophantGreen.png/revision/latest/scale-to-width-down/350?cb=20140807094417",
+    image: "https://static.jojowiki.com/images/3/3e/latest/20210616200106/Hierophant_Green_Infobox_Anime.png",
     emoji: Emojis["hierophant_green"],
     abilities: [Abilities.StandBarrage, Abilities.EmeraldSplash, Abilities.Manipulation],
     skillPoints: {
@@ -94,7 +94,7 @@ export const Aerosmith: Stand = {
         speed: 2,
         stamina: 1
     },
-    image: "https://static.wikia.nocookie.net/jjba/images/6/66/Aerosmithcolor.png/revision/latest?cb=20180414181107&path-prefix=fr",
+    image: "https://static.wikia.nocookie.net/jjba/images/d/df/Aerosmith_anime.png/revision/latest?cb=20201220211604&path-prefix=fr",
     emoji: Emojis.aerosmith,
     abilities: [Abilities.VolaBarrage, Abilities.LittleBoy],
     color: 0x0981d1,
@@ -115,7 +115,7 @@ export const TheHand: Stand = {
         stamina: 0,
         speed: 0
     },
-    image: "https://static.wikia.nocookie.net/jjba/images/4/46/The_Hand_Anime.png/revision/latest?cb=20161217225524&path-prefix=fr",
+    image: "https://static.wikia.nocookie.net/jjba/images/b/bb/The_Hand_Key_Art.png/revision/latest?cb=20180623152623&path-prefix=fr",
     emoji: Emojis.the_hand,
     color: 0x1d57e5,
     available: true
@@ -147,7 +147,7 @@ export const HermitPurple: Stand = {
     rarity: "C",
     description:
         "Hermit Purple is the Stand of [Joseph Joestar](https://jojo.fandom.com/wiki/Joseph_Joestar), featured in Stardust Crusaders, and occasionally in Diamond is Unbreakable. The Hermit Hermit Purple manifests itself as multiple, purple, thorn-covered vines that spawn from its handler's hand.",
-    image: "https://static.wikia.nocookie.net/heros/images/9/94/Joseph_Joestar_senior_Infobox.jpg/revision/latest?cb=20201223201734&path-prefix=fr",
+    image: "https://static.wikia.nocookie.net/jjba/images/a/a5/Hermit_Purple.jpg",
     abilities: [Abilities.VineBarrage, Abilities.VineSlap, Abilities.OhMyGod],
     emoji: Emojis.hermit_purple,
     skillPoints: {
@@ -302,7 +302,7 @@ export const WheelOfFortune: Stand = {
         stamina: 0
     },
     color: 0xff0000,
-    image: "https://static.wikia.nocookie.net/jjba/images/2/28/WOF_AnimeAV.png/revision/latest?cb=20160414095637"
+    image: "https://jojowiki.com/File:Wheel_of_Fortune_Infobox_Anime.png"
 };
 
 export const PurpleHaze: Stand = {
@@ -409,7 +409,7 @@ export const Emperor: Stand = {
     name: "Emperor",
     description: "Emperor is a gun. It has infinite bullets, its only ability is powerful and is almost impossible to dodge.",
     rarity: "B",
-    image: "https://static.wikia.nocookie.net/jjba/images/6/6b/Emperor_Anime.png/revision/latest?cb=20161217225524&path-prefix=fr",
+    image: "https://static.wikia.nocookie.net/jjba/images/9/9d/Emperor_AnimeAV.png",
     abilities: [Abilities.HomingBullets],
     emoji: "<:emperor:1051506731353640980>",
     skillPoints: {
@@ -472,7 +472,7 @@ export const TowerOfGray: Stand = {
     name: "Tower Of Gray",
     description: "Tower of Gray is a Stand bound to a fly. In the JJBA series, Tower of Gray's owner was [Gray Fly](https://jojo.fandom.com/wiki/Gray_Fly)",
     rarity: "C",
-    image: "https://static.wikia.nocookie.net/jjba/images/8/80/Tower-of-Gray_AnimeAV.png/revision/latest?cb=20160414185549",
+    image: "https://static.wikia.nocookie.net/jjba/images/8/80/Tower-of-Gray_AnimeAV.png",
     abilities: [Abilities.RapidStrikes],
     emoji: "<:TowerOfGray:1151200535920250911>",
     skillPoints: {
@@ -491,7 +491,7 @@ export const DarkBlueMoon: Stand = {
     name: "Dark Blue Moon",
     description: "Dark Blue Moon is a Stand bound to a shark. In the JJBA series, Dark Blue Moon's owner was [Impostor Captain Tennille](https://jojo.fandom.com/wiki/Impostor_Captain_Tennille)",
     rarity: "C",
-    image: "https://static.wikia.nocookie.net/jjba/images/e/e9/DarkBlueMoon_AnimeAV.png/revision/latest?cb=20160414192329",
+    image: "https://static.wikia.nocookie.net/jjba/images/e/e9/DarkBlueMoon_AnimeAV.png",
     abilities: [
         Abilities.Razor_SharpScales
         // TODO: Abilities.Bernacles: Dark Blue Moon is capable of creating barnacles, specifically acorn barnaclesW, as seen when they attach to Star Platinum soon after making contact with Dark Blue Moon's skin.
@@ -515,7 +515,7 @@ export const Strength: Stand = {
     name: "Strength",
     description: "Strength is a Stand bound to a ship. In the JJBA series, Strength's owner was [Forever](https://jojo.fandom.com/wiki/Forever). Its only ability has no cooldown and has a slow stamina usage.",
     rarity: "C",
-    image: "https://static.wikia.nocookie.net/jjba/images/8/8b/Strength.png/revision/latest?cb=20140805151838",
+    image: "https://static.wikia.nocookie.net/jjba/images/8/8b/Strength.png",
     abilities: [Abilities.ObjectManipulation],
     emoji: "<:Strength:1155080130142687323>",
     skillPoints: {

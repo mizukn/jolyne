@@ -112,7 +112,7 @@ export const HalloweenEvent2023: SideQuest = {
         const quests = [];
 
         const EventNPCs = Object.values(FightableNPCs).filter(w => {
-            (w.stand === "skeletal_spectre" || w.stand === Functions.findStand("The World (RU)").id) && w.level >= ctx.userData.level
+            (w.stand === "skeletal_spectre" || w.stand === Functions.findStand("The World (RU)").id) && w.level <= ctx.userData.level;
         });
 
         for (let i = 0; i < (ctx.userData.level < 25 ? ctx.userData.level : 25); i++) {
@@ -122,8 +122,10 @@ export const HalloweenEvent2023: SideQuest = {
         return quests;
     },
     requirements: (ctx) => {
-        if (Date.now() > 1701385199) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
+        return false;
+        if (Date.now() > 1701385140000) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
         return true;
     },
-    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(1701385199, "FROM_NOW")} (${Functions.generateDiscordTimestamp(1701385199, "DATE")})`
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(1701385199, "FROM_NOW")} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`
 };

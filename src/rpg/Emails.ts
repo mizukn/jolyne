@@ -100,9 +100,9 @@ export const C2P1_GRANDFADIOALERTSTAND: Email = {
 
 export const HALLOWEEN_2023: Email = {
     id: "halloween_2023",
-    author: NPCs.JolyneTeam,
-    subject: "Halloween 2023",
-    // the content is saying that the halloween event has started, there are new bosses to raid and npcs. They can give souls & bones and there is an npc that can trade your souls and bones
-    content: (ctx) => "The Halloween event has started!\n\n",
+    author: NPCs.SPEEDWAGON_FOUNDATION,
+    subject: "Halloween 2023 [Event]",
+    content: (ctx) => "We have recently been dealing with some strange occurrences. Being the reliable individual we all know you to be, we decided to contact you, {{userName}}\nReports have flooded in, consisting of skeletal creatures wandering the streets at night, and hooded figures armed with a fiery arsenal.\n\nWe wanted to investigate, but these creatures are far too hostile for us to handle. Their purpose here is unknown, and we'd very much like to know.\n\nIf possible, could you investigate for us and unveil this mystery ?",
     footer: "Good luck!",
+    emoji: "🎃",
 };
