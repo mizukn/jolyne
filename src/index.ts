@@ -4,7 +4,8 @@ import type {
     SlashCommand,
     Special,
     Weapon,
-    Item
+    Item,
+    FightableNPC
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
@@ -20,15 +21,15 @@ import * as Emojis from "./emojis.json";
 import * as NPCs from "./rpg/NPCs/NPCs";
 import * as StandUsersNPCS from "../src/NPCs.json";
 import * as EquipableItems from "./rpg/Items/EquipableItems";
+import * as Sentry from "@sentry/node";
 
 const weapons = Object.values(EquipableItems).filter(x => (x as Weapon).abilities !== undefined) as Weapon[];
 
-const formattedStandUsers = balanceLevels(JSON.parse(JSON.stringify(StandUsersNPCS)) as {
+const formattedStandUsers = /*balanceLevels(JSON.parse(JSON.stringify(StandUsersNPCS)) as {
     [key: string]: number;
-}, 1, 200);
+}, 1, 200);*/ JSON.parse(JSON.stringify(StandUsersNPCS)) as { [key: string]: number };
 
 
-import * as Sentry from "@sentry/node";
 
 function balanceLevels(args: { [key: string]: number }, lowest: number, biggest: number): { [key: string]: number } {
     const levels = Object.values(args);
@@ -119,6 +120,26 @@ for (const stand of [
     if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
         formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(1, 50);
     }
+
+    let rewards: FightableNPC["rewards"] = { items: [] };
+
+    for (let i = 0; i < formattedStandUsers[`${stand.name.replace(" ", "")}User`]; i += 10) {
+        rewards.items.push({
+            item: 'stand_arrow',
+            amount: 1,
+            chance: 5
+        });
+    }
+
+    if (stand.rarity === 'T') {
+        rewards.items.push({
+            item: 'spooky_soul',
+            amount: 1,
+            chance: 50
+        });
+    }
+
+    if (rewards.items.length === 0) rewards = undefined;
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[`${stand.name.replace(" ", "")}User`] = {
         // @ts-expect-error it exists
@@ -133,7 +154,8 @@ for (const stand of [
         },
         stand: stand.id,
         equippedItems: {},
-        standsEvolved: {}
+        standsEvolved: {},
+        rewards
     };
 
     for (const weapon of weapons) {
@@ -165,7 +187,8 @@ for (const stand of [
             equippedItems: {
                 [weapon.id]: 6
             },
-            standsEvolved: {}
+            standsEvolved: {},
+            rewards
         };
     }
 }
