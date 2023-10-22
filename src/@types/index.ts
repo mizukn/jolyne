@@ -365,6 +365,8 @@ export interface SideQuest {
     requirementsMessage?: string;
     cancelQuestIfRequirementsNotMetAnymore?: boolean;
     canRedoSideQuest?: boolean;
+    canReloadQuests?: boolean;
+    color?: number;
 }
 
 /*
