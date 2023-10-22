@@ -1,15 +1,15 @@
 {
     "MYSTERIOUS_ARROW": {
-        "NAME": "Mysterious Arrow",
-        "DESCRIPTION": "A mysterious arrow...",
-        "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Mysterious Arrow:** The arrow doesn't respond...",
-        "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Mysterious Arrow:** The arrow doesn't respond...\n\nLooks like you already have a stand. Reset it by using `/stand delete` or store it by using `/stand store` and then try again.",
-        "MANIFESTING": "{{emojis.mysterious_arrow}} **Mysterious Arrow:** Your spirit is manifesting...",
-        "INVADING": "{{emojis.mysterious_arrow}} **Mysterious Arrow:** You feel like that a spirit invades you..."
+        "NAME": "Таинственная Стрела",
+        "DESCRIPTION": "Таинственная стрела...",
+        "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Стрела не реагирует...",
+        "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Стрела не реагирует...\n\nВидимо у вас уже есть стенд. Чтобы сбросить стенд, используйте команду `/stand delete` или положите его в хранилище командой `/stand store`, а затем попробуйте еще раз.",
+        "MANIFESTING": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Ваш дух проявляется...",
+        "INVADING": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Вы чувствуете как дух вселяется в вас..."
     },
     "REQUIEM_ARROW": {
-        "NOT_REQUIEM": "{{emojis.requiem_arrow}} **Requiem Arrow:** You need Gold Experience or Silver Chariot to use this item...",
-        "EVOLVING": "{{emojis.requiem_arrow}} **Requiem Arrow:** your {{stand}} is now evolved into {{stand}} Requiem!",
-        "ALREADY_REQUIEM": "{{emojis.requiem_arrow}} **Requiem Arrow:** What are you trying to do? Are you really trying to evolve your {{stand}} Requiem into {{stand}} Requiem Requiem? That's impossible, mudada."
+        "NOT_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела: ** Для использования этого предмета требуется Голд Экспириенс или Сильвер Чариот...",
+        "EVOLVING": "{{emojis.requiem_arrow}} **Реквием стрела:** {{stand}} эволюционировал в {{stand}} Реквием!",
+        "ALREADY_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела:** Что? Что ты делаешь? Ты что правда пытаешься превратить {{stand}} Реквием в {{stand}} Реквием Реквием? Чел хорош шутканул."
     }
 }

@@ -1,7 +1,7 @@
 {
-	"DESCRIPTION": "Display informations about a specified anime character",
+	"DESCRIPTION": "Показывает информацию об указанном персонаже аниме",
 	"EXAMPLES": [
-		"`character:` Monkey D. Luffy",
-		"`character:` Jotaro Cujoh"
+		"`персонаж:` Монки Д. Луффи",
+		"`персонаж:` Джотаро Куджо"
 	]
 }
