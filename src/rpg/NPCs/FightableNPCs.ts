@@ -49,7 +49,7 @@ export const Kakyoin: FightableNPC = {
             },
             {
                 item: "broken_arrow",
-                chance: 10,
+                chance: 1,
                 amount: 50
             }
         ]

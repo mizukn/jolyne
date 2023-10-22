@@ -167,3 +167,14 @@ export const SteelBall: Item = {
     tradable: true,
     storable: true
 };
+
+export const SpookySoul: Item = {
+    id: "spooky_soul",
+    name: "Spooky Soul",
+    description: "A spooky soul. Was available during the Halloween Event 2023.",
+    rarity: "T",
+    emoji: Emojis.spooky_soul,
+    price: 1000,
+    tradable: true,
+    storable: true
+};

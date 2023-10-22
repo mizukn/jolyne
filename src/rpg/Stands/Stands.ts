@@ -622,4 +622,4 @@ export const StickyFingers: Stand = {
         defense: 0
     },
     available: true
-}
+};

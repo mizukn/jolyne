@@ -778,7 +778,7 @@ export const SandMimicry: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     useMessage: (user, target, damage, ctx) => {
-        const oldSkillPoints = user.skillPoints;
+        const oldSkillPoints = cloneDeep(user.skillPoints);
         user.skillPoints.perception *= 100;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand.emoji} SAND MIMICRY: **${user.name}**'s perception has been boosted by x100...`
@@ -788,7 +788,6 @@ export const SandMimicry: Ability = {
             cooldown: 3,
             id: Functions.generateRandomId(),
             promise: (fight) => {
-                if (!fight.fighters.find((x) => x.id === user.id)) return;
                 user.skillPoints = oldSkillPoints;
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand.emoji} SAND MIMICRY: **${user.name}**'s perception has been reset...`
@@ -814,7 +813,7 @@ export const SandStorm: Ability = {
         for (const fighter of ctx.fighters.filter(
             (w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0
         )) {
-            oldSkillPoints[fighter.id] = fighter.skillPoints;
+            oldSkillPoints[fighter.id] = cloneDeep(fighter.skillPoints);
             fighter.skillPoints.perception = Math.round(fighter.skillPoints.perception * 0.1);
             fighter.skillPoints.speed = Math.round(fighter.skillPoints.speed * 0.1);
             ctx.turns[ctx.turns.length - 1].logs.push(
@@ -1709,8 +1708,14 @@ export const BitesTheDust: Ability = {
                 `- ${user.stand.emoji} KILLER QUEEN! BITES THE DUST... (only perception boost)`
             );    
         }
-        user.skillPoints.perception = Infinity;
+
+        for (const cooldown of ctx.infos.cooldowns) {
+            if (cooldown.move.toLowerCase().includes("bites")) {
+                cooldown.cooldown = 999999;
+            }
+        }
         const oldSkillPoints = cloneDeep(user.skillPoints);
+        user.skillPoints.perception = Infinity;
 
         ctx.nextRoundPromises.push({
             cooldown: 5,
@@ -1763,4 +1768,5 @@ export const Explosion: Ability = {
     extraTurns: 1,
     dodgeScore: 0,
     target: "enemy",
+    thumbnail: "https://media.tenor.com/RjnF10XDs4cAAAAC/megumin-explosion.gif"
 };

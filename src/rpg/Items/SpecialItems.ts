@@ -333,13 +333,13 @@ export const RequiemArrow: Special = {
         "A requiem arrow. It can be used to evolve your stand if you have Gold Experience or Silver Chariot.",
     rarity: "SS",
     emoji: Emojis["requiem_arrow"],
-    price: 5000000,
+    price: 500000,
     tradable: true,
     storable: true,
     craft: {
-        ancient_scroll: 150,
-        stand_arrow: 300,
-        broken_arrow: 150
+        ancient_scroll: 300,
+        stand_arrow: 500,
+        broken_arrow: 1000
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const stand = Functions.findStand(ctx.userData.stand);

@@ -53,7 +53,10 @@ export const RequiemArrowEvolve: SideQuest = {
     requirementsMessage:
         "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n-If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quent will cancel automatically if you don't meet the requirements anymore, so be careful.",
     cancelQuestIfRequirementsNotMetAnymore: true,
-    canRedoSideQuest: true
+    canRedoSideQuest: true,
+    color: // brown
+        0x8b4513
+
 };
 
 export const Beginner: SideQuest = {
@@ -87,7 +90,10 @@ export const Beginner: SideQuest = {
         if (ctx.userData.level < 10) return true;
         return false;
     },
-    requirementsMessage: "- You must be not over level 10"
+    requirementsMessage: "- You must be not over level 10",
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    color: // blue
+        0x0000ff
 };
 
 export const HalloweenEvent2023: SideQuest = {
@@ -97,35 +103,35 @@ export const HalloweenEvent2023: SideQuest = {
     emoji: "🎃",
     canRedoSideQuest: true,
     rewards: async (ctx) => {
-        Functions.addItem(ctx.userData, Functions.findItem("soul"), 1);
-        Functions.addItem(ctx.userData, Functions.findItem("bone"), 1);
+        Functions.addItem(ctx.userData, Functions.findItem("soul"), 15);
         ctx.followUp({
-            content: `You've completed the Halloween Event 2023 quest. You've been given a **Soul** and a **Bone**. You can use the **Soul** by using the ${ctx.client.getSlashCommandMention(
-                "inventory use"
-            )} command. Note that you can redo this quest anytime, just re-use the ${ctx.client.getSlashCommandMention(
-                "side quest view"
-            )} command.`
+            content: `You `
         });
         return true;
     },
     quests: (ctx) => {
-        const quests = [];
+        const quests: QuestArray = [
+            Functions.generateClaimItemQuest("spooky_soul", 5),
+        ];
 
         const EventNPCs = Object.values(FightableNPCs).filter(w => {
-            (w.stand === "skeletal_spectre" || w.stand === Functions.findStand("The World (RU)").id) && w.level <= ctx.userData.level;
+            return (w.stand === "skeletal_spectre" || w.stand === Functions.findStand("The World (RU)").id) && w.level <= ctx.userData.level;
         });
 
-        for (let i = 0; i < (ctx.userData.level < 25 ? ctx.userData.level : 25); i++) {
+        if (EventNPCs.length !== 0) for (let i = 0; i < (ctx.userData.level < 25 ? ctx.userData.level : 25); i++) {
             quests.push(Functions.generateFightQuest(Functions.randomArray(EventNPCs)));
         }
 
         return quests;
     },
     requirements: (ctx) => {
-        return false;
         if (Date.now() > 1701385140000) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
+        if (ctx.userData.level < 7) return false;
         return true;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
-    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(1701385199, "FROM_NOW")} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`
+    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(1701385140000, "FROM_NOW")} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`,
+    canReloadQuests: true,
+    color: // orange
+        0xffa500
 };
