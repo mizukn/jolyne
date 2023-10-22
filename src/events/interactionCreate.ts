@@ -1,5 +1,5 @@
 import type { EventFile, RPGUserDataJSON, RPGUserQuest, UseXCommandQuest } from "../@types";
-import { Events, Interaction } from "discord.js";
+import { ButtonBuilder, ButtonStyle, Events, Interaction } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
@@ -198,6 +198,53 @@ const Event: EventFile = {
                 // quests must be unique;
                 ctx.userData.chapter.quests = returnUniqueQuests(ctx.userData.chapter.quests);
                 ctx.userData.daily.quests = returnUniqueQuests(ctx.userData.daily.quests);
+
+                const tempDate = (await ctx.client.database.redis.get(`tempCache_:halloween${ctx.guild.id}`));
+                if (!tempDate || Number(tempDate) + 120000 < Date.now()) {
+                    if (Functions.percent(100)) {
+                        const ID = Functions.generateRandomId();
+                        const claimButton = new ButtonBuilder()
+                            .setCustomId("tclaim"+ID)
+                            .setLabel("Claim")
+                            .setEmoji(ctx.client.localEmojis.spooky_soul)
+                            .setStyle(ButtonStyle.Primary);
+                        const mult = Functions.randomNumber(1, 4);
+                        
+                        ctx.followUpQueue.push({
+                            content: `${mult}x **Spooky Soul** has appeared! Claim it before someone else does!`,
+                            components: [
+                                {
+                                    type: 1,
+                                    components: [claimButton]
+                                }
+                            ]
+                        });
+
+                        await ctx.client.database.redis.set(`tempCache_:halloween${ctx.guild.id}`, Date.now());
+
+                        const collector = ctx.channel.createMessageComponentCollector({
+                            time: 30000,
+                            max: 1,
+                            filter: (i) => i.customId === "tclaim"+ID
+                        });
+
+                        collector.on("collect", async (interaction) => {
+                            const RPGUserData = await ctx.client.database.getRPGUserData(interaction.user.id);
+                            if (!RPGUserData) return;
+
+                            interaction.reply({
+                                content: `<@${interaction.user.id}> has claimed ${mult}x Spooky Soul!`,
+                            }).catch(() => {
+                                interaction.channel.send({
+                                    content: `<@${interaction.user.id}> has claimed ${mult}x Spooky Soul!`,
+                                }).catch(() => {});
+                            });
+                            Functions.addItem(ctx.userData, Functions.findItem("spooky_soul").id, mult);
+                            ctx.client.database.saveUserData(ctx.userData);
+                        });
+                        
+                    }
+                }
                 for (const sideQuest of ctx.userData.sideQuests) {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
                 }
