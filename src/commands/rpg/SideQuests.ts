@@ -76,6 +76,7 @@ const slashCommand: SlashCommandFile = {
         const components: ButtonBuilder[] = [];
         const rewardsButtonID = Functions.generateRandomId();
         const redoQuestID = Functions.generateRandomId();
+        const reloadQuestsButtonID = Functions.generateRandomId();
         const rewardsButton = new ButtonBuilder()
             .setCustomId(rewardsButtonID)
             .setLabel("Claim Rewards")
@@ -85,6 +86,11 @@ const slashCommand: SlashCommandFile = {
             .setCustomId(redoQuestID)
             .setLabel("Redo Quest")
             .setStyle(ButtonStyle.Primary);
+        const reloadQuestsButton = new ButtonBuilder()
+            .setCustomId(reloadQuestsButtonID)
+            .setLabel("Reload Quests")
+            .setEmoji("🔁")
+            .setStyle(ButtonStyle.Primary);
 
         if (status.percent >= 100) {
             if (ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize)
@@ -92,8 +98,12 @@ const slashCommand: SlashCommandFile = {
             else components.push(rewardsButton);
         }
 
+        if (status.percent !== 100 && SideQuest.canReloadQuests) {
+            components.push(reloadQuestsButton);
+        }
+
         ctx.makeMessage({
-            content: `${SideQuest.emoji} **__${SideQuest.title}__**\n\`\`\`\n${
+            /*content: `${SideQuest.emoji} **__${SideQuest.title}__**\n\`\`\`\n${
                 SideQuest.description
             }\n\`\`\`\n\n${ctx.client.localEmojis.a_} **__Requirements:__**\n${
                 SideQuest.requirementsMessage
@@ -103,9 +113,38 @@ const slashCommand: SlashCommandFile = {
                     : ""
             }${
                 SideQuest.canRedoSideQuest
-                    ? `\n- � You'll be able to redo this SideQuest as much as you want`
+                    ? `\n- 🔁 You'll be able to redo this SideQuest as much as you want`
                     : ""
-            }\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
+            }${
+                SideQuest.canReloadQuests
+                    ? `\n- 🔁 NPCs are too hard? Feel free to reload this quest whenever you want`
+                    : ""
+            }
+            }\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,*/
+            embeds: [
+                {
+                    title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
+                    description: `\`\`\`\n${
+                        SideQuest.description
+                    }\n\`\`\`\n\n${ctx.client.localEmojis.a_} **__Requirements:__**\n${
+                        SideQuest.requirementsMessage
+                    }${
+                        SideQuest.cancelQuestIfRequirementsNotMetAnymore
+                            ? "\n- ❗ This SideQuest will be automatically erased if you don't meet the requirements anymore! Be careful."
+                            : ""
+                    }${
+                        SideQuest.canRedoSideQuest
+                            ? `\n- 🔁 You'll be able to redo this SideQuest as much as you want`
+                            : ""
+                    }${
+                        SideQuest.canReloadQuests
+                            ? `\n- 🔁 NPCs are too hard? Feel free to reload this quest whenever you want`
+                            : ""
+                    }
+                    }\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
+                    color: SideQuest.color
+                },
+            ],
             components: components.length === 0 ? [] : [Functions.actionRow(components)]
         });
 
@@ -113,13 +152,14 @@ const slashCommand: SlashCommandFile = {
             const collector = ctx.channel.createMessageComponentCollector({
                 filter: (i) =>
                     (i.user.id === ctx.user.id && i.customId === rewardsButtonID) ||
-                    (i.user.id === ctx.user.id && i.customId === redoQuestID),
+                    (i.user.id === ctx.user.id && i.customId === redoQuestID ||
+                    i.user.id === ctx.user.id && i.customId === reloadQuestsButtonID),
                 time: 60000
             });
             collector.on("collect", async (i) => {
                 switch (i.customId) {
                     case rewardsButtonID: {
-                        const status = SideQuest.rewards(ctx);
+                        const status = SideQuest.rewards ? SideQuest.rewards(ctx) : true;
                         if (status) {
                             ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize =
                                 true;
@@ -143,6 +183,20 @@ const slashCommand: SlashCommandFile = {
                         ctx.followUp({
                             content: `You've redone the quest! Use this command again to see your progress.`
                         });
+                        break;
+                    }
+
+                    case reloadQuestsButtonID: {
+                        ctx.userData.sideQuests.find((x) => x.id === sideQuest).quests =
+                            SideQuest.quests(ctx).map((x) => Functions.pushQuest(x));
+                        ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize =
+                            false;
+                        ctx.client.database.saveUserData(ctx.userData);
+                        collector.stop();
+                        ctx.followUp({
+                            content: `You've reloaded the quests! Use this command again to see your progress.`
+                        });
+                        break;
                     }
                 }
             });

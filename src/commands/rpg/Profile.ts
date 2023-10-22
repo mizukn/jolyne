@@ -4,7 +4,8 @@ import {
     equipableItemTypesLimit,
     formattedEquipableItemTypes,
     EquipableItem,
-    SkillPoints
+    SkillPoints,
+    Weapon
 } from "../../@types";
 import { Message, APIEmbed, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
@@ -293,6 +294,24 @@ const slashCommand: SlashCommandFile = {
                     )} ${ctx.client.localEmojis.disk}\n- Available: ${(
                         Functions.calcStandDiscLimit(ctx, rpgData) - discCount
                     ).toLocaleString("en-US")} ${ctx.client.localEmojis.disk}`,
+                    inline: true
+                },
+                {
+                    name: "Weapon",
+                    value: Object.keys(rpgData.equippedItems).find(
+                        (r) => Functions.findItem<Weapon>(r).type === 6
+                    )
+                        ? (() => {
+                            const weapon = Functions.findItem<Weapon>(
+                                Object.keys(rpgData.equippedItems).find(
+                                    (r) => Functions.findItem<Weapon>(r).type === 6
+                                )
+                            );
+                            return `${weapon.emoji} **${weapon.name}** (${weapon.rarity}):\n${
+                                weapon.description
+                            }\nAbilities: ${weapon.abilities.map((a) => a.name).join(", ")}`;
+                        })()
+                        : "None",
                     inline: true
                 },
                 {

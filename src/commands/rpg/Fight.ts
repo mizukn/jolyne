@@ -320,6 +320,21 @@ const slashCommand: SlashCommandFile = {
                         );
                     }
 
+                    if  (npc.rewards.items) {
+                        for (const item of npc.rewards.items) {
+                            if (item.chance) {
+                                if (!Functions.percent(item.chance)) continue;
+                            }
+                            
+                            Functions.addItem(ctx.userData, Functions.findItem(item.item), item.amount);
+                            winContent.push(
+                                `${item.amount}x ${Functions.findItem(item.item).name} ${
+                                    Functions.findItem(item.item).emoji
+                                }`
+                            );
+                        }
+                    }
+
                     if (quest.pushItemWhenCompleted)
                         for (const item of quest.pushItemWhenCompleted) {
                             Functions.addItem(
@@ -549,7 +564,7 @@ const slashCommand: SlashCommandFile = {
                                 chapterQuestsNPC
                                     .map((r) => ({
                                         label: Functions.findNPC(r.npc, true).name,
-                                        description: ctx.translate("fight:FROM_CHAPTER"),
+                                        description: ctx.translate<string>("fight:FROM_CHAPTER"),
                                         value: r.id,
                                         emoji: Functions.findNPC(r.npc, true).emoji
                                     }))
@@ -559,7 +574,7 @@ const slashCommand: SlashCommandFile = {
                                 dailyQuestsNPC
                                     .map((r) => ({
                                         label: Functions.findNPC(r.npc, true).name,
-                                        description: ctx.translate("fight:FROM_DAILY"),
+                                        description: ctx.translate<string>("fight:FROM_DAILY"),
                                         value: r.id,
                                         emoji: Functions.findNPC(r.npc, true).emoji
                                     }))
@@ -569,7 +584,7 @@ const slashCommand: SlashCommandFile = {
                                 sideQuestsNPC
                                     .map((r) => ({
                                         label: Functions.findNPC(r.npc, true).name,
-                                        description: ctx.translate("fight:FROM_SIDE_QUEST"),
+                                        description: ctx.translate<string>("fight:FROM_SIDE_QUEST"),
                                         value: r.id,
                                         emoji: Functions.findNPC(r.npc, true).emoji
                                     }))

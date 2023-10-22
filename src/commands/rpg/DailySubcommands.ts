@@ -72,7 +72,7 @@ const slashCommand: SlashCommandFile = {
                     nextGoal++;
                 }
 
-                let embed_description = ctx.translate("daily:CLAIMED_EMBED_DESCRIPTION", {
+                let embed_description = ctx.translate<string>("daily:CLAIMED_EMBED_DESCRIPTION", {
                     coins: rewards.coins.toLocaleString("en-US"),
                     xp: rewards.xp.toLocaleString("en-US")
                 });
@@ -287,6 +287,7 @@ const slashCommand: SlashCommandFile = {
 
                         Functions.addCoins(ctx.userData, coinReward);
                         Functions.addXp(ctx.userData, xpReward);
+                        Functions.addItem(ctx.userData, Functions.findItem('Stand Arrow'));
 
                         await ctx.client.database.saveUserData(ctx.userData);
                         await ctx.client.database.redis.set(

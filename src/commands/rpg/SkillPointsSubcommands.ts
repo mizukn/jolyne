@@ -86,7 +86,7 @@ const slashCommand: SlashCommandFile = {
             if (!strength && !defense && !speed && !perception && !stamina) {
                 return ctx.makeMessage({
                     content: `Hey, what do you want to upgrade, uh? https://imgur.com/a/yVgD5AL`
-                })
+                });
             }
 
             const totalAmount = strength + defense + speed + perception + stamina;

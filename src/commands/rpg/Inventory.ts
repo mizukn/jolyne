@@ -736,8 +736,8 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
             const itemTaxes = {
-                T: 3,
-                SS: 3,
+                T: 1,
+                SS: 1,
                 S: 1,
                 A: 0.9,
                 B: 0.75,
