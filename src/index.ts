@@ -30,7 +30,6 @@ const formattedStandUsers = /*balanceLevels(JSON.parse(JSON.stringify(StandUsers
 }, 1, 200);*/ JSON.parse(JSON.stringify(StandUsersNPCS)) as { [key: string]: number };
 
 
-
 function balanceLevels(args: { [key: string]: number }, lowest: number, biggest: number): { [key: string]: number } {
     const levels = Object.values(args);
     const minLevel = Math.min(...levels);
@@ -125,15 +124,15 @@ for (const stand of [
 
     for (let i = 0; i < formattedStandUsers[`${stand.name.replace(" ", "")}User`]; i += 10) {
         rewards.items.push({
-            item: 'stand_arrow',
+            item: "stand_arrow",
             amount: 1,
             chance: 5
         });
     }
 
-    if (stand.rarity === 'T') {
+    if (stand.rarity === "T") {
         rewards.items.push({
-            item: 'spooky_soul',
+            item: "spooky_soul",
             amount: 1,
             chance: 50
         });
@@ -282,7 +281,7 @@ for (const NPC of Object.values(FightableNPCs)) {
         // shouldn't do if ! at the beginning because it's a number and if it's 0, it will be false
         NPC.rewards.xp = 50;
         NPC.rewards.coins = 50;
-        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 1500;
+        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 5000;
         NPC.rewards.coins += Functions.getMaxXp(NPC.level) / 5000;
 
         NPC.rewards.xp += NPC.level * 255;
@@ -298,7 +297,7 @@ for (const NPC of Object.values(FightableNPCs)) {
         if (NPC.level < 4) NPC.rewards.xp = 2500;
 
         if (NPC.level > 5) {
-            NPC.rewards.xp = Math.round(NPC.rewards.xp / 3);
+            NPC.rewards.xp = Math.round(NPC.rewards.xp / 2);
         }
 
         console.log(NPC.rewards);
