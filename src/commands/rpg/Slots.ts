@@ -4,46 +4,81 @@ import { shuffleArray, actionRow, generateRandomId } from "../../utils/Functions
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
 import { SlashCommandFile } from "../../@types";
-import * as Emojis from '../../emojis.json';
+import * as Emojis from "../../emojis.json";
 
 const slotsChart = {
     [Emojis.diamond_gif]: {
-        2: 100,
-        3: 500
-    },
-    [Emojis.watermelon_gif1]: {
-        2: 75,
-        3: 400
-    },
-    [Emojis.sevensl]: {
-        2: 50,
-        3: 250
+        2: 20,
+        3: 100,
+        frequence: 1
     },
     [Emojis.money_gif]: {
-        2: 25,
-        3: 100
+        2: 7,
+        3: 50,
+        frequence: 1
+    },
+    [Emojis.watermelon_gif1]: {
+        2: 5,
+        3: 25,
+        frequence: 1
+    },
+    [Emojis.sevensl]: {
+        2: 4,
+        3: 15,
+        frequence: 1
+
     },
     "🍓": {
-        2: 10,
-        3: 50
+        2: 3,
+        3: 7,
+        frequence: 2
     },
     "🍇": {
-        2: 5,
-        3: 25
+        2: 3,
+        3: 6,
+        frequence: 2
     },
     "🍌": {
-        2: 1,
-        3: 5
+        2: 3,
+        3: 5,
+        frequence: 3
     },
     "🍋": {
-        2: 0,
-        3: 2
+        2: 2,
+        3: 4,
+        frequence: 3
     },
     "🍊": {
-        2: 0,
-        3: 1
-    },
+        2: 2,
+        3: 3,
+        frequence: 3
+    }
 };
+
+function getSymbolTwoOfThreeProbability(symbol: string): number {
+    const frequency = slotsChart[symbol as keyof typeof slotsChart].frequence;
+    const twoOutOfThreeProbability = (3 / (Object.keys(slotsChart).length * (Object.keys(slotsChart).length - 1))) * frequency || 0;
+
+    return twoOutOfThreeProbability;
+}
+
+function getSymbolThreeOfThreeProbability(symbol: string): number {
+    const frequency = slotsChart[symbol as keyof typeof slotsChart].frequence;
+    const threeOutOfThreeProbability = (4 / (Object.keys(slotsChart).length * (Object.keys(slotsChart).length - 1) * (Object.keys(slotsChart).length - 2))) * frequency || 0;
+    return threeOutOfThreeProbability;
+}
+
+function getOverallTwoOfThreeProbability(): number {
+    const symbolProbabilities = Object.keys(slotsChart).map(symbol => getSymbolTwoOfThreeProbability(symbol));
+    const singleSpinTwoOutOfThreeProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr), 0);
+    return singleSpinTwoOutOfThreeProbability;
+}
+
+function getOverallThreeOfThreeProbability(): number {
+    const symbolProbabilities = Object.keys(slotsChart).map(symbol => getSymbolThreeOfThreeProbability(symbol));
+    const singleSpinJackpotProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr), 0);
+    return singleSpinJackpotProbability;
+}
 
 
 const slashCommand: SlashCommandFile = {
@@ -74,11 +109,11 @@ const slashCommand: SlashCommandFile = {
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         if (ctx.options.getSubcommand() === "chart") {
             const symbolNames = Object.keys(slotsChart);
-            
+
             const symbolProbabilities = symbolNames.map(symbol => {
                 const twoOutOfThreeProbability = (3 / (symbolNames.length * (symbolNames.length - 1))) || 0;
                 const threeOutOfThreeProbability = (4 / (symbolNames.length * (symbolNames.length - 1) * (symbolNames.length - 2))) || 0;
-        
+
                 // return `${symbol}: 2/3 Probability - ${twoOutOfThreeProbability.toFixed(4)}, 3/3 Jackpot Probability - ${threeOutOfThreeProbability.toFixed(4)}`;
                 return {
                     symbol,
@@ -108,49 +143,52 @@ const slashCommand: SlashCommandFile = {
                     },
                     {
                         name: "2/3",
-                        value: Object.keys(slotsChart).map(s => symbolProbabilities.find(p => p.symbol === s)?.[2]).join("\n") + `\n${singleSpinTwoOutOfThreeProbability.toFixed(4)}`,
+                        value: Object.keys(slotsChart).map(s => getSymbolTwoOfThreeProbability(s)).join("\n") + `\n${singleSpinTwoOutOfThreeProbability.toFixed(4)}`,
                         inline: true
                     },
                     {
                         name: "3/3",
-                        value: Object.keys(slotsChart).map(s => symbolProbabilities.find(p => p.symbol === s)?.[3]).join("\n") + `\n${singleSpinJackpotProbability.toFixed(4)}`,
+                        value: Object.keys(slotsChart).map(s => getSymbolThreeOfThreeProbability(s)).join("\n") + `\n${singleSpinJackpotProbability.toFixed(4)}`,
                         inline: true
-                    },
-                    
+                    }
+
                 ],
 
                 footer: {
-                    text: 'Note that patreons get more diamonds added to the slots machine based on their tier subscription.'
+                    text: "Note that patreons get more diamonds added to the slots machine based on their tier subscription."
                 }
             };
 
             const embed: APIEmbed = {
-                    title: "Slots Chart",
-                    description: "The slots chart is a table that shows the payout of each symbol.",
-                    fields: [
-                        {
-                            name: "Symbol",
-                            value: Object.keys(slotsChart).map(s => s).join("\n"),
-                            inline: true
-                        },
-                        {
-                            name: "2",
-                            value: Object.keys(slotsChart).map(s => slotsChart[s as keyof typeof slotsChart][2]).join("\n"),
-                            inline: true
-                        },
-                        {
-                            name: "3",
-                            value: Object.keys(slotsChart).map(s => slotsChart[s as keyof typeof slotsChart][3]).join("\n"),
-                            inline: true
-                        }
-                    ],
-                    footer: {
-                        text: "The payout is multiplied by the bet amount."
+                title: "Slots Chart",
+                description: "The slots chart is a table that shows the payout of each symbol.",
+                fields: [
+                    {
+                        name: "Symbol",
+                        value: Object.keys(slotsChart).map(s => s).join("\n"),
+                        inline: true
+                    },
+                    {
+                        name: "2",
+                        value: Object.keys(slotsChart).map(s => slotsChart[s as keyof typeof slotsChart][2]).join("\n"),
+                        inline: true
+                    },
+                    {
+                        name: "3",
+                        value: Object.keys(slotsChart).map(s => slotsChart[s as keyof typeof slotsChart][3]).join("\n"),
+                        inline: true
                     }
-                };
+                ],
+                footer: {
+                    text: "The payout is multiplied by the bet amount."
+                }
+            };
 
             return void ctx.makeMessage({
-                embeds: [embed, probabilityEmbed].map(d => { d.color = 0x70926c; return d; })
+                embeds: [embed, probabilityEmbed].map(d => {
+                    d.color = 0x70926c;
+                    return d;
+                })
             });
         } else {
             const bet = ctx.options.getInteger("bet", true);
@@ -172,9 +210,14 @@ const slashCommand: SlashCommandFile = {
                 });
                 return;
             }
-    
+
             const fruits = Object.keys(slotsChart);
-            
+
+            for (const id in slotsChart) {
+                const symbol = slotsChart[id as keyof typeof slotsChart];
+                for (let i = 0; i < symbol.frequence; i++) fruits.push(id);
+            }
+
             const patreonData = ctx.client.patreons.find(s => s.id === ctx.user.id);
             if (patreonData) {
                 for (let i = 0; i < patreonData.level; i++) fruits.push("💎");
@@ -186,82 +229,84 @@ const slashCommand: SlashCommandFile = {
                     )
                 });
             }
-    
+
             let slotsMachine: string[] = Functions.shuffle([...Functions.shuffle([...Functions.shuffle(fruits), ...Functions.shuffle(fruits), ...Functions.shuffle(fruits), ...Functions.shuffle(fruits)])]); // Am I shuffling too much? Yes.
             const betID = Functions.generateRandomId();
             const cancelID = Functions.generateRandomId();
             const pullAgainID = Functions.generateRandomId();
-    
+
             const betButton = new ButtonBuilder()
                 .setCustomId(betID)
                 .setStyle(ButtonStyle.Primary)
                 .setEmoji("🎰")
                 .setLabel("Bet");
-            
+
             const cancelButton = new ButtonBuilder()
                 .setCustomId(cancelID)
                 .setStyle(ButtonStyle.Danger)
                 .setLabel("Nevermind");
-            
+
             const pullAgainButton = new ButtonBuilder()
                 .setCustomId(pullAgainID)
                 .setStyle(ButtonStyle.Primary)
                 .setEmoji("🎰")
                 .setLabel("Pull again");
-            
-    
-            await ctx.sendTranslated('casino:CONFIRM_MESSAGE', {
+
+
+            await ctx.sendTranslated("casino:CONFIRM_MESSAGE", {
                 bet: Functions.localeNumber(bet),
                 left: Functions.localeNumber(ctx.userData.coins),
                 components: [
-                    Functions.actionRow([ betButton, cancelButton ])
+                    Functions.actionRow([betButton, cancelButton])
                 ]
             });
-    
+
             const filter = (i: MessageComponentInteraction) => (i.user.id === ctx.user.id && (i.customId === betID || i.customId === cancelID || i.customId === pullAgainID));
-    
+
             const collector = ctx.channel.createMessageComponentCollector({ filter, time: 30000, max: 2 });
-    
+
             let followUpReply: Message | undefined;
             let left = Functions.randomNumber(2, 6);
-    
+
             collector.on("collect", async (i: MessageComponentInteraction) => {
                 if (await ctx.antiCheat(true)) return;
-                i.deferUpdate().catch(() => { });
-    
+                i.deferUpdate().catch(() => {
+                });
+
                 if (i.customId === cancelID) {
-                    return void ctx.sendTranslated('casino:CANCEL_MESSAGE', {
+                    return void ctx.sendTranslated("casino:CANCEL_MESSAGE", {
                         components: []
                     });
                 } else if (i.customId === pullAgainID) {
-                    if (followUpReply) await followUpReply.fetch().then(m => m.delete()).catch(() => {});
-    
+                    if (followUpReply) await followUpReply.fetch().then(m => m.delete()).catch(() => {
+                    });
+
                     return void ctx.client.commands.get("slots")?.execute(ctx);
                 }
-    
+
                 ctx.interaction.fetchReply().then(async (m: Message) => {
                     ctx.client.database.setCooldown(ctx.user.id, `You're currently spinning the slots machione. Can't find the message? https://discord.com/channels/${m.guild?.id}/${m.channel.id}/${m.id}`);
                 }).catch(() => {
                     ctx.client.database.setCooldown(ctx.user.id, `You're currently spinning the slots machione. Can't find the message?`);
                 });
-    
+
                 while (left !== -1) {
                     await runMachine(ctx, slotsMachine, bet, followUpReply, left, pullAgainButton);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     slotsMachine = slotsMachine.slice(3);
                     left--;
                 }
-    
-            });    
+
+            });
         }
     }
 };
 
 async function runMachine(ctx: CommandInteractionContext, slotMachineFruits: string[], bet: number, followUpReply: Message, left: number, pullAgainButton: ButtonBuilder): Promise<void> {
     let msg = "[  :slot_machine: | **CASINO** ]\n+----------------+\n"
-    + "| " + slotMachineFruits[0] + " : " + slotMachineFruits[1] + " : " + slotMachineFruits[2] + "  | \n"
-    + "| " + slotMachineFruits[3] + " : " + slotMachineFruits[4] + " : " + slotMachineFruits[5] + "  | **<**\n"
-    + "| " + slotMachineFruits[6] + " : " + slotMachineFruits[7] + " : " + slotMachineFruits[8] + "  | \n+----------------+\n";
+        + "| " + slotMachineFruits[0] + " : " + slotMachineFruits[1] + " : " + slotMachineFruits[2] + "  | \n"
+        + "| " + slotMachineFruits[3] + " : " + slotMachineFruits[4] + " : " + slotMachineFruits[5] + "  | **<**\n"
+        + "| " + slotMachineFruits[6] + " : " + slotMachineFruits[7] + " : " + slotMachineFruits[8] + "  | \n+----------------+\n";
     let followUpMsg: string;
 
     let loose = true;
@@ -284,7 +329,7 @@ async function runMachine(ctx: CommandInteractionContext, slotMachineFruits: str
             if (multiplier) {
                 msg += "| : : : : **WIN** : : : : |";
                 loose = false;
-                Functions.addCoins(ctx.userData, bet * multiplier);   
+                Functions.addCoins(ctx.userData, bet * multiplier);
                 followUpMsg = ctx.translate("casino:CASINO_YOU_GOT", {
                     amount: Functions.localeNumber(Math.round(bet * multiplier))
                 });
@@ -304,7 +349,7 @@ async function runMachine(ctx: CommandInteractionContext, slotMachineFruits: str
         ctx.makeMessage({
             content: msg,
             components: [
-                Functions.actionRow([ pullAgainButton ])
+                Functions.actionRow([pullAgainButton])
             ]
         });
         followUpReply = await ctx.followUp({
