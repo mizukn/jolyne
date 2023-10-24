@@ -4,17 +4,22 @@ import { shuffleArray, actionRow, generateRandomId } from "../../utils/Functions
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
 import { SlashCommandFile } from "../../@types";
+import * as Emojis from '../../emojis.json';
 
 const slotsChart = {
-    "💎": {
+    [Emojis.diamond_gif]: {
         2: 100,
         3: 500
     },
-    "🍑": {
+    [Emojis.watermelon_gif1]: {
+        2: 75,
+        3: 400
+    },
+    [Emojis.sevensl]: {
         2: 50,
         3: 250
     },
-    "🍒": {
+    [Emojis.money_gif]: {
         2: 25,
         3: 100
     },
@@ -25,10 +30,6 @@ const slotsChart = {
     "🍇": {
         2: 5,
         3: 25
-    },
-    "🍉": {
-        2: 2,
-        3: 10
     },
     "🍌": {
         2: 1,
@@ -72,6 +73,57 @@ const slashCommand: SlashCommandFile = {
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         if (ctx.options.getSubcommand() === "chart") {
+            const symbolNames = Object.keys(slotsChart);
+            
+            const symbolProbabilities = symbolNames.map(symbol => {
+                const twoOutOfThreeProbability = (3 / (symbolNames.length * (symbolNames.length - 1))) || 0;
+                const threeOutOfThreeProbability = (4 / (symbolNames.length * (symbolNames.length - 1) * (symbolNames.length - 2))) || 0;
+        
+                // return `${symbol}: 2/3 Probability - ${twoOutOfThreeProbability.toFixed(4)}, 3/3 Jackpot Probability - ${threeOutOfThreeProbability.toFixed(4)}`;
+                return {
+                    symbol,
+                    2: twoOutOfThreeProbability.toFixed(4),
+                    3: threeOutOfThreeProbability.toFixed(4)
+                };
+            });
+
+            const singleSpinTwoOutOfThreeProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr[2]), 0);
+            const singleSpinJackpotProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr[3]), 0);
+
+
+            const probabilityEmbed: APIEmbed = {
+                title: "Probabilities",
+                description: "Probabilities for getting 2/3 symbols and jackpots for each symbol:",
+                fields: /*[
+                    {
+                        name: "Symbol Probabilities",
+                        value: symbolProbabilities.join("\n"),
+                        inline: false
+                    },
+                ]*/ [
+                    {
+                        name: "Symbol",
+                        value: Object.keys(slotsChart).map(s => s).join("\n") + "\nΩ",
+                        inline: true
+                    },
+                    {
+                        name: "2/3",
+                        value: Object.keys(slotsChart).map(s => symbolProbabilities.find(p => p.symbol === s)?.[2]).join("\n") + `\n${singleSpinTwoOutOfThreeProbability.toFixed(4)}`,
+                        inline: true
+                    },
+                    {
+                        name: "3/3",
+                        value: Object.keys(slotsChart).map(s => symbolProbabilities.find(p => p.symbol === s)?.[3]).join("\n") + `\n${singleSpinJackpotProbability.toFixed(4)}`,
+                        inline: true
+                    },
+                    
+                ],
+
+                footer: {
+                    text: 'Note that patreons get more diamonds added to the slots machine based on their tier subscription.'
+                }
+            };
+
             const embed: APIEmbed = {
                     title: "Slots Chart",
                     description: "The slots chart is a table that shows the payout of each symbol.",
@@ -98,7 +150,7 @@ const slashCommand: SlashCommandFile = {
                 };
 
             return void ctx.makeMessage({
-                embeds: [embed]
+                embeds: [embed, probabilityEmbed].map(d => { d.color = 0x70926c; return d; })
             });
         } else {
             const bet = ctx.options.getInteger("bet", true);
