@@ -55,28 +55,28 @@ const slotsChart = {
     }
 };
 
-function getSymbolTwoOfThreeProbability(symbol: string): number {
-    const frequency = slotsChart[symbol as keyof typeof slotsChart].frequence;
-    const twoOutOfThreeProbability = (3 / (Object.keys(slotsChart).length * (Object.keys(slotsChart).length - 1))) * frequency || 0;
+const totalFruits = Object.values(slotsChart).map(d => d.frequence).reduce((arr, curr) => arr + curr);
 
-    return twoOutOfThreeProbability;
+
+function getSymbolTwoOfThreeProbability(symbol: string): number {
+    return (slotsChart[symbol as keyof typeof slotsChart].frequence / totalFruits) ** 2;
 }
 
 function getSymbolThreeOfThreeProbability(symbol: string): number {
-    const frequency = slotsChart[symbol as keyof typeof slotsChart].frequence;
-    const threeOutOfThreeProbability = (4 / (Object.keys(slotsChart).length * (Object.keys(slotsChart).length - 1) * (Object.keys(slotsChart).length - 2))) * frequency || 0;
-    return threeOutOfThreeProbability;
+    return (slotsChart[symbol as keyof typeof slotsChart].frequence / totalFruits) ** 3;
 }
 
 function getOverallTwoOfThreeProbability(): number {
     const symbolProbabilities = Object.keys(slotsChart).map(symbol => getSymbolTwoOfThreeProbability(symbol));
     const singleSpinTwoOutOfThreeProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr), 0);
+
     return singleSpinTwoOutOfThreeProbability;
 }
 
 function getOverallThreeOfThreeProbability(): number {
     const symbolProbabilities = Object.keys(slotsChart).map(symbol => getSymbolThreeOfThreeProbability(symbol));
     const singleSpinJackpotProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr), 0);
+
     return singleSpinJackpotProbability;
 }
 
@@ -122,9 +122,6 @@ const slashCommand: SlashCommandFile = {
                 };
             });
 
-            const singleSpinTwoOutOfThreeProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr[2]), 0);
-            const singleSpinJackpotProbability = symbolProbabilities.reduce((acc, curr) => acc + Number(curr[3]), 0);
-
 
             const probabilityEmbed: APIEmbed = {
                 title: "Probabilities",
@@ -143,12 +140,12 @@ const slashCommand: SlashCommandFile = {
                     },
                     {
                         name: "2/3",
-                        value: Object.keys(slotsChart).map(s => getSymbolTwoOfThreeProbability(s)).join("\n") + `\n${singleSpinTwoOutOfThreeProbability.toFixed(4)}`,
+                        value: Object.keys(slotsChart).map(s => getSymbolTwoOfThreeProbability(s)).join("\n") + `\n${getOverallTwoOfThreeProbability().toFixed(4)}`,
                         inline: true
                     },
                     {
                         name: "3/3",
-                        value: Object.keys(slotsChart).map(s => getSymbolThreeOfThreeProbability(s)).join("\n") + `\n${singleSpinJackpotProbability.toFixed(4)}`,
+                        value: Object.keys(slotsChart).map(s => getSymbolThreeOfThreeProbability(s)).join("\n") + `\n${getOverallThreeOfThreeProbability().toFixed(4)}`,
                         inline: true
                     }
 
