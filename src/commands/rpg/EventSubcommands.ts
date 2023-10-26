@@ -84,20 +84,6 @@ const slashCommand: SlashCommandFile = {
 
             const soulsLeft = () => ctx.userData.inventory[Functions.findItem("spooky_soul").id] || 0;
 
-            const embed: APIEmbed = {
-                title: "Halloween Event 2023",
-                color: // orange
-                    0xffa500,
-                description: `You currently have ${soulsLeft()} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls**.\n\n${trades
-                    .map(
-                        (t) =>
-                            `- x${t.amount} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** for ${
-                                t.item.emoji
-                            } ${t.item.name}`
-                    )
-                    .join("\n")}`
-            };
-
             const selectMenu = new StringSelectMenuBuilder()
                 .setCustomId("event_trade" + ctx.interaction.id)
                 .setPlaceholder("Select an item to trade for")
@@ -121,7 +107,19 @@ const slashCommand: SlashCommandFile = {
 
             const makeMessage = () => ctx.makeMessage({
                 content: Functions.makeNPCString(NPCs.SPEEDWAGON_FOUNDATION, "Zombies and skeletons have invaded Morioh City. Please help us by giving us souls, we will give you items in return."),
-                embeds: [embed],
+                embeds: [{
+                    title: "Halloween Event 2023",
+                    color: // orange
+                        0xffa500,
+                    description: `You currently have ${soulsLeft()} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls**.\n\n${trades
+                        .map(
+                            (t) =>
+                                `- x${t.amount} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** for ${
+                                    t.item.emoji
+                                } ${t.item.name}`
+                        )
+                        .join("\n")}`
+                }],
                 components: [Functions.actionRow([selectMenu])]
             });
             makeMessage();
