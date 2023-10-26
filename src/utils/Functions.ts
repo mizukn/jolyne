@@ -477,7 +477,7 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
     if (level > 200) level = 200;
     if (level < 9) level = 9;
 
-    const NPCs = shuffle(Object.values(FightableNPCS).filter((npc) => npc.level <= level && !npc.id.includes("$private$"))).slice(0, 15).sort((a, b) => b.level - a.level);
+    const NPCs = shuffle(Object.values(FightableNPCS).filter((npc) => npc.level <= level && !npc.private)).slice(0, 15).sort((a, b) => b.level - a.level);
 
     // fight npcs
     let tflv = level;
@@ -726,7 +726,7 @@ export const generateSkillPoints = (user: RPGUserDataJSON | FightableNPC): void 
             (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter(x => user.skillPoints.stamina >= 100 ? x !== "stamina" : true)
         ) as keyof SkillPoints;
 
-        if (skill === 'stamina' && user.skillPoints.stamina >= 100) {
+        if (skill === "stamina" && user.skillPoints.stamina >= 100) {
             continue; // Skip increasing stamina if it's already 100
         }
 
