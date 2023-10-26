@@ -4,7 +4,7 @@ import type {
     SlashCommand,
     Special,
     Weapon,
-    Item,
+    NPC,
     FightableNPC
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
@@ -28,6 +28,9 @@ const weapons = Object.values(EquipableItems).filter(x => (x as Weapon).abilitie
 const formattedStandUsers = /*balanceLevels(JSON.parse(JSON.stringify(StandUsersNPCS)) as {
     [key: string]: number;
 }, 1, 200);*/ JSON.parse(JSON.stringify(StandUsersNPCS)) as { [key: string]: number };
+
+const SpookySkeleton = NPCs.SpookySkeleton;
+const SpookyZombie = NPCs.SpookyZombie;
 
 
 function balanceLevels(args: { [key: string]: number }, lowest: number, biggest: number): { [key: string]: number } {
@@ -54,6 +57,73 @@ Sentry.init({
 Sentry.Handlers.requestHandler();
 Sentry.Handlers.tracingHandler();
 Sentry.Handlers.errorHandler();*/
+
+for (let i = 1; i < 500; i += 3) {
+    const SpookySkeletonNPC: NPC = {
+        ...SpookySkeleton,
+        name: `Spooky Skeleton [LVL ${i}]`,
+        id: `SpookySkeleton_${i}`
+    };
+    const SpookyZombieNPC: NPC = {
+        ...SpookyZombie,
+        id: `SpookyZombie_${i}`,
+        name: `Spooky Zombie [LVL ${i}]`
+    };
+
+    const base = {
+        level: i,
+        skillPoints: {
+            speed: 1,
+            strength: 1,
+            defense: 1,
+            perception: 1,
+            stamina: 0
+        },
+        rewards: {
+            items: [
+                {
+                    item: Functions.findItem("spooky_soul").id,
+                    amount: 1,
+                    chance: 100
+                },
+                {
+                    item: Functions.findItem("spooky_soul").id,
+                    amount: 5,
+                    chance: 50
+                }, {
+                    item: Functions.findItem("spooky_soul").id,
+                    amount: 10,
+                    chance: 15
+                }, {
+                    item: Functions.findItem("stand_arrow").id,
+                    amount: 1,
+                    chance: 5
+                }
+            ]
+        },
+        equippedItems: {},
+        standsEvolved: {},
+        stand: Functions.findStand("skeletal_spectre").id,
+        private: true
+    };
+
+    const SpookySkeletonFightableNPC: FightableNPC = {
+        ...SpookySkeletonNPC,
+        ...base,
+        avatarURL: `https://media.jolyne.moe/0qqxwk/direct`
+    };
+    const SpookyZombieFightableNPC: FightableNPC = {
+        ...SpookyZombieNPC,
+        ...base,
+        avatarURL: `https://media.jolyne.moe/zyrvvw/direct`
+    };
+
+    // @ts-expect-error because it's a dynamic property
+    FightableNPCs[SpookySkeletonFightableNPC.id] = SpookySkeletonFightableNPC;
+    // @ts-expect-error because it's a dynamic property
+    FightableNPCs[SpookyZombieFightableNPC.id] = SpookyZombieFightableNPC;
+}
+
 
 /**
  * Temp code starts from here
@@ -303,6 +373,7 @@ for (const NPC of Object.values(FightableNPCs)) {
         console.log(NPC.rewards);
     }
 }
+
 
 /*
 process.on("SIGINT", () => {
