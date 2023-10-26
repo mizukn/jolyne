@@ -223,7 +223,7 @@ const slashCommand: SlashCommandFile = {
             }
             if (new Date().getDay() === 0) handleShop(await createUserBlackMarket());
             const shopSelectMenu = new StringSelectMenuBuilder()
-                .setCustomId(`shop_${ctx.interaction.id}`)
+                .setCustomId(`shop_${ctx.interaction.id}` + ctx.interaction.id)
                 .setPlaceholder("Select a shop")
                 .setMinValues(1)
                 .setMaxValues(1)
@@ -301,7 +301,7 @@ const slashCommand: SlashCommandFile = {
                         components: [
                             Functions.actionRow([
                                 new StringSelectMenuBuilder()
-                                    .setCustomId(`amount_${ctx.interaction.id}`)
+                                    .setCustomId(`amount_${ctx.interaction.id}` + ctx.interaction.id)
                                     .setPlaceholder("Select an amount")
                                     .setMinValues(1)
                                     .setMaxValues(1)
