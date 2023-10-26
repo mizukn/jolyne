@@ -280,7 +280,7 @@ const slashCommand: SlashCommandFile = {
                 ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
                 if (i.customId.replace(ctx.interaction.id, "") === "goBack") {
                     sendMenuEmbed();
-                } else if (i.customId === `shop_${ctx.interaction.id}`) {
+                } else if (i.customId.replace(ctx.interaction.id, "") === `shop_${ctx.interaction.id}`) {
                     const shop = shops.find(
                         (x) => x.name === (i as StringSelectMenuInteraction).values[0]
                     );
