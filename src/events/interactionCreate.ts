@@ -200,16 +200,16 @@ const Event: EventFile = {
                 ctx.userData.daily.quests = returnUniqueQuests(ctx.userData.daily.quests);
 
                 const tempDate = (await ctx.client.database.redis.get(`tempCache_:halloween${ctx.guild.id}`));
-                if (!tempDate || Number(tempDate) + 120000 < Date.now()) {
+                if ((!tempDate || Number(tempDate) + 120000 < Date.now()) && (Date.now() < 1701385140000)) {
                     if (Functions.percent(100)) {
                         const ID = Functions.generateRandomId();
                         const claimButton = new ButtonBuilder()
-                            .setCustomId("tclaim"+ID)
+                            .setCustomId("tclaim" + ID)
                             .setLabel("Claim")
                             .setEmoji(ctx.client.localEmojis.spooky_soul)
                             .setStyle(ButtonStyle.Primary);
                         const mult = Functions.randomNumber(1, 4);
-                        
+
                         ctx.followUpQueue.push({
                             content: `${mult}x **Spooky Soul** has appeared! Claim it before someone else does!`,
                             components: [
@@ -225,7 +225,7 @@ const Event: EventFile = {
                         const collector = ctx.channel.createMessageComponentCollector({
                             time: 30000,
                             max: 1,
-                            filter: (i) => i.customId === "tclaim"+ID
+                            filter: (i) => i.customId === "tclaim" + ID
                         });
 
                         collector.on("collect", async (interaction) => {
@@ -233,16 +233,17 @@ const Event: EventFile = {
                             if (!RPGUserData) return;
 
                             interaction.reply({
-                                content: `<@${interaction.user.id}> has claimed ${mult}x Spooky Soul!`,
+                                content: `<@${interaction.user.id}> has claimed ${mult}x Spooky Soul!`
                             }).catch(() => {
                                 interaction.channel.send({
-                                    content: `<@${interaction.user.id}> has claimed ${mult}x Spooky Soul!`,
-                                }).catch(() => {});
+                                    content: `<@${interaction.user.id}> has claimed ${mult}x Spooky Soul!`
+                                }).catch(() => {
+                                });
                             });
                             Functions.addItem(ctx.userData, Functions.findItem("spooky_soul").id, mult);
                             ctx.client.database.saveUserData(ctx.userData);
                         });
-                        
+
                     }
                 }
                 for (const sideQuest of ctx.userData.sideQuests) {
