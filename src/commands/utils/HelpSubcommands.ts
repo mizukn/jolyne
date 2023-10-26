@@ -27,7 +27,7 @@ const slashCommand: SlashCommandFile = {
             const command = ctx.client.allCommands.find(x => x.name === ctx.interaction.options.getString("command"));
             if (!command) {
                 return await ctx.makeMessage({
-                    content: "Command not found"
+                    content: "Command not found: " + ctx.interaction.options.getString("command")
                 });
             }
             const embed: APIEmbed = {
