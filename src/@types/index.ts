@@ -545,6 +545,7 @@ export interface FightableNPC extends NPC {
     };
     equippedItems: RPGUserDataJSON["equippedItems"];
     standsEvolved: RPGUserDataJSON["standsEvolved"];
+    private?: boolean;
 }
 
 /**
@@ -738,7 +739,7 @@ export interface FightNPCQuest
 }
 
 export interface RaidNPCQuest
-extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
     completed: boolean;
     boss: NPC["id"];
     type: "raid";
