@@ -99,23 +99,25 @@ export const Beginner: SideQuest = {
 export const HalloweenEvent2023: SideQuest = {
     id: "HalloweenEvent2023",
     title: "Halloween Event 2023",
-    description: "Happy Halloween! Skeletons, zombies and lots more scary creatures have invaded Morioh City. Kill them all for souls & bones!",
+    description: "Happy Halloween! Skeletons, zombies and lots more scary creatures have invaded Morioh City. Kill them all for souls!",
     emoji: "🎃",
     canRedoSideQuest: true,
     rewards: async (ctx) => {
         Functions.addItem(ctx.userData, Functions.findItem("soul"), 15);
         ctx.followUp({
-            content: `You `
+            content: `You have been given 15 souls. You can trade them by using the ${ctx.client.getSlashCommandMention(
+                "event trade"
+            )} command.`
         });
         return true;
     },
     quests: (ctx) => {
         const quests: QuestArray = [
-            Functions.generateClaimItemQuest("spooky_soul", 5),
+            Functions.generateClaimItemQuest("spooky_soul", 5)
         ];
 
         const EventNPCs = Object.values(FightableNPCs).filter(w => {
-            return (w.stand === "skeletal_spectre" || w.stand === Functions.findStand("The World (RU)").id) && w.level <= ctx.userData.level;
+            return (w.stand === "skeletal_spectre" && w.private && w.level <= (ctx.userData.level > 12 ? ctx.userData.level : 12));
         });
 
         if (EventNPCs.length !== 0) for (let i = 0; i < (ctx.userData.level < 25 ? ctx.userData.level : 25); i++) {
@@ -126,7 +128,6 @@ export const HalloweenEvent2023: SideQuest = {
     },
     requirements: (ctx) => {
         if (Date.now() > 1701385140000) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
-        if (ctx.userData.level < 7) return false;
         return true;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,

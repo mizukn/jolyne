@@ -326,6 +326,147 @@ export const StandArrow: Special = {
     }
 };
 
+export const RareStandArrow: Special = {
+    id: "rare_stand_arrow",
+    name: "Rare Stand Arrow",
+    description: "**S tier:** 16% chance, **A tier:** 40% chance, **B tier:** 44% chance.",
+    rarity: "A",
+    emoji: Emojis["mysterious_arrow"],
+    price: 35000,
+    tradable: true,
+    storable: true,
+    craft: {
+        stand_arrow: 10
+    },
+    use: async (ctx: CommandInteractionContext, ...args: string[]) => {
+        const standArray = Object.values(Stands);
+        standArray.push({
+            id: "silver_chariot",
+            ...EvolutionStands.SilverChariot.evolutions[0]
+        });
+        standArray.push({
+            id: "gold_experience",
+            ...EvolutionStands.GoldExperience.evolutions[0]
+        });
+        standArray.push({
+            id: "whitesnake",
+            ...EvolutionStands.Whitesnake.evolutions[0]
+        });
+
+        const percent = Math.floor(Math.random() * 100);
+
+        if (Functions.findStand(ctx.userData.stand)) {
+            await ctx.sendTranslated("items:RARE_MYSTERIOUS_ARROW.ALREADY_STAND");
+            await Functions.sleep(2000);
+            await ctx.sendTranslated("items:RARE_MYSTERIOUS_ARROW.ALREADY_STAND2");
+            return false;
+        }
+
+        await ctx.sendTranslated("items:RARE_MYSTERIOUS_ARROW.MANIFESTING");
+        await Functions.sleep(2000);
+        await ctx.sendTranslated("items:RARE_MYSTERIOUS_ARROW.INVADING");
+        await Functions.sleep(2000);
+
+        let stand: Stand;
+        let color: number;
+
+        if (percent <= 16) {
+            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "S"));
+            color = 0x2b82ab;
+        } else if (percent <= 40) {
+            color = 0x3b8c4b;
+            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "A"));
+        } else {
+            color = 0x786d23;
+            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "B"));
+        }
+
+        ctx.userData.stand = stand.id;
+
+        const standCartBuffer = await Functions.generateStandCart(stand);
+        const file = new AttachmentBuilder(standCartBuffer, { name: "stand.png" });
+        const totalStandSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
+
+        ctx.makeMessage({
+            content: `...`,
+            files: [file],
+            embeds: [
+                {
+                    title: stand.name,
+                    image: { url: "attachment://stand.png" },
+                    color: color,
+                    description: `**Rarity:** ${stand.rarity}\n**Abilities [${
+                        stand.abilities.length
+                    }]:** ${stand.abilities
+                        .map((v) => v.name)
+                        .join(
+                            ", "
+                        )}\n**Skill-Points:** +${totalStandSkillPoints} skill-points:\n${Object.entries(
+                        stand.skillPoints
+                    )
+                        .map(([key, value]) => `• +${value} ${key}`)
+                        .join("\n")}`
+                }
+            ]
+        });
+        await ctx.client.database.saveUserData(ctx.userData);
+        return true;
+    }
+};
+
+export const SpookyArrow2023: Special = {
+    // item that gives stand skeletal_spectre
+    id: "spooky_arrow_2023",
+    name: "Spooky Arrow 2023",
+    description: "A spooky arrow that gives you a stand.",
+    rarity: "T",
+    emoji: Emojis["mysterious_arrow"] + "🎃",
+    price: 0,
+    tradable: false,
+    storable: true,
+    use: async (ctx: CommandInteractionContext, ...args: string[]) => {
+        if (Functions.findStand(ctx.userData.stand)) {
+            await ctx.sendTranslated("items:SPOOKY_ARROW.ALREADY_STAND");
+            await Functions.sleep(2000);
+            await ctx.sendTranslated("items:SPOOKY_ARROW.ALREADY_STAND2");
+            return false;
+        }
+
+        const stand = Functions.findStand("skeletal_spectre");
+        if (!stand) throw new Error("Stand not found skeletal spectre fatal error may break the game wtf.");
+
+        ctx.userData.stand = stand.id;
+
+        const standCartBuffer = await Functions.generateStandCart(stand);
+        const file = new AttachmentBuilder(standCartBuffer, { name: "stand.png" });
+        const totalStandSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
+
+        ctx.makeMessage({
+            content: `...`,
+            files: [file],
+            embeds: [
+                {
+                    title: stand.name,
+                    image: { url: "attachment://stand.png" },
+                    color: stand.color,
+                    description: `**Rarity:** ${stand.rarity}\n**Abilities [${
+                        stand.abilities.length
+                    }]:** ${stand.abilities
+                        .map((v) => v.name)
+                        .join(
+                            ", "
+                        )}\n**Skill-Points:** +${totalStandSkillPoints} skill-points:\n${Object.entries(
+                        stand.skillPoints
+                    )
+                        .map(([key, value]) => `• +${value} ${key}`)
+                        .join("\n")} \n\n**Note:** This stand was only available during the Halloween Event 2023.`
+                }]
+        });
+
+    }
+};
+
+
 export const RequiemArrow: Special = {
     id: "requiem_arrow",
     name: "Requiem Arrow",
