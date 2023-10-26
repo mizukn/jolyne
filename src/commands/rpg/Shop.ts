@@ -309,7 +309,7 @@ const slashCommand: SlashCommandFile = {
                             )
                         ]
                     });
-                } else if (i.customId === `amount_${ctx.interaction.id}`) {
+                } else if (i.customId.replace(ctx.interaction.id, "") === `amount_${ctx.interaction.id}`) {
                     const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
 
                     const price = (selectedItem.price ?? 10000) * amount;
