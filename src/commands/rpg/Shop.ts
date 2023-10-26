@@ -42,6 +42,10 @@ for (let i = 0; i < 25; i++) {
     });
 }
 
+const goBackButton = new ButtonBuilder()
+    .setStyle(ButtonStyle.Primary)
+    .setEmoji(Emojis.arrowLeft)
+    .setCustomId("goBack");
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -54,12 +58,6 @@ const slashCommand: SlashCommandFile = {
     ): Promise<Message | void | InteractionResponse> => {
         let shops: cShop[] = [];
         let currentShop: cShop | undefined;
-
-        const goBackButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
-            .setEmoji(Emojis.arrowLeft)
-            .setCustomId("goBack" + ctx.interaction.id);
-
 
         async function createUserBlackMarket(): Promise<Shop> {
             const BM: Shop = {
@@ -78,9 +76,9 @@ const slashCommand: SlashCommandFile = {
                     {
                         item: Functions.findItem("ancient_scroll").id,
                         price: Functions.findItem("ancient_scroll").price ?? 10000
-                    },
+                    }, 
                     {
-                        item: "skill_points_reset_potion"
+                        item: 'skill_points_reset_potion',
                     }
                 ]
             };
@@ -140,7 +138,7 @@ const slashCommand: SlashCommandFile = {
 
             function handleShop(Shop: Shop): void {
                 const shopSelect = new StringSelectMenuBuilder()
-                    .setCustomId(`shop_${ctx.interaction.id}_${Shop.name}` + ctx.interaction.id)
+                    .setCustomId(`shop_${ctx.interaction.id}_${Shop.name}`)
                     .setPlaceholder("Select an item")
                     .setMinValues(1)
                     .setMaxValues(1);
@@ -243,7 +241,7 @@ const slashCommand: SlashCommandFile = {
             });
 
             const collector = ctx.channel.createMessageComponentCollector({
-                filter: (i) => i.user.id === ctx.user.id && i.customId.includes(ctx.interaction.id),
+                filter: (i) => i.user.id === ctx.user.id,
                 time: 60000
             });
 
@@ -278,7 +276,7 @@ const slashCommand: SlashCommandFile = {
                 }); // eslint-disable-line @typescript-eslint/no-empty-function
                 if (await ctx.client.database.getCooldown(ctx.user.id)) return;
                 ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
-                if (i.customId.replace(ctx.interaction.id, "") === "goBack") {
+                if (i.customId === "goBack") {
                     sendMenuEmbed();
                 } else if (i.customId.replace(ctx.interaction.id, "") === `shop_${ctx.interaction.id}`) {
                     const shop = shops.find(
@@ -287,7 +285,7 @@ const slashCommand: SlashCommandFile = {
                     if (!shop) return;
                     currentShop = shop;
                     makeShopEmbed(shop);
-                } else if (i.customId.replace(ctx.interaction.id, "").includes(`shop_${ctx.interaction.id}`)) {
+                } else if (i.customId.includes(`shop_${ctx.interaction.id}`)) {
                     // selected item
                     const item = currentShop?.items.find(
                         (x) => x.item === (i as StringSelectMenuInteraction).values[0]
