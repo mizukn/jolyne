@@ -1,15 +1,29 @@
 {
-    "MYSTERIOUS_ARROW": {
-        "NAME": "Таинственная Стрела",
-        "DESCRIPTION": "Таинственная стрела...",
-        "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Стрела не реагирует...",
-        "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Стрела не реагирует...\n\nВидимо у вас уже есть стенд. Чтобы сбросить стенд, используйте команду `/stand delete` или положите его в хранилище командой `/stand store`, а затем попробуйте еще раз.",
-        "MANIFESTING": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Ваш дух проявляется...",
-        "INVADING": "{{emojis.mysterious_arrow}} **Таинственная стрела:** Вы чувствуете как дух вселяется в вас..."
-    },
-    "REQUIEM_ARROW": {
-        "NOT_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела: ** Для использования этого предмета требуется Голд Экспириенс или Сильвер Чариот...",
-        "EVOLVING": "{{emojis.requiem_arrow}} **Реквием стрела:** {{stand}} эволюционировал в {{stand}} Реквием!",
-        "ALREADY_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела:** Что? Что ты делаешь? Ты что правда пытаешься превратить {{stand}} Реквием в {{stand}} Реквием Реквием? Чел хорош шутканул."
-    }
+  "MYSTERIOUS_ARROW": {
+    "NAME": "Таинственная Стрела",
+    "DESCRIPTION": "Таинственная стрела...",
+    "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Stand Arrow:** The arrow doesn't respond...",
+    "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Stand Arrow:** The arrow doesn't respond...\n\nLooks like you already have a stand. Reset it by using `/stand delete` or store it by using `/stand store` and then try again.",
+    "MANIFESTING": "{{emojis.mysterious_arrow}} **Stand Arrow:** Your spirit is manifesting...",
+    "INVADING": "{{emojis.mysterious_arrow}} **Stand Arrow:** You feel like that a spirit invades you..."
+  },
+  "REQUIEM_ARROW": {
+    "NOT_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела: ** Для использования этого предмета требуется Голд Экспириенс или Сильвер Чариот...",
+    "EVOLVING": "{{emojis.requiem_arrow}} **Реквием стрела:** {{stand}} эволюционировал в {{stand}} Реквием!",
+    "ALREADY_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела:** Что? Что ты делаешь? Ты что правда пытаешься превратить {{stand}} Реквием в {{stand}} Реквием Реквием? Чел хорош шутканул."
+  },
+  "RARE_MYSTERIOUS_ARROW": {
+    "NAME": "Mysterious Arrow",
+    "DESCRIPTION": "A mysterious arrow...",
+    "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Rare Stand Arrow:** The arrow doesn't respond...",
+    "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Rare Stand Arrow:** The arrow doesn't respond...\n\nLooks like you already have a stand. Reset it by using `/stand delete` or store it by using `/stand store` and then try again.",
+    "MANIFESTING": "{{emojis.mysterious_arrow}} **Rare Stand Arrow:** Your spirit is manifesting...",
+    "INVADING": "{{emojis.mysterious_arrow}} **Rare Stand Arrow:** You feel like that a spirit invades you..."
+  },
+  "SPOOKY_ARROW": {
+    "NAME": "Spooky Arrow",
+    "DESCRIPTION": "A spooky arrow...",
+    "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Spooky Arrow:** The arrow doesn't respond...",
+    "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Spooky Arrow:** The arrow doesn't respond...\n\nLooks like you already have a stand. Reset it by using `/stand delete` or store it by using `/stand store` and then try again."
+  }
 }
