@@ -301,7 +301,7 @@ const slashCommand: SlashCommandFile = {
                         components: [
                             Functions.actionRow([
                                 new StringSelectMenuBuilder()
-                                    .setCustomId(`amount_${ctx.interaction.id}` + ctx.interaction.id)
+                                    .setCustomId(`amount_${ctx.interaction.id}`)
                                     .setPlaceholder("Select an amount")
                                     .setMinValues(1)
                                     .setMaxValues(1)
@@ -309,7 +309,7 @@ const slashCommand: SlashCommandFile = {
                             )
                         ]
                     });
-                } else if (i.customId.replace(ctx.interaction.id, "") === `amount_${ctx.interaction.id}`) {
+                } else if (i.customId === `amount_${ctx.interaction.id}`) {
                     const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
 
                     const price = (selectedItem.price ?? 10000) * amount;
