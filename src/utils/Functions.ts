@@ -1257,6 +1257,12 @@ export const fixFields = function fixFields(
         fixedFields.splice(fixedFields.length - 25, fixedFields.length);
     }
 
+    for (const field of fixedFields) {
+        if (field.value.length > 1024) {
+            field.value = field.value.substring(field.value.length - 1024, field.value.length);
+        }
+    }
+
     return fixedFields;
 };
 /*
