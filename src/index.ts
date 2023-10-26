@@ -122,6 +122,10 @@ for (let i = 1; i < 500; i += 3) {
     FightableNPCs[SpookySkeletonFightableNPC.id] = SpookySkeletonFightableNPC;
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[SpookyZombieFightableNPC.id] = SpookyZombieFightableNPC;
+    // @ts-expect-error because it's a dynamic property
+    NPCs[SpookySkeletonNPC.id] = SpookySkeletonNPC;
+    // @ts-expect-error because it's a dynamic property
+    NPCs[SpookyZombieNPC.id] = SpookyZombieNPC;
 }
 
 
