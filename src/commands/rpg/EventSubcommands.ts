@@ -144,6 +144,7 @@ const slashCommand: SlashCommandFile = {
                 });
                 Functions.removeItem(ctx.userData, Functions.findItem("spooky_soul"), item.amount);
                 Functions.addItem(ctx.userData, item.item, 1);
+                ctx.client.database.saveUserData(ctx.userData);
                 makeMessage();
             });
 
