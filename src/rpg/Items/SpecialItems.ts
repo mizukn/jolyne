@@ -436,6 +436,7 @@ export const SpookyArrow2023: Special = {
         if (!stand) throw new Error("Stand not found skeletal spectre fatal error may break the game wtf.");
 
         ctx.userData.stand = stand.id;
+        ctx.client.database.saveUserData(ctx.userData);
 
         const standCartBuffer = await Functions.generateStandCart(stand);
         const file = new AttachmentBuilder(standCartBuffer, { name: "stand.png" });
@@ -462,6 +463,8 @@ export const SpookyArrow2023: Special = {
                         .join("\n")} \n\n**Note:** This stand was only available during the Halloween Event 2023.`
                 }]
         });
+
+        return true;
 
     }
 };
