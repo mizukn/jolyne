@@ -45,23 +45,23 @@ const slashCommand: SlashCommandFile = {
 
         let currentPage = 1;
         const previousPageButton = new ButtonBuilder()
-            .setCustomId("previousPage")
+            .setCustomId("previousPage" + ctx.interaction.id)
             .setEmoji("⬅️")
             .setStyle(ButtonStyle.Primary);
         const firstPageButton = new ButtonBuilder()
-            .setCustomId("firstPage")
+            .setCustomId("firstPage" + ctx.interaction.id)
             .setEmoji("⏮️")
             .setStyle(ButtonStyle.Primary);
         const nextPageButton = new ButtonBuilder()
-            .setCustomId("nextPage")
+            .setCustomId("nextPage" + ctx.interaction.id)
             .setEmoji("➡️")
             .setStyle(ButtonStyle.Primary);
         const lastPageButton = new ButtonBuilder()
-            .setCustomId("lastPage")
+            .setCustomId("lastPage" + ctx.interaction.id)
             .setEmoji("⏭️")
             .setStyle(ButtonStyle.Primary);
         const userPageButton = new ButtonBuilder()
-            .setCustomId("userPage")
+            .setCustomId("userPage" + ctx.interaction.id)
             .setEmoji("📍")
             .setStyle(ButtonStyle.Secondary);
 
@@ -140,7 +140,7 @@ const slashCommand: SlashCommandFile = {
             });
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({
-            filter: (interaction) => interaction.user.id === ctx.user.id
+            filter: (interaction) => interaction.user.id === ctx.user.id && interaction.customId.includes(ctx.interaction.id)
         });
 
         collector.on("collect", (interaction) => {
@@ -149,7 +149,7 @@ const slashCommand: SlashCommandFile = {
             interaction.deferUpdate().catch(() => {
             });
 
-            switch (interaction.customId) {
+            switch (interaction.customId.replace(ctx.interaction.id, "")) {
                 case "previousPage":
                     currentPage--;
                     break;
