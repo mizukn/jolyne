@@ -785,6 +785,7 @@ export type Quests =
     | ClaimXQuest
     | ClaimItemQuest
     | WaitQuest
+    | RaidNPCQuest
     | UseXCommandQuest;
 export type QuestArray = Quests[];
 
@@ -797,7 +798,8 @@ export type RPGUserQuest = Omit<
     | ClaimItemQuest
     | WaitQuest
     | RaidNPCQuest
-    | UseXCommandQuest,
+    | UseXCommandQuest
+    | RaidNPCQuest,
     "i18n_key"
 > & {
     completed?: boolean;
