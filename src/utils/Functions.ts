@@ -1217,6 +1217,15 @@ export const capitalize = function capitalize(str: string): string {
 export const fixFields = function fixFields(
     fields: { name: string; value: string; inline?: boolean }[]
 ): { name: string; value: string; inline?: boolean }[] {
+
+    for (const field of fields) {
+        if (field.value.length > 1024) {
+            field.value = field.value.substring(field.value.length - 1024, field.value.length);
+        }
+    }
+
+    return fields;
+
     const MAX_FIELD_LENGTH = 1024;
     const fixedFields: { name: string; value: string; inline?: boolean }[] = [];
 
@@ -1257,11 +1266,6 @@ export const fixFields = function fixFields(
         fixedFields.splice(fixedFields.length - 25, fixedFields.length);
     }
 
-    for (const field of fixedFields) {
-        if (field.value.length > 1024) {
-            field.value = field.value.substring(field.value.length - 1024, field.value.length);
-        }
-    }
 
     return fixedFields;
 };
