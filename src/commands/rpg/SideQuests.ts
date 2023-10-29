@@ -141,7 +141,7 @@ const slashCommand: SlashCommandFile = {
                             ? `\n- 🔁 NPCs are too hard? Feel free to reload this quest whenever you want`
                             : ""
                     }
-                    }\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
+                    \n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
                     color: SideQuest.color
                 },
             ],
