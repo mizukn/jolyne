@@ -1836,3 +1836,28 @@ export const LifePunchGER: Ability = {
         );
     }
 };
+
+
+export const InfiniteDeathLoop: Ability = {
+    // punches the opponents 5 times, and then gives the user 5 extra turns
+    name: "Infinite Death Loop",
+    description: "Punches the opponents 5 times, and then gives the user 5 extra turns",
+    cooldown: 10,
+    damage: 0,
+    stamina: 25,
+    extraTurns: 5,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        for (let i = 0; i < 5; i++) {
+            const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+            target.health -= xdamage;
+            if (target.health <= 0) target.health = 0;
+            user.totalDamageDealt += xdamage;
+
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand.emoji} INFINITE DEATH LOOP: **${user.name}** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            );
+        }
+    }
+};

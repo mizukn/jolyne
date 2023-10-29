@@ -179,7 +179,8 @@ export const GoldExperience: EvolutionStand = {
                 Abilities.Heal,
                 Abilities.LifeShot,
                 Abilities.LifePunchGER,
-                Abilities.RequiemArrowBlast
+                Abilities.RequiemArrowBlast,
+                Abilities.InfiniteDeathLoop
             ],
             image: "https://static.jojowiki.com/images/thumb/1/13/latest/20210525092302/GER_Infobox_Manga.png/400px-GER_Infobox_Manga.png",
             color: 0x8b8000,
