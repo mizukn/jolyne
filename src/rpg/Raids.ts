@@ -239,3 +239,30 @@ export const Megumin: RaidBoss = {
     // 5 minutes
     cooldown: 5 * 60 * 1000
 };
+
+
+export const GiornoGiovannaRequiem: RaidBoss = {
+    boss: FightableNPCs.GiornoGiovannaRequiem,
+    minions: [],
+    baseRewards: {
+        xp: FightableNPCs.GiornoGiovannaRequiem.rewards.xp,
+        coins: FightableNPCs.GiornoGiovannaRequiem.rewards.coins,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 10,
+                chance: 1000
+            },
+            {
+                item: Functions.findItem("Requiem Arrow").id,
+                amount: 1,
+                chance: 5
+            }
+        ]
+    },
+    level: 50,
+    maxLevel: Infinity,
+    maxPlayers: 6,
+    // 15 minutes
+    cooldown: 15 * 60 * 1000
+};

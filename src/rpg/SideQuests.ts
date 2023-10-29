@@ -1,12 +1,16 @@
 import { SideQuest, QuestArray } from "../@types";
 import * as Functions from "../utils/Functions";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
+import * as Raids from "./Raids";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 100),
     Functions.generateUseXCommandQuest("loot", 100),
     Functions.generateUseXCommandQuest("raid", 10),
-    Functions.generateUseXCommandQuest("blackjack", 25)
+    Functions.generateUseXCommandQuest("blackjack", 25),
+    Functions.generateClaimXQuest("daily", 7),
+    Functions.generataRaidQuest(Raids.JeanPierrePolnareffRequiem.boss),
+    Functions.generataRaidQuest(Raids.GiornoGiovannaRequiem.boss),
 ];
 
 for (let i = 0; i < 50; i++) {
@@ -52,7 +56,6 @@ export const RequiemArrowEvolve: SideQuest = {
     },
     requirementsMessage:
         "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n-If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quent will cancel automatically if you don't meet the requirements anymore, so be careful.",
-    cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: true,
     color: // brown
         0x8b4513
