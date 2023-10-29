@@ -153,8 +153,8 @@ export const GoldExperience: EvolutionStand = {
             abilities: [
                 Abilities.StandBarrage,
                 Abilities.Heal,
-                Abilities.LifeShot
-                //Abilities.LifeGiver
+                Abilities.LifeShot,
+                Abilities.LifePunch,
             ],
             image: "https://static.jojowiki.com/images/8/81/latest/20210707053105/Gold_Experience_Infobox_Anime.png",
             // yellow color
@@ -178,7 +178,7 @@ export const GoldExperience: EvolutionStand = {
                 Abilities.StandBarrage,
                 Abilities.Heal,
                 Abilities.LifeShot,
-                Abilities.LifeGiver,
+                Abilities.LifePunchGER,
                 Abilities.RequiemArrowBlast
             ],
             image: "https://static.jojowiki.com/images/thumb/1/13/latest/20210525092302/GER_Infobox_Manga.png/400px-GER_Infobox_Manga.png",

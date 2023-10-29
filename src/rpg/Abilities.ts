@@ -23,7 +23,7 @@ export const KickBarrage: Ability = {
     damage: 8,
     stamina: 6,
     dodgeScore: 1,
-    target: "enemy"
+    target: "enemy" 
 };
 
 export const StarFinger: Ability = {
@@ -1769,4 +1769,70 @@ export const Explosion: Ability = {
     dodgeScore: 0,
     target: "enemy",
     thumbnail: "https://media.tenor.com/RjnF10XDs4cAAAAC/megumin-explosion.gif"
+};
+
+// special ability for gold experience
+// punch that drains the target's stamina and health and effects that lasts for 3 turns
+
+const lifePunchPromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter, cooldown: number) => {
+    // removes 3% of the opponent's max health and stamina
+
+    ctx.nextTurnPromises.push({
+        cooldown,
+        promise: (fight) => {
+            const healthLost = Math.round(target.maxHealth * 0.03);
+            const staminaLost = Math.round(target.maxStamina * 0.03);
+
+            target.health -= healthLost;
+            target.stamina -= staminaLost;
+
+            if (target.health <= 0) target.health = 0;
+            if (target.stamina <= 0) target.stamina = 0;
+
+            fight.turns[ctx.turns.length - 1].logs.push(
+                `🩸🩸🩸 **${target.name}** lost **${healthLost}** health and **${staminaLost}** stamina`
+            );
+        },
+        id: "" + Date.now() + Math.random() + ""
+    });
+};
+
+export const LifePunch: Ability = {
+    name: "Life Punch",
+    description: "Punch that drains the target's stamina and health (by 3% of their max stats) and effects that lasts for 3 turns",
+    cooldown: 6,
+    damage: 0,
+    stamina: 25,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        lifePunchPromise(ctx, target, damage, user, 5);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += xdamage;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} LIFE PUNCH: **${user.name}** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+    }
+};
+
+// life punch for ger, but removes 8% of the target's max health and stamina
+export const LifePunchGER: Ability = {
+    ...LifePunch,
+    name: "Life Punch",
+    description: "Punch that drains the target's stamina and health (by **8%** of their max stats) and effects that lasts for 3 turns",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        lifePunchPromise(ctx, target, damage, user, 5);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += xdamage;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} LIFE PUNCH: **${user.name}** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+    }
 };

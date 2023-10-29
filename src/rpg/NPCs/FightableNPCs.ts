@@ -231,3 +231,21 @@ export const Megumin: FightableNPC = {
         killer_queen: 1
     }
 };
+
+export const GiornoGiovanna: FightableNPC = {
+    ...NPCs.GiornoGiovanna,
+    level: Dio.level,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "gold_experience",
+    standsEvolved: {}
+};
+
+export const GiornoGiovannaRequiem: FightableNPC = {
+    ...NPCs.GiornoGiovannaRequiem,
+    level: Dio.level * 5,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "gold_experience_requiem",
+    standsEvolved: {}
+};

@@ -302,7 +302,7 @@ export const WheelOfFortune: Stand = {
         stamina: 0
     },
     color: 0xff0000,
-    image: "https://jojowiki.com/File:Wheel_of_Fortune_Infobox_Anime.png"
+    image: "https://static.jojowiki.com/images/b/b7/latest/20221008022642/Wheel_of_Fortune_Infobox_Anime.png"
 };
 
 export const PurpleHaze: Stand = {
@@ -564,7 +564,7 @@ export const SkeletalSpectre: Stand = {
 export const TheWorldRu: Stand = {
     id: "the_world_ru",
     name: "The World (RU)",
-    description: "The World (Russian Ver.) is an event stand, was available during the Halloween event (2023).",
+    description: "The World (Russian Ver.) is an unobtainable stand. It was given to active beta testers during the V3 release.",
     rarity: "T",
     image: "https://media.jolyne.moe/4lLQMv/direct",
     abilities: [

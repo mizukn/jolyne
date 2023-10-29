@@ -149,3 +149,15 @@ export const SpookyZombie: NPC = {
     name: "Spooky Zombie",
     emoji: "🧟"
 };
+
+export const GiornoGiovanna: NPC = {
+    id: "giorno_giovanna",
+    name: "Giorno Giovanna",
+    emoji: Emojis.Giorno
+};
+
+export const GiornoGiovannaRequiem: NPC = {
+    id: "giorno_giovanna_requiem",
+    name: "Giorno Giovanna Requiem",
+    emoji: Emojis.Giorno
+};
