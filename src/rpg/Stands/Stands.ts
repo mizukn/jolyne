@@ -623,3 +623,29 @@ export const StickyFingers: Stand = {
     },
     available: true
 };
+
+export const WeatherReport: Stand = {
+    id: "weather_report",
+    name: "Weather Report",
+    description: "Weather Report is the Stand of Weather Report, featured in Stone Ocean. Weather Report is a humanoid Stand of a height and build similar to Weather Report's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
+    rarity: "S",
+    image: "https://static.wikia.nocookie.net/jjba/images/5/50/Weather_Reaport_%28Stand%29_Anime.png/revision/latest?cb=20211109182450&path-prefix=fr",
+    color: 0x0000FF,
+    abilities: [
+        Abilities.StandBarrage,
+        Abilities.BallOfLightning,
+        Abilities.Fog,
+        Abilities.FrogRain,
+        Abilities.Mach1Tornado,
+        Abilities.TotalCombustion
+    ],
+    emoji: "<:weather_report:1091818157901099078>",
+    skillPoints: {
+        perception: 7,
+        speed: 7,
+        strength: 3,
+        stamina: 3,
+        defense: 0
+    },
+    available: true
+};

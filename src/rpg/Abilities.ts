@@ -1861,3 +1861,157 @@ export const InfiniteDeathLoop: Ability = {
         }
     }
 };
+
+export const Fog: Ability = {
+    name: "Fog",
+    description: "A fog covers the arena, lowering all your opponents perception by 15% for 3 turns",
+    cooldown: 6,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    useMessage: (user, target, damage, ctx) => {
+        const fighters = cloneDeep(ctx.fighters
+            .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0));
+
+        ctx.fighters
+            .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
+            .forEach((x) => {
+                x.skillPoints.perception *= 0.85;
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} FOG: **${user.name}** has lowered **${x.name}**'s perception by 15%...`
+                );
+            });
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} FOG: the effect have disappeared...`
+                );
+                fight.fighters.filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
+                    .forEach((x, i) => {
+                        x.skillPoints.perception = fighters.find(w => w.id === x.id).skillPoints.perception;
+                    });
+            }
+        });
+        
+    },
+    target: "self"
+};
+
+export const FrogRain: Ability = {
+    name: "Frog Rain",
+    description: "Summons a rain of frogs, dealing damage & poison damages to all enemies",
+    cooldown: 7,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    trueDamage: 15,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
+            .forEach((x) => {
+                const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+                x.health -= xdamage;
+                if (x.health <= 0) x.health = 0;
+                user.totalDamageDealt += xdamage;
+
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} FROG RAIN: **${user.name}** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${x.name}**.`
+                );
+
+                ctx.nextRoundPromises.push({
+                    cooldown: 3,
+                    id: Functions.generateRandomId(),
+                    promise: (fight) => {
+                        const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, CrossfireHurricane) / 10);
+                        poisonDamagePromise(ctx, x, burnDamageCalc, user, 5);
+                        fight.turns[fight.turns.length - 1].logs.push(
+                            `- ${user.stand.emoji} FROG RAIN: **${x.name}** took **${burnDamageCalc}** poison damage`
+                        );
+                    }
+                });
+            });
+    }
+};
+
+// ball of lightning:
+// Weather charges a ball of lightning and hits it into the opponent, giving you one extra turn.
+
+export const BallOfLightning: Ability = {
+    name: "Ball of Lightning",
+    description: "Weather charges a ball of lightning and hits it into the opponent, giving you one extra turn.",
+    cooldown: 5,
+    damage: 13,
+    stamina: 15,
+    extraTurns: 1,
+    dodgeScore: 0,
+    target: "enemy"
+};
+
+// Total combustion:
+// Weather report punches the opponent with firey fists, causing burn damage.
+// The opponent's perception is also lowered by 5% for 3 turns.
+
+export const TotalCombustion: Ability = {
+    name: "Total Combustion",
+    description: "Weather report punches the opponent with firey fists, causing burn damage. The opponent's perception is also lowered by 5% for 3 turns.",
+    cooldown: 9,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 1,
+    dodgeScore: 0,
+    trueDamage: 15,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += xdamage;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} TOTAL COMBUSTION: **${user.name}** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, CrossfireHurricane) / 10);
+                poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand.emoji} TOTAL COMBUSTION: **${target.name}** took **${burnDamageCalc}** poison damage`
+                    );
+            }
+        });
+    }
+};
+
+// Mach 1 tornado
+// You spin weather and a tornado flings out, hitting the opponent for massive damage
+
+export const Mach1Tornado: Ability = {
+    name: "Mach 1 Tornado",
+    description: "You spin weather and a tornado flings out, hitting the opponent for massive damage",
+    cooldown: 7,
+    damage: 0,
+    stamina: 25,
+    extraTurns: 1,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 2.5);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += xdamage;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand.emoji} MACH 1 TORNADO: **${user.name}** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+    }
+};
