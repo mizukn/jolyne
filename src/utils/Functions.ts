@@ -602,7 +602,7 @@ export const standAbilitiesEmbed = (
     };
 
     for (const ability of stand.abilities) {
-        let content = `\`Damages:\` ${getAbilityDamage(user, ability) ?? "??..."}\n\`Stamina cost:\` ${
+        let content = `\`Damages:\` ${getAbilityDamage(user, ability) ?? (ability.trueDamage ? getAttackDamages(user) * (1 + ability.trueDamage / 100) : "???")}\n\`Stamina cost:\` ${
             ability.stamina
         }`;
 
