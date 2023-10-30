@@ -214,6 +214,7 @@ const slashCommand: SlashCommandFile = {
                     coinReward += 100;
                     xpReward += 75;
                 }
+                if (coinReward > 50000) coinReward = 50000;
 
                 const components: ButtonBuilder[] = [];
 

@@ -18,7 +18,7 @@ import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { FightableNPCS } from "../../rpg/NPCs";
 import * as QuestsL from "../../rpg/Quests/Quests";
 import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
-import * as Raids from "../../rpg/Raids"
+import * as Raids from "../../rpg/Raids";
 
 const raids = Object.values(Raids);
 
@@ -304,8 +304,8 @@ export const getQuestsStats = (
                     (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
                 ).length : ""} ${raid.boss.emoji} **${raid.boss.name}** (LVL: ${raid.boss.level}) (${ctx.client.getSlashCommandMention("raid")}) ||(${quests.filter(
                     (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
-                ).length !== 1 ? completedSlashTotal : ""}) **${(questPercent * 100).toFixed(2)}%**||`
-                let found = message.find(messageX => messageX === sMessage);
+                ).length !== 1 ? completedSlashTotal : ""}) **${(questPercent * 100).toFixed(2)}%**||`;
+                const found = message.find(messageX => messageX === sMessage);
 
                 if (!found) {
                     totalPercent += questPercent * 100;
