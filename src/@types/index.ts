@@ -649,6 +649,7 @@ export interface Ability {
      * The ability's base damage.
      */
     damage: number;
+    trueDamage?: number;
 
     /**
      * If the ability's stamina usage.
