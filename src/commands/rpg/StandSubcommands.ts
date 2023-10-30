@@ -356,12 +356,14 @@ const slashCommand: SlashCommandFile = {
                 inline?: boolean;
             }> = [];
 
+    
+
             for (const ability of stand.abilities) {
                 const damage: number = Functions.getAbilityDamage(userData, ability);
                 fields.push({
                     name: `${ability.special ? "⭐" : ""}${ability.name}`,
                     inline: ability.special ? false : true,
-                    value: `**\`Damages:\`** ${damage === 0 ? "??" : damage}
+                    value: `**\`Damages:\`** ${damage === 0 ? (ability.trueDamage ? Math.round(Functions.getAttackDamages(userData) * (1 + ability.trueDamage / 100)) : "???") : damage}
     **\`Stamina Cost:\`** ${ability.stamina}
     **\`Cooldown:\`** ${ability.cooldown} turns
     **\`Dodge score:\`** ${!ability.dodgeScore ? "not dodgeable" : ability.dodgeScore}
