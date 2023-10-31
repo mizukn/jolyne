@@ -8,7 +8,10 @@ import TopGG from "../utils/TopGG";
 import Matchmaking from "../utils/Matchmaking";
 
 async function fetchSupportMembers(client: Jolyne): Promise<void> {
-    const members = await client.guilds.cache.get("923608916540145694").members.fetch().then(r => r.map(x => x));
+    const members = await client.guilds.cache
+        .get("923608916540145694")
+        .members.fetch()
+        .then((r) => r.map((x) => x));
     const betaTesters = members.filter((v) => v.roles.cache.has("978041345245597818"));
     const contributors = members.filter((v) => v.roles.cache.has("926829876990844989"));
     const staff = members.filter((v) => v.roles.cache.has("926829641518424064"));
@@ -50,16 +53,16 @@ const Event: EventFile = {
     execute: async (client: Jolyne): Promise<void> => {
         client.user.setActivity({
             type: ActivityType.Watching,
-            name: "bugs..."
+            name: "bugs...",
         });
         fetchPatreonsFromCache();
 
-        if (client.guilds.cache.get("923608916540145694")) { // Jolyne Support Server
+        if (client.guilds.cache.get("923608916540145694")) {
+            // Jolyne Support Server
             fetchSupportMembers(client);
             setInterval(async () => {
                 fetchSupportMembers(client);
             }, 1000 * 60 * 5);
-
         }
 
         // prettier-ignore
@@ -111,7 +114,7 @@ const Event: EventFile = {
         // end
         client.user.setActivity({
             type: ActivityType.Watching,
-            name: "the beginning..."
+            name: "the beginning...",
         });
         client.cluster.on("updatePatreons", async () => {
             client.patreons = [];
@@ -122,20 +125,20 @@ const Event: EventFile = {
             const activies: ActivityOptions[] = [
                 {
                     type: ActivityType.Watching,
-                    name: "The World"
+                    name: "The World",
                 },
                 {
                     type: ActivityType.Watching,
-                    name: "The Way To Heaven"
+                    name: "The Way To Heaven",
                 },
                 {
                     type: ActivityType.Playing,
-                    name: "with " + Functions.randomArray(Object.values(Stands).map((v) => v.name))
+                    name: "with " + Functions.randomArray(Object.values(Stands).map((v) => v.name)),
                 },
                 {
                     type: ActivityType.Watching,
-                    name: "JoJo's Bizarre Adventure"
-                }
+                    name: "JoJo's Bizarre Adventure",
+                },
             ];
             client.user.setActivity(Functions.randomArray(activies));
         }, 1000 * 60);
@@ -144,12 +147,18 @@ const Event: EventFile = {
             const patrons = await client.database.redis.keys("patron:*");
             for (const patron of patrons) {
                 const data = await client.database.redis.get(patron);
-                const patreonData = await client.database.redis.get(`patronData:${patron.split(":")[1]}`);
+                const patreonData = await client.database.redis.get(
+                    `patronData:${patron.split(":")[1]}`
+                );
                 client.patreons.push({
                     id: patron.split(":")[1],
-                    level: parseInt(data.split(":")[0]) as (1 | 2 | 3 | 4),
+                    level: parseInt(data.split(":")[0]) as 1 | 2 | 3 | 4,
                     lastPatreonCharge: parseInt(data.split(":")[1]),
-                    data: JSON.parse(patreonData) as typeof client.fetchPatrons extends Promise<infer U> ? U : never
+                    data: JSON.parse(patreonData) as typeof client.fetchPatrons extends Promise<
+                        infer U
+                    >
+                        ? U
+                        : never,
                 });
             }
         }
@@ -235,7 +244,7 @@ const Event: EventFile = {
                             category: v.category,
                             options: v.data?.options?.filter((r) => r.name === c.name)[0]?.options,
                             name: `${v.data.name} ${c.name}`,
-                            description: removeEmoji(c.description)
+                            description: removeEmoji(c.description),
                         };
                     });
                 } else
@@ -246,7 +255,7 @@ const Event: EventFile = {
                             (r) => r.type === 3 || r.type === 6 || r.type === 4
                         ),
                         name: v.data.name,
-                        description: removeEmoji(v.data.description)
+                        description: removeEmoji(v.data.description),
                     };
             })
             .map((v) => {
@@ -257,7 +266,7 @@ const Event: EventFile = {
                             category: v.category,
                             options: v.options,
                             name: v.name,
-                            description: v.description
+                            description: v.description,
                         };
                     });
                 } else
@@ -266,7 +275,7 @@ const Event: EventFile = {
                         category: v.category,
                         options: v.options,
                         name: v.name,
-                        description: v.description
+                        description: v.description,
                     };
             });
         const commandsV2 = [];
@@ -286,15 +295,15 @@ const Event: EventFile = {
                         category: commands.category,
                         options: command.options,
                         name: `${commands.name} ${command.name}`,
-                        description: command.description
+                        description: command.description,
                     });
                 }
             } else commandsV3.push(commands);
         }
-        client.allCommands = commandsV3;
         client.log(`Logged in as ${client.user?.tag}`, "ready");
+        client.allCommands = commandsV3;
         // client.database.migrateData();
-    }
+    },
 };
 export default Event;
 

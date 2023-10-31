@@ -29,12 +29,7 @@ const Event: EventFile = {
                 });
             }
 
-            if (!interaction.client.allCommands) {
-                return interaction.reply({
-                    content: "I'm still loading, please wait a few seconds.",
-                    ephemeral: true,
-                });
-            }
+            if (!interaction.client.allCommands) return;
 
             const command = interaction.client.commands.get(interaction.commandName);
             if (!command || !interaction.guild) return;
