@@ -163,6 +163,9 @@ export const pushEmail = (email: Email): RPGUserEmail => {
         archived: false,
         date: Date.now()
     };
+    if (email.expiresAt) {
+        emailData.expiresAt = email.expiresAt + Date.now();
+    }
 
     return emailData;
 };
