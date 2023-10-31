@@ -412,7 +412,7 @@ export const getBaseStamina = 100;
 
 export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     if (rpgData.level === 0) return 100;
-    if (rpgData.level >= 4 && findNPC(rpgData.id)) return 100;
+    if (rpgData.level <= 4 && findNPC(rpgData.id)) return 100;
     return Math.round((getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health) * 3);
 };
 
