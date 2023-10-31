@@ -31,7 +31,7 @@ export const RequiemArrowEvolve: SideQuest = {
                 `Alright, thank you for your help. Here's your Requiem Arrow as promised. You may use it by using the ${ctx.client.getSlashCommandMention(
                     "inventory use"
                 )} command.`
-            )
+            ),
         });
         return true;
     },
@@ -55,11 +55,10 @@ export const RequiemArrowEvolve: SideQuest = {
         } else return false;
     },
     requirementsMessage:
-        "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n-If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quent will cancel automatically if you don't meet the requirements anymore, so be careful.",
+        "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n-If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quest will cancel automatically if you don't meet the requirements anymore, so be careful.",
     canRedoSideQuest: true,
-    color: // brown
-        0x8b4513
-
+    // brown
+    color: 0x8b4513,
 };
 
 export const Beginner: SideQuest = {
@@ -76,7 +75,7 @@ export const Beginner: SideQuest = {
                 "inventory use"
             )} command. However if you're still at Chapter 1 Part 1, you won't be able to use that arrow. Note that you can redo this quest anytime, just re-use the ${ctx.client.getSlashCommandMention(
                 "side quest view"
-            )} command.`
+            )} command.`,
         });
         return true;
     },
@@ -87,7 +86,7 @@ export const Beginner: SideQuest = {
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         Functions.generateFightQuest(Functions.findNPC("bandit")),
         //Functions.generateFightQuest(Functions.findNPC("kakyoin")),
-        Functions.generateUseXCommandQuest("loot", 1)
+        Functions.generateUseXCommandQuest("loot", 1),
     ],
     requirements: (ctx) => {
         if (ctx.userData.level < 10) return true;
@@ -95,14 +94,15 @@ export const Beginner: SideQuest = {
     },
     requirementsMessage: "- You must be not over level 10",
     cancelQuestIfRequirementsNotMetAnymore: true,
-    color: // blue
-        0x0000ff
+    // blue
+    color: 0x0000ff,
 };
 
 export const HalloweenEvent2023: SideQuest = {
     id: "HalloweenEvent2023",
     title: "Halloween Event 2023",
-    description: "Happy Halloween! Skeletons, zombies and lots more scary creatures have invaded Morioh City. Kill them all for souls!",
+    description:
+        "Happy Halloween! Skeletons, zombies and lots more scary creatures have invaded Morioh City. Kill them all for souls!",
     emoji: "🎃",
     canRedoSideQuest: true,
     rewards: async (ctx) => {
@@ -110,22 +110,25 @@ export const HalloweenEvent2023: SideQuest = {
         ctx.followUp({
             content: `You have been given 15 souls. You can trade them by using the ${ctx.client.getSlashCommandMention(
                 "event trade"
-            )} command.`
+            )} command.`,
         });
         return true;
     },
     quests: (ctx) => {
-        const quests: QuestArray = [
-            Functions.generateClaimItemQuest("spooky_soul", 5)
-        ];
+        const quests: QuestArray = [Functions.generateClaimItemQuest("spooky_soul", 5)];
 
-        const EventNPCs = Object.values(FightableNPCs).filter(w => {
-            return (w.stand === "skeletal_spectre" && w.private && w.level <= (ctx.userData.level > 12 ? ctx.userData.level : 12));
+        const EventNPCs = Object.values(FightableNPCs).filter((w) => {
+            return (
+                w.stand === "skeletal_spectre" &&
+                w.private &&
+                w.level <= (ctx.userData.level > 12 ? ctx.userData.level : 12)
+            );
         });
 
-        if (EventNPCs.length !== 0) for (let i = 0; i < (ctx.userData.level < 25 ? ctx.userData.level : 25); i++) {
-            quests.push(Functions.generateFightQuest(Functions.randomArray(EventNPCs)));
-        }
+        if (EventNPCs.length !== 0)
+            for (let i = 0; i < (ctx.userData.level < 25 ? ctx.userData.level : 25); i++) {
+                quests.push(Functions.generateFightQuest(Functions.randomArray(EventNPCs)));
+            }
 
         return quests;
     },
@@ -134,8 +137,11 @@ export const HalloweenEvent2023: SideQuest = {
         return true;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
-    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(1701385140000, "FROM_NOW")} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`,
+    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(
+        1701385140000,
+        "FROM_NOW"
+    )} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`,
     canReloadQuests: true,
-    color: // orange
-        0xffa500
+    // orange
+    color: 0xffa500,
 };

@@ -2,12 +2,18 @@ import { Stand, Ability } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 import * as Abilities from "../Abilities";
-import { HealPunch, MysteriousGas, RapidStrikes, Razor_SharpScales, Transformation } from "../Abilities";
+import {
+    HealPunch,
+    MysteriousGas,
+    RapidStrikes,
+    Razor_SharpScales,
+    Transformation,
+} from "../Abilities";
 
 function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
     return {
         ...ability,
-        thumbnail: gif
+        thumbnail: gif,
     };
 }
 
@@ -26,17 +32,17 @@ export const StarPlatinum: Stand = {
         ),
         Abilities.KickBarrage,
         Abilities.StarFinger,
-        Abilities.TheWorld
+        Abilities.TheWorld,
     ],
     skillPoints: {
         strength: 10,
         defense: 5,
         perception: 5,
         speed: 5,
-        stamina: 2
+        stamina: 2,
     },
     color: 0x985ca3,
-    available: true
+    available: true,
 };
 
 export const TheWorld: Stand = {
@@ -54,11 +60,11 @@ export const TheWorld: Stand = {
         ),
         Abilities.KickBarrage,
         Abilities.RoadRoller,
-        Abilities.TheWorld
+        Abilities.TheWorld,
     ],
     skillPoints: StarPlatinum.skillPoints,
     color: 0xffff00,
-    available: true
+    available: true,
 };
 
 export const HierophantGreen: Stand = {
@@ -75,10 +81,10 @@ export const HierophantGreen: Stand = {
         defense: 0,
         perception: 5,
         speed: 3,
-        stamina: 1
+        stamina: 1,
     },
     color: 0x6ad398,
-    available: true
+    available: true,
 };
 
 export const Aerosmith: Stand = {
@@ -92,13 +98,13 @@ export const Aerosmith: Stand = {
         defense: 0,
         perception: 2,
         speed: 2,
-        stamina: 1
+        stamina: 1,
     },
     image: "https://static.wikia.nocookie.net/jjba/images/d/df/Aerosmith_anime.png/revision/latest?cb=20201220211604&path-prefix=fr",
     emoji: Emojis.aerosmith,
     abilities: [Abilities.VolaBarrage, Abilities.LittleBoy],
     color: 0x0981d1,
-    available: true
+    available: true,
 };
 
 export const TheHand: Stand = {
@@ -113,12 +119,12 @@ export const TheHand: Stand = {
         defense: 0,
         perception: 0,
         stamina: 0,
-        speed: 0
+        speed: 0,
     },
     image: "https://static.wikia.nocookie.net/jjba/images/b/bb/The_Hand_Key_Art.png/revision/latest?cb=20180623152623&path-prefix=fr",
     emoji: Emojis.the_hand,
     color: 0x1d57e5,
-    available: true
+    available: true,
 };
 
 export const MagiciansRed: Stand = {
@@ -135,10 +141,10 @@ export const MagiciansRed: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0
+        stamina: 0,
     },
     color: 0xff0000,
-    available: true
+    available: true,
 };
 
 export const HermitPurple: Stand = {
@@ -155,17 +161,18 @@ export const HermitPurple: Stand = {
         defense: 0,
         perception: 2,
         speed: 2,
-        stamina: 1
+        stamina: 1,
     },
     color: 0x800080,
-    available: true
+    available: true,
 };
 
 export const SexPistols: Stand = {
     id: "sex_pistols",
     name: "Sex Pistols",
     rarity: "A",
-    description: "later",
+    description:
+        "Sex pistols is a stand that can shoot bullets, it was originally owned by [Guido Mista](https://jojo.fandom.com/wiki/Guido_Mista)",
     abilities: [Abilities.BulletsRafale],
     emoji: Emojis.sexPistols,
     skillPoints: {
@@ -173,7 +180,7 @@ export const SexPistols: Stand = {
         defense: 0,
         perception: 3,
         speed: 0,
-        stamina: 0
+        stamina: 0,
     },
     color: 0x800080,
     available: true,
@@ -253,8 +260,8 @@ export const SexPistols: Stand = {
                 }
             }
             if (!ctx.ctx.client.fightCache.get(bulletId + "fireX")) ctx.nextTurn();
-        }
-    }
+        },
+    },
 };
 
 export const TheFool: Stand = {
@@ -275,23 +282,20 @@ export const TheFool: Stand = {
         defense: 8,
         perception: 2,
         speed: 2,
-        stamina: 1
+        stamina: 1,
     },
     color: 0x800080,
     available: true,
-    image: "https://static.jojowiki.com/images/thumb/1/10/latest/20210312225357/The_Fool_Infobox_Anime.png/400px-The_Fool_Infobox_Anime.png"
+    image: "https://static.jojowiki.com/images/thumb/1/10/latest/20210312225357/The_Fool_Infobox_Anime.png/400px-The_Fool_Infobox_Anime.png",
 };
 
 export const WheelOfFortune: Stand = {
     id: "wheel_of_fortune",
     name: "Wheel Of Fortune",
     rarity: "B",
-    description: "Wheel of Fortune is the Stand ZZ. As a Stand bound to a car, it is capable of morphing its exterior to suit the needs of its driver. (jojowiki.com)",
-    abilities: [
-        Abilities.GasolineBullets,
-        Abilities.CarCrash,
-        Abilities.Transformation
-    ],
+    description:
+        "Wheel of Fortune is the Stand ZZ. As a Stand bound to a car, it is capable of morphing its exterior to suit the needs of its driver. (jojowiki.com)",
+    abilities: [Abilities.GasolineBullets, Abilities.CarCrash, Abilities.Transformation],
     emoji: "<:wheeloffortunaweeeeeeee:1100153453642272909>",
     available: true,
     skillPoints: {
@@ -299,17 +303,18 @@ export const WheelOfFortune: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0
+        stamina: 0,
     },
     color: 0xff0000,
-    image: "https://static.jojowiki.com/images/b/b7/latest/20221008022642/Wheel_of_Fortune_Infobox_Anime.png"
+    image: "https://static.jojowiki.com/images/b/b7/latest/20221008022642/Wheel_of_Fortune_Infobox_Anime.png",
 };
 
 export const PurpleHaze: Stand = {
     id: "purple_haze",
     name: "Purple Haze",
     rarity: "S",
-    description: "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
+    description:
+        "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     image: "https://media.jolyne.moe/NNszFI/direct",
     abilities: [Abilities.StandBarrage, Abilities.CapsuleShot, Abilities.PoisonGas, Abilities.Rage],
     emoji: Emojis.purple_haze,
@@ -318,17 +323,18 @@ export const PurpleHaze: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0
+        stamina: 0,
     },
     available: true,
-    color: 0x800080
+    color: 0x800080,
 };
 
 export const HalloweenSpooks: Stand = {
     id: "halloween_spooks",
     name: "Halloween Spooks",
     rarity: "T",
-    description: "Halloween Spooks is a limited stand, was available during the Halloween event (2022).",
+    description:
+        "Halloween Spooks is a limited stand, was available during the Halloween event (2022).",
     image: "https://media.jolyne.moe/g3w4Ec/direct",
     abilities: [Abilities.Rage, Abilities.ScytheSlash, Abilities.MysteriousGas],
     emoji: "🎃",
@@ -338,18 +344,19 @@ export const HalloweenSpooks: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0
+        stamina: 0,
     },
     available: true,
     // purple hex code
-    color: 0x800080
+    color: 0x800080,
 };
 
 export const BuffOPlatinum: Stand = {
     name: "Buff O' Platinum",
     id: "buff_o_platinum",
     rarity: "T",
-    description: "Buff O' Platinum is a limited stand, was available during the Christmas event (2022).",
+    description:
+        "Buff O' Platinum is a limited stand, was available during the Christmas event (2022).",
     image: "https://media.discordapp.net/attachments/1026886547460591647/1055873607726796820/Napalm_Christmas_Time_Star_Platinum_678444c9-593c-49d6-bfc9-b20ca76d8dce.png",
     abilities: StarPlatinum.abilities,
     emoji: "<:buffoplatinum:1055875166812524554>",
@@ -359,35 +366,43 @@ export const BuffOPlatinum: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0
+        stamina: 0,
     },
     available: true,
-    color: StarPlatinum.color
+    color: StarPlatinum.color,
 };
 
 export const CrazyDiamond: Stand = {
     id: "crazy_diamond",
     name: "Crazy Diamond",
     rarity: "S",
-    description: "Crazy Diamond is a humanoid Stand of a height and build similar to Josuke's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
+    description:
+        "Crazy Diamond is a humanoid Stand of a height and build similar to Josuke's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     image: "https://static.wikia.nocookie.net/jjba/images/7/7a/Crazy_Diamond_Anime.Infobox.png/revision/latest?cb=20180622215654&path-prefix=fr",
-    abilities: [Abilities.StandBarrage, Abilities.HealPunch, Abilities.HealBarrage, Abilities.Restoration, Abilities.YoAngelo], //[Abilities.Heal, Abilities.HealBarrage, Abilities.HealPunch],
+    abilities: [
+        Abilities.StandBarrage,
+        Abilities.HealPunch,
+        Abilities.HealBarrage,
+        Abilities.Restoration,
+        Abilities.YoAngelo,
+    ], //[Abilities.Heal, Abilities.HealBarrage, Abilities.HealPunch],
     emoji: Emojis.crazy_diamond,
     skillPoints: {
         defense: 5,
         strength: 5,
         perception: 5,
         speed: 5,
-        stamina: 5
+        stamina: 5,
     },
     available: true,
     // blue-white hex code
-    color: 0xD8DEEC
+    color: 0xd8deec,
 };
 
 export const HangedMan: Stand = {
     id: "hanged_man",
-    description: "Hanged Man is a Stand that attacks via reflections. It deals insane damages, consumes a bit of stamina and has low cooldowns.",
+    description:
+        "Hanged Man is a Stand that attacks via reflections. It deals insane damages, consumes a bit of stamina and has low cooldowns.",
     rarity: "A",
     name: "Hanged Man",
     image: "http://myanimeshelf.com//upload/dynamic/2015-08/07/jjba-stardust-crusaders-hanged-man-72.png",
@@ -398,16 +413,17 @@ export const HangedMan: Stand = {
         perception: 7,
         speed: 1,
         stamina: 1,
-        defense: 1
+        defense: 1,
     },
     available: true,
-    color: 0x964B00
+    color: 0x964b00,
 };
 
 export const Emperor: Stand = {
     id: "emperor",
     name: "Emperor",
-    description: "Emperor is a gun. It has infinite bullets, its only ability is powerful and is almost impossible to dodge.",
+    description:
+        "Emperor is a gun. It has infinite bullets, its only ability is powerful and is almost impossible to dodge.",
     rarity: "B",
     image: "https://static.wikia.nocookie.net/jjba/images/9/9d/Emperor_AnimeAV.png",
     abilities: [Abilities.HomingBullets],
@@ -417,10 +433,10 @@ export const Emperor: Stand = {
         perception: 0,
         speed: 0,
         stamina: 0,
-        defense: 0
+        defense: 0,
     },
     available: true,
-    color: 0xD3D3D3,
+    color: 0xd3d3d3,
     customAttack: {
         name: (ctx, user) => "Shoot",
         emoji: "<:emperor:1051506731353640980>",
@@ -441,17 +457,11 @@ export const Emperor: Stand = {
                     );
                 } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${
-                            target.name
-                        }**' and broke their guard; -**${
-                            status.amount
-                        }** HP :heart: instead of **${damages}**`
+                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${target.name}**' and broke their guard; -**${status.amount}** HP :heart: instead of **${damages}**`
                     );
                 } else if (status.type === FighterRemoveHealthTypes.Normal) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `${emoji} \`${ctx.whosTurn.name}\` shoots **${
-                            target.name
-                        }** and deals **${status.amount}** damages`
+                        `${emoji} \`${ctx.whosTurn.name}\` shoots **${target.name}** and deals **${status.amount}** damages`
                     );
                 }
 
@@ -463,14 +473,15 @@ export const Emperor: Stand = {
             }
 
             ctx.nextTurn();
-        }
-    }
+        },
+    },
 };
 
 export const TowerOfGray: Stand = {
     id: "tower_of_gray",
     name: "Tower Of Gray",
-    description: "Tower of Gray is a Stand bound to a fly. In the JJBA series, Tower of Gray's owner was [Gray Fly](https://jojo.fandom.com/wiki/Gray_Fly)",
+    description:
+        "Tower of Gray is a Stand bound to a fly. In the JJBA series, Tower of Gray's owner was [Gray Fly](https://jojo.fandom.com/wiki/Gray_Fly)",
     rarity: "C",
     image: "https://static.wikia.nocookie.net/jjba/images/8/80/Tower-of-Gray_AnimeAV.png",
     abilities: [Abilities.RapidStrikes],
@@ -480,20 +491,21 @@ export const TowerOfGray: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0
+        defense: 0,
     },
     available: true,
-    color: 0x808080
+    color: 0x808080,
 };
 
 export const DarkBlueMoon: Stand = {
     id: "dark_blue_moon",
     name: "Dark Blue Moon",
-    description: "Dark Blue Moon is a Stand bound to a shark. In the JJBA series, Dark Blue Moon's owner was [Impostor Captain Tennille](https://jojo.fandom.com/wiki/Impostor_Captain_Tennille)",
+    description:
+        "Dark Blue Moon is a Stand bound to a shark. In the JJBA series, Dark Blue Moon's owner was [Impostor Captain Tennille](https://jojo.fandom.com/wiki/Impostor_Captain_Tennille)",
     rarity: "C",
     image: "https://static.wikia.nocookie.net/jjba/images/e/e9/DarkBlueMoon_AnimeAV.png",
     abilities: [
-        Abilities.Razor_SharpScales
+        Abilities.Razor_SharpScales,
         // TODO: Abilities.Bernacles: Dark Blue Moon is capable of creating barnacles, specifically acorn barnaclesW, as seen when they attach to Star Platinum soon after making contact with Dark Blue Moon's skin.
         //
         // The barnacles drain the target of its strength and also allow Dark Blue Moon slight control over the infected body parts, allowing it to drag its foes back into the water if they try to escape it.[7]
@@ -504,16 +516,17 @@ export const DarkBlueMoon: Stand = {
         strength: 6,
         speed: 6,
         stamina: 0,
-        defense: 0
+        defense: 0,
     },
     available: true,
-    color: 0x0000FF
+    color: 0x0000ff,
 };
 
 export const Strength: Stand = {
     id: "strength",
     name: "Strength",
-    description: "Strength is a Stand bound to a ship. In the JJBA series, Strength's owner was [Forever](https://jojo.fandom.com/wiki/Forever). Its only ability has no cooldown and has a slow stamina usage.",
+    description:
+        "Strength is a Stand bound to a ship. In the JJBA series, Strength's owner was [Forever](https://jojo.fandom.com/wiki/Forever). Its only ability has no cooldown and has a slow stamina usage.",
     rarity: "C",
     image: "https://static.wikia.nocookie.net/jjba/images/8/8b/Strength.png",
     abilities: [Abilities.ObjectManipulation],
@@ -524,16 +537,17 @@ export const Strength: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0
+        defense: 0,
     },
     available: true,
-    color: 0x964B00
+    color: 0x964b00,
 };
 
 export const SkeletalSpectre: Stand = {
     id: "skeletal_spectre",
     name: "Skeletal Spectre",
-    description: "Skeletal Spectre is an event stand, was available during the Halloween event (2023).",
+    description:
+        "Skeletal Spectre is an event stand, was available during the Halloween event (2023).",
     rarity: "T",
     image: "https://media.jolyne.moe/BZVkXX/direct",
     abilities: [
@@ -542,7 +556,7 @@ export const SkeletalSpectre: Stand = {
         Abilities.BonesEnlargement,
         Abilities.ArmSplitter,
         Abilities.FistEnlargement,
-        Abilities.HeartBreaker
+        Abilities.HeartBreaker,
     ],
     emoji: "💀",
     skillPoints: {
@@ -551,11 +565,11 @@ export const SkeletalSpectre: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0
+        defense: 0,
     },
     available: true,
-    color: // grey
-        0x808080
+    // grey
+    color: 0x808080,
 };
 
 /**
@@ -564,27 +578,30 @@ export const SkeletalSpectre: Stand = {
 export const TheWorldRu: Stand = {
     id: "the_world_ru",
     name: "The World (RU)",
-    description: "The World (Russian Ver.) is an unobtainable stand. It was given to active beta testers during the V3 release.",
+    description:
+        "The World (Russian Ver.) is an unobtainable stand. It was given to active beta testers during the V3 release.",
     rarity: "T",
     image: "https://media.jolyne.moe/4lLQMv/direct",
     abilities: [
         {
             ...Abilities.StandBarrage,
             name: "Suka Barrage",
-            description: "SUKA SUKA SUKA SUKA SUKA SUKA SUKA SUKA"
+            description: "SUKA SUKA SUKA SUKA SUKA SUKA SUKA SUKA",
         },
         {
             ...Abilities.KickBarrage,
             name: "Bear Attack",
-            description: "The World summons its bear to attack the enemy"
-        }, {
+            description: "The World summons its bear to attack the enemy",
+        },
+        {
             ...Abilities.RoadRoller,
             name: "AK-47",
-            description: "The World summons an AK-47 and shoots the enemy"
-        }, {
+            description: "The World summons an AK-47 and shoots the enemy",
+        },
+        {
             ...Abilities.TheWorld,
-            description: "SUKA BLYAT!"
-        }
+            description: "SUKA BLYAT!",
+        },
     ],
     emoji: "<:TWRU:1160651318394884096>",
     skillPoints: {
@@ -593,25 +610,29 @@ export const TheWorldRu: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0
+        defense: 0,
     },
     color: TheWorld.color,
-    available: true
+    available: true,
 };
 
 export const StickyFingers: Stand = {
     id: "sticky_fingers",
     name: "Sticky Fingers",
-    description: "Sticky Fingers is the Stand of Bruno Bucciarati, featured in the fifth part of the JoJo's Bizarre Adventure series, Vento Aureo. Sticky Fingers is a short-range humanoid Stand that can create zippers on any surface",
+    description:
+        "Sticky Fingers is the Stand of Bruno Bucciarati, featured in the fifth part of the JoJo's Bizarre Adventure series, Vento Aureo. Sticky Fingers is a short-range humanoid Stand that can create zippers on any surface",
     rarity: "A",
     image: "https://static.jojowiki.com/images/thumb/7/78/latest/20221006032155/Sticky_Fingers_Infobox_Anime.png/400px-Sticky_Fingers_Infobox_Anime.png",
-    color: 0x0000FF,
+    color: 0x0000ff,
     abilities: [
         {
             ...Abilities.StandBarrage,
             name: "ARI Barrage",
-            description: "ARI ARI ARI ARI ARI ARI ARI ARI!"
-        }, Abilities.ZipperPunch, Abilities.DimensionUppercut, Abilities.Arrivederci
+            description: "ARI ARI ARI ARI ARI ARI ARI ARI!",
+        },
+        Abilities.ZipperPunch,
+        Abilities.DimensionUppercut,
+        Abilities.Arrivederci,
     ],
     emoji: Emojis.sticky_fingers,
     skillPoints: {
@@ -619,25 +640,26 @@ export const StickyFingers: Stand = {
         speed: 7,
         strength: 3,
         stamina: 3,
-        defense: 0
+        defense: 0,
     },
-    available: true
+    available: true,
 };
 
 export const WeatherReport: Stand = {
     id: "weather_report",
     name: "Weather Report",
-    description: "Weather Report is the Stand of Weather Report, featured in Stone Ocean. Weather Report is a humanoid Stand of a height and build similar to Weather Report's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
+    description:
+        "Weather Report is the Stand of Weather Report, featured in Stone Ocean. Weather Report is a humanoid Stand of a height and build similar to Weather Report's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     rarity: "S",
     image: "https://static.wikia.nocookie.net/jjba/images/5/50/Weather_Reaport_%28Stand%29_Anime.png/revision/latest?cb=20211109182450&path-prefix=fr",
-    color: 0x0000FF,
+    color: 0x0000ff,
     abilities: [
         Abilities.StandBarrage,
         Abilities.BallOfLightning,
         Abilities.Fog,
         Abilities.FrogRain,
         Abilities.Mach1Tornado,
-        Abilities.TotalCombustion
+        Abilities.TotalCombustion,
     ],
     emoji: "<:weather_report:1091818157901099078>",
     skillPoints: {
@@ -645,7 +667,7 @@ export const WeatherReport: Stand = {
         speed: 7,
         strength: 3,
         stamina: 3,
-        defense: 0
+        defense: 0,
     },
-    available: true
+    available: true,
 };
