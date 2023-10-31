@@ -880,6 +880,7 @@ export interface Email {
         items?: itemRewards;
     };
     chapterQuests?: QuestArray;
+    expiresAt?: number;
 }
 
 export interface RPGUserEmail {
@@ -888,6 +889,7 @@ export interface RPGUserEmail {
     archived: boolean;
     date: number;
     //claimedRewards?: boolean;
+    expiresAt?: number;
 }
 
 export interface ChapterPart extends Omit<Chapter, "title"> {
