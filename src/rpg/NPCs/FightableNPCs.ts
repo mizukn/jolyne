@@ -17,9 +17,9 @@ const baseRewards = {
 
 export const Kakyoin: FightableNPC = {
     ...NPCs.Kakyoin,
-    level: 1,
+    level: 0,
     skillPoints: {
-        defense: 4,
+        defense: 0,
         strength: 0,
         speed: 0,
         perception: 0,
