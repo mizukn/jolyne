@@ -53,5 +53,6 @@
     "NO": "no",
     "test": "{{command.leaderboard level}} ok",
     "YOUR_STAND_HAS_BEEN_RESET": "{{npc.pucci}} You have successfully erased your stand **{{stand.name}}**",
-    "NOT_ENOUGH_COINS": "{{emojis.pucci}} You don't have enough coins."
+    "NOT_ENOUGH_COINS": "{{emojis.pucci}} You don't have enough coins.",
+    "YOUR_STAND_DISC_HAS_BEEN_STORED": "{{npc.pucci}} You have successfully stored your stand disc **{{stand.name}}**."
 }
