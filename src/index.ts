@@ -191,7 +191,11 @@ for (const stand of [
     };
 
     if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
-        formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(1, 50);
+        if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
+            const minLevel = stand.rarity === "C" ? 1 : stand.rarity === "B" ? 10 : stand.rarity === "A" ? 20 : stand.rarity === "S" ? 30 : stand.rarity === "SS" ? 40 : 30;
+            const maxLevel = minLevel * 12;
+            formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(minLevel, maxLevel);
+        }
     }
 
     let rewards: FightableNPC["rewards"] = { items: [] };
@@ -241,8 +245,22 @@ for (const stand of [
             emoji: stand.emoji
         };
 
+        // min level works like that:
+        // 1. if the stand is C tier, then the min level is 1
+        // 2. if the stand has a weapon, we give him *2 min level
+        // 3. if the stand is B tier, then the min level is 10
+        // 4. if the stand is A tier, then the min level is 20
+        // 5. if the stand is S tier, then the min level is 30
+        // 6. if the stand is SS tier, then the min level is 40
+        // 7. if the stand is T tier, then the min level is 30
+
+        // max level is the min level * 12
+
         if (!formattedStandUsers[ID]) {
-            formattedStandUsers[ID] = Functions.randomNumber(25, 300);
+            let minLevel = stand.rarity === "C" ? 1 : stand.rarity === "B" ? 10 : stand.rarity === "A" ? 20 : stand.rarity === "S" ? 30 : stand.rarity === "SS" ? 40 : 30;
+            if (weapon.abilities) minLevel *= 2;
+            const maxLevel = minLevel * 12;
+            formattedStandUsers[ID] = Functions.randomNumber(minLevel, maxLevel);
         }
         // @ts-expect-error because it's a dynamic property
         FightableNPCs[ID] = {
