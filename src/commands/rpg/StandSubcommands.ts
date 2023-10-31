@@ -3,7 +3,8 @@ import {
     Message,
     MessageComponentInteraction,
     EmbedBuilder,
-    AttachmentBuilder, APIEmbed
+    AttachmentBuilder,
+    APIEmbed,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -27,27 +28,27 @@ const slashCommand: SlashCommandFile = {
                 type: 1,
                 name: "display",
                 description: "🔱 Display information about your current stand",
-                options: []
+                options: [],
             },
             {
                 type: 1,
                 name: "delete",
                 description: "❌ Deletes your stand.",
-                options: []
+                options: [],
             },
             {
                 type: 1,
                 name: "store",
                 description: "💿 Stores your stand's disk...",
-                options: []
+                options: [],
             },
             {
                 type: 1,
                 name: "list",
                 description: "📜 List all the stands available in the RPG",
-                options: []
-            }
-        ]
+                options: [],
+            },
+        ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (
@@ -76,65 +77,86 @@ const slashCommand: SlashCommandFile = {
         switch (ctx.interaction.options.getSubcommand()) {
             case "list": {
                 const Sstands = [
-                    ...regularStandList.filter(w => w.rarity === "S"),
-                    ...evolvableStandList.filter(w => w.evolutions[0].rarity === "S").map(w => w.evolutions[0])
+                    ...regularStandList.filter((w) => w.rarity === "S"),
+                    ...evolvableStandList
+                        .filter((w) => w.evolutions[0].rarity === "S")
+                        .map((w) => w.evolutions[0]),
                 ];
                 const Astands = [
-                    ...regularStandList.filter(w => w.rarity === "A"),
-                    ...evolvableStandList.filter(w => w.evolutions[0].rarity === "A").map(w => w.evolutions[0])
+                    ...regularStandList.filter((w) => w.rarity === "A"),
+                    ...evolvableStandList
+                        .filter((w) => w.evolutions[0].rarity === "A")
+                        .map((w) => w.evolutions[0]),
                 ];
                 const Bstands = [
-                    ...regularStandList.filter(w => w.rarity === "B"),
-                    ...evolvableStandList.filter(w => w.evolutions[0].rarity === "B").map(w => w.evolutions[0])
+                    ...regularStandList.filter((w) => w.rarity === "B"),
+                    ...evolvableStandList
+                        .filter((w) => w.evolutions[0].rarity === "B")
+                        .map((w) => w.evolutions[0]),
                 ];
                 const Cstands = [
-                    ...regularStandList.filter(w => w.rarity === "C"),
-                    ...evolvableStandList.filter(w => w.evolutions[0].rarity === "C").map(w => w.evolutions[0])
+                    ...regularStandList.filter((w) => w.rarity === "C"),
+                    ...evolvableStandList
+                        .filter((w) => w.evolutions[0].rarity === "C")
+                        .map((w) => w.evolutions[0]),
                 ];
                 const Tstands = [
-                    ...regularStandList.filter(w => w.rarity === "T"),
-                    ...evolvableStandList.filter(w => w.evolutions[0].rarity === "T").map(w => w.evolutions[0])
+                    ...regularStandList.filter((w) => w.rarity === "T"),
+                    ...evolvableStandList
+                        .filter((w) => w.evolutions[0].rarity === "T")
+                        .map((w) => w.evolutions[0]),
                 ];
-                const evolvableStands = evolvableStandList.map(w => {
+                const evolvableStands = evolvableStandList.map((w) => {
                     // return everything except for the first evolution (which is the base stand)
                     return w.evolutions.slice(1);
                 });
 
                 const embed: APIEmbed = {
                     title: "Stands",
-                    description: "Please note that this list is sorted by rarity & alphabetically, so for example if Star Platinum is above The World, it doesn't mean that Star Platinum is better than The World.",
+                    description:
+                        "Please note that this list is sorted by rarity & alphabetically, so for example if Star Platinum is above The World, it doesn't mean that Star Platinum is better than The World.",
                     fields: fixFields([
                         {
                             name: `T stands (event/limited) [${Tstands.length}]`,
-                            value: Tstands.map(w => `- ${w.emoji} ${w.name}`).join("\n")
-                        }, {
+                            value: Tstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
+                        },
+                        {
                             name: `S stands [${Sstands.length}]`,
-                            value: Sstands.map(w => `- ${w.emoji} ${w.name}`).join("\n")
-                        }, {
+                            value: Sstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
+                        },
+                        {
                             name: `A stands [${Astands.length}]`,
-                            value: Astands.map(w => `- ${w.emoji} ${w.name}`).join("\n")
-                        }, {
+                            value: Astands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
+                        },
+                        {
                             name: `B stands [${Bstands.length}]`,
-                            value: Bstands.map(w => `- ${w.emoji} ${w.name}`).join("\n")
-                        }, {
+                            value: Bstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
+                        },
+                        {
                             name: `C stands [${Cstands.length}]`,
-                            value: Cstands.map(w => `- ${w.emoji} ${w.name}`).join("\n")
-                        }, {
+                            value: Cstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
+                        },
+                        {
                             name: `Evolvable stands [${evolvableStands.flat().length}] [S/SS]`,
-                            value: evolvableStands.flat().map(w => {
-                                // FIND BASE STAND
-                                const baseStand = Object.values(EvolvableStands).filter(k => {
-                                    return k.evolutions.find(m => m.name === w.name);
-                                }).filter(k => k)[0].evolutions[0];
-                                return `- ${baseStand.emoji} ${baseStand.name} ${ctx.client.localEmojis.arrowRight} ${w.emoji} ${w.name}`;
-                            }).join("\n")
-                        }
+                            value: evolvableStands
+                                .flat()
+                                .map((w) => {
+                                    // FIND BASE STAND
+                                    const baseStand = Object.values(EvolvableStands)
+                                        .filter((k) => {
+                                            return k.evolutions.find((m) => m.name === w.name);
+                                        })
+                                        .filter((k) => k)[0].evolutions[0];
+                                    return `- ${baseStand.emoji} ${baseStand.name} ${ctx.client.localEmojis.arrowRight} ${w.emoji} ${w.name}`;
+                                })
+                                .join("\n"),
+                        },
                     ]),
-                    color: 0x70926c
+                    color: 0x70926c,
                 };
 
                 await ctx.makeMessage({
-                    embeds: [embed]
+                    embeds: [embed],
                 });
                 break;
             }
@@ -175,35 +197,34 @@ const slashCommand: SlashCommandFile = {
                     .setImage("attachment://stand.png")
                     .setColor(color).setDescription(`**Rarity:** ${stand.rarity}
             **Abilities [${stand.abilities.length}]:** ${stand.abilities
-                        .map((v) => v.name)
-                        .join(", ")}
+                    .map((v) => v.name)
+                    .join(", ")}
             **Skill-Points:** +${Functions.calculateArrayValues(
-                        Object.keys(stand.skillPoints).map(
-                            (v) => stand.skillPoints[v as keyof typeof stand.skillPoints]
-                        )
-                    )}:
+                Object.keys(stand.skillPoints).map(
+                    (v) => stand.skillPoints[v as keyof typeof stand.skillPoints]
+                )
+            )}:
             ${Object.keys(stand.skillPoints)
-                        .map(
-                            (v) =>
-                                "  • +" + stand.skillPoints[v as keyof typeof stand.skillPoints] + " " + v
-                        )
-                        .join("\n")}
+                .map(
+                    (v) =>
+                        "  • +" + stand.skillPoints[v as keyof typeof stand.skillPoints] + " " + v
+                )
+                .join("\n")}
             `);
                 sendStandPage(stand, ctx.userData);
                 const filter = (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {
-                    }); // eslint-disable-line @typescript-eslint/no-empty-function
+                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                     return i.customId === switchID && i.user.id === ctx.user.id;
                 };
                 const collector = ctx.interaction.channel.createMessageComponentCollector({
-                    filter
+                    filter,
                 });
                 let status = 0;
                 collector.on("collect", (i: MessageComponentInteraction) => {
                     if (status % 2 === 0) {
                         ctx.makeMessage({
                             files: [file],
-                            embeds: [embed]
+                            embeds: [embed],
                         });
                     } else {
                         sendStandPage(stand, ctx.userData);
@@ -226,7 +247,7 @@ const slashCommand: SlashCommandFile = {
 
                 if (Functions.hasExceedStandLimit(ctx, undefined, false)) {
                     ctx.makeMessage({
-                        content: `Unfortunately, you can't store more than **${limit}** stand discs in your inventory. This limit may increase the more S tier stands we add to the game. [Patreon members](https://patreon.com/mizuki54) have a higher limit btw.`
+                        content: `Unfortunately, you can't store more than **${limit}** stand discs in your inventory. This limit may increase the more S tier stands we add to the game. [Patreon members](https://patreon.com/mizuki54) have a higher limit btw.`,
                     });
                 }
 
@@ -247,18 +268,17 @@ const slashCommand: SlashCommandFile = {
                     }**, it'll cost you **${Functions.standPrices[stand.rarity].toLocaleString(
                         "en-US"
                     )}** <:jocoins:927974784187392061>. Are you sure ? `,
-                    components: [Functions.actionRow([confirmBTN, cancelBTN])]
+                    components: [Functions.actionRow([confirmBTN, cancelBTN])],
                 });
                 const filter = (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {
-                    }); // eslint-disable-line @typescript-eslint/no-empty-function
+                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                     return (
                         (i.customId === confirmID || i.customId === cancelID) &&
                         i.user.id === ctx.user.id
                     );
                 };
                 const collector = ctx.interaction.channel.createMessageComponentCollector({
-                    filter
+                    filter,
                 });
                 collector.on("collect", async (i: MessageComponentInteraction) => {
                     if (await ctx.antiCheat(true)) {
@@ -269,7 +289,7 @@ const slashCommand: SlashCommandFile = {
                         collector.stop("DONT_DISABLE_COMPONENTS");
                         if (ctx.userData.coins < Functions.standPrices[stand.rarity]) {
                             ctx.sendTranslated("base:NOT_ENOUGH_COINS", {
-                                components: []
+                                components: [],
                             });
                             return;
                         }
@@ -278,7 +298,8 @@ const slashCommand: SlashCommandFile = {
                         Functions.addItem(ctx.userData, Functions.findItem(stand.id), 1);
                         ctx.client.database.saveUserData(ctx.userData);
                         ctx.sendTranslated("base:YOUR_STAND_DISC_HAS_BEEN_STORED", {
-                            components: []
+                            components: [],
+                            stand: stand,
                         });
                     } else collector.stop();
                 });
@@ -288,7 +309,7 @@ const slashCommand: SlashCommandFile = {
                 if (ctx.userData.chapter.id === 1) {
                     ctx.interaction.reply({
                         content:
-                            "You can't do that right now. Use that command once you complete the Chapter I (`/chapter`)"
+                            "You can't do that right now. Use that command once you complete the Chapter I (`/chapter`)",
                     });
                     return;
                 }
@@ -309,18 +330,17 @@ const slashCommand: SlashCommandFile = {
                     )}: It'll cost you **${price.toLocaleString("en-US")}** ${
                         ctx.client.localEmojis.jocoins
                     } to reset your stand (${stand.name}). Are you sure?`,
-                    components: [Functions.actionRow([confirmBTN, cancelBTN])]
+                    components: [Functions.actionRow([confirmBTN, cancelBTN])],
                 });
                 const filter = (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {
-                    }); // eslint-disable-line @typescript-eslint/no-empty-function
+                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                     return (
                         (i.customId === confirmID || i.customId === cancelID) &&
                         i.user.id === ctx.user.id
                     );
                 };
                 const collector = ctx.interaction.channel.createMessageComponentCollector({
-                    filter
+                    filter,
                 });
                 collector.on("collect", async (i: MessageComponentInteraction) => {
                     if (await ctx.antiCheat(true)) {
@@ -331,14 +351,14 @@ const slashCommand: SlashCommandFile = {
                         collector.stop("DONT_DISABLE_COMPONENTS");
                         if (ctx.userData.coins < price) {
                             ctx.sendTranslated("base:NOT_ENOUGH_COINS", {
-                                components: []
+                                components: [],
                             });
                             return;
                         }
                         Functions.addCoins(ctx.userData, -price);
                         ctx.sendTranslated("base:YOUR_STAND_HAS_BEEN_RESET", {
                             components: [],
-                            stand: stand
+                            stand: stand,
                         });
 
                         ctx.userData.stand = null;
@@ -356,20 +376,27 @@ const slashCommand: SlashCommandFile = {
                 inline?: boolean;
             }> = [];
 
-    
-
             for (const ability of stand.abilities) {
                 const damage: number = Functions.getAbilityDamage(userData, ability);
                 fields.push({
                     name: `${ability.special ? "⭐" : ""}${ability.name}`,
                     inline: ability.special ? false : true,
-                    value: `**\`Damages:\`** ${damage === 0 ? (ability.trueDamage ? Math.round(Functions.getAttackDamages(userData) * (1 + ability.trueDamage / 100)) : "???") : damage}
+                    value: `**\`Damages:\`** ${
+                        damage === 0
+                            ? ability.trueDamage
+                                ? Math.round(
+                                      Functions.getAttackDamages(userData) *
+                                          (1 + ability.trueDamage / 100)
+                                  )
+                                : "???"
+                            : damage
+                    }
     **\`Stamina Cost:\`** ${ability.stamina}
     **\`Cooldown:\`** ${ability.cooldown} turns
     **\`Dodge score:\`** ${!ability.dodgeScore ? "not dodgeable" : ability.dodgeScore}
                             
     *${ability.description}*
-    ${ability.special ? "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" : "▬▬▬▬▬▬▬▬▬"}`
+    ${ability.special ? "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" : "▬▬▬▬▬▬▬▬▬"}`,
                 });
             }
             const embed = new EmbedBuilder()
@@ -377,14 +404,14 @@ const slashCommand: SlashCommandFile = {
                 .addFields(fields)
                 .setDescription(
                     stand.description +
-                    "\n" +
-                    `
+                        "\n" +
+                        `
     **BONUSES:** +${Object.keys(stand.skillPoints)
-                        .map((v) => stand.skillPoints[v as keyof typeof stand.skillPoints])
-                        .reduce((a, b) => a + b, 0)} Skill-Points:
+        .map((v) => stand.skillPoints[v as keyof typeof stand.skillPoints])
+        .reduce((a, b) => a + b, 0)} Skill-Points:
     ${Object.keys(stand.skillPoints)
-                        .map((r) => `  • +${stand.skillPoints[r as keyof typeof stand.skillPoints]} ${r}`)
-                        .join("\n")}
+        .map((r) => `  • +${stand.skillPoints[r as keyof typeof stand.skillPoints]} ${r}`)
+        .join("\n")}
     ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
         `
                 )
@@ -394,11 +421,11 @@ const slashCommand: SlashCommandFile = {
             ctx.makeMessage({
                 embeds: [embed],
                 files: [],
-                components: [Functions.actionRow([switchBTN])]
+                components: [Functions.actionRow([switchBTN])],
             });
             return;
         }
-    }
+    },
 };
 
 export default slashCommand;

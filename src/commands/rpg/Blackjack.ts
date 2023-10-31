@@ -4,6 +4,7 @@ import { shuffleArray, actionRow, generateRandomId } from "../../utils/Functions
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
 import { SlashCommandFile } from "../../@types";
+import { cloneDeep } from "lodash";
 
 const deck = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"];
 const values = {
@@ -53,6 +54,8 @@ const slashCommand: SlashCommandFile = {
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         const bet = ctx.options.getInteger("bet", true);
+        const oldMoney = cloneDeep(ctx.userData.coins);
+
         if (bet < 1) {
             ctx.makeMessage({
                 content: Functions.makeNPCString(
@@ -291,6 +294,11 @@ const slashCommand: SlashCommandFile = {
                 makeMessage(false);
             }
             ctx.client.database.deleteCooldown(ctx.user.id);
+
+            // check if his money has increased by 10%, if thats the case, set a big cooldown
+            if (oldMoney * 1.1 <= ctx.userData.coins) {
+                ctx.client.database.setRPGCooldown(ctx.userData.id, "blackjack", 1000 * 60 * 60);
+            }
         });
     },
 };
