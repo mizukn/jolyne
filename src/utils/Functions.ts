@@ -29,7 +29,7 @@ import {
     EquipableItem,
     Weapon,
     equipableItemTypes,
-    RaidNPCQuest
+    RaidNPCQuest,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -41,7 +41,7 @@ import {
     APIEmbed,
     Utils,
     Message,
-    MessageActionRowComponent
+    MessageActionRowComponent,
 } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
@@ -132,7 +132,7 @@ export const findQuest = (query: string): Quest => {
 
 export const pushQuest = (quest: Quests): RPGUserQuest => {
     const questData: Quests = {
-        ...quest
+        ...quest,
     };
     if (isBaseQuest(questData)) {
         delete questData.i18n_key;
@@ -161,7 +161,7 @@ export const pushEmail = (email: Email): RPGUserEmail => {
         id: email.id,
         read: false,
         archived: false,
-        date: Date.now()
+        date: Date.now(),
     };
     if (email.expiresAt) {
         emailData.expiresAt = email.expiresAt + Date.now();
@@ -213,7 +213,7 @@ export const generateFightQuest = (
         npc: npc.id,
         pushEmailWhenCompleted,
         pushQuestWhenCompleted,
-        pushItemWhenCompleted
+        pushItemWhenCompleted,
     };
 
     return quest;
@@ -232,12 +232,11 @@ export const generataRaidQuest = (
         boss: boss.id,
         pushEmailWhenCompleted,
         pushQuestWhenCompleted,
-        pushItemWhenCompleted
+        pushItemWhenCompleted,
     };
 
     return quest;
 };
-
 
 export const generateMustReadEmailQuest = (
     email: Email,
@@ -250,7 +249,7 @@ export const generateMustReadEmailQuest = (
         completed: false,
         email: email.id,
         pushEmailWhenCompleted,
-        pushQuestWhenCompleted
+        pushQuestWhenCompleted,
     };
 
     return quest;
@@ -265,7 +264,7 @@ export const generateActionQuest = (
         type: "action",
         ...Object.values(ActionQuests).find((actionQuest) => actionQuest.id === id),
         pushEmailWhenCompleted,
-        pushQuestWhenCompleted
+        pushQuestWhenCompleted,
     };
 
     return quest;
@@ -284,7 +283,7 @@ export const generateClaimXQuest = (
         x,
         goal,
         pushEmailWhenCompleted,
-        pushQuestWhenCompleted
+        pushQuestWhenCompleted,
     };
 
     return quest;
@@ -303,7 +302,7 @@ export const generateClaimItemQuest = (
         item,
         goal,
         pushEmailWhenCompleted,
-        pushQuestWhenCompleted
+        pushQuestWhenCompleted,
     };
 
     return quest;
@@ -322,7 +321,7 @@ export const generateUseXCommandQuest = (
         command,
         goal,
         pushEmailWhenCompleted,
-        pushQuestWhenCompleted
+        pushQuestWhenCompleted,
     };
 
     return quest;
@@ -354,7 +353,7 @@ export const findStand = (stand: string, evolution?: number): Stand => {
             skillPoints: (foundStand as EvolutionStand).evolutions[evolution].skillPoints,
             customAttack: (foundStand as EvolutionStand).evolutions[evolution].customAttack,
             available: (foundStand as EvolutionStand).evolutions[evolution].available,
-            emoji: (foundStand as EvolutionStand).evolutions[evolution].emoji
+            emoji: (foundStand as EvolutionStand).evolutions[evolution].emoji,
         } as Stand;
     }
 
@@ -413,6 +412,7 @@ export const getBaseStamina = 100;
 
 export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     if (rpgData.level === 0) return 100;
+    if (rpgData.level >= 4 && findNPC(rpgData.id)) return 100;
     return Math.round((getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health) * 3);
 };
 
@@ -424,7 +424,7 @@ export const getMaxHealthNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fig
         baseHealth +
         Math.round(
             (skillPoints.defense / 4 + skillPoints.defense / 2) * 10 +
-            (((skillPoints.defense / 4 + skillPoints.defense / 2) * 6) / 100) * 90
+                (((skillPoints.defense / 4 + skillPoints.defense / 2) * 6) / 100) * 90
         )
     );
 };
@@ -480,7 +480,11 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
     if (level > 200) level = 200;
     if (level < 9) level = 9;
 
-    const NPCs = shuffle(Object.values(FightableNPCS).filter((npc) => npc.level <= level && !npc.private)).slice(0, 15).sort((a, b) => b.level - a.level);
+    const NPCs = shuffle(
+        Object.values(FightableNPCS).filter((npc) => npc.level <= level && !npc.private)
+    )
+        .slice(0, 15)
+        .sort((a, b) => b.level - a.level);
 
     // fight npcs
     let tflv = level;
@@ -536,7 +540,7 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
     let staminaScaling = 1;
 
     if (isFighter(user)) {
-        const percent = (user.stamina ?? 1) / user.maxStamina * 100;
+        const percent = ((user.stamina ?? 1) / user.maxStamina) * 100;
 
         if (percent <= 1) {
             staminaScaling = 0.5;
@@ -553,14 +557,14 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
 
     const damages = Math.round(
         baseDamage +
-        Math.round(
-            (skillPoints.strength * 0.675 + ((user.level / 10) + (baseDamage / 100) * 12.5) / 2) * staminaScaling
-        )
+            Math.round(
+                (skillPoints.strength * 0.675 + (user.level / 10 + (baseDamage / 100) * 12.5) / 2) *
+                    staminaScaling
+            )
     );
 
     return damages;
 };
-
 
 export const getDiffPercent = (a: number, b: number): number => {
     return Math.abs((a - b) / ((a + b) / 2)) * 100;
@@ -596,18 +600,21 @@ export const standAbilitiesEmbed = (
                 .join("\n")}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
         color: stand.color,
         footer: {
-            text: `Rarity: ${stand.rarity}`
+            text: `Rarity: ${stand.rarity}`,
         },
         thumbnail: {
-            url: stand.image
+            url: stand.image,
         },
-        fields: []
+        fields: [],
     };
 
     for (const ability of stand.abilities) {
-        let content = `\`Damages:\` ${getAbilityDamage(user, ability) ?? (ability.trueDamage ? Math.round(getAttackDamages(user) * (1 + ability.trueDamage / 100)) : "???")}\n\`Stamina cost:\` ${
-            ability.stamina
-        }`;
+        let content = `\`Damages:\` ${
+            getAbilityDamage(user, ability) ??
+            (ability.trueDamage
+                ? Math.round(getAttackDamages(user) * (1 + ability.trueDamage / 100))
+                : "???")
+        }\n\`Stamina cost:\` ${ability.stamina}`;
 
         let cooldown: number;
         if (cooldowns)
@@ -627,7 +634,7 @@ export const standAbilitiesEmbed = (
         embed.fields.push({
             name: ability.name + (ability.special ? " ⭐" : ""),
             value: content,
-            inline: ability.special ? false : true
+            inline: ability.special ? false : true,
         });
     }
 
@@ -647,10 +654,10 @@ export const weaponAbilitiesEmbed = (
     const weapon = isFighter(user)
         ? user.weapon
         : findItem<Weapon>(
-            Object.keys(user.equippedItems).find(
-                (r) => user.equippedItems[r] === equipableItemTypes.WEAPON
-            )
-        );
+              Object.keys(user.equippedItems).find(
+                  (r) => user.equippedItems[r] === equipableItemTypes.WEAPON
+              )
+          );
     const totalWeaponSkillPoints = Object.values(weapon.effects.skillPoints).reduce(
         (a, b) => a + b,
         0
@@ -667,12 +674,12 @@ export const weaponAbilitiesEmbed = (
                 .join("\n")}`,
         color: weapon.color,
         footer: {
-            text: `Rarity: ${weapon.rarity}`
+            text: `Rarity: ${weapon.rarity}`,
         },
         thumbnail: {
-            url: `https://cdn.discordapp.com/emojis/${getEmojiId(weapon.emoji)}.png`
+            url: `https://cdn.discordapp.com/emojis/${getEmojiId(weapon.emoji)}.png`,
         },
-        fields: []
+        fields: [],
     };
 
     for (const ability of weapon.abilities) {
@@ -697,7 +704,7 @@ export const weaponAbilitiesEmbed = (
         embed.fields.push({
             name: ability.name + (ability.special ? " ⭐" : ""),
             value: content,
-            inline: ability.special ? false : true
+            inline: ability.special ? false : true,
         });
     }
 
@@ -720,13 +727,15 @@ export const generateSkillPoints = (user: RPGUserDataJSON | FightableNPC): void 
         stamina: 0,
         speed: 0,
         defense: 0,
-        perception: 0
+        perception: 0,
     };
     const skillPointsLeft = getSkillPointsLeft(user);
 
     for (let i = 0; i < skillPointsLeft; i++) {
         const skill = randomArray(
-            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter(x => user.skillPoints.stamina >= 100 ? x !== "stamina" : true)
+            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter((x) =>
+                user.skillPoints.stamina >= 100 ? x !== "stamina" : true
+            )
         ) as keyof SkillPoints;
 
         if (skill === "stamina" && user.skillPoints.stamina >= 100) {
@@ -765,8 +774,8 @@ export const isEquipableItem = (item: Item): item is EquipableItem => {
 export const findItem = <T extends Item | EquipableItem | Special | Weapon>(name: string): T => {
     if (!name) return null;
     return (Object.values(Items.default).find(
-            (item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()
-        ) ||
+        (item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()
+    ) ||
         Object.values(Items.default).find((item) =>
             item.id.toLocaleLowerCase().includes(name.toLocaleLowerCase())
         ) ||
@@ -829,7 +838,7 @@ export const romanize = (num: number): string => {
         "VI",
         "VII",
         "VIII",
-        "IX"
+        "IX",
     ];
     let roman = "";
     let i = 3;
@@ -914,8 +923,8 @@ export const generateStandCart = async function standCart(stand: Stand): Promise
                 stand.name.substring(
                     0,
                     13 -
-                    (stand.name.split("").filter((v) => v === ".").length +
-                        stand.name.split("").filter((v) => v === " ").length)
+                        (stand.name.split("").filter((v) => v === ".").length +
+                            stand.name.split("").filter((v) => v === " ").length)
                 ) + "...";
         } else {
             content = stand.name;
@@ -935,7 +944,7 @@ export const getRewards = (
 } => {
     const rewards = {
         coins: level * 1000 - (level * 1000 * 25) / 100,
-        xp: level * 400 - (level * 400 * 10) / 100
+        xp: level * 400 - (level * 400 * 10) / 100,
     };
     if (rewards.coins > 6000) rewards.coins = 6000;
 
@@ -964,7 +973,7 @@ export const addItem = (
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,
-        ...userData.sideQuests.map((v) => v.quests)
+        ...userData.sideQuests.map((v) => v.quests),
     ]) {
         for (const quest of quests.filter(
             (x) => isClaimItemQuest(x) && x.item === (item as Item).id
@@ -1001,7 +1010,7 @@ export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: num
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,
-        ...userData.sideQuests.map((v) => v.quests)
+        ...userData.sideQuests.map((v) => v.quests),
     ]) {
         for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "coin")) {
             (quest as ClaimXQuest).amount += amount;
@@ -1020,7 +1029,7 @@ export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): 
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,
-        ...userData.sideQuests.map((v) => v.quests)
+        ...userData.sideQuests.map((v) => v.quests),
     ]) {
         for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "xp")) {
             (quest as ClaimXQuest).amount += amount;
@@ -1083,7 +1092,7 @@ export const generateWaitQuest = (
         email,
         quest,
         i18n_key,
-        mustRead
+        mustRead,
     };
 
     if (!email) delete questData.email;
@@ -1130,7 +1139,7 @@ export const standPrices = {
     A: 25000,
     B: 10000,
     C: 5000,
-    T: 69696
+    T: 69696,
 };
 
 export const makeNPCString = function makeNPCString(
@@ -1178,7 +1187,7 @@ export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
         perception: 0,
         stamina: 0,
         speed: 0,
-        defense: 0
+        defense: 0,
     };
 
     for (const itemId of Object.keys(userData.equippedItems)) {
@@ -1209,7 +1218,7 @@ export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
         stamina,
         health,
         skillPoints,
-        xpBoost
+        xpBoost,
     };
 };
 
@@ -1220,7 +1229,6 @@ export const capitalize = function capitalize(str: string): string {
 export const fixFields = function fixFields(
     fields: { name: string; value: string; inline?: boolean }[]
 ): { name: string; value: string; inline?: boolean }[] {
-
     for (const field of fields) {
         if (field.value.length > 1024) {
             field.value = field.value.substring(field.value.length - 1024, field.value.length);
@@ -1251,7 +1259,7 @@ export const fixFields = function fixFields(
                 fixedFields.push({
                     name: fieldName,
                     value: fieldValue,
-                    inline: field.inline
+                    inline: field.inline,
                 });
             }
         }
@@ -1260,7 +1268,7 @@ export const fixFields = function fixFields(
         if ((i + 1) % 25 === 0) {
             fixedFields.push({
                 name: "\u200B",
-                value: "\u200B"
+                value: "\u200B",
             });
         }
     }
@@ -1268,7 +1276,6 @@ export const fixFields = function fixFields(
         // only show the last 25 fields
         fixedFields.splice(fixedFields.length - 25, fixedFields.length);
     }
-
 
     return fixedFields;
 };
@@ -1475,7 +1482,7 @@ export function splitEmbedIfExceedsLimit(embed: APIEmbed): APIEmbed[] {
         "thumbnail",
         "video",
         "provider",
-        "author"
+        "author",
     ]);
     if (embed.fields && embed.fields.length > 0) {
         copyFields(embed.fields);
@@ -1498,11 +1505,11 @@ export const TopGGVoteRewards = (userData: RPGUserDataJSON): { coins: number; xp
 
     return {
         coins,
-        xp
+        xp,
     };
 };
 
-export const isEvolvableStand = (stand: (Stand | EvolutionStand)): boolean => {
+export const isEvolvableStand = (stand: Stand | EvolutionStand): boolean => {
     return (stand as EvolutionStand).evolutions !== undefined;
 };
 
@@ -1513,11 +1520,20 @@ export const plusOrMinus = (num: number, num2: number): string => {
 };
 
 export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserDataJSON): string[] => {
-
     const rewards: string[] = [];
 
-    if (data1.xp !== data2.xp) rewards.push(`**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString("en-US")}** XP ${Emojis.xp}`);
-    if (data1.coins !== data2.coins) rewards.push(`**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(data1.coins - data2.coins).toLocaleString("en-US")}** ${Emojis.jocoins}`);
+    if (data1.xp !== data2.xp)
+        rewards.push(
+            `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
+                "en-US"
+            )}** XP ${Emojis.xp}`
+        );
+    if (data1.coins !== data2.coins)
+        rewards.push(
+            `**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(
+                data1.coins - data2.coins
+            ).toLocaleString("en-US")}** ${Emojis.jocoins}`
+        );
 
     if (JSON.stringify(data1.inventory) !== JSON.stringify(data2.inventory)) {
         // inventory example:
@@ -1527,12 +1543,34 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         // }
 
         for (const item of Object.keys(data2.inventory)) {
-            if ((data2.inventory[item] || 0) > (data1.inventory[item] || 0)) rewards.push(`**${plusOrMinus((data1.inventory[item] || 0), (data2.inventory[item] || 0))}${Math.abs((data1.inventory[item] || 0) - (data2.inventory[item] || 0)).toLocaleString("en-US")}** ${findItem(item).emoji} ${findItem(item).name}`);
+            if ((data2.inventory[item] || 0) > (data1.inventory[item] || 0))
+                rewards.push(
+                    `**${plusOrMinus(
+                        data1.inventory[item] || 0,
+                        data2.inventory[item] || 0
+                    )}${Math.abs(
+                        (data1.inventory[item] || 0) - (data2.inventory[item] || 0)
+                    ).toLocaleString("en-US")}** ${findItem(item).emoji} ${findItem(item).name}`
+                );
         }
     } else console.log(JSON.stringify(data1.inventory), JSON.stringify(data2.inventory));
 
-    if (data1.health !== data2.health) rewards.push(`**${plusOrMinus(data1.health, data2.health)}${Math.abs(data1.health - data2.health).toLocaleString("en-US")}** health :heart: (${data2.health.toLocaleString("en-US")}/${getMaxHealth(data2).toLocaleString("en-US")})`);
-    if (data1.stamina !== data2.stamina) rewards.push(`**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(data1.stamina - data2.stamina).toLocaleString("en-US")}** :zap: (${data2.stamina.toLocaleString("en-US")}/${getMaxStamina(data2).toLocaleString("en-US")})`);
+    if (data1.health !== data2.health)
+        rewards.push(
+            `**${plusOrMinus(data1.health, data2.health)}${Math.abs(
+                data1.health - data2.health
+            ).toLocaleString("en-US")}** health :heart: (${data2.health.toLocaleString(
+                "en-US"
+            )}/${getMaxHealth(data2).toLocaleString("en-US")})`
+        );
+    if (data1.stamina !== data2.stamina)
+        rewards.push(
+            `**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(
+                data1.stamina - data2.stamina
+            ).toLocaleString("en-US")}** :zap: (${data2.stamina.toLocaleString(
+                "en-US"
+            )}/${getMaxStamina(data2).toLocaleString("en-US")})`
+        );
 
     return rewards;
 };
@@ -1542,7 +1580,7 @@ export const givePatreonRewards = (userData: RPGUserDataJSON, tier: 1 | 2 | 3 | 
         1: 1,
         2: 2,
         3: 5,
-        4: 8
+        4: 8,
     };
 
     addItem(userData, findItem("patron_box").id, patronBox[tier]);
