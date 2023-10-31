@@ -5,6 +5,7 @@ import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep } from "lodash";
+import { commandLogsWebhook } from "../utils/Webhooks";
 
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
@@ -74,7 +75,6 @@ const Event: EventFile = {
                     interaction.user.id
                 );
                 ctx = new CommandInteractionContext(interaction, userData);
-                console.log(ctx.userData.emails);
                 if (!ctx.userData) {
                     if (command.data.name === "adventure") {
                         if (interaction.options.getSubcommand() !== "start")
@@ -196,20 +196,33 @@ const Event: EventFile = {
                     command.data.name !== "inventory" &&
                     command.data.name !== "campfire"
                 ) {
-                    ctx.followUpQueue.push({
-                        content: `🩸 | You're low in health/stamina. You should heal yourself. You can use the ${ctx.client.getSlashCommandMention(
-                            "shop"
-                        )} command to use consumables. If you already have consumables in your inventory, use the ${ctx.client.getSlashCommandMention(
-                            "inventory use"
-                        )} command. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
-                            "campfire rest"
-                        )} (1% of your max health every 2 minutes)`,
-                    });
+                    if (Functions.percent(40))
+                        ctx.followUpQueue.push({
+                            content: `🩸 | You're low in health/stamina. You should heal yourself. You can use the ${ctx.client.getSlashCommandMention(
+                                "shop"
+                            )} command to use consumables. If you already have consumables in your inventory, use the ${ctx.client.getSlashCommandMention(
+                                "inventory use"
+                            )} command. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
+                                "campfire rest"
+                            )} (1% of your max health every 2 minutes)`,
+                        });
                 }
                 const oldDataJSON = JSON.stringify(ctx.userData);
                 // quests must be unique;
                 ctx.userData.chapter.quests = returnUniqueQuests(ctx.userData.chapter.quests);
                 ctx.userData.daily.quests = returnUniqueQuests(ctx.userData.daily.quests);
+
+                // check if emails filter !read      and tell user has x emails unread
+                const unreadEmails = ctx.userData.emails.filter((r) => !r.read);
+                if (unreadEmails.length > 0 && command.data.name !== "emails") {
+                    ctx.followUpQueue.push({
+                        content: `📧 | You have **${unreadEmails.length}** unread email${
+                            unreadEmails.length > 1 ? "s" : ""
+                        }. Use the ${ctx.client.getSlashCommandMention(
+                            "emails view"
+                        )} command to read them.`,
+                    });
+                }
 
                 const tempDate = await ctx.client.database.redis.get(
                     `tempCache_:halloween${ctx.guild.id}`
@@ -474,13 +487,14 @@ const Event: EventFile = {
                         ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
 
                         if (!data) {
-                            ctx.followUpQueue.push({
-                                content: `🃏 | **${
-                                    ctx.user.username
-                                }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
-                                    "shop"
-                                )} command to see what's available! [$$]`,
-                            });
+                            if (Functions.percent(50))
+                                ctx.followUpQueue.push({
+                                    content: `🃏 | **${
+                                        ctx.user.username
+                                    }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
+                                        "shop"
+                                    )} command to see what's available! [$$]`,
+                                });
                         }
                     }
                 }
@@ -542,6 +556,14 @@ const Event: EventFile = {
                     }) // eslint-disable-next-line @typescript-eslint/no-empty-function
                     .catch(() => {});
             }
+
+            commandLogsWebhook.send(
+                `[COMMAND] ${interaction.user.username} (${interaction.user.id}) used \`/${
+                    interaction.commandName
+                }\` in guild ${interaction.guild.name} (${
+                    interaction.guild.id
+                }) with options: ${JSON.stringify(interaction.options["data"])} (${command})`
+            );
         } else if (interaction.isAutocomplete()) {
             if (!interaction.client.allCommands) return;
             const command = interaction.client.commands.get(interaction.commandName);
@@ -559,16 +581,15 @@ const Event: EventFile = {
                 interaction.respond([]);
                 return;
             }
-            console.log(
-                `[AUTOCOMPLETE] ${interaction.user.username} used ${
-                    interaction.commandName
-                } with options: ${JSON.stringify(interaction.options["data"])} (${command})`
-            );
-
             command.autoComplete(
                 interaction,
                 userData,
                 interaction.options.getFocused().toString()
+            );
+            commandLogsWebhook.send(
+                `[AUTOCOMPLETE] ${interaction.user.username} used ${
+                    interaction.commandName
+                } with options: ${JSON.stringify(interaction.options["data"])} (${command})`
             );
         }
     },
