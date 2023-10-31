@@ -350,7 +350,7 @@ const slashCommand: SlashCommandFile = {
                                     break;
                                 case "string":
                                     // %
-                                    addX(ctx.userData, parseInt(amount) * 0.01 * maxX);
+                                    addX(ctx.userData, parseInt(amount) * 0.1 * maxX);
                                     break;
                                 // default: impossible
                             }

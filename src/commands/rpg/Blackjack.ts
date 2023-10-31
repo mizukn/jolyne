@@ -19,7 +19,7 @@ const values = {
     "10": 10,
     Jack: 10,
     Queen: 10,
-    King: 10
+    King: 10,
 };
 
 const formatter = {
@@ -35,7 +35,7 @@ const formatter = {
     "10": "<:bj_10:1109205181322768495>",
     Jack: "<:bj_jack:1109205183575097354>",
     Queen: "<:bj_queen:1109205248544878662>",
-    King: "<:bj_king:1109205188285317201>"
+    King: "<:bj_king:1109205188285317201>",
 };
 
 const slashCommand: SlashCommandFile = {
@@ -47,9 +47,9 @@ const slashCommand: SlashCommandFile = {
                 name: "bet",
                 description: "The amount of money you want to bet.",
                 type: 4,
-                required: true
-            }
-        ]
+                required: true,
+            },
+        ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         const bet = ctx.options.getInteger("bet", true);
@@ -58,7 +58,7 @@ const slashCommand: SlashCommandFile = {
                 content: Functions.makeNPCString(
                     NPCs.Daniel_J_DArby,
                     "Hahahahaha... You're joking, right?"
-                )
+                ),
             });
             return;
         }
@@ -67,7 +67,7 @@ const slashCommand: SlashCommandFile = {
                 content: Functions.makeNPCString(
                     NPCs.Daniel_J_DArby,
                     `Are you trying to scam me? You don't have that much money... BOZO`
-                )
+                ),
             });
             return;
         }
@@ -113,7 +113,7 @@ const slashCommand: SlashCommandFile = {
                         author: {
                             name: NPCs.Daniel_J_DArby.name,
                             icon_url:
-                                "https://static.wikia.nocookie.net/vsbattles/images/6/61/Unit_Daniel_J._D%27Arby_%28Love_of_cheater%27s_cat%29.png/revision/latest?cb=20190218012340"
+                                "https://static.wikia.nocookie.net/vsbattles/images/6/61/Unit_Daniel_J._D%27Arby_%28Love_of_cheater%27s_cat%29.png/revision/latest?cb=20190218012340",
                         },
                         description: `- Bet Amount: **${bet}** ${
                             ctx.client.localEmojis.jocoins
@@ -131,40 +131,40 @@ const slashCommand: SlashCommandFile = {
                                     .map(
                                         (w) => formatter[w as keyof typeof formatter] + ` [${w[0]}]`
                                     )
-                                    .join(" ")
+                                    .join(" "),
                             },
                             {
                                 name: "Bot's Hand" + ` (${calculateHandTotal(botCards)})`,
                                 value: firstRound
                                     ? `${formatter[botCards[0] as keyof typeof formatter]} [${
-                                        botCards[0][0]
-                                    }] ?`
+                                          botCards[0][0]
+                                      }] ?`
                                     : botCards
-                                        .map(
-                                            (w) =>
-                                                formatter[w as keyof typeof formatter] +
-                                                ` [${w[0]}]`
-                                        )
-                                        .join(" ")
-                            }
-                        ]
-                    }
+                                          .map(
+                                              (w) =>
+                                                  formatter[w as keyof typeof formatter] +
+                                                  ` [${w[0]}]`
+                                          )
+                                          .join(" "),
+                            },
+                        ],
+                    },
                 ],
                 content,
                 components: components
                     ? [
-                        actionRow([
-                            new ButtonBuilder()
-                                .setCustomId(hitID)
-                                .setLabel("Hit")
-                                .setStyle(ButtonStyle.Primary),
-                            new ButtonBuilder()
-                                .setCustomId(standID)
-                                .setLabel("Stand")
-                                .setStyle(ButtonStyle.Primary)
-                        ])
-                    ]
-                    : []
+                          actionRow([
+                              new ButtonBuilder()
+                                  .setCustomId(hitID)
+                                  .setLabel("Hit")
+                                  .setStyle(ButtonStyle.Primary),
+                              new ButtonBuilder()
+                                  .setCustomId(standID)
+                                  .setLabel("Stand")
+                                  .setStyle(ButtonStyle.Primary),
+                          ]),
+                      ]
+                    : [],
             });
 
         await makeMessage(true, true);
@@ -180,13 +180,12 @@ const slashCommand: SlashCommandFile = {
 
         const collector = ctx.channel.createMessageComponentCollector({
             filter: (interaction) => interaction.user.id === ctx.user.id,
-            time: 60000
+            time: 60000,
         });
 
         collector.on("collect", (interaction) => {
             // eslint-disable-next-line
-            interaction.deferUpdate().catch(() => {
-            });
+            interaction.deferUpdate().catch(() => {});
             if (interaction.customId === hitID) {
                 const card = shuffledDeck.pop();
                 playerCards.push(card);
@@ -216,7 +215,7 @@ const slashCommand: SlashCommandFile = {
                             `wow.. I-I busted..? Well, you win.. I guess?`,
                             `I-I busted? How?`,
                             `I-I busted? DAMN IT!`,
-                            `You just got lucky! TSS.`
+                            `You just got lucky! TSS.`,
                         ])
                     );
                     status = "won";
@@ -227,7 +226,7 @@ const slashCommand: SlashCommandFile = {
                             `Huh? We tied?`,
                             `We tied?`,
                             `Good game, we tied.`,
-                            "And that's a tie.."
+                            "And that's a tie..",
                         ])
                     );
                     status = "tied";
@@ -238,7 +237,7 @@ const slashCommand: SlashCommandFile = {
                             `HAHAhaha! I WON!`,
                             "I won... get better ggez bozo",
                             "I won ZEHAHAHHAHAHAHHAA",
-                            "EZ"
+                            "EZ",
                         ])
                     );
                     status = "lost";
@@ -249,7 +248,7 @@ const slashCommand: SlashCommandFile = {
                             `WTF you're cheating`,
                             "hahaha..... g-gg..",
                             "YOU WON? HOW",
-                            "WRYYYY (dio was here)"
+                            "WRYYYY (dio was here)",
                         ])
                     );
                     status = "won";
@@ -264,7 +263,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.followUp({
                             content: `SYSTEM: You won ${moneyGive.toLocaleString("en-US")} ${
                                 ctx.client.localEmojis.jocoins
-                            }!`
+                            }!`,
                         });
                         break;
                     case "tied":
@@ -275,7 +274,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.followUp({
                             content: `SYSTEM: You lost ${bet.toLocaleString("en-US")} ${
                                 ctx.client.localEmojis.jocoins
-                            }`
+                            }`,
                         });
                         break;
                     default:
@@ -293,7 +292,7 @@ const slashCommand: SlashCommandFile = {
             }
             ctx.client.database.deleteCooldown(ctx.user.id);
         });
-    }
+    },
 };
 
 function calculateHandTotal(hand: string[]): number {
