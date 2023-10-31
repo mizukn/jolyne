@@ -19,6 +19,16 @@ const Event: EventFile = {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction & { client: JolyneClient }) {
         if (interaction.isCommand() && interaction.isChatInputCommand()) {
+            if (
+                interaction.client.maintenanceReason &&
+                !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
+            ) {
+                return interaction.reply({
+                    content: `The bot is currently in maintenance mode. Reason: \`${interaction.client.maintenanceReason}\``,
+                    ephemeral: true,
+                });
+            }
+
             if (!interaction.client.allCommands) {
                 return interaction.reply({
                     content: "I'm still loading, please wait a few seconds.",
@@ -565,6 +575,11 @@ const Event: EventFile = {
                 }) with options: ${JSON.stringify(interaction.options["data"])} (${command})`
             );
         } else if (interaction.isAutocomplete()) {
+            if (
+                interaction.client.maintenanceReason &&
+                !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
+            )
+                return;
             if (!interaction.client.allCommands) return;
             const command = interaction.client.commands.get(interaction.commandName);
             if (!command || !interaction.guild) return;
