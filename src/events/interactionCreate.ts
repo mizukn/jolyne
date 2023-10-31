@@ -596,11 +596,12 @@ const Event: EventFile = {
                 userData,
                 interaction.options.getFocused().toString()
             );
+            /*
             commandLogsWebhook.send(
                 `[AUTOCOMPLETE] ${interaction.user.username} used ${
                     interaction.commandName
                 } with options: ${JSON.stringify(interaction.options["data"])} (${command})`
-            );
+            );*/
         }
     },
 };
