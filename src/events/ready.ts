@@ -67,7 +67,7 @@ const Event: EventFile = {
 
         // prettier-ignore
         if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
-            TopGG(client);
+            if (!process.env.IGNORE_TOPGG) TopGG(client);
             Matchmaking(client);
 
             const lastCommands = await client.database.getString(
