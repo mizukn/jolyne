@@ -623,6 +623,7 @@ export const Heal: Ability = {
     useMessage: (user, target, damage, ctx) => {
         const heal = Math.round(user.maxHealth * 0.15);
         target.health += heal;
+        if (target.health > target.maxHealth) target.health = target.maxHealth;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand.emoji} HEAL: **${user.name}** has healed **${
                 target.name
@@ -859,6 +860,7 @@ export const SandSelfHealing: Ability = {
     useMessage: (user, target, damage, ctx) => {
         const heal = Math.round(user.maxHealth * 0.15);
         user.health += heal;
+        if (user.health > user.maxHealth) user.health = user.maxHealth;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand.emoji} SAND SELF HEALING: **${user.name}** has healed himself by **${heal}** health...`
         );
@@ -1301,7 +1303,6 @@ export const HealBarrage: Ability = {
             .filter((z) => z.id !== user.id)
             .forEach((x) => {
                 x.health += heal;
-
                 if (x.health > x.maxHealth) x.health = x.maxHealth;
 
                 ctx.turns[ctx.turns.length - 1].logs.push(
