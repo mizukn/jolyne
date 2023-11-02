@@ -1346,10 +1346,10 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
     if (patronTier) {
         switch (patronTier) {
             case 1:
-                limit += 4;
+                limit += 25;
                 break;
             case 2:
-                limit += 8;
+                limit += 60;
                 break;
             case 3:
                 limit += 99999999999;
