@@ -395,7 +395,7 @@ const slashCommand: SlashCommandFile = {
                         joinedUsers.findIndex((r) => r.id === userToBan.id),
                         1
                     );
-                    ctx.client.database.deleteCooldown(usrData.id);
+                    ctx.client.database.deleteCooldown(userToBan.id);
                     makeMenuMessage();
                     break;
                 }
