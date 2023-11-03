@@ -297,37 +297,18 @@ const slashCommand: SlashCommandFile = {
                                 const targetData = await ctx.client.database.getRPGUserData(
                                     target.id
                                 );
-
-                                let violationDetected = false;
                                 for (const [item, amount] of Object.entries(userOffer)) {
-                                    if ((targetData.inventory[item] ?? 0) < amount) {
-                                        violationDetected = true;
-                                        break;
-                                    }
                                     Functions.removeItem(userData, item, amount);
                                     Functions.addItem(targetData, item, amount, true);
                                 }
                                 for (const [item, amount] of Object.entries(targetOffer)) {
-                                    if ((userData.inventory[item] ?? 0) < amount) {
-                                        violationDetected = true;
-                                        break;
-                                    }
                                     Functions.removeItem(targetData, item, amount);
                                     Functions.addItem(userData, item, amount, true);
                                 }
-
-                                ctx.client.database.deleteCooldown(target.id);
-                                ctx.client.database.deleteCooldown(ctx.user.id);
-
-                                if (violationDetected) {
-                                    return void ctx.makeMessage({
-                                        content: `:x: Trade cancelled: one of the users tried to add more items than they have.`,
-                                        embeds: [],
-                                        components: [],
-                                    });
-                                }
                                 await ctx.client.database.saveUserData(userData);
                                 await ctx.client.database.saveUserData(targetData);
+                                ctx.client.database.deleteCooldown(target.id);
+                                ctx.client.database.deleteCooldown(ctx.user.id);
 
                                 const canvas = createCanvas(1024, 512);
                                 const ctx2 = canvas.getContext("2d");
