@@ -5,14 +5,14 @@ import {
     formattedEquipableItemTypes,
     equipableItemTypesLimit,
     SkillPoints,
-    Weapon
+    Weapon,
 } from "../../@types";
 import {
     Message,
     APIEmbed,
     ButtonBuilder,
     ButtonStyle,
-    MessageComponentInteraction
+    MessageComponentInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -28,7 +28,7 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "view",
                 description: "Shows your inventory",
-                type: 1
+                type: 1,
             },
             {
                 name: "use",
@@ -40,15 +40,15 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to use. ",
                         type: 3,
                         required: true,
-                        autocomplete: true
+                        autocomplete: true,
                     },
                     {
                         name: "amount",
                         description: "How many times do you want to use that item? (default: 1)",
                         type: 4,
-                        required: false
-                    }
-                ]
+                        required: false,
+                    },
+                ],
             },
             {
                 name: "equip",
@@ -60,9 +60,9 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to equip.",
                         type: 3,
                         required: true,
-                        autocomplete: true
-                    }
-                ]
+                        autocomplete: true,
+                    },
+                ],
             },
             {
                 name: "info",
@@ -74,9 +74,9 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to view info about.",
                         type: 3,
                         required: true,
-                        autocomplete: true
-                    }
-                ]
+                        autocomplete: true,
+                    },
+                ],
             },
             {
                 name: "unequip",
@@ -88,9 +88,9 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to unequip.",
                         type: 3,
                         required: true,
-                        autocomplete: true
-                    }
-                ]
+                        autocomplete: true,
+                    },
+                ],
             },
             {
                 name: "throw",
@@ -103,16 +103,16 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to throw away.",
                         type: 3,
                         required: true,
-                        autocomplete: true
+                        autocomplete: true,
                     },
                     {
                         name: "amount",
                         description:
                             "How many times do you want to throw that item away? (default: 1)",
                         type: 4,
-                        required: false
-                    }
-                ]
+                        required: false,
+                    },
+                ],
             },
             {
                 name: "claim",
@@ -123,9 +123,9 @@ const slashCommand: SlashCommandFile = {
                         name: "id",
                         description: "The ID of the item you want to claim.",
                         type: 3,
-                        required: true
-                    }
-                ]
+                        required: true,
+                    },
+                ],
             },
             {
                 name: "sell",
@@ -137,17 +137,17 @@ const slashCommand: SlashCommandFile = {
                         description: "The item you want to sell.",
                         type: 3,
                         required: true,
-                        autocomplete: true
+                        autocomplete: true,
                     },
                     {
                         name: "amount",
                         description: "How many times do you want to sell that item? (default: 1)",
                         type: 4,
-                        required: false
-                    }
-                ]
-            }
-        ]
+                        required: false,
+                    },
+                ],
+            },
+        ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         const rarityValue = {
@@ -156,7 +156,7 @@ const slashCommand: SlashCommandFile = {
             S: 50,
             A: 25,
             B: 15,
-            C: 0
+            C: 0,
         };
         const userItems = Object.keys(ctx.userData.inventory)
             .map((v) => {
@@ -168,7 +168,7 @@ const slashCommand: SlashCommandFile = {
                     emoji: item.emoji,
                     rarity: item.rarity,
                     price: item.price,
-                    amount: ctx.userData.inventory[v]
+                    amount: ctx.userData.inventory[v],
                 };
             })
             .filter((v) => v !== undefined)
@@ -234,16 +234,16 @@ const slashCommand: SlashCommandFile = {
                             description: content[page].join("\n"),
                             color: 0x2f3136,
                             footer: {
-                                text: `Page ${page + 1}/${content.length}`
-                            }
-                        }
+                                text: `Page ${page + 1}/${content.length}`,
+                            },
+                        },
                     ],
                     components: [
                         Functions.actionRow([
                             prevPageButton.setDisabled(page === 0),
-                            nextPageButton.setDisabled(page === content.length - 1)
-                        ])
-                    ]
+                            nextPageButton.setDisabled(page === content.length - 1),
+                        ]),
+                    ],
                 });
             }
 
@@ -256,12 +256,11 @@ const slashCommand: SlashCommandFile = {
             };
             const collector = ctx.interaction.channel.createMessageComponentCollector({
                 filter,
-                time: 30000
+                time: 30000,
             });
 
             collector.on("collect", async (i) => {
-                i.deferUpdate().catch(() => {
-                }); // eslint-disable-line @typescript-eslint/no-empty-function
+                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                 if (i.customId === "nextPage") {
                     page++;
                 } else if (i.customId === "prevPage") {
@@ -276,7 +275,7 @@ const slashCommand: SlashCommandFile = {
 
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
                 });
                 return;
             }
@@ -289,21 +288,21 @@ const slashCommand: SlashCommandFile = {
                     {
                         name: "Rarity",
                         value: itemData.rarity,
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: "Price",
                         value: `${ctx.client.localEmojis.jocoins} ${
                             itemData.price ?? "N/A (unbuyable/not sellable)"
                         }`,
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: "Tradable?",
                         value: itemData.tradable ? "Yes" : "Unofortunately not :pensive:",
-                        inline: true
-                    }
-                ]
+                        inline: true,
+                    },
+                ],
             };
 
             if (Functions.isEquipableItem(itemData)) {
@@ -316,15 +315,15 @@ const slashCommand: SlashCommandFile = {
                     }**\n${
                         itemData.effects.skillPoints
                             ? Object.keys(itemData.effects.skillPoints)
-                                .map((x) => {
-                                    return `\`[SP]\` ${Functions.capitalize(x)}: **${
-                                        itemData.effects.skillPoints[x as keyof SkillPoints]
-                                    }**`;
-                                })
-                                .join("\n")
+                                  .map((x) => {
+                                      return `\`[SP]\` ${Functions.capitalize(x)}: **${
+                                          itemData.effects.skillPoints[x as keyof SkillPoints]
+                                      }**`;
+                                  })
+                                  .join("\n")
                             : ""
                     }`,
-                    inline: true
+                    inline: true,
                 });
                 if (itemData.requirements)
                     embed.fields.push({
@@ -332,17 +331,17 @@ const slashCommand: SlashCommandFile = {
                         value: `Level: ${itemData.requirements.level ?? 0}\n${
                             itemData.requirements.skillPoints
                                 ? Object.keys(itemData.requirements.skillPoints)
-                                    .map((x) => {
-                                        return `[SP] ${Functions.capitalize(x)}: ${
-                                            itemData.requirements.skillPoints[
-                                                x as keyof SkillPoints
-                                                ]
-                                        }`;
-                                    })
-                                    .join("\n")
+                                      .map((x) => {
+                                          return `[SP] ${Functions.capitalize(x)}: ${
+                                              itemData.requirements.skillPoints[
+                                                  x as keyof SkillPoints
+                                              ]
+                                          }`;
+                                      })
+                                      .join("\n")
                                 : ""
                         }`,
-                        inline: true
+                        inline: true,
                     });
             } else if (Functions.isConsumable(itemData)) {
                 embed.fields.push({
@@ -350,23 +349,23 @@ const slashCommand: SlashCommandFile = {
                     value: `${
                         itemData.effects.health
                             ? `\`[+]\` Health: **${
-                                itemData.effects.health +
-                                (typeof itemData.effects.health === "string" ? "%" : "")
-                            }**\n`
+                                  itemData.effects.health +
+                                  (typeof itemData.effects.health === "string" ? "%" : "")
+                              }**\n`
                             : ""
                     }${
                         itemData.effects.stamina
                             ? `\`[+]\` stamina: **${
-                                itemData.effects.health +
-                                (typeof itemData.effects.health === "string" ? "%" : "")
-                            }**\n`
+                                  itemData.effects.health +
+                                  (typeof itemData.effects.health === "string" ? "%" : "")
+                              }**\n`
                             : ""
-                    }`
+                    }`,
                 });
             }
 
             await ctx.makeMessage({
-                embeds: [embed]
+                embeds: [embed],
             });
         } else if (ctx.interaction.options.getSubcommand() === "unequip") {
             console.log("SUBCOMMAND UNEQUIP");
@@ -374,13 +373,13 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
                 });
                 return;
             }
             if (!Object.keys(ctx.userData.equippedItems).includes(itemString)) {
                 await ctx.makeMessage({
-                    content: `You don't have this item equipped.`
+                    content: `You don't have this item equipped.`,
                 });
                 return;
             }
@@ -389,7 +388,7 @@ const slashCommand: SlashCommandFile = {
             ctx.userData.inventory[itemData.id] = (ctx.userData.inventory[itemData.id] || 0) + 1;
             await ctx.client.database.saveUserData(ctx.userData);
             await ctx.makeMessage({
-                content: `Unequipped ${itemData.emoji} \`${itemData.name}\``
+                content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,
             });
         } else if (ctx.interaction.options.getSubcommand() === "equip") {
             const itemString = ctx.interaction.options.getString("item", true);
@@ -398,14 +397,14 @@ const slashCommand: SlashCommandFile = {
 
             if (left === 0) {
                 await ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try"
+                    content: "This item does not exist or you don't have any left. Nice try",
                 });
                 return;
             }
 
             if (left < amountX) {
                 await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`
+                    content: `You don't have enough of this item. You have ${left} left.`,
                 });
                 return;
             }
@@ -413,13 +412,13 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
                 });
                 return;
             }
             if (!Functions.isEquipableItem(itemData)) {
                 await ctx.makeMessage({
-                    content: `You can't equip this item. Nice try`
+                    content: `You can't equip this item. Nice try`,
                 });
                 return;
             }
@@ -430,13 +429,13 @@ const slashCommand: SlashCommandFile = {
                 await ctx.makeMessage({
                     content: `You can't equip more than ${
                         equipableItemTypesLimit[itemData.type]
-                    } items of this type.`
+                    } items of this type.`,
                 });
                 return;
             }
             if (Object.keys(ctx.userData.equippedItems).find((r) => r === itemData.id)) {
                 await ctx.makeMessage({
-                    content: `You already have this item equipped.`
+                    content: `You already have this item equipped.`,
                 });
             }
 
@@ -456,7 +455,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.makeMessage({
                         content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
                             "inventory info"
-                        )} command to get more informations.`
+                        )} command to get more informations.`,
                     });
                     return;
                 }
@@ -466,7 +465,7 @@ const slashCommand: SlashCommandFile = {
             await ctx.makeMessage({
                 content: ` [${formattedEquipableItemTypes[itemData.type]}] You equipped ${
                     itemData.emoji
-                } \`${itemData.name}\``
+                } \`${itemData.name}\``,
             });
             await ctx.client.database.saveUserData(ctx.userData);
         } else if (ctx.interaction.options.getSubcommand() === "use") {
@@ -476,14 +475,14 @@ const slashCommand: SlashCommandFile = {
 
             if (left === 0) {
                 await ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try"
+                    content: "This item does not exist or you don't have any left. Nice try",
                 });
                 return;
             }
 
             if (left < amountX) {
                 await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`
+                    content: `You don't have enough of this item. You have ${left} left.`,
                 });
                 return;
             }
@@ -491,7 +490,7 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
                 });
                 return;
             }
@@ -557,8 +556,7 @@ const slashCommand: SlashCommandFile = {
                 } catch (e: any) {
                     ctx.client.database.deleteCooldown(ctx.user.id);
                     ctx.followUp({
-                        content:
-                            `An error occured while using this item. Your data has been saved.\n\nLogs for developer: ${e.stack}`
+                        content: `An error occured while using this item. Your data has been saved.\n\nLogs for developer: ${e.stack}`,
                     });
                     console.error(e);
                     ctx.RPGUserData = oldData;
@@ -571,16 +569,33 @@ const slashCommand: SlashCommandFile = {
             }
             ctx.client.database.saveUserData(ctx.userData);
             ctx.makeMessage({
-                content: winContent + " " + Functions.getRewardsCompareData(oldData, ctx.userData).join(", ")
+                content:
+                    winContent +
+                    " " +
+                    Functions.getRewardsCompareData(oldData, ctx.userData).join(", "),
             });
         } else if (ctx.interaction.options.getSubcommand() === "throw") {
             const itemString = ctx.interaction.options.getString("item", true);
             const left = ctx.userData.inventory[itemString] || 0;
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
 
+            if (0 < amountX) {
+                await ctx.makeMessage({
+                    content:
+                        "WARINING: What you just tried to do is to duplicate items. Nice try, a notification has been sent to the developers.",
+                    ephemeral: true,
+                });
+                ctx.client.users.fetch("239739781238620160").then((user) => {
+                    user.send(
+                        `Someone tried to duplicate items. User: ${ctx.user.tag} (${ctx.user.id})`
+                    );
+                });
+                return;
+            }
+
             if (left === 0) {
                 await ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try"
+                    content: "This item does not exist or you don't have any left. Nice try",
                 });
                 return;
             }
@@ -588,14 +603,14 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
                 });
                 return;
             }
 
             if (left < amountX) {
                 await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`
+                    content: `You don't have enough of this item. You have ${left} left.`,
                 });
                 return;
             }
@@ -605,7 +620,7 @@ const slashCommand: SlashCommandFile = {
                 item: itemData.id,
                 amount: amountX,
                 droppedBy: ctx.user.id,
-                droppedAt: Date.now()
+                droppedAt: Date.now(),
             };
             await ctx.client.database.redis.set(
                 "thrownItem_" + itemId,
@@ -619,16 +634,16 @@ const slashCommand: SlashCommandFile = {
                         title: "Item thrown",
                         description: `**${ctx.user.tag}** threw ${itemData.emoji} x${amountX} \`${itemData.name}\`! (ID: \`${itemId}\`)`,
                         color: 0x00ff00,
-                        timestamp: new Date().toISOString()
-                    }
-                ]
+                        timestamp: new Date().toISOString(),
+                    },
+                ],
             });
             await ctx.makeMessage({
                 content: `You threw ${itemData.emoji} x${amountX} \`${
                     itemData.name
                 }\`! (You can pick it up again with the ${ctx.client.getSlashCommandMention(
                     "inventory claim"
-                )} command [ID: \`${itemId}\`])`
+                )} command [ID: \`${itemId}\`])`,
             });
         } else if (ctx.interaction.options.getSubcommand() === "claim") {
             const itemId = ctx.interaction.options.getString("id", true);
@@ -636,7 +651,7 @@ const slashCommand: SlashCommandFile = {
             if (!itemData) {
                 await ctx.makeMessage({
                     content:
-                        "This item does not exist or has already been claimed [ERROR: not in redis cache]."
+                        "This item does not exist or has already been claimed [ERROR: not in redis cache].",
                 });
                 return;
             }
@@ -651,13 +666,13 @@ const slashCommand: SlashCommandFile = {
             if (!item) {
                 await ctx.makeMessage({
                     content:
-                        "This item does not exist or has already been claimed [ERROR: item does not exist]."
+                        "This item does not exist or has already been claimed [ERROR: item does not exist].",
                 });
                 return;
             }
             if (item.id.includes("$disc$") && Functions.hasExceedStandLimit(ctx)) {
                 await ctx.makeMessage({
-                    content: "Nice try."
+                    content: "Nice try.",
                 });
                 return;
             }
@@ -665,7 +680,7 @@ const slashCommand: SlashCommandFile = {
             // if item has been dropped for over a week, tell him it has been expired. If they think that is a mistake or bug, contact us at .gg/jolyne
             if (Date.now() - itemDataJSON.droppedAt > 604800000) {
                 await ctx.makeMessage({
-                    content: `This item has expired [${item.emoji} x${itemDataJSON.amount} \`${item.name}\`]. You can't claim it anymore. If you think this is a mistake, contact us at https://discord.gg/jolyne`
+                    content: `This item has expired [${item.emoji} x${itemDataJSON.amount} \`${item.name}\`]. You can't claim it anymore. If you think this is a mistake, contact us at https://discord.gg/jolyne`,
                 });
                 await ctx.client.database.redis.del("thrownItem_" + itemId);
                 return;
@@ -682,12 +697,12 @@ const slashCommand: SlashCommandFile = {
                         title: "Item claimed",
                         description: `**${ctx.user.tag}** claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\` in guild **${ctx.guild.name}** (ItemID: \`${itemId}\`)`,
                         color: 0x00ff00,
-                        timestamp: new Date().toISOString()
-                    }
-                ]
+                        timestamp: new Date().toISOString(),
+                    },
+                ],
             });
             await ctx.makeMessage({
-                content: `You claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`!`
+                content: `You claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`!`,
             });
         } else if (ctx.interaction.options.getSubcommand() === "sell") {
             const itemString = ctx.interaction.options.getString("item", true);
@@ -696,14 +711,14 @@ const slashCommand: SlashCommandFile = {
 
             if (left === 0) {
                 await ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try"
+                    content: "This item does not exist or you don't have any left. Nice try",
                 });
                 return;
             }
 
             if (left < amountX) {
                 await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`
+                    content: `You don't have enough of this item. You have ${left} left.`,
                 });
                 return;
             }
@@ -711,7 +726,7 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`
+                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
                 });
                 return;
             }
@@ -721,7 +736,7 @@ const slashCommand: SlashCommandFile = {
                     content: Functions.makeNPCString(
                         NPCs.Pucci,
                         "bro, don't sell me trash items. wtf is that? you better throw that away."
-                    )
+                    ),
                 });
                 return;
             }
@@ -731,7 +746,7 @@ const slashCommand: SlashCommandFile = {
                     content: Functions.makeNPCString(
                         NPCs.Pucci,
                         "sorry, I don't know what that item is. that's weird..."
-                    )
+                    ),
                 });
                 return;
             }
@@ -741,7 +756,7 @@ const slashCommand: SlashCommandFile = {
                 S: 1,
                 A: 0.9,
                 B: 0.75,
-                C: 0.5
+                C: 0.5,
             };
             await ctx.makeMessage({
                 content: Functions.makeNPCString(
@@ -760,16 +775,16 @@ const slashCommand: SlashCommandFile = {
                             .setCustomId(`${ctx.interaction.id}_sell`)
                             .setLabel("Sell")
                             .setEmoji(ctx.client.localEmojis.jocoins)
-                            .setStyle(ButtonStyle.Secondary)
-                    ])
-                ]
+                            .setStyle(ButtonStyle.Secondary),
+                    ]),
+                ],
             });
 
             const collector = ctx.channel.createMessageComponentCollector({
                 filter: (i) =>
                     i.customId === `${ctx.interaction.id}_sell` && i.user.id === ctx.user.id,
                 time: 60000,
-                max: 1
+                max: 1,
             });
 
             collector.on("collect", async (i) => {
@@ -777,8 +792,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop("cheat");
                     return;
                 }
-                i.deferUpdate().catch(() => {
-                }); // eslint-disable-line
+                i.deferUpdate().catch(() => {}); // eslint-disable-line
                 Functions.addCoins(
                     ctx.userData,
                     Math.round(itemData.price * itemTaxes[itemData.rarity] * amountX)
@@ -794,7 +808,7 @@ const slashCommand: SlashCommandFile = {
                             itemData.price * itemTaxes[itemData.rarity] * amountX
                         ).toLocaleString("en-US")} ${ctx.client.localEmojis.jocoins})`
                     ),
-                    components: []
+                    components: [],
                 });
             });
         }
@@ -811,25 +825,27 @@ const slashCommand: SlashCommandFile = {
                 return {
                     name: item.name,
                     amount: userData.inventory[v],
-                    id: v
+                    id: v,
                 };
             });
 
-
-            await interaction.respond(userItems
-                .filter((r) => r)
-                .map((i) => {
-                    return {
-                        value: i.id,
-                        name: `${i.name} (x${i.amount} left)`,
-                        description: i
-                    };
-                })
-                .filter(
-                    (item) =>
-                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                        item.value.toLowerCase().includes(currentInput.toLowerCase())
-                ).slice(0, 25));
+            await interaction.respond(
+                userItems
+                    .filter((r) => r)
+                    .map((i) => {
+                        return {
+                            value: i.id,
+                            name: `${i.name} (x${i.amount} left)`,
+                            description: i,
+                        };
+                    })
+                    .filter(
+                        (item) =>
+                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                            item.value.toLowerCase().includes(currentInput.toLowerCase())
+                    )
+                    .slice(0, 25)
+            );
         } else if (interaction.options.getSubcommand() === "info") {
             for (const item of Object.keys(userData.equippedItems)) {
                 Functions.addItem(userData, item, 1);
@@ -843,7 +859,7 @@ const slashCommand: SlashCommandFile = {
                 return {
                     name: item.name,
                     amount: userData.inventory[v],
-                    id: v
+                    id: v,
                 };
             });
 
@@ -853,7 +869,7 @@ const slashCommand: SlashCommandFile = {
                     return {
                         value: i.id,
                         name: `${i.name}`,
-                        description: i
+                        description: i,
                     };
                 })
                 .filter(
@@ -874,7 +890,7 @@ const slashCommand: SlashCommandFile = {
                 return {
                     name: item.name + ` [${formattedEquipableItemTypes[item.type]}]`,
                     amount: userData.inventory[v],
-                    id: v
+                    id: v,
                 };
             });
 
@@ -884,7 +900,7 @@ const slashCommand: SlashCommandFile = {
                     return {
                         value: i.id,
                         name: `${i.name} (x${i.amount} left)`,
-                        description: i
+                        description: i,
                     };
                 })
                 .filter(
@@ -903,7 +919,7 @@ const slashCommand: SlashCommandFile = {
 
                 return {
                     name: item.name + ` [${formattedEquipableItemTypes[item.type]}]`,
-                    id: v
+                    id: v,
                 };
             });
             const realItems = userItems
@@ -912,7 +928,7 @@ const slashCommand: SlashCommandFile = {
                     return {
                         value: i.id,
                         name: i.name,
-                        description: i
+                        description: i,
                     };
                 })
                 .filter(
@@ -937,7 +953,7 @@ const slashCommand: SlashCommandFile = {
                 return {
                     name: item.name,
                     amount: userData.inventory[v],
-                    id: v
+                    id: v,
                 };
             });
 
@@ -947,7 +963,7 @@ const slashCommand: SlashCommandFile = {
                     return {
                         value: i.id,
                         name: `${i.name} (x${i.amount} left)`,
-                        description: i
+                        description: i,
                     };
                 })
                 .filter(
@@ -959,7 +975,7 @@ const slashCommand: SlashCommandFile = {
 
             interaction.respond(finalItems);
         }
-    }
+    },
 };
 
 export default slashCommand;
