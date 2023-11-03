@@ -478,7 +478,7 @@ const slashCommand: SlashCommandFile = {
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "npc": {
-                if (nfight) {
+                if (nfight || ctx.interaction.options.getString("npc").length < 6) {
                     const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
                         (r) => Functions.isFightNPCQuest(r) && !r.completed
                     );
