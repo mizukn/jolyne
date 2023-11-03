@@ -303,6 +303,15 @@ const Event: EventFile = {
         client.log(`Logged in as ${client.user?.tag}`, "ready");
         client.allCommands = commandsV3;
         // client.database.migrateData();
+
+        setInterval(async () => {
+            await client.database.redis.keys("*tempCache_*").then((keys) => {
+                for (const key of keys) {
+                    client.database.redis.del(key);
+                }
+                console.log(`Cleared ${keys.length} temp cache keys.`);
+            });
+        }, 1000 * 60 * 2);
     },
 };
 export default Event;
