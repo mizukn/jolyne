@@ -579,7 +579,7 @@ const slashCommand: SlashCommandFile = {
             const left = ctx.userData.inventory[itemString] || 0;
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
 
-            if (0 < amountX) {
+            if (0 > amountX || amountX === 0 || amountX === Infinity) {
                 await ctx.makeMessage({
                     content:
                         "WARINING: What you just tried to do is to duplicate items. Nice try, a notification has been sent to the developers.",
