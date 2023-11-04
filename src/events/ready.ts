@@ -307,6 +307,7 @@ const Event: EventFile = {
         setInterval(async () => {
             await client.database.redis.keys("*tempCache_*").then((keys) => {
                 for (const key of keys) {
+                    if (key.includes("trading")) continue;
                     client.database.redis.del(key);
                 }
                 console.log(`Cleared ${keys.length} temp cache keys.`);
