@@ -121,7 +121,7 @@ export const LittleBoy: Ability = {
 
 export const Manipulation: Ability = {
     name: "Manipulation",
-    description: "Manipulates the opponent's body, causing them unable to control therseivles",
+    description: "Manipulates the opponent's body, causing them unable to control theirselves",
     cooldown: 10,
     special: true,
     useMessage: (user, target, damage, ctx) => {
@@ -2130,4 +2130,50 @@ export const Mach1Tornado: Ability = {
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
     },
+};
+
+export const StaffBarrage: Ability = {
+    name: "Barrage",
+    description: "Performs an astoundingly fast flurry of punches that deals damage per hit",
+    cooldown: 1,
+    extraTurns: 1,
+    damage: 50,
+    stamina: 5,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const StaffSplash: Ability = {
+    name: "Crystal Splash",
+    description: "Splashes the opponent with wicked dark energy.",
+    cooldown: 3,
+    extraTurns: 1,
+    damage: 70,
+    stamina: 10,
+    dodgeScore: 0,
+    target: "enemy",
+	thumbnail: "https://media.discordapp.net/attachments/939144391296163920/1171740346695299082/admin.png",
+};
+
+export const StaffBAN: Ability = {
+    name: "FINISH",
+    description: "Destroys the opponent with a single attack.",
+    cooldown: 3,
+    extraTurns: 1,
+    damage: 9999,
+    stamina: 30,
+    dodgeScore: 0,
+    target: "enemy",
+	thumbnail: "https://media.discordapp.net/attachments/939144391296163920/1171740346695299082/admin.png",
+};
+
+export const StaffToy: Ability = {
+    name: "smol attk",
+    description: "pokes the opponent with a stick",
+    cooldown: 0,
+    extraTurns: 0,
+    damage: 5,
+    stamina: 1,
+    dodgeScore: 0,
+    target: "enemy",
 };
