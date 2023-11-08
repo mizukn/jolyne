@@ -671,3 +671,27 @@ export const WeatherReport: Stand = {
     },
     available: true,
 };
+
+export const AdminStand: Stand = {
+    id: "admin_stand",
+    name: "The WICKED",
+    description: "An Overpowered Staff **Only** Stand cause *someone* felt like it.",
+    rarity: "T",
+    image: "https://media.discordapp.net/attachments/939144391296163920/1171740346695299082/admin.png",
+    color: 0xa83232,
+    abilities: [
+        Abilities.StaffToy,
+		Abilities.StaffBarrage,
+        Abilities.StaffSplash,
+        Abilities.StaffBAN,
+    ],
+    emoji: "<:staffhammer:1171743022527029248>",
+    skillPoints: {
+        perception: 20,
+        speed: 20,
+        strength: 100,
+        stamina: 300,
+        defense: 200,
+    },
+    available: false,
+};
