@@ -478,7 +478,7 @@ const slashCommand: SlashCommandFile = {
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "npc": {
-                if (nfight) {
+                if (nfight || ctx.interaction.options.getString("npc").length < 6) {
                     const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
                         (r) => Functions.isFightNPCQuest(r) && !r.completed
                     );
@@ -665,7 +665,10 @@ const slashCommand: SlashCommandFile = {
 
                     if (!realNPC) {
                         await ctx.makeMessage({
-                            content: "FATAL ERROR: COULD NOT FIND NPC: " + NPC,
+                            content:
+                                "FATAL ERROR: COULD NOT FIND NPC: " +
+                                NPC +
+                                "\n\nIf this problem appears, just type `1` on the npc argument (exemple: `/fight npc npc:1`)",
                         });
                         return;
                     }

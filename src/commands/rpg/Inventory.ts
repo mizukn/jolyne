@@ -19,6 +19,7 @@ import * as Functions from "../../utils/Functions";
 import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
+import e from "express";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -391,15 +392,26 @@ const slashCommand: SlashCommandFile = {
                 content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,
             });
         } else if (ctx.interaction.options.getSubcommand() === "equip") {
-            const itemString = ctx.interaction.options.getString("item", true);
+            let itemString = ctx.interaction.options.getString("item", true);
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
+
+            if (ctx.userData.inventory[itemString] === undefined) {
+                const foundItem = Functions.findItem(itemString);
+                if (foundItem) {
+                    itemString = foundItem.id;
+                } else {
+                    await ctx.makeMessage({
+                        content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    });
+                    return;
+                }
+            }
             const left = ctx.userData.inventory[itemString] || 0;
 
             if (left === 0) {
-                await ctx.makeMessage({
+                return void ctx.makeMessage({
                     content: "This item does not exist or you don't have any left. Nice try",
                 });
-                return;
             }
 
             if (left < amountX) {
@@ -469,8 +481,21 @@ const slashCommand: SlashCommandFile = {
             });
             await ctx.client.database.saveUserData(ctx.userData);
         } else if (ctx.interaction.options.getSubcommand() === "use") {
-            const itemString = ctx.interaction.options.getString("item", true);
+            let itemString = ctx.interaction.options.getString("item", true);
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
+
+            if (ctx.userData.inventory[itemString] === undefined) {
+                const foundItem = Functions.findItem(itemString);
+                if (foundItem) {
+                    itemString = foundItem.id;
+                } else {
+                    await ctx.makeMessage({
+                        content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    });
+                    return;
+                }
+            }
+
             const left = ctx.userData.inventory[itemString] || 0;
 
             if (left === 0) {
