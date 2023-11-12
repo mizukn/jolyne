@@ -236,7 +236,10 @@ const slashCommand: SlashCommandFile = {
                             ...winnerData.sideQuests.map((v) => v.quests),
                         ]) {
                             for (const quest of quests.filter((x) => Functions.isRaidNPCQuest(x))) {
-                                if ((quest as RaidNPCQuest).boss === raid.boss.id) {
+                                if (
+                                    (quest as RaidNPCQuest).boss === raid.boss.id &&
+                                    !quest.completed
+                                ) {
                                     quest.completed = true;
                                     ctx.followUp({
                                         content: `:white_check_mark: <@${winner.id}> Your RaidQUEST has been completed (\`${quest.id}\`)`,
