@@ -14,23 +14,23 @@ import * as Emojis from "../../emojis.json";
 
 const slotsChart = {
     [Emojis.diamond_gif]: {
-        2: 20,
-        3: 100,
+        2: 8,
+        3: 15,
         frequence: 1,
     },
     [Emojis.money_gif]: {
         2: 7,
-        3: 50,
+        3: 10,
         frequence: 1,
     },
     [Emojis.watermelon_gif1]: {
         2: 5,
-        3: 25,
+        3: 9,
         frequence: 1,
     },
     [Emojis.sevensl]: {
         2: 4,
-        3: 15,
+        3: 8,
         frequence: 1,
     },
     "🍓": {
