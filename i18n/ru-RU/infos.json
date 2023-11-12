@@ -1,12 +1,12 @@
 {
-	"USERS": "Пользователи",
-	"SERVERS": "Сервера",
-	"UPTIME": "Время Работы",
-	"LIBRARY": "Библиотека",
-	"PLAYERS": "Игроки",
-	"RAM_USAGE": "Затрата ОЗУ",
-	"CREATOR": "Создатель",
-	"SUPPORT_INVITE": "Приглашение в Поддержку",
-	"NEW_PLAYERS": "Новые Игроки",
-	"NEW_PLAYERS_VALUE": "(+{{new}} игроков зарегистрировалось сегодня)"
+    "USERS": "Пользователи",
+    "SERVERS": "Сервера",
+    "UPTIME": "Время Работы",
+    "LIBRARY": "Библиотека",
+    "PLAYERS": "Игроки",
+    "RAM_USAGE": "Затрата ОЗУ",
+    "CREATOR": "Создатель",
+    "SUPPORT_INVITE": "Приглашение в Поддержку",
+    "NEW_PLAYERS": "Новые Игроки",
+    "NEW_PLAYERS_VALUE": "+{{new}} new registered players today\n+{{newUsersLast31Days}} new registered players in the last 31 days"
 }
