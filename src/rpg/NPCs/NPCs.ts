@@ -167,3 +167,9 @@ export const Jolyne: NPC = {
     name: "Jolyne Cujoh",
     emoji: Emojis.jolyne,
 };
+
+export const Devo: NPC = {
+    id: "devo",
+    name: "Devo the cursed",
+    emoji: "<:devo:1173203879685541938>",
+};

@@ -10,7 +10,7 @@ export const Diamond: Item = {
     emoji: "💎",
     price: 20000,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const YellowHair: Item = {
@@ -22,7 +22,7 @@ export const YellowHair: Item = {
     emoji: Emojis.dio,
     price: 100,
     tradable: true,
-    storable: false
+    storable: false,
 };
 
 export const AncientScroll: Item = {
@@ -33,18 +33,19 @@ export const AncientScroll: Item = {
     emoji: "📜",
     price: 2000,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const BrokenArrow: Item = {
     id: "broken_arrow",
     name: "Broken Arrow",
-    description: "An arrow that has been broken. If you get some of these, you can craft a Stand Arrow.",
+    description:
+        "An arrow that has been broken. If you get some of these, you can craft a Stand Arrow.",
     rarity: "B",
     emoji: Emojis.mysterious_arrow,
     price: Math.round(35000 / 5),
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const String: Item = {
@@ -55,7 +56,7 @@ export const String: Item = {
     emoji: "<:emoji_178:1138099413055709275>",
     price: 5000,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const BlueCloth: Item = {
@@ -66,7 +67,7 @@ export const BlueCloth: Item = {
     emoji: "<:blue_cloth:1138103715363045437>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const RedCloth: Item = {
@@ -77,7 +78,7 @@ export const RedCloth: Item = {
     emoji: "<:red_cloth:1138103728851927092>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const GreenCloth: Item = {
@@ -88,7 +89,7 @@ export const GreenCloth: Item = {
     emoji: "<:green_cloth:1138103716814266430>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const YellowCloth: Item = {
@@ -99,7 +100,7 @@ export const YellowCloth: Item = {
     emoji: "<:yellow_cloth:1138103734581346443>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const PurpleCloth: Item = {
@@ -110,7 +111,7 @@ export const PurpleCloth: Item = {
     emoji: "<:purple_cloth:1138103722149412875>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const OrangeCloth: Item = {
@@ -121,7 +122,7 @@ export const OrangeCloth: Item = {
     emoji: "<:orange_cloth:1138103720245211136>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const WhiteCloth: Item = {
@@ -132,7 +133,7 @@ export const WhiteCloth: Item = {
     emoji: "<:white_cloth:1138103731456593942>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const BlackCloth: Item = {
@@ -143,7 +144,7 @@ export const BlackCloth: Item = {
     emoji: "<:black_cloth:1138103711831425105>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const BrownCloth: Item = {
@@ -154,7 +155,7 @@ export const BrownCloth: Item = {
     emoji: "<:brown_cloth:1138105263417737246>",
     price: 2500,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const SteelBall: Item = {
@@ -165,7 +166,7 @@ export const SteelBall: Item = {
     emoji: "<:steel_ball:1138105735813795921>",
     price: 10000,
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const SpookySoul: Item = {
@@ -176,5 +177,27 @@ export const SpookySoul: Item = {
     emoji: Emojis.spooky_soul,
     price: 1000,
     tradable: true,
-    storable: true
+    storable: true,
+};
+
+export const IronIngot: Item = {
+    id: "iron_ingot",
+    name: "Iron Ingot",
+    description: "An iron ingot.",
+    rarity: "A",
+    emoji: "<:iron_ingot:1173207747404238910>",
+    price: 15000,
+    tradable: true,
+    storable: true,
+};
+
+export const Wood: Item = {
+    id: "wood",
+    name: "Wood",
+    description: "Wood.",
+    rarity: "B",
+    emoji: "🪵",
+    price: 5000,
+    tradable: true,
+    storable: true,
 };

@@ -671,3 +671,23 @@ export const WeatherReport: Stand = {
     },
     available: true,
 };
+
+export const EbonyDevil: Stand = {
+    id: "ebony_devil",
+    name: "Ebony Devil",
+    description:
+        "Ebony Devil is a Stand bound to a doll. In the JJBA series, Ebony Devil's owner was [Devo](https://jojo.fandom.com/wiki/Devo_the_Cursed)",
+    rarity: "C",
+    image: "https://static.jojowiki.com/images/7/77/latest/20220920020932/Ebony_Devil_Infobox_Anime.png",
+    abilities: [Abilities.DollBarrage, Abilities.DollPunch, Abilities.DollThrow],
+    emoji: "<:ebony:1173205002731393115>",
+    skillPoints: {
+        perception: 0,
+        strength: 6,
+        speed: 6,
+        stamina: 0,
+        defense: 0,
+    },
+    available: true,
+    color: 0x666420,
+};

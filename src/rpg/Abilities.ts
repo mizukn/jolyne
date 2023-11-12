@@ -2131,3 +2131,32 @@ export const Mach1Tornado: Ability = {
         );
     },
 };
+
+// ebony devil's ability
+export const DollPunch: Ability = {
+    name: "Doll Punch",
+    description: "Punches the opponent with the doll, dealing damage",
+    cooldown: 3,
+    damage: 15,
+    stamina: 15,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const DollBarrage: Ability = {
+    ...StandBarrage,
+    name: "Doll Barrage",
+    description: "Unleash a barrage of punches with the doll",
+};
+
+export const DollThrow: Ability = {
+    name: "Doll Throw",
+    description: "Throws the doll at the opponent, dealing damage",
+    cooldown: 4,
+    damage: 20,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};

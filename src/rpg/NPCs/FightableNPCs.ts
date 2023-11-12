@@ -248,3 +248,12 @@ export const GiornoGiovannaRequiem: FightableNPC = {
     stand: "gold_experience_requiem",
     standsEvolved: {},
 };
+
+export const Devo: FightableNPC = {
+    ...NPCs.Devo,
+    level: 30,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "ebony_devil",
+    standsEvolved: {},
+};

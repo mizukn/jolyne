@@ -221,7 +221,11 @@ export const Katana: Weapon = {
             stamina: 0
         }
     },
-    abilities: [Abilities.SwiftStrike]
+    abilities: [Abilities.SwiftStrike],
+    craft: {
+        iron_ingot: 10,
+        wood: 10
+    }
 };
 
 export const GauntletsOfTheBerserker: Weapon = {
