@@ -53,5 +53,6 @@
     "NO": "нет",
     "test": "{{command.leaderboard level}} ок",
     "YOUR_STAND_HAS_BEEN_RESET": "{{npc.pucci}} Вы успешно стерли свой стенд **{{stand.name}}**",
-    "NOT_ENOUGH_COINS": "{{emojis.pucci}}У вас недостаточно монет."
+    "NOT_ENOUGH_COINS": "{{emojis.pucci}}У вас недостаточно монет.",
+    "YOUR_STAND_DISC_HAS_BEEN_STORED": "{{npc.pucci}} You have successfully stored your stand disc **{{stand.name}}**."
 }
