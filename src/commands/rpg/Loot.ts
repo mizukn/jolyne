@@ -1,8 +1,5 @@
 import { Item, SlashCommandFile } from "../../@types";
-import {
-    Message,
-    MessageComponentInteraction
-} from "discord.js";
+import { Message, MessageComponentInteraction } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { ButtonBuilder } from "discord.js";
@@ -23,10 +20,10 @@ const slashCommand: SlashCommandFile = {
     data: {
         name: "loot",
         description: "Loot something around the Morioh City",
-        options: []
+        options: [],
     },
     rpgCooldown: {
-        base: 1000 * 60 * 2
+        base: 1000 * 60 * 2,
     },
     checkRPGCooldown: "loot",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -40,13 +37,13 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 90,
-                        loot: Functions.randomNumber(1, 1000)
+                        loot: Functions.randomNumber(1, 1000),
                     },
                     {
                         percent: 100,
-                        loot: Items.Candy
-                    }
-                ]
+                        loot: Items.Candy,
+                    },
+                ],
             },
             {
                 pr: "in the",
@@ -55,21 +52,21 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 3,
-                        loot: Items.StandArrow
+                        loot: Items.StandArrow,
                     },
                     {
                         percent: 10,
-                        loot: Items.MoneyBox
+                        loot: Items.MoneyBox,
                     },
                     {
                         percent: 20,
-                        loot: Items.Box
+                        loot: Items.Box,
                     },
                     {
                         percent: 60,
-                        loot: Items.Burger
-                    }
-                ]
+                        loot: Items.Burger,
+                    },
+                ],
             },
             {
                 pr: "in the",
@@ -78,25 +75,25 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 4,
-                        loot: Items.StandArrow
+                        loot: Items.StandArrow,
                     },
                     {
                         percent: 10,
-                        loot: Items.MoneyBox
+                        loot: Items.MoneyBox,
                     },
                     {
                         percent: 20,
-                        loot: Items.Box
+                        loot: Items.Box,
                     },
                     {
                         percent: 30,
-                        loot: Items.DeadRat
+                        loot: Items.DeadRat,
                     },
                     {
                         percent: 40,
-                        loot: Items.Slice_Of_Pizza
-                    }
-                ]
+                        loot: Items.Slice_Of_Pizza,
+                    },
+                ],
             },
             {
                 pr: "in an",
@@ -105,9 +102,9 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 95,
-                        loot: Functions.randomNumber(1, 1000)
-                    }
-                ]
+                        loot: Functions.randomNumber(1, 1000),
+                    },
+                ],
             },
             {
                 pr: "in the",
@@ -116,21 +113,21 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 3,
-                        loot: Items.StandArrow
+                        loot: Items.StandArrow,
                     },
                     {
                         percent: 20,
-                        loot: Items.AncientScroll
+                        loot: Items.AncientScroll,
                     },
                     {
                         percent: 30,
-                        loot: Items.Diamond
+                        loot: Items.Diamond,
                     },
                     {
                         percent: 100,
-                        loot: Items.Coconut
-                    }
-                ]
+                        loot: Items.Coconut,
+                    },
+                ],
             },
             {
                 pr: "behind a",
@@ -139,13 +136,21 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 3,
-                        loot: Items.StandArrow
+                        loot: Items.StandArrow,
                     },
                     {
                         percent: 20,
-                        loot: Items.AncientScroll
-                    }
-                ]
+                        loot: Items.AncientScroll,
+                    },
+                    {
+                        percent: 60,
+                        loot: Items.IronIngot,
+                    },
+                    {
+                        percent: 80,
+                        loot: Items.Wood,
+                    },
+                ],
             },
             {
                 pr: "behind a",
@@ -154,13 +159,13 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 3,
-                        loot: Items.StandArrow
+                        loot: Items.StandArrow,
                     },
                     {
                         percent: 20,
-                        loot: Items.AncientScroll
-                    }
-                ]
+                        loot: Items.AncientScroll,
+                    },
+                ],
             },
             {
                 pr: "in a",
@@ -169,22 +174,22 @@ const slashCommand: SlashCommandFile = {
                 loots: [
                     {
                         percent: 3,
-                        loot: Items.StandArrow
+                        loot: Items.StandArrow,
                     },
                     {
                         percent: 20,
-                        loot: Items.AncientScroll
+                        loot: Items.AncientScroll,
                     },
                     {
                         percent: 30,
-                        loot: Items.Box
+                        loot: Items.Box,
                     },
                     {
                         percent: 40,
-                        loot: Items.DeadRat
-                    }
-                ]
-            }
+                        loot: Items.DeadRat,
+                    },
+                ],
+            },
         ];
 
         const shuffledLoots: Loot[] = Functions.shuffle(rng);
@@ -211,15 +216,14 @@ const slashCommand: SlashCommandFile = {
                 {
                     author: { name: ctx.user.username, icon_url: ctx.user.displayAvatarURL() },
                     description: `Where do you want to search ?`,
-                    color: 0x2f3136
-                }
+                    color: 0x2f3136,
+                },
             ],
-            components: [Functions.actionRow([choice1BTN, choice2BTN, choice3BTN])]
+            components: [Functions.actionRow([choice1BTN, choice2BTN, choice3BTN])],
         });
 
         const filter = (i: MessageComponentInteraction) => {
-            i.deferUpdate().catch(() => {
-            }); // eslint-disable-line @typescript-eslint/no-empty-function
+            i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
             return (
                 i.user.id === ctx.userData.id &&
                 (i.customId === choice1ID || i.customId === choice2ID || i.customId === choice3ID)
@@ -227,7 +231,7 @@ const slashCommand: SlashCommandFile = {
         };
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 15000
+            time: 15000,
         });
         collector.on("collect", async (i: MessageComponentInteraction) => {
             collector.stop();
@@ -250,9 +254,9 @@ const slashCommand: SlashCommandFile = {
                         } You are currently searching ${choosedLoot.pr} ${Functions.capitalize(
                             choosedLoot.name
                         )}`,
-                        color: 0x2f3136
-                    }
-                ]
+                        color: 0x2f3136,
+                    },
+                ],
             });
             await ctx.client.database.setCooldown(
                 ctx.userData.id,
@@ -279,20 +283,20 @@ const slashCommand: SlashCommandFile = {
             if (!loot) {
                 infos = {
                     emoji: "❌",
-                    prize: "nothing"
+                    prize: "nothing",
                 };
             } else if (typeof loot.loot !== "number") {
                 Functions.addItem(ctx.userData, loot.loot.id, 1);
                 infos = {
                     emoji: loot.loot.emoji,
-                    prize: Functions.capitalize(loot.loot.name)
+                    prize: Functions.capitalize(loot.loot.name),
                 };
             } else {
                 const coins = Functions.addCoins(ctx.userData, loot.loot);
 
                 infos = {
                     emoji: ctx.client.localEmojis.jocoins,
-                    prize: String(coins)
+                    prize: String(coins),
                 };
             }
             ctx.client.database.saveUserData(ctx.userData);
@@ -307,12 +311,12 @@ const slashCommand: SlashCommandFile = {
                         } ${Functions.capitalize(choosedLoot.name)} and found: ${infos.emoji} **${
                             infos.prize
                         }**`,
-                        author: { name: ctx.user.tag, icon_url: ctx.user.displayAvatarURL() }
-                    }
-                ]
+                        author: { name: ctx.user.tag, icon_url: ctx.user.displayAvatarURL() },
+                    },
+                ],
             });
         });
-    }
+    },
 };
 
 export default slashCommand;
