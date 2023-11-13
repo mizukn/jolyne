@@ -194,7 +194,7 @@ const slashCommand: SlashCommandFile = {
                     inline: true,
                 },
                 {
-                    name: "Members (cache)",
+                    name: "Members",
                     value: members.toLocaleString("en-US"),
                     inline: true,
                 },

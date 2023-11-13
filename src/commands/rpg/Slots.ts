@@ -58,6 +58,36 @@ const slotsChart = {
         3: 3,
         frequence: 3,
     },
+    "🍒": {
+        2: 1,
+        3: 1,
+        frequence: 4,
+    },
+    "🍎": {
+        2: 1,
+        3: 1,
+        frequence: 4,
+    },
+    "🍑": {
+        2: 1,
+        3: 1,
+        frequence: 4,
+    },
+    "🍍": {
+        2: 1,
+        3: 1,
+        frequence: 4,
+    },
+    "🍈": {
+        2: 1,
+        3: 1,
+        frequence: 4,
+    },
+    "🍐": {
+        2: 1,
+        3: 1,
+        frequence: 4,
+    },
 };
 
 const totalFruits = Object.values(slotsChart)
