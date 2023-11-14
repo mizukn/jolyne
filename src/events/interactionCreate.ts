@@ -563,11 +563,11 @@ const Event: EventFile = {
             }
 
             commandLogsWebhook.send(
-                `[COMMAND] ${interaction.user.username} (${interaction.user.id}) used \`/${
+                `🤖 | ${interaction.user.username} \`(${interaction.user.id})\` used \`/${
                     interaction.commandName
-                }\` in guild ${interaction.guild.name} (${
+                }\` in guild \`${interaction.guild.name}\` \`(${
                     interaction.guild.id
-                }) with options: ${JSON.stringify(interaction.options["data"])} (${command})`
+                })\` with options:\n \`${JSON.stringify(interaction.options["data"])} (${command})\``
             );
         } else if (interaction.isAutocomplete()) {
             if (
