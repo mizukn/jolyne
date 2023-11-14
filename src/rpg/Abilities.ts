@@ -6,7 +6,7 @@ import * as Functions from "../utils/Functions";
 
 export const StandBarrage: Ability = {
     name: "Stand Barrage",
-    description: "Performs an astoundingly fast flurry of punches that deals small damage per hit",
+    description: "Performs an astoundingly fast flurry of punches that deals a small amount damage per hit.",
     cooldown: 5,
     extraTurns: 1,
     damage: 10,
@@ -17,7 +17,7 @@ export const StandBarrage: Ability = {
 
 export const KickBarrage: Ability = {
     name: "Kick Barrage",
-    description: "Performs an astoundingly fast flurry of kicks that deals small damage per hit",
+    description: "Performs an astoundingly fast flurry of kicks that deals a small amount damage per hit.",
     cooldown: 3,
     extraTurns: 0,
     damage: 8,
@@ -28,7 +28,7 @@ export const KickBarrage: Ability = {
 
 export const StarFinger: Ability = {
     name: "Star Finger",
-    description: "Extends {standName}'s finger and stabs the target in the eyes",
+    description: "Extends {standName}'s finger and stabs the target in the eyes.",
     cooldown: 8,
     extraTurns: 1,
     damage: 25,
@@ -41,7 +41,7 @@ export const RoadRoller: Ability = {
     ...StarFinger,
     name: "Road Roller",
     description:
-        "jumps high into the sky, bringing a steamroller down with them, slamming it down where they were previously standing. CAN STACK FREE TURNS IF ENOUGH SPEED!",
+        "Jumps into the sky and throws an entire Road Roller on the opponent. CAN STACK FREE TURNS IF ENOUGH SPEED!",
 };
 
 export const TheWorld: Ability = {
@@ -88,7 +88,7 @@ export const TheWorld: Ability = {
 
 export const EmeraldSplash: Ability = {
     name: "Emerald Splash",
-    description: "fires off a large amount of energy which takes the form of emeralds.",
+    description: "Fires off a large amount of energy which takes the form of emeralds.",
     cooldown: 5,
     extraTurns: 1,
     damage: 10,
@@ -109,7 +109,7 @@ export const VolaBarrage: Ability = {
 
 export const LittleBoy: Ability = {
     name: "Little Boy",
-    description: "drop 3 bombs behind its opponent that will explode instantly",
+    description: "Drop 3 bombs behind its opponent that will explode instantly.",
     cooldown: 8,
     extraTurns: 1,
     extraTurnsIfGB: 1,
@@ -121,7 +121,7 @@ export const LittleBoy: Ability = {
 
 export const Manipulation: Ability = {
     name: "Manipulation",
-    description: "Manipulates the opponent's body, causing them unable to control therseivles",
+    description: "Manipulates the opponent's body, causing them to be uncontrollable.",
     cooldown: 10,
     special: true,
     useMessage: (user, target, damage, ctx) => {
@@ -178,7 +178,7 @@ export const Manipulation: Ability = {
 
 export const LightSpeedBarrage: Ability = {
     name: "Light-Speed Barrage",
-    description: "erases matter to jump on the enemies and assault them with rapid punches.",
+    description: "Erases matter itself to punch the opponent.",
     cooldown: 5,
     damage: 12.5,
     stamina: 15,
@@ -190,8 +190,7 @@ export const LightSpeedBarrage: Ability = {
 
 export const DeadlyErasure: Ability = {
     name: "Deadly Erasure",
-    description:
-        "uses their right hand to erase space and jump one you and use the effect of surprise to erase you",
+    description: "Erases Space itself and yses the element of surprise to catch you off guard.",
     cooldown: 15,
     damage: 35,
     stamina: 15,
@@ -249,7 +248,7 @@ const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, 
 
 export const CrossfireHurricane: Ability = {
     name: "Crossfire Hurricane",
-    description: "launches 1 cross in the shape of an ankh at the oppenent",
+    description: "Launches 1 cross in the shape of an ankh at the oppenent.",
     cooldown: 5,
     damage: 10,
     stamina: 12,
@@ -267,7 +266,7 @@ export const CrossfireHurricane: Ability = {
 
 export const RedBind: Ability = {
     name: "Red Bind",
-    description: "takes two swings at the opponent with fiery chains",
+    description: "Slashes two swings at the opponent with fiery chains.",
     cooldown: 7,
     damage: 17,
     stamina: 15,
@@ -282,7 +281,7 @@ export const RedBind: Ability = {
 
 export const Bakugo: Ability = {
     name: "Bakugo",
-    description: "grabs the opponent before engulfing the opponent's head in flames",
+    description: "Grabs the opponent before engulfing their head in flames.",
     cooldown: 12,
     damage: 25,
     stamina: 15,
@@ -351,7 +350,7 @@ export const OhMyGod: Ability = {
 };
 export const VineSlap: Ability = {
     name: "Vine Slap",
-    description: "extends {{standName}}'s vines to whip twice in the opponent's direction",
+    description: "Extends {{standName}}'s vines to whip twice in the opponent's direction.",
     cooldown: 4,
     damage: 15,
     stamina: 20,
@@ -363,7 +362,7 @@ export const VineSlap: Ability = {
 export const VineBarrage: Ability = {
     ...StandBarrage,
     name: "Vine Barrage",
-    description: "extends {{standName}}'s vines to whip the opponent",
+    description: "Extends {{standName}}'s vines to whip the opponent.",
     target: "enemy",
 };
 
@@ -372,7 +371,7 @@ export const VineBarrage: Ability = {
  */
 export const BulletsRafale: Ability = {
     name: "Bullets Rafale",
-    description: "fires all your bullets at once",
+    description: "Fires all your bullets at once.",
     cooldown: 3,
     damage: 0,
     stamina: 35,
@@ -409,7 +408,7 @@ export const BulletsRafale: Ability = {
 
 export const DeterminationFlurry: Ability = {
     name: "Determination Flurry",
-    description: "A Barrage with multiple slashes (+ bleed damage)",
+    description: "A Barrage with multiple slashes (+ bleed damage).",
     cooldown: 5,
     damage: 25,
     stamina: 40,
@@ -427,14 +426,14 @@ export const DeterminationFlurry: Ability = {
 export const FencingBarrage: Ability = {
     ...StandBarrage,
     name: "Fencing Barrage",
-    description: "A Barrage with multiple slashes",
+    description: "A Barrage with multiple slashes.",
     target: "enemy",
 };
 
 export const Finisher: Ability = {
     name: "Finisher",
     description:
-        "attacks or finish the opponent by aiming at one of his vital parts [CRITICAL, BLEED DAMAGES]",
+        "Attack or finish the opponent by aiming at one of his vital parts [CRITICAL, BLEED DAMAGE].",
     cooldown: 8,
     damage: 50,
     stamina: 40,
@@ -450,7 +449,7 @@ export const Finisher: Ability = {
 export const LifeTransference: Ability = {
     name: "Life Transference",
     description:
-        "Transfers life force between individuals, healing allies by 30% of their max health or heavily damaging enemies ",
+        "Transfers life force between individuals, healing allies by 30% of their max health or heavily damaging enemies.",
     cooldown: 6,
     damage: 0,
 
@@ -546,7 +545,7 @@ export const EternalSleep: Ability = {
 
 export const StandDisc: Ability = {
     name: "Stand Disc",
-    description: "Removes temporarily the stand of the target",
+    description: "Removes the stand of the target temporarily.",
     cooldown: 9,
     damage: 0,
     stamina: 50,
@@ -576,7 +575,7 @@ export const StandDisc: Ability = {
 export const Hallucinogen: Ability = {
     name: "Hallucinogen",
     description:
-        "Creates a hallucinogen that decreases EVERYONE's (except your allies) perception & speed BY 90%",
+        "Creates a hallucinogen that decreases EVERYONE's (except your allies) perception & speed BY 90%.",
     cooldown: 7,
     damage: 0,
     stamina: 50,
@@ -614,7 +613,7 @@ export const Hallucinogen: Ability = {
 
 export const Heal: Ability = {
     name: "Heal",
-    description: "Heals the target by 15% of the healer's max health",
+    description: "Heals the target by 15% of the healer's max health.",
     cooldown: 4,
     damage: 0,
     stamina: 25,
@@ -639,7 +638,7 @@ export const Heal: Ability = {
 
 export const LifeShot: Ability = {
     name: "Life Shot",
-    description: "Causes your opponent's soul to leave their body for some turns",
+    description: "Causes your opponent's soul to leave their body for some turns.",
     cooldown: 11,
     damage: 0,
     stamina: 50,
@@ -714,7 +713,7 @@ export const LifeGiver: Ability = {
 export const SandClone: Ability = {
     name: "Sand Clone",
     description:
-        "The Fool can create clones of itself out of sand, which can be used to attack or defend",
+        "The Fool can create clones of itself out of sand, which can be used to attack or defend.",
     cooldown: 2,
     damage: 0,
 
@@ -767,7 +766,7 @@ export const SandClone: Ability = {
 
 export const SandProjectiles: Ability = {
     name: "Sand Projectiles",
-    description: "shoot or propel sand at high speeds towards its targets",
+    description: "Shoot or propel sand at high speeds towards the targets.",
     cooldown: 5,
     damage: 14,
     stamina: 20,
@@ -779,7 +778,7 @@ export const SandProjectiles: Ability = {
 export const SandMimicry: Ability = {
     name: "Sand Mimicry",
     description:
-        "The Fool can disperse its body to avoid physical attacks or slip through narrow spaces, attacking remotely (x100 perception huge boost for **3 turns**)",
+        "The Fool can disperse its body to avoid physical attacks or slip through narrow spaces, attacking remotely (x100 perception boost for **3 turns**).",
     cooldown: 6,
     damage: 0,
     stamina: 20,
@@ -809,7 +808,7 @@ export const SandMimicry: Ability = {
 export const SandStorm: Ability = {
     name: "Sand Storm",
     description:
-        "has the ability to create sandstorms, hindering visibility and disorienting opponents",
+        "The ability to create sandstorms, hindering visibility and disorienting opponents.",
     cooldown: 9,
     damage: 0,
     stamina: 30,
@@ -851,7 +850,7 @@ export const SandStorm: Ability = {
 export const SandSelfHealing: Ability = {
     name: "Sand Self Healing",
     description:
-        "can heal itself (+15% max health) by reforming its sand particles around injuries and aiding in the recovery process",
+        "Can heal itself (+15% of max health) by reforming its sand particles around injuries, aiding in the recovery process.",
     cooldown: 8,
     damage: 0,
     stamina: 15,
@@ -978,7 +977,7 @@ export const BerserkersRampage: Ability = {
 export const KnivesThrow: Ability = {
     name: "Knives Throw",
     description:
-        "Throw a flurry of knives at your opponent, dealing damage and reducing their stamina by 3% of their max stamina",
+        "Throw a flurry of knives at your opponent, dealing damage and reducing their stamina by 3% of their max stamina.",
     cooldown: 5,
     damage: 0,
     dodgeScore: 0,
@@ -1020,7 +1019,7 @@ export const KnivesThrow: Ability = {
 
 export const GasolineBullets: Ability = {
     name: "Gasoline Bullets",
-    description: "Shoots bullets made of gasoline to every enemies",
+    description: "Shoots bullets made of gasoline at every enemy.",
     cooldown: 5,
     damage: 0,
     dodgeScore: 0,
@@ -1071,7 +1070,7 @@ export const GasolineBullets: Ability = {
 
 export const CarCrash: Ability = {
     name: "Car Crash",
-    description: "Crashes a car into the opponent, dealing massive damage.]",
+    description: "Crashes a car into the opponent, dealing massive damage.",
     cooldown: 5,
     damage: StandBarrage.damage,
     dodgeScore: 0,
@@ -1082,7 +1081,7 @@ export const CarCrash: Ability = {
 
 export const Transformation: Ability = {
     name: "Transformation",
-    description: "Boosts all your skill points by 100% (cap: 25) for 2 turns",
+    description: "Boosts all your skill points by 100% (Max: 25) for 2 turns.",
     cooldown: 5,
     damage: 0,
     stamina: 30,
@@ -1121,7 +1120,7 @@ export const Transformation: Ability = {
 export const Rage: Ability = {
     name: "Rage",
     description:
-        "When enabled, the more damage you take, the more damage you deal for 3 turns (+5 strength everytime you loose 1% of your max health). [USABLE PASSIVE, USES NO STAMINA]",
+        "When enabled, the more damage you take, the more damage you deal for 3 turns (+5 strength everytime you loose 1% of your max health). [USABLE PASSIVE, USES NO STAMINA].",
     cooldown: 5,
     damage: 0,
 
@@ -1189,7 +1188,7 @@ export const ScytheSlash: Ability = {
 
 export const MysteriousGas: Ability = {
     name: "Mysterious Gas",
-    description: "Release a mysterious gas that will confuse every enemies for 3 turns", // every fighters except allies frozenFor += 3
+    description: "Release a mysterious gas that will confuse every enemies for 3 turns.", // every fighters except allies frozenFor += 3
     cooldown: 7,
     damage: 0,
     stamina: 30,
@@ -1235,7 +1234,7 @@ export const MysteriousGas: Ability = {
 export const PoisonGas: Ability = {
     name: "Poison Gas",
     description:
-        "Release a poisonous gas that will poison every enemies for 3 turns This will also damage your teammates including you but 90% less", // deals your atk damage every turn to every opponents for some turns. 10% of your atk damage is also dealt to you every turn.
+        "Release a poisonous gas that will poison every enemies for 3 turns This will also damage your teammates including you but 90% less.", // deals your atk damage every turn to every opponents for some turns. 10% of your atk damage is also dealt to you every turn.
     cooldown: 8,
     damage: 0,
 
@@ -1276,7 +1275,7 @@ export const PoisonGas: Ability = {
 
 export const HealBarrage: Ability = {
     name: "Heal Barrage",
-    description: "Basic Stand Barrage but heals your allies by 200% of the damages done",
+    description: "Basic Stand Barrage but heals your allies by 200% of the damages done.",
     cooldown: 4,
     damage: 0,
     stamina: 25,
@@ -1314,7 +1313,7 @@ export const HealBarrage: Ability = {
 
 export const Restoration: Ability = {
     name: "Restoration",
-    description: `Heals 10% of the healer's max health to every allies, except yourself. [Do not use this ability if you don't have any allies]`,
+    description: `Heals 10% of the healer's max health to every allies, except yourself ***[Do not use this ability if you don't have any allies]***.`,
     cooldown: 6,
     damage: 0,
     stamina: 35,
@@ -1341,7 +1340,7 @@ export const Restoration: Ability = {
 
 export const YoAngelo: Ability = {
     name: "Yo Angelo",
-    description: "Transforms the target into a rock for 3 turns",
+    description: "Transforms the target into a rock for 3 turns.",
     cooldown: 8,
     damage: 0,
     stamina: 50,
@@ -1359,7 +1358,7 @@ export const YoAngelo: Ability = {
 
 export const HealPunch: Ability = {
     name: "Heal Punch",
-    description: "Punches the target, healing your teammates by 150% of the damage dealt",
+    description: "Punches the target, healing your teammates by 150% of the damage dealt.",
     cooldown: 4,
     damage: 0,
     stamina: 25,
@@ -1399,7 +1398,7 @@ export const HealPunch: Ability = {
 export const CoinBarrage: Ability = {
     ...StandBarrage,
     name: "Coin Barrage",
-    description: "Unleash a barrage of coins, that explode on impact\n",
+    description: "Unleash a barrage of coins, that explodes on impact.",
 };
 
 const poisonDamagePromise = (
@@ -1432,7 +1431,7 @@ const poisonDamagePromise = (
 
 export const CapsuleShot: Ability = {
     name: "Capsule Shot",
-    description: "shoot the capsules from your fist at your enemy, poisoning them for 5 turns.",
+    description: "Shoots the capsules from your fist at your enemy, poisoning them for 5 turns.",
     cooldown: 7,
     damage: 0,
     stamina: 30,
@@ -1473,7 +1472,7 @@ export const LightManifestation: Ability = {
 
 export const WristKnives: Ability = {
     name: "Wrist Knives",
-    description: "Shoots knives from your wrists at all your enemies (x2 knives)",
+    description: "Shoots knives from your wrists at all your enemies (x2 knives).",
     cooldown: 5,
     damage: 0,
     stamina: 15,
@@ -1565,7 +1564,7 @@ export const ObjectManipulation: Ability = {
 
 export const ViolentBurst: Ability = {
     description:
-        "Spice Girl quickly makes an object go back to its original state making a burst happen sending the enemy back",
+        "Spice Girl quickly makes an object go back to its original state making a burst happen sending the enemy back.",
     name: "Violent Burst",
     cooldown: 6,
     damage: StandBarrage.damage + 4,
@@ -1580,7 +1579,7 @@ export const ViolentBurst: Ability = {
  */
 export const BonesEnlargement: Ability = {
     name: "Bones Enlargement",
-    description: "Makes your bones bigger, doubling your max health for 3 turns",
+    description: "Makes your bones bigger, doubling your max health for 3 turns.",
     cooldown: 5,
     damage: 0,
     stamina: 20,
@@ -1658,7 +1657,7 @@ export const FistEnlargement: Ability = {
 export const HeartBreaker: Ability = {
     name: "Heart Breaker",
     description:
-        "You enclose your opponents ribs, causing it to press down on the opponents lungs and heart. Bleed damage and does damage based on strength, giving you an extra turn",
+        "You enclose your opponents ribs, causing it to press down on the opponents lungs and heart. Bleed damage and does damage based on strength, giving you an extra turn.",
     cooldown: 10,
     damage: 0,
     stamina: 70,
@@ -1695,7 +1694,7 @@ export const BoneSpear: Ability = {
 
 export const SheerHeartAttackBTD: Ability = {
     name: "Sheer Heart Attack [BTD ver.]",
-    description: "Creates a bomb that will explode TO EVERY ENEMIES in 3 turns.",
+    description: "Creates a bomb that will explode AT EVERY ENEMY for 3 turns.",
     cooldown: 3,
     damage: 0,
     stamina: 10,
@@ -1766,7 +1765,7 @@ export const SheerHeartAttack: Ability = {
 
 export const BitesTheDust: Ability = {
     name: "Bites The Dust",
-    description: "Goes back 5 turns behind and gives you Infinity perception for the next 5 turns",
+    description: "Goes back 5 turns behind and gives you Infinity perception for the next 5 turns.",
     cooldown: 10,
     damage: 0,
     stamina: 0,
@@ -1835,13 +1834,14 @@ export const DimensionUppercut: Ability = {
     ...StarFinger,
     name: "Dimension Uppercut",
     description:
-        "You go into the zipper dimension and then fling yourself out underneath the opponent, giving a uppercut",
+        "You go into the zipper dimension and then fling yourself out underneath the opponent, giving a uppercut.",
 };
 
 export const CoinBomb: Ability = {
     ...KickBarrage,
-    description: "Throw a coin bomb at one of your opponents moves",
+    description: "Throw a coin bomb at one of your opponent.",
     name: "Coin Bomb",
+    cooldown: 3,
 };
 
 // megumin's wand ability:
@@ -1892,7 +1892,7 @@ const lifePunchPromise = (
 export const LifePunch: Ability = {
     name: "Life Punch",
     description:
-        "Punch that drains the target's stamina and health (by 3% of their max stats) and effects that lasts for 3 turns",
+        "Punch that drains the target's stamina and health (by 3% of their max stats) and effects that lasts for 3 turns.",
     cooldown: 6,
     damage: 0,
     stamina: 25,
@@ -1938,7 +1938,7 @@ export const LifePunchGER: Ability = {
 export const InfiniteDeathLoop: Ability = {
     // punches the opponents 5 times, and then gives the user 5 extra turns
     name: "Infinite Death Loop",
-    description: "Punches the opponents 5 times, and then gives the user 5 extra turns",
+    description: "Punches the opponents 5 times, and then gives the user 5 extra turns.",
     cooldown: 10,
     damage: 0,
     stamina: 25,
@@ -1964,7 +1964,7 @@ export const InfiniteDeathLoop: Ability = {
 export const Fog: Ability = {
     name: "Fog",
     description:
-        "A fog covers the arena, lowering all your opponents perception by 15% for 3 turns",
+        "A fog covers the arena, lowering all your opponents perception by 15% for 3 turns.",
     cooldown: 6,
     damage: 0,
     stamina: 20,
@@ -2007,7 +2007,7 @@ export const Fog: Ability = {
 
 export const FrogRain: Ability = {
     name: "Frog Rain",
-    description: "Summons a rain of frogs, dealing damage & poison damages to all enemies",
+    description: "Summons a rain of frogs, dealing damage & poison damages to all enemies.",
     cooldown: 7,
     damage: 0,
     stamina: 20,
@@ -2111,7 +2111,7 @@ export const TotalCombustion: Ability = {
 export const Mach1Tornado: Ability = {
     name: "Mach 1 Tornado",
     description:
-        "You spin weather and a tornado flings out, hitting the opponent for massive damage",
+        "You spin weather and a tornado flings out, hitting the opponent for massive damage.",
     cooldown: 7,
     damage: 0,
     stamina: 25,
@@ -2135,7 +2135,7 @@ export const Mach1Tornado: Ability = {
 // ebony devil's ability
 export const DollPunch: Ability = {
     name: "Doll Punch",
-    description: "Punches the opponent with the doll, dealing damage",
+    description: "Punches the opponent with the doll, dealing damage.",
     cooldown: 3,
     damage: 15,
     stamina: 15,
@@ -2147,12 +2147,12 @@ export const DollPunch: Ability = {
 export const DollBarrage: Ability = {
     ...StandBarrage,
     name: "Doll Barrage",
-    description: "Unleash a barrage of punches with the doll",
+    description: "Unleash a barrage of punches with the doll.",
 };
 
 export const DollThrow: Ability = {
     name: "Doll Throw",
-    description: "Throws the doll at the opponent, dealing damage",
+    description: "Throws the doll at the opponent, dealing damage.",
     cooldown: 4,
     damage: 20,
     stamina: 20,
@@ -2163,7 +2163,7 @@ export const DollThrow: Ability = {
 
 export const StaffBarrage: Ability = {
     name: "Barrage",
-    description: "Performs an astoundingly fast flurry of punches that deals damage per hit",
+    description: "Performs an astoundingly fast flurry of punches that deals damage per hit.",
     cooldown: 1,
     extraTurns: 1,
     damage: 25,
