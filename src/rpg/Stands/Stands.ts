@@ -705,7 +705,7 @@ export const AdminStand: Stand = {
         Abilities.StaffSplash,
         Abilities.StaffBAN,
     ],
-    emoji: Emoji.BanHammer,
+    emoji: Emojis.BanHammer,
     skillPoints: {
         perception: 20,
         speed: 20,
