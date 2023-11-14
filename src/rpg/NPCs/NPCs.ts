@@ -115,13 +115,13 @@ export const GrayFly: NPC = {
 export const CaptainTennilleImpostor: NPC = {
     id: "captain_tennille_impostor",
     name: "Captain Tennille (Impostor)",
-    emoji: "<:CaptainTenilleImpostor:1155070740983451699>",
+    emoji: Emojis.CaptainTennileImposter,
 };
 
 export const Forever: NPC = {
     id: "forever",
     name: "Forever",
-    emoji: "<:Forever:1155078866851864679>",
+    emoji: Emoji.Forever,
 };
 
 export const JolyneTeam: NPC = {
@@ -134,7 +134,7 @@ export const JolyneTeam: NPC = {
 export const Megumin: NPC = {
     id: "megumin",
     name: "Megumin",
-    emoji: "<:megumin:1140626462282616914>",
+    emoji: Emojis.megumin,
     email: "losion.losion.explosion@jolyne.moe",
 };
 
@@ -171,5 +171,5 @@ export const Jolyne: NPC = {
 export const Devo: NPC = {
     id: "devo",
     name: "Devo the cursed",
-    emoji: "<:devo:1173203879685541938>",
+    emoji: Emoji.devo,
 };
