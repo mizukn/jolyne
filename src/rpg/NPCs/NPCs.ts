@@ -121,7 +121,7 @@ export const CaptainTennilleImpostor: NPC = {
 export const Forever: NPC = {
     id: "forever",
     name: "Forever",
-    emoji: Emoji.Forever,
+    emoji: Emojis.Forever,
 };
 
 export const JolyneTeam: NPC = {
