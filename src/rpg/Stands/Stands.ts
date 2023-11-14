@@ -439,7 +439,7 @@ export const Emperor: Stand = {
     color: 0xd3d3d3,
     customAttack: {
         name: (ctx, user) => "Shoot",
-        emoji: Emoji["emperor"],
+        emoji: Emojis["emperor"],
         handleAttack: (ctx, user, target, damages) => {
             damages = Math.round(damages);
             if (target.health > 0) {
