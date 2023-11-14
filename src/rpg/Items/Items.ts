@@ -5,7 +5,7 @@ import * as Emojis from "../../emojis.json";
 export const Diamond: Item = {
     id: "diamond",
     name: "Diamond",
-    description: "A diamond. It's very shiny.",
+    description: "A very shiny diamond.. (What if you sell it?)",
     rarity: "B",
     emoji: "💎",
     price: 20000,
@@ -28,7 +28,7 @@ export const YellowHair: Item = {
 export const AncientScroll: Item = {
     id: "ancient_scroll",
     name: "Ancient Scroll",
-    description: "An ancient scroll. It's very old.",
+    description: "A very old scroll of ancient information..",
     rarity: "B",
     emoji: "📜",
     price: 2000,
@@ -194,7 +194,7 @@ export const IronIngot: Item = {
 export const Wood: Item = {
     id: "wood",
     name: "Wood",
-    description: "Wood.",
+    description: "A piece of Wood.",
     rarity: "B",
     emoji: "🪵",
     price: 5000,
