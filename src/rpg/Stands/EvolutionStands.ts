@@ -129,7 +129,7 @@ export const SilverChariot: EvolutionStand = {
             ],
             image: "https://static.jojowiki.com/images/1/12/latest/20211210020712/Chariot_Requiem_Infobox_Anime.png",
             color: 0x000000,
-            emoji: "<:scr:1125037583286669332>",
+            emoji: Emojis.SCR,
             skillPoints: {
                 strength: 15,
                 perception: 15,
@@ -184,7 +184,7 @@ export const GoldExperience: EvolutionStand = {
             ],
             image: "https://static.jojowiki.com/images/thumb/1/13/latest/20210525092302/GER_Infobox_Manga.png/400px-GER_Infobox_Manga.png",
             color: 0x8b8000,
-            emoji: "<:gold_experience_requiem:1141091756314738850>",
+            emoji: Emojis.GER,
             skillPoints: {
                 strength: 15,
                 perception: 15,
