@@ -308,7 +308,7 @@ export const SpookyCandy: Consumable = {
     id: "spooky_candy",
     name: "Spooky Candy",
     description: "A spooky candy... was obtainable during the Halloween 2022 & 2023 event.",
-    emoji: "<:Spooky_Candy:1035118177450995742>",
+    emoji: Emojis.SpookyCandy,
     price: 50000,
     rarity: "T",
     tradable: true,

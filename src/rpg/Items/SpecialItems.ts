@@ -182,8 +182,8 @@ export const MoneyBox: Special = {
             finalLoot,
             "Money Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-            Emojis.moneyBox,
-            "<a:money_box_shaking:962388845540823100>"
+            Emojis["moneyBox"],
+            Emojis["moneyBox_shaking"]
         );
     }
 };
@@ -193,7 +193,7 @@ export const PatreonBox: Special = {
     name: "Patron Box",
     description: "A patron box.",
     rarity: "S",
-    emoji: "<:patronbox:1056324158524502036>",
+    emoji: Emojis.patronbox,
     price: 200000,
     tradable: false,
     storable: true,
@@ -229,8 +229,8 @@ export const PatreonBox: Special = {
             finalLoot,
             "Patron Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-            "<:x:1056324158524502036>",
-            "<a:x:1056324219639701504>"
+            Emojis["partonbox"],
+            Emojis["patronbox_shake"]
         );
     }
 };
@@ -543,7 +543,7 @@ export const ChristmasGift: Special = {
     name: "Christmas Gift",
     description: "A gift that was available during Christmas.",
     rarity: "T",
-    emoji: "<:xmasgift:1055916688568229938>",
+    emoji: Emojis["xmasgift"],
     price: 5000,
     tradable: true,
     storable: true,
@@ -661,6 +661,8 @@ export const ChristmasGift: Special = {
             ]
         ];
 
-        return useBox(ctx, finalLoot, "Christmas Box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "<:xmasgift:1055916688568229938>", "<a:xmasgift_shake:1055916746613211216>");
+        return useBox(ctx, finalLoot, "Christmas Box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+        Emojis["xmasgift"], 
+        Emojis["xmasgift_shake"]);
     }
 };

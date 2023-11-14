@@ -38,7 +38,7 @@ export const JotarosHat: EquipableItem = {
 export const MeguminsHat: EquipableItem = {
     id: "megumins_hat",
     name: "Megumin's Hat",
-    emoji: "<:meguminHat:1103322757372055552>",
+    emoji: Emojis.meguminHat,
     description: "A hat that belonged to Megumin.",
     type: equipableItemTypes.HEAD,
     effects: {
@@ -61,7 +61,7 @@ export const MeguminsHat: EquipableItem = {
 export const BlueHoodieJacket: EquipableItem = {
     id: "blue_hoodie_jacket",
     name: "Blue Hoodie Jacket",
-    emoji: "<:coatv1:962774070758359070>",
+    emoji: Emojis.BlueHoodieJacket,
     description: "A blue hoodie jacket.",
     type: equipableItemTypes.CHEST,
     effects: {
@@ -79,7 +79,7 @@ export const BlueHoodieJacket: EquipableItem = {
 export const GreenHoodieJacket: EquipableItem = {
     id: "green_hoodie_jacket",
     name: "Green Hoodie Jacket",
-    emoji: "<:coatv2:962774071035170836>",
+    emoji: Emojis.GreenHoodieJacket,
     description: "A green hoodie jacket.",
     type: equipableItemTypes.CHEST,
     effects: {
@@ -104,7 +104,7 @@ export const GreenHoodieJacket: EquipableItem = {
 export const SBRBoots: EquipableItem = {
     id: "sbr_boots",
     name: "SBR Boots",
-    emoji: "<:boot_2:962774068736708660>",
+    emoji: Emojis.SBRboots,
     description: "A pair of boots.",
     type: equipableItemTypes.FEET,
     effects: {
@@ -131,7 +131,7 @@ export const SBRBoots: EquipableItem = {
 export const BlueJeans: EquipableItem = {
     id: "blue_jeans",
     name: "Blue Jeans",
-    emoji: "<:pannt:962774073115574362>",
+    emoji: Emojis.BlueJeans,
     description: "A pair of blue jeans.",
     type: equipableItemTypes.LEGS,
     effects: {
@@ -157,7 +157,7 @@ export const BlueJeans: EquipableItem = {
 export const BloodyKnife: Weapon = {
     id: "bloody_knife",
     name: "Bloody Knife",
-    emoji: "<:bknife:1112323141587435521>",
+    emoji: Emojis.BloodyKnife,
     description: "A bloody knife.",
     type: equipableItemTypes.WEAPON,
     attackName: "stab",
@@ -192,7 +192,7 @@ export const BloodyKnife: Weapon = {
 export const Katana: Weapon = {
     id: "Basic Katana",
     name: "Katana",
-    emoji: "<:emoji_176:1136201240087384104>",
+    emoji: Emojis.katana,
     description: "A basic and elegant katana.",
     type: equipableItemTypes.WEAPON,
     attackName: "slash",
@@ -231,7 +231,7 @@ export const Katana: Weapon = {
 export const GauntletsOfTheBerserker: Weapon = {
     id: "gauntlets_of_the_berserker",
     name: "Gauntlets of the Berserker",
-    emoji: "<:emoji_177:1136204824803819651>",
+    emoji: Emojis.gauntlet,
     description:
         "Ancient gauntlets infused with the primal rage of berserkers. Tap into your inner fury for immense power.",
     type: equipableItemTypes.WEAPON,
@@ -267,7 +267,7 @@ export const GauntletsOfTheBerserker: Weapon = {
 export const DiosKnives: Weapon = {
     id: "dios_knives",
     name: "Dio's Knives",
-    emoji: "<:dio_knives:1138111014618021898>",
+    emoji: Emojis.DioKnives,
     description:
         "A pair of knives that belonged to Dio Brando. [PASSIVE: During time stop, it throws knives to every enemies.]",
     type: equipableItemTypes.WEAPON,
@@ -297,7 +297,7 @@ export const DiosKnives: Weapon = {
 export const KakyoinsSnazzyShades: EquipableItem = {
     id: "kakyoins_snazzy_shades",
     name: "Kakyoin's Snazzy Shades",
-    emoji: "<:kakyoin_snazzy_shades:1138203500283707452>",
+    emoji: Emojis.KakyoinShades,
     description: "Kakyoin's snazzy shades.",
     type: equipableItemTypes.FACE,
 
@@ -339,7 +339,7 @@ export const AthleticShoes: EquipableItem = {
 export const MeguminsWand: Weapon = {
     id: "megumins_wand",
     name: "Megumin's Wand",
-    emoji: "<:MeguminsMagicWand:1162700280543068240>",
+    emoji: Emojis.meguminWand,
     description: "LOSION, LOSION, EXPLOSION!",
     type: equipableItemTypes.WEAPON,
     attackName: "cast",
