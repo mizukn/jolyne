@@ -63,7 +63,7 @@ export const Cola: Consumable = {
 export const ToniosSpecialRecipe: Consumable = {
     id: "tonios_special_recipe",
     name: "Tonio's Special Recipe",
-    description: "A special recipe made by Tonio Trussardi himself",
+    description: "A special recipe made by Tonio Trussardi himself.",
     emoji: "🥣",
     price: 13500,
     rarity: "A",
@@ -78,7 +78,7 @@ export const ToniosSpecialRecipe: Consumable = {
 export const Ramen_Bowl: Consumable = {
     id: "ramen_bowl",
     name: "Ramen Bowl",
-    description: "A bowl of ramen",
+    description: "A bowl of ramen.",
     emoji: "🍜",
     price: 1500,
     rarity: "C",
@@ -94,7 +94,7 @@ export const Ramen_Bowl: Consumable = {
 export const Meat: Consumable = {
     id: "meat",
     name: "Meat",
-    description: "A medium rare piece of meat",
+    description: "A medium rare piece of meat.",
     emoji: "🍖",
     price: 500,
     rarity: "C",
@@ -110,7 +110,7 @@ export const Energy_Drink: Consumable = {
     id: "energy_drink",
     name: "Energy Drink",
     description: "A drink that give you a boost of energy",
-    emoji: Emojis.cola,
+    emoji: Emojis.energydrink,
     price: 700,
     rarity: "C",
     tradable: true,
@@ -123,8 +123,8 @@ export const Energy_Drink: Consumable = {
 export const Squid_Ink_Spaghetti: Consumable = {
     id: "squid_ink_spaghetti",
     name: "Squid Ink Spaghetti",
-    description: "A delicious plate of pasta that turns your mouth black for a while",
-    emoji: Emojis.cola,
+    description: "A delicious plate of pasta that turns your mouth black for a while.",
+    emoji: "🍝",
     price: 1000,
     rarity: "C",
     tradable: true,
@@ -138,8 +138,8 @@ export const Squid_Ink_Spaghetti: Consumable = {
 export const Garlic_Bread: Consumable = {
     id: "garlic_bread",
     name: "Garlic Bread",
-    description: "A unfathomably great food sent from the heavens themselves",
-    emoji: Emojis.cola,
+    description: "A unfathomably great food sent from the heavens themselves.",
+    emoji: "🍞",
     price: 500,
     rarity: "C",
     tradable: true,
@@ -153,8 +153,8 @@ export const Garlic_Bread: Consumable = {
 export const Shrimp_Fried_Rice: Consumable = {
     id: "shrimp_fried_rice",
     name: "Shrimp Fried Rice",
-    description: "For the last time, Yes a shrimp did is in fact frying rice ",
-    emoji: Emojis.cola,
+    description: "For the last time, Yes a shrimp did in fact fry this rice.",
+    emoji: "🍚",
     price: 1500,
     rarity: "C",
     tradable: true,
@@ -168,8 +168,8 @@ export const Shrimp_Fried_Rice: Consumable = {
 export const Bento_Box: Consumable = {
     id: "Bento_Box",
     name: "Bento Box",
-    description: "A delicious box lunch ",
-    emoji: Emojis.cola,
+    description: "A delicious boxed lunch.",
+    emoji: "🍱",
     price: 950,
     rarity: "C",
     tradable: true,
@@ -184,7 +184,7 @@ export const Bento_Box: Consumable = {
 export const Salad_Bowl: Consumable = {
     id: "salad_bowl",
     name: "Salad Bowl",
-    description: "A bowl of salad",
+    description: "A bowl of salad.",
     emoji: "🥗",
     price: 500,
     rarity: "C",
@@ -199,7 +199,7 @@ export const Salad_Bowl: Consumable = {
 export const DeadRat: Consumable = {
     id: "dead_rat",
     name: "Dead Rat",
-    description: "A dead rat. Eat it for a full health & stamina restore.",
+    description: "A dead rat. Eat it for a full health & stamina restore. `[You will LOSE health]`",
     emoji: "🐀",
     price: 69,
     rarity: "C",
