@@ -199,7 +199,7 @@ export const Salad_Bowl: Consumable = {
 export const DeadRat: Consumable = {
     id: "dead_rat",
     name: "Dead Rat",
-    description: "A dead rat. Eat it for a full health & stamina restore. `[You will LOSE health]`",
+    description: "A dead rat. Eat it for a full health & stamina restore.",
     emoji: "🐀",
     price: 69,
     rarity: "C",
