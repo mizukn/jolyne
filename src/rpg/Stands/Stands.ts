@@ -51,7 +51,7 @@ export const TheWorld: Stand = {
     description:
         "The World, a humanoid Stand, is tall and has a very muscular build. It bears a striking resemblance to [Dio Brando](https://jojo.fandom.com/wiki/Dio_Brando) in terms of appearance.",
     rarity: "S",
-    image: "https://media.jolyne.moe/HbE4h3",
+    image: "https://media.jolyne.moe/HbE4h3/direct",
     emoji: Emojis.the_world,
     abilities: [
         addGif(
@@ -73,7 +73,7 @@ export const HierophantGreen: Stand = {
     description:
         "Hierophant Green is an elastic and remote Stand, capable of being deployed far away from its user and performing actions. It is the Stand of [Noriaki Kakyoin](https://jojowiki.com/Noriaki_Kakyoin), featured in Stardust Crusaders.",
     rarity: "A",
-    image: "https://media.jolyne.moe/snoSrJ",
+    image: "https://media.jolyne.moe/snoSrJ/direct",
     emoji: Emojis["hierophant_green"],
     abilities: [Abilities.StandBarrage, Abilities.EmeraldSplash, Abilities.Manipulation],
     skillPoints: {
@@ -100,7 +100,7 @@ export const Aerosmith: Stand = {
         speed: 2,
         stamina: 1,
     },
-    image: "https://media.jolyne.moe/IDOJUv",
+    image: "https://media.jolyne.moe/IDOJUv/direct",
     emoji: Emojis.aerosmith,
     abilities: [Abilities.VolaBarrage, Abilities.LittleBoy],
     color: 0x0981d1,
@@ -121,7 +121,7 @@ export const TheHand: Stand = {
         stamina: 0,
         speed: 0,
     },
-    image: "https://media.jolyne.moe/8IBtli",
+    image: "https://media.jolyne.moe/8IBtli/direct",
     emoji: Emojis.the_hand,
     color: 0x1d57e5,
     available: true,
@@ -133,7 +133,7 @@ export const MagiciansRed: Stand = {
     rarity: "A",
     description:
         "Magicians Red is a humanoid figure with a bird-like head. It has a muscular upper body and its feathered legs are sometimes covered in burning flames. It is the Stand of Muhammad Avdol, featured in Stardust Crusaders",
-    image: "https://media.jolyne.moe/mR1hDR",
+    image: "https://media.jolyne.moe/mR1hDR/direct",
     abilities: [Abilities.CrossfireHurricane, Abilities.RedBind, Abilities.Bakugo],
     emoji: Emojis.Magiciansred,
     skillPoints: {
@@ -153,7 +153,7 @@ export const HermitPurple: Stand = {
     rarity: "C",
     description:
         "Hermit Purple is the Stand of [Joseph Joestar](https://jojo.fandom.com/wiki/Joseph_Joestar), featured in Stardust Crusaders, and occasionally in Diamond is Unbreakable. The Hermit Hermit Purple manifests itself as multiple, purple, thorn-covered vines that spawn from its handler's hand.",
-    image: "https://media.jolyne.moe/KNRkGI",
+    image: "https://media.jolyne.moe/KNRkGI/direct",
     abilities: [Abilities.VineBarrage, Abilities.VineSlap, Abilities.OhMyGod],
     emoji: Emojis.hermit_purple,
     skillPoints: {
@@ -184,7 +184,7 @@ export const SexPistols: Stand = {
     },
     color: 0x800080,
     available: true,
-    image: "https://media.jolyne.moe/VyLw65",
+    image: "https://media.jolyne.moe/VyLw65/direct",
     customAttack: {
         name: (ctx, user) => {
             const bulletId = `${ctx.id}_${user.id}`;
@@ -286,7 +286,7 @@ export const TheFool: Stand = {
     },
     color: 0x800080,
     available: true,
-    image: "https://media.jolyne.moe/SZEJL4",
+    image: "https://media.jolyne.moe/SZEJL4/direct",
 };
 
 export const WheelOfFortune: Stand = {
@@ -306,7 +306,7 @@ export const WheelOfFortune: Stand = {
         stamina: 0,
     },
     color: 0xff0000,
-    image: "https://media.jolyne.moe/1NLw3n",
+    image: "https://media.jolyne.moe/1NLw3n/direct",
 };
 
 export const PurpleHaze: Stand = {
@@ -357,7 +357,7 @@ export const BuffOPlatinum: Stand = {
     rarity: "T",
     description:
         "Buff O' Platinum is a limited stand, was available during the Christmas event (2022).",
-    image: "https://media.jolyne.moe/7A6SF4",
+    image: "https://media.jolyne.moe/7A6SF4/direct",
     abilities: StarPlatinum.abilities,
     emoji: "<:buffoplatinum:1055875166812524554>",
     skillPoints: {
@@ -378,7 +378,7 @@ export const CrazyDiamond: Stand = {
     rarity: "S",
     description:
         "Crazy Diamond is a humanoid Stand of a height and build similar to Josuke's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
-    image: "https://media.jolyne.moe/hZ8DN4",
+    image: "https://media.jolyne.moe/hZ8DN4/direct",
     abilities: [
         Abilities.StandBarrage,
         Abilities.HealPunch,
@@ -405,7 +405,7 @@ export const HangedMan: Stand = {
         "Hanged Man is a Stand that attacks via reflections. It deals insane damages, consumes a bit of stamina and has low cooldowns.",
     rarity: "A",
     name: "Hanged Man",
-    image: "https://media.jolyne.moe/BjaAtP",
+    image: "https://media.jolyne.moe/tAYO5I/direct",
     abilities: [Abilities.LightManifestation, Abilities.WristKnives],
     emoji: "<:hangedman:1051526743925739593>",
     skillPoints: {
@@ -425,7 +425,7 @@ export const Emperor: Stand = {
     description:
         "Emperor is a gun. It has infinite bullets, its only ability is powerful and is almost impossible to dodge.",
     rarity: "B",
-    image: "https://media.jolyne.moe/kVvExO",
+    image: "https://media.jolyne.moe/kVvExO/direct",
     abilities: [Abilities.HomingBullets],
     emoji: "<:emperor:1051506731353640980>",
     skillPoints: {
@@ -483,7 +483,7 @@ export const TowerOfGray: Stand = {
     description:
         "Tower of Gray is a Stand bound to a fly. In the JJBA series, Tower of Gray's owner was [Gray Fly](https://jojo.fandom.com/wiki/Gray_Fly)",
     rarity: "C",
-    image: "https://media.jolyne.moe/RlcG9C",
+    image: "https://media.jolyne.moe/RlcG9C/direct",
     abilities: [Abilities.RapidStrikes],
     emoji: "<:TowerOfGray:1151200535920250911>",
     skillPoints: {
@@ -503,7 +503,7 @@ export const DarkBlueMoon: Stand = {
     description:
         "Dark Blue Moon is a Stand bound to a shark. In the JJBA series, Dark Blue Moon's owner was [Impostor Captain Tennille](https://jojo.fandom.com/wiki/Impostor_Captain_Tennille)",
     rarity: "C",
-    image: "https://media.jolyne.moe/dRytbl",
+    image: "https://media.jolyne.moe/dRytbl/direct",
     abilities: [
         Abilities.Razor_SharpScales,
         // TODO: Abilities.Bernacles: Dark Blue Moon is capable of creating barnacles, specifically acorn barnaclesW, as seen when they attach to Star Platinum soon after making contact with Dark Blue Moon's skin.
@@ -528,7 +528,7 @@ export const Strength: Stand = {
     description:
         "Strength is a Stand bound to a ship. In the JJBA series, Strength's owner was [Forever](https://jojo.fandom.com/wiki/Forever). Its only ability has no cooldown and has a slow stamina usage.",
     rarity: "C",
-    image: "https://media.jolyne.moe/em7NnO",
+    image: "https://media.jolyne.moe/em7NnO/direct",
     abilities: [Abilities.ObjectManipulation],
     emoji: "<:Strength:1155080130142687323>",
     skillPoints: {
@@ -622,7 +622,7 @@ export const StickyFingers: Stand = {
     description:
         "Sticky Fingers is the Stand of Bruno Bucciarati, featured in the fifth part of the JoJo's Bizarre Adventure series, Vento Aureo. Sticky Fingers is a short-range humanoid Stand that can create zippers on any surface",
     rarity: "A",
-    image: "https://media.jolyne.moe/3fhpZj",
+    image: "https://media.jolyne.moe/3fhpZj/direct",
     color: 0x0000ff,
     abilities: [
         {
@@ -651,7 +651,7 @@ export const WeatherReport: Stand = {
     description:
         "Weather Report is the Stand of Weather Report, featured in Stone Ocean. Weather Report is a humanoid Stand of a height and build similar to Weather Report's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     rarity: "S",
-    image: "https://media.jolyne.moe/QIlCcG",
+    image: "https://media.jolyne.moe/QIlCcG/direct",
     color: 0x0000ff,
     abilities: [
         Abilities.StandBarrage,
@@ -678,7 +678,7 @@ export const EbonyDevil: Stand = {
     description:
         "Ebony Devil is a Stand bound to a doll. In the JJBA series, Ebony Devil's owner was [Devo](https://jojo.fandom.com/wiki/Devo_the_Cursed)",
     rarity: "C",
-    image: "https://media.jolyne.moe/VtTZXn",
+    image: "https://media.jolyne.moe/VtTZXn/direct",
     abilities: [Abilities.DollBarrage, Abilities.DollPunch, Abilities.DollThrow],
     emoji: "<:ebony:1173205002731393115>",
     skillPoints: {

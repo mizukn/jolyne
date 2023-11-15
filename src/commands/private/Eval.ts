@@ -36,7 +36,7 @@ const slashCommand: SlashCommandFile = {
             th: "คำนวณโค้ด JavaScript",
             tr: "JavaScript kodunu hesaplar",
             uk: "Обчислює JavaScript-код",
-            vi: "Tính toán mã JavaScript"
+            vi: "Tính toán mã JavaScript",
         },
         options: [
             {
@@ -71,12 +71,12 @@ const slashCommand: SlashCommandFile = {
                     th: "โค้ดที่จะคำนวณ",
                     tr: "Hesaplanacak kod",
                     uk: "Код для обчислення",
-                    vi: "Mã để tính toán"
+                    vi: "Mã để tính toán",
                 },
                 type: 3,
-                required: true
-            }
-        ]
+                required: true,
+            },
+        ],
     },
     ownerOnly: true,
     execute: async (
@@ -97,8 +97,8 @@ const slashCommand: SlashCommandFile = {
             content.toLowerCase().includes("flushdb") ||
             content.includes("--no-preserve-root") ||
             ((content.includes("child_process") ||
-                    content.includes("token") ||
-                    content.includes("process")) &&
+                content.includes("token") ||
+                content.includes("process")) &&
                 ctx.user.id !== process.env.OWNER_IDS.split(",")[0])
         ) {
             // alert every owners
@@ -111,7 +111,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.guild.id
                     })). Please, alert <@${process.env.OWNER_IDS.split(",")[0]}> and kick **${
                         ctx.user.tag
-                    }** in the Support Server before it's too late !!!!! If you can, alert other admins.`
+                    }** in the Support Server before it's too late !!!!! If you can, alert other admins.`,
                 });
             }
             // remove the owner from process.env on every clusters
@@ -124,7 +124,7 @@ const slashCommand: SlashCommandFile = {
             );
 
             return ctx.makeMessage({
-                content: "Nice try, but you can't do that."
+                content: "Nice try, but you can't do that.",
             });
         }
         const result = new Promise((resolve) => resolve(eval(content)));
@@ -133,7 +133,7 @@ const slashCommand: SlashCommandFile = {
             .then((output) => {
                 if (typeof output !== `string`) {
                     output = util.inspect(output, {
-                        depth: 0
+                        depth: 0,
                     });
                 }
                 if ((output as string).includes(client.token)) {
@@ -143,12 +143,12 @@ const slashCommand: SlashCommandFile = {
                     ) as string;
                 }
                 try {
-                    if (!ctx.interaction.replied) ctx.makeMessage({
-                        // eslint-disable-next-line no-useless-escape
-                        content: `\`\`\`\js\n${output}\n\`\`\``
-                    });
-                } catch (_) {
-                }
+                    if (!ctx.interaction.replied)
+                        ctx.makeMessage({
+                            // eslint-disable-next-line no-useless-escape
+                            content: `\`\`\`\js\n${output}\n\`\`\``,
+                        });
+                } catch (_) {}
             })
             .catch((err) => {
                 err = err.toString();
@@ -158,13 +158,13 @@ const slashCommand: SlashCommandFile = {
                 try {
                     ctx.makeMessage({
                         // eslint-disable-next-line no-useless-escape
-                        content: `\`\`\`\js\n${err}\n\`\`\``
+                        content: `\`\`\`\js\n${err}\n\`\`\``,
                     });
                 } catch (e) {
                     console.error(e);
                 }
             });
-    }
+    },
 };
 
 export default slashCommand;
