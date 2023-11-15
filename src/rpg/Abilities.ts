@@ -1842,6 +1842,7 @@ export const CoinBomb: Ability = {
     description: "Throw a coin bomb at one of your opponent.",
     name: "Coin Bomb",
     cooldown: 3,
+    damage: 15,
 };
 
 // megumin's wand ability:

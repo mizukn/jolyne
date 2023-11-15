@@ -233,11 +233,14 @@ export const KillerQueen: EvolutionStand = {
             description: "Killer Queen is a humanoid Stand of average height and build. Its face is hidden apart from the mouth by a helmet-like covering adorned with a mohawk-like row of short spikes. It has a cat-like mouth and ears, and its eyes are inverted, producing a negative effect with pure-white irises and black sclera.",
             rarity: "S",
             image: "https://static.jojowiki.com/images/thumb/f/fb/latest/20210420222949/Killer_Queen_Infobox_Manga.png/400px-Killer_Queen_Infobox_Manga.png",
-            abilities: [{
+            abilities: [
+              Abilities.CoinBomb,
+              {
                 ...Abilities.StandBarrage,
                 name: "Bomb Barrage",
                 description: "Killer Queen punches the enemy with its bombs"
-            }, Abilities.SheerHeartAttack],
+            },
+            Abilities.SheerHeartAttack],
             emoji: Emojis.killer_queen,
             skillPoints: {
                 perception: 5,
@@ -253,12 +256,16 @@ export const KillerQueen: EvolutionStand = {
             description: "Killer Queen Bites the Dust is the Stand of [Yoshikage Kira](https://jojo.fandom.com/wiki/Yoshikage_Kira), featured in Diamond is Unbreakable. It is a sub-Stand that takes the form of a light purple cat-like entity, and is the evolved form of Killer Queen.",
             rarity: "SS",
             image: "https://static.jojowiki.com/images/thumb/f/fb/latest/20210420222949/Killer_Queen_Infobox_Manga.png/400px-Killer_Queen_Infobox_Manga.png",
-            abilities: [{
+            abilities: [
+              Abilities.CoinBomb,
+              {
                 ...Abilities.StandBarrage,
                 name: "Bomb Barrage",
                 description: "Killer Queen punches the enemy with its **huge** bombs",
                 damage: Abilities.StandBarrage.damage + 15
-            }, Abilities.SheerHeartAttackBTD, Abilities.BitesTheDust],
+              }, 
+            Abilities.SheerHeartAttackBTD, 
+            Abilities.BitesTheDust],
             emoji: Emojis.killer_queen,
             skillPoints: {
                 perception: 15,
