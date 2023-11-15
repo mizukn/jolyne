@@ -778,10 +778,10 @@ const slashCommand: SlashCommandFile = {
             const itemTaxes = {
                 T: 1,
                 SS: 1,
-                S: 1,
-                A: 0.9,
-                B: 0.75,
-                C: 0.5,
+                S: 0.78,
+                A: 0.65,
+                B: 0.46,
+                C: 0.3,
             };
             await ctx.makeMessage({
                 content: Functions.makeNPCString(
