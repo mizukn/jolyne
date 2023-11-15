@@ -691,3 +691,27 @@ export const EbonyDevil: Stand = {
     available: true,
     color: 0x666420,
 };
+
+export const AdminStand: Stand = {
+    id: "admin_stand",
+    name: "The WICKED",
+    description: "Enchant the power of the wicked through yourself. **[Staff Only]**",
+    rarity: "SS",
+    image: "https://media.jolyne.moe/UWAEPT/direct",
+    color: 0xa83232,
+    abilities: [
+        Abilities.StaffToy,
+        Abilities.StaffBarrage,
+        Abilities.StaffSplash,
+        Abilities.StaffBAN,
+    ],
+    emoji: "<:staffhammer:1171743022527029248>",
+    skillPoints: {
+        perception: 20,
+        speed: 20,
+        strength: 100,
+        stamina: 300,
+        defense: 200,
+    },
+    available: true,
+};

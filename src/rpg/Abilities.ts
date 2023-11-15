@@ -2160,3 +2160,49 @@ export const DollThrow: Ability = {
     dodgeScore: 0,
     target: "enemy",
 };
+
+export const StaffBarrage: Ability = {
+    name: "Barrage",
+    description: "Performs an astoundingly fast flurry of punches that deals damage per hit",
+    cooldown: 1,
+    extraTurns: 1,
+    damage: 25,
+    stamina: 5,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const StaffSplash: Ability = {
+    name: "Crystal Splash",
+    description: "Splashes the opponent with wicked dark energy.",
+    cooldown: 3,
+    extraTurns: 1,
+    damage: 20,
+    stamina: 20,
+    dodgeScore: 0,
+    target: "enemy",
+    thumbnail: "https://media.jolyne.moe/UWAEPT/direct",
+};
+
+export const StaffBAN: Ability = {
+    name: "FINISH",
+    description: "Destroys the opponent with a single attack.",
+    cooldown: 3,
+    extraTurns: 1,
+    damage: 100,
+    stamina: 20,
+    dodgeScore: 0,
+    target: "enemy",
+    thumbnail: "https://media.jolyne.moe/UWAEPT/direct",
+};
+
+export const StaffToy: Ability = {
+    name: "smol attk",
+    description: "pokes the opponent with a stick",
+    cooldown: 0,
+    extraTurns: 0,
+    damage: 20,
+    stamina: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
