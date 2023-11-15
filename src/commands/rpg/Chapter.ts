@@ -1,16 +1,5 @@
-import {
-    SlashCommandFile,
-    Chapter,
-    ChapterPart,
-    RPGUserQuest,
-    RaidNPCQuest
-} from "../../@types";
-import {
-    Message,
-    ButtonBuilder,
-    ButtonStyle,
-    MessageComponentInteraction
-} from "discord.js";
+import { SlashCommandFile, Chapter, ChapterPart, RPGUserQuest, RaidNPCQuest } from "../../@types";
+import { Message, ButtonBuilder, ButtonStyle, MessageComponentInteraction } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import * as Chapters from "../../rpg/Chapters/Chapters";
@@ -19,7 +8,6 @@ import { FightableNPCS } from "../../rpg/NPCs";
 import * as QuestsL from "../../rpg/Quests/Quests";
 import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
 import * as Raids from "../../rpg/Raids";
-
 
 const raids = Object.values(Raids);
 
@@ -145,36 +133,39 @@ export const getQuestsStats = (
                     "{{name}}",
                     Functions.findItem(quest.item).name
                 );
-                questMessage = ctx.translate("quest:CLAIMX", {
-                    cc: quest.goal.toLocaleString("en-US"),
-                    s: Functions.s(quest.goal),
-                    name: Functions.findItem(quest.item).name,
-                    emoji: Functions.findItem(quest.item).emoji
-                });
+                questMessage =
+                    ctx.translate("quest:CLAIMX", {
+                        cc: quest.goal.toLocaleString("en-US"),
+                        s: Functions.s(quest.goal),
+                        name: Functions.findItem(quest.item).name,
+                        emoji: Functions.findItem(quest.item).emoji,
+                    }) + questEnd;
             } else if (Functions.isUseXCommandQuest(quest)) {
                 const cmd = ctx.client.getSlashCommandMention(quest.command);
-                questMessage = ctx.translate("quest:USE_COMMAND", {
-                    cmd,
-                    cc: quest.goal.toLocaleString("en-US"),
-                    s: Functions.s(quest.goal)
-                });
+                questMessage =
+                    ctx.translate("quest:USE_COMMAND", {
+                        cmd,
+                        cc: quest.goal.toLocaleString("en-US"),
+                        s: Functions.s(quest.goal),
+                    }) + questEnd;
             } else {
                 const emoji = {
                     daily: "📆",
                     coin: ctx.client.localEmojis.jocoins,
-                    xp: ctx.client.localEmojis.xp
+                    xp: ctx.client.localEmojis.xp,
                 }[quest.x];
 
-                questMessage = ctx.translate("quest:CLAIMX", {
-                    cc: quest.goal.toLocaleString("en-US"),
-                    s: Functions.s(quest.goal),
-                    emoji,
-                    name:
-                        quest.x +
-                        (quest.x === "daily"
-                            ? ` (${ctx.client.getSlashCommandMention("daily claim")})`
-                            : "")
-                });
+                questMessage =
+                    ctx.translate("quest:CLAIMX", {
+                        cc: quest.goal.toLocaleString("en-US"),
+                        s: Functions.s(quest.goal),
+                        emoji,
+                        name:
+                            quest.x +
+                            (quest.x === "daily"
+                                ? ` (${ctx.client.getSlashCommandMention("daily claim")})`
+                                : ""),
+                    }) + questEnd;
             }
 
             message.push(questMessage + questEnd);
@@ -273,7 +264,10 @@ export const getQuestsStats = (
                 totalPercent += 100;
                 message.push(`??? Unknown Email (${quest.email}) ???::: ${JSON.stringify(quest)}`);
             } else {
-                totalPercent += (quest.completed || ctx.userData?.emails?.find(x => x.id === quest.email)?.read) ? 100 : 0;
+                totalPercent +=
+                    quest.completed || ctx.userData?.emails?.find((x) => x.id === quest.email)?.read
+                        ? 100
+                        : 0;
                 message.push(
                     `:envelope: Read the e-mail from **${emailData.author.name}** (subject: ${
                         emailData.subject
@@ -286,34 +280,46 @@ export const getQuestsStats = (
         }
 
         if (Functions.isRaidNPCQuest(quest)) {
-            const raid = raids.find(w => w.boss.id === (quest as RaidNPCQuest).boss);
+            const raid = raids.find((w) => w.boss.id === (quest as RaidNPCQuest).boss);
             if (raid) {
                 questPercent =
-                quests.filter(
-                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
-                ).length /
-                quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss).length;
+                    quests.filter(
+                        (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
+                    ).length /
+                    quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                        .length;
                 if (questPercent === 1) completed = true;
 
-                const completedSlashTotal = quests.filter(
-                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
-                ).length + "/" + quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss).length;
+                const completedSlashTotal =
+                    quests.filter(
+                        (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
+                    ).length +
+                    "/" +
+                    quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                        .length;
 
-                const sMessage = `Raid ${quests.filter(
-                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
-                ).length !== 1 ? "x" + quests.filter(
-                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
-                ).length : ""} ${raid.boss.emoji} **${raid.boss.name}** (LVL: ${raid.boss.level}) (${ctx.client.getSlashCommandMention("raid")}) ||(${quests.filter(
-                    (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss
-                ).length !== 1 ? completedSlashTotal : ""}) **${(questPercent * 100).toFixed(2)}%**||`;
-                const found = message.find(messageX => messageX === sMessage);
+                const sMessage = `Raid ${
+                    quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                        .length !== 1
+                        ? "x" +
+                          quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                              .length
+                        : ""
+                } ${raid.boss.emoji} **${raid.boss.name}** (LVL: ${
+                    raid.boss.level
+                }) (${ctx.client.getSlashCommandMention("raid")}) ||(${
+                    quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                        .length !== 1
+                        ? completedSlashTotal
+                        : ""
+                }) **${(questPercent * 100).toFixed(2)}%**||`;
+                const found = message.find((messageX) => messageX === sMessage);
 
                 if (!found) {
                     totalPercent += questPercent * 100;
                     message.push(sMessage);
                 }
                 continue;
-
             }
         }
         message.push(`??? Unknown Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`);
@@ -328,7 +334,7 @@ export const getQuestsStats = (
                 else return `${ctx.client.localEmojis.reply} ${v}`;
             })
             .join("\n"),
-        percent: totalPercent / quests.length
+        percent: totalPercent / quests.length,
     };
 };
 
@@ -344,7 +350,7 @@ const slashCommand: SlashCommandFile = {
     data: {
         name: "chapter",
         description: "Show your current chapter progress",
-        options: []
+        options: [],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.chapter.quests.length === 0) {
@@ -371,13 +377,12 @@ const slashCommand: SlashCommandFile = {
                     .setStyle(ButtonStyle.Primary)
             );
             const filter = (i: MessageComponentInteraction) => {
-                i.deferUpdate().catch(() => {
-                }); // eslint-disable-line @typescript-eslint/no-empty-function
+                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                 return i.customId === "next" && i.user.id === ctx.user.id;
             };
             const collector = ctx.interaction.channel.createMessageComponentCollector({
                 filter,
-                time: 30000
+                time: 30000,
             });
             collector.on("collect", async (i) => {
                 if (await ctx.antiCheat(true)) {
@@ -397,7 +402,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop();
                     ctx.followUp({
                         content: `We're sorry, but this is the last chapter for now. We're working on new content!`,
-                        ephemeral: true
+                        ephemeral: true,
                     });
                     return;
                 }
@@ -438,7 +443,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.followUp({
                         content: `You have completed the chapter and received the following rewards:\n${winContent.join(
                             ", "
-                        )}`
+                        )}`,
                     });
                 }
 
@@ -454,7 +459,7 @@ const slashCommand: SlashCommandFile = {
                         newChap.description[ctx.userData.language]
                     }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${
                         status.message
-                    }`
+                    }`,
                 });
 
                 // TODO: if chap dialogues...
@@ -469,15 +474,15 @@ const slashCommand: SlashCommandFile = {
             }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}${
                 chapter.hints
                     ? "\n\n" +
-                    chapter
-                        .hints(ctx)
-                        .map((x) => `:exclamation: HINT: ${x}`)
-                        .join("\n")
+                      chapter
+                          .hints(ctx)
+                          .map((x) => `:exclamation: HINT: ${x}`)
+                          .join("\n")
                     : ""
             }`,
-            components: components.length === 0 ? [] : [Functions.actionRow(components)]
+            components: components.length === 0 ? [] : [Functions.actionRow(components)],
         });
-    }
+    },
 };
 
 export default slashCommand;
