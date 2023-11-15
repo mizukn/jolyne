@@ -60,7 +60,7 @@ const slotsChart = {
     },
     "🍒": {
         2: 1.9,
-        3: 21.6,
+        3: 2.6,
         frequence: 3,
     },
     "🍎": {
@@ -71,6 +71,29 @@ const slotsChart = {
     "🍐": {
         2: 1.7,
         3: 2.4,
+        frequence: 3,
+    },
+    "🍍": {
+        2: 1.5,
+        3: 2.2,
+        frequence: 3,
+    },
+
+    "🍈": {
+        2: 1.4,
+        3: 2.1,
+        frequence: 3,
+    },
+
+    "🍑": {
+        2: 1.3,
+        3: 2,
+        frequence: 3,
+    },
+
+    "🍏": {
+        2: 1.2,
+        3: 1.9,
         frequence: 3,
     },
 };
@@ -346,13 +369,13 @@ const slashCommand: SlashCommandFile = {
                     .then(async (m: Message) => {
                         ctx.client.database.setCooldown(
                             ctx.user.id,
-                            `You're currently spinning the slots machione. Can't find the message? https://discord.com/channels/${m.guild?.id}/${m.channel.id}/${m.id}`
+                            `You're currently spinning the slots machine. Can't find the message? https://discord.com/channels/${m.guild?.id}/${m.channel.id}/${m.id}`
                         );
                     })
                     .catch(() => {
                         ctx.client.database.setCooldown(
                             ctx.user.id,
-                            `You're currently spinning the slots machione. Can't find the message?`
+                            `You're currently spinning the slots machine. Can't find the message?`
                         );
                     });
 
