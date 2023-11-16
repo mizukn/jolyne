@@ -97,7 +97,7 @@ export const Polnareff: NPC = {
 export const RequiemPolnareff: NPC = {
     id: "requiem_polnareff",
     name: "Requiem Polnareff",
-    emoji: Emojis.Polnareff,
+    emoji: Emojis.ReqPolnareff,
 };
 
 export const Golem: NPC = {
