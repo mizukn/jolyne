@@ -24,7 +24,7 @@ export const StarPlatinum: Stand = {
         "Star Platinum is a very strong humanoid Stand. It was designed to look like a guardian spirit. It was used by [Jotaro Kujo](https://jojo.fandom.com/wiki/Jotaro_Kujo)",
     rarity: "S",
     image: "https://i.pinimg.com/originals/c8/a7/ed/c8a7edf03bcce4b74a24345bb1a109b7.jpg",
-    emoji: Emojis["sp"],
+    emoji: Emojis["star_platinum"],
     abilities: [
         addGif(
             Abilities.StandBarrage,
@@ -275,7 +275,7 @@ export const TheFool: Stand = {
         Abilities.SandMimicry,
         Abilities.SandStorm,
     ],
-    emoji: "<:the_fool:1133820601904152626>",
+    emoji: Emojis.theFool,
     skillPoints: {
         strength: 2,
 
@@ -296,7 +296,7 @@ export const WheelOfFortune: Stand = {
     description:
         "Wheel of Fortune is the Stand ZZ. As a Stand bound to a car, it is capable of morphing its exterior to suit the needs of its driver. (jojowiki.com)",
     abilities: [Abilities.GasolineBullets, Abilities.CarCrash, Abilities.Transformation],
-    emoji: "<:wheeloffortunaweeeeeeee:1100153453642272909>",
+    emoji: Emojis.wheelOfFortune,
     available: true,
     skillPoints: {
         strength: 0,
@@ -359,7 +359,7 @@ export const BuffOPlatinum: Stand = {
         "Buff O' Platinum is a limited stand, was available during the Christmas event (2022).",
     image: "https://media.jolyne.moe/7A6SF4/direct",
     abilities: StarPlatinum.abilities,
-    emoji: "<:buffoplatinum:1055875166812524554>",
+    emoji: Emojis.buffOPlatinum,
     skillPoints: {
         // event stands have 0 skill points
         strength: 0,
@@ -407,7 +407,7 @@ export const HangedMan: Stand = {
     name: "Hanged Man",
     image: "https://media.jolyne.moe/tAYO5I/direct",
     abilities: [Abilities.LightManifestation, Abilities.WristKnives],
-    emoji: "<:hangedman:1051526743925739593>",
+    emoji: Emojis.hangedMan,
     skillPoints: {
         strength: 5,
         perception: 7,
@@ -427,7 +427,7 @@ export const Emperor: Stand = {
     rarity: "B",
     image: "https://media.jolyne.moe/kVvExO/direct",
     abilities: [Abilities.HomingBullets],
-    emoji: "<:emperor:1051506731353640980>",
+    emoji: Emojis.emperor,
     skillPoints: {
         strength: 5,
         perception: 0,
@@ -439,7 +439,7 @@ export const Emperor: Stand = {
     color: 0xd3d3d3,
     customAttack: {
         name: (ctx, user) => "Shoot",
-        emoji: "<:emperor:1051506731353640980>",
+        emoji: Emojis["emperor"],
         handleAttack: (ctx, user, target, damages) => {
             damages = Math.round(damages);
             if (target.health > 0) {
@@ -485,7 +485,7 @@ export const TowerOfGray: Stand = {
     rarity: "C",
     image: "https://media.jolyne.moe/RlcG9C/direct",
     abilities: [Abilities.RapidStrikes],
-    emoji: "<:TowerOfGray:1151200535920250911>",
+    emoji: Emojis.TowerOfGray,
     skillPoints: {
         perception: 15,
         strength: 0,
@@ -510,7 +510,7 @@ export const DarkBlueMoon: Stand = {
         //
         // The barnacles drain the target of its strength and also allow Dark Blue Moon slight control over the infected body parts, allowing it to drag its foes back into the water if they try to escape it.[7]
     ],
-    emoji: "<:DarkBlueMoon:1155070166808412160>",
+    emoji: Emojis.DarkBlueMoon,
     skillPoints: {
         perception: 0,
         strength: 6,
@@ -530,7 +530,7 @@ export const Strength: Stand = {
     rarity: "C",
     image: "https://media.jolyne.moe/em7NnO/direct",
     abilities: [Abilities.ObjectManipulation],
-    emoji: "<:Strength:1155080130142687323>",
+    emoji: Emojis.strength,
     skillPoints: {
         // 0 on everything
         perception: 0,
@@ -603,7 +603,7 @@ export const TheWorldRu: Stand = {
             description: "SUKA BLYAT!",
         },
     ],
-    emoji: "<:TWRU:1160651318394884096>",
+    emoji: Emojis.TWRU,
     skillPoints: {
         // event stands have 0 skill points
         perception: 0,
@@ -661,7 +661,7 @@ export const WeatherReport: Stand = {
         Abilities.Mach1Tornado,
         Abilities.TotalCombustion,
     ],
-    emoji: "<:weather_report:1091818157901099078>",
+    emoji: Emojis.WeatherReport,
     skillPoints: {
         perception: 7,
         speed: 7,
@@ -680,7 +680,7 @@ export const EbonyDevil: Stand = {
     rarity: "C",
     image: "https://media.jolyne.moe/VtTZXn/direct",
     abilities: [Abilities.DollBarrage, Abilities.DollPunch, Abilities.DollThrow],
-    emoji: "<:ebony:1173205002731393115>",
+    emoji: Emojis.ebony,
     skillPoints: {
         perception: 0,
         strength: 6,
@@ -705,7 +705,7 @@ export const AdminStand: Stand = {
         Abilities.StaffSplash,
         Abilities.StaffBAN,
     ],
-    emoji: "<:staffhammer:1171743022527029248>",
+    emoji: Emojis.BanHammer,
     skillPoints: {
         perception: 20,
         speed: 20,

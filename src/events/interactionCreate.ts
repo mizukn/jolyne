@@ -314,9 +314,10 @@ const Event: EventFile = {
                             ctx.client.patreons.find((r) => r.id === ctx.user.id).level
                         );
                         ctx.followUpQueue.push({
-                            content: `:heart:<:patronbox:1056324158524502036> | **${
+                            content: `:heart: <:patronbox:1056324158524502036> | **${
                                 ctx.user.username
-                            }**, you received your monthly Patreon rewards! You got the following rewards:\n${Functions.getRewardsCompareData(
+                            }**, you received your monthly Patreon rewards!\nYou
+                            got these items:\n${Functions.getRewardsCompareData(
                                 oldDataPatreon,
                                 ctx.userData
                             ).join(", ")}`,
@@ -563,11 +564,11 @@ const Event: EventFile = {
             }
 
             commandLogsWebhook.send(
-                `[COMMAND] ${interaction.user.username} (${interaction.user.id}) used \`/${
+                `🤖 | ${interaction.user.username} \`(${interaction.user.id})\` used \`/${
                     interaction.commandName
-                }\` in guild ${interaction.guild.name} (${
+                }\` in guild ${interaction.guild.name} \`(${
                     interaction.guild.id
-                }) with options: ${JSON.stringify(interaction.options["data"])} (${command})`
+                })\` with options:\n \`${JSON.stringify(interaction.options["data"])} (${command})\``
             );
         } else if (interaction.isAutocomplete()) {
             if (
