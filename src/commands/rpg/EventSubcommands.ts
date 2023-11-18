@@ -13,7 +13,7 @@ import {
     UserSelectMenuInteraction,
     RoleSelectMenuInteraction,
     InteractionResponse,
-    MessageComponentInteraction
+    MessageComponentInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -29,18 +29,25 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "trade",
                 description: "Trade your souls for items.",
-                type: 1
+                type: 1,
             },
             {
                 name: "info",
                 description: "Displays information about the event.",
-                type: 1
-            }
-        ]
+                type: 1,
+            },
+        ],
     },
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
+        if (Date.now() > 1700348400000)
+            return void ctx.makeMessage({
+                content: Functions.makeNPCString(
+                    NPCs.SPEEDWAGON_FOUNDATION,
+                    "Sorry, the zombie invasion is over."
+                ),
+            });
         if (ctx.options.getSubcommand() === "info") {
             /**
              * Context: Happy Halloween! Skeletons, zombies and lots more scary creatures have invaded Morioh City. Kill them all for souls!
@@ -49,79 +56,102 @@ const slashCommand: SlashCommandFile = {
              */
             const embed: APIEmbed = {
                 title: "Halloween Event 2023",
-                color: // orange
-                    0xffa500,
-                description: `- Use the ${ctx.client.getSlashCommandMention("side quest view")} command to complete the event side quest.\n- You can gain ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** by killing event NPCs and by completing the event side quest.\n- You can trade your ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** by using the ${ctx.client.getSlashCommandMention("event trade")} command.\n\n${ctx.client.localEmojis.timerIcon} The event ends ${Functions.generateDiscordTimestamp(1701385140000, "FROM_NOW")} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`
+                // orange
+                color: 0xffa500,
+                description: `- Use the ${ctx.client.getSlashCommandMention(
+                    "side quest view"
+                )} command to complete the event side quest.\n- You can gain ${
+                    ctx.client.localEmojis.spooky_soul
+                } **Spooky Souls** by killing event NPCs and by completing the event side quest.\n- You can trade your ${
+                    ctx.client.localEmojis.spooky_soul
+                } **Spooky Souls** by using the ${ctx.client.getSlashCommandMention(
+                    "event trade"
+                )} command.\n\n${
+                    ctx.client.localEmojis.timerIcon
+                } The event ends ${Functions.generateDiscordTimestamp(
+                    1701385140000,
+                    "FROM_NOW"
+                )} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`,
             };
 
             return void ctx.makeMessage({
-                content: Functions.makeNPCString(NPCs.SPEEDWAGON_FOUNDATION, "Zombies and skeletons have invaded Morioh City. Please help us by giving us souls, we will give you items in return."),
-                embeds: [embed]
+                content: Functions.makeNPCString(
+                    NPCs.SPEEDWAGON_FOUNDATION,
+                    "Zombies and skeletons have invaded Morioh City. Please help us by giving us souls, we will give you items in return."
+                ),
+                embeds: [embed],
             });
         } else {
             const trades = [
                 {
                     amount: 5,
-                    item: Functions.findItem("box")
+                    item: Functions.findItem("box"),
                 },
                 {
                     amount: 10,
-                    item: Functions.findItem("stand_arrow")
+                    item: Functions.findItem("stand_arrow"),
                 },
                 {
                     amount: 30,
-                    item: Functions.findItem("rare_stand_arrow")
+                    item: Functions.findItem("rare_stand_arrow"),
                 },
                 {
                     amount: 100,
-                    item: Functions.findItem("spooky_arrow_2023")
+                    item: Functions.findItem("spooky_arrow_2023"),
                 },
                 {
                     amount: 2500,
-                    item: Functions.findItem("requiem_arrow")
-                }
+                    item: Functions.findItem("requiem_arrow"),
+                },
             ];
 
-            const soulsLeft = () => ctx.userData.inventory[Functions.findItem("spooky_soul").id] || 0;
+            const soulsLeft = () =>
+                ctx.userData.inventory[Functions.findItem("spooky_soul").id] || 0;
 
             const selectMenu = new StringSelectMenuBuilder()
                 .setCustomId("event_trade" + ctx.interaction.id)
                 .setPlaceholder("Select an item to trade for")
                 .addOptions(
                     trades.map((t) => {
-                            return {
-                                label: `${t.item.name}`,
-                                value: t.item.id,
-                                emoji: t.item.emoji
-                            };
-                        }
-                    )
+                        return {
+                            label: `${t.item.name}`,
+                            value: t.item.id,
+                            emoji: t.item.emoji,
+                        };
+                    })
                 )
                 .setMinValues(1)
                 .setMaxValues(1);
 
             const collector = ctx.channel.createMessageComponentCollector({
-                filter: (i) => i.user.id === ctx.user.id && i.customId === "event_trade" + ctx.interaction.id,
-                time: 60000
+                filter: (i) =>
+                    i.user.id === ctx.user.id && i.customId === "event_trade" + ctx.interaction.id,
+                time: 60000,
             });
 
-            const makeMessage = () => ctx.makeMessage({
-                content: Functions.makeNPCString(NPCs.SPEEDWAGON_FOUNDATION, "Zombies and skeletons have invaded Morioh City. Please help us by giving us souls, we will give you items in return."),
-                embeds: [{
-                    title: "Halloween Event 2023",
-                    color: // orange
-                        0xffa500,
-                    description: `You currently have ${soulsLeft()} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls**.\n\n${trades
-                        .map(
-                            (t) =>
-                                `- x${t.amount} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** for ${
-                                    t.item.emoji
-                                } ${t.item.name}`
-                        )
-                        .join("\n")}`
-                }],
-                components: [Functions.actionRow([selectMenu])]
-            });
+            const makeMessage = () =>
+                ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.SPEEDWAGON_FOUNDATION,
+                        "Zombies and skeletons have invaded Morioh City. Please help us by giving us souls, we will give you items in return."
+                    ),
+                    embeds: [
+                        {
+                            title: "Halloween Event 2023",
+                            // orange
+                            color: 0xffa500,
+                            description: `You currently have ${soulsLeft()} ${
+                                ctx.client.localEmojis.spooky_soul
+                            } **Spooky Souls**.\n\n${trades
+                                .map(
+                                    (t) =>
+                                        `- x${t.amount} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** for ${t.item.emoji} ${t.item.name}`
+                                )
+                                .join("\n")}`,
+                        },
+                    ],
+                    components: [Functions.actionRow([selectMenu])],
+                });
             makeMessage();
 
             collector.on("collect", async (i: StringSelectMenuInteraction) => {
@@ -131,24 +161,22 @@ const slashCommand: SlashCommandFile = {
                 if (!item) return;
                 if (soulsLeft() < item.amount) {
                     await i.reply({
-                        content: `You don't have enough souls to trade for this item.`
+                        content: `You don't have enough souls to trade for this item.`,
                     });
                     return;
                 }
 
                 await i.deferUpdate();
                 await i.followUp({
-                    content: `You traded ${item.amount} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** for ${item.item.emoji} ${item.item.name}`
+                    content: `You traded ${item.amount} ${ctx.client.localEmojis.spooky_soul} **Spooky Souls** for ${item.item.emoji} ${item.item.name}`,
                 });
                 Functions.removeItem(ctx.userData, Functions.findItem("spooky_soul"), item.amount);
                 Functions.addItem(ctx.userData, item.item, 1);
                 ctx.client.database.saveUserData(ctx.userData);
                 makeMessage();
             });
-
         }
-
-    }
+    },
 };
 
 export default slashCommand;

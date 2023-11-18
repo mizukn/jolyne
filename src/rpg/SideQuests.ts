@@ -133,14 +133,14 @@ export const HalloweenEvent2023: SideQuest = {
         return quests;
     },
     requirements: (ctx) => {
-        if (Date.now() > 1701385140000) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
+        if (Date.now() > 1700348400000) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
         return true;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(
-        1701385140000,
+        1700348400000,
         "FROM_NOW"
-    )} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`,
+    )} (${Functions.generateDiscordTimestamp(1700348400000, "DATE")})`,
     canReloadQuests: true,
     // orange
     color: 0xffa500,
