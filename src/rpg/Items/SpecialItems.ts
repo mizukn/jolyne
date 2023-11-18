@@ -25,7 +25,7 @@ async function useBox(
     shakingEmoji: string
 ): Promise<boolean> {
     await ctx.makeMessage({
-        content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`
+        content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
     });
     await Functions.sleep(2000);
 
@@ -79,7 +79,12 @@ export const Box: Special = {
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
         const possibleConsumables = Object.values(Consumables).filter(
-            (r) => r.tradable && r.storable && r.rarity !== "SS" && r.rarity !== "S" && r.rarity !== "T"
+            (r) =>
+                r.tradable &&
+                r.storable &&
+                r.rarity !== "SS" &&
+                r.rarity !== "S" &&
+                r.rarity !== "T"
         );
         const midItemsList1 = Object.values(Items).filter(
             (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B"
@@ -93,7 +98,7 @@ export const Box: Special = {
             ...midItemsList1,
             ...standList
                 .filter((r) => r.rarity === "C")
-                .map((x) => Functions.findItem(`${x.id}.$disc$`))
+                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
         ].filter((r) => r);
         const okItems = [Items.Diamond, Items.AncientScroll];
         const rareItems = [
@@ -105,25 +110,25 @@ export const Box: Special = {
                     (r.tradable && r.storable && r.rarity === "B") ||
                     (r.tradable && r.storable && r.rarity === "A")
             ),
-            Functions.findItem("stand_arrow")
+            Functions.findItem("stand_arrow"),
         ].filter((r) => r);
 
         const finalLoot: boxLoot[][] = [
             [
                 {
                     percent: 100,
-                    coins: Functions.randomNumber(1000, 5000)
+                    coins: Functions.randomNumber(1000, 5000),
                 },
                 {
                     percent: 100,
                     xp: Functions.randomNumber(
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                    )
-                }
+                    ),
+                },
             ],
             [],
-            []
+            [],
         ];
 
         for (const item of midItems.filter((r) => Functions.percent(70))) {
@@ -132,7 +137,7 @@ export const Box: Special = {
             if (!Functions.percent(50)) continue;
             target.push({
                 percent: 100,
-                loot: item.id
+                loot: item.id,
             });
         }
 
@@ -142,11 +147,11 @@ export const Box: Special = {
             if (!Functions.percent(50)) continue;
             target.push({
                 percent: 100,
-                loot: item.id
+                loot: item.id,
             });
         }
         return useBox(ctx, finalLoot, "box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "📦", Emojis.box_shaking);
-    }
+    },
 };
 
 export const MoneyBox: Special = {
@@ -163,18 +168,18 @@ export const MoneyBox: Special = {
             [
                 {
                     percent: 100,
-                    coins: Functions.randomNumber(20000, 50000)
+                    coins: Functions.randomNumber(20000, 50000),
                 },
                 {
                     percent: 100,
                     xp: Functions.randomNumber(
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
                         Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                    )
-                }
+                    ),
+                },
             ],
             [],
-            []
+            [],
         ];
 
         return useBox(
@@ -185,7 +190,7 @@ export const MoneyBox: Special = {
             Emojis["moneyBox"],
             Emojis["moneyBox_shaking"]
         );
-    }
+    },
 };
 
 export const PatreonBox: Special = {
@@ -204,24 +209,24 @@ export const PatreonBox: Special = {
             [
                 {
                     percent: 100,
-                    coins: 100000
+                    coins: 100000,
                 },
                 {
                     percent: 100,
-                    xp: Functions.getMaxXp(ctx.userData.level ?? 1)
-                }
+                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
+                },
             ],
             [
                 {
                     percent: 100,
-                    loot: standList[Math.floor(Math.random() * standList.length)].id + ".$disc$"
+                    loot: standList[Math.floor(Math.random() * standList.length)].id + ".$disc$",
                 },
                 {
                     percent: 100,
                     loot: StandArrow.id,
-                    mult: 30
-                }
-            ]
+                    mult: 30,
+                },
+            ],
         ];
 
         return useBox(
@@ -229,10 +234,10 @@ export const PatreonBox: Special = {
             finalLoot,
             "Patron Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-            Emojis["partonbox"],
+            Emojis["patronbox"],
             Emojis["patronbox_shake"]
         );
-    }
+    },
 };
 
 export const StandArrow: Special = {
@@ -245,21 +250,21 @@ export const StandArrow: Special = {
     tradable: true,
     storable: true,
     craft: {
-        broken_arrow: 3
+        broken_arrow: 3,
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const standArray = Object.values(Stands);
         standArray.push({
             id: "silver_chariot",
-            ...EvolutionStands.SilverChariot.evolutions[0]
+            ...EvolutionStands.SilverChariot.evolutions[0],
         });
         standArray.push({
             id: "gold_experience",
-            ...EvolutionStands.GoldExperience.evolutions[0]
+            ...EvolutionStands.GoldExperience.evolutions[0],
         });
         standArray.push({
             id: "whitesnake",
-            ...EvolutionStands.Whitesnake.evolutions[0]
+            ...EvolutionStands.Whitesnake.evolutions[0],
         });
 
         const percent = Math.floor(Math.random() * 100);
@@ -317,13 +322,13 @@ export const StandArrow: Special = {
                         stand.skillPoints
                     )
                         .map(([key, value]) => `• +${value} ${key}`)
-                        .join("\n")}`
-                }
-            ]
+                        .join("\n")}`,
+                },
+            ],
         });
         await ctx.client.database.saveUserData(ctx.userData);
         return true;
-    }
+    },
 };
 
 export const RareStandArrow: Special = {
@@ -336,21 +341,21 @@ export const RareStandArrow: Special = {
     tradable: true,
     storable: true,
     craft: {
-        stand_arrow: 10
+        stand_arrow: 10,
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const standArray = Object.values(Stands);
         standArray.push({
             id: "silver_chariot",
-            ...EvolutionStands.SilverChariot.evolutions[0]
+            ...EvolutionStands.SilverChariot.evolutions[0],
         });
         standArray.push({
             id: "gold_experience",
-            ...EvolutionStands.GoldExperience.evolutions[0]
+            ...EvolutionStands.GoldExperience.evolutions[0],
         });
         standArray.push({
             id: "whitesnake",
-            ...EvolutionStands.Whitesnake.evolutions[0]
+            ...EvolutionStands.Whitesnake.evolutions[0],
         });
 
         const percent = Math.floor(Math.random() * 100);
@@ -405,13 +410,13 @@ export const RareStandArrow: Special = {
                         stand.skillPoints
                     )
                         .map(([key, value]) => `• +${value} ${key}`)
-                        .join("\n")}`
-                }
-            ]
+                        .join("\n")}`,
+                },
+            ],
         });
         await ctx.client.database.saveUserData(ctx.userData);
         return true;
-    }
+    },
 };
 
 export const SpookyArrow2023: Special = {
@@ -433,7 +438,8 @@ export const SpookyArrow2023: Special = {
         }
 
         const stand = Functions.findStand("skeletal_spectre");
-        if (!stand) throw new Error("Stand not found skeletal spectre fatal error may break the game wtf.");
+        if (!stand)
+            throw new Error("Stand not found skeletal spectre fatal error may break the game wtf.");
 
         ctx.userData.stand = stand.id;
         ctx.client.database.saveUserData(ctx.userData);
@@ -460,15 +466,16 @@ export const SpookyArrow2023: Special = {
                         stand.skillPoints
                     )
                         .map(([key, value]) => `• +${value} ${key}`)
-                        .join("\n")} \n\n**Note:** This stand was only available during the Halloween Event 2023.`
-                }]
+                        .join(
+                            "\n"
+                        )} \n\n**Note:** This stand was only available during the Halloween Event 2023.`,
+                },
+            ],
         });
 
         return true;
-
-    }
+    },
 };
-
 
 export const RequiemArrow: Special = {
     id: "requiem_arrow",
@@ -483,7 +490,7 @@ export const RequiemArrow: Special = {
     craft: {
         ancient_scroll: 300,
         stand_arrow: 500,
-        broken_arrow: 1000
+        broken_arrow: 1000,
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
         const stand = Functions.findStand(ctx.userData.stand);
@@ -494,23 +501,23 @@ export const RequiemArrow: Special = {
         }
         if (ctx.userData.level < 50) {
             ctx.makeMessage({
-                content: "You are not worthy of this arrow yet..."
+                content: "You are not worthy of this arrow yet...",
             });
             return false;
         }
         if (ctx.userData.standsEvolved[stand.id] === 1) {
             await ctx.sendTranslated("items:REQUIEM_ARROW.ALREADY_REQUIEM", {
-                stand: stand.name
+                stand: stand.name,
             });
             return false;
         }
         ctx.userData.standsEvolved[stand.id] = 1;
         await ctx.sendTranslated("items:REQUIEM_ARROW.EVOLVING", {
-            stand: stand.name
+            stand: stand.name,
         });
         ctx.client.database.saveUserData(ctx.userData);
         return true;
-    }
+    },
 };
 
 export const SkillPointsResetPotion: Special = {
@@ -524,18 +531,20 @@ export const SkillPointsResetPotion: Special = {
     storable: true,
     use: async (ctx, ars) => {
         for (const [key, value] of Object.entries(ctx.userData.skillPoints)) {
-            ctx.userData.skillPoints[key as keyof typeof ctx.userData["skillPoints"]] = 0;
+            ctx.userData.skillPoints[key as keyof (typeof ctx.userData)["skillPoints"]] = 0;
         }
         ctx.client.database.saveUserData(ctx.userData).catch(() => {
             return false;
         });
 
         ctx.makeMessage({
-            content: `You have successfully reset your skill points. You may want to use them again by using the ${ctx.client.getSlashCommandMention("skill points invest")} command. Should you need help or have any questions, please join our [support server](https://discord.gg/jolyne)`
+            content: `You have successfully reset your skill points. You may want to use them again by using the ${ctx.client.getSlashCommandMention(
+                "skill points invest"
+            )} command. Should you need help or have any questions, please join our [support server](https://discord.gg/jolyne)`,
         });
 
         return true;
-    }
+    },
 };
 
 export const ChristmasGift: Special = {
@@ -549,10 +558,22 @@ export const ChristmasGift: Special = {
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
         const possibleConsumables = Object.values(Consumables).filter(
-            (r) => r.tradable && r.storable && r.rarity !== "T" && r.rarity !== "SS" && r.rarity !== "S"
+            (r) =>
+                r.tradable &&
+                r.storable &&
+                r.rarity !== "T" &&
+                r.rarity !== "SS" &&
+                r.rarity !== "S"
         );
         const midItemsList1 = Object.values(Items).filter(
-            (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B" && r.rarity !== "T" && r.rarity !== "SS" && r.rarity !== "S"
+            (r) =>
+                r.tradable &&
+                r.storable &&
+                r.rarity !== "A" &&
+                r.rarity !== "B" &&
+                r.rarity !== "T" &&
+                r.rarity !== "SS" &&
+                r.rarity !== "S"
         );
         const standList = Object.values(Stands).filter(
             (r) => r.available && r.rarity !== "SS" && r.rarity !== "T" && r.rarity !== "S"
@@ -563,7 +584,7 @@ export const ChristmasGift: Special = {
             ...midItemsList1,
             ...standList
                 .filter((r) => r.rarity === "C")
-                .map((x) => Functions.findItem(`${x.id}.$disc$`))
+                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
         ].filter((r) => r);
         const okItems = [Items.Diamond, Items.AncientScroll];
         const rareItems = [
@@ -575,94 +596,99 @@ export const ChristmasGift: Special = {
                     (r.tradable && r.storable && r.rarity === "B") ||
                     (r.tradable && r.storable && r.rarity === "A")
             ),
-            Functions.findItem("stand_arrow")
+            Functions.findItem("stand_arrow"),
         ].filter((r) => r);
 
         const finalLoot: boxLoot[][] = [
             [
                 {
                     percent: 100,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
                 },
                 {
                     percent: 85,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
                 },
                 {
                     percent: 75,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
                 },
                 {
                     percent: 50,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
                 },
                 {
                     percent: 35,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
                 },
                 {
                     percent: 25,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id
-                }
+                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                },
             ],
             [
                 {
                     percent: 100,
-                    loot: Functions.findItem("stand_arrow").id
+                    loot: Functions.findItem("stand_arrow").id,
                 },
                 {
                     percent: 100,
-                    loot: Functions.findItem("stand_arrow").id
+                    loot: Functions.findItem("stand_arrow").id,
                 },
                 {
                     percent: 100,
-                    loot: Functions.findItem("stand_arrow").id
+                    loot: Functions.findItem("stand_arrow").id,
                 },
                 {
                     percent: 100,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 100,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 100,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 100,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 100,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 80,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 70,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 60,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 50,
-                    loot: Functions.findItem("candy_cane").id
+                    loot: Functions.findItem("candy_cane").id,
                 },
                 {
                     percent: 20,
-                    loot: Functions.findItem("candy_cane").id
-                }
-            ]
+                    loot: Functions.findItem("candy_cane").id,
+                },
+            ],
         ];
 
-        return useBox(ctx, finalLoot, "Christmas Box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-        Emojis["xmasgift"], 
-        Emojis["xmasgift_shake"]);
-    }
+        return useBox(
+            ctx,
+            finalLoot,
+            "Christmas Box",
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            Emojis["xmasgift"],
+            Emojis["xmasgift_shake"]
+        );
+    },
 };

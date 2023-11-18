@@ -115,7 +115,7 @@ export const GrayFly: NPC = {
 export const CaptainTennilleImpostor: NPC = {
     id: "captain_tennille_impostor",
     name: "Captain Tennille (Impostor)",
-    emoji: Emojis.CaptainTennileImposter,
+    emoji: Emojis.CaptainTenilleImposter,
 };
 
 export const Forever: NPC = {
@@ -171,5 +171,5 @@ export const Jolyne: NPC = {
 export const Devo: NPC = {
     id: "devo",
     name: "Devo the cursed",
-    emoji: Emoji.devo,
+    emoji: Emojis.devo,
 };

@@ -485,7 +485,7 @@ export const TowerOfGray: Stand = {
     rarity: "C",
     image: "https://media.jolyne.moe/RlcG9C/direct",
     abilities: [Abilities.RapidStrikes],
-    emoji: Emojis.TowerOfGray,
+    emoji: Emojis.TowerOfGrey,
     skillPoints: {
         perception: 15,
         strength: 0,
