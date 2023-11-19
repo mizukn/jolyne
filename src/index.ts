@@ -507,4 +507,13 @@ async function init() {
 
 init();
 
+process
+    .on("unhandledRejection", (err: Error) => {
+        client.log(err.stack, "error");
+    })
+    .on("uncaughtException", (err: Error) => {
+        client.log(err.stack, "error");
+        process.exit(1);
+    });
+
 client.login(process.env.CLIENT_TOKEN);
