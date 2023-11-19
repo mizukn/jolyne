@@ -29,6 +29,7 @@ export default (client: JolyneClient): void => {
                 const rewards = TopGGVoteRewards(user);
                 user.coins += rewards.coins;
                 user.xp += rewards.xp;
+                addItem(user, "stand_arrow", 2);
 
                 const voteMonth = new Date().toLocaleString("en-US", {
                     month: "long",
@@ -41,7 +42,7 @@ export default (client: JolyneClient): void => {
                 user.totalVotes++;
                 // every 2 votes, gives 2 stand arrow
                 if (user.totalVotes % 2 === 0) {
-                    addItem(user, "stand_arrow", 2);
+                    addItem(user, "rare_stand_arrow", 2);
                 }
 
                 await client.database.saveUserData(user);
