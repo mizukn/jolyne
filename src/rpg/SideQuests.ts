@@ -145,3 +145,8 @@ export const HalloweenEvent2023: SideQuest = {
     // orange
     color: 0xffa500,
 };
+
+// Kiler Queen : Dites the dust side quest
+// must be level 75 and have killer queen
+// if they complete the side quest: ctx.userData.standsEvolved.killer_queen = 1
+

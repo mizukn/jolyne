@@ -163,3 +163,32 @@ Should you have any questions or suggestions, please contact us on the [support 
 
 We hope you all enjoy this update. Once again, happy Halloween!`,
 };
+
+// TopGG rewards buff email:
+// before, it was some coins and xps (a lot) based on their level + 2 stand arrows every 2 votes
+// now, they still get the same coins and xps, but they get 2 stand arrows everytime they vote and 2 rare stand arrows every 2 votes
+export const TOPGG_REWARDS_BUFF: Email = {
+    id: "topgg_rewards_buff",
+    author: NPCs.JolyneTeam,
+    subject: "TopGG rewards buff",
+    rewards: {
+        items: [
+            {
+                item: "stand_arrow",
+                amount: 2,
+            },
+            {
+                item: "rare_stand_arrow",
+                amount: 2,
+            },
+        ],
+    },
+    content: (ctx) => `
+Hello!
+
+We've decided to buff the TopGG rewards. Before, you would get some coins and xps (a lot) based on your level + 2 Stand Arrows every 2 votes.
+Now, you still get the same coins and xps, but you get 2 Stand Arrows everytime you vote and 2 Rare Stand Arrows every 2 votes.
+You can use the ${ctx.client.getSlashCommandMention("vote")} command for more information.
+`,
+    footer: "Thank you for voting!",
+};

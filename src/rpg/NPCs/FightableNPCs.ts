@@ -167,7 +167,7 @@ export const Polnareff: FightableNPC = {
 
 export const RequiemPolnareff: FightableNPC = {
     ...NPCs.RequiemPolnareff,
-    level: 200,
+    level: 500,
     skillPoints: baseSP,
     equippedItems: {},
     stand: "silver_chariot",
@@ -242,7 +242,7 @@ export const GiornoGiovanna: FightableNPC = {
 
 export const GiornoGiovannaRequiem: FightableNPC = {
     ...NPCs.GiornoGiovannaRequiem,
-    level: Dio.level * 5,
+    level: 500,
     skillPoints: baseSP,
     equippedItems: {},
     stand: "gold_experience_requiem",
