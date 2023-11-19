@@ -27,10 +27,20 @@ const slashCommand: SlashCommandFile = {
         }
 
         const normalNPC = Functions.randomArray(
-            Object.values(FightableNPCS).filter((r) => r.level <= ctx.userData.level)
+            Object.values(FightableNPCS).filter(
+                (r) =>
+                    r.level <= ctx.userData.level &&
+                    r.stand !== "admin_stand" &&
+                    (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
+            )
         ) as FightableNPC;
         const highNPC = (Functions.randomArray(
-            Object.values(FightableNPCS).filter((r) => r.level > ctx.userData.level)
+            Object.values(FightableNPCS).filter(
+                (r) =>
+                    r.level > ctx.userData.level &&
+                    r.stand !== "admin_stand" &&
+                    (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
+            )
         ) || Functions.randomArray(Object.values(FightableNPCS))) as FightableNPC;
         const randomNPC = Functions.randomArray(Object.values(FightableNPCS)) as FightableNPC;
 
