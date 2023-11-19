@@ -5,7 +5,7 @@ import type {
     Special,
     Weapon,
     NPC,
-    FightableNPC
+    FightableNPC,
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
@@ -23,7 +23,9 @@ import * as StandUsersNPCS from "../src/NPCs.json";
 import * as EquipableItems from "./rpg/Items/EquipableItems";
 import * as Sentry from "@sentry/node";
 
-const weapons = Object.values(EquipableItems).filter(x => (x as Weapon).abilities !== undefined) as Weapon[];
+const weapons = Object.values(EquipableItems).filter(
+    (x) => (x as Weapon).abilities !== undefined
+) as Weapon[];
 
 const formattedStandUsers = /*balanceLevels(JSON.parse(JSON.stringify(StandUsersNPCS)) as {
     [key: string]: number;
@@ -32,8 +34,11 @@ const formattedStandUsers = /*balanceLevels(JSON.parse(JSON.stringify(StandUsers
 const SpookySkeleton = NPCs.SpookySkeleton;
 const SpookyZombie = NPCs.SpookyZombie;
 
-
-function balanceLevels(args: { [key: string]: number }, lowest: number, biggest: number): { [key: string]: number } {
+function balanceLevels(
+    args: { [key: string]: number },
+    lowest: number,
+    biggest: number
+): { [key: string]: number } {
     const levels = Object.values(args);
     const minLevel = Math.min(...levels);
     const maxLevel = Math.max(...levels);
@@ -42,7 +47,8 @@ function balanceLevels(args: { [key: string]: number }, lowest: number, biggest:
 
     for (const key in args) {
         const originalLevel = args[key];
-        const balancedLevel = ((originalLevel - minLevel) / (maxLevel - minLevel)) * (biggest - lowest) + lowest;
+        const balancedLevel =
+            ((originalLevel - minLevel) / (maxLevel - minLevel)) * (biggest - lowest) + lowest;
         balancedLevels[key] = Math.round(balancedLevel);
     }
 
@@ -50,14 +56,14 @@ function balanceLevels(args: { [key: string]: number }, lowest: number, biggest:
 }
 
 Sentry.init({
-    dsn: process.env.SENTRY_DSN
+    dsn: process.env.SENTRY_DSN,
 });
 
 /*
 Sentry.Handlers.requestHandler();
 Sentry.Handlers.tracingHandler();
 Sentry.Handlers.errorHandler();*/
-
+/*
 for (let i = 1; i < 500; i += 3) {
     const SpookySkeletonNPC: NPC = {
         ...SpookySkeleton,
@@ -127,7 +133,7 @@ for (let i = 1; i < 500; i += 3) {
     // @ts-expect-error because it's a dynamic property
     NPCs[SpookyZombieNPC.id] = SpookyZombieNPC;
 }
-
+*/
 
 /**
  * Temp code starts from here
@@ -138,7 +144,7 @@ const standPrices = {
     A: 25000,
     B: 10000,
     C: 5000,
-    T: 69
+    T: 69,
 };
 
 for (const stand of [
@@ -146,9 +152,9 @@ for (const stand of [
     ...Object.values(Stands.EvolutionStands).map((x) => {
         return {
             ...x.evolutions[0],
-            id: x.id
+            id: x.id,
         };
-    })
+    }),
 ]) {
     if (!stand.available) continue;
     console.log(`Adding ${stand.name} Stand Disc`);
@@ -166,7 +172,7 @@ for (const stand of [
                 ctx.makeMessage({
                     content: `Dawg you already have a stand. If you'd like to change your stand, please either erase your current one (${ctx.client.getSlashCommandMention(
                         "stand delete"
-                    )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`
+                    )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`,
                 });
                 return false;
             }
@@ -175,10 +181,10 @@ for (const stand of [
                 content: Functions.makeNPCString(
                     NPCs.Pucci,
                     "You have successfully equipped " + stand.name + " " + stand.emoji + " !"
-                )
+                ),
             });
             return true;
-        }
+        },
     };
     // @ts-expect-error because it's a dynamic property
     Items.default[standDisc.id] = standDisc;
@@ -187,14 +193,28 @@ for (const stand of [
     NPCs[`${stand.name.replace(" ", "")}User`] = {
         id: `${stand.name.replace(" ", "")}_user`,
         name: stand.name + " User",
-        emoji: stand.emoji
+        emoji: stand.emoji,
     };
 
     if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
         if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
-            const minLevel = stand.rarity === "C" ? 1 : stand.rarity === "B" ? 10 : stand.rarity === "A" ? 20 : stand.rarity === "S" ? 30 : stand.rarity === "SS" ? 40 : 30;
+            const minLevel =
+                stand.rarity === "C"
+                    ? 1
+                    : stand.rarity === "B"
+                    ? 10
+                    : stand.rarity === "A"
+                    ? 20
+                    : stand.rarity === "S"
+                    ? 30
+                    : stand.rarity === "SS"
+                    ? 40
+                    : 30;
             const maxLevel = minLevel * 12;
-            formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(minLevel, maxLevel);
+            formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(
+                minLevel,
+                maxLevel
+            );
         }
     }
 
@@ -204,7 +224,7 @@ for (const stand of [
         rewards.items.push({
             item: "stand_arrow",
             amount: 1,
-            chance: 5
+            chance: 5,
         });
     }
 
@@ -212,7 +232,7 @@ for (const stand of [
         rewards.items.push({
             item: "spooky_soul",
             amount: 1,
-            chance: 50
+            chance: 50,
         });
     }
 
@@ -227,12 +247,12 @@ for (const stand of [
             strength: 1,
             speed: 1,
             perception: 1,
-            stamina: 0
+            stamina: 0,
         },
         stand: stand.id,
         equippedItems: {},
         standsEvolved: {},
-        rewards
+        rewards,
     };
 
     for (const weapon of weapons) {
@@ -242,7 +262,7 @@ for (const stand of [
         NPCs[ID] = {
             id: ID,
             name: stand.name + " [" + weapon.name + "] User",
-            emoji: stand.emoji
+            emoji: stand.emoji,
         };
 
         // min level works like that:
@@ -257,7 +277,18 @@ for (const stand of [
         // max level is the min level * 12
 
         if (!formattedStandUsers[ID]) {
-            let minLevel = stand.rarity === "C" ? 1 : stand.rarity === "B" ? 10 : stand.rarity === "A" ? 20 : stand.rarity === "S" ? 30 : stand.rarity === "SS" ? 40 : 30;
+            let minLevel =
+                stand.rarity === "C"
+                    ? 1
+                    : stand.rarity === "B"
+                    ? 10
+                    : stand.rarity === "A"
+                    ? 20
+                    : stand.rarity === "S"
+                    ? 30
+                    : stand.rarity === "SS"
+                    ? 40
+                    : 30;
             if (weapon.abilities) minLevel *= 2;
             const maxLevel = minLevel * 12;
             formattedStandUsers[ID] = Functions.randomNumber(minLevel, maxLevel);
@@ -272,14 +303,14 @@ for (const stand of [
                 strength: 1,
                 speed: 1,
                 perception: 1,
-                stamina: 0
+                stamina: 0,
             },
             stand: stand.id,
             equippedItems: {
-                [weapon.id]: 6
+                [weapon.id]: 6,
             },
             standsEvolved: {},
-            rewards
+            rewards,
         };
     }
 }
@@ -353,8 +384,8 @@ const client = new JolyneClient({
         GuildScheduledEventManager: 0,
         GuildStickerManager: 0,
         GuildInviteManager: 0,
-        MessageManager: 0
-    })
+        MessageManager: 0,
+    }),
 });
 
 for (const NPC of [...Object.values(NPCs), ...Object.values(FightableNPCs)]) {
@@ -395,7 +426,6 @@ for (const NPC of Object.values(FightableNPCs)) {
         console.log(NPC.rewards);
     }
 }
-
 
 /*
 process.on("SIGINT", () => {
@@ -457,11 +487,11 @@ async function init() {
         for (const commandFile of commands) {
             const command: SlashCommandFile = await import(
                 path.resolve(__dirname, "commands", category, commandFile)
-                ).then((m) => m.default);
+            ).then((m) => m.default);
             client.commands.set(command.data.name, {
                 ...command,
                 category,
-                path: `./commands/${category}/${commandFile}`
+                path: `./commands/${category}/${commandFile}`,
             });
             client.log(`Loaded command ${command.data.name}`, "command");
         }
@@ -473,7 +503,6 @@ async function init() {
         JSON.stringify(formattedStandUsers, null, 4)
     );
     client.log("Saved standUsersNPCS.json", "file");
-
 }
 
 init();
