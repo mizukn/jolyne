@@ -31,9 +31,6 @@ const formattedStandUsers = /*balanceLevels(JSON.parse(JSON.stringify(StandUsers
     [key: string]: number;
 }, 1, 200);*/ JSON.parse(JSON.stringify(StandUsersNPCS)) as { [key: string]: number };
 
-const SpookySkeleton = NPCs.SpookySkeleton;
-const SpookyZombie = NPCs.SpookyZombie;
-
 function balanceLevels(
     args: { [key: string]: number },
     lowest: number,
