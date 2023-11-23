@@ -233,13 +233,6 @@ const Event: EventFile = {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
                 }
 
-                if (
-                    Date.now() <= 1701385140000 &&
-                    !ctx.userData.emails.find((r) => r.id === "halloween_2023")
-                ) {
-                    Functions.addEmail(ctx.userData, Functions.findEmail("halloween_2023").id);
-                }
-
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
                     if (
                         ctx.userData.lastPatreonReward !==
