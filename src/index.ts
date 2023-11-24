@@ -225,14 +225,6 @@ for (const stand of [
         });
     }
 
-    if (stand.rarity === "T") {
-        rewards.items.push({
-            item: "spooky_soul",
-            amount: 1,
-            chance: 50,
-        });
-    }
-
     if (rewards.items.length === 0) rewards = undefined;
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[`${stand.name.replace(" ", "")}User`] = {
