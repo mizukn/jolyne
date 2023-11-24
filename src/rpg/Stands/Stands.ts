@@ -716,6 +716,61 @@ export const WonderOfU: Stand = {
     available: true,
 };
 
+export const StoneFree: Stand = {
+    id: "stone_free",
+    name: "Stone Free",
+    description:
+        "Stone Free is an incredibly versatile stand from part 6. It's ability being strings had a wide variety of uses. It was used by [Jolyne Cujoh](https://jojo.fandom.com/wiki/Jolyne_Cujoh)",
+    rarity: "A",
+    image: "https://static.wikia.nocookie.net/jjba/images/a/a2/Stone-Free-Stand-Anime.png",
+    emoji: Emojis.stone_free,
+    abilities: [
+        addGif(
+          Abilities.StandBarrage,
+          "https://tenor.com/view/jolyne-kujo-jolyne-cujoh-jolyne-kujo-cujoh-gif-23791539"
+          ),
+        Abilities.BallBarrage,
+        Abilities.Heal,
+        Abilities.Wrap,
+        Abilities.StringWeb,
+    ],
+    skillPoints: {
+        strength: 5,
+        defense: 0,
+        perception: 10,
+        speed: 5,
+        stamina: 0,
+    },
+    color: 0x5c78a3,
+    available: true,
+};
+
+export const Horus: Stand = {
+    id: "Horus",
+    name: "Horus",
+    description:
+        "Horus is a Non-Humanoid Stand, being the guardian of Dio's Mansion it is decently strong",
+    rarity: "B",
+    image:
+    "https://static.jojowiki.com/images/5/59/latest/20191015214708/Horus_Infobox_Manga.png",
+    emoji: Emojis.Horus,
+    abilities: [
+        Abilities.IceSickles,
+        Abilities.FreezingTouch,
+        Abilities.IceBlockade,
+    ],
+    skillPoints: {
+        strength: 0,
+        defense: 0,
+        perception: 5,
+        speed: 5,
+        stamina: 0,
+    },
+    color: 0xa9aaab,
+    available: true,
+};
+
+
 export const AdminStand: Stand = {
     id: "admin_stand",
     name: "The WICKED",

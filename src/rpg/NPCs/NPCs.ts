@@ -173,3 +173,9 @@ export const Devo: NPC = {
     name: "Devo the cursed",
     emoji: Emojis.devo,
 };
+
+export const Toru: NPC = {
+    id: "toru",
+    name: "Toru",
+    emoji: Emojis.Toru,
+};

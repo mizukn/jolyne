@@ -24,6 +24,30 @@ export const YellowHair: Item = {
     tradable: true,
     storable: false,
 };
+//item drop for crafting
+export const Diobone: Item = {
+    id: "dio_bone",
+    name: "Dio's Bone",
+    description:
+        "DIO's bone acquired by chance after an incredible fight with the vampire himself. It's said this bone contains something powerful.",
+    rarity: "S",
+    emoji: Emojis.dio,
+    price: 72700,
+    tradable: true,
+    storable: true,
+};
+// rare item used for quest
+export const Greenbaby: Item = {
+    id: "green_baby",
+    name: "Green Baby",
+    description:
+        "What the hell is up with this green skinned child. Did it seriously just come from a bone? Pretty bizarre, wouldn't you say?",
+    rarity: "SS",
+    emoji: Emojis.dio,
+    price: 702070,
+    tradable: true,
+    storable: true,
+};
 
 export const AncientScroll: Item = {
     id: "ancient_scroll",

@@ -257,3 +257,35 @@ export const Devo: FightableNPC = {
     stand: "ebony_devil",
     standsEvolved: {},
 };
+
+export const Toru: FightableNPC = {
+    ...NPCs.Toru,
+    level: 250,
+    skillPoints: {
+        defense: 250 * 3 - 100 / 5,
+        strength: 0,
+        speed: 250 / 5 / 2,
+        perception: 250 / 5 / 2,
+        stamina: 350,
+    },
+    equippedItems: {
+        megumins_hat: 1,
+    },
+    stand: "wonder_of_u"
+    standsEvolved: {},
+};
+
+export const Jolyne: FightableNPC = {
+    ...NPCs.Jolyne,
+    level: 75,
+    skillPoints: {
+        defense: 89,
+        strength: 120,
+        speed: 75,
+        perception: 20,
+        stamina: 150,
+    },
+    equippedItems: {},
+    stand: "stone_free"
+    standsEvolved: {},
+};
