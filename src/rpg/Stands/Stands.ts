@@ -692,6 +692,30 @@ export const EbonyDevil: Stand = {
     color: 0x666420,
 };
 
+export const WonderOfU: Stand = {
+    id: "wonder_of_u",
+    name: "Wonder of U",
+    description: "Wonder Of U is a stand from JoJo Part 8, its user is known as [Toru](https://jojowiki.com/Toru). It has a robotic body and can summoncalimaties at will.",
+    rarity: "SS",
+    image: "https://static.jojowiki.com/images/2/24/latest/20210418202241/Wonder_of_U_Hybrid_Infobox_Manga.png",
+    color: 0x5c212d,
+    abilities: [
+        Abilities.CalamityManipulation,
+        Abilities.IllusionCreation,
+        Abilities.MedicExp,
+        Abilities.IdentityAssumption,
+    ],
+    emoji: Emojis.WonderOfU,
+    skillPoints: {
+        perception: 5,
+        speed: 7,
+        strength: 3,
+        stamina: 5,
+        defense: 0,
+    },
+    available: true,
+};
+
 export const AdminStand: Stand = {
     id: "admin_stand",
     name: "The WICKED",

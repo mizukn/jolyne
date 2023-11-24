@@ -2162,16 +2162,38 @@ export const DollThrow: Ability = {
     target: "enemy",
 };
 
-export const StaffBarrage: Ability = {
-    name: "Barrage",
-    description: "Performs an astoundingly fast flurry of punches that deals damage per hit.",
-    cooldown: 1,
-    extraTurns: 1,
-    damage: 25,
+export const CalamityManipulation: Ability = {
+  ...StandBarrage
+    name: "Calamity Manipulation",
+    description: "Damages the opponent with a flurry of deadly calamities.",
+    cooldown: 2,
     stamina: 5,
-    dodgeScore: 0,
-    target: "enemy",
+    dodgeScore: 2,
 };
+
+export const IdentityAssumption: Ability = {
+  ...StandDisc
+    name: "Identity Assumption",
+    description: "Removes the opponent’s stand and damages it’s user. (Their stand will continue to be unusable for a few turns.)",
+    cooldown: 7,
+    damage: 25,
+    dodgeScore: 8,
+};
+
+export const IllusionCreation: Ability = {
+  ...StandBarrage
+    name: "Illusion Creation",
+    description: "Creates multiple illusions and attacks the opponent..",
+    cooldown: 4,
+    stamina: 10,
+    dodgeScore: 2,
+};
+export const MedicExp: Ability = {
+  ...Heal
+  name: "Medical Experience",
+  description: "Uses its medical experience to heal the targetted player.",
+  cooldown: 5,
+}
 
 export const StaffSplash: Ability = {
     name: "Crystal Splash",
