@@ -2194,6 +2194,17 @@ export const MedicExp: Ability = {
   cooldown: 5,
 };
 
+export const StaffBarrage: Ability = {
+    name: "Barrage",
+    description: "Performs an astoundingly fast flurry of punches that deals damage per hit.",
+    cooldown: 1,
+    extraTurns: 1,
+    damage: 25,
+    stamina: 5,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
 export const StaffSplash: Ability = {
     name: "Crystal Splash",
     description: "Splashes the opponent with wicked dark energy.",
