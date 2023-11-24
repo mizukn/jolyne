@@ -277,13 +277,13 @@ export const Toru: FightableNPC = {
 
 export const Jolyne: FightableNPC = {
     ...NPCs.Jolyne,
-    level: 75,
+    level: 125,
     skillPoints: {
-        defense: 89,
-        strength: 120,
-        speed: 75,
-        perception: 20,
-        stamina: 150,
+        defense: 70,
+        strength: 85,
+        speed: 60,
+        perception: 39,
+        stamina: 100,
     },
     equippedItems: {},
     stand: "stone_free"
