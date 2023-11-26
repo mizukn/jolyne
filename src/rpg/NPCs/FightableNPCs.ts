@@ -245,8 +245,10 @@ export const GiornoGiovannaRequiem: FightableNPC = {
     level: 500,
     skillPoints: baseSP,
     equippedItems: {},
-    stand: "gold_experience_requiem",
-    standsEvolved: {},
+    stand: "gold_experience",
+    standsEvolved: {
+        gold_experience: 1,
+    },
 };
 
 export const Devo: FightableNPC = {
