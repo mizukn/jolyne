@@ -39,7 +39,8 @@
     },
     "GET_TRAM_GO_INDIA": {
         "TITLE": "Get a tram",
-        "DESCRIPTION": "Get a tram and go to India"
+        "DESCRIPTION": "Get a tram and go to India",
+        "CHAP_DESC": "Wait for the tram to arrive."
     },
     "TAXIUPGO": {
         "DESCRIPTION": "Get at the Morioh airport 🚕"
