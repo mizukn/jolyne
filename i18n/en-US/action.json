@@ -43,5 +43,14 @@
     "DRIVE_BOAT_SINGAPORE": {
         "TITLE": "Drive the boat",
         "DESCRIPTION": "Drive the boat to Singapore"
+    },
+    "THROW_RUBBER_SOUL_BODY_OCEAN": {
+        "TITLE": "Throw Rubber Soul's body",
+        "DESCRIPTION": "Throw Rubber Soul's body in the ocean"
+    },
+    "GET_TRAM_GO_INDIA": {
+        "TITLE": "Get in the tram",
+        "DESCRIPTION": "Get in the tram to go to India",
+        "SUCCESS": "You're now in the tram to India. You'll be there in 2-3 hours"
     }
 }
