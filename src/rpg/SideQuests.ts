@@ -151,7 +151,7 @@ export const HalloweenEvent2023: SideQuest = {
 
 export const KillerQueenDitesTheDust: SideQuest = {
     id: "KillerQueenDitesTheDust",
-    title: "Killer Queen: Dites The Dust",
+    title: "Killer Queen: Bites The Dust",
     description: "You're now worthy of evolving your stand, Killer Queen.",
     emoji: "<:yoshikageKira:1178425312942502039>",
     rewards: async (ctx) => {
