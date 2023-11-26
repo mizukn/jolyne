@@ -37,6 +37,10 @@
         "TITLE": "Wait for kakyoin to recover",
         "DESCRIPTION": "Wait for kakyoin to recover from the hospital"
     },
+    "GET_TRAM_GO_INDIA": {
+        "TITLE": "Get a tram",
+        "DESCRIPTION": "Get a tram and go to India"
+    },
     "TAXIUPGO": {
         "DESCRIPTION": "Get at the Morioh airport 🚕"
     },
