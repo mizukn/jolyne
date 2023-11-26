@@ -807,5 +807,5 @@ export const YellowTemperance: Stand = {
     },
     color: 0xffff00, // Yellow color
     available: true,
-    image: "https://media.jolyne.moe/3T8Vf8", // Replace with the actual image URL
+    image: "https://media.jolyne.moe/3T8Vf8/direct", // Replace with the actual image URL
 };
