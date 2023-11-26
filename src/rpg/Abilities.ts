@@ -635,7 +635,7 @@ export const Heal: Ability = {
             }`
         );
     },
-    target: "ally",
+    target: "onlyAlly",
 };
 
 export const LifeShot: Ability = {
