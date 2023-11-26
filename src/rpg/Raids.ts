@@ -282,7 +282,7 @@ export const Jolyne: RaidBoss = {
             {
                 item: Functions.findItem("Green Baby").id,
                 amount: 1,
-                chance 0.1
+                chance: 0.1,
             }
         ]
     },

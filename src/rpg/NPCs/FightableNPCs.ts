@@ -271,7 +271,7 @@ export const Toru: FightableNPC = {
     equippedItems: {
         megumins_hat: 1,
     },
-    stand: "wonder_of_u"
+    stand: "wonder_of_u",
     standsEvolved: {},
 };
 
@@ -286,6 +286,6 @@ export const Jolyne: FightableNPC = {
         stamina: 100,
     },
     equippedItems: {},
-    stand: "stone_free"
+    stand: "stone_free",
     standsEvolved: {},
 };

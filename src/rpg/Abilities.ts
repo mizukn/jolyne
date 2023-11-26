@@ -2162,7 +2162,7 @@ export const DollThrow: Ability = {
 };
 
 export const CalamityManipulation: Ability = {
-  ...StandBarrage
+  ...StandBarrage,
     name: "Calamity Manipulation",
     description: "Damages the opponent with a flurry of deadly calamities.",
     cooldown: 2,
@@ -2171,7 +2171,7 @@ export const CalamityManipulation: Ability = {
 };
 
 export const IdentityAssumption: Ability = {
-  ...StandDisc
+  ...StandDisc,
     name: "Identity Assumption",
     description: "Removes the opponent’s stand and damages it’s user. (Their stand will continue to be unusable for a few turns.)",
     cooldown: 7,
@@ -2180,7 +2180,7 @@ export const IdentityAssumption: Ability = {
 };
 
 export const IllusionCreation: Ability = {
-  ...StandBarrage
+  ...StandBarrage,
     name: "Illusion Creation",
     description: "Creates multiple illusions and attacks the opponent..",
     cooldown: 4,
@@ -2188,7 +2188,7 @@ export const IllusionCreation: Ability = {
     dodgeScore: 2,
 };
 export const MedicExp: Ability = {
-  ...Heal
+  ...Heal,
   name: "Medical Experience",
   description: "Uses its medical experience to heal the targetted player.",
   cooldown: 5,
@@ -2267,7 +2267,7 @@ export const StringWeb: Ability = {
 
 //Horus
 export const IceSickles: Ability = {
-  ...KickBarrage
+  ...KickBarrage,
   name: "Ice Sickles",
   description: "Throws Sickles of Ice towards the opponent",
 };
