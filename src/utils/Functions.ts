@@ -171,6 +171,7 @@ export const pushEmail = (email: Email): RPGUserEmail => {
 };
 
 export const findEmail = (query: string): Email => {
+    if (!query) return;
     const email = Object.values(Emails).find(
         (email) =>
             (email.id || email.subject) === query ||
