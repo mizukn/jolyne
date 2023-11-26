@@ -51,6 +51,7 @@
     "GET_TRAM_GO_INDIA": {
         "TITLE": "Get in the tram",
         "DESCRIPTION": "Get in the tram to go to India",
-        "SUCCESS": "You're now in the tram to India. You'll be there in 2-3 hours"
+        "SUCCESS": "You're now in the tram to India. You'll be there in 2-3 hours (-**10,000** {{emojis.jocoins}}).",
+        "NO_COINS": "You don't have enough {{emojis.jocoins}} to get in the tram. You need **10,000** {{emojis.jocoins}} to get in."
     }
 }
