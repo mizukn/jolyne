@@ -138,18 +138,6 @@ export const Megumin: NPC = {
     email: "losion.losion.explosion@jolyne.moe",
 };
 
-export const SpookySkeleton: NPC = {
-    id: "spooky_skeleton.$private$",
-    name: "Spooky Skeleton",
-    emoji: "💀",
-};
-
-export const SpookyZombie: NPC = {
-    id: "spooky_zombie.$private$",
-    name: "Spooky Zombie",
-    emoji: "🧟",
-};
-
 export const GiornoGiovanna: NPC = {
     id: "giorno_giovanna",
     name: "Giorno Giovanna",

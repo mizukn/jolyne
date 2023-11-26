@@ -87,7 +87,13 @@ export const Box: Special = {
                 r.rarity !== "T"
         );
         const midItemsList1 = Object.values(Items).filter(
-            (r) => r.tradable && r.storable && r.rarity !== "A" && r.rarity !== "B"
+            (r) =>
+                r.tradable &&
+                r.storable &&
+                r.rarity !== "A" &&
+                r.rarity !== "B" &&
+                r.rarity !== "SS" &&
+                r.rarity !== "T"
         );
         const standList = Object.values(Stands).filter(
             (r) => r.available && r.rarity !== "SS" && r.rarity !== "T"

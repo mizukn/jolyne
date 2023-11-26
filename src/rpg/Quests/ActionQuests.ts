@@ -8,7 +8,7 @@ function validateQuest(ctx: CommandInteractionContext, questId: string): void {
     for (const quests of [
         ctx.userData.daily.quests,
         ctx.userData.chapter.quests,
-        ...ctx.userData.sideQuests.map((v) => v.quests)
+        ...ctx.userData.sideQuests.map((v) => v.quests),
     ]) {
         for (const quest of quests.filter((r) => r.id === questId)) {
             quest.completed = true;
@@ -99,25 +99,25 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         centerBTN,
-                        generateInvisibleBTN()
+                        generateInvisibleBTN(),
                     ]),
                     Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         bottomBTN,
-                        generateInvisibleBTN()
-                    ])
+                        generateInvisibleBTN(),
+                    ]),
                 ],
                 embeds: [
                     {
                         title: "🐛 Kakyoin's head",
                         description: splitEvery10Array(map).join("\n"),
                         footer: {
-                            text: "Remove the fleshbud."
+                            text: "Remove the fleshbud.",
                         },
-                        color: 0x70926c
-                    }
-                ]
+                        color: 0x70926c,
+                    },
+                ],
             });
         }
 
@@ -130,8 +130,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         });
         const filter = async (i: MessageComponentInteraction) => {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            i.deferUpdate().catch(() => {
-            });
+            i.deferUpdate().catch(() => {});
             return (
                 (i.customId === backId ||
                     i.customId === centerId ||
@@ -142,7 +141,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         };
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 150000
+            time: 150000,
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
@@ -160,12 +159,12 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             if (map[planeDirection] === crashEmoji) {
                 collector.stop("crashed");
                 ctx.makeMessage({
-                    content: "You failed to remove the fleshbud. Try again."
+                    content: "You failed to remove the fleshbud. Try again.",
                 });
             } else if (map[planeDirection] === finishEmoji) {
                 collector.stop("finished");
                 ctx.makeMessage({
-                    content: "You succesfully removed the fleshbud."
+                    content: "You succesfully removed the fleshbud.",
                 });
                 validateQuest(ctx, "remove_fleshbud_to_kakyoin");
                 pushQuest(ctx, TakeKakyoinToHospital, "remove_fleshbud_to_kakyoin");
@@ -178,7 +177,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         collector.on("end", () => {
             ctx.client.database.deleteCooldown(ctx.userData.id);
         });
-    }
+    },
 };
 
 export const AnalyseHair: ActionQuest = {
@@ -189,7 +188,7 @@ export const AnalyseHair: ActionQuest = {
     emoji: "✉️",
     use: async (ctx) => {
         ctx.sendTranslated("action:ANALYSE_HAIR.SUCCESS", {
-            components: []
+            components: [],
         });
 
         const quest = Functions.generateWaitQuest(
@@ -204,7 +203,7 @@ export const AnalyseHair: ActionQuest = {
         validateQuest(ctx, "analyse_hair");
 
         ctx.client.database.saveUserData(ctx.userData);
-    }
+    },
 };
 
 export const TakeKakyoinToHospital: ActionQuest = {
@@ -228,7 +227,7 @@ export const TakeKakyoinToHospital: ActionQuest = {
         validateQuest(ctx, "take_kakyoin_to_hospital");
 
         ctx.client.database.saveUserData(ctx.userData);
-    }
+    },
 };
 
 export const AlertYourGrandFatherAboutDioAndYourStand: ActionQuest = {
@@ -249,7 +248,7 @@ export const AlertYourGrandFatherAboutDioAndYourStand: ActionQuest = {
         validateQuest(ctx, "alert_your_grandfather_about_dio_and_your_stand");
         ctx.client.database.saveUserData(ctx.userData);
         ctx.sendTranslated("action:TYGAD.SUCCESS");
-    }
+    },
 };
 
 export const GoToAirport: ActionQuest = {
@@ -278,7 +277,7 @@ export const GoToAirport: ActionQuest = {
 
         await ctx.sendTranslated("action:GO_TO_AIRPORT.BASE", {
             components: [Functions.actionRow([slowPriceBTN, fastPriceBTN])],
-            slowPrice: slowPrice.toLocaleString("en-US")
+            slowPrice: slowPrice.toLocaleString("en-US"),
         });
         ctx.interaction.fetchReply().then((m) => {
             ctx.client.database.setCooldown(
@@ -296,7 +295,7 @@ export const GoToAirport: ActionQuest = {
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 30000
+            time: 30000,
         });
 
         collector.on("end", () => {
@@ -316,7 +315,7 @@ export const GoToAirport: ActionQuest = {
                 await ctx.makeMessage({
                     content:
                         "You don't have enough coins. Try claiming your daily, fighting mobs from your daily quests or selling items and try again.",
-                    components: []
+                    components: [],
                 });
                 collector.stop("finished");
                 return;
@@ -324,7 +323,7 @@ export const GoToAirport: ActionQuest = {
             ctx.sendTranslated(
                 `action:GO_TO_AIRPORT.${i.customId === slowPriceID ? "SLOW" : "FAST"}`,
                 {
-                    components: []
+                    components: [],
                 }
             );
             Functions.addCoins(ctx.userData, -price);
@@ -333,7 +332,7 @@ export const GoToAirport: ActionQuest = {
             ctx.client.database.deleteCooldown(ctx.userData.id);
             ctx.client.database.saveUserData(ctx.userData);
         });
-    }
+    },
 };
 
 export const RemoveFleshbudToPolnareff: ActionQuest = {
@@ -404,25 +403,25 @@ export const RemoveFleshbudToPolnareff: ActionQuest = {
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         centerBTN,
-                        generateInvisibleBTN()
+                        generateInvisibleBTN(),
                     ]),
                     Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         bottomBTN,
-                        generateInvisibleBTN()
-                    ])
+                        generateInvisibleBTN(),
+                    ]),
                 ],
                 embeds: [
                     {
                         title: "🐛 Polnareff's head",
                         description: splitEvery10Array(map).join("\n"),
                         footer: {
-                            text: "Remove the fleshbud."
+                            text: "Remove the fleshbud.",
                         },
-                        color: 0x70926c
-                    }
-                ]
+                        color: 0x70926c,
+                    },
+                ],
             });
         }
 
@@ -435,8 +434,7 @@ export const RemoveFleshbudToPolnareff: ActionQuest = {
         });
         const filter = async (i: MessageComponentInteraction) => {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            i.deferUpdate().catch(() => {
-            });
+            i.deferUpdate().catch(() => {});
             return (
                 (i.customId === backId ||
                     i.customId === centerId ||
@@ -447,7 +445,7 @@ export const RemoveFleshbudToPolnareff: ActionQuest = {
         };
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 150000
+            time: 150000,
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
@@ -465,12 +463,12 @@ export const RemoveFleshbudToPolnareff: ActionQuest = {
             if (map[planeDirection] === crashEmoji) {
                 collector.stop("crashed");
                 ctx.makeMessage({
-                    content: "You failed to remove the fleshbud. Try again."
+                    content: "You failed to remove the fleshbud. Try again.",
                 });
             } else if (map[planeDirection] === finishEmoji) {
                 collector.stop("finished");
                 ctx.makeMessage({
-                    content: "You succesfully removed the fleshbud."
+                    content: "You succesfully removed the fleshbud.",
                 });
                 validateQuest(ctx, "remove_fleshbud_to_polnareff");
                 ctx.client.database.saveUserData(ctx.userData);
@@ -482,7 +480,7 @@ export const RemoveFleshbudToPolnareff: ActionQuest = {
         collector.on("end", () => {
             ctx.client.database.deleteCooldown(ctx.userData.id);
         });
-    }
+    },
 };
 
 export const Drive_Airplane_To_Hongkong: ActionQuest = {
@@ -501,14 +499,21 @@ export const Drive_Airplane_To_Hongkong: ActionQuest = {
 
         const finishEmoji = "🔲";
         const map = [
-            finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
         ];
         const crashEmoji = "🪰";
         for (let i = 0; i < 18; i++) {
             const howMuch = Functions.randomNumber(2, 4);
-            let map2 = [
-                "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦"
-            ];
+            let map2 = ["🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦", "🟦"];
             for (let i = 0; i < howMuch; i++) {
                 map2[i] = crashEmoji;
             }
@@ -521,7 +526,7 @@ export const Drive_Airplane_To_Hongkong: ActionQuest = {
             for (let i = 0; i < arr.length; i += 10) {
                 result.push(arr.slice(i, i + 10));
             }
-            return result.map(v => v.join(""));
+            return result.map((v) => v.join(""));
         }
 
         let planeDirection = map.length - 5;
@@ -548,27 +553,31 @@ export const Drive_Airplane_To_Hongkong: ActionQuest = {
         function makeMessage(): void {
             map[planeDirection] = "✈️";
             ctx.makeMessage({
-                components: [
-                    Functions.actionRow([backBTN, centerBTN, forwardBTN])
+                components: [Functions.actionRow([backBTN, centerBTN, forwardBTN])],
+                embeds: [
+                    {
+                        title: "🌏 Hongkong",
+                        description: splitEvery10Array(map).join("\n"),
+                        footer: {
+                            text: "Drive the airplane to hongkong. Don't crash!",
+                        },
+                    },
                 ],
-                embeds: [{
-                    title: "🌏 Hongkong",
-                    description: splitEvery10Array(map).join("\n"),
-                    footer: {
-                        text: "Drive the airplane to hongkong. Don't crash!"
-                    }
-                }]
             });
         }
 
         makeMessage();
         const filter = async (i: MessageComponentInteraction) => {
-            i.deferUpdate().catch(() => {
-
-            });
-            return (i.customId === backId || i.customId === centerId || i.customId === forwardId) && i.user.id === ctx.userData.id;
+            i.deferUpdate().catch(() => {});
+            return (
+                (i.customId === backId || i.customId === centerId || i.customId === forwardId) &&
+                i.user.id === ctx.userData.id
+            );
         };
-        const collector = ctx.interaction.channel.createMessageComponentCollector({ filter, time: 150000 });
+        const collector = ctx.interaction.channel.createMessageComponentCollector({
+            filter,
+            time: 150000,
+        });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
             map[planeDirection] = oldEmoji;
@@ -580,12 +589,12 @@ export const Drive_Airplane_To_Hongkong: ActionQuest = {
             if (map[planeDirection] === crashEmoji) {
                 collector.stop("crashed");
                 ctx.makeMessage({
-                    content: "💥 YOURE SO BAD YOU CRASHED THE AIRPLANE!"
+                    content: "💥 YOURE SO BAD YOU CRASHED THE AIRPLANE!",
                 });
             } else if (map[planeDirection] === finishEmoji) {
                 collector.stop("finished");
                 ctx.makeMessage({
-                    content: "You successfully landed in Hongkong!"
+                    content: "You successfully landed in Hongkong!",
                 });
                 // validate quest
                 validateQuest(ctx, "drive_airplane_to_hongkong");
@@ -594,13 +603,12 @@ export const Drive_Airplane_To_Hongkong: ActionQuest = {
             }
             oldEmoji = map[planeDirection];
             makeMessage();
-
         });
 
         collector.on("end", () => {
             ctx.client.database.deleteCooldown(ctx.userData.id);
         });
-    }
+    },
 };
 
 export const DriveBoatToRescue: ActionQuest = {
@@ -671,25 +679,25 @@ export const DriveBoatToRescue: ActionQuest = {
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         centerBTN,
-                        generateInvisibleBTN()
+                        generateInvisibleBTN(),
                     ]),
                     Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         bottomBTN,
-                        generateInvisibleBTN()
-                    ])
+                        generateInvisibleBTN(),
+                    ]),
                 ],
                 embeds: [
                     {
                         title: "🚤 Boat Navigation",
                         description: splitEvery10Array(map).join("\n"),
                         footer: {
-                            text: "Navigate the boat to the nearest rescue boat."
+                            text: "Navigate the boat to the nearest rescue boat.",
                         },
-                        color: 0x3366CC
-                    }
-                ]
+                        color: 0x3366cc,
+                    },
+                ],
             });
         }
 
@@ -702,8 +710,7 @@ export const DriveBoatToRescue: ActionQuest = {
         });
         const filter = async (i: MessageComponentInteraction) => {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            i.deferUpdate().catch(() => {
-            });
+            i.deferUpdate().catch(() => {});
             return (
                 (i.customId === backId ||
                     i.customId === centerId ||
@@ -714,7 +721,7 @@ export const DriveBoatToRescue: ActionQuest = {
         };
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 150000
+            time: 150000,
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
@@ -732,15 +739,20 @@ export const DriveBoatToRescue: ActionQuest = {
             if (map[boatDirection] === crashEmoji) {
                 collector.stop("crashed");
                 ctx.makeMessage({
-                    content: "You failed to navigate the boat. Try again."
+                    content: "You failed to navigate the boat. Try again.",
                 });
             } else if (map[boatDirection] === finishEmoji) {
                 collector.stop("finished");
                 ctx.makeMessage({
-                    content: "You successfully navigated the boat to the rescue boat."
+                    content: "You successfully navigated the boat to the rescue boat.",
                 });
                 validateQuest(ctx, "drive_boat_to_rescue");
-                for (let i = 0; i < 5; i++) ctx.userData.chapter.quests.push(Functions.pushQuest(Functions.generateFightQuest(NPCs.Bandit, null, null, null)));
+                for (let i = 0; i < 5; i++)
+                    ctx.userData.chapter.quests.push(
+                        Functions.pushQuest(
+                            Functions.generateFightQuest(NPCs.Bandit, null, null, null)
+                        )
+                    );
                 ctx.client.database.saveUserData(ctx.userData);
             }
             oldEmoji = map[boatDirection];
@@ -750,7 +762,7 @@ export const DriveBoatToRescue: ActionQuest = {
         collector.on("end", () => {
             ctx.client.database.deleteCooldown(ctx.userData.id);
         });
-    }
+    },
 };
 
 export const DriveBoatToSingapore: ActionQuest = {
@@ -761,7 +773,18 @@ export const DriveBoatToSingapore: ActionQuest = {
     emoji: "🚤",
     use: async (ctx) => {
         const finishEmoji = "⚓";
-        const map = [finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji, finishEmoji];
+        const map = [
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+            finishEmoji,
+        ];
         const crashEmoji = "<:Strength:1155080130142687323>"; //"<:redtick:1071137546819600424>";
         for (let i = 0; i < 15; i++) {
             const howMuch = Functions.randomNumber(1, 5);
@@ -821,25 +844,25 @@ export const DriveBoatToSingapore: ActionQuest = {
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         centerBTN,
-                        generateInvisibleBTN()
+                        generateInvisibleBTN(),
                     ]),
                     Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
                     Functions.actionRow([
                         generateInvisibleBTN(),
                         bottomBTN,
-                        generateInvisibleBTN()
-                    ])
+                        generateInvisibleBTN(),
+                    ]),
                 ],
                 embeds: [
                     {
                         title: "🚤 Boat Navigation",
                         description: splitEvery10Array(map).join("\n"),
                         footer: {
-                            text: "Navigate the boat to Singapore."
+                            text: "Navigate the boat to Singapore.",
                         },
-                        color: 0x3366CC
-                    }
-                ]
+                        color: 0x3366cc,
+                    },
+                ],
             });
         }
 
@@ -852,8 +875,7 @@ export const DriveBoatToSingapore: ActionQuest = {
         });
         const filter = async (i: MessageComponentInteraction) => {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            i.deferUpdate().catch(() => {
-            });
+            i.deferUpdate().catch(() => {});
             return (
                 (i.customId === backId ||
                     i.customId === centerId ||
@@ -864,7 +886,7 @@ export const DriveBoatToSingapore: ActionQuest = {
         };
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter,
-            time: 150000
+            time: 150000,
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
@@ -882,15 +904,20 @@ export const DriveBoatToSingapore: ActionQuest = {
             if (map[boatDirection] === crashEmoji) {
                 collector.stop("crashed");
                 ctx.makeMessage({
-                    content: "You failed to navigate the boat. Try again."
+                    content: "You failed to navigate the boat. Try again.",
                 });
             } else if (map[boatDirection] === finishEmoji) {
                 collector.stop("finished");
                 ctx.makeMessage({
-                    content: "You successfully arrived to singapore."
+                    content: "You successfully arrived to singapore.",
                 });
                 validateQuest(ctx, "drive_boat_singapore");
-                for (let i = 0; i < 5; i++) ctx.userData.chapter.quests.push(Functions.pushQuest(Functions.generateFightQuest(NPCs.Bandit, null, null, null)));
+                for (let i = 0; i < 5; i++)
+                    ctx.userData.chapter.quests.push(
+                        Functions.pushQuest(
+                            Functions.generateFightQuest(NPCs.Bandit, null, null, null)
+                        )
+                    );
                 ctx.client.database.saveUserData(ctx.userData);
             }
             oldEmoji = map[boatDirection];
@@ -900,5 +927,48 @@ export const DriveBoatToSingapore: ActionQuest = {
         collector.on("end", () => {
             ctx.client.database.deleteCooldown(ctx.userData.id);
         });
-    }
+    },
+};
+
+export const throwRubberSoulBodyToOcean: ActionQuest = {
+    type: "action",
+    id: "throw_rubber_soul_body_to_ocean",
+    completed: false,
+    i18n_key: "THROW_RUBBER_SOUL_BODY_OCEAN",
+    emoji: "🌊",
+    use: async (ctx) => {
+        validateQuest(ctx, "throw_rubber_soul_body_to_ocean");
+        // go to india
+        ctx.userData.chapter.quests.push(Functions.pushQuest(getATramAndGoToIndia));
+        ctx.client.database.saveUserData(ctx.userData);
+
+        await ctx.makeMessage({
+            content:
+                "https://cdn.discordapp.com/attachments/940347021779427349/1178405972339855430/2023-11-26_19-39-11.gif?ex=65760715&is=65639215&hm=df54db0dec580d9d33b51ef877aecac0bf692a14708f7581d42d1d169fd97756&",
+        });
+        ctx.followUp({
+            content:
+                "You threw Rubber Soul's body to the ocean. You can now continue your journey.",
+        });
+    },
+};
+
+export const getATramAndGoToIndia: ActionQuest = {
+    type: "action",
+    id: "get_a_tram_and_go_to_india",
+    completed: false,
+    i18n_key: "GET_TRAM_GO_INDIA",
+    emoji: "🚋",
+    use: async (ctx) => {
+        if (ctx.userData.coins < 100000) {
+            ctx.sendTranslated("action:GET_TRAM_GO_INDIA.NO_COINS");
+            return;
+        }
+        Functions.addCoins(ctx.userData, -100000);
+        ctx.sendTranslated("action:GET_TRAM_GO_INDIA.SUCCESS");
+        const quest = Functions.generateWaitQuest(60000 * 60 * 3, null, null, "GET_TRAM_GO_INDIA");
+        pushQuest(ctx, quest, "get_a_tram_and_go_to_india");
+        validateQuest(ctx, "get_a_tram_and_go_to_india");
+        ctx.client.database.saveUserData(ctx.userData);
+    },
 };
