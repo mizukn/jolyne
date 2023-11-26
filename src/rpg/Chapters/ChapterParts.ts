@@ -343,5 +343,5 @@ export const C2_P8: ChapterPart = {
         Functions.generataRaidQuest(Raids.BanditBoss.boss),
     ],
     parent: Chapters.C2,
-    private: true,
+    private: false,
 };
