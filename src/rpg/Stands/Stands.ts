@@ -714,7 +714,7 @@ export const WonderOfU: Stand = {
         stamina: 5,
         defense: 0,
     },
-    available: false,
+    available: true,
 };
 
 export const StoneFree: Stand = {
@@ -788,4 +788,24 @@ export const AdminStand: Stand = {
         defense: 200,
     },
     available: true,
+};
+
+export const YellowTemperance: Stand = {
+    id: "yellow_temperance",
+    name: "Yellow Temperance",
+    rarity: "B",
+    description:
+        "Yellow Temperance is a Stand with the ability to assimilate any material, providing its user with an incredible defense.",
+    abilities: [Abilities.Assimilation, Abilities.AcidicTouch, Abilities.DefensiveForm],
+    emoji: "🟡",
+    skillPoints: {
+        strength: 3,
+        defense: 7,
+        perception: 2,
+        speed: 2,
+        stamina: 3,
+    },
+    color: 0xffff00, // Yellow color
+    available: true,
+    image: "https://media.jolyne.moe/3T8Vf8", // Replace with the actual image URL
 };

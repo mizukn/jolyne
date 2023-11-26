@@ -78,7 +78,7 @@ export const Harry_Lester: FightableNPC = {
 
 export const Jotaro: FightableNPC = {
     ...NPCs.Jotaro,
-    level: 200,
+    level: 300,
     skillPoints: {
         defense: 100,
         strength: 100,
@@ -93,7 +93,7 @@ export const Jotaro: FightableNPC = {
 
 export const Dio: FightableNPC = {
     ...NPCs.Dio,
-    level: 150,
+    level: 300,
     skillPoints: Jotaro.skillPoints,
     equippedItems: {
         dios_knives: 6,
@@ -260,7 +260,7 @@ export const Devo: FightableNPC = {
 
 export const Toru: FightableNPC = {
     ...NPCs.Toru,
-    level: 250,
+    level: 550,
     skillPoints: {
         defense: 250 * 3 - 100 / 5,
         strength: 0,
@@ -287,5 +287,27 @@ export const Jolyne: FightableNPC = {
     },
     equippedItems: {},
     stand: "stone_free",
+    standsEvolved: {
+        jotaros_hat: 1,
+    },
+};
+
+export const RubberSoul: FightableNPC = {
+    ...NPCs.RubberSoul,
+    level: 40,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "yellow_temperance",
     standsEvolved: {},
+};
+
+export const YoshikageKira: FightableNPC = {
+    ...NPCs.YoshikageKira,
+    level: Jotaro.level,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "killer_queen",
+    standsEvolved: {
+        killer_queen: 1,
+    },
 };

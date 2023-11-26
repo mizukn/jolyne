@@ -6,7 +6,8 @@ import * as Functions from "../utils/Functions";
 
 export const StandBarrage: Ability = {
     name: "Stand Barrage",
-    description: "Performs an astoundingly fast flurry of punches that deals a small amount damage per hit.",
+    description:
+        "Performs an astoundingly fast flurry of punches that deals a small amount damage per hit.",
     cooldown: 5,
     extraTurns: 1,
     damage: 10,
@@ -17,7 +18,8 @@ export const StandBarrage: Ability = {
 
 export const KickBarrage: Ability = {
     name: "Kick Barrage",
-    description: "Performs an astoundingly fast flurry of kicks that deals a small amount damage per hit.",
+    description:
+        "Performs an astoundingly fast flurry of kicks that deals a small amount damage per hit.",
     cooldown: 3,
     extraTurns: 0,
     damage: 8,
@@ -684,7 +686,6 @@ export const LifeGiver: Ability = {
             standsEvolved: target.standsEvolved,
             emoji: target.stand?.emoji ?? "🤷‍♂️",
         };
-        console.log(team);
         team.push(new Fighter(NPC));
         ctx.fighters.push(new Fighter(NPC));
         ctx.turns[ctx.turns.length - 1].logs.push(
@@ -2162,7 +2163,7 @@ export const DollThrow: Ability = {
 };
 
 export const CalamityManipulation: Ability = {
-  ...StandBarrage,
+    ...StandBarrage,
     name: "Calamity Manipulation",
     description: "Damages the opponent with a flurry of deadly calamities.",
     cooldown: 2,
@@ -2171,16 +2172,17 @@ export const CalamityManipulation: Ability = {
 };
 
 export const IdentityAssumption: Ability = {
-  ...StandDisc,
+    ...StandDisc,
     name: "Identity Assumption",
-    description: "Removes the opponent’s stand and damages it’s user. (Their stand will continue to be unusable for a few turns.)",
+    description:
+        "Removes the opponent’s stand and damages it’s user. (Their stand will continue to be unusable for a few turns.)",
     cooldown: 7,
     damage: 25,
     dodgeScore: 8,
 };
 
 export const IllusionCreation: Ability = {
-  ...StandBarrage,
+    ...StandBarrage,
     name: "Illusion Creation",
     description: "Creates multiple illusions and attacks the opponent..",
     cooldown: 4,
@@ -2188,10 +2190,10 @@ export const IllusionCreation: Ability = {
     dodgeScore: 2,
 };
 export const MedicExp: Ability = {
-  ...Heal,
-  name: "Medical Experience",
-  description: "Uses its medical experience to heal the targetted player.",
-  cooldown: 5,
+    ...Heal,
+    name: "Medical Experience",
+    description: "Uses its medical experience to heal the targetted player.",
+    cooldown: 5,
 };
 
 export const StaffBarrage: Ability = {
@@ -2241,45 +2243,147 @@ export const StaffToy: Ability = {
 };
 
 //Stone Free
-export const BallBarrage: Ability ={
-  ...BallOfLightning,
-  name: "Ball Barrage",
-  description: "Throws balls at the opponent creating a barrage.",
-  thumbnail:
-  "https://tenor.com/view/jojo-jolyne-stand-punch-barrage-gif-23793152",
-  cooldown: 6,
+export const BallBarrage: Ability = {
+    ...BallOfLightning,
+    name: "Ball Barrage",
+    description: "Throws balls at the opponent creating a barrage.",
+    thumbnail: "https://tenor.com/view/jojo-jolyne-stand-punch-barrage-gif-23793152",
+    cooldown: 6,
 };
 
 export const Wrap: Ability = {
-  ...LightManifestation,
+    ...LightManifestation,
     name: "Wrap",
     description: "Warps behind the opponent to attack.",
     cooldown: 7,
 };
 
 export const StringWeb: Ability = {
-  ...VineSlap,
-  name: "String Web",
-  description: "Creates a web using string to engulf the opponent.",
-  thumbnail:
-  "https://tenor.com/view/jolyne-cujoh-jolyne-stone-free-stone-ocean-jojo-gif-26795154",
+    ...VineSlap,
+    name: "String Web",
+    description: "Creates a web using string to engulf the opponent.",
+    thumbnail:
+        "https://tenor.com/view/jolyne-cujoh-jolyne-stone-free-stone-ocean-jojo-gif-26795154",
 };
 
 //Horus
 export const IceSickles: Ability = {
-  ...KickBarrage,
-  name: "Ice Sickles",
-  description: "Throws Sickles of Ice towards the opponent",
+    ...KickBarrage,
+    name: "Ice Sickles",
+    description: "Throws Sickles of Ice towards the opponent",
 };
 
 export const FreezingTouch: Ability = {
-  ...StandBarrage,
-  name: "Freezing Touch",
-  description: "Tries to infect the opponent with a Frost Bite.",
+    ...StandBarrage,
+    name: "Freezing Touch",
+    description: "Tries to infect the opponent with a Frost Bite.",
 };
 
 export const IceBlockade: Ability = {
-  ...LittleBoy,
-  name: "Ice Blockade",
-  description: "Blocks the opponent with ice, to damage them.",
+    ...LittleBoy,
+    name: "Ice Blockade",
+    description: "Blocks the opponent with ice, to damage them.",
+};
+
+// defensive form:
+// boosts +25% health for 3 turns
+
+export const DefensiveForm: Ability = {
+    name: "Defensive Form",
+    description: "Boosts +25% health for 3 turns.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        const oldMaxHealth = user.maxHealth;
+        user.maxHealth *= 1.25;
+        user.health *= 1.25;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} DEFENSIVE FORM: **${user.name}**'s health has been boosted...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.maxHealth = oldMaxHealth;
+                user.health = Math.min(user.health, user.maxHealth);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} DEFENSIVE FORM: **${user.name}**'s health boost has disappeared...`
+                );
+            },
+        });
+    },
+};
+
+export const AcidicTouch: Ability = {
+    name: "Acidic Touch",
+    description: "Touch the opponent with acid, dealing damage.",
+    cooldown: 4,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += xdamage;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} ACIDIC TOUCH: **${
+                user.name
+            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const burnDamageCalc = Math.round(
+                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+                );
+                poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} ACIDIC TOUCH: **${target.name}** took **${burnDamageCalc}** poison damage`
+                );
+            },
+        });
+    },
+};
+
+// Assimilation:
+// perception boost +10% for 3 turns
+
+export const Assimilation: Ability = {
+    name: "Assimilation",
+    description: "Perception boost +10% for 3 turns.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        const oldSkillPoints = cloneDeep(user.skillPoints);
+        user.skillPoints.perception *= 1.1;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} ASSIMILATION: **${user.name}**'s perception has been boosted...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.skillPoints = oldSkillPoints;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} ASSIMILATION: **${user.name}**'s perception boost has disappeared...`
+                );
+            },
+        });
+    },
 };

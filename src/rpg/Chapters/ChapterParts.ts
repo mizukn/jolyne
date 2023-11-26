@@ -307,3 +307,41 @@ export const C2_P7: ChapterPart = {
     parent: Chapters.C2,
     private: false,
 };
+
+export const C2_P8: ChapterPart = {
+    id: 3.7,
+    description: {
+        "en-US":
+            "Jotaro, Anne, and Kakyoin find themselves walking together somewhere in Singapore. Jotaro decides to buy some chilled coconut juice for everyone at an ice cream kiosk. However, Kakyoin is acting abnormal, being far more vulgar and violent. At a cable car station, Kakyoin attempts to kill Jotaro by pushing him off a ledge, but Jotaro manages to save himself and punches Kakyoin, who reveals himself as an impostor named Rubber Soul, who uses the blob-like Yellow Temperance...",
+        "fr-FR":
+            "Jotaro, Anne et Kakyoin se retrouvent à marcher quelque part à Singapour. Jotaro décide d'acheter du jus de coco glacé pour tout le monde à un kiosque à glaces. Cependant, Kakyoin agit de manière anormale, étant beaucoup plus vulgaire et violent. À une station de téléphérique, Kakyoin tente de tuer Jotaro en le poussant d'une corniche, mais Jotaro parvient à se sauver et frappe Kakyoin, qui se révèle être un imposteur nommé Rubber Soul, qui utilise le Stand en forme de blob, Yellow Temperance...",
+        "es-ES":
+            "Jotaro, Anne y Kakyoin se encuentran caminando juntos en algún lugar de Singapur. Jotaro decide comprar jugo de coco frío para todos en un puesto de helados. Sin embargo, Kakyoin actúa de manera anormal, siendo mucho más vulgar y violento. En una estación de teleférico, Kakyoin intenta matar a Jotaro empujándolo desde un borde, pero Jotaro logra salvarse y golpea a Kakyoin, quien se revela como un impostor llamado Rubber Soul, que utiliza el Stand con forma de blob, Yellow Temperance...",
+        "de-DE":
+            "Jotaro, Anne und Kakyoin finden sich zusammen irgendwo in Singapur wieder. Jotaro beschließt, für alle an einem Eisstand gekühlten Kokosnuss-Saft zu kaufen. Allerdings verhält sich Kakyoin abnormal, er ist vulgärer und gewalttätiger. An einer Seilbahnstation versucht Kakyoin, Jotaro zu töten, indem er ihn von einem Vorsprung stößt, aber Jotaro schafft es, sich zu retten und schlägt Kakyoin, der sich als ein Betrüger namens Rubber Soul entpuppt, der den blobartigen Stand Yellow Temperance verwendet...",
+        "pt-BR":
+            "Jotaro, Anne e Kakyoin se encontram caminhando juntos em algum lugar de Singapura. Jotaro decide comprar suco de coco gelado para todos em um quiosque de sorvetes. No entanto, Kakyoin está agindo de forma anormal, sendo muito mais vulgar e violento. Em uma estação de teleférico, Kakyoin tenta matar Jotaro empurrando-o de uma borda, mas Jotaro consegue se salvar e soca Kakyoin, que se revela ser um impostor chamado Rubber Soul, que usa o Stand com forma de blob, Yellow Temperance...",
+        "ru-RU":
+            "Джотаро, Энн и Какиоин оказываются гуляющими вместе где-то в Сингапуре. Джотаро решает купить всем охлажденного кокосового сока на киоске с мороженым. Однако Какиоин ведет себя необычно, гораздо более вульгарно и насильственно. На станции канатной дороги Какиоин пытается убить Джотаро, толкнув его с обрыва, но Джотаро удается спасти себя и ударить Какиоин, который выявляется как мошенник по имени Раббер Соул, использующий стенд в виде блоба, Йеллоу Темперанс...",
+        "ja-JP":
+            "シンガポールのどこかを歩いているジョタロ、アン、カキョイン。ジョタロはアイスクリームのキオスクでみんなに冷たいココナッツジュースを買うことに決めます。しかし、カキョインは異常な行動をしており、非常に粗野で暴力的です。ケーブルカーステーションでは、カキョインがジョタロを押し下げて殺そうとしますが、ジョタロは自分を救うことに成功し、カキョインを殴り、その後、自分をRubber Soulという名前の詐欺師であることを明かすYellow Temperanceを使用しているのStand、ブロブのような形状をしています...",
+    },
+    quests: [
+        Functions.generateFightQuest(
+            NPCs.RubberSoul,
+            Functions.pushQuest(ActionQuests.throwRubberSoulBodyToOcean),
+            null,
+            [
+                {
+                    item: Functions.findItem("rare_stand_arrow").name,
+                    amount: 3,
+                },
+            ]
+        ),
+        Functions.generateClaimXQuest("daily", 2),
+        Functions.generateClaimXQuest("xp", 50000),
+        Functions.generataRaidQuest(Raids.BanditBoss.boss),
+    ],
+    parent: Chapters.C2,
+    private: true,
+};

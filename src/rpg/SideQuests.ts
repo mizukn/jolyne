@@ -1,4 +1,4 @@
-import { SideQuest, QuestArray } from "../@types";
+import { SideQuest, QuestArray, Quests } from "../@types";
 import * as Functions from "../utils/Functions";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
 import * as Raids from "./Raids";
@@ -7,7 +7,6 @@ const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 100),
     Functions.generateUseXCommandQuest("loot", 100),
     Functions.generateUseXCommandQuest("raid", 10),
-    Functions.generateUseXCommandQuest("blackjack", 25),
     Functions.generateClaimXQuest("daily", 7),
     Functions.generataRaidQuest(Raids.JeanPierrePolnareffRequiem.boss),
     Functions.generataRaidQuest(Raids.GiornoGiovannaRequiem.boss),
@@ -150,3 +149,53 @@ export const HalloweenEvent2023: SideQuest = {
 // must be level 75 and have killer queen
 // if they complete the side quest: ctx.userData.standsEvolved.killer_queen = 1
 
+export const KillerQueenDitesTheDust: SideQuest = {
+    id: "KillerQueenDitesTheDust",
+    title: "Killer Queen: Dites The Dust",
+    description: "You're now worthy of evolving your stand, Killer Queen.",
+    emoji: "<:yoshikageKira:1178425312942502039>",
+    rewards: async (ctx) => {
+        ctx.userData.standsEvolved.killer_queen = 1;
+        ctx.followUp({
+            content: "https://media.tenor.com/SN4FuZh3F4gAAAAd/killer-queen-bites-the-dust.gif",
+        });
+        return true;
+    },
+    requirementsMessage: "- You need to have **Killer Queen** to do this quest and be level **75**",
+    quests: (ctx) => {
+        const baseQuests: QuestArray = [
+            Functions.generateUseXCommandQuest("assault", 100),
+            Functions.generateClaimXQuest("daily", 7),
+            Functions.generataRaidQuest(Raids.YoshikageKira.boss),
+            Functions.generataRaidQuest(Raids.YoshikageKira.boss),
+        ];
+
+        const kqnpcs = Object.values(FightableNPCs).filter((w) => {
+            return (
+                w.stand === "killer_queen" &&
+                w.level <= (ctx.userData.level > 12 ? ctx.userData.level : 12)
+            );
+        });
+
+        // pick the 5 strongest npcs: they have to fight the 5 strongest x5 times
+        const fiveStrongest = kqnpcs.sort((a, b) => b.level - a.level).slice(0, 5);
+        for (let i = 0; i < fiveStrongest.length; i++) {
+            for (let j = 0; j < 5; j++) {
+                baseQuests.push(Functions.generateFightQuest(fiveStrongest[i]));
+            }
+        }
+
+        return baseQuests;
+    },
+    requirements: (ctx) => {
+        if (ctx.userData.stand === Functions.findStand("killer_queen").id) {
+            if (ctx.userData.level > 75) {
+                return true;
+            }
+        } else return false;
+    },
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    canRedoSideQuest: false,
+    // purple
+    color: 0x800080,
+};

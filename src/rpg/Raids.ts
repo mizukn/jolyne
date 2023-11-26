@@ -12,35 +12,35 @@ export const Dio: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("dios_knives").id,
                 amount: 1,
-                chance: 5
-            }
-        ]
+                chance: 5,
+            },
+        ],
     },
     level: 25,
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
-    cooldown: 7 * 60 * 1000
+    cooldown: 7 * 60 * 1000,
 };
 
 export const Jotaro: RaidBoss = {
@@ -53,25 +53,25 @@ export const Jotaro: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 100
+                chance: 100,
             },
             {
                 item: Functions.findItem("jotaro").id,
                 amount: 1,
-                chance: 3
+                chance: 3,
             },
             {
                 item: Functions.findItem("star_platinum").id,
                 amount: 1,
-                chance: 25
-            }
-        ]
+                chance: 25,
+            },
+        ],
     },
     level: 0,
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
-    cooldown: 7 * 60 * 1000
+    cooldown: 7 * 60 * 1000,
 };
 
 export const BanditBoss: RaidBoss = {
@@ -84,30 +84,30 @@ export const BanditBoss: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 3,
-                chance: 100
+                chance: 100,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 3,
-                chance: 100
+                chance: 100,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 3,
-                chance: 100
+                chance: 100,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 3,
-                chance: 100
-            }
-        ]
+                chance: 100,
+            },
+        ],
     },
     level: 5,
     maxLevel: 50,
     maxPlayers: 5,
     // 2 minutes
-    cooldown: 2 * 60 * 1000
+    cooldown: 2 * 60 * 1000,
 };
 
 export const Kakyoin: RaidBoss = {
@@ -120,19 +120,19 @@ export const Kakyoin: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 100
+                chance: 100,
             },
             {
                 item: "kakyoins_snazzy_shades",
                 chance: 25,
-                amount: 1
-            }
-        ]
+                amount: 1,
+            },
+        ],
     },
     level: 0,
     maxLevel: 25,
     maxPlayers: 5,
-    cooldown: 0.5 * 60 * 1000
+    cooldown: 0.5 * 60 * 1000,
 };
 
 export const JeanPierrePolnareffRequiem: RaidBoss = {
@@ -145,20 +145,20 @@ export const JeanPierrePolnareffRequiem: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 10,
-                chance: 1000
+                chance: 1000,
             },
             {
                 item: Functions.findItem("Requiem Arrow").id,
                 amount: 1,
-                chance: 5
-            }
-        ]
+                chance: 5,
+            },
+        ],
     },
     level: 50,
     maxLevel: Infinity,
     maxPlayers: 6,
     // 15 minutes
-    cooldown: 15 * 60 * 1000
+    cooldown: 15 * 60 * 1000,
 };
 
 export const Golem: RaidBoss = {
@@ -172,26 +172,29 @@ export const Golem: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 5,
-                chance: 300
-            }, {
+                chance: 300,
+            },
+            {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 5,
-                chance: 300
-            }, {
+                chance: 300,
+            },
+            {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 2,
-                chance: 200
-            }, {
+                chance: 200,
+            },
+            {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 2,
-                chance: 200
-            }
-        ]
+                chance: 200,
+            },
+        ],
     },
     level: 15,
     maxLevel: Infinity,
     maxPlayers: Math.round(100 / 15),
-    cooldown: 1 * 60 * 1000
+    cooldown: 1 * 60 * 1000,
 };
 
 export const Megumin: RaidBoss = {
@@ -204,42 +207,41 @@ export const Megumin: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 1,
-                chance: 300
+                chance: 300,
             },
             {
                 item: Functions.findItem("megumins_hat").id,
                 amount: 1,
-                chance: 4
-            },            {
+                chance: 4,
+            },
+            {
                 item: Functions.findItem("megumins_wand").id,
                 amount: 1,
-                chance: 4
-            }
-
-        ]
+                chance: 4,
+            },
+        ],
     },
     level: 25,
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
-    cooldown: 5 * 60 * 1000
+    cooldown: 5 * 60 * 1000,
 };
-
 
 export const GiornoGiovannaRequiem: RaidBoss = {
     boss: FightableNPCs.GiornoGiovannaRequiem,
@@ -251,20 +253,20 @@ export const GiornoGiovannaRequiem: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 10,
-                chance: 1000
+                chance: 1000,
             },
             {
                 item: Functions.findItem("Requiem Arrow").id,
                 amount: 1,
-                chance: 5
-            }
-        ]
+                chance: 5,
+            },
+        ],
     },
     level: 50,
     maxLevel: Infinity,
     maxPlayers: 6,
     // 15 minutes
-    cooldown: 15 * 60 * 1000
+    cooldown: 15 * 60 * 1000,
 };
 
 export const Jolyne: RaidBoss = {
@@ -277,20 +279,20 @@ export const Jolyne: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 10,
-                chance: 1000
+                chance: 1000,
             },
             {
                 item: Functions.findItem("Green Baby").id,
                 amount: 1,
                 chance: 0.1,
-            }
-        ]
+            },
+        ],
     },
     level: 25,
     maxLevel: Infinity,
     maxPlayers: 6,
     // 7 minutes
-    cooldown: 7 * 60 * 1000
+    cooldown: 7 * 60 * 1000,
 };
 
 export const Toru: RaidBoss = {
@@ -303,18 +305,44 @@ export const Toru: RaidBoss = {
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 10,
-                chance: 1000
+                chance: 1000,
             },
             {
                 item: Functions.findItem("wonder_of_u").id,
                 amount: 1,
-                chance: 1
-            }
-        ]
+                chance: 1,
+            },
+        ],
     },
     level: 50,
     maxLevel: Infinity,
     maxPlayers: 6,
     // 15 minutes
-    cooldown: 15 * 60 * 1000
+    cooldown: 15 * 60 * 1000,
+};
+
+export const YoshikageKira: RaidBoss = {
+    boss: FightableNPCs.YoshikageKira,
+    minions: [],
+    baseRewards: {
+        xp: 80000,
+        coins: 100727,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 10,
+                chance: 1000,
+            },
+            {
+                item: Functions.findItem("Killer Queen").id,
+                amount: 1,
+                chance: 1,
+            },
+        ],
+    },
+    level: 25,
+    maxLevel: Infinity,
+    maxPlayers: 6,
+    // 7 minutes
+    cooldown: 7 * 60 * 1000,
 };

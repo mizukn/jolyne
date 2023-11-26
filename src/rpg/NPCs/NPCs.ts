@@ -167,3 +167,15 @@ export const Toru: NPC = {
     name: "Toru",
     emoji: Emojis.Toru,
 };
+
+export const RubberSoul: NPC = {
+    id: "rubber_soul",
+    name: "Rubber Soul",
+    emoji: Emojis.rubberSoul,
+};
+
+export const YoshikageKira: NPC = {
+    id: "yoshikage_kira",
+    name: "Yoshikage Kira",
+    emoji: Emojis.yoshikageKira,
+};
