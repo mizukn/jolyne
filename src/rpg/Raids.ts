@@ -266,3 +266,55 @@ export const GiornoGiovannaRequiem: RaidBoss = {
     // 15 minutes
     cooldown: 15 * 60 * 1000
 };
+
+export const Jolyne: RaidBoss = {
+    boss: FightableNPCs.Jolyne,
+    minions: [],
+    baseRewards: {
+        xp: 80000,
+        coins: 100727,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 10,
+                chance: 1000
+            },
+            {
+                item: Functions.findItem("Green Baby").id,
+                amount: 1,
+                chance: 0.1,
+            }
+        ]
+    },
+    level: 25,
+    maxLevel: Infinity,
+    maxPlayers: 6,
+    // 7 minutes
+    cooldown: 7 * 60 * 1000
+};
+
+export const Toru: RaidBoss = {
+    boss: FightableNPCs.Toru,
+    minions: [],
+    baseRewards: {
+        xp: 180000,
+        coins: 172700,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 10,
+                chance: 1000
+            },
+            {
+                item: Functions.findItem("wonder_of_u").id,
+                amount: 1,
+                chance: 1
+            }
+        ]
+    },
+    level: 50,
+    maxLevel: Infinity,
+    maxPlayers: 6,
+    // 15 minutes
+    cooldown: 15 * 60 * 1000
+};

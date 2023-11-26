@@ -2062,7 +2062,6 @@ export const BallOfLightning: Ability = {
     dodgeScore: 0,
     target: "enemy",
 };
-
 // Total combustion:
 // Weather report punches the opponent with firey fists, causing burn damage.
 // The opponent's perception is also lowered by 5% for 3 turns.
@@ -2162,6 +2161,39 @@ export const DollThrow: Ability = {
     target: "enemy",
 };
 
+export const CalamityManipulation: Ability = {
+  ...StandBarrage,
+    name: "Calamity Manipulation",
+    description: "Damages the opponent with a flurry of deadly calamities.",
+    cooldown: 2,
+    stamina: 5,
+    dodgeScore: 2,
+};
+
+export const IdentityAssumption: Ability = {
+  ...StandDisc,
+    name: "Identity Assumption",
+    description: "Removes the opponent’s stand and damages it’s user. (Their stand will continue to be unusable for a few turns.)",
+    cooldown: 7,
+    damage: 25,
+    dodgeScore: 8,
+};
+
+export const IllusionCreation: Ability = {
+  ...StandBarrage,
+    name: "Illusion Creation",
+    description: "Creates multiple illusions and attacks the opponent..",
+    cooldown: 4,
+    stamina: 10,
+    dodgeScore: 2,
+};
+export const MedicExp: Ability = {
+  ...Heal,
+  name: "Medical Experience",
+  description: "Uses its medical experience to heal the targetted player.",
+  cooldown: 5,
+};
+
 export const StaffBarrage: Ability = {
     name: "Barrage",
     description: "Performs an astoundingly fast flurry of punches that deals damage per hit.",
@@ -2206,4 +2238,48 @@ export const StaffToy: Ability = {
     stamina: 0,
     dodgeScore: 0,
     target: "enemy",
+};
+
+//Stone Free
+export const BallBarrage: Ability ={
+  ...BallOfLightning,
+  name: "Ball Barrage",
+  description: "Throws balls at the opponent creating a barrage.",
+  thumbnail:
+  "https://tenor.com/view/jojo-jolyne-stand-punch-barrage-gif-23793152",
+  cooldown: 6,
+};
+
+export const Wrap: Ability = {
+  ...LightManifestation,
+    name: "Wrap",
+    description: "Warps behind the opponent to attack.",
+    cooldown: 7,
+};
+
+export const StringWeb: Ability = {
+  ...VineSlap,
+  name: "String Web",
+  description: "Creates a web using string to engulf the opponent.",
+  thumbnail:
+  "https://tenor.com/view/jolyne-cujoh-jolyne-stone-free-stone-ocean-jojo-gif-26795154",
+};
+
+//Horus
+export const IceSickles: Ability = {
+  ...KickBarrage,
+  name: "Ice Sickles",
+  description: "Throws Sickles of Ice towards the opponent",
+};
+
+export const FreezingTouch: Ability = {
+  ...StandBarrage,
+  name: "Freezing Touch",
+  description: "Tries to infect the opponent with a Frost Bite.",
+};
+
+export const IceBlockade: Ability = {
+  ...LittleBoy,
+  name: "Ice Blockade",
+  description: "Blocks the opponent with ice, to damage them.",
 };

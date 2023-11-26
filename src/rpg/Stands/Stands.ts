@@ -692,6 +692,80 @@ export const EbonyDevil: Stand = {
     color: 0x666420,
 };
 
+export const WonderOfU: Stand = {
+    id: "wonder_of_u",
+    name: "Wonder of U",
+    description:
+        "Wonder Of U is a stand from JoJo Part 8, its user is known as [Toru](https://jojowiki.com/Toru). It has a robotic body and can summoncalimaties at will.",
+    rarity: "SS",
+    image: "https://static.jojowiki.com/images/2/24/latest/20210418202241/Wonder_of_U_Hybrid_Infobox_Manga.png",
+    color: 0x5c212d,
+    abilities: [
+        Abilities.CalamityManipulation,
+        Abilities.IllusionCreation,
+        Abilities.MedicExp,
+        Abilities.IdentityAssumption,
+    ],
+    emoji: Emojis.WonderOfU,
+    skillPoints: {
+        perception: 5,
+        speed: 7,
+        strength: 3,
+        stamina: 5,
+        defense: 0,
+    },
+    available: false,
+};
+
+export const StoneFree: Stand = {
+    id: "stone_free",
+    name: "Stone Free",
+    description:
+        "Stone Free is an incredibly versatile stand from part 6. It's ability being strings had a wide variety of uses. It was used by [Jolyne Cujoh](https://jojo.fandom.com/wiki/Jolyne_Cujoh)",
+    rarity: "A",
+    image: "https://media.jolyne.moe/rMwxNj/direct",
+    emoji: Emojis.stone_free,
+    abilities: [
+        addGif(
+            Abilities.StandBarrage,
+            "https://tenor.com/view/jolyne-kujo-jolyne-cujoh-jolyne-kujo-cujoh-gif-23791539"
+        ),
+        Abilities.BallBarrage,
+        Abilities.Heal,
+        Abilities.Wrap,
+        Abilities.StringWeb,
+    ],
+    skillPoints: {
+        strength: 5,
+        defense: 0,
+        perception: 10,
+        speed: 5,
+        stamina: 0,
+    },
+    color: 0x5c78a3,
+    available: true,
+};
+
+export const Horus: Stand = {
+    id: "Horus",
+    name: "Horus",
+    description:
+        "Horus is a Non-Humanoid Stand, being the guardian of Dio's Mansion it is decently strong",
+    rarity: "B",
+    image: "https://media.jolyne.moe/Pp3O03/direct",
+    emoji: Emojis.horus,
+    abilities: [Abilities.IceSickles, Abilities.FreezingTouch, Abilities.IceBlockade],
+    skillPoints: {
+        strength: 0,
+        defense: 0,
+        perception: 5,
+        speed: 5,
+        stamina: 0,
+    },
+    color: 0xa9aaab,
+    available: true,
+};
+
 export const AdminStand: Stand = {
     id: "admin_stand",
     name: "The WICKED",
