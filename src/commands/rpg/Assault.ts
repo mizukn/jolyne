@@ -120,6 +120,8 @@ const slashCommand: SlashCommandFile = {
                         ctx.userData,
                         npc.rewards?.coins / 15 ?? npc.level * 250
                     );
+                    ctx.userData.health = winners[0].health;
+                    ctx.userData.stamina = winners[0].stamina;
                     await ctx.followUp({
                         content: `You assaulted ${npc.name} and won! You got ${xp.toLocaleString(
                             "en-US"

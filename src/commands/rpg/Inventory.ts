@@ -270,7 +270,6 @@ const slashCommand: SlashCommandFile = {
                 await goToPage();
             });
         } else if (ctx.interaction.options.getSubcommand() === "info") {
-            console.log("SUBCOMMAND INFO");
             const itemString = ctx.interaction.options.getString("item", true);
             const itemData = Functions.findItem(itemString);
 
@@ -369,7 +368,6 @@ const slashCommand: SlashCommandFile = {
                 embeds: [embed],
             });
         } else if (ctx.interaction.options.getSubcommand() === "unequip") {
-            console.log("SUBCOMMAND UNEQUIP");
             const itemString = ctx.interaction.options.getString("item", true);
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
