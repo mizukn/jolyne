@@ -797,7 +797,7 @@ export const YellowTemperance: Stand = {
     description:
         "Yellow Temperance is a Stand with the ability to assimilate any material, providing its user with an incredible defense.",
     abilities: [Abilities.Assimilation, Abilities.AcidicTouch, Abilities.DefensiveForm],
-    emoji: "🟡",
+    emoji: Emojis.yellowTemperance,
     skillPoints: {
         strength: 3,
         defense: 7,
