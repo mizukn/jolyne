@@ -30,7 +30,7 @@ export const Diobone: Item = {
     name: "Dio's Bone",
     description:
         "DIO's bone acquired by chance after an incredible fight with the vampire himself. It's said this bone contains something powerful.",
-    rarity: "S",
+    rarity: "SS",
     emoji: Emojis.dio,
     price: 72700,
     tradable: true,
