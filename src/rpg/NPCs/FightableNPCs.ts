@@ -264,8 +264,8 @@ export const Toru: FightableNPC = {
     ...NPCs.Toru,
     level: 550,
     skillPoints: {
-        defense: 250 * 3 - 100 / 5,
-        strength: 0,
+        defense: 250 * 3 - 290,
+        strength: 250 * 3 - 250,
         speed: 250 / 5 / 2,
         perception: 250 / 5 / 2,
         stamina: 350,
@@ -279,19 +279,17 @@ export const Toru: FightableNPC = {
 
 export const Jolyne: FightableNPC = {
     ...NPCs.Jolyne,
-    level: 125,
+    level: 150,
     skillPoints: {
-        defense: 70,
-        strength: 85,
-        speed: 60,
-        perception: 39,
-        stamina: 100,
+        defense: 115,
+        strength: 250,
+        speed: 70,
+        perception: 45,
+        stamina: 120,
     },
     equippedItems: {},
     stand: "stone_free",
-    standsEvolved: {
-        jotaros_hat: 1,
-    },
+    standsEvolved: {},
 };
 
 export const RubberSoul: FightableNPC = {
