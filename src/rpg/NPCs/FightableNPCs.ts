@@ -298,7 +298,9 @@ export const RubberSoul: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "yellow_temperance",
-    standsEvolved: {},
+    standsEvolved: {
+        jotaros_hat: 1,
+    },
 };
 
 export const YoshikageKira: FightableNPC = {
