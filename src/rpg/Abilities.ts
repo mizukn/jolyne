@@ -631,7 +631,7 @@ export const Heal: Ability = {
             }** by **${heal}** health... ${
                 ctx.getTeamIdx(user) === ctx.getTeamIdx(target)
                     ? ""
-                    : "(wtf dude you just healed an enemy lol)"
+                    : "[You just Healed An Ememy!]"
             }`
         );
     },
@@ -2247,7 +2247,7 @@ export const BallBarrage: Ability = {
     ...BallOfLightning,
     name: "Ball Barrage",
     description: "Throws balls at the opponent creating a barrage.",
-    thumbnail: "https://tenor.com/view/jojo-jolyne-stand-punch-barrage-gif-23793152",
+    thumbnail: "https://media.tenor.com/UzE1QG36ED8AAAAC/jojo-jolyne.gif",
     cooldown: 6,
 };
 
@@ -2262,8 +2262,7 @@ export const StringWeb: Ability = {
     ...VineSlap,
     name: "String Web",
     description: "Creates a web using string to engulf the opponent.",
-    thumbnail:
-        "https://tenor.com/view/jolyne-cujoh-jolyne-stone-free-stone-ocean-jojo-gif-26795154",
+    thumbnail: "https://media.tenor.com/MlXpp0Dn8JUAAAAC/jolyne-cujoh-jolyne.gif",
 };
 
 //Horus
