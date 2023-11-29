@@ -287,7 +287,9 @@ export const Jolyne: FightableNPC = {
         perception: 45,
         stamina: 120,
     },
-    equippedItems: {},
+    equippedItems: {
+        jotaros_hat: 1,
+    },
     stand: "stone_free",
     standsEvolved: {},
 };
@@ -298,9 +300,8 @@ export const RubberSoul: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "yellow_temperance",
-    standsEvolved: {
-        jotaros_hat: 1,
-    },
+    equippedItems: {},
+    standsEvolved: {},
 };
 
 export const YoshikageKira: FightableNPC = {
