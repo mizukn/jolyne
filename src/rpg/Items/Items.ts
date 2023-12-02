@@ -43,7 +43,7 @@ export const Greenbaby: Item = {
     description:
         "What the hell is up with this green skinned child. Did it seriously just come from a bone? Pretty bizarre, wouldn't you say?",
     rarity: "SS",
-    emoji: Emojis.dio,
+    emoji: Emojis.greenbaby,
     price: 702070,
     tradable: true,
     storable: true,
