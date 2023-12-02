@@ -300,7 +300,6 @@ export const RubberSoul: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "yellow_temperance",
-    equippedItems: {},
     standsEvolved: {},
 };
 
