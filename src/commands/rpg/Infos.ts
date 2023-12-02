@@ -184,7 +184,7 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Version",
-                    value: `\`v3.1.0:${commit["hash"].slice(0, 7)}\` (${
+                    value: `\`v3.1.03:${commit["hash"].slice(0, 7)}\` (${
                         commit["message"]
                     } ${generateDiscordTimestamp(new Date(commit["date"]), "FROM_NOW")})`,
                 },
