@@ -629,9 +629,7 @@ export const Heal: Ability = {
             `- ${user.stand?.emoji} HEAL: **${user.name}** has healed **${
                 target.name
             }** by **${heal}** health... ${
-                ctx.getTeamIdx(user) === ctx.getTeamIdx(target)
-                    ? ""
-                    : "[You just Healed An Ememy!]"
+                ctx.getTeamIdx(user) === ctx.getTeamIdx(target) ? "" : "[You just Healed An Ememy!]"
             }`
         );
     },
@@ -2384,5 +2382,130 @@ export const Assimilation: Ability = {
                 );
             },
         });
+    },
+};
+
+// abilities for the femboy stand
+// 3rd move: tease barrage you tease the opponent till they explode "LMAO"
+export const TeaseBarrage: Ability = {
+    name: "Tease Barrage",
+    description: "Tease the opponent till they explode.",
+    cooldown: 3,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += xdamage;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} TEASE BARRAGE: **${
+                user.name
+            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const burnDamageCalc = Math.round(
+                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+                );
+                poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} TEASE BARRAGE: **${target.name}** took **${burnDamageCalc}** EXPLOSION damage LOL`
+                );
+            },
+        });
+    },
+};
+
+// 1st move: kiss the opponent and it removes there stand for like 6 turns and like has cooldown of like six turns
+export const Kiss: Ability = {
+    name: "Kiss",
+    description: "Kiss the opponent and it removes their stand for 6 turns.",
+    cooldown: 6,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    special: true,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.nextRoundPromises.push({
+            cooldown: 6,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const oldSkillPoints = cloneDeep(target.stand);
+                target.stand = null;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has been removed...`
+                );
+
+                fight.nextRoundPromises.push({
+                    cooldown: 6,
+                    id: Functions.generateRandomId(),
+                    promise: (fight) => {
+                        target.stand = oldSkillPoints;
+                        fight.turns[fight.turns.length - 1].logs.push(
+                            `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has returned...`
+                        );
+                    },
+                });
+            },
+        });
+    },
+};
+
+// 2nd move: hug the opponent which halves their speed for 3 turns and has a cooldown of 4 turns no dodging
+export const Hug: Ability = {
+    name: "Hug",
+    description: "Hug the opponent which halves their speed for 3 turns.",
+    cooldown: 4,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const oldSpeed = cloneDeep(target.skillPoints.speed);
+        target.skillPoints.speed /= 2;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} HUG: **${target.name}**'s speed has been halved...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                target.skillPoints.speed = oldSpeed;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} HUG: **${target.name}**'s speed has returned...`
+                );
+            },
+        });
+    },
+};
+
+// 4th move: flash your opponent with the blinding light of the stands lower area ☠️☠️☠️ stunning completely for four turns and a CD of 7 turns "sounds goods?" - Luvvy no dodge
+export const Flash: Ability = {
+    name: "Flash",
+    description:
+        "Flash your opponent with the blinding light of the stands lower area, stunning them for 4 turns.",
+    cooldown: 7,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        target.frozenFor = 4;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} FLASH: **${target.name}** has been stunned... UwU`
+        );
     },
 };

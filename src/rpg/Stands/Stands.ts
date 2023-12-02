@@ -809,3 +809,30 @@ export const YellowTemperance: Stand = {
     available: true,
     image: "https://media.jolyne.moe/3T8Vf8/direct", // Replace with the actual image URL
 };
+
+export const TheFemboy: Stand = {
+    id: "the_femboy",
+    name: "The Femboy",
+    rarity: "SS",
+    description:
+        "The Femboy is a Stand with the ability to make anyone horny, providing its user with an incredible defense. [limited custom stand]",
+    abilities: [
+        Abilities.DefensiveForm,
+        Abilities.TeaseBarrage,
+        Abilities.Hug,
+        Abilities.Flash,
+        Abilities.Kiss,
+    ],
+    emoji: Emojis.theFemboy,
+    skillPoints: {
+        strength: 10,
+        defense: 25,
+        perception: 25,
+        speed: 5,
+        stamina: 5,
+    },
+    // uwu pink color
+    color: 0xff69b4,
+    available: true,
+    image: "https://media.jolyne.moe/ONObhp/direct", // Replace with the actual image URL
+};
