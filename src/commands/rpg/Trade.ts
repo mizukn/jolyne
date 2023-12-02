@@ -194,6 +194,12 @@ const slashCommand: SlashCommandFile = {
                 filter,
                 time: time - Date.now(),
             });
+
+            collector.on("end", async () => {
+                ctx.client.database.deleteCooldown(target.id);
+                ctx.client.database.deleteCooldown(ctx.user.id);
+            });
+            
             let accepted: string[] = [];
             const callback = (item: string, amount: number) => {
                 accepted = [];
