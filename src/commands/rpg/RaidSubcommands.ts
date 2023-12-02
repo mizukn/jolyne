@@ -366,6 +366,10 @@ const slashCommand: SlashCommandFile = {
                     break;
                 }
                 case leaveRaidID: {
+                    // prevent host from leaving
+                    if (usrData.id === joinedUsers[0].id) {
+                        return;
+                    }
                     if (!joinedUsers.find((r) => r.id === interaction.user.id)) {
                         return;
                     }
