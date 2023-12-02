@@ -199,7 +199,7 @@ const slashCommand: SlashCommandFile = {
                 ctx.client.database.deleteCooldown(target.id);
                 ctx.client.database.deleteCooldown(ctx.user.id);
             });
-            
+
             let accepted: string[] = [];
             const callback = (item: string, amount: number) => {
                 accepted = [];
@@ -220,6 +220,8 @@ const slashCommand: SlashCommandFile = {
                     targetOffer[item] = targetData.inventory[item] ?? 0;
                 }
 
+                if (targetOffer[item] <= 0) delete userOffer[item];
+
                 makeMessage();
             };
             const callback2 = (item: string, amount: number) => {
@@ -236,11 +238,12 @@ const slashCommand: SlashCommandFile = {
                 } else {
                     userOffer[item] = amount;
                 }
-                if (userOffer[item] <= 0) delete userOffer[item];
 
                 if (userOffer[item] > ctx.userData.inventory[item] ?? 0) {
                     userOffer[item] = ctx.userData.inventory[item] ?? 0;
                 }
+
+                if (userOffer[item] <= 0) delete userOffer[item];
 
                 makeMessage();
             };
