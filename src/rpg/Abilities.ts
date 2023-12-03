@@ -2392,6 +2392,7 @@ export const TeaseBarrage: Ability = {
     description: "Tease the opponent till they explode.",
     cooldown: 3,
     damage: 0,
+    trueDamage: 15,
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,

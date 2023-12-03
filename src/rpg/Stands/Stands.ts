@@ -825,7 +825,7 @@ export const TheFemboy: Stand = {
     ],
     emoji: Emojis.theFemboy,
     skillPoints: {
-        strength: 10,
+        strength: 15,
         defense: 25,
         perception: 25,
         speed: 5,
