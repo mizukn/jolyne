@@ -2429,7 +2429,7 @@ export const TeaseBarrage: Ability = {
 export const Kiss: Ability = {
     name: "Kiss",
     description: "Kiss the opponent and it removes their stand for 6 turns.",
-    cooldown: 6,
+    cooldown: 8,
     damage: 0,
     stamina: 20,
     extraTurns: 0,
@@ -2437,26 +2437,20 @@ export const Kiss: Ability = {
     special: true,
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
+        const oldSkillPoints = cloneDeep(target.stand);
+        target.stand = null;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has been removed...`
+        );
+
         ctx.nextRoundPromises.push({
             cooldown: 6,
             id: Functions.generateRandomId(),
             promise: (fight) => {
-                const oldSkillPoints = cloneDeep(target.stand);
-                target.stand = null;
+                target.stand = oldSkillPoints;
                 fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has been removed...`
+                    `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has returned...`
                 );
-
-                fight.nextRoundPromises.push({
-                    cooldown: 6,
-                    id: Functions.generateRandomId(),
-                    promise: (fight) => {
-                        target.stand = oldSkillPoints;
-                        fight.turns[fight.turns.length - 1].logs.push(
-                            `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has returned...`
-                        );
-                    },
-                });
             },
         });
     },
