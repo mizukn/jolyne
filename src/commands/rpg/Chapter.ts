@@ -146,6 +146,9 @@ export const getQuestsStats = (
                     cc: quest.goal.toLocaleString("en-US"),
                     s: Functions.s(quest.goal),
                 });
+                console.log(
+                    `user ${ctx.user.id} has ${quest.amount} ${quest.command} commands (completed: ${quest.amount}/${quest.goal})))`
+                );
             } else {
                 const emoji = {
                     daily: "📆",
@@ -163,6 +166,9 @@ export const getQuestsStats = (
                     (quest.x === "daily"
                         ? ` (${ctx.client.getSlashCommandMention("daily claim")})`
                         : "");
+                console.log(
+                    `user ${ctx.user.id} has ${quest.amount} ${quest.x} (completed: ${quest.amount}/${quest.goal})))`
+                );
             }
 
             message.push(questMessage + questEnd);
@@ -179,6 +185,17 @@ export const getQuestsStats = (
                 ).length /
                 quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length;
             if (questPercent === 1) completed = true;
+            console.log(
+                `user ${ctx.user.id} has ${
+                    quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
+                } ${npc.name} quests (completed: ${
+                    quests.filter(
+                        (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
+                    ).length
+                }/${
+                    quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
+                })))`
+            );
 
             if (
                 quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length === 1
@@ -279,6 +296,20 @@ export const getQuestsStats = (
         if (Functions.isRaidNPCQuest(quest)) {
             const raid = raids.find((w) => w.boss.id === (quest as RaidNPCQuest).boss);
             if (raid) {
+                console.log(
+                    `user ${ctx.user.id} has ${
+                        quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                            .length
+                    } ${raid.boss.name} quests (completed: ${
+                        quests.filter(
+                            (r) =>
+                                Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
+                        ).length
+                    }/${
+                        quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                            .length
+                    })))`
+                );
                 questPercent =
                     quests.filter(
                         (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
@@ -315,12 +346,13 @@ export const getQuestsStats = (
                 const found = message.find((messageX) => messageX === sMessage);
 
                 if (!found) {
-                    totalPercent += questPercent * 100;
                     message.push(sMessage);
                 }
+                totalPercent += questPercent * 100;
                 continue;
             }
         }
+
         message.push(`??? Unknown Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`);
         totalPercent += questPercent;
     }
