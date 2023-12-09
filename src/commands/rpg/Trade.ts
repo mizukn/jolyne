@@ -220,7 +220,7 @@ const slashCommand: SlashCommandFile = {
                     targetOffer[item] = targetData.inventory[item] ?? 0;
                 }
 
-                if (targetOffer[item] <= 0) delete userOffer[item];
+                if (targetOffer[item] <= 0) delete targetOffer[item];
 
                 makeMessage();
             };
