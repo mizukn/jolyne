@@ -79,6 +79,10 @@ export const TheWorld: Ability = {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `> ${user.stand?.emoji} **${user.name}:** SUKA BLYAT! `
             );
+        } else if (user.stand?.id === Stands.TheChained.id) {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `> ${user.stand?.emoji} **${user.name}:** This world and mine, and what is yours is also mine... `
+            );
         } else
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `> ${user.stand?.emoji} **${user.name}:** ${user.stand?.name}: TOKI WO TOMARE!`
@@ -2503,4 +2507,85 @@ export const Flash: Ability = {
             `- ${user.stand?.emoji} FLASH: **${target.name}** has been stunned... UwU`
         );
     },
+};
+
+// The Chained abilities:
+export const ChainedWhip: Ability = {
+    name: "Chained Whip",
+    description: "Whip the opponent with the chains.",
+    cooldown: 5,
+    damage: 20,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 2,
+    target: "enemy",
+};
+
+export const ChainedHook: Ability = {
+    name: "Chained Hook",
+    description: "Hook the opponent with the chains.",
+    cooldown: 7,
+    damage: 22,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 2,
+    target: "enemy",
+};
+
+export const ChainedThrow: Ability = {
+    name: "Chained Throw",
+    description: "Throw the chains at the opponent.",
+    cooldown: 8,
+    damage: 23,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 2,
+    target: "enemy",
+};
+
+export const OneThousandChains: Ability = {
+    name: "One Thousand Chains",
+    description: "Punch the opponent with a thousand chains.",
+    cooldown: 10,
+    damage: 35,
+    stamina: 20,
+    extraTurns: 2,
+    dodgeScore: 999,
+    target: "enemy",
+    special: true,
+};
+
+// santa's candy cane abilities
+export const Freeze: Ability = {
+    name: "Freeze",
+    description: "Freeze the opponent with a candy cane.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        target.frozenFor = 3;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} FREEZE: **${target.name}** has been frozen...`
+        );
+    },
+};
+
+export const CandyCaneBarrage: Ability = {
+    ...StandBarrage,
+    name: "Candy Cane Barrage",
+    description: "Barrage the opponent with the candy cane.",
+};
+
+export const CandyCanePull: Ability = {
+    name: "Candy Cane Pull",
+    description: "Pull the opponent with the candy cane, giving the user an extra turn.",
+    cooldown: 6,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 1,
+    dodgeScore: 0,
+    target: "enemy",
 };
