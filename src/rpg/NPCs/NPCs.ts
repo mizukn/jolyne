@@ -179,3 +179,24 @@ export const YoshikageKira: NPC = {
     name: "Yoshikage Kira",
     emoji: Emojis.yoshikageKira,
 };
+
+export const Santa: NPC = {
+    id: "santa",
+    name: "santa",
+    // iconURL
+    emoji: Emojis.santa,
+};
+
+export const SantasElf: NPC = {
+    id: "santas_elf",
+    name: "Santa's elf",
+    // iconURL
+    emoji: Emojis.santasElf, // place holder until i get the real emoji
+};
+
+export const CorruptedReindeer: NPC = {
+    id: "corrupted_reindeer",
+    name: "Corrupted Reindeer",
+    // iconURL
+    emoji: Emojis.corrupted_reindeer, // place holder until i get the real emoji
+};
