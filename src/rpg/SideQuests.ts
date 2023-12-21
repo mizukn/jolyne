@@ -199,3 +199,6 @@ export const KillerQueenDitesTheDust: SideQuest = {
     // purple
     color: 0x800080,
 };
+
+// santa's side quest:
+// christmas event 2023
