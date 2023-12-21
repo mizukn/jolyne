@@ -22,6 +22,7 @@ import * as NPCs from "./rpg/NPCs/NPCs";
 import * as StandUsersNPCS from "../src/NPCs.json";
 import * as EquipableItems from "./rpg/Items/EquipableItems";
 import * as Sentry from "@sentry/node";
+import { exec } from "child_process";
 
 const weapons = Object.values(EquipableItems).filter(
     (x) => (x as Weapon).abilities !== undefined
@@ -276,7 +277,7 @@ for (const stand of [
                     : stand.rarity === "S"
                     ? 30
                     : stand.rarity === "SS"
-                    ? 40
+                    ? 70
                     : 30;
             if (weapon.abilities) minLevel *= 2;
             const maxLevel = minLevel * 12;
@@ -416,7 +417,6 @@ for (const NPC of Object.values(FightableNPCs)) {
     }
 }
 
-/*
 process.on("SIGINT", () => {
     client.database.postgresql.end();
     client.database.redis.quit();
@@ -433,6 +433,7 @@ process.on("exit", () => {
     console.log("Exiting...");
     client.database.postgresql.end();
     client.database.redis.quit();
+    exec("pm2 kill && pm2 resurrect"); // hopefully this fixes the ratelimits :pray:
 });
 
 process.on("unhandledRejection", (error: Error) => {
@@ -442,7 +443,6 @@ process.on("unhandledRejection", (error: Error) => {
 process.on("uncaughtException", (error) => {
     console.error("Uncaught exception:", error);
 });
- */
 
 // @ts-expect-error because the typings are wrong
 client.cluster = new ClusterClient(client);
@@ -495,14 +495,5 @@ async function init() {
 }
 
 init();
-
-process
-    .on("unhandledRejection", (err: Error) => {
-        client.log(err.stack, "error");
-    })
-    .on("uncaughtException", (err: Error) => {
-        client.log(err.stack, "error");
-        process.exit(1);
-    });
 
 client.login(process.env.CLIENT_TOKEN);
