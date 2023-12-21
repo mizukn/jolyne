@@ -225,3 +225,14 @@ export const Wood: Item = {
     tradable: true,
     storable: true,
 };
+
+export const CorruptedSoul: Item = {
+    id: "corrupted_soul",
+    name: "Corrupted Soul",
+    description: "A corrupted soul.",
+    rarity: "SS",
+    emoji: Emojis.corrupted_soul,
+    price: 100000,
+    tradable: true,
+    storable: true,
+};

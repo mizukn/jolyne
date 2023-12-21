@@ -16,14 +16,14 @@ export const JotarosHat: EquipableItem = {
             perception: 0,
             strength: 0,
             speed: 0,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
     rarity: "S",
     tradable: true,
     storable: true,
     requirements: {
-        level: 1
+        level: 1,
     },
     /*
     craft: {
@@ -49,13 +49,13 @@ export const MeguminsHat: EquipableItem = {
             perception: 0,
             strength: 20,
             speed: 0,
-            stamina: 20
+            stamina: 20,
         },
-        xpBoost: 0.5
+        xpBoost: 0.5,
     },
     rarity: "S",
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const BlueHoodieJacket: EquipableItem = {
@@ -65,15 +65,15 @@ export const BlueHoodieJacket: EquipableItem = {
     description: "A blue hoodie jacket.",
     type: equipableItemTypes.CHEST,
     effects: {
-        xpBoost: 1
+        xpBoost: 1,
     },
     rarity: "B",
     tradable: true,
     storable: true,
     craft: {
         blue_cloth: 10,
-        string: 10
-    }
+        string: 10,
+    },
 };
 
 export const GreenHoodieJacket: EquipableItem = {
@@ -89,16 +89,16 @@ export const GreenHoodieJacket: EquipableItem = {
             perception: 0,
             defense: 0,
             speed: 0,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
     rarity: "B",
     tradable: true,
     storable: true,
     craft: {
         green_cloth: 10,
-        string: 10
-    }
+        string: 10,
+    },
 };
 
 export const SBRBoots: EquipableItem = {
@@ -115,8 +115,8 @@ export const SBRBoots: EquipableItem = {
             perception: 2,
             defense: 0,
             speed: 0,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
     rarity: "A",
     tradable: true,
@@ -124,8 +124,8 @@ export const SBRBoots: EquipableItem = {
     craft: {
         brown_cloth: 25,
         steel_ball: 5,
-        string: 25
-    }
+        string: 25,
+    },
 };
 
 export const BlueJeans: EquipableItem = {
@@ -142,16 +142,16 @@ export const BlueJeans: EquipableItem = {
             perception: 0,
             defense: 0,
             speed: 0,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
     rarity: "B",
     tradable: true,
     storable: true,
     craft: {
         blue_cloth: 10,
-        string: 10
-    }
+        string: 10,
+    },
 };
 
 export const BloodyKnife: Weapon = {
@@ -170,8 +170,8 @@ export const BloodyKnife: Weapon = {
             perception: 0,
             defense: 0,
             speed: 0,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
     rarity: "A",
     tradable: true,
@@ -183,10 +183,10 @@ export const BloodyKnife: Weapon = {
             perception: 0,
             defense: 0,
             speed: 0,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
-    abilities: [Abilities.DeterminationFlurry]
+    abilities: [Abilities.DeterminationFlurry],
 };
 
 export const Katana: Weapon = {
@@ -205,8 +205,8 @@ export const Katana: Weapon = {
             perception: 0,
             defense: 0,
             speed: 4,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
     rarity: "B",
     tradable: true,
@@ -218,14 +218,14 @@ export const Katana: Weapon = {
             perception: 0,
             defense: 0,
             speed: 0,
-            stamina: 0
-        }
+            stamina: 0,
+        },
     },
     abilities: [Abilities.SwiftStrike],
     craft: {
         iron_ingot: 10,
-        wood: 10
-    }
+        wood: 10,
+    },
 };
 
 export const GauntletsOfTheBerserker: Weapon = {
@@ -245,8 +245,8 @@ export const GauntletsOfTheBerserker: Weapon = {
             defense: 25,
             speed: 5,
             stamina: -10,
-            perception: -10
-        }
+            perception: -10,
+        },
     },
     rarity: "A",
     tradable: false,
@@ -258,10 +258,10 @@ export const GauntletsOfTheBerserker: Weapon = {
             defense: 20,
             speed: 25,
             stamina: 20,
-            perception: 15
-        }
+            perception: 15,
+        },
     },
-    abilities: [Abilities.BerserkersFury, Abilities.BerserkersRampage]
+    abilities: [Abilities.BerserkersFury, Abilities.BerserkersRampage],
 };
 
 export const DiosKnives: Weapon = {
@@ -282,16 +282,16 @@ export const DiosKnives: Weapon = {
             perception: 0,
             speed: 20,
             stamina: 0,
-            defense: 0
-        }
+            defense: 0,
+        },
     },
     rarity: "S",
     abilities: [Abilities.KnivesThrow],
     tradable: true,
     storable: true,
     requirements: {
-        level: 50
-    }
+        level: 50,
+    },
 };
 
 export const KakyoinsSnazzyShades: EquipableItem = {
@@ -307,13 +307,13 @@ export const KakyoinsSnazzyShades: EquipableItem = {
             perception: 4,
             speed: 4,
             stamina: 4,
-            defense: 4
-        }
+            defense: 4,
+        },
     },
     rarity: "B",
 
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const AthleticShoes: EquipableItem = {
@@ -328,12 +328,12 @@ export const AthleticShoes: EquipableItem = {
             speed: 5,
             defense: 0,
             strength: 0,
-            perception: 0
-        }
+            perception: 0,
+        },
     },
     rarity: "B",
     tradable: true,
-    storable: true
+    storable: true,
 };
 
 export const MeguminsWand: Weapon = {
@@ -352,15 +352,47 @@ export const MeguminsWand: Weapon = {
             perception: 0,
             speed: 15,
             stamina: 0,
-            defense: 0
+            defense: 0,
         },
-        xpBoost: 1
+        xpBoost: 1,
     },
     rarity: "S",
     abilities: [Abilities.Explosion],
     tradable: true,
     storable: true,
     requirements: {
-        level: 50
-    }
+        level: 50,
+    },
+};
+
+export const SantasCandyCane: Weapon = {
+    id: "santas_candy_cane",
+    name: "Santa's Candy Cane",
+    emoji: "<:candy_cane:1055876219251466330>",
+    description: "A candy cane that belonged to Santa Claus.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "hit",
+    useMessageAttack: "hits",
+    staminaCost: 2,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 15,
+            perception: 0,
+            speed: 0,
+            stamina: 0,
+            defense: 0,
+        },
+    },
+    rarity: "S",
+    abilities: [Abilities.Freeze, Abilities.CandyCaneBarrage, Abilities.CandyCanePull],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+    craft: {
+        candy_cane: 300,
+        corrupted_soul: 300,
+    },
 };
