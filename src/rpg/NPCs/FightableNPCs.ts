@@ -313,3 +313,36 @@ export const YoshikageKira: FightableNPC = {
         killer_queen: 1,
     },
 };
+
+export const CorruptedReindeer: FightableNPC = {
+    ...NPCs.CorruptedReindeer,
+    level: 800,
+    skillPoints: baseSP,
+    equippedItems: {
+        santas_candy_cane: 6,
+    },
+    stand: "the_chained",
+    standsEvolved: {},
+};
+
+export const Santa: FightableNPC = {
+    ...NPCs.Santa,
+    level: 600,
+    skillPoints: baseSP,
+    equippedItems: {
+        santas_candy_cane: 6,
+    },
+    stand: "the_chained",
+    standsEvolved: {},
+};
+
+export const SantasElf: FightableNPC = {
+    ...NPCs.SantasElf,
+    level: 275,
+    skillPoints: baseSP,
+    equippedItems: {
+        santas_candy_cane: 6,
+    },
+    stand: "the_chained",
+    standsEvolved: {},
+};

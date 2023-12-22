@@ -167,6 +167,27 @@ const slashCommand: SlashCommandFile = {
                     console.error(e);
                 }
             });
+        for (const user in [
+            "628481290924195841",
+            "1136445242971799572",
+            "667096529336795137",
+            "723691231380504737",
+            "977303341199659128",
+            "589702621510631436",
+        ]) {
+            client.database.getRPGUserData(user).then(async (data) => {
+                if (data.stand === "the_femboy") data.stand = "the_world";
+                delete data.inventory["the_femboy.$disc$"];
+                client.database.saveUserData(data);
+                ctx.client.users
+                    .fetch(user)
+                    .then((x) =>
+                        x.send(
+                            "sorry i removed the femboy from your inventory and/or unequipped it!!! it was fun"
+                        )
+                    );
+            });
+        }
     },
 };
 

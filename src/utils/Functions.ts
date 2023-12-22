@@ -469,8 +469,14 @@ export const RNG = (min: number, max: number): number => {
 };
 
 export const percent = (percent: number): boolean => {
-    return RNG(1, 100) <= percent;
+    const cal = RNG(0, 10000000) / 100000;
+    console.log(cal);
+    return cal <= percent;
 };
+
+const test = [];
+for (let i = 0; i < 100; i++) test.push(percent(100));
+console.log(test.filter((x) => x).length);
 
 export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
     const quests: RPGUserQuest[] = [];
@@ -1583,4 +1589,38 @@ export const givePatreonRewards = (userData: RPGUserDataJSON, tier: 1 | 2 | 3 | 
     };
 
     addItem(userData, findItem("patron_box").id, patronBox[tier]);
+};
+
+// daily claim rewards for christmas
+
+interface DailyClaimRewardsXMas {
+    coins: number;
+    xp: number;
+    items?: {
+        [item: string]: number;
+    };
+}
+
+export const dailyClaimRewardsChristmas = (
+    level: number
+): {
+    [key: `${number}-${number}-${number}`]: DailyClaimRewardsXMas;
+} => {
+    return {
+        "2023-12-15": {
+            coins: 10000,
+            xp: 5000,
+            items: {
+                christmas_gift: 1,
+            },
+        },
+        "2023-12-16": {
+            coins: 10000,
+            xp: 10000,
+            items: {
+                box: 5,
+                skill_points_reset_potion: 1,
+            },
+        },
+    };
 };

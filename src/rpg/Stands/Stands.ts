@@ -836,3 +836,32 @@ export const TheFemboy: Stand = {
     available: true,
     image: "https://media.jolyne.moe/ONObhp/direct", // Replace with the actual image URL
 };
+
+export const TheChained: Stand = {
+    id: "the_chained",
+    name: "The Chained",
+    rarity: "T",
+    description: "The Chained is a limited stand, was available during the 2023 Christmas Event",
+    abilities: [
+        {
+            ...Abilities.StandBarrage,
+            name: "Chain Barrage",
+            damage: Abilities.StandBarrage.damage + 6,
+            description: "The Chained barrages the enemy with its chains",
+        },
+        Abilities.ChainedHook,
+        Abilities.ChainedWhip,
+        Abilities.OneThousandChains,
+    ],
+    emoji: "⛓",
+    skillPoints: {
+        strength: 35,
+        defense: 0,
+        perception: 10,
+        speed: 0,
+        stamina: 0,
+    },
+    color: 0x808080,
+    available: true,
+    image: "https://media.jolyne.moe/osoTRS/direct", // to be decided
+};
