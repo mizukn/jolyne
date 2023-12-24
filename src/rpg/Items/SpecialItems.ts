@@ -609,17 +609,17 @@ export const ChristmasGift: Special = {
                 {
                     percent: 100,
                     loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                    mult: 5,
+                    mult: 1,
                 },
                 {
                     percent: 85,
                     loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                    mult: 2,
+                    mult: 1,
                 },
                 {
                     percent: 25,
                     loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                    mult: 5,
+                    mult: 1,
                 },
             ],
             [
