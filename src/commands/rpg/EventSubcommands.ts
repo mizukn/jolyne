@@ -399,6 +399,7 @@ const slashCommand: SlashCommandFile = {
             updateMessage();
         } else {
             const candy = ctx.options.getNumber("candy", true);
+            const left = ctx.userData.inventory[Items.CandyCane.id] || 0;
             if (candy < 1) {
                 return void ctx.makeMessage({
                     content: Functions.makeNPCString(
@@ -407,7 +408,7 @@ const slashCommand: SlashCommandFile = {
                     ),
                 });
             }
-            if (ctx.userData.inventory[Items.CandyCane.id] < candy) {
+            if (left < candy) {
                 return void ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.SantasElf,
@@ -435,6 +436,14 @@ const slashCommand: SlashCommandFile = {
                 );
             }
             Functions.removeItem(ctx.userData, Items.CandyCane.id, candy);
+            if (ctx.userData.inventory[Items.CandyCane.id] <= 0) {
+                return void ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.SantasElf,
+                        "an error occured, dont try that again or else youll get banned."
+                    ),
+                });
+            }
 
             ctx.client.database.saveUserData(ctx.userData);
 
@@ -444,7 +453,7 @@ const slashCommand: SlashCommandFile = {
                     `Thank you for helping us! Here's your reward: ${Functions.getRewardsCompareData(
                         oldData,
                         ctx.userData
-                    )}`
+                    )} [DEBUG: ${candy} candies fed while had ${left} candies]`
                 ),
             });
         }
