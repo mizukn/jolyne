@@ -104,6 +104,11 @@ const Event: EventFile = {
             } else ctx = new CommandInteractionContext(interaction);
 
             if (command.category === "rpg" && ctx.userData) {
+                if (ctx.userData.inventory.candy_cane && ctx.userData.inventory.candy_cane < 0) {
+                    return void ctx.makeMessage({
+                        content: `:x: | **${ctx.user.username}**, You are banned. Please contact us at https://discord.gg/jolyne to appeal (@mizufare).`,
+                    });
+                }
                 if (
                     ctx.userData.level === 1 &&
                     Functions.calculeSkillPointsLeft(ctx.userData) === 4 &&
