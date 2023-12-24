@@ -1026,6 +1026,8 @@ export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): 
     if (calcEquipableItemsBonus(userData).xpBoost > 0) {
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
+    // x1.25 xp due to christmas if before 1704582000000
+    if (Date.now() < 1704582000000) amount = Math.round(amount * 1.25);
 
     amount = Math.round(amount);
     userData.xp += amount;
@@ -1531,7 +1533,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
                 "en-US"
-            )}** XP ${Emojis.xp}`
+            )}** XP ${Emojis.xp} ${Date.now() < 1704582000000 ? "(+25% due to christmas)" : ""}`
         );
     if (data1.coins !== data2.coins)
         rewards.push(
