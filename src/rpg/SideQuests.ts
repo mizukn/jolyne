@@ -1,5 +1,6 @@
 import { SideQuest, QuestArray, Quests } from "../@types";
 import * as Functions from "../utils/Functions";
+import { NPCs } from "./NPCs";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
 import * as Raids from "./Raids";
 
@@ -202,3 +203,65 @@ export const KillerQueenDitesTheDust: SideQuest = {
 
 // santa's side quest:
 // christmas event 2023
+
+export const ChristmasEvent2023: SideQuest = {
+    id: "ChristmasEvent2023",
+    title: "Christmas Event 2023",
+    description:
+        "Completing this quest will give you enough XP to level up, a Christmas Present, 5 corrupted souls and 2 consumable candy canes.\nAlso note that you have currently a 25% XP boost before the end of the event.\n\nMerry Christmas!",
+    emoji: "🎁",
+    rewards: async (ctx) => {
+        Functions.addItem(ctx.userData, Functions.findItem("christmas_gift"), 1);
+        Functions.addItem(ctx.userData, Functions.findItem("corrupted_soul"), 5);
+        Functions.addItem(ctx.userData, Functions.findItem("candy_cane"), 2);
+        ctx.followUp({
+            content: Functions.makeNPCString(
+                NPCs.SantasElf,
+                `You have been given a Christmas Present. You can open it by using the ${ctx.client.getSlashCommandMention(
+                    "inventory use"
+                )} command.\n\nDon't forget to feed my reindeers! I'll pay you a lot (${ctx.client.getSlashCommandMention(
+                    "event feed"
+                )})`
+            ),
+        });
+        return true;
+    },
+    quests: (ctx) => {
+        const quests: QuestArray = [
+            Functions.generateUseXCommandQuest("loot", 15),
+            Functions.generateUseXCommandQuest("assault", 15),
+        ];
+        const NPCs = Functions.shuffle(
+            Object.values(FightableNPCs).filter(
+                (npc) => npc.level <= ctx.userData.level && !npc.private
+            )
+        )
+            .slice(0, 15)
+            .sort((a, b) => b.level - a.level);
+
+        // fight npcs
+        let tflv = ctx.userData.level / 5;
+        if (tflv > 15) tflv = 15;
+
+        for (let i = 0; i < tflv; i++) {
+            if (Functions.percent(80) || i < 5) {
+                const NPC = Functions.randomArray(NPCs);
+                quests.push(Functions.generateFightQuest(NPC));
+            }
+        }
+
+        return quests;
+    },
+    requirements: (ctx) => {
+        if (Date.now() > 1704582000000) return false;
+        return true;
+    },
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(
+        1704582000000,
+        "FROM_NOW"
+    )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
+    canReloadQuests: true,
+    // red
+    color: 0xff0000,
+};
