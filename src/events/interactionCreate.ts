@@ -212,6 +212,7 @@ const Event: EventFile = {
                             )} (1% of your max health every 2 minutes)`,
                         });
                 }
+
                 const oldDataJSON = JSON.stringify(ctx.userData);
                 // quests must be unique;
                 ctx.userData.chapter.quests = returnUniqueQuests(ctx.userData.chapter.quests);
@@ -231,6 +232,20 @@ const Event: EventFile = {
 
                 for (const sideQuest of ctx.userData.sideQuests) {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
+                }
+
+                if (
+                    Date.now() < 1704582000000 &&
+                    !ctx.userData.emails.find((r) => r.id === "christmas_2023")
+                ) {
+                    ctx.followUpQueue.push({
+                        content: `:christmas_tree: | **${
+                            ctx.user.username
+                        }**, Happy Holidays! Use the ${ctx.client.getSlashCommandMention(
+                            "event info"
+                        )} command to see info about the christmas event!`,
+                    });
+                    Functions.addEmail(ctx.userData, "christmas_2023");
                 }
 
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
