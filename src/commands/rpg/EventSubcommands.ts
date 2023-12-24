@@ -219,6 +219,10 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Santa,
+                        "We need to put 10 corrupted souls to summon the corrupted reindeer. Bring some friends with you!"
+                    ),
                     embeds: [
                         {
                             title: "Christmas Event 2023",

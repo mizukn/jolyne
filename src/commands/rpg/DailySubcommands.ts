@@ -1,14 +1,11 @@
-import {
-    SlashCommandFile,
-    ClaimXQuest
-} from "../../@types";
+import { SlashCommandFile, ClaimXQuest } from "../../@types";
 import {
     Message,
     APIEmbed,
     ButtonBuilder,
     ButtonStyle,
     InteractionResponse,
-    MessageComponentInteraction
+    MessageComponentInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -16,6 +13,7 @@ import { FightableNPCS } from "../../rpg/NPCs";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { StandArrow } from "../../rpg/Items/SpecialItems";
 import { getQuestsStats } from "./Chapter";
+import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -26,14 +24,14 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "claim",
                 description: "Claim your daily rewards.",
-                type: 1
+                type: 1,
             },
             {
                 name: "quests",
                 description: "Shows your daily quests.",
-                type: 1
-            }
-        ]
+                type: 1,
+            },
+        ],
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -51,7 +49,7 @@ const slashCommand: SlashCommandFile = {
                         time: Functions.generateDiscordTimestamp(
                             Date.now() + (nextDate - Date.now()),
                             "FROM_NOW"
-                        )
+                        ),
                     });
                 }
                 const rewards = Functions.getRewards(ctx.userData.level);
@@ -74,26 +72,26 @@ const slashCommand: SlashCommandFile = {
 
                 let embed_description = ctx.translate<string>("daily:CLAIMED_EMBED_DESCRIPTION", {
                     coins: rewards.coins.toLocaleString("en-US"),
-                    xp: rewards.xp.toLocaleString("en-US")
+                    xp: rewards.xp.toLocaleString("en-US"),
                 });
 
                 if (ctx.client.patreons.find((r) => r.id === ctx.userData.id)) {
                     const xpRewards = Math.round(
                         rewards.xp *
-                        (ctx.client.patreons.find((r) => r.id === ctx.userData.id).level / 7 +
-                            0.25)
+                            (ctx.client.patreons.find((r) => r.id === ctx.userData.id).level / 7 +
+                                0.25)
                     );
                     const moneyRewards = Math.round(
                         rewards.coins *
-                        (ctx.client.patreons.find((r) => r.id === ctx.userData.id).level / 7 +
-                            0.25)
+                            (ctx.client.patreons.find((r) => r.id === ctx.userData.id).level / 7 +
+                                0.25)
                     );
                     embed_description +=
                         "\n" +
                         ctx.translate("daily:CLAIMED_EMBED_DESCRIPTION_PREMIUM", {
                             coins: moneyRewards.toLocaleString("en-US"),
                             xp: xpRewards.toLocaleString("en-US"),
-                            tier: ctx.client.patreons.find((r) => r.id === ctx.userData.id).level
+                            tier: ctx.client.patreons.find((r) => r.id === ctx.userData.id).level,
                         });
                     Functions.addCoins(ctx.userData, moneyRewards);
                     Functions.addXp(ctx.userData, xpRewards);
@@ -105,28 +103,28 @@ const slashCommand: SlashCommandFile = {
                         "\n" +
                         ctx.translate("daily:CLAIMED_EMBED_DESCRIPTION_BOOSTER", {
                             coins: (1000).toLocaleString("en-US"),
-                            xp: (1000).toLocaleString("en-US")
+                            xp: (1000).toLocaleString("en-US"),
                         });
                 }
 
                 const embed: APIEmbed = {
                     author: {
                         name: ctx.user.username,
-                        icon_url: ctx.user.displayAvatarURL()
+                        icon_url: ctx.user.displayAvatarURL(),
                     },
                     description: embed_description,
                     color: 0x70926c,
                     footer: {
                         text:
                             ctx.translate("daily:CLAIMED_EMBED_FOOTER") +
-                            ` ${ctx.userData.daily.claimStreak}/${nextGoal}`
+                            ` ${ctx.userData.daily.claimStreak}/${nextGoal}`,
                     },
                     fields: [
                         {
                             name: ctx.translate("daily:WANT_MORE_HEADER"),
-                            value: "[..]"
-                        }
-                    ]
+                            value: "[..]",
+                        },
+                    ],
                 };
 
                 if (
@@ -165,14 +163,14 @@ const slashCommand: SlashCommandFile = {
                     }
                     embed.fields.push({
                         name: "Streak Bonus",
-                        value: `\`x${arrows} ${StandArrow.name}\` ${StandArrow.emoji}`
+                        value: `\`x${arrows} ${StandArrow.name}\` ${StandArrow.emoji}`,
                     });
                 }
 
                 for (const quests of [
                     ctx.userData.daily.quests,
                     ctx.userData.chapter.quests,
-                    ...ctx.userData.sideQuests.map((v) => v.quests)
+                    ...ctx.userData.sideQuests.map((v) => v.quests),
                 ]) {
                     for (const quest of quests.filter(
                         (r) => Functions.isClaimXQuest(r) && r.x === "daily"
@@ -181,10 +179,41 @@ const slashCommand: SlashCommandFile = {
                     }
                 }
 
+                if (
+                    Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
+                        Functions.getCurrentDate() as keyof typeof Functions.dailyClaimRewardsChristmas
+                    ]
+                ) {
+                    const rewards = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
+                        Functions.getCurrentDate() as keyof typeof Functions.dailyClaimRewardsChristmas
+                    ];
+
+                    const coins = rewards.coins;
+                    const xp = rewards.xp;
+                    const items = rewards.items;
+
+                    const oldData = cloneDeep(ctx.userData);
+                    if (coins) Functions.addCoins(ctx.userData, coins);
+                    if (xp) Functions.addXp(ctx.userData, xp);
+                    if (items) {
+                        for (const item of Object.keys(items)) {
+                            Functions.addItem(ctx.userData, Functions.findItem(item), items[item]);
+                        }
+                    }
+
+                    embed.fields.push({
+                        name: "Christmas Event",
+                        value: `You got the following rewards for claiming today: ${Functions.getRewardsCompareData(
+                            oldData,
+                            ctx.userData
+                        )} `,
+                    });
+                }
+
                 await ctx.client.database.saveUserData(ctx.userData);
 
                 await ctx.makeMessage({
-                    embeds: [embed]
+                    embeds: [embed],
                 });
 
                 break;
@@ -234,31 +263,34 @@ const slashCommand: SlashCommandFile = {
 
                 await ctx.makeMessage({
                     embeds: [
-                        { // 📜 **__Daily Quests:__** (${status.percent.toFixed(2)}%)\n
-                            description: `${
-                                status.message
-                            }\n\n${ctx.translate("daily:REWARDS_MESSAGE", {
-                                coins: coinReward.toLocaleString("en-US"),
-                                xp: xpReward.toLocaleString("en-US"),
-                                discordUnix: Functions.generateDiscordTimestamp(
-                                    dateAtMidnight + 86400000,
-                                    "FROM_NOW"
-                                )
-                            })}`,
+                        {
+                            // 📜 **__Daily Quests:__** (${status.percent.toFixed(2)}%)\n
+                            description: `${status.message}\n\n${ctx.translate(
+                                "daily:REWARDS_MESSAGE",
+                                {
+                                    coins: coinReward.toLocaleString("en-US"),
+                                    xp: xpReward.toLocaleString("en-US"),
+                                    discordUnix: Functions.generateDiscordTimestamp(
+                                        dateAtMidnight + 86400000,
+                                        "FROM_NOW"
+                                    ),
+                                }
+                            )}`,
                             color: 0x70926c,
                             author: {
                                 icon_url: ctx.user.displayAvatarURL(),
-                                name: `📜 ${ctx.user.username}'s Daily Quests (${status.percent.toFixed(2)}%)`
-                            }
-                        }
+                                name: `📜 ${
+                                    ctx.user.username
+                                }'s Daily Quests (${status.percent.toFixed(2)}%)`,
+                            },
+                        },
                     ],
-                    components: components.length !== 0 ? [Functions.actionRow(components)] : []
+                    components: components.length !== 0 ? [Functions.actionRow(components)] : [],
                 });
 
                 if (components.length > 0) {
                     const filter = (i: MessageComponentInteraction) => {
-                        i.deferUpdate().catch(() => {
-                        }); // eslint-disable-line @typescript-eslint/no-empty-function
+                        i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
 
                         return (
                             i.user.id === ctx.user.id &&
@@ -268,7 +300,7 @@ const slashCommand: SlashCommandFile = {
 
                     const collector = ctx.channel.createMessageComponentCollector({
                         filter,
-                        time: 15000
+                        time: 15000,
                     });
 
                     collector.on("collect", async (i) => {
@@ -288,7 +320,7 @@ const slashCommand: SlashCommandFile = {
 
                         Functions.addCoins(ctx.userData, coinReward);
                         Functions.addXp(ctx.userData, xpReward);
-                        Functions.addItem(ctx.userData, Functions.findItem('Stand Arrow'));
+                        Functions.addItem(ctx.userData, Functions.findItem("Stand Arrow"));
 
                         await ctx.client.database.saveUserData(ctx.userData);
                         await ctx.client.database.redis.set(
@@ -297,21 +329,21 @@ const slashCommand: SlashCommandFile = {
                         );
 
                         await ctx.makeMessage({
-                            components: [Functions.actionRow([components[0].setDisabled(true)])]
+                            components: [Functions.actionRow([components[0].setDisabled(true)])],
                         });
 
                         await ctx.followUp({
                             content: ctx.translate("daily:REWARDS_CLAIM_MESSAGE", {
                                 coins: coinReward.toLocaleString("en-US"),
-                                xp: xpReward.toLocaleString("en-US")
-                            })
+                                xp: xpReward.toLocaleString("en-US"),
+                            }),
                         });
                     });
                 }
                 break;
             }
         }
-    }
+    },
 };
 
 export default slashCommand;
