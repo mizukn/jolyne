@@ -211,7 +211,7 @@ export const ChristmasEvent2023: Email = {
     content: (ctx) =>
         `This christmas event is out!\n\n- Don't forget to claim your daily EVERYDAY (${ctx.client.getSlashCommandMention(
             "daily claim"
-        )}\n- Everyone has a **+25%** XP boost!\n- You can get **Consumable Candy Canes** and **Corrupted Souls** by completing the christmas side quest: ${ctx.client.getSlashCommandMention(
+        )})\n- Everyone has a **+25%** XP boost!\n- You can get **Consumable Candy Canes** and **Corrupted Souls** by completing the christmas side quest: ${ctx.client.getSlashCommandMention(
             "side quest view"
         )}\n- You can feed santa's reindeers (**${
             Items.CandyCane.emoji + " " + Items.CandyCane.name
