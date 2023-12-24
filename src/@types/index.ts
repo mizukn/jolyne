@@ -34,7 +34,7 @@ export interface DiscordSlashCommandsData {
 }
 
 export type itemPrize = {
-    [key: Item["id"]]: number
+    [key: Item["id"]]: number;
 };
 
 export interface SlashCommandFile {
@@ -53,7 +53,7 @@ export interface SlashCommandFile {
     execute: (ctx: CommandInteractionContext, ...args: any) => Promise<any>;
     autoComplete?: (
         interaction: AutocompleteInteraction & {
-            client: JolyneClient
+            client: JolyneClient;
         },
         userData: RPGUserDataJSON,
         currentInput: string, // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -314,7 +314,7 @@ export const equipableItemTypesLimit = {
     [equipableItemTypes.HANDS]: 1,
     [equipableItemTypes.WEAPON]: 1,
     [equipableItemTypes.ACCESSORY]: 2,
-    [equipableItemTypes.FACE]: 1
+    [equipableItemTypes.FACE]: 1,
 };
 
 export const formattedEquipableItemTypes = {
@@ -325,7 +325,7 @@ export const formattedEquipableItemTypes = {
     [equipableItemTypes.FEET]: "Feet",
     [equipableItemTypes.HANDS]: "Hands",
     [equipableItemTypes.WEAPON]: "Weapon",
-    [equipableItemTypes.ACCESSORY]: "Accessory"
+    [equipableItemTypes.ACCESSORY]: "Accessory",
 };
 
 export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
@@ -1041,8 +1041,8 @@ export interface V2UserData {
      * Daily infos.
      */
     daily: {
-        claimedAt: number,
-        streak: number,
-        quests: Quest[]
-    },
+        claimedAt: number;
+        streak: number;
+        quests: Quest[];
+    };
 }
