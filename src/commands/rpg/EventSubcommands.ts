@@ -105,10 +105,14 @@ const slashCommand: SlashCommandFile = {
             const embed: APIEmbed = {
                 title: "Christmas Event 2023",
                 color: 0xff0000,
-                description: `- You can feed santa's reindeers (**${
+                description: `- Everyone has a **+25%** XP boost!\n- You can get **Consumable Candy Canes** and **Corrupted Souls** by completing the christmas side quest: ${ctx.client.getSlashCommandMention(
+                    "side quest view"
+                )}\n- You can feed santa's reindeers (**${
                     Items.CandyCane.emoji + " " + Items.CandyCane.name
                 }**) by using the ${ctx.client.getSlashCommandMention(
                     "event feed"
+                )} command.\n- You can craft **Santa's Candy Cane** by using the ${ctx.client.getSlashCommandMention(
+                    "craft"
                 )} command.\n- Once you and your friends have enough **${
                     Items.CorruptedSoul.emoji + " " + Items.CorruptedSoul.name
                 }**, you can use the ${ctx.client.getSlashCommandMention(
@@ -116,15 +120,15 @@ const slashCommand: SlashCommandFile = {
                 )} command to wake the corrupted reindeer and fight him with your friend(s) and Santa + Santa's Elf\n\n ${
                     ctx.client.localEmojis.timerIcon
                 } The event ends ${Functions.generateDiscordTimestamp(
-                    1701385140000,
+                    1704582000000,
                     "FROM_NOW"
-                )} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`,
+                )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
             };
 
             return void ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.SantasElf,
-                    "A mysterious person has corrupted santa's reindeers and they are now attacking people. Help santa and his elf to defeat the big corrupted reindeer and save christmas!"
+                    "Merry christmas! Here's some information about the event."
                 ),
                 embeds: [embed],
             });
@@ -164,7 +168,6 @@ const slashCommand: SlashCommandFile = {
             };
 
             const collector = ctx.interaction.channel.createMessageComponentCollector({
-                filter: (i) => i.user.id === ctx.userData.id,
                 time: 120000,
             });
 
@@ -363,6 +366,7 @@ const slashCommand: SlashCommandFile = {
                                 );
                             } else {
                                 i.deferUpdate().catch(() => {});
+                                collector.stop();
                                 return void ctx.makeMessage({
                                     content:
                                         "The raid has been cancelled since the host removed their souls .",
@@ -383,6 +387,7 @@ const slashCommand: SlashCommandFile = {
                             components: [],
                             embeds: [],
                         });
+                        collector.stop();
                 }
             });
             updateMessage();
