@@ -117,7 +117,7 @@ const slashCommand: SlashCommandFile = {
                     Items.CorruptedSoul.emoji + " " + Items.CorruptedSoul.name
                 }**, you can use the ${ctx.client.getSlashCommandMention(
                     "event raid"
-                )} command to wake the corrupted reindeer and fight him with your friend(s) and Santa + Santa's Elf\n\n ${
+                )} command to wake the corrupted reindeer and fight him with your friend(s) and Santa + Santa's Elf (you can get a limited stand; **The Chained**)\n\n ${
                     ctx.client.localEmojis.timerIcon
                 } The event ends ${Functions.generateDiscordTimestamp(
                     1704582000000,
