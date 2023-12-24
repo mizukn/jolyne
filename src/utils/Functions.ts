@@ -1609,20 +1609,78 @@ export const dailyClaimRewardsChristmas = (
     [key: `${number}-${number}-${number}`]: DailyClaimRewardsXMas;
 } => {
     return {
-        "2023-12-15": {
+        "2023-12-24": {
             coins: 10000,
-            xp: 5000,
+            xp: getMaxXp(level) * 3,
             items: {
-                christmas_gift: 1,
+                christmas_gift: 5,
             },
         },
-        "2023-12-16": {
+        "2023-12-25": {
             coins: 10000,
-            xp: 10000,
+            xp: getMaxXp(level) * 3,
+            items: {
+                christmas_gift: 5,
+                corrupted_soul: 150,
+                candy_cane: 150,
+            },
+        },
+        "2023-12-26": {
+            coins: 10000,
+            xp: getMaxXp(level) / 4,
             items: {
                 box: 5,
                 skill_points_reset_potion: 1,
+                [findItem("mini").id]: 1,
+            },
+        },
+        "2023-12-27": {
+            coins: 10000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                box: 5,
+                pizza: 15,
+            },
+        },
+        "2023-12-28": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                box: 5,
+                [findItem("mini").id]: 1,
+            },
+        },
+        "2023-12-29": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
+            },
+        },
+        "2023-12-30": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
+            },
+        },
+        "2023-12-31": {
+            coins: 10000,
+            xp: getMaxXp(level) * 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
             },
         },
     };
 };
+
+export function getCurrentDate(): `${number}-${number}-${number}` {
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
+    return formattedDate as `${number}-${number}-${number}`;
+}
