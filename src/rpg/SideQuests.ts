@@ -262,6 +262,7 @@ export const ChristmasEvent2023: SideQuest = {
         "FROM_NOW"
     )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
     canReloadQuests: true,
+    canRedoSideQuest: true,
     // red
     color: 0xff0000,
 };

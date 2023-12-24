@@ -3,6 +3,7 @@ import * as NPCs from "./NPCs/NPCs";
 import * as fNPCs from "./NPCs/FightableNPCs";
 import * as ActionQuests from "./Quests/ActionQuests";
 import { Quest, FightNPCQuest, NPC } from "../@types";
+import Items from "./Items";
 
 /**
  * CIRCULAR DEPENDENCIES FIX
@@ -191,4 +192,44 @@ Now, you still get the same coins and xps, but you get 2 Stand Arrows everytime 
 You can use the ${ctx.client.getSlashCommandMention("vote")} command for more information.
 `,
     footer: "Thank you for voting!",
+};
+const generateDiscordTimestamp = (
+    date: Date | number,
+    type: "FROM_NOW" | "DATE" | "FULL_DATE"
+): string => {
+    const fixedDate = new Date(date);
+    return `<t:${(fixedDate.getTime() / 1000).toFixed(0)}:${type
+        .replace("FROM_NOW", "R")
+        .replace("DATE", "D")
+        .replace("FULL_D", "F")}>`;
+};
+
+export const ChristmasEvent2023: Email = {
+    id: "christmas_2023",
+    author: NPCs.JolyneTeam,
+    subject: "Christmas 2023 [Event]",
+    content: (ctx) =>
+        `This christmas event is out!\n\n- Everyone has a **+25%** XP boost!\n- You can get **Consumable Candy Canes** and **Corrupted Souls** by completing the christmas side quest: ${ctx.client.getSlashCommandMention(
+            "side quest view"
+        )}\n- You can feed santa's reindeers (**${
+            Items.CandyCane.emoji + " " + Items.CandyCane.name
+        }**) by using the ${ctx.client.getSlashCommandMention(
+            "event feed"
+        )} command.\n- You can craft **Santa's Candy Cane** by using the ${ctx.client.getSlashCommandMention(
+            "craft"
+        )} command.\n- Once you and your friends have enough **${
+            Items.CorruptedSoul.emoji + " " + Items.CorruptedSoul.name
+        }**, you can use the ${ctx.client.getSlashCommandMention(
+            "event raid"
+        )} command to wake the corrupted reindeer and fight him with your friend(s) and Santa + Santa's Elf\n\n ${
+            ctx.client.localEmojis.timerIcon
+        } The event ends ${generateDiscordTimestamp(
+            1704582000000,
+            "FROM_NOW"
+        )} (${generateDiscordTimestamp(
+            1704582000000,
+            "DATE"
+        )})\nFor the corrupted reindeer, you may need some people to help you, so don't hesitate to ask for help on the [support server](https://discord.gg/jolyne)!`,
+    footer: "Merry Christmas and have fun!",
+    emoji: "🎄",
 };

@@ -41,7 +41,6 @@ async function useBox(
             await Functions.sleep(1000);
             updateMessage();
         }
-
         for await (const reward of lootBox) {
             await Functions.sleep(1000);
             if (reward.xp) {
@@ -610,80 +609,28 @@ export const ChristmasGift: Special = {
                 {
                     percent: 100,
                     loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                    mult: 5,
                 },
                 {
                     percent: 85,
                     loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                },
-                {
-                    percent: 75,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                },
-                {
-                    percent: 50,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                },
-                {
-                    percent: 35,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                    mult: 2,
                 },
                 {
                     percent: 25,
                     loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                    mult: 5,
                 },
             ],
             [
                 {
                     percent: 100,
-                    loot: Functions.findItem("stand_arrow").id,
-                },
-                {
-                    percent: 100,
-                    loot: Functions.findItem("stand_arrow").id,
-                },
-                {
-                    percent: 100,
-                    loot: Functions.findItem("stand_arrow").id,
+                    loot: Functions.findItem("rare_stand_arrow").id,
                 },
                 {
                     percent: 100,
                     loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 100,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 100,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 100,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 100,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 80,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 70,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 60,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 50,
-                    loot: Functions.findItem("candy_cane").id,
-                },
-                {
-                    percent: 20,
-                    loot: Functions.findItem("candy_cane").id,
+                    mult: 5,
                 },
             ],
         ];
