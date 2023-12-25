@@ -75,7 +75,7 @@ export const BrokenArrow: Item = {
 export const String: Item = {
     id: "string",
     name: "String",
-    description: "string. . . . .  | | l l I I",
+    description: "String. A yarn of string. What do you expect?",
     rarity: "B",
     emoji: Emojis.string,
     price: 5000,

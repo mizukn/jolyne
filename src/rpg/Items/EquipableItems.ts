@@ -379,9 +379,9 @@ export const SantasCandyCane: Weapon = {
         skillPoints: {
             strength: 15,
             perception: 0,
-            speed: 0,
-            stamina: 0,
-            defense: 0,
+            speed: 2,
+            stamina: 2,
+            defense: 1,
         },
     },
     rarity: "S",

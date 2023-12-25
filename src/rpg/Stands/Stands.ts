@@ -726,14 +726,14 @@ export const StoneFree: Stand = {
     image: "https://media.jolyne.moe/rMwxNj/direct",
     emoji: Emojis.stone_free,
     abilities: [
+        Abilities.Heal,
+        Abilities.StringWeb,
         addGif(
             Abilities.StandBarrage,
             "https://tenor.com/view/jolyne-kujo-jolyne-cujoh-jolyne-kujo-cujoh-gif-23791539"
         ),
         Abilities.BallBarrage,
-        Abilities.Heal,
         Abilities.Wrap,
-        Abilities.StringWeb,
     ],
     skillPoints: {
         strength: 5,

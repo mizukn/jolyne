@@ -180,7 +180,7 @@ const slashCommand: SlashCommandFile = {
                         return void ctx.makeMessage({
                             content: Functions.makeNPCString(
                                 NPCs.Santa,
-                                "Sorry, you may seem strong but please bring some friends with you... If you don't have any, ask the community for help! https://discord.gg/jolyne"
+                                "Sorry, you may seem strong but please bring some friends with you...\nIf you don't have any, ask the community for help! https://discord.gg/jolyne"
                             ),
                             components: [],
                             embeds: [],
@@ -321,7 +321,7 @@ const slashCommand: SlashCommandFile = {
                             ctx.followUp({
                                 content: Functions.makeNPCString(
                                     NPCs.Santa,
-                                    `Yes, we did it!!! Since you dealt **${percentOfTheChained}%** of the damage, you have **${percentOfTheChained.toLocaleString(
+                                    `Yes, we did it <@${player.id}>! Since you dealt **${percentOfTheChained}%** of the damage, you have **${percentOfTheChained.toLocaleString(
                                         "en-US"
                                     )}%** to get **${
                                         Functions.findItem("the_chained").name +
@@ -329,10 +329,10 @@ const slashCommand: SlashCommandFile = {
                                         Functions.findItem("the_chained").emoji
                                     }**.\n\n${
                                         ctx.client.localEmojis.arrowRight
-                                    } Rewards: ${Functions.getRewardsCompareData(
+                                    } Earned Rewards: ${Functions.getRewardsCompareData(
                                         oldData,
                                         player
-                                    )} (<@${player.id}>))`
+                                    )}`
                                 ),
                             });
                         }
