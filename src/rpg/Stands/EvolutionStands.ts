@@ -190,3 +190,102 @@ export const KillerQueen: EvolutionStand = {
         },
     ],
 };
+
+export const Echoes: EvolutionStand = {
+    id: "echoes",
+    evolutions: [
+        {
+            name: "Echoes Act 1",
+            description:
+                "Echoes, You feel something echoing deep in your heart. It seems like this stand is more powerful than it may seem.",
+            rarity: "B",
+            image: "https://static.jojowiki.com/images/d/dc/latest/20210424210829/Echoes_ACT1_DU_Infobox_Anime.png",
+            abilities: [
+                {
+                    ...Abilities.StandBarrage,
+                    name: "Sound Generation",
+                    description: "Marks the opponent with a sound to repeat it.",
+                },
+            ],
+            emoji: Emojis.echoes_1,
+            skillPoints: {
+                perception: 5,
+                strength: 5,
+                speed: 0,
+                stamina: 0,
+                defense: 2,
+            },
+            available: true,
+            color: 0x000000,
+        },
+        {
+            name: "Echoes Act 2",
+            description:
+                "Echoes Act 2, You seem to be discovering more mysteries about your stand. Maybe you can dig deeper?",
+            rarity: "A",
+            image: "https://static.jojowiki.com/images/thumb/6/69/latest/20231215131846/Echoes_ACT2_DU_Infobox_Anime.png/800px-Echoes_ACT2_DU_Infobox_Anime.png",
+            abilities: [
+                 {
+                    ...Abilities.StandBarrage,
+                    name: "Sound Generation",
+                    description: "Marks the opponent with a sound to repeat it.",
+                },
+                {
+                    ...Abilities.StandBarrage,
+                    name: "Sound Generation",
+                    description: "The marked sounds now affect the opponent.",
+                    damage: Abilities.StandBarrage.damage + 5,
+                    cooldown: Abilities.StandBarrage.cooldown + 1,
+                },
+            ],
+            emoji: Emojis.echoes_2,
+            skillPoints: {
+                perception: 3,
+                strength: 5,
+                speed: 0,
+                stamina: 3,
+                defense: 5,
+            },
+            available: true,
+            color: 0x000000,
+        },
+        {
+            name: "Echoes Act 3",
+            description:
+                "Echoes Act 3, This seems to be thr peak of the power you can extract.",
+            rarity: "S",
+            image: "https://static.jojowiki.com/images/8/8e/latest/20210422175130/Echoes_ACT3_DU_Infobox_Anime.png",
+            abilities: [
+                 {
+                    ...Abilities.StandBarrage,
+                    name: "Sound Generation",
+                    description: "Marks the opponent with a sound to repeat it.",
+                },
+                {
+                    ...Abilities.StandBarrage,
+                    name: "Sound Generation",
+                    description: "The marked sounds now affect the opponent.",
+                    damage: Abilities.StandBarrage.damage + 5,
+                    cooldown: Abilities.StandBarrage.cooldown + 1,
+                },
+                {
+                  ...Abilities.StandBarrage,
+                  name: "Freeze"
+                  description: "Freezes the Opponent’s targeted part."
+                  damage: Abilities.StandBarrage.damage + 10,
+                  cooldown: Abilities.StandBarrage.cooldown +2,
+                },
+            ],
+            emoji: Emojis.echoes_3,
+            skillPoints: {
+                perception: 5,
+                strength: 7,
+                speed: 2,
+                stamina: 5,
+                defense: 5,
+            },
+            available: true,
+            color: 0x000000,
+        },
+    ],
+};
