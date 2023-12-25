@@ -105,26 +105,32 @@ const slashCommand: SlashCommandFile = {
             const embed: APIEmbed = {
                 title: "Christmas Event 2023",
                 color: 0xff0000,
-                description: `- You can feed santa's reindeers (**${
+                description: `- Don't forget to claim your daily EVERYDAY (${ctx.client.getSlashCommandMention(
+                    "daily claim"
+                )})\n- Everyone has a **+25%** XP boost!\n- You can get **Consumable Candy Canes** and **Corrupted Souls** by completing the christmas side quest: ${ctx.client.getSlashCommandMention(
+                    "side quest view"
+                )}\n- You can feed santa's reindeers (**${
                     Items.CandyCane.emoji + " " + Items.CandyCane.name
                 }**) by using the ${ctx.client.getSlashCommandMention(
                     "event feed"
+                )} command.\n- You can craft **Santa's Candy Cane** by using the ${ctx.client.getSlashCommandMention(
+                    "craft"
                 )} command.\n- Once you and your friends have enough **${
                     Items.CorruptedSoul.emoji + " " + Items.CorruptedSoul.name
                 }**, you can use the ${ctx.client.getSlashCommandMention(
                     "event raid"
-                )} command to wake the corrupted reindeer and fight him with your friend(s) and Santa + Santa's Elf\n\n ${
+                )} command to wake the corrupted reindeer and fight him with your friend(s) and Santa + Santa's Elf (you can get a limited stand; **The Chained**)\n\n ${
                     ctx.client.localEmojis.timerIcon
                 } The event ends ${Functions.generateDiscordTimestamp(
-                    1701385140000,
+                    1704582000000,
                     "FROM_NOW"
-                )} (${Functions.generateDiscordTimestamp(1701385140000, "DATE")})`,
+                )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
             };
 
             return void ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.SantasElf,
-                    "A mysterious person has corrupted santa's reindeers and they are now attacking people. Help santa and his elf to defeat the big corrupted reindeer and save christmas!"
+                    "Merry christmas! Here's some information about the event."
                 ),
                 embeds: [embed],
             });
@@ -164,7 +170,6 @@ const slashCommand: SlashCommandFile = {
             };
 
             const collector = ctx.interaction.channel.createMessageComponentCollector({
-                filter: (i) => i.user.id === ctx.userData.id,
                 time: 120000,
             });
 
@@ -216,6 +221,10 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Santa,
+                        "We need to put 10 corrupted souls to summon the corrupted reindeer. Bring some friends with you!"
+                    ),
                     embeds: [
                         {
                             title: "Christmas Event 2023",
@@ -363,6 +372,7 @@ const slashCommand: SlashCommandFile = {
                                 );
                             } else {
                                 i.deferUpdate().catch(() => {});
+                                collector.stop();
                                 return void ctx.makeMessage({
                                     content:
                                         "The raid has been cancelled since the host removed their souls .",
@@ -383,11 +393,13 @@ const slashCommand: SlashCommandFile = {
                             components: [],
                             embeds: [],
                         });
+                        collector.stop();
                 }
             });
             updateMessage();
         } else {
             const candy = ctx.options.getNumber("candy", true);
+            const left = ctx.userData.inventory[Items.CandyCane.id] || 0;
             if (candy < 1) {
                 return void ctx.makeMessage({
                     content: Functions.makeNPCString(
@@ -396,7 +408,7 @@ const slashCommand: SlashCommandFile = {
                     ),
                 });
             }
-            if (ctx.userData.inventory[Items.CandyCane.id] < candy) {
+            if (left < candy) {
                 return void ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.SantasElf,
@@ -424,6 +436,14 @@ const slashCommand: SlashCommandFile = {
                 );
             }
             Functions.removeItem(ctx.userData, Items.CandyCane.id, candy);
+            if (ctx.userData.inventory[Items.CandyCane.id] <= 0) {
+                return void ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.SantasElf,
+                        "an error occured, dont try that again or else youll get banned."
+                    ),
+                });
+            }
 
             ctx.client.database.saveUserData(ctx.userData);
 
@@ -433,7 +453,7 @@ const slashCommand: SlashCommandFile = {
                     `Thank you for helping us! Here's your reward: ${Functions.getRewardsCompareData(
                         oldData,
                         ctx.userData
-                    )}`
+                    )} [DEBUG: ${candy} candies fed while had ${left} candies]`
                 ),
             });
         }

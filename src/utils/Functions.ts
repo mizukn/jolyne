@@ -1026,6 +1026,8 @@ export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): 
     if (calcEquipableItemsBonus(userData).xpBoost > 0) {
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
+    // x1.25 xp due to christmas if before 1704582000000
+    if (Date.now() < 1704582000000) amount = Math.round(amount * 1.25);
 
     amount = Math.round(amount);
     userData.xp += amount;
@@ -1531,7 +1533,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
                 "en-US"
-            )}** XP ${Emojis.xp}`
+            )}** XP ${Emojis.xp} ${Date.now() < 1704582000000 ? "(+25% due to christmas)" : ""}`
         );
     if (data1.coins !== data2.coins)
         rewards.push(
@@ -1607,20 +1609,78 @@ export const dailyClaimRewardsChristmas = (
     [key: `${number}-${number}-${number}`]: DailyClaimRewardsXMas;
 } => {
     return {
-        "2023-12-15": {
+        "2023-12-24": {
             coins: 10000,
-            xp: 5000,
+            xp: getMaxXp(level) * 3,
             items: {
-                christmas_gift: 1,
+                christmas_gift: 5,
             },
         },
-        "2023-12-16": {
+        "2023-12-25": {
             coins: 10000,
-            xp: 10000,
+            xp: getMaxXp(level) * 3,
+            items: {
+                christmas_gift: 5,
+                corrupted_soul: 150,
+                candy_cane: 150,
+            },
+        },
+        "2023-12-26": {
+            coins: 10000,
+            xp: getMaxXp(level) / 4,
             items: {
                 box: 5,
                 skill_points_reset_potion: 1,
+                [findItem("mini").id]: 1,
+            },
+        },
+        "2023-12-27": {
+            coins: 10000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                box: 5,
+                pizza: 15,
+            },
+        },
+        "2023-12-28": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                box: 5,
+                [findItem("mini").id]: 1,
+            },
+        },
+        "2023-12-29": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
+            },
+        },
+        "2023-12-30": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
+            },
+        },
+        "2023-12-31": {
+            coins: 10000,
+            xp: getMaxXp(level) * 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
             },
         },
     };
 };
+
+export function getCurrentDate(): `${number}-${number}-${number}` {
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
+    return formattedDate as `${number}-${number}-${number}`;
+}
