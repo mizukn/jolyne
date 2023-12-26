@@ -429,10 +429,7 @@ const slashCommand: SlashCommandFile = {
                 // give 1-3% of max xp
                 Functions.addXp(
                     ctx.userData,
-                    Math.round(
-                        (Functions.getMaxXp(ctx.userData.level) / 100) *
-                            Functions.randomNumber(1, 3)
-                    )
+                    Math.round((Functions.getMaxXp(ctx.userData.level) / 100) * 0.8)
                 );
             }
             Functions.removeItem(ctx.userData, Items.CandyCane.id, candy);
