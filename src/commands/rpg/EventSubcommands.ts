@@ -420,19 +420,13 @@ const slashCommand: SlashCommandFile = {
             const oldData = cloneDeep(ctx.userData);
 
             for (let i = 0; i < candy; i++) {
-                if (Functions.percent(5)) {
-                    Functions.addItem(ctx.userData, Items.ChristmasGift);
-                }
                 if (Functions.percent(0.1)) Functions.addItem(ctx.userData, Items.RequiemArrow);
                 if (Functions.percent(10)) Functions.addItem(ctx.userData, Items.RareStandArrow);
                 Functions.addItem(ctx.userData, Items.CorruptedSoul, Functions.randomNumber(1, 3));
                 // give 1-3% of max xp
                 Functions.addXp(
                     ctx.userData,
-                    Math.round(
-                        (Functions.getMaxXp(ctx.userData.level) / 100) *
-                            Functions.randomNumber(1, 3)
-                    )
+                    Math.round((Functions.getMaxXp(ctx.userData.level) / 100) * 0.8)
                 );
             }
             Functions.removeItem(ctx.userData, Items.CandyCane.id, candy);
