@@ -289,9 +289,11 @@ export const Echoes2: SideQuest = {
         ];
     },
     requirements: (ctx) => {
-        if (ctx.userData.stand === Functions.findStand("Echoes Act 1").name) {
+        if (ctx.userData.stand === Functions.findStand("echoes").id) {
             if (ctx.userData.level > 10) {
+              if (user.standsEvolved['echoes'] === 0) {
                 return true;
+              }
             }
         } else return false;
     },
@@ -340,9 +342,11 @@ export const Echoes3: SideQuest = {
         return baseQuests;
     },
     requirements: (ctx) => {
-        if (ctx.userData.stand === Functions.findStand("Echoes Act 2").name) {
+        if (ctx.userData.stand === Functions.findStand("echoes").id) {
             if (ctx.userData.level > 15) {
+              if (user.standsEvolved['echoes'] === 1) {
                 return true;
+              }
             }
         } else return false;
     },
