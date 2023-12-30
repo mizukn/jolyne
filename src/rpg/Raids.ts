@@ -297,7 +297,7 @@ export const Jolyne: RaidBoss = {
 
 export const Toru: RaidBoss = {
     boss: FightableNPCs.Toru,
-    minions: [],
+    minions: [FightableNPCs.YoshikageKira],
     baseRewards: {
         xp: 180000,
         coins: 172700,
@@ -309,14 +309,14 @@ export const Toru: RaidBoss = {
             },
             {
                 item: Functions.findItem("wonder_of_u").id,
-                amount: 1,
-                chance: 1,
+                amount: 3,
+                chance: 25,
             },
         ],
     },
     level: 50,
     maxLevel: Infinity,
-    maxPlayers: 6,
+    maxPlayers: 8,
     // 15 minutes
     cooldown: 15 * 60 * 1000,
 };
