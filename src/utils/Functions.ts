@@ -1671,7 +1671,9 @@ export const dailyClaimRewardsChristmas = (
             xp: getMaxXp(level) * 2,
             items: {
                 box: 5,
-                christmas_gift: 1,
+                christmas_gift: 5,
+                corrupted_soul: 150,
+                candy_cane: 150,
             },
         },
     };
