@@ -284,7 +284,7 @@ export const Jolyne: RaidBoss = {
             {
                 item: Functions.findItem("Green Baby").id,
                 amount: 1,
-                chance: 0.1,
+                chance: 1,
             },
         ],
     },
@@ -297,7 +297,7 @@ export const Jolyne: RaidBoss = {
 
 export const Toru: RaidBoss = {
     boss: FightableNPCs.Toru,
-    minions: [FightableNPCs.YoshikageKira],
+    minions: [],
     baseRewards: {
         xp: 180000,
         coins: 172700,
@@ -309,7 +309,7 @@ export const Toru: RaidBoss = {
             },
             {
                 item: Functions.findItem("wonder_of_u").id,
-                amount: 3,
+                amount: 1,
                 chance: 25,
             },
         ],
