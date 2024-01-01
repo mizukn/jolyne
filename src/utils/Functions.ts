@@ -1676,6 +1676,17 @@ export const dailyClaimRewardsChristmas = (
                 candy_cane: 150,
             },
         },
+        "2024-01-01": {
+            coins: 10000,
+            xp: getMaxXp(level) * 2,
+            items: {
+                box: 5,
+                christmas_gift: 5,
+                corrupted_soul: 150,
+                candy_cane: 150,
+                rare_stand_arrow: 25,
+            },
+        },
     };
 };
 
