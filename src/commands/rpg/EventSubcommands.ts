@@ -57,7 +57,7 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
-        if (Date.now() > new Date("2023-12-31 23:59:59").getTime())
+        if (Date.now() > 1704582000000)
             return void ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.Santa,
