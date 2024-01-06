@@ -730,7 +730,7 @@ export const StoneFree: Stand = {
         Abilities.StringWeb,
         addGif(
             Abilities.StandBarrage,
-            "https://tenor.com/view/jolyne-kujo-jolyne-cujoh-jolyne-kujo-cujoh-gif-23791539"
+            "https://media1.tenor.com/m/WlpH1KzyoS0AAAAC/jolyne-kujo-jolyne-cujoh.gif"
         ),
         Abilities.BallBarrage,
         Abilities.Wrap,
