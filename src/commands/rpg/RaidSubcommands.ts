@@ -476,7 +476,7 @@ const slashCommand: SlashCommandFile = {
                         value: `\n${joinedUsers
                             .map(
                                 (r) =>
-                                    `- ${r.tag} (LEVEL: ${r.level}) [${r.health.toLocaleString(
+                                    `- ${r.tag} (Level: ${r.level}) [${r.health.toLocaleString(
                                         "en-US"
                                     )}/${Functions.getMaxHealth(r).toLocaleString(
                                         "en-US"

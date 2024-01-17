@@ -54,7 +54,7 @@ export const Joshua_Joengo: NPC = {
 export const SPEEDWAGON_FOUNDATION: NPC = {
     id: "speedwagon_foundation",
     email: "contact@speedwagon.net",
-    name: "SPEEDWAGON FOUNDATION",
+    name: "Speedwagon Foundation",
     emoji: "🔬",
 };
 
@@ -182,7 +182,7 @@ export const YoshikageKira: NPC = {
 
 export const Santa: NPC = {
     id: "santa",
-    name: "santa",
+    name: "Santa",
     // iconURL
     emoji: Emojis.santa,
 };
