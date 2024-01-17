@@ -436,25 +436,25 @@ const slashCommand: SlashCommandFile = {
             }
 
             const embed: APIEmbed = {
-                title: `${raid.boss.emoji} ${raid.boss.name} RAID`,
-                description: `> \`Min Level Requirement:\` ${
+                title: `${raid.boss.emoji} ${raid.boss.name} Raid`,
+                description: `> \`Minimum Level Requirement:\` ${
                     raid.level
-                }\n> \`Max Level Requirement:\` ${
+                }\n> \`Maximum Level Requirement:\` ${
                     raid.maxLevel
                 }\n> \`Cooldown:\` ${Functions.msToString(
                     raid.cooldown
-                )}\n> \`Starts (auto):\` ${Functions.generateDiscordTimestamp(
+                )}\n> \`Auto Starts\` ${Functions.generateDiscordTimestamp(
                     startRaid,
                     "FROM_NOW"
                 )}`,
                 fields: [
                     {
-                        name: "Rewards",
+                        name: "Rewards:",
                         value: `- **${(raid.baseRewards.coins ?? 0).toLocaleString(
                             "en-US"
-                        )}** coins ${ctx.client.localEmojis.jocoins}\n- **${(
+                        )}**${ctx.client.localEmojis.jocoins}\n- **${(
                             raid.baseRewards.xp ?? 0
-                        ).toLocaleString("en-US")}** xp ${
+                        ).toLocaleString("en-US")}**${
                             ctx.client.localEmojis.xp
                         }\n${raid.baseRewards.items
                             .map((i) => {
@@ -462,12 +462,12 @@ const slashCommand: SlashCommandFile = {
                                 if (!itemData) return null;
                                 return `- **${i.amount.toLocaleString("en-US")}x** ${
                                     itemData.name
-                                } ${itemData.emoji}${i.chance ? ` (${i.chance}% \\*\\*)` : ""}`;
+                                } ${itemData.emoji}${i.chance ? `(\\*\\* ${i.chance}% \\*\\*)` : ""}`;
                             })
                             .filter((r) => r)
                             .join("\n")}${
                             raid.baseRewards.items.length !== 0
-                                ? "\n\n\\*\\* The drop rates of items are determined by the damage you inflict. For instance, if you deal 100% of the boss's health, and it indicates a 50% chance of receiving an item, you will indeed have a 50% chance of obtaining the item. However, if you only deal 50% of the boss's health, your chance of getting the arrow will be reduced to 25%, and so on."
+                                ? "\n\n- The drop rate of an item is determined by the damage you deal.\nIf there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item.\nThis logic applies to every reward."
                                 : ""
                         }`,
                     },
@@ -520,7 +520,7 @@ const slashCommand: SlashCommandFile = {
             availableBosses
                 .map((r) => {
                     return {
-                        name: `${r.boss.name} (LEVEL REQUIREMENT: ${r.level})`,
+                        name: `${r.boss.name} (Level Requirement: ${r.level})`,
                         value: r.boss.id,
                     };
                 })
