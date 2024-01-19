@@ -2171,7 +2171,7 @@ export const CalamityManipulation: Ability = {
     cooldown: 2,
     stamina: 5,
     damage: 15,
-    dodgeScore: 2,
+    dodgeScore: 0,
 };
 
 export const IdentityAssumption: Ability = {
