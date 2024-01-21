@@ -295,7 +295,7 @@ export const Echoes2: SideQuest = {
                 return true;
               }
             }
-        } else return false;
+        }
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,
@@ -348,7 +348,7 @@ export const Echoes3: SideQuest = {
                 return true;
               }
             }
-        } else return false;
+        }
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,

@@ -197,7 +197,7 @@ export const MoneyBox: Special = {
         );
     },
 };
-
+/*
 export const XPBox: Special = {
     id: "xp_box",
     name: "Experience Box",
@@ -236,7 +236,7 @@ export const XPBox: Special = {
         );
     },
 };
-
+*/
 export const PatreonBox: Special = {
     id: "patron_box",
     name: "Patron Box",
