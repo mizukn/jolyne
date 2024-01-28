@@ -345,4 +345,5 @@ export const YoshikageKira: RaidBoss = {
     maxPlayers: 6,
     // 7 minutes
     cooldown: 7 * 60 * 1000,
+    allies: [FightableNPCs.Jolyne],
 };

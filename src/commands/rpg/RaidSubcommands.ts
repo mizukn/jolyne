@@ -113,9 +113,12 @@ const slashCommand: SlashCommandFile = {
 
         collector.on("end", () => {
             if (joinedUsers.length === 0) return;
+            const users = [];
+            if (raid.allies) for (const ally of raid.allies) users.push(ally);
+            for (const user of joinedUsers) users.push(user);
             const fight = new FightHandler(
                 ctx,
-                [[...raid.minions, raid.boss], [...joinedUsers]],
+                [[...raid.minions, raid.boss], [...users]],
                 FightTypes.Boss
             );
             fight.on("end", async (winners, losers) => {
@@ -181,6 +184,7 @@ const slashCommand: SlashCommandFile = {
                 });
                 if (joinedUsers.find((r) => r.id === winners[0].id)) {
                     for (const winner of winners) {
+                        if (winner.id.match(/\d/g)?.length !== winner.id.length) continue;
                         const winnerData = await ctx.client.database.getRPGUserData(winner.id);
                         if (!winnerData) continue;
                         const winContent: string[] = [];
@@ -261,6 +265,7 @@ const slashCommand: SlashCommandFile = {
                 } else {
                     for (const team of losers) {
                         for (const loser of team) {
+                            if (loser.id.match(/\d/g)?.length !== loser.id.length) continue;
                             const loserData = await ctx.client.database.getRPGUserData(loser.id);
                             if (!loserData) continue;
                             loserData.health = 0;
@@ -484,6 +489,7 @@ const slashCommand: SlashCommandFile = {
                             )
                             .join("\n")}`,
                     },
+
                     /*
                     {
                         name: "\u200b",
@@ -498,6 +504,13 @@ const slashCommand: SlashCommandFile = {
                 },
                 color: 0x70926c,
             };
+            if (raid.allies)
+                embed.fields.push({
+                    name: `Allies [${raid.allies.length}]:`,
+                    value: `\n${raid.allies
+                        .map((r) => `- ${r.emoji} ${r.name} (LEVEL: ${r.level})`)
+                        .join("\n")}`,
+                });
 
             if (bannedUsers.length !== 0) {
                 embed.fields.push({

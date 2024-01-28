@@ -954,6 +954,7 @@ export interface RaidBoss {
     maxLevel: number;
     maxPlayers: number;
     cooldown: number;
+    allies?: FightableNPC[];
 }
 
 /**
