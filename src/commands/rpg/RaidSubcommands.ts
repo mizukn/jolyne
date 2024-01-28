@@ -192,11 +192,14 @@ const slashCommand: SlashCommandFile = {
                         },
                     ],
                 });
-                if (joinedUsers.find((r) => r.id === winners[0].id)) {
+                if (winners.find((r) => r.id === joinedUsers[0].id)) {
                     for (const winner of winners) {
-                        if (winner.id.match(/\d/g)?.length !== winner.id.length) continue;
+                        console.log("winner:", winner.id);
+                        if (!joinedUsers.find((r) => r.id === winner.id)) continue;
+                        console.log("found human:", winner.id);
                         const winnerData = await ctx.client.database.getRPGUserData(winner.id);
                         if (!winnerData) continue;
+                        console.log("winnerData:", winnerData.id);
                         const winContent: string[] = [];
                         if (raid.baseRewards.coins) {
                             const coins = Math.round(
@@ -251,6 +254,7 @@ const slashCommand: SlashCommandFile = {
                             ...winnerData.sideQuests.map((v) => v.quests),
                         ]) {
                             for (const quest of quests.filter((x) => Functions.isRaidNPCQuest(x))) {
+                                console.log(quest);
                                 if (
                                     (quest as RaidNPCQuest).boss === enhancedBoss.id &&
                                     !quest.completed
@@ -276,7 +280,7 @@ const slashCommand: SlashCommandFile = {
                 } else {
                     for (const team of losers) {
                         for (const loser of team) {
-                            if (loser.id.match(/\d/g)?.length !== loser.id.length) continue;
+                            if (!joinedUsers.find((r) => r.id === loser.id)) continue;
                             const loserData = await ctx.client.database.getRPGUserData(loser.id);
                             if (!loserData) continue;
                             loserData.health = 0;
