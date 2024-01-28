@@ -270,8 +270,8 @@ export const Echoes: EvolutionStand = {
                 },
                 {
                   ...Abilities.StandBarrage,
-                  name: "Freeze"
-                  description: "Freezes the Opponent’s targeted part."
+                  name: "Freeze",
+                  description: "Freezes the Opponent’s targeted part.",
                   damage: Abilities.StandBarrage.damage + 10,
                   cooldown: Abilities.StandBarrage.cooldown +2,
                 },

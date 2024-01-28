@@ -283,6 +283,8 @@ export const PatreonBox: Special = {
         );
     },
 };
+
+/*
 export const StandBox: Special = {
     id: "stand_box",
     name: "Stand Box",
@@ -329,7 +331,7 @@ export const StandBox: Special = {
         );
     },
 };
-
+*/ // what did he do
 
 export const StandArrow: Special = {
     id: "stand_arrow",

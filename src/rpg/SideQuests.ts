@@ -3,6 +3,7 @@ import * as Functions from "../utils/Functions";
 import { NPCs } from "./NPCs";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
 import * as Raids from "./Raids";
+import Emojis from "../emojis.json";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 100),
@@ -287,13 +288,15 @@ export const Echoes2: SideQuest = {
             Functions.generateClaimXQuest("daily", 2),
             Functions.generataRaidQuest(Raids.BanditBoss.boss),
         ];
+
+        return baseQuests;
     },
     requirements: (ctx) => {
         if (ctx.userData.stand === Functions.findStand("echoes").id) {
             if (ctx.userData.level > 10) {
-              if (user.standsEvolved['echoes'] === 0) {
-                return true;
-              }
+                if (ctx.userData.standsEvolved["echoes"] === 0) {
+                    return true;
+                }
             }
         }
     },
@@ -344,9 +347,9 @@ export const Echoes3: SideQuest = {
     requirements: (ctx) => {
         if (ctx.userData.stand === Functions.findStand("echoes").id) {
             if (ctx.userData.level > 15) {
-              if (user.standsEvolved['echoes'] === 1) {
-                return true;
-              }
+                if (ctx.userData.standsEvolved["echoes"] === 1) {
+                    return true;
+                }
             }
         }
     },

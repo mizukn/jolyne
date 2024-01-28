@@ -456,13 +456,8 @@ const slashCommand: SlashCommandFile = {
             }
 
             const embed: APIEmbed = {
-<<<<<<< HEAD
                 title: `${enhancedBoss.emoji} ${enhancedBoss.name} RAID`,
                 description: `> \`Min Level Requirement:\` ${
-=======
-                title: `${raid.boss.emoji} ${raid.boss.name} Raid`,
-                description: `> \`Minimum Level Requirement:\` ${
->>>>>>> 9065dda7048e2677c10bb1692ece23912a694e18
                     raid.level
                 }\n> \`Maximum Level Requirement:\` ${
                     raid.maxLevel
