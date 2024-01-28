@@ -130,6 +130,13 @@ for (let i = 1; i < 500; i += 3) {
     NPCs[SpookySkeletonNPC.id] = SpookySkeletonNPC;
     // @ts-expect-error because it's a dynamic property
     NPCs[SpookyZombieNPC.id] = SpookyZombieNPC;
+
+    blablabla
+
+    si le mec na pas assez dargent:
+        return "pas dargent"
+    
+    blablabla
 }
 */
 
@@ -147,12 +154,17 @@ const standPrices = {
 
 for (const stand of [
     ...Object.values(Stands.Stands),
-    ...Object.values(Stands.EvolutionStands).map((x) => {
-        return {
-            ...x.evolutions[0],
-            id: x.id,
-        };
-    }),
+    ...Object.values(Stands.EvolutionStands)
+        .map((x) => {
+            return x.evolutions.map((y) => {
+                return {
+                    ...y,
+                    id: x.id,
+                };
+            });
+        })
+        .map((x) => x)
+        .flat(),
 ]) {
     if (!stand.available) continue;
     console.log(`Adding ${stand.name} Stand Disc`);
