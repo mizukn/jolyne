@@ -76,6 +76,12 @@ const slashCommand: SlashCommandFile = {
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "list": {
+              const SSstands = [
+                    ...regularStandList.filter((w) => w.rarity === "SS"),
+                    ...evolvableStandList
+                        .filter((w) => w.evolutions[0].rarity === "SS")
+                        .map((w) => w.evolutions[0]),
+                ];
                 const Sstands = [
                     ...regularStandList.filter((w) => w.rarity === "S"),
                     ...evolvableStandList
@@ -117,27 +123,32 @@ const slashCommand: SlashCommandFile = {
                         "Please note that this list is sorted by rarity & alphabetically, so for example if Star Platinum is above The World, it doesn't mean that Star Platinum is better than The World.",
                     fields: fixFields([
                         {
-                            name: `T stands (event/limited) [${Tstands.length}]`,
+                            name: `T Stands (event/limited) [${Tstands.length}]:`,
                             value: Tstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
                         },
                         {
-                            name: `S stands [${Sstands.length}]`,
+                            name: `SS Stands [${SSstands.length}]:`,
+                            value: SSstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
+                        },
+                        {
+                            name: `S Stands [${Sstands.length}]:`,
                             value: Sstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
                         },
                         {
-                            name: `A stands [${Astands.length}]`,
+                            name: `A Stands [${Astands.length}]:`,
                             value: Astands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
                         },
                         {
-                            name: `B stands [${Bstands.length}]`,
+                            name: `B Stands [${Bstands.length}]:`,
                             value: Bstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
                         },
                         {
-                            name: `C stands [${Cstands.length}]`,
+                            name: `C Stands [${Cstands.length}]:`,
                             value: Cstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
                         },
                         {
-                            name: `Evolvable stands [${evolvableStands.flat().length}] [S/SS]`,
+                            name: `Evolvable Stands
+                            [${evolvableStands.flat().length}] [S/SS]:`,
                             value: evolvableStands
                                 .flat()
                                 .map((w) => {

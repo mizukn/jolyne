@@ -522,9 +522,9 @@ const Event: EventFile = {
                     interaction.commandName
                 }\` in guild ${interaction.guild.name} \`(${
                     interaction.guild.id
-                })\` with options:\n \`\`\`${JSON.stringify(
+                })\` with options: \`\`\`${JSON.stringify(
                     interaction.options["data"]
-                )} (${command})\`\`\``
+                )} (${command})\`\`\` _ _`
             );
         } else if (interaction.isAutocomplete()) {
             if (

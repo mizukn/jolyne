@@ -2170,7 +2170,8 @@ export const CalamityManipulation: Ability = {
     description: "Damages the opponent with a flurry of deadly calamities.",
     cooldown: 2,
     stamina: 5,
-    dodgeScore: 2,
+    damage: 15,
+    dodgeScore: 0,
 };
 
 export const IdentityAssumption: Ability = {
@@ -2179,6 +2180,7 @@ export const IdentityAssumption: Ability = {
     description:
         "Removes the opponent’s stand and damages it’s user. (Their stand will continue to be unusable for a few turns.)",
     cooldown: 7,
+    stamina: 25,
     damage: 25,
     dodgeScore: 8,
 };
@@ -2188,14 +2190,16 @@ export const IllusionCreation: Ability = {
     name: "Illusion Creation",
     description: "Creates multiple illusions and attacks the opponent..",
     cooldown: 4,
-    stamina: 10,
-    dodgeScore: 2,
+    stamina: 15,
+    damage: 15,
+    dodgeScore: 4,
 };
 export const MedicExp: Ability = {
     ...Heal,
     name: "Medical Experience",
     description: "Uses its medical experience to heal the targetted player.",
     cooldown: 5,
+    stamina: 20,
 };
 
 export const StaffBarrage: Ability = {

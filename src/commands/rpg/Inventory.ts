@@ -355,7 +355,7 @@ const slashCommand: SlashCommandFile = {
                             : ""
                     }${
                         itemData.effects.stamina
-                            ? `\`[+]\` stamina: **${
+                            ? `\`[+]\` Stamina: **${
                                   itemData.effects.health +
                                   (typeof itemData.effects.health === "string" ? "%" : "")
                               }**\n`

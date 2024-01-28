@@ -197,7 +197,46 @@ export const MoneyBox: Special = {
         );
     },
 };
+/*
+export const XPBox: Special = {
+    id: "xp_box",
+    name: "Experience Box",
+    description: "An Experience filled Box.\nBut maybe there is a secret hidden in here?",
+    rarity: "S",
+    emoji: Emojis.xp,
+    price: 60009,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    xp: Functions.randomNumber(
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 2,
+                        Functions.getMaxXp(ctx.userData.level ?? 1) / 1
+                    ),
+                },
+                {
+                  percent: 0.1,
+                  xp: 1000000,
+                },
+            ],
+            [],
+            [],
+        ];
 
+        return useBox(
+            ctx,
+            finalLoot,
+            "XP Box",
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            Emojis["xp"],
+            Emojis["xp"]
+        );
+    },
+};
+*/
 export const PatreonBox: Special = {
     id: "patron_box",
     name: "Patron Box",
@@ -244,6 +283,53 @@ export const PatreonBox: Special = {
         );
     },
 };
+export const StandBox: Special = {
+    id: "stand_box",
+    name: "Stand Box",
+    description: "A very rare box with all obtainable stands, opening it will give you a random T, SS or S stand.",
+    rarity: "SS",
+    emoji: Emojis.menacing,
+    price: 690000,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const standBoxList = Object.values(Stands).filter((r) => r.available && (r.rarity === "S" || r.rarity === "T" || r.rarity === "SS"));
+
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    coins: 100000,
+                },
+                {
+                    percent: 100,
+                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
+                },
+            ],
+            [
+                {
+                    percent: 100,
+                    loot: standBoxList[Math.floor(Math.random() * standList.length)].id + ".$disc$",
+                },
+                {
+                    percent: 100,
+                    loot: XPBox.id,
+                    mult: 1,
+                },
+            ],
+        ];
+
+        return useBox(
+            ctx,
+            finalLoot,
+            "Forbidden Stands",
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            Emojis["menacing"],
+            Emojis["menacing_animated"]
+        );
+    },
+};
+
 
 export const StandArrow: Special = {
     id: "stand_arrow",
