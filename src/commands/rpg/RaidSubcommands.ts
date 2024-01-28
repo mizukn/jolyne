@@ -13,6 +13,7 @@ import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import * as Bosses from "../../rpg/Raids";
 import { raidWebhook } from "../../utils/Webhooks";
+import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -65,6 +66,14 @@ const slashCommand: SlashCommandFile = {
         const joinedUsers: RPGUserDataJSON[] = [ctx.userData];
         const bannedUsers: RPGUserDataJSON[] = [];
 
+        const protectedBoss = Object.assign({}, cloneDeep(raid.boss));
+        const enhancedBoss = {
+            ...protectedBoss,
+            level: Math.round(protectedBoss.level * 1.25),
+        };
+
+        Functions.generateSkillPoints(enhancedBoss);
+
         const joinRaidButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Primary)
             .setCustomId(joinRaidID)
@@ -108,7 +117,7 @@ const slashCommand: SlashCommandFile = {
         });
         ctx.client.database.setCooldown(
             ctx.userData.id,
-            `You are on a raid: ${raid.boss.name} cooldown!`
+            `You are on a raid: ${enhancedBoss.name} cooldown!`
         );
 
         collector.on("end", () => {
@@ -116,11 +125,8 @@ const slashCommand: SlashCommandFile = {
             const users = [];
             if (raid.allies) for (const ally of raid.allies) users.push(ally);
             for (const user of joinedUsers) users.push(user);
-            const fight = new FightHandler(
-                ctx,
-                [[...raid.minions, raid.boss], [...users]],
-                FightTypes.Boss
-            );
+
+            const fight = new FightHandler(ctx, [[...raid.minions], [...users]], FightTypes.Boss);
             fight.on("end", async (winners, losers) => {
                 for (const user of joinedUsers) {
                     ctx.client.database.deleteCooldown(user.id);
@@ -129,10 +135,10 @@ const slashCommand: SlashCommandFile = {
                 raidWebhook.send({
                     embeds: [
                         {
-                            title: `${raid.boss.name} Raid`,
+                            title: `${enhancedBoss.name} Raid`,
                             description: `${joinedUsers
                                 .map((x) => "**" + x.tag + "**")
-                                .join(", ")} raided **${raid.boss.name}** and ${
+                                .join(", ")} raided **${enhancedBoss.name}** and ${
                                 joinedUsers.find((r) => r.id === winners[0].id) ? "won" : "lost"
                             }!`,
                             color: 0x70926c,
@@ -174,9 +180,9 @@ const slashCommand: SlashCommandFile = {
                             ],
                             thumbnail: {
                                 url:
-                                    raid.boss.avatarURL ??
+                                    enhancedBoss.avatarURL ??
                                     `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
-                                        raid.boss.emoji
+                                        enhancedBoss.emoji
                                     )}.png`,
                             },
                         },
@@ -206,7 +212,7 @@ const slashCommand: SlashCommandFile = {
                             let xp = /*Math.round(
                                 winner.health === 0 ? raid.baseRewards.xp / 4 : raid.baseRewards.xp
                             );*/ Math.round(
-                                (winner.totalDamageDealt / Functions.getMaxHealth(raid.boss)) *
+                                (winner.totalDamageDealt / Functions.getMaxHealth(enhancedBoss)) *
                                     raid.baseRewards.xp
                             );
 
@@ -218,7 +224,8 @@ const slashCommand: SlashCommandFile = {
                         if (raid.baseRewards.items.length > 0) {
                             for (const item of raid.baseRewards.items) {
                                 const chance = Math.round(
-                                    (winner.totalDamageDealt / Functions.getMaxHealth(raid.boss)) *
+                                    (winner.totalDamageDealt /
+                                        Functions.getMaxHealth(enhancedBoss)) *
                                         item.chance
                                 );
                                 if (item.chance && Functions.RNG(0, 100) > chance) continue;
@@ -241,7 +248,7 @@ const slashCommand: SlashCommandFile = {
                         ]) {
                             for (const quest of quests.filter((x) => Functions.isRaidNPCQuest(x))) {
                                 if (
-                                    (quest as RaidNPCQuest).boss === raid.boss.id &&
+                                    (quest as RaidNPCQuest).boss === enhancedBoss.id &&
                                     !quest.completed
                                 ) {
                                     quest.completed = true;
@@ -365,7 +372,7 @@ const slashCommand: SlashCommandFile = {
                         .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                     ctx.client.database.setCooldown(
                         usrData.id,
-                        `You are on a raid: ${raid.boss.name} cooldown!`
+                        `You are on a raid: ${enhancedBoss.name} cooldown!`
                     );
                     makeMenuMessage();
                     break;
@@ -441,7 +448,7 @@ const slashCommand: SlashCommandFile = {
             }
 
             const embed: APIEmbed = {
-                title: `${raid.boss.emoji} ${raid.boss.name} RAID`,
+                title: `${enhancedBoss.emoji} ${enhancedBoss.name} RAID`,
                 description: `> \`Min Level Requirement:\` ${
                     raid.level
                 }\n> \`Max Level Requirement:\` ${
@@ -500,7 +507,7 @@ const slashCommand: SlashCommandFile = {
                     },*/
                 ],
                 thumbnail: {
-                    url: raid.boss.avatarURL,
+                    url: enhancedBoss.avatarURL,
                 },
                 color: 0x70926c,
             };
