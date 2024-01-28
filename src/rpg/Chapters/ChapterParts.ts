@@ -345,3 +345,36 @@ export const C2_P8: ChapterPart = {
     parent: Chapters.C2,
     private: false,
 };
+
+export const C2_P9: ChapterPart = {
+    id: 3.8,
+    description: {
+        "en-US":
+            "Jotaro and the others safely leave Singapore and enter India. Despite being rather surprised at the difference in culture, they stop in at a restaurant. There, Polnareff is attacked by a mysterious Stand that is inside a mirror.",
+        "fr-FR":
+            "Jotaro et les autres quittent Singapour en toute sécurité et entrent en Inde. Bien qu'ils soient plutôt surpris par la différence de culture, ils s'arrêtent dans un restaurant. Là, Polnareff est attaqué par un Stand mystérieux qui se trouve à l'intérieur d'un miroir.",
+        "es-ES":
+            "Jotaro y los demás salen de Singapur y entran en India. A pesar de estar bastante sorprendidos por la diferencia cultural, se detienen en un restaurante. Allí, Polnareff es atacado por un misterioso Stand que está dentro de un espejo.",
+        "de-DE":
+            "Jotaro und die anderen verlassen Singapur sicher und betreten Indien. Obwohl sie ziemlich überrascht sind von der kulturellen Unterschied, halten sie in einem Restaurant an. Dort wird Polnareff von einem mysteriösen Stand angegriffen, der sich in einem Spiegel befindet.",
+        "pt-BR":
+            "Jotaro e os outros saem de Singapura e entram na Índia. Apesar de ficarem bastante surpresos com a diferença cultural, eles param em um restaurante. Lá, Polnareff é atacado por um misterioso Stand que está dentro de um espelho.",
+        "ru-RU":
+            "Джотаро и другие благополучно покидают Сингапур и входят в Индию. Несмотря на то, что они довольно удивлены разницей в культуре, они заходят в ресторан. Там Польнарефа атакует таинственный стенд, который находится в зеркале.",
+        "ja-JP":
+            "ジョタロと他の人々はシンガポールを無事に出てインドに入ります。文化の違いにかなり驚いているにもかかわらず、彼らはレストランに立ち寄ります。そこで、ポルナレフは鏡の中にいる謎のスタンドに襲われます。",
+    },
+    quests: [
+        Functions.generateFightQuest(
+            NPCs.JGeil,
+            Functions.pushQuest(Functions.generataRaidQuest(Raids.HolHorse.boss)),
+            null,
+            null
+        ),
+        Functions.generateClaimXQuest("daily", 2),
+        Functions.generateClaimXQuest("xp", 50000),
+        Functions.generataRaidQuest(Raids.BanditBoss.boss),
+    ],
+    parent: Chapters.C2,
+    private: false,
+};

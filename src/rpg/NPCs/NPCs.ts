@@ -200,3 +200,21 @@ export const CorruptedReindeer: NPC = {
     // iconURL
     emoji: Emojis.corrupted_reindeer, // place holder until i get the real emoji
 };
+
+export const JGeil: NPC = {
+    id: "j_geil",
+    name: "J. Geil",
+    emoji: "<:jgeil:1199855752332976238>",
+};
+
+export const HolHorse: NPC = {
+    id: "hol_horse",
+    name: "Hol Horse",
+    emoji: "<:holhorse:1051512342900379669>",
+};
+
+export const MohammedAvdol: NPC = {
+    id: "mohammed_avdol",
+    name: "Mohammed Avdol",
+    emoji: "<:avdol:1201123663802540063>",
+};

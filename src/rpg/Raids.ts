@@ -347,3 +347,34 @@ export const YoshikageKira: RaidBoss = {
     cooldown: 7 * 60 * 1000,
     allies: [FightableNPCs.Jolyne],
 };
+
+export const HolHorse: RaidBoss = {
+    boss: FightableNPCs.HolHorse,
+    minions: [],
+    baseRewards: {
+        xp: FightableNPCs.HolHorse.rewards.xp ?? Functions.getMaxXp(35),
+        coins: FightableNPCs.HolHorse.rewards.coins ?? 5000,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 10,
+                chance: 1000,
+            },
+            {
+                item: Functions.findItem("emperor").id,
+                amount: 1,
+                chance: 1,
+            },
+            {
+                item: Functions.findItem("Rare Stand Arrow").id,
+                amount: 2,
+                chance: 50,
+            },
+        ],
+    },
+    level: 35,
+    maxLevel: Infinity,
+    maxPlayers: 3,
+    cooldown: 3 * 60 * 1000,
+    allies: [FightableNPCs.MohammedAvdol],
+};

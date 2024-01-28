@@ -346,3 +346,30 @@ export const SantasElf: FightableNPC = {
     stand: "the_chained",
     standsEvolved: {},
 };
+
+export const JGeil: FightableNPC = {
+    ...NPCs.JGeil,
+    level: 50,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "hanged_man",
+    standsEvolved: {},
+};
+
+export const HolHorse: FightableNPC = {
+    ...NPCs.HolHorse,
+    level: 60,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "emperor",
+    standsEvolved: {},
+};
+
+export const MohammedAvdol: FightableNPC = {
+    ...NPCs.MohammedAvdol,
+    level: 50,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "magicians_red",
+    standsEvolved: {},
+};
