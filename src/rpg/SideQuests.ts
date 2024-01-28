@@ -266,3 +266,92 @@ export const ChristmasEvent2023: SideQuest = {
     // red
     color: 0xff0000,
 };
+
+// Echoes
+export const Echoes2: SideQuest = {
+    id: "Echoes_Act2",
+    title: "Echoes Act 2",
+    description: "You're now worthy of evolving your stand, Echoes",
+    emoji: Emojis.echoes_1,
+    rewards: async (ctx) => {
+        ctx.userData.standsEvolved.echoes = 1;
+        ctx.followUp({
+            content: "Your stand has been awakened, But maybe there is more potential?",
+        });
+        return true;
+    },
+    requirementsMessage: "- You need to have **Echoes** to do this quest and be level **10**",
+    quests: (ctx) => {
+        const baseQuests: QuestArray = [
+            Functions.generateUseXCommandQuest("assault", 25),
+            Functions.generateClaimXQuest("daily", 2),
+            Functions.generataRaidQuest(Raids.BanditBoss.boss),
+        ];
+    },
+    requirements: (ctx) => {
+        if (ctx.userData.stand === Functions.findStand("echoes").id) {
+            if (ctx.userData.level > 10) {
+              if (user.standsEvolved['echoes'] === 0) {
+                return true;
+              }
+            }
+        }
+    },
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    canRedoSideQuest: false,
+    // purple
+    color: 0x189447,
+};
+
+export const Echoes3: SideQuest = {
+    id: "Echoes_Act3",
+    title: "Echoes Act 3",
+    description: "You're now worthy of evolving your stand, Echoes Act 2",
+    emoji: Emojis.echoes_2,
+    rewards: async (ctx) => {
+        ctx.userData.standsEvolved.echoes = 2;
+        ctx.followUp({
+            content: "Your stand has been awakened, This seems to be your limit.",
+        });
+        return true;
+    },
+    requirementsMessage: "- You need to have **Echoes Act 2** to do this quest and be level **15**",
+    quests: (ctx) => {
+        const baseQuests: QuestArray = [
+            Functions.generateUseXCommandQuest("assault", 50),
+            Functions.generateClaimXQuest("daily", 1),
+            Functions.generataRaidQuest(Raids.BanditBoss.boss),
+            Functions.generataRaidQuest(Raids.BanditBoss.boss),
+        ];
+
+        const EchoNpcs = Object.values(FightableNPCs).filter((w) => {
+            return (
+                w.stand === "echoes" &&
+                w.level <= (ctx.userData.level > 10 ? ctx.userData.level : 10)
+            );
+        });
+
+        // pick the 5 strongest npcs: they have to fight the 5 strongest x5 times
+        const fiveStrongest = EchoNpcs.sort((a, b) => b.level - a.level).slice(0, 5);
+        for (let i = 0; i < fiveStrongest.length; i++) {
+            for (let j = 0; j < 5; j++) {
+                baseQuests.push(Functions.generateFightQuest(fiveStrongest[i]));
+            }
+        }
+
+        return baseQuests;
+    },
+    requirements: (ctx) => {
+        if (ctx.userData.stand === Functions.findStand("echoes").id) {
+            if (ctx.userData.level > 15) {
+              if (user.standsEvolved['echoes'] === 1) {
+                return true;
+              }
+            }
+        }
+    },
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    canRedoSideQuest: false,
+    // purple
+    color: 0x189447,
+};

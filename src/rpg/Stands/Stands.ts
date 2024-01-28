@@ -702,17 +702,17 @@ export const WonderOfU: Stand = {
     color: 0x5c212d,
     abilities: [
         Abilities.CalamityManipulation,
-        Abilities.IllusionCreation,
         Abilities.MedicExp,
+        Abilities.IllusionCreation,
         Abilities.IdentityAssumption,
     ],
     emoji: Emojis.WonderOfU,
     skillPoints: {
-        perception: 5,
-        speed: 7,
-        strength: 3,
-        stamina: 5,
-        defense: 0,
+        perception: 10,
+        speed: 10,
+        strength: 15,
+        stamina: 10,
+        defense: 5,
     },
     available: true,
 };
@@ -726,14 +726,14 @@ export const StoneFree: Stand = {
     image: "https://media.jolyne.moe/rMwxNj/direct",
     emoji: Emojis.stone_free,
     abilities: [
+        Abilities.Heal,
+        Abilities.StringWeb,
         addGif(
             Abilities.StandBarrage,
-            "https://tenor.com/view/jolyne-kujo-jolyne-cujoh-jolyne-kujo-cujoh-gif-23791539"
+            "https://media1.tenor.com/m/WlpH1KzyoS0AAAAC/jolyne-kujo-jolyne-cujoh.gif"
         ),
         Abilities.BallBarrage,
-        Abilities.Heal,
         Abilities.Wrap,
-        Abilities.StringWeb,
     ],
     skillPoints: {
         strength: 5,

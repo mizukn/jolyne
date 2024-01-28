@@ -284,7 +284,7 @@ export const Jolyne: RaidBoss = {
             {
                 item: Functions.findItem("Green Baby").id,
                 amount: 1,
-                chance: 0.1,
+                chance: 1,
             },
         ],
     },
@@ -310,13 +310,13 @@ export const Toru: RaidBoss = {
             {
                 item: Functions.findItem("wonder_of_u").id,
                 amount: 1,
-                chance: 1,
+                chance: 25,
             },
         ],
     },
     level: 50,
     maxLevel: Infinity,
-    maxPlayers: 6,
+    maxPlayers: 8,
     // 15 minutes
     cooldown: 15 * 60 * 1000,
 };
