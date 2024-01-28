@@ -15,7 +15,7 @@
 <br>
 
 ### What can I do with this code?
-You can read about the license at [LICENSE](LICENCE).
+You can read about the license at [LICENSE](LICENSE).
 
 ### What is the main purpose of this repository?
 This was made to make anyone able to contribute to the code of the bot! If you want to add new features, feel free to contribute!
