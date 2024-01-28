@@ -126,7 +126,11 @@ const slashCommand: SlashCommandFile = {
             if (raid.allies) for (const ally of raid.allies) users.push(ally);
             for (const user of joinedUsers) users.push(user);
 
-            const fight = new FightHandler(ctx, [[...raid.minions], [...users]], FightTypes.Boss);
+            const fight = new FightHandler(
+                ctx,
+                [[enhancedBoss, ...raid.minions], [...users]],
+                FightTypes.Boss
+            );
             fight.on("end", async (winners, losers) => {
                 for (const user of joinedUsers) {
                     ctx.client.database.deleteCooldown(user.id);
