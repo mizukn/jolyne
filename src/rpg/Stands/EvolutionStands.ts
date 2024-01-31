@@ -258,11 +258,6 @@ export const Echoes: EvolutionStand = {
                 {
                     ...Abilities.StandBarrage,
                     name: "Sound Generation",
-                    description: "Marks the opponent with a sound to repeat it.",
-                },
-                {
-                    ...Abilities.StandBarrage,
-                    name: "Sound Generation",
                     description: "The marked sounds now affect the opponent.",
                     damage: Abilities.StandBarrage.damage + 5,
                     cooldown: Abilities.StandBarrage.cooldown + 1,
