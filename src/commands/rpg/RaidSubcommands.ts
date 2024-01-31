@@ -480,14 +480,14 @@ const slashCommand: SlashCommandFile = {
                             .map((i) => {
                                 const itemData = Functions.findItem(i.item);
                                 if (!itemData) return null;
-                                return `- **${i.amount.toLocaleString("en-US")}x** ${
+                                return `> • **${i.amount.toLocaleString("en-US")}x** ${
                                     itemData.name
-                                } ${itemData.emoji}${i.chance ? `(\\*\\* ${i.chance}% \\*\\*)` : ""}`;
+                                } ${itemData.emoji}${i.chance ? ` (\*\* ${i.chance}% \*\*)` : ""}`;
                             })
                             .filter((r) => r)
                             .join("\n")}${
                             raid.baseRewards.items.length !== 0
-                                ? "\n\n- The drop rate of an item is determined by the damage you deal.\nIf there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item.\nThis logic applies to every reward."
+                                ? "\n\n\- The drop rate of an item is determined by the damage you deal.\nIf there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item.\nThis logic applies to every reward."
                                 : ""
                         }`,
                     },
