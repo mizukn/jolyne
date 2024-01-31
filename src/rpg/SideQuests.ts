@@ -277,7 +277,7 @@ export const Echoes2: SideQuest = {
     rewards: async (ctx) => {
         ctx.userData.standsEvolved.echoes = 1;
         ctx.followUp({
-            content: "Your stand has been awakened, But maybe there is more potential?",
+            content: "Your stand has been awakened, but perhaps there is more potential?",
         });
         return true;
     },
@@ -292,9 +292,11 @@ export const Echoes2: SideQuest = {
         return baseQuests;
     },
     requirements: (ctx) => {
+        if (ctx.userData.standsEvolved["echoes"] !== undefined) return false;
+
         if (ctx.userData.stand === Functions.findStand("echoes").id) {
             if (ctx.userData.level > 10) {
-                if (ctx.userData.standsEvolved["echoes"] === 0) {
+                if (ctx.userData.standsEvolved["echoes"] === undefined) {
                     return true;
                 }
             }
@@ -345,6 +347,8 @@ export const Echoes3: SideQuest = {
         return baseQuests;
     },
     requirements: (ctx) => {
+        if (ctx.userData.standsEvolved["echoes"] !== 1) return false;
+
         if (ctx.userData.stand === Functions.findStand("echoes").id) {
             if (ctx.userData.level > 15) {
                 if (ctx.userData.standsEvolved["echoes"] === 1) {
