@@ -359,6 +359,10 @@ export const StandArrow: Special = {
             id: "whitesnake",
             ...EvolutionStands.Whitesnake.evolutions[0],
         });
+        standArray.push({
+            id: "echoes",
+            ...EvolutionStands.Echoes.evolutions[0],
+        });
 
         const percent = Math.floor(Math.random() * 100);
 
@@ -449,6 +453,10 @@ export const RareStandArrow: Special = {
         standArray.push({
             id: "whitesnake",
             ...EvolutionStands.Whitesnake.evolutions[0],
+        });
+        standArray.push({
+            id: "echoes",
+            ...EvolutionStands.Echoes.evolutions[0],
         });
 
         const percent = Math.floor(Math.random() * 100);
