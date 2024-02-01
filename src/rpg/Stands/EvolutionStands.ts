@@ -232,7 +232,7 @@ export const Echoes: EvolutionStand = {
                 },
                 {
                     ...Abilities.StandBarrage,
-                    name: "Sound Generation",
+                    name: "Sound Manipulation",
                     description: "The marked sounds now affect the opponent.",
                     damage: Abilities.StandBarrage.damage + 5,
                     cooldown: Abilities.StandBarrage.cooldown + 1,
