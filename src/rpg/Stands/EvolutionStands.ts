@@ -205,6 +205,7 @@ export const Echoes: EvolutionStand = {
                     ...Abilities.StandBarrage,
                     name: "Sound Generation",
                     description: "Marks the opponent with a sound to repeat it.",
+                    thumbnail: "https://i.imgur.com/PTLo7ab.gif",
                 },
             ],
             emoji: Emojis.echoes_1,
