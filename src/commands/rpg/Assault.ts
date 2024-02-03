@@ -90,6 +90,7 @@ const slashCommand: SlashCommandFile = {
         const collector = ctx.channel.createMessageComponentCollector({
             filter,
             time: 30000,
+            max: 1,
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
