@@ -284,7 +284,7 @@ export const Echoes2: SideQuest = {
     requirementsMessage: "- You need to have **Echoes** to do this quest and be level **10**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
-            Functions.generateUseXCommandQuest("assault", 25),
+            Functions.generateUseXCommandQuest("assault", 20),
             Functions.generateClaimXQuest("daily", 2),
             Functions.generataRaidQuest(Raids.BanditBoss.boss),
         ];
@@ -323,7 +323,7 @@ export const Echoes3: SideQuest = {
     requirementsMessage: "- You need to have **Echoes Act 2** to do this quest and be level **15**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
-            Functions.generateUseXCommandQuest("assault", 50),
+            Functions.generateUseXCommandQuest("assault", 30),
             Functions.generateClaimXQuest("daily", 1),
             Functions.generataRaidQuest(Raids.BanditBoss.boss),
             Functions.generataRaidQuest(Raids.BanditBoss.boss),
