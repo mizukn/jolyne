@@ -557,6 +557,7 @@ export const StandDisc: Ability = {
     stamina: 50,
     special: true,
     extraTurns: 0,
+    thumbnail: "https://i.imgur.com/7CJQST6.gif",
     dodgeScore: 7,
     useMessage: (user, target, damage, ctx) => {
         const stand = target.stand;
@@ -585,6 +586,7 @@ export const Hallucinogen: Ability = {
     cooldown: 7,
     damage: 0,
     stamina: 50,
+    thumbnail: "https://i.imgur.com/b2xmYoo.gif",
     special: true,
     extraTurns: 0,
     dodgeScore: 0,
@@ -1702,6 +1704,7 @@ export const SheerHeartAttackBTD: Ability = {
     damage: 0,
     stamina: 10,
     extraTurns: 0,
+    thumbnail: "https://i.imgur.com/BpbkcRG.gif",
     dodgeScore: 0,
     target: "self",
     useMessage: (user, target, damage, ctx) => {
@@ -1739,6 +1742,7 @@ export const SheerHeartAttack: Ability = {
     cooldown: 4,
     damage: 0,
     stamina: 10,
+    thumbnail: "https://i.imgur.com/BpbkcRG.gif",
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
@@ -1844,6 +1848,7 @@ export const CoinBomb: Ability = {
     ...KickBarrage,
     description: "Throw a coin bomb at one of your opponent.",
     name: "Coin Bomb",
+    thumbnail: "https://i.imgur.com/IKMPUlz.gif",
     cooldown: 3,
     damage: 15,
 };
