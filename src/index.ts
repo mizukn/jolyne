@@ -154,17 +154,12 @@ const standPrices = {
 
 for (const stand of [
     ...Object.values(Stands.Stands),
-    ...Object.values(Stands.EvolutionStands)
-        .map((x) => {
-            return x.evolutions.map((y) => {
-                return {
-                    ...y,
-                    id: x.id,
-                };
-            });
-        })
-        .map((x) => x)
-        .flat(),
+    ...Object.values(Stands.EvolutionStands).map((x) => {
+        return {
+            ...x.evolutions[0],
+            id: x.id,
+        };
+    }),
 ]) {
     if (!stand.available) continue;
     console.log(`Adding ${stand.name} Stand Disc`);
@@ -198,6 +193,23 @@ for (const stand of [
     };
     // @ts-expect-error because it's a dynamic property
     Items.default[standDisc.id] = standDisc;
+}
+
+for (const stand of [
+    ...Object.values(Stands.Stands),
+    ...Object.values(Stands.EvolutionStands)
+        .map((x) => {
+            return x.evolutions.map((y) => {
+                return {
+                    ...y,
+                    id: x.id,
+                };
+            });
+        })
+        .map((x) => x)
+        .flat(),
+]) {
+    if (!stand.available) continue;
 
     // @ts-expect-error because it's a dynamic property
     NPCs[`${stand.name.replace(" ", "")}User`] = {
@@ -361,7 +373,7 @@ for (const item of Object.values(Items.default)) {
 const intents = [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers];
 const partials = [];
 
-if (process.env.DEV_MODE) {
+if (process.env.INTENTS) {
     intents.push(GatewayIntentBits.MessageContent);
     intents.push(GatewayIntentBits.GuildMessages);
     partials.push(Partials.Message);

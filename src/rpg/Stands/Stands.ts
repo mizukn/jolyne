@@ -651,7 +651,7 @@ export const WeatherReport: Stand = {
     description:
         "Weather Report is the Stand of Weather Report, featured in Stone Ocean. Weather Report is a humanoid Stand of a height and build similar to Weather Report's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     rarity: "S",
-    image: "https://media.jolyne.moe/QIlCcG/direct",
+    image: "https://media.jolyne.moe/WYAtld/direct",
     color: 0x0000ff,
     abilities: [
         Abilities.StandBarrage,

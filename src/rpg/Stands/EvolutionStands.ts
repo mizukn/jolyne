@@ -205,6 +205,7 @@ export const Echoes: EvolutionStand = {
                     ...Abilities.StandBarrage,
                     name: "Sound Generation",
                     description: "Marks the opponent with a sound to repeat it.",
+                    thumbnail: "https://i.imgur.com/PTLo7ab.gif",
                 },
             ],
             emoji: Emojis.echoes_1,
@@ -225,14 +226,14 @@ export const Echoes: EvolutionStand = {
             rarity: "A",
             image: "https://static.jojowiki.com/images/thumb/6/69/latest/20231215131846/Echoes_ACT2_DU_Infobox_Anime.png/800px-Echoes_ACT2_DU_Infobox_Anime.png",
             abilities: [
-                 {
+                {
                     ...Abilities.StandBarrage,
                     name: "Sound Generation",
                     description: "Marks the opponent with a sound to repeat it.",
                 },
                 {
                     ...Abilities.StandBarrage,
-                    name: "Sound Generation",
+                    name: "Sound Manipulation",
                     description: "The marked sounds now affect the opponent.",
                     damage: Abilities.StandBarrage.damage + 5,
                     cooldown: Abilities.StandBarrage.cooldown + 1,
@@ -251,29 +252,40 @@ export const Echoes: EvolutionStand = {
         },
         {
             name: "Echoes Act 3",
-            description:
-                "Echoes Act 3, This seems to be thr peak of the power you can extract.",
+            description: "Echoes Act 3, This seems to be thr peak of the power you can extract.",
             rarity: "S",
             image: "https://static.jojowiki.com/images/8/8e/latest/20210422175130/Echoes_ACT3_DU_Infobox_Anime.png",
             abilities: [
-                 {
+                {
                     ...Abilities.StandBarrage,
                     name: "Sound Generation",
                     description: "Marks the opponent with a sound to repeat it.",
                 },
                 {
                     ...Abilities.StandBarrage,
-                    name: "Sound Generation",
+                    name: "Sound Manipulation",
                     description: "The marked sounds now affect the opponent.",
                     damage: Abilities.StandBarrage.damage + 5,
                     cooldown: Abilities.StandBarrage.cooldown + 1,
                 },
                 {
-                  ...Abilities.StandBarrage,
-                  name: "Freeze",
-                  description: "Freezes the Opponent’s targeted part.",
-                  damage: Abilities.StandBarrage.damage + 10,
-                  cooldown: Abilities.StandBarrage.cooldown +2,
+                    ...Abilities.StandBarrage,
+                    name: "Freeze",
+                    description: "Freezes the opponent’s targeted part.",
+                    damage: Abilities.StandBarrage.damage + 10,
+                    cooldown: Abilities.StandBarrage.cooldown + 2,
+                    extraTurns: 1,
+                },
+                {
+                    name: "Let’s kill da ho",
+                    description: "KILL DA HO!!!",
+                    damage: 45,
+                    cooldown: 8,
+                    extraTurns: 1,
+                    target: "enemy",
+                    dodgeScore: 0,
+                    stamina: 50,
+                    special: true,
                 },
             ],
             emoji: Emojis.echoes_3,
