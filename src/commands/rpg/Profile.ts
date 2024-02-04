@@ -259,7 +259,9 @@ const slashCommand: SlashCommandFile = {
                             return `\`[SP]\` ${Functions.capitalize(x)}: **${bonus}**`;
                         })
                         .filter((r) => r)
-                        .join("\n")}`,
+                        .join("\n")}\n\`[+]\` Stand Disc: **${
+                        Functions.calcEquipableItemsBonus(rpgData).standDisc
+                    }**`,
                     inline: true,
                 },
                 {

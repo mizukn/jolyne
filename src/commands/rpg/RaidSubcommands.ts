@@ -1,4 +1,10 @@
-import { RPGUserDataJSON, RaidNPCQuest, SlashCommandFile } from "../../@types";
+import {
+    FightableNPC,
+    RPGUserDataJSON,
+    RaidBoss,
+    RaidNPCQuest,
+    SlashCommandFile,
+} from "../../@types";
 import {
     Message,
     APIEmbed,
@@ -14,6 +20,33 @@ import { ButtonStyle } from "discord.js";
 import * as Bosses from "../../rpg/Raids";
 import { raidWebhook } from "../../utils/Webhooks";
 import { cloneDeep } from "lodash";
+import { FightableNPCS } from "../../rpg/NPCs";
+
+const eventRaid: RaidBoss = {
+    boss: FightableNPCS.ConfettiGolem,
+    minions: [],
+    level: 0,
+    baseRewards: {
+        coins: 50000,
+        xp: Functions.getMaxXp(FightableNPCS.ConfettiGolem.level),
+        items: [
+            {
+                item: Functions.findItem("Confetti").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("second").id,
+                amount: 1,
+                chance: 15,
+            },
+        ],
+    },
+    allies: [FightableNPCS.Jolyne],
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    cooldown: 0,
+};
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -32,6 +65,33 @@ const slashCommand: SlashCommandFile = {
     },
     checkRPGCooldown: "raid",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+        const fixedBosses = cloneDeep(Object.values(Bosses));
+        if (Date.now() < 1707606000000) {
+            if (Functions.isTimeNext15(new Date(Date.now()))) {
+                fixedBosses.push(eventRaid);
+            } else {
+                if (ctx.options.getString("npc", true) === "confetti_golem") {
+                    return void ctx.makeMessage({
+                        content: `${ctx.client.localEmojis["2ndAnniversaryBackpack"]}${
+                            ctx.client.localEmojis["ConfettiBazooka"]
+                        } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
+                            Functions.roundToNext15Minutes(new Date()),
+                            "FROM_NOW"
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694`,
+                    });
+                } else {
+                    ctx.followUpQueue.push({
+                        content: `${ctx.client.localEmojis["2ndAnniversaryBackpack"]}${
+                            ctx.client.localEmojis["ConfettiBazooka"]
+                        } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
+                            Functions.roundToNext15Minutes(new Date()),
+                            "FROM_NOW"
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694`,
+                    });
+                }
+            }
+        }
+
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
             ctx.makeMessage({
                 content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
@@ -44,7 +104,14 @@ const slashCommand: SlashCommandFile = {
         }
 
         const bossChosen = ctx.options.getString("npc", true);
-        const raid = Object.values(Bosses).find((r) => r.boss.id === bossChosen);
+
+        if (bossChosen === "confetti_golem" && ctx.guild.id !== "923608916540145694") {
+            ctx.followUpQueue.push({
+                content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694`,
+            });
+            return;
+        }
+        const raid = fixedBosses.find((r) => r.boss.id === bossChosen);
         if (!raid) {
             ctx.makeMessage({
                 content: "That boss doesn't exist!",
@@ -463,18 +530,13 @@ const slashCommand: SlashCommandFile = {
                     raid.maxLevel
                 }\n> \`Cooldown:\` ${Functions.msToString(
                     raid.cooldown
-                )}\n> \`Auto Starts\` ${Functions.generateDiscordTimestamp(
-                    startRaid,
-                    "FROM_NOW"
-                )}`,
+                )}\n> \`Auto Starts\` ${Functions.generateDiscordTimestamp(startRaid, "FROM_NOW")}`,
                 fields: [
                     {
                         name: "Rewards:",
-                        value: `- **${(raid.baseRewards.coins ?? 0).toLocaleString(
-                            "en-US"
-                        )}**${ctx.client.localEmojis.jocoins}\n- **${(
-                            raid.baseRewards.xp ?? 0
-                        ).toLocaleString("en-US")}**${
+                        value: `- **${(raid.baseRewards.coins ?? 0).toLocaleString("en-US")}**${
+                            ctx.client.localEmojis.jocoins
+                        }\n- **${(raid.baseRewards.xp ?? 0).toLocaleString("en-US")}**${
                             ctx.client.localEmojis.xp
                         }\n${raid.baseRewards.items
                             .map((i) => {
@@ -482,12 +544,12 @@ const slashCommand: SlashCommandFile = {
                                 if (!itemData) return null;
                                 return `> • **${i.amount.toLocaleString("en-US")}x** ${
                                     itemData.name
-                                } ${itemData.emoji}${i.chance ? ` (\*\* ${i.chance}% \*\*)` : ""}`;
+                                } ${itemData.emoji}${i.chance ? ` (** ${i.chance}% **)` : ""}`;
                             })
                             .filter((r) => r)
                             .join("\n")}${
                             raid.baseRewards.items.length !== 0
-                                ? "\n\n\- The drop rate of an item is determined by the damage you deal.\nIf there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item.\nThis logic applies to every reward."
+                                ? "\n\n- The drop rate of an item is determined by the damage you deal. If there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item. This logic applies to every reward."
                                 : ""
                         }`,
                     },
@@ -542,7 +604,12 @@ const slashCommand: SlashCommandFile = {
         makeMenuMessage();
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
-        const availableBosses = Object.values(Bosses).filter((r) => r.level <= userData.level);
+        const fixedBosses = cloneDeep(Object.values(Bosses));
+        if (Date.now() < 1707606000000) {
+            fixedBosses.push(eventRaid);
+        }
+
+        const availableBosses = fixedBosses.filter((r) => r.level <= userData.level);
 
         interaction.respond(
             availableBosses

@@ -294,13 +294,15 @@ export const getQuestsStats = (
         }
 
         if (Functions.isRaidNPCQuest(quest)) {
-            const raid = raids.find((w) => w.boss.id === (quest as RaidNPCQuest).boss);
+            const raid =
+                raids.find((w) => w.boss.id === (quest as RaidNPCQuest)?.boss)?.boss ||
+                Functions.findNPC(quest.boss, true);
             if (raid) {
                 console.log(
                     `user ${ctx.user.id} has ${
                         quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
                             .length
-                    } ${raid.boss.name} quests (completed: ${
+                    } ${raid.name} quests (completed: ${
                         quests.filter(
                             (r) =>
                                 Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
@@ -333,8 +335,8 @@ export const getQuestsStats = (
                           quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
                               .length
                         : ""
-                } ${raid.boss.emoji} **${raid.boss.name}** (LVL: ${
-                    raid.boss.level
+                } ${raid.emoji} **${raid.name}** (LVL: ${
+                    raid.level
                 }) (${ctx.client.getSlashCommandMention("raid")}) ||(${
                     quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
                         .length !== 1

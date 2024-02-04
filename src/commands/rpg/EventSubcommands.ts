@@ -30,38 +30,20 @@ const slashCommand: SlashCommandFile = {
         type: ApplicationCommandOptionType.Subcommand,
         options: [
             {
-                name: "raid",
-                description: "Trade your souls for items.",
-                type: 1,
-            },
-            {
                 name: "info",
                 description: "Displays information about the event.",
                 type: 1,
-            },
-            {
-                name: "feed",
-                description: "Feeds reindeer to help santa and his elf.",
-                type: 1,
-                options: [
-                    {
-                        name: "candy",
-                        description: "The amount of candy you want to feed the reindeer.",
-                        type: ApplicationCommandOptionType.Number,
-                        required: true,
-                    },
-                ],
             },
         ],
     },
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
-        if (Date.now() > 1704582000000)
+        if (Date.now() > 1707606000000)
             return void ctx.makeMessage({
                 content: Functions.makeNPCString(
-                    NPCs.Santa,
-                    "Sorry, my reindeers are no longer corrupted."
+                    NPCs.Jolyne,
+                    "There is no event currently running."
                 ),
             });
         if (ctx.options.getSubcommand() === "info") {
@@ -103,34 +85,26 @@ const slashCommand: SlashCommandFile = {
              * Context: A mysterious person has corrupted santa's reindeers and they are now attacking people. Help santa and his elf to defeat the big corrupted reindeer and save christmas!
              */
             const embed: APIEmbed = {
-                title: "Christmas Event 2023",
-                color: 0xff0000,
-                description: `- Don't forget to claim your daily EVERYDAY (${ctx.client.getSlashCommandMention(
-                    "daily claim"
-                )})\n- Everyone has a **+25%** XP boost!\n- You can get **Consumable Candy Canes** and **Corrupted Souls** by completing the christmas side quest: ${ctx.client.getSlashCommandMention(
+                title: "2 Year Anniversary Event",
+                color: 0x70926c,
+                description: `- Everyone has a **+25% XP Boost**\n- Make sure to check your e-mails for a special gift (${ctx.client.getSlashCommandMention(
+                    "email view"
+                )}\n- Make sure to view your side quests with ${ctx.client.getSlashCommandMention(
                     "side quest view"
-                )}\n- You can feed santa's reindeers (**${
-                    Items.CandyCane.emoji + " " + Items.CandyCane.name
-                }**) by using the ${ctx.client.getSlashCommandMention(
-                    "event feed"
-                )} command.\n- You can craft **Santa's Candy Cane** by using the ${ctx.client.getSlashCommandMention(
-                    "craft"
-                )} command.\n- Once you and your friends have enough **${
-                    Items.CorruptedSoul.emoji + " " + Items.CorruptedSoul.name
-                }**, you can use the ${ctx.client.getSlashCommandMention(
-                    "event raid"
-                )} command to wake the corrupted reindeer and fight him with your friend(s) and Santa + Santa's Elf (you can get a limited stand; **The Chained**)\n\n ${
-                    ctx.client.localEmojis.timerIcon
-                } The event ends ${Functions.generateDiscordTimestamp(
-                    1704582000000,
+                )} to complete the event side quest.\n- The Confetti Golem spawns every :00 :15 :30 :45 ; the golem will spawn ${Functions.generateDiscordTimestamp(
+                    Functions.roundToNext15Minutes(new Date()),
                     "FROM_NOW"
-                )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
+                )} at **this exact time**\n- The event ends ${Functions.generateDiscordTimestamp(
+                    1707606000000,
+                    "FROM_NOW"
+                )} (${Functions.generateDiscordTimestamp(1707606000000, "DATE")})`,
             };
 
             return void ctx.makeMessage({
                 content: Functions.makeNPCString(
-                    NPCs.SantasElf,
-                    "Merry christmas! Here's some information about the event."
+                    NPCs.Jolyne,
+                    "Thank you for playing the game!",
+                    ctx.client.localEmojis.JolyneTray
                 ),
                 embeds: [embed],
             });
@@ -321,7 +295,9 @@ const slashCommand: SlashCommandFile = {
                             ctx.followUp({
                                 content: Functions.makeNPCString(
                                     NPCs.Santa,
-                                    `Yes, we did it <@${player.id}>! Since you dealt **${percentOfTheChained}%** of the damage, you have **${percentOfTheChained.toLocaleString(
+                                    `Yes, we did it <@${
+                                        player.id
+                                    }>! Since you dealt **${percentOfTheChained}%** of the damage, you have **${percentOfTheChained.toLocaleString(
                                         "en-US"
                                     )}%** to get **${
                                         Functions.findItem("the_chained").name +
