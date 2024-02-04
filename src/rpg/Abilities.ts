@@ -2598,3 +2598,22 @@ export const CandyCanePull: Ability = {
     dodgeScore: 0,
     target: "enemy",
 };
+
+// abilkity for weapon confetti bazooka
+export const ConfettiBlast: Ability = {
+    name: "Confetti Blast",
+    description: "Blast the opponent with confetti.",
+    cooldown: 3,
+    damage: 37,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    special: true,
+};
+
+export const ConfettiBarrage: Ability = {
+    ...StandBarrage,
+    name: "Confetti Barrage",
+    description: "Barrage the opponent with confetti.",
+};

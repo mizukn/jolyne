@@ -228,6 +228,14 @@ const slashCommand: SlashCommandFile = {
                             }`
                         );
                     }
+                    if (emailData.rewards.xp) {
+                        Functions.addXp(ctx.userData, emailData.rewards.xp);
+                        winContent.push(
+                            `+${emailData.rewards.xp.toLocaleString("en-US")} ${
+                                ctx.client.localEmojis.xp
+                            }`
+                        );
+                    }
                     if (emailData.rewards.items) {
                         for (const item of emailData.rewards.items) {
                             const itemData = Functions.findItem(item.item);

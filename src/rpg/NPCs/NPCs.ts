@@ -218,3 +218,9 @@ export const MohammedAvdol: NPC = {
     name: "Mohammed Avdol",
     emoji: "<:avdol:1201123663802540063>",
 };
+
+export const ConfettiGolem: NPC = {
+    id: "confetti_golem",
+    name: "Confetti Golem",
+    emoji: "🎊",
+};

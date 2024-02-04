@@ -244,17 +244,13 @@ const Event: EventFile = {
                 }
 
                 if (
-                    Date.now() < 1704582000000 &&
-                    !ctx.userData.emails.find((r) => r.id === "christmas_2023")
+                    Date.now() < 1707606000000 &&
+                    !ctx.userData.emails.find((r) => r.id === "second_anniversary")
                 ) {
                     ctx.followUpQueue.push({
-                        content: `:christmas_tree: | **${
-                            ctx.user.username
-                        }**, Happy Holidays! Use the ${ctx.client.getSlashCommandMention(
-                            "event info"
-                        )} command to see info about the christmas event!`,
+                        content: `:tada: | **${ctx.user.username}**, thank you for playing Jolyne's RPG! You received a special email & quest for the 2nd anniversary of the bot!`,
                     });
-                    Functions.addEmail(ctx.userData, "christmas_2023");
+                    Functions.addEmail(ctx.userData, "second_anniversary");
                 }
 
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {

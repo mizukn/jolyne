@@ -304,6 +304,7 @@ export enum equipableItemTypes {
     WEAPON = 6,
     ACCESSORY = 7,
     FACE = 8,
+    BACK = 9,
 }
 
 export const equipableItemTypesLimit = {
@@ -315,6 +316,7 @@ export const equipableItemTypesLimit = {
     [equipableItemTypes.WEAPON]: 1,
     [equipableItemTypes.ACCESSORY]: 2,
     [equipableItemTypes.FACE]: 1,
+    [equipableItemTypes.BACK]: 1,
 };
 
 export const formattedEquipableItemTypes = {
@@ -326,6 +328,7 @@ export const formattedEquipableItemTypes = {
     [equipableItemTypes.HANDS]: "Hands",
     [equipableItemTypes.WEAPON]: "Weapon",
     [equipableItemTypes.ACCESSORY]: "Accessory",
+    [equipableItemTypes.BACK]: "Back",
 };
 
 export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
@@ -478,6 +481,7 @@ export interface EquipableItem extends Item {
         health?: numOrPerc;
         stamina?: numOrPerc;
         xpBoost?: number;
+        standDiscIncrease?: number;
     };
     requirements?: {
         level?: number;
@@ -877,6 +881,7 @@ export interface Email {
     emoji?: string;
     rewards?: {
         coins?: number;
+        xp?: number;
         items?: itemRewards;
     };
     chapterQuests?: QuestArray;

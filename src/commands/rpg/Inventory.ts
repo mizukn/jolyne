@@ -322,6 +322,10 @@ const slashCommand: SlashCommandFile = {
                                   })
                                   .join("\n")
                             : ""
+                    }${
+                        itemData.effects.standDiscIncrease
+                            ? `\n\`[+]\` Stand Discs: **${itemData.effects.standDiscIncrease}**`
+                            : ""
                     }`,
                     inline: true,
                 });

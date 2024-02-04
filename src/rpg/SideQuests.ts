@@ -362,3 +362,48 @@ export const Echoes3: SideQuest = {
     // purple
     color: 0x189447,
 };
+
+export const TwoYearAnniversaryEvent: SideQuest = {
+    id: "TwoYearAnniversaryEvent",
+    title: "Two Year Anniversary Event",
+    description:
+        "Happy 2nd anniversary! Thank you for being there during Jolyne's 2nd year. By completing this quest, you will get a 2nd anniversary bag and level up + 10 levels. Good luck!",
+    emoji: "🎉",
+    rewards: async (ctx) => {
+        ctx.userData.level += 10;
+        Functions.addItem(ctx.userData, Functions.findItem("second_anniversary_bag"), 1);
+        ctx.followUp({
+            content: Functions.makeNPCString(
+                NPCs.Jolyne,
+                `Thank you for playing the game! We've made you level up + 10 levels and gave you a 2nd anniversary bag. You can equip it by using the ${ctx.client.getSlashCommandMention(
+                    "inventory equip"
+                )} command.`
+            ),
+        });
+        return true;
+    },
+    quests: (ctx) => [
+        Functions.generataRaidQuest(FightableNPCs.ConfettiGolem),
+        Functions.generataRaidQuest(FightableNPCs.ConfettiGolem),
+        Functions.generataRaidQuest(FightableNPCs.ConfettiGolem),
+        Functions.generataRaidQuest(FightableNPCs.ConfettiGolem),
+        Functions.generateClaimItemQuest(Functions.findItem("confetti_bazooka").id, 1),
+    ],
+    requirements: (ctx) => {
+        if (ctx.userData.inventory[Functions.findItem("second_anniversary_bag").id] > 5)
+            return false;
+        return Date.now() < 1707606000000;
+    },
+    requirementsMessage: `- The Confetti Golem will spawn ${Functions.generateDiscordTimestamp(
+        Functions.roundToNext15Minutes(new Date()),
+        "FROM_NOW"
+    )} at **this exact time** (/raid).\n- This event will end ${Functions.generateDiscordTimestamp(
+        1707606000000,
+        "FROM_NOW"
+    )} (${Functions.generateDiscordTimestamp(1707606000000, "DATE")})`,
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    canReloadQuests: false,
+    canRedoSideQuest: true,
+    // red
+    color: 0xff0000,
+};

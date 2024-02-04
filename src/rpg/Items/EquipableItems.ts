@@ -397,3 +397,47 @@ export const SantasCandyCane: Weapon = {
         corrupted_soul: 300,
     },
 };
+
+export const ConfettiBazooka: Weapon = {
+    id: "confetti_bazooka",
+    name: "Confetti Bazooka",
+    emoji: Emojis.ConfettiBazooka,
+    description: "A bazooka that shoots confetti.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "shoot",
+    useMessageAttack: "shoots",
+    staminaCost: 5,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 25,
+            perception: 0,
+            speed: 10,
+            stamina: 0,
+            defense: 0,
+        },
+        xpBoost: 1,
+    },
+    rarity: "T",
+    abilities: [Abilities.ConfettiBlast],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};
+
+export const SecondAnniversaryBag: EquipableItem = {
+    id: "second_anniversary_bag",
+    name: "Second Anniversary Bag",
+    emoji: Emojis["2ndAnniversaryBackpack"],
+    description: "A bag that celebrates the second anniversary of the bot.",
+    type: equipableItemTypes.BACK,
+    effects: {
+        xpBoost: 2,
+        standDiscIncrease: 5,
+    },
+    rarity: "T",
+    tradable: true,
+    storable: true,
+};
