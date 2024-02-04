@@ -1026,8 +1026,7 @@ export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): 
     if (calcEquipableItemsBonus(userData).xpBoost > 0) {
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
-    // x1.25 xp due to christmas if before 1704582000000
-    if (Date.now() < 1704582000000) amount = Math.round(amount * 1.25);
+    if (Date.now() < 1707606000000) amount = Math.round(amount * 1.25);
 
     amount = Math.round(amount);
     userData.xp += amount;
@@ -1183,10 +1182,12 @@ export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
     health: number;
     skillPoints: SkillPoints;
     xpBoost: number;
+    standDisc: number;
 } {
     let stamina = 0;
     let health = 0;
     let xpBoost = 0;
+    let standDisc = 0;
     const skillPoints: SkillPoints = {
         strength: 0,
         perception: 0,
@@ -1198,6 +1199,7 @@ export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
     for (const itemId of Object.keys(userData.equippedItems)) {
         const itemData = findItem<EquipableItem>(itemId);
         if (!itemData) continue;
+        if (itemData.effects.standDiscIncrease) standDisc += itemData.effects.standDiscIncrease;
         if (itemData.effects.stamina)
             stamina +=
                 typeof itemData.effects.stamina === "number"
@@ -1224,6 +1226,7 @@ export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
         health,
         skillPoints,
         xpBoost,
+        standDisc,
     };
 };
 
@@ -1533,7 +1536,9 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
                 "en-US"
-            )}** XP ${Emojis.xp} ${Date.now() < 1704582000000 ? "(+25% due to christmas)" : ""}`
+            )}** XP ${Emojis.xp} ${
+                Date.now() < 1707606000000 ? "(+25% due to the 2-yr event)" : ""
+            }`
         );
     if (data1.coins !== data2.coins)
         rewards.push(
@@ -1696,4 +1701,58 @@ export function getCurrentDate(): `${number}-${number}-${number}` {
         .toString()
         .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
     return formattedDate as `${number}-${number}-${number}`;
+}
+
+// make a function:
+// if it is 17:22, it will return 17:30 (using date.time)
+// if it is 17:32, it will return 18:00 (using date.time)
+// if it is 17:59, it will return 18:00 (using date.time)
+// if it is 18:00, it will return 18:30 (using date.time)
+// if it is 18:32, it will return 19:00 (using date.time)
+// etc..
+
+/*
+export function roundToNext30Minutes(date: Date): Date {
+    const roundedDate = new Date(date);
+
+    // Get the current minutes
+    const currentMinutes = roundedDate.getMinutes();
+
+    // Calculate the remaining minutes to the next 30-minute interval
+    const remainingMinutes = 30 - (currentMinutes % 30);
+
+    // Add the remaining minutes to the current date
+    roundedDate.setMinutes(currentMinutes + remainingMinutes);
+    roundedDate.setSeconds(0);
+    roundedDate.setMilliseconds(0);
+
+    return roundedDate;
+}
+
+// check if time ends with 00 or 30
+export function isTimeEndsIn30(date: Date): boolean {
+    const minutes = date.getMinutes();
+    return minutes === 0 || minutes === 30;
+}*/
+
+export function isTimeNext15(date: Date): boolean {
+    const minutes = date.getMinutes();
+    return minutes === 15 || minutes === 30 || minutes === 45 || minutes === 0;
+}
+
+export function roundToNext15Minutes(date: Date): Date {
+    const roundedDate = new Date(date);
+
+    // Get the current minutes
+    const currentMinutes = roundedDate.getMinutes();
+
+    // Calculate the remaining minutes to the next 15-minute interval
+    const remainingMinutes = 15 - (currentMinutes % 15);
+
+    // Add the remaining minutes to the current date
+    roundedDate.setMinutes(currentMinutes + remainingMinutes);
+    roundedDate.setSeconds(0);
+    roundedDate.setMilliseconds(0);
+
+    return roundedDate;
 }
