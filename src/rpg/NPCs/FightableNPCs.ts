@@ -384,7 +384,6 @@ export const ConfettiGolem: FightableNPC = {
         perception: 100 / 5 / 2,
         stamina: 0,
     },
-    equippedItems: {},
-    stand: "confetti",
+    equippedItems: { confetti_bazooka: 6 },
     standsEvolved: {},
 };

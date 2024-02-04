@@ -367,15 +367,15 @@ export const TwoYearAnniversaryEvent: SideQuest = {
     id: "TwoYearAnniversaryEvent",
     title: "Two Year Anniversary Event",
     description:
-        "Happy 2nd anniversary! Thank you for being there during Jolyne's 2nd year. By completing this quest, you will get a 2nd anniversary bag and level up + 10 levels. Good luck!",
+        "Happy 2nd anniversary! Thank you for being there during Jolyne's 2nd year. By completing this quest, you will get a 2nd anniversary bag and level up + 3 levels. Good luck!",
     emoji: "🎉",
     rewards: async (ctx) => {
-        ctx.userData.level += 10;
+        ctx.userData.level += 3;
         Functions.addItem(ctx.userData, Functions.findItem("second_anniversary_bag"), 1);
         ctx.followUp({
             content: Functions.makeNPCString(
                 NPCs.Jolyne,
-                `Thank you for playing the game! We've made you level up + 10 levels and gave you a 2nd anniversary bag. You can equip it by using the ${ctx.client.getSlashCommandMention(
+                `Thank you for playing the game! We've made you level up + 3 levels and gave you a 2nd anniversary bag. You can equip it by using the ${ctx.client.getSlashCommandMention(
                     "inventory equip"
                 )} command.`
             ),
