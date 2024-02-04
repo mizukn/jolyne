@@ -373,3 +373,18 @@ export const MohammedAvdol: FightableNPC = {
     stand: "magicians_red",
     standsEvolved: {},
 };
+
+export const ConfettiGolem: FightableNPC = {
+    ...NPCs.ConfettiGolem,
+    level: 150,
+    skillPoints: {
+        defense: 100 * 3 - 100 / 5,
+        strength: 0,
+        speed: 100 / 5 / 2,
+        perception: 100 / 5 / 2,
+        stamina: 0,
+    },
+    equippedItems: {},
+    stand: "confetti",
+    standsEvolved: {},
+};
