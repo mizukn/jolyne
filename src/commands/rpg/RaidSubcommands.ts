@@ -534,9 +534,11 @@ const slashCommand: SlashCommandFile = {
                 fields: [
                     {
                         name: "Rewards:",
-                        value: `- **${(raid.baseRewards.coins ?? 0).toLocaleString("en-US")}**${
+
+                        value: `> - **${(raid.baseRewards.coins ?? 0).toLocaleString("en-US")}**${
                             ctx.client.localEmojis.jocoins
-                        }\n- **${(raid.baseRewards.xp ?? 0).toLocaleString("en-US")}**${
+                        }\n> - **${(raid.baseRewards.xp ?? 0).toLocaleString("en-US")}**${
+
                             ctx.client.localEmojis.xp
                         }\n${raid.baseRewards.items
                             .map((i) => {
@@ -549,7 +551,9 @@ const slashCommand: SlashCommandFile = {
                             .filter((r) => r)
                             .join("\n")}${
                             raid.baseRewards.items.length !== 0
-                                ? "\n\n- The drop rate of an item is determined by the damage you deal. If there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item. This logic applies to every reward."
+
+                                ? "\n\n\\- The drop rate of an item is determined by the damage you deal. If there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item. This logic applies to every reward."
+
                                 : ""
                         }`,
                     },

@@ -726,12 +726,13 @@ export const StoneFree: Stand = {
     image: "https://media.jolyne.moe/rMwxNj/direct",
     emoji: Emojis.stone_free,
     abilities: [
-        Abilities.Heal,
+      {
+        ...Abilities.Heal,
+        name: "String Heal",
+        target: "ally",
+      }
         Abilities.StringWeb,
-        addGif(
-            Abilities.StandBarrage,
-            "https://media1.tenor.com/m/WlpH1KzyoS0AAAAC/jolyne-kujo-jolyne-cujoh.gif"
-        ),
+        Abilities.StandBarrage,
         Abilities.BallBarrage,
         Abilities.Wrap,
     ],
@@ -768,7 +769,7 @@ export const Horus: Stand = {
 
 export const AdminStand: Stand = {
     id: "admin_stand",
-    name: "The WICKED",
+    name: "The WICKED [Staff Only]",
     description: "Enchant the power of the wicked through yourself. **[Staff Only]**",
     rarity: "SS",
     image: "https://media.jolyne.moe/UWAEPT/direct",
@@ -812,7 +813,7 @@ export const YellowTemperance: Stand = {
 
 export const TheFemboy: Stand = {
     id: "the_femboy",
-    name: "The Femboy",
+    name: "The Femboy [Unobtainable]",
     rarity: "SS",
     description:
         "The Femboy is a Stand with the ability to make anyone horny, providing its user with an incredible defense. [limited custom stand]",
