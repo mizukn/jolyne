@@ -2205,6 +2205,7 @@ export const MedicExp: Ability = {
     description: "Uses its medical experience to heal the targetted player.",
     cooldown: 5,
     stamina: 20,
+    target: "ally",
 };
 
 export const StaffBarrage: Ability = {
