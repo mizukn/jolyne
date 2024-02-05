@@ -1370,7 +1370,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
         }
     }
 
-    return limit + 4; // remove +4 later
+    return limit + 4 + calcEquipableItemsBonus(realUserData).standDisc; // remove +4 later
 };
 
 export const shuffle = function shuffle<T>(array: T[]): T[] {
