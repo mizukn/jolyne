@@ -392,7 +392,7 @@ export const TwoYearAnniversaryEvent: SideQuest = {
     requirements: (ctx) => {
         if (
             ctx.userData.inventory[Functions.findItem("second_anniversary_bag").id] > 10 &&
-            ctx.userData.inventory[Functions.findItem("confetti_bazooka").id] > 5
+            ctx.userData.inventory[Functions.findItem("confetti_bazooka").id] > 10
         )
             return false;
         return Date.now() < 1707606000000;
