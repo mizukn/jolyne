@@ -521,6 +521,16 @@ const slashCommand: SlashCommandFile = {
                 });
                 return;
             }
+
+            if (Functions.isEquipableItem(itemData))
+                return void ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Jolyne,
+                        `Oi oi, you can't use equipable items like that! Use the ${ctx.client.getSlashCommandMention(
+                            "inventory equip"
+                        )} command instead.`
+                    ),
+                });
             const winContent = `You used ${itemData.emoji} x${amountX} \`${itemData.name}\` and got:`;
             const oldData = cloneDeep(ctx.userData);
 
