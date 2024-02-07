@@ -316,7 +316,12 @@ export const PurpleHaze: Stand = {
     description:
         "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     image: "https://media.jolyne.moe/NNszFI/direct",
-    abilities: [Abilities.StandBarrage, Abilities.CapsuleShot, Abilities.PoisonGas, Abilities.Rage],
+    abilities: [
+        addGif(Abilities.StandBarrage, "https://i.imgur.com/rXSPNxu.gif"),
+        Abilities.CapsuleShot,
+        Abilities.PoisonGas,
+        Abilities.Rage,
+    ],
     emoji: Emojis.purple_haze,
     skillPoints: {
         strength: 10,
@@ -380,7 +385,7 @@ export const CrazyDiamond: Stand = {
         "Crazy Diamond is a humanoid Stand of a height and build similar to Josuke's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     image: "https://media.jolyne.moe/hZ8DN4/direct",
     abilities: [
-        Abilities.StandBarrage,
+        addGif(Abilities.StandBarrage, "https://i.imgur.com/N3hwfRa.gif"),
         Abilities.HealPunch,
         Abilities.HealBarrage,
         Abilities.Restoration,

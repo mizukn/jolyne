@@ -1128,7 +1128,7 @@ export const Rage: Ability = {
         "When enabled, the more damage you take, the more damage you deal for 3 turns (+5 strength everytime you loose 1% of your max health). [USABLE PASSIVE, USES NO STAMINA].",
     cooldown: 5,
     damage: 0,
-
+    thumbnail: "https://i.imgur.com/S0RUnuC.gif",
     stamina: 0,
     extraTurns: 0,
     dodgeScore: 0,
@@ -1242,7 +1242,7 @@ export const PoisonGas: Ability = {
         "Release a poisonous gas that will poison every enemies for 3 turns This will also damage your teammates including you but 90% less.", // deals your atk damage every turn to every opponents for some turns. 10% of your atk damage is also dealt to you every turn.
     cooldown: 8,
     damage: 0,
-
+    thumbnail: "https://i.imgur.com/fJSzpMQ.gif",
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 0,
@@ -1285,6 +1285,7 @@ export const HealBarrage: Ability = {
     damage: 0,
     stamina: 25,
     extraTurns: 0,
+    thumbnail: "https://i.imgur.com/X5l1Pbi.gif",
     dodgeScore: StandBarrage.dodgeScore,
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
@@ -1322,6 +1323,7 @@ export const Restoration: Ability = {
     cooldown: 6,
     damage: 0,
     stamina: 35,
+    thumbnail: "https://i.imgur.com/zzamMNN.gif",
     extraTurns: 0,
     dodgeScore: 0,
     target: "self",
@@ -1353,6 +1355,7 @@ export const YoAngelo: Ability = {
     dodgeScore: 2,
     target: "enemy",
     special: true,
+    thumbnail: "https://i.imgur.com/NZ1wC8E.gif",
     useMessage: (user, target, damage, ctx) => {
         target.frozenFor += 3;
         ctx.turns[ctx.turns.length - 1].logs.push(
@@ -1366,6 +1369,7 @@ export const HealPunch: Ability = {
     description: "Punches the target, healing your teammates by 150% of the damage dealt.",
     cooldown: 4,
     damage: 0,
+    thumbnail: "https://i.imgur.com/6NMBlem.gif",
     stamina: 25,
     extraTurns: 0,
     dodgeScore: 0,
@@ -1443,6 +1447,7 @@ export const CapsuleShot: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
+    thumbnail: "https://i.imgur.com/tpSzFjD.gif",
     useMessage: (user, target, damage, ctx) => {
         const damageX = Functions.getAttackDamages(user);
         target.health -= damageX;
