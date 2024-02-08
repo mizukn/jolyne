@@ -167,25 +167,25 @@ const slashCommand: SlashCommandFile = {
                     console.error(e);
                 }
             });
-        for (const user in [
-            "628481290924195841",
-            "1136445242971799572",
-            "667096529336795137",
+        for (const user of [
+            "732308822131212359",
+            "694532723187908670",
+            "499630750405230613",
+            "911775344896393237",
+            "703673868379881503",
+            "802116826653655050",
+            "1052118068001783848",
             "723691231380504737",
-            "977303341199659128",
-            "589702621510631436",
+            "884838876303228928",
         ]) {
             client.database.getRPGUserData(user).then(async (data) => {
-                if (data.stand === "the_femboy") data.stand = "the_world";
-                delete data.inventory["the_femboy.$disc$"];
+                if (!data) return ctx.interaction.channel.send(`No data for ${userMention(user)}`);
+                Functions.addItem(data, "second_anniversary_bag", 1);
+                data.xp += 200000;
                 client.database.saveUserData(data);
-                ctx.client.users
-                    .fetch(user)
-                    .then((x) =>
-                        x.send(
-                            "sorry i removed the femboy from your inventory and/or unequipped it!!! it was fun"
-                        )
-                    );
+                ctx.interaction.channel.send(
+                    `Added 200000 XP and a second_anniversary_bag to ${userMention(user)}`
+                );
             });
         }
     },

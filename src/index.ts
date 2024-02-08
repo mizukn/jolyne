@@ -457,7 +457,7 @@ process.on("exit", () => {
     console.log("Exiting...");
     client.database.postgresql.end();
     client.database.redis.quit();
-    exec("pm2 kill && pm2 resurrect"); // hopefully this fixes the ratelimits :pray:
+    exec("pm2 kill && echo a && echo b && echo c && pm2 resurrect"); // add delay otherwise it wont resurrect. this is what caused unexpected downtime for every projects that uses pm2
 });
 
 process.on("unhandledRejection", (error: Error) => {
