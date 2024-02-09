@@ -196,7 +196,7 @@ export const SexPistols: Stand = {
         },
         emoji: Emojis.sexPistols,
         handleAttack: (ctx, user, target, damages) => {
-            damages *= 1.1;
+            // damages *= 1.1; // nerf
             damages = Math.round(damages);
             const bulletId = `${ctx.id}_${user.id}`;
             const cooldown = (ctx.ctx.client.fightCache.get(bulletId) as number) || 0;
@@ -211,7 +211,7 @@ export const SexPistols: Stand = {
             let last = false;
 
             if (cooldown + 1 === 6) {
-                damages = Math.round(damages * 1.7);
+                damages = Math.round(damages * 1.25); // from 1.7 to 1.25 (nerf)
                 last = true;
             }
 
