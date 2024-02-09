@@ -33,9 +33,9 @@ export const StarFinger: Ability = {
     description: "Extends {standName}'s finger and stabs the target in the eyes.",
     cooldown: 8,
     extraTurns: 1,
-    damage: 25,
+    damage: 39,
     stamina: 18,
-    dodgeScore: 2,
+    dodgeScore: 9,
     target: "enemy",
 };
 

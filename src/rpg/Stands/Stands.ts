@@ -35,10 +35,10 @@ export const StarPlatinum: Stand = {
         Abilities.TheWorld,
     ],
     skillPoints: {
-        strength: 10,
+        strength: 15,
         defense: 5,
-        perception: 5,
-        speed: 5,
+        perception: 15,
+        speed: 8,
         stamina: 2,
     },
     color: 0x985ca3,
