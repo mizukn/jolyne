@@ -457,7 +457,7 @@ process.on("exit", () => {
     console.log("Exiting...");
     client.database.postgresql.end();
     client.database.redis.quit();
-    exec("pm2 kill && echo a && echo b && echo c && pm2 resurrect"); // add delay otherwise it wont resurrect. this is what caused unexpected downtime for every projects that uses pm2
+    exec("pm2 restart 1"); // add delay otherwise it wont resurrect. this is what caused unexpected downtime for every projects that uses pm2
 });
 
 process.on("unhandledRejection", (error: Error) => {
