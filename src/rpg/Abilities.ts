@@ -2623,3 +2623,11 @@ export const ConfettiBarrage: Ability = {
     name: "Confetti Barrage",
     description: "Barrage the opponent with confetti.",
 };
+
+export const Overdrive: Ability = {
+    ...StandBarrage,
+    name: "OVERDRIVE!!",
+    description: "Generate a massive surge of Hamon energy to attack.",
+    cooldown: 3,
+    dodgeScore: 0,
+};

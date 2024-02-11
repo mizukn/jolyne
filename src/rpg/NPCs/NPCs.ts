@@ -204,19 +204,19 @@ export const CorruptedReindeer: NPC = {
 export const JGeil: NPC = {
     id: "j_geil",
     name: "J. Geil",
-    emoji: "<:jgeil:1199855752332976238>",
+    emoji: Emojis.jgeil,
 };
 
 export const HolHorse: NPC = {
     id: "hol_horse",
     name: "Hol Horse",
-    emoji: "<:holhorse:1051512342900379669>",
+    emoji: Emojis.HolHorse,
 };
 
 export const MohammedAvdol: NPC = {
     id: "mohammed_avdol",
     name: "Mohammed Avdol",
-    emoji: "<:avdol:1201123663802540063>",
+    emoji: Emojis.avdol,
 };
 
 export const ConfettiGolem: NPC = {
@@ -224,3 +224,9 @@ export const ConfettiGolem: NPC = {
     name: "Confetti Golem",
     emoji: "🎊",
 };
+
+export const WillZeppeli: NPC = {
+  id: "Will_anthonio_zeppeli",
+  name: "Will Anthonio Zeppeli"
+  emoji: Emojis.WillZeppeli,
+}

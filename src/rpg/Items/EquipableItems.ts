@@ -441,3 +441,32 @@ export const SecondAnniversaryBag: EquipableItem = {
     tradable: true,
     storable: true,
 };
+
+
+export const hamon: Weapon = {
+    id: "hamon",
+    name: "Hamon",
+    emoji: Emojis.hamon,
+    description: "The manifestation of your will power and courage to suceed.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "punch",
+    useMessageAttack: "punches",
+    staminaCost: 5,
+    color: 0xf8dc1b,
+    effects: {
+        skillPoints: {
+            strength: 10,
+            perception: 2,
+            speed: 3,
+            stamina: -3,
+            defense: 0,
+        },
+    },
+    rarity: "A",
+    abilities: [Abilities.Overdrive],
+    tradable: false,
+    storable: true,
+    requirements: {
+        level: 5,
+    },
+};

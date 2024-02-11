@@ -363,6 +363,35 @@ export const Echoes3: SideQuest = {
     color: 0x189447,
 };
 
+export const Hamon: SideQuest = {
+    id: "hamon",
+    title: "Learn Hamon",
+    description: "Hello fellow student! I’m Will Anthonio Zeppeli, you’ll need a lot more than your “Stand” to achieve greatness!\nCome with me, and I will teach you the art of \`Hamon\`.\nBut first, What is \"Courage\"?,
+    emoji: Emojis.hamon,
+    rewards: async (ctx) => {
+      Functions.addItem(ctx.userData, Functions.findItem("hamon"), 1);
+        ctx.followUp({
+            content: "<:WillZeppeli:1206314052972843108>: I bid you farewell student, but remember, this is not the end of your journey, there is much more for you to endure and discover!\nAnd remember,  \"Courage\" is knowing fear and making that fear your own!",
+        });
+        return: true;
+    },
+    requirementsMessage: "- You need to be level 5.",
+    quests: (ctx) => [
+      Functions.generateUseXCommandQuest("assault", 15),
+            Functions.generateClaimXQuest("daily", 1),
+            Functions.generateFightQuest(FightableNPCs.WillZeppeli),
+    ],
+    requirements: (ctx) => {
+            if (ctx.userData.level > 5) {
+              return true;
+            }
+    },
+    cancelQuestIfRequirementsNotMetAnymore: false,
+    canRedoSideQuest: false,
+    // yellow
+    color: 0xf8dc1b,
+};
+
 export const TwoYearAnniversaryEvent: SideQuest = {
     id: "TwoYearAnniversaryEvent",
     title: "Two Year Anniversary Event",

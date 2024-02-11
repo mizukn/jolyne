@@ -387,3 +387,13 @@ export const ConfettiGolem: FightableNPC = {
     equippedItems: { confetti_bazooka: 6 },
     standsEvolved: {},
 };
+
+export const WillZeppeli: FightableNPC = {
+    ...NPCs.WillZeppeli,
+    level: 5,
+    skillPoints: baseSP,
+    equippedItems: {
+        hamon: 1,
+    },
+    standsEvolved: {},
+};
