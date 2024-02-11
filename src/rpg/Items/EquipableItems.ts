@@ -447,7 +447,7 @@ export const hamon: Weapon = {
     id: "hamon",
     name: "Hamon",
     emoji: Emojis.hamon,
-    description: "The manifestation of your will power and courage to suceed.",
+    description: "The manifestation of your will power, oxygen and courage to suceed.",
     type: equipableItemTypes.WEAPON,
     attackName: "punch",
     useMessageAttack: "punches",
