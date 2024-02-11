@@ -449,8 +449,8 @@ export const hamon: Weapon = {
     emoji: Emojis.hamon,
     description: "The manifestation of your will power, oxygen and courage to suceed.",
     type: equipableItemTypes.WEAPON,
-    attackName: "punch",
-    useMessageAttack: "punches",
+    attackName: "strike",
+    useMessageAttack: "strikes", //review
     staminaCost: 5,
     color: 0xf8dc1b,
     effects: {
