@@ -2630,4 +2630,5 @@ export const Overdrive: Ability = {
     description: "Generate a massive surge of Hamon energy to attack.",
     cooldown: 3,
     dodgeScore: 0,
+    thumbnail: "https://media1.tenor.com/m/LkesCDIWHZoAAAAd/sunlight-yellow-overdrive-sunraito-iero-obadoraibu.gif",
 };
