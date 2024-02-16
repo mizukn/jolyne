@@ -682,7 +682,7 @@ const slashCommand: SlashCommandFile = {
                     itemData.name
                 }\`! (You can pick it up again with the ${ctx.client.getSlashCommandMention(
                     "inventory claim"
-                )} command [ID: \`${itemId}\`])`,
+                )} command [ID: \`${itemId}\`])\n**The item will be deleted in a week.**`,
             });
         } else if (ctx.interaction.options.getSubcommand() === "claim") {
             const itemId = ctx.interaction.options.getString("id", true);
