@@ -1,5 +1,11 @@
 import { SlashCommandFile, Chapter, ChapterPart, RPGUserQuest, RaidNPCQuest } from "../../@types";
-import { Message, ButtonBuilder, ButtonStyle, MessageComponentInteraction } from "discord.js";
+import {
+    Message,
+    ButtonBuilder,
+    ButtonStyle,
+    MessageComponentInteraction,
+    TextChannel,
+} from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import * as Chapters from "../../rpg/Chapters/Chapters";
@@ -139,6 +145,11 @@ export const getQuestsStats = (
                     name: Functions.findItem(quest.item).name,
                     emoji: Functions.findItem(quest.item).emoji,
                 });
+                console.log(
+                    `user ${ctx.user.id} has ${quest.amount} ${
+                        Functions.findItem(quest.item).name
+                    } (completed: ${quest.amount}/${quest.goal})))`
+                );
             } else if (Functions.isUseXCommandQuest(quest)) {
                 const cmd = ctx.client.getSlashCommandMention(quest.command);
                 questMessage = ctx.translate("quest:USE_COMMAND", {
@@ -200,32 +211,25 @@ export const getQuestsStats = (
             if (
                 quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length === 1
             ) {
-                if (!message.join(" ").includes(npc.name))
-                    message.push(
-                        `Defeat ${npc.name} ${npc.emoji} (LVL ${
-                            npc.level
-                        }) (${ctx.client.getSlashCommandMention("fight npc")}) ||(${
-                            questPercent === 1 ? ":white_check_mark:" : ":x:"
-                        })||`
-                    );
+                const messageString = `Defeat ${npc.name} ${npc.emoji} (LVL ${
+                    npc.level
+                }) (${ctx.client.getSlashCommandMention("fight npc")}) ||(${
+                    questPercent === 1 ? ":white_check_mark:" : ":x:"
+                })||`;
+                if (!message.join(" ").includes(messageString)) message.push(messageString);
             } else {
-                if (!message.join(" ").includes(npc.name))
-                    message.push(
-                        `Defeat ${
-                            quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id)
-                                .length
-                        } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
-                            "fight npc"
-                        )}) (LVL ${npc.level}) ||(${
-                            quests.filter(
-                                (r) =>
-                                    Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
-                            ).length
-                        }/${
-                            quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id)
-                                .length
-                        }) **${Math.round(questPercent * 100)}%**||`
-                    );
+                const messageString = `Defeat ${
+                    quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
+                } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
+                    "fight npc"
+                )}) (LVL ${npc.level}) ||(${
+                    quests.filter(
+                        (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
+                    ).length
+                }/${
+                    quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
+                }) **${Math.round(questPercent * 100)}%**||`;
+                if (!message.join(" ").includes(messageString)) message.push(messageString);
             }
             totalPercent += questPercent * 100;
             continue;
