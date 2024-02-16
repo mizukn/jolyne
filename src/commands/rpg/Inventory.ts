@@ -671,7 +671,7 @@ const slashCommand: SlashCommandFile = {
                 embeds: [
                     {
                         title: "Item thrown",
-                        description: `**${ctx.user.tag}** threw ${itemData.emoji} x${amountX} \`${itemData.name}\`! (ID: \`${itemId}\`)`,
+                        description: `> - User: **${ctx.user.tag}** (<@!${ctx.user.id}>)\n> - Item: ${itemData.emoji} x${amountX} \`${itemData.name}\`\n> - Item ID: \`${itemId}\`\n> - Guild: \`${ctx.guild.name}\` (\`${ctx.guild.id}\`)`,
                         color: 0x00ff00,
                         timestamp: new Date().toISOString(),
                     },
@@ -711,7 +711,7 @@ const slashCommand: SlashCommandFile = {
             }
             if (item.id.includes("$disc$") && Functions.hasExceedStandLimit(ctx)) {
                 await ctx.makeMessage({
-                    content: "Nice try.",
+                    content: "You dont have enough Stand Disc Storage! (TIP: Sell/Throw useless stand discs)",
                 });
                 return;
             }
@@ -734,7 +734,7 @@ const slashCommand: SlashCommandFile = {
                 embeds: [
                     {
                         title: "Item claimed",
-                        description: `**${ctx.user.tag}** claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\` in guild **${ctx.guild.name}** (ItemID: \`${itemId}\`)`,
+                        description: `> - User: **${ctx.user.tag} (<@!${ctx.user.id}>)**\n> - Item: ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`\n> - Item ID: \`${itemId}\`\n> - Guild: \`${ctx.guild.name}\` (\`${ctx.guild.id}\`)`,
                         color: 0x00ff00,
                         timestamp: new Date().toISOString(),
                     },
