@@ -312,43 +312,29 @@ export const OhMyGod: Ability = {
     stamina: 0,
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
-        // Flag to check if any stat exceeds 25
-        let statExceeds25 = false;
+        const oldSkillPoints = cloneDeep(user.skillPoints);
 
         for (const stat in user.skillPoints) {
-            const currentStat = user.skillPoints[stat as keyof typeof user.skillPoints];
-
-            // Double the stat value
-            user.skillPoints[stat as keyof typeof user.skillPoints] = Math.min(currentStat * 2, 25);
-
-            // Check if the stat exceeds 25
-            if (user.skillPoints[stat as keyof typeof user.skillPoints] > 25) {
-                statExceeds25 = true;
-            }
+            user.skillPoints[stat as keyof typeof user.skillPoints] += Math.min(
+                user.skillPoints[stat as keyof typeof user.skillPoints],
+                75
+            );
         }
 
         ctx.turns[ctx.turns.length - 1].logs.push(
-            `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are boosted by 100% !1!1!1!!!!1!1`
+            `- ${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD! **${user.name}**'s skill points have been boosted by 100%...`
         );
 
-        // If any stat exceeds 25, set up a promise to reduce them back to 25
-        if (statExceeds25) {
-            ctx.nextRoundPromises.push({
-                cooldown: 4,
-                promise: (fight) => {
-                    fight.turns[ctx.turns.length - 1].logs.push(
-                        `${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD **${user.name}**'s stats are back...`
-                    );
-                    for (const stat in user.skillPoints) {
-                        user.skillPoints[stat as keyof typeof user.skillPoints] = Math.min(
-                            user.skillPoints[stat as keyof typeof user.skillPoints] / 2,
-                            25
-                        );
-                    }
-                },
-                id: "" + Date.now() + Math.random() + "",
-            });
-        }
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.skillPoints = oldSkillPoints;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD! **${user.name}**'s EFFECT has disappeared...`
+                );
+            },
+        });
     },
     thumbnail: "https://media.tenor.com/RQtghGnCYxEAAAAd/jojo-oh-my-god.gif",
     dodgeScore: 0,
@@ -1096,10 +1082,12 @@ export const Transformation: Ability = {
     useMessage: (user, target, damage, ctx) => {
         const oldSkillPoints = cloneDeep(user.skillPoints);
 
-for (const stat in user.skillPoints) {
-    user.skillPoints[stat as keyof typeof user.skillPoints] += Math.min(user.skillPoints[stat as keyof typeof user.skillPoints], 75);
-}
-
+        for (const stat in user.skillPoints) {
+            user.skillPoints[stat as keyof typeof user.skillPoints] += Math.min(
+                user.skillPoints[stat as keyof typeof user.skillPoints],
+                75
+            );
+        }
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} TRANSFORMATION: **${user.name}**'s skill points have been boosted by 100%...`

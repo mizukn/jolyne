@@ -65,13 +65,13 @@ export const ToniosSpecialRecipe: Consumable = {
     name: "Tonio's Special Recipe",
     description: "A special recipe made by Tonio Trussardi himself.",
     emoji: "🥣",
-    price: 13500,
+    price: 75000,
     rarity: "A",
     tradable: true,
     storable: false,
     effects: {
-        health: 700,
-        stamina: 250,
+        health: 7000000000,
+        stamina: 250000000,
     },
 };
 
