@@ -36,6 +36,16 @@ async function useBox(
         return false;
     }
 
+    const itemString = ctx.interaction.options.getString("item", true);
+    const itemName = itemString.split(" (x")[0]; // Extract item name
+    const currentBoxCount = ctx.userData.inventory[Functions.findItem(itemName)] || 0;
+    if (amount > currentBoxCount) {
+        await ctx.makeMessage({
+            content: `You don't have more than ${currentBoxCount} ${itemName}!`
+        });
+        return false;
+    }
+
     for (let i = 0; i < amount; i++) {
         await ctx.makeMessage({
             content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
@@ -80,7 +90,6 @@ async function useBox(
 
     return true;
 }
-
 
 export const Box: Special = {
     id: "box",
