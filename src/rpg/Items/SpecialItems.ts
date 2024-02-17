@@ -29,10 +29,18 @@ async function useBox(
         amount = ctx.interaction.options.getInteger("amount") || 1;
     }
 
-    if (amount < 0) {
-        await ctx.makeMessage({
-            content: "You can't open negative boxes!"
-        });
+    if (amount <= 0) {
+        const itemId = ctx.interaction.options.getString("item", true); // gets the item ID
+        const item = Functions.findItem(itemId); // Find the item using the ID, failsafe
+        if (!item) {
+            await ctx.makeMessage({
+                content: `Unknown item with ID: \`${itemId}\`.`
+            });
+        } else {
+            await ctx.makeMessage({
+                content: `You can't open 0 or negative ${item.name}!`
+            });
+        }
         return false;
     }
 
@@ -56,80 +64,49 @@ async function useBox(
         return false;
     }
 
-    if (amount > 3) {
-        const rewards: string[] = [];
+    const totalRewards: string[] = []; // get rewards for all boxes opened
 
-        for (let i = 0; i < amount; i++) {
-            for await (const lootBox of loot) {
-                for await (const reward of lootBox) {
-                    if (reward.xp) {
-                        const xp = Functions.addXp(ctx.userData, reward.xp);
-                        rewards.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
-                    } else if (reward.coins) {
-                        const coins = Functions.addCoins(ctx.userData, reward.coins);
-                        rewards.push(`- **${coins.toLocaleString("en-US")}** ${Emojis.jocoins} coins`);
-                    } else {
-                        const item = Functions.findItem(reward.loot);
-                        if (!item) continue;
-                        Functions.addItem(ctx.userData, reward.loot, reward.mult ?? 1);
-                        rewards.push(`- ${reward.mult ?? 1}x **${item.emoji} ${item.name}**`);
-                    }
-                }
-            }
-        }
-
+    for (let i = 0; i < amount; i++) {
         await ctx.makeMessage({
-            content: `You have opened ${amount} ${itemName}s and received the following rewards:\n${rewards.join("\n")}`
+            content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
         });
 
-        ctx.client.database.saveUserData(ctx.userData);
-    } else {
-        for (let i = 0; i < amount; i++) {
-            await ctx.makeMessage({
-                content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
-            });
-            await Functions.sleep(2000);
+        loot = loot.filter((r) => r.length > 0);
 
-            loot = loot.filter((r) => r.length > 0);
-            const winContent: string[] = [`▬▬▬▬▬**「${emoji} ${name.toUpperCase()}」**▬▬▬▬▬▬`];
-            const updateMessage = () => ctx.makeMessage({ content: winContent.join("\n") });
-            updateMessage();
-            let counter = 0;
-            for await (const lootBox of loot) {
-                counter++;
-                if (counter !== 1) {
-                    winContent.push(superator);
-                    await Functions.sleep(1000);
-                    updateMessage();
-                }
-                for await (const reward of lootBox) {
-                    await Functions.sleep(1000);
-                    if (reward.xp) {
-                        const xp = Functions.addXp(ctx.userData, reward.xp);
-                        winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
-                    } else if (reward.coins) {
-                        const coins = Functions.addCoins(ctx.userData, reward.coins);
-                        winContent.push(`- **${coins.toLocaleString("en-US")}** ${Emojis.jocoins} coins`);
-                    } else {
-                        const item = Functions.findItem(reward.loot);
-                        if (!item) continue;
-                        Functions.addItem(ctx.userData, reward.loot, reward.mult ?? 1);
-                        winContent.push(`- ${reward.mult ?? 1}x **${item.emoji} ${item.name}**`);
-                    }
-                    updateMessage();
-                }
-                updateMessage();
+        const winContent: string[] = [`▬▬▬▬▬**「${emoji} ${name.toUpperCase()}」**▬▬▬▬▬▬`];
+
+        let counter = 0;
+        for await (const lootBox of loot) {
+            counter++;
+            if (counter !== 1) {
+                winContent.push(superator);
             }
-            await Functions.sleep(1000);
-            winContent.push(superator);
-            ctx.client.database.saveUserData(ctx.userData);
-            updateMessage();
+            for await (const reward of lootBox) {
+                if (reward.xp) {
+                    const xp = Functions.addXp(ctx.userData, reward.xp);
+                    totalRewards.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
+                } else if (reward.coins) {
+                    const coins = Functions.addCoins(ctx.userData, reward.coins);
+                    totalRewards.push(`- **${coins.toLocaleString("en-US")}** ${Emojis.jocoins} coins`);
+                } else {
+                    const item = Functions.findItem(reward.loot);
+                    if (!item) continue;
+                    Functions.addItem(ctx.userData, reward.loot, reward.mult ?? 1);
+                    totalRewards.push(`- ${reward.mult ?? 1}x **${item.emoji} ${item.name}**`);
+                }
+                await Functions.sleep(1000); // Add 1 sec cooldown
+            }
         }
+        ctx.client.database.saveUserData(ctx.userData);
     }
+
+    // Display rewards for all boxes opened
+    await ctx.makeMessage({
+        content: `You have opened ${amount} ${itemName} and received the following rewards:\n${totalRewards.join("\n")}`
+    });
 
     return true;
 }
-
 
 export const Box: Special = {
     id: "box",
