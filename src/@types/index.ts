@@ -456,7 +456,7 @@ export interface Special extends Item {
     /**
      * Function to use the item
      */
-    use: (ctx: CommandInteractionContext, ...args: string[]) => Promise<boolean>;
+    use: (ctx: CommandInteractionContext, ...args: string[]) => Promise<number>;
 }
 
 export type CraftRequirements = {
