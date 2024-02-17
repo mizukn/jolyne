@@ -112,6 +112,7 @@ const slashCommand: SlashCommandFile = {
             return;
         }
         const raid = fixedBosses.find((r) => r.boss.id === bossChosen);
+        const raidCost = (raid.baseRewards.coins ?? 25000) * 3;
         if (!raid) {
             ctx.makeMessage({
                 content: "That boss doesn't exist!",
@@ -121,6 +122,14 @@ const slashCommand: SlashCommandFile = {
         if (raid.level > ctx.userData.level) {
             ctx.makeMessage({
                 content: "You can't raid this boss yet.",
+            });
+            return;
+        }
+        if (raidCost > ctx.userData.coins) {
+            ctx.makeMessage({
+                content: `You need ${raidCost.toLocaleString("en-US")} ${
+                    ctx.client.localEmojis.jocoins
+                } to raid this boss.`,
             });
             return;
         }
@@ -144,8 +153,8 @@ const slashCommand: SlashCommandFile = {
         const joinRaidButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Primary)
             .setCustomId(joinRaidID)
-            .setLabel("Join Raid")
-            .setEmoji("➕");
+            .setLabel(`Join Raid (${raidCost.toLocaleString("en-US")} coins required)`)
+            .setEmoji("927974784187392061");
         const leaveRaidButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Danger)
             .setCustomId(leaveRaidID)
@@ -334,6 +343,7 @@ const slashCommand: SlashCommandFile = {
                                 }
                             }
                         }
+                        Functions.addCoins(winnerData, -raidCost);
 
                         ctx.followUp({
                             content: `<@${winner.id}> won the raid ${
@@ -352,6 +362,7 @@ const slashCommand: SlashCommandFile = {
                             if (!loserData) continue;
                             loserData.health = 0;
                             loserData.stamina = 0;
+                            Functions.addCoins(loserData, -raidCost);
                             ctx.followUp({
                                 content: `<@${loser.id}> lost the raid and died.`,
                             });
@@ -434,6 +445,16 @@ const slashCommand: SlashCommandFile = {
 
                         return;
                     }
+                    if (usrData.coins < raidCost) {
+                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                            ctx.followUp({
+                                content: `<@${interaction.user.id}> tried to join the raid but they don't have enough coins.`,
+                            });
+                            cooldownedUsers.push(interaction.user.id);
+                        }
+                        return;
+                    }
+
                     joinedUsers.push(usrData);
                     cooldownedUsers.slice(
                         cooldownedUsers.findIndex((r) => r === interaction.user.id),
@@ -524,7 +545,9 @@ const slashCommand: SlashCommandFile = {
 
             const embed: APIEmbed = {
                 title: `${enhancedBoss.emoji} ${enhancedBoss.name} RAID`,
-                description: `> \`Min Level Requirement:\` ${
+                description: `> \`Coins required:\` ${
+                    ctx.client.localEmojis.jocoins
+                } ${raidCost.toLocaleString("en-US")}\n> \`Min Level Requirement:\` ${
                     raid.level
                 }\n> \`Maximum Level Requirement:\` ${
                     raid.maxLevel

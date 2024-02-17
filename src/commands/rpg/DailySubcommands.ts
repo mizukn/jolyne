@@ -15,6 +15,37 @@ import { StandArrow } from "../../rpg/Items/SpecialItems";
 import { getQuestsStats } from "./Chapter";
 import { cloneDeep } from "lodash";
 
+const dailyQuestResetPrice = {
+    undefined: 1000,
+    null: 1000,
+    0: 1000,
+    1: 10000,
+    2: 25000,
+    3: 50000,
+    4: 100000,
+    5: 500000,
+    6: 1000000,
+    7: 2500000,
+    8: 5000000,
+    9: 10000000,
+    10: 50000000,
+    11: 100000000,
+    12: 500000000,
+    13: 1000000000,
+    14: 5000000000,
+    15: 10000000000,
+    16: 50000000000,
+    17: 100000000000,
+    18: 500000000000,
+    19: 1000000000000,
+    20: 5000000000000,
+    21: 10000000000000,
+    22: 50000000000000,
+    23: 100000000000000,
+    24: 500000000000000,
+    25: 1000000000000000,
+};
+
 const slashCommand: SlashCommandFile = {
     data: {
         name: "daily",
@@ -244,6 +275,7 @@ const slashCommand: SlashCommandFile = {
                     xpReward += 75;
                 }
                 if (coinReward > 50000) coinReward = 50000;
+                xpReward = Math.round(xpReward * 1.99);
 
                 const components: ButtonBuilder[] = [];
 
@@ -259,6 +291,24 @@ const slashCommand: SlashCommandFile = {
                             .setCustomId(ctx.interaction.id + "daily-quests-claim")
                             .setDisabled(alreadyClaimed === "true")
                     );
+
+                    if (alreadyClaimed === "true") {
+                        components.push(
+                            // repeat button
+                            new ButtonBuilder()
+                                .setStyle(ButtonStyle.Secondary)
+                                .setEmoji("🔁")
+                                .setCustomId(ctx.interaction.id + "daily-quests-reset")
+                                .setLabel(
+                                    `Reset for ${
+                                        dailyQuestResetPrice[
+                                            ctx.userData.daily
+                                                .dailyQuestsReset as keyof typeof dailyQuestResetPrice
+                                        ]
+                                    } coins`
+                                )
+                        );
+                    }
                 }
 
                 await ctx.makeMessage({
@@ -294,13 +344,14 @@ const slashCommand: SlashCommandFile = {
 
                         return (
                             i.user.id === ctx.user.id &&
-                            i.customId === ctx.interaction.id + "daily-quests-claim"
+                            (i.customId === ctx.interaction.id + "daily-quests-claim" ||
+                                i.customId === ctx.interaction.id + "daily-quests-reset")
                         );
                     };
 
                     const collector = ctx.channel.createMessageComponentCollector({
                         filter,
-                        time: 15000,
+                        time: 30000,
                     });
 
                     collector.on("collect", async (i) => {
@@ -315,6 +366,39 @@ const slashCommand: SlashCommandFile = {
 
                         if (currentRPGJson !== JSON.stringify(ctx.userData)) {
                             collector.stop("cheater");
+                            return;
+                        }
+
+                        if (i.customId === ctx.interaction.id + "daily-quests-reset") {
+                            const price =
+                                dailyQuestResetPrice[
+                                    ctx.userData.daily
+                                        .dailyQuestsReset as keyof typeof dailyQuestResetPrice
+                                ];
+                            if (ctx.userData.coins < price) {
+                                await i.followUp({
+                                    content: `You don't have enough coins to reset your daily quests. You need ${price.toLocaleString(
+                                        "en-US"
+                                    )} coins to reset your daily quests.`,
+                                });
+                                return;
+                            }
+
+                            ctx.userData.coins -= price;
+                            ctx.userData.daily.quests = Functions.generateDailyQuests(
+                                ctx.userData.level
+                            );
+                            await ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
+                            if (!ctx.userData.daily.dailyQuestsReset) {
+                                ctx.userData.daily.dailyQuestsReset = 0;
+                            }
+                            ctx.userData.daily.dailyQuestsReset++;
+                            await ctx.client.database.saveUserData(ctx.userData);
+                            i.followUp({
+                                content: ctx.translate("daily:RESET_SUCCESS", {
+                                    price: price.toLocaleString("en-US"),
+                                }),
+                            });
                             return;
                         }
 
