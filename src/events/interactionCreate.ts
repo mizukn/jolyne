@@ -486,6 +486,7 @@ const Event: EventFile = {
                 ) {
                     ctx.userData.daily.quests = Functions.generateDailyQuests(ctx.userData.level);
                     ctx.userData.daily.lastDailyQuestsReset = new Date().setUTCHours(0, 0, 0, 0);
+                    ctx.userData.daily.dailyQuestsReset = 0;
                     ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
                     ctx.followUpQueue.push({
                         content: `:scroll:${ctx.client.localEmojis.timerIcon} | **${
