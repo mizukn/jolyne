@@ -490,8 +490,9 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
         .sort((a, b) => b.level - a.level);
 
     // fight npcs
-    let tflv = level;
-    if (tflv > 50) tflv = 50;
+    let tflv = level / 4;
+    if (tflv > 20) tflv = 20;
+    if (tflv < 5) tflv = 5;
 
     for (let i = 0; i < tflv; i++) {
         if (percent(80) || i < 5) {
