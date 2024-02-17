@@ -38,10 +38,10 @@ async function useBox(
 
     const itemString = ctx.interaction.options.getString("item", true);
     const itemName = itemString.split(" (x")[0]; // Extract item name
-    const currentBoxCount = ctx.userData.inventory[Functions.findItem(itemName)] || 0;
+    const currentBoxCount = ctx.userData.inventory[Functions.findItem(itemName).id] || 0;
     if (amount > currentBoxCount) {
         await ctx.makeMessage({
-            content: `You don't have more than ${currentBoxCount} ${itemName}!`
+            content: `You only have ${currentBoxCount} ${itemName}!`
         });
         return false;
     }
