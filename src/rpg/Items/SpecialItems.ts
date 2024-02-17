@@ -36,9 +36,19 @@ async function useBox(
         return false;
     }
 
-    const itemString = ctx.interaction.options.getString("item", true);
-    const itemName = itemString.split(" (x")[0]; // Extract item name
-    const currentBoxCount = ctx.userData.inventory[Functions.findItem(itemName).id] || 0;
+    const itemId = ctx.interaction.options.getString("item", true); // gets the item ID
+
+    const item = Functions.findItem(itemId); // Find the item using the ID, failsafe
+    if (!item) {
+        await ctx.makeMessage({
+            content: `Unknown item with ID: \`${itemId}\`.`
+        });
+        return false;
+    }
+
+    const itemName = item.name; // Get the item name (label)
+
+    const currentBoxCount = ctx.userData.inventory[itemId] || 0;
     if (amount > currentBoxCount) {
         await ctx.makeMessage({
             content: `You only have ${currentBoxCount} ${itemName}!`
@@ -90,6 +100,7 @@ async function useBox(
 
     return true;
 }
+
 
 export const Box: Special = {
     id: "box",
