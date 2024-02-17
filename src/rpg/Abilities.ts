@@ -1086,7 +1086,7 @@ export const CarCrash: Ability = {
 
 export const Transformation: Ability = {
     name: "Transformation",
-    description: "Boosts all your skill points by 100% (Max: 25) for 2 turns.",
+    description: "Boosts all your skill points by 100% (Max: 75) for 2 turns.",
     cooldown: 5,
     damage: 0,
     stamina: 30,
@@ -1096,13 +1096,10 @@ export const Transformation: Ability = {
     useMessage: (user, target, damage, ctx) => {
         const oldSkillPoints = cloneDeep(user.skillPoints);
 
-        for (const stat in user.skillPoints) {
-            // Double the stat value and cap it at 25
-            user.skillPoints[stat as keyof typeof user.skillPoints] = Math.min(
-                user.skillPoints[stat as keyof typeof user.skillPoints] * 2,
-                25
-            );
-        }
+for (const stat in user.skillPoints) {
+    user.skillPoints[stat as keyof typeof user.skillPoints] += Math.min(user.skillPoints[stat as keyof typeof user.skillPoints], 75);
+}
+
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} TRANSFORMATION: **${user.name}**'s skill points have been boosted by 100%...`
