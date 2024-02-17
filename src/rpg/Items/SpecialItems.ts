@@ -60,7 +60,11 @@ async function useBox(
         await ctx.makeMessage({
             content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
         });
-        await Functions.sleep(2000);
+
+        // Sleep for 2 seconds unless opening more than 3 boxes
+        if (amount <= 3) {
+            await Functions.sleep(2000);
+        }
 
         loot = loot.filter((r) => r.length > 0);
         const winContent: string[] = [`▬▬▬▬▬**「${emoji} ${name.toUpperCase()}」**▬▬▬▬▬▬`];
@@ -75,7 +79,10 @@ async function useBox(
                 updateMessage();
             }
             for await (const reward of lootBox) {
-                await Functions.sleep(1000);
+                // Skip sleep if opening more than 3 boxes
+                if (amount <= 3) {
+                    await Functions.sleep(1000);
+                }
                 if (reward.xp) {
                     const xp = Functions.addXp(ctx.userData, reward.xp);
                     winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
@@ -92,7 +99,9 @@ async function useBox(
             }
             updateMessage();
         }
-        await Functions.sleep(1000);
+        if (amount <= 3) {
+            await Functions.sleep(1000);
+        }
         winContent.push(superator);
         ctx.client.database.saveUserData(ctx.userData);
         updateMessage();
