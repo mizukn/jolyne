@@ -587,7 +587,7 @@ const slashCommand: SlashCommandFile = {
                 try {
                     const status = await itemData.use(ctx);
                     if (status) {
-                        Functions.removeItem(ctx.userData, itemString);
+                        Functions.removeItem(ctx.userData, itemString, status);
                         ctx.client.database.saveUserData(ctx.userData);
                     }
                 } catch (e) {
@@ -711,7 +711,8 @@ const slashCommand: SlashCommandFile = {
             }
             if (item.id.includes("$disc$") && Functions.hasExceedStandLimit(ctx)) {
                 await ctx.makeMessage({
-                    content: "You dont have enough Stand Disc Storage! (TIP: Sell/Throw useless stand discs)",
+                    content:
+                        "You dont have enough Stand Disc Storage! (TIP: Sell/Throw useless stand discs)",
                 });
                 return;
             }
