@@ -7,6 +7,7 @@ import { AttachmentBuilder } from "discord.js";
 import * as Consumables from "./ConsumableItems";
 import * as Items from "./Items";
 import { EvolutionStands } from "../Stands";
+import { cloneDeep } from "lodash";
 
 interface boxLoot {
     percent: number;
@@ -23,7 +24,16 @@ async function useBox(
     superator: string,
     emoji: string,
     shakingEmoji: string
-): Promise<boolean> {
+): Promise<number> {
+    let amount: number;
+    console.log(ctx.interaction.commandName);
+    if (ctx.interaction.commandName === "inventory") {
+        amount = ctx.interaction.options.getInteger("amount", false);
+        if (amount < 1) amount = 1;
+        console.log(amount);
+    }
+    const oldData = cloneDeep(ctx.userData);
+
     await ctx.makeMessage({
         content: `${shakingEmoji} Your **${Functions.capitalize(name)}** is shaking...`,
     });
@@ -32,39 +42,53 @@ async function useBox(
     loot = loot.filter((r) => r.length > 0);
     const winContent: string[] = [`▬▬▬▬▬**「${emoji} ${name.toUpperCase()}」**▬▬▬▬▬▬`];
     const updateMessage = () => ctx.makeMessage({ content: winContent.join("\n") });
-    updateMessage();
+    if (amount === 1) updateMessage();
     let counter = 0;
-    for await (const lootBox of loot) {
-        counter++;
-        if (counter !== 1) {
-            winContent.push(superator);
-            await Functions.sleep(1000);
-            updateMessage();
-        }
-        for await (const reward of lootBox) {
-            await Functions.sleep(1000);
-            if (reward.xp) {
-                const xp = Functions.addXp(ctx.userData, reward.xp);
-                winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
-            } else if (reward.coins) {
-                const coins = Functions.addCoins(ctx.userData, reward.coins);
-                winContent.push(`- **${coins.toLocaleString("en-US")}** ${Emojis.jocoins} coins`);
-            } else {
-                const item = Functions.findItem(reward.loot);
-                if (!item) continue;
-                Functions.addItem(ctx.userData, reward.loot, reward.mult ?? 1);
-                winContent.push(`- ${reward.mult ?? 1}x **${item.emoji} ${item.name}**`);
+    for (let i = 0; i < amount; i++)
+        for await (const lootBox of loot) {
+            counter++;
+            if (counter !== 1) {
+                winContent.push(superator);
+                if (amount === 1) await Functions.sleep(1000);
+                if (amount === 1) updateMessage();
             }
-            updateMessage();
+            for await (const reward of lootBox) {
+                if (amount === 1) await Functions.sleep(1000);
+                if (reward.xp) {
+                    const xp = Functions.addXp(ctx.userData, reward.xp);
+                    winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
+                } else if (reward.coins) {
+                    const coins = Functions.addCoins(ctx.userData, reward.coins);
+                    winContent.push(
+                        `- **${coins.toLocaleString("en-US")}** ${Emojis.jocoins} coins`
+                    );
+                } else {
+                    const item = Functions.findItem(reward.loot);
+                    if (!item) continue;
+                    Functions.addItem(ctx.userData, reward.loot, reward.mult ?? 1);
+                    winContent.push(`- ${reward.mult ?? 1}x **${item.emoji} ${item.name}**`);
+                }
+                if (amount === 1) updateMessage();
+            }
+            if (amount === 1) updateMessage();
         }
-        updateMessage();
-    }
     await Functions.sleep(1000);
     winContent.push(superator);
     ctx.client.database.saveUserData(ctx.userData);
-    updateMessage();
+    if (amount === 1) updateMessage();
+    else
+        ctx.makeMessage({
+            content: `${emoji} | You used **x${amount} ${Functions.capitalize(
+                name
+            )}** and got: (fast mode: true)\n\n${Functions.getRewardsCompareData(
+                oldData,
+                ctx.userData
+            )
+                .map((x) => `- ${x}`)
+                .join("\n")}`,
+        });
 
-    return true;
+    return amount;
 }
 
 export const Box: Special = {
@@ -370,7 +394,7 @@ export const StandArrow: Special = {
             await ctx.sendTranslated("items:MYSTERIOUS_ARROW.ALREADY_STAND");
             await Functions.sleep(2000);
             await ctx.sendTranslated("items:MYSTERIOUS_ARROW.ALREADY_STAND2");
-            return false;
+            return 0;
         }
 
         await ctx.sendTranslated("items:MYSTERIOUS_ARROW.MANIFESTING");
@@ -424,7 +448,7 @@ export const StandArrow: Special = {
             ],
         });
         await ctx.client.database.saveUserData(ctx.userData);
-        return true;
+        return 1;
     },
 };
 
@@ -465,7 +489,7 @@ export const RareStandArrow: Special = {
             await ctx.sendTranslated("items:RARE_MYSTERIOUS_ARROW.ALREADY_STAND");
             await Functions.sleep(2000);
             await ctx.sendTranslated("items:RARE_MYSTERIOUS_ARROW.ALREADY_STAND2");
-            return false;
+            return 0;
         }
 
         await ctx.sendTranslated("items:RARE_MYSTERIOUS_ARROW.MANIFESTING");
@@ -516,7 +540,7 @@ export const RareStandArrow: Special = {
             ],
         });
         await ctx.client.database.saveUserData(ctx.userData);
-        return true;
+        return 1;
     },
 };
 
@@ -535,7 +559,7 @@ export const SpookyArrow2023: Special = {
             await ctx.sendTranslated("items:SPOOKY_ARROW.ALREADY_STAND");
             await Functions.sleep(2000);
             await ctx.sendTranslated("items:SPOOKY_ARROW.ALREADY_STAND2");
-            return false;
+            return 0;
         }
 
         const stand = Functions.findStand("skeletal_spectre");
@@ -574,7 +598,7 @@ export const SpookyArrow2023: Special = {
             ],
         });
 
-        return true;
+        return 1;
     },
 };
 
@@ -598,26 +622,26 @@ export const RequiemArrow: Special = {
 
         if (ctx.userData.stand !== "gold_experience" && ctx.userData.stand !== "silver_chariot") {
             await ctx.sendTranslated("items:REQUIEM_ARROW.NOT_REQUIEM");
-            return false;
+            return 0;
         }
         if (ctx.userData.level < 50) {
             ctx.makeMessage({
                 content: "You are not worthy of this arrow yet...",
             });
-            return false;
+            return 0;
         }
         if (ctx.userData.standsEvolved[stand.id] === 1) {
             await ctx.sendTranslated("items:REQUIEM_ARROW.ALREADY_REQUIEM", {
                 stand: stand.name,
             });
-            return false;
+            return 0;
         }
         ctx.userData.standsEvolved[stand.id] = 1;
         await ctx.sendTranslated("items:REQUIEM_ARROW.EVOLVING", {
             stand: stand.name,
         });
         ctx.client.database.saveUserData(ctx.userData);
-        return true;
+        return 1;
     },
 };
 
@@ -644,7 +668,7 @@ export const SkillPointsResetPotion: Special = {
             )} command. Should you need help or have any questions, please join our [support server](https://discord.gg/jolyne)`,
         });
 
-        return true;
+        return 1;
     },
 };
 
