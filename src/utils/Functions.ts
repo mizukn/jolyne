@@ -515,8 +515,8 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
         quests.push(
             pushQuest(generateClaimXQuest("coin", Math.round(getRewards(level).coins * 2.5)))
         );
-    if (level > 25)
-        quests.push(pushQuest(generateClaimXQuest("xp", Math.round(getRewards(level).xp * 2.5))));
+    /* if (level > 25)
+        quests.push(pushQuest(generateClaimXQuest("xp", Math.round(getRewards(level).xp * 2.5)))); */
 
     return quests;
 };
