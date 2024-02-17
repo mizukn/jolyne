@@ -115,11 +115,11 @@ const slashCommand: SlashCommandFile = {
                 if (winners.find((r) => r.id === ctx.userData.id)) {
                     const xp = Functions.addXp(
                         ctx.userData,
-                        npc.rewards?.xp / 5 ?? npc.level * 1000
+                        npc.rewards?.xp / 2 ?? npc.level * 1000
                     );
                     const coins = Functions.addCoins(
                         ctx.userData,
-                        npc.rewards?.coins / 15 ?? npc.level * 250
+                        npc.rewards?.coins / 5 ?? npc.level * 250
                     );
                     ctx.userData.health = winners[0].health;
                     ctx.userData.stamina = winners[0].stamina;
