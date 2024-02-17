@@ -247,6 +247,7 @@ export interface RPGUserDataJSON {
         quests: RPGUserQuest[];
         questsStreak: number;
         lastDailyQuestsReset: number;
+        dailyQuestsReset: number;
     };
     /**
      * The user's side quests.
