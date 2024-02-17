@@ -310,7 +310,7 @@ export const Toru: RaidBoss = {
             {
                 item: Functions.findItem("wonder_of_u").id,
                 amount: 1,
-                chance: 1,
+                chance: 10,
             },
         ],
     },
