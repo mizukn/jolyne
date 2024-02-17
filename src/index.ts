@@ -179,7 +179,7 @@ for (const stand of [
                         "stand delete"
                     )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`,
                 });
-                return false;
+                return 0;
             }
             ctx.userData.stand = stand.id;
             ctx.makeMessage({
@@ -188,7 +188,7 @@ for (const stand of [
                     "You have successfully equipped " + stand.name + " " + stand.emoji + " !"
                 ),
             });
-            return true;
+            return 1;
         },
     };
     // @ts-expect-error because it's a dynamic property
