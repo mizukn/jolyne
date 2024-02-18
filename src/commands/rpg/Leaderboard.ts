@@ -1,10 +1,5 @@
 import { RPGUserDataJSON, SlashCommandFile, Leaderboard } from "../../@types";
-import {
-    Message,
-    APIEmbed,
-    ButtonBuilder,
-    ButtonStyle
-} from "discord.js";
+import { Message, APIEmbed, ButtonBuilder, ButtonStyle } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
@@ -18,14 +13,14 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "level",
                 description: "Shows the level leaderboard",
-                type: 1
+                type: 1,
             },
             {
                 name: "coins",
                 description: "Shows the richest players",
-                type: 1
-            }
-        ]
+                type: 1,
+            },
+        ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         const lastLeaderboard = (JSON.parse(
@@ -40,7 +35,7 @@ const slashCommand: SlashCommandFile = {
             title: "Leaderboard",
             description: "Loading...",
             color: 0x70926c,
-            fields: []
+            fields: [],
         };
 
         let currentPage = 1;
@@ -77,7 +72,7 @@ const slashCommand: SlashCommandFile = {
             embed.footer = {
                 text: `Page ${currentPage}/${Math.ceil(
                     lastLeaderboard.data.length / 10
-                )} | Last updated: ${new Date(lastLeaderboard.lastUpdated).toLocaleString()}`
+                )} | Last updated: ${new Date(lastLeaderboard.lastUpdated).toLocaleString()}`,
             };
 
             switch (ctx.interaction.options.getSubcommand()) {
@@ -87,7 +82,9 @@ const slashCommand: SlashCommandFile = {
                     embed.fields = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)
                         .map((user, i) => ({
-                            name: `${i + 1} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
+                            name: `${
+                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
+                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
                             value: `${
                                 ctx.client.localEmojis.a_
                             } Level **${user.level.toLocaleString(
@@ -95,7 +92,7 @@ const slashCommand: SlashCommandFile = {
                             )}** with  **${user.xp.toLocaleString("en-US")}** ${
                                 ctx.client.localEmojis.xp
                             }`,
-                            inline: false
+                            inline: false,
                         }));
 
                     break;
@@ -106,11 +103,13 @@ const slashCommand: SlashCommandFile = {
                     embed.fields = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)
                         .map((user, i) => ({
-                            name: `${i + 1} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
+                            name: `${
+                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
+                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
                             value: `${ctx.client.localEmojis.a_} **${user.coins.toLocaleString(
                                 "en-US"
                             )}** ${ctx.client.localEmojis.jocoins}`,
-                            inline: false
+                            inline: false,
                         }));
                     break;
                 }
@@ -124,30 +123,30 @@ const slashCommand: SlashCommandFile = {
                         previousPageButton,
                         userPageButton,
                         nextPageButton,
-                        lastPageButton
-                    ])
-                ]
+                        lastPageButton,
+                    ]),
+                ],
             });
         }
 
         await ctx.interaction
             .reply({ embeds: [embed] }) // eslint-disable-next-line @typescript-eslint/no-empty-function
-            .catch(() => {
-            })
+            .catch(() => {})
             .then(() => {
                 embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
                 updateMessage(currentPage);
             });
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({
-            filter: (interaction) => interaction.user.id === ctx.user.id && interaction.customId.includes(ctx.interaction.id)
+            filter: (interaction) =>
+                interaction.user.id === ctx.user.id &&
+                interaction.customId.includes(ctx.interaction.id),
         });
 
         collector.on("collect", (interaction) => {
             if (!interaction.isButton()) return;
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            interaction.deferUpdate().catch(() => {
-            });
+            interaction.deferUpdate().catch(() => {});
 
             switch (interaction.customId.replace(ctx.interaction.id, "")) {
                 case "previousPage":
@@ -199,11 +198,11 @@ const slashCommand: SlashCommandFile = {
                 `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`,
                 JSON.stringify({
                     lastUpdated: Date.now(),
-                    data: data
+                    data: data,
                 })
             );
         }
-    }
+    },
 };
 
 export default slashCommand;
