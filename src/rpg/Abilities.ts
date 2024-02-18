@@ -520,9 +520,9 @@ export const EternalSleep: Ability = {
                     dodgeResults.length !== 0 &&
                     x.skillPoints.perception !== Infinity
                 ) {
-                    x.frozenFor += 3;
+                    x.frozenFor += 4;
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.stand?.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 3 turns...`
+                        `- ${user.stand?.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 4 turns...`
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
@@ -552,7 +552,7 @@ export const StandDisc: Ability = {
             `- ${user.stand?.emoji} STAND DISC: **${user.name}** has removed temporarily the stand of **${target.name}**... (${stand?.name} ${stand?.emoji})`
         );
         ctx.nextRoundPromises.push({
-            cooldown: 3,
+            cooldown: 6,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 target.stand = stand;
@@ -587,7 +587,7 @@ export const Hallucinogen: Ability = {
             `- ${user.stand?.emoji} HALLUCINOGEN: **${user.name}** has created a hallucinogen that decreases EVERYONE's (except your allies) perception & speed BY 90%...`
         );
         ctx.nextRoundPromises.push({
-            cooldown: 3,
+            cooldown: 5,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 ctx.fighters
@@ -603,6 +603,17 @@ export const Hallucinogen: Ability = {
         });
     },
     target: "self",
+};
+
+export const Gun: Ability = {
+    name: "Gun",
+    description: "Shoots the target with a gun.",
+    cooldown: 6,
+    damage: 38,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 2,
+    target: "enemy",
 };
 
 export const Heal: Ability = {

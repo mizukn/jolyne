@@ -114,14 +114,19 @@ export const Whitesnake: EvolutionStand = {
             description:
                 "Whitesnake is a humanoid Stand of a height and build similar to [Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci)'s. It is sparsely clothed in black, with a mask covering its face to the bottom of where its nose would be, in a piece that rises above its head by half its height in a row of peaks, like a crown.",
             rarity: "S",
-            abilities: [Abilities.StandBarrage, Abilities.Hallucinogen, Abilities.StandDisc],
+            abilities: [
+                Abilities.StandBarrage,
+                Abilities.Gun,
+                Abilities.Hallucinogen,
+                Abilities.StandDisc,
+            ],
             image: "https://static.wikia.nocookie.net/jjba/images/e/ea/WhitesnakeAnime1.png/revision/latest?cb=20211202052847&path-prefix=pt-br",
             // white color hex code
             color: 0xffffff,
             emoji: Emojis.whitesnake,
             skillPoints: {
                 strength: 3,
-                perception: 10,
+                perception: 25,
                 speed: 5,
                 defense: 5,
                 stamina: 5,
