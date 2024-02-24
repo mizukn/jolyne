@@ -872,33 +872,27 @@ export const generateStandCart = async function standCart(stand: Stand): Promise
     switch (stand.rarity) {
         case "S":
             color = "#2b82ab";
-            card_link =
-                "https://cdn.discordapp.com/attachments/898236400195993622/959480216277905418/S_CARD.png";
+            card_link = "https://media.jolyne.moe/tpf4FN/direct";
             break;
         case "A":
             color = "#3b8c4b";
-            card_link =
-                "https://cdn.discordapp.com/attachments/898236400195993622/959459394205126726/A_CARD.png";
+            card_link = "https://media.jolyne.moe/R95qjY/direct";
             break;
         case "B":
             color = "#786d23";
-            card_link =
-                "https://cdn.discordapp.com/attachments/898236400195993622/959480058651766874/B_CARD.png";
+            card_link = "https://media.jolyne.moe/Od4M64/direct";
             break;
         case "C":
             color = "#181818";
-            card_link =
-                "https://cdn.discordapp.com/attachments/898236400195993622/959480090331316334/C_CARD.png";
+            card_link = "https://media.jolyne.moe/ukfhrG/direct";
             break;
         case "T":
             color = "#3131ac";
-            card_link =
-                "https://cdn.discordapp.com/attachments/1028000883092508803/1035107806174511195/T_Card.png";
+            card_link = "https://media.jolyne.moe/J0FEBN/direct";
             break;
         default:
             color = "#ff0000";
-            card_link =
-                "https://cdn.discordapp.com/attachments/898236400195993622/959480253175201862/SS_CARD.png";
+            card_link = "https://media.jolyne.moe/h2bJqC/direct";
     }
 
     const card_image = await Canvas.loadImage(card_link);
