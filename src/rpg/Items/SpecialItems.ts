@@ -163,17 +163,17 @@ export const Box: Special = {
         for (const item of midItems.filter((r) => Functions.percent(70))) {
             const target = finalLoot[1];
 
-            if (!Functions.percent(50)) continue;
+            if (!Functions.percent(30)) continue;
             target.push({
                 percent: 100,
                 loot: item.id,
             });
         }
 
-        for (const item of rareItems.filter((r) => Functions.percent(50))) {
+        for (const item of rareItems.filter((r) => Functions.percent(30))) {
             const target = finalLoot[2];
 
-            if (!Functions.percent(50)) continue;
+            if (!Functions.percent(30)) continue;
             target.push({
                 percent: 100,
                 loot: item.id,
@@ -281,7 +281,7 @@ export const PatreonBox: Special = {
                 },
                 {
                     percent: 100,
-                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
+                    xp: Functions.getMaxXp(ctx.userData.level ?? 1) * 2,
                 },
             ],
             [
@@ -291,7 +291,7 @@ export const PatreonBox: Special = {
                 },
                 {
                     percent: 100,
-                    loot: StandArrow.id,
+                    loot: RareStandArrow.id,
                     mult: 30,
                 },
             ],
@@ -762,6 +762,53 @@ export const ChristmasGift: Special = {
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
             Emojis["xmasgift"],
             Emojis["xmasgift_shake"]
+        );
+    },
+};
+
+export const BoosterBox: Special = {
+    id: "booster_box",
+    name: "Booster Box",
+    description: "A box that given to people who boosted our support server.",
+    rarity: "A",
+    emoji: "📦",
+    price: 5000,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const standList = Object.values(Stands).filter((r) => r.available && r.rarity === "S");
+
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    coins: 100000,
+                },
+                {
+                    percent: 100,
+                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
+                },
+            ],
+            [
+                {
+                    percent: 100,
+                    loot: standList[Math.floor(Math.random() * standList.length)].id + ".$disc$",
+                },
+                {
+                    percent: 100,
+                    loot: StandArrow.id,
+                    mult: 30,
+                },
+            ],
+        ];
+
+        return useBox(
+            ctx,
+            finalLoot,
+            "Booster Box",
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            "📦" + "<a:booster:1212488355158302740>",
+            Emojis.box_shaking + "<a:booster:1212488355158302740>"
         );
     },
 };
