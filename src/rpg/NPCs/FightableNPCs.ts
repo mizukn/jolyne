@@ -387,3 +387,20 @@ export const ConfettiGolem: FightableNPC = {
     equippedItems: { confetti_bazooka: 6 },
     standsEvolved: {},
 };
+
+export const CMoonPucci: FightableNPC = {
+    ...NPCs.Pucci,
+    level: 150*2,
+    skillPoints: {
+        defense: 115*2,
+        strength: 250*2,
+        speed: 70*2,
+        perception: 45*2,
+        stamina: 120*2,
+    },
+    equippedItems: {},
+    stand: "whitesnake",
+    standsEvolved: {
+      whitesnake: 1,
+    },
+};

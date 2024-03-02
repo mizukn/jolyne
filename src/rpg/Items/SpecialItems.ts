@@ -80,7 +80,7 @@ async function useBox(
         ctx.makeMessage({
             content: `${emoji} | You used **x${amount} ${Functions.capitalize(
                 name
-            )}** and got: (fast mode: true)\n\n${Functions.getRewardsCompareData(
+            )}** and got:\n${Functions.getRewardsCompareData(
                 oldData,
                 ctx.userData
             )
