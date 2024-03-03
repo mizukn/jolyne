@@ -58,6 +58,7 @@ const Event: EventFile = {
             name: "bugs...",
         });
         fetchPatreonsFromCache();
+        console.log("Successfully fetched patreons from cache.");
 
         if (client.guilds.cache.get("923608916540145694")) {
             // Jolyne Support Server
@@ -65,12 +66,13 @@ const Event: EventFile = {
             setInterval(async () => {
                 fetchSupportMembers(client);
             }, 1000 * 60 * 5);
+            console.log("Successfully fetched support members.");
         }
 
         // prettier-ignore
         if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
             if (!process.env.IGNORE_TOPGG) TopGG(client);
-            Matchmaking(client);
+            //Matchmaking(client);
 
             const lastCommands = await client.database.getString(
                 `jolyne_${client.user.id}:commands`
@@ -85,6 +87,7 @@ const Event: EventFile = {
                 .filter((v) => v.ownerOnly || v.adminOnly)
                 .map((v) => v.data);
             //if (JSON.stringify(commandsData) !== lastCommands) {
+            console.log("Updating slash commands...");
             await client.postSlashCommands(commandsData);
             await client.database.setString(
                 `jolyne_${client.user.id}:commands`,
