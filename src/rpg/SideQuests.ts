@@ -410,3 +410,42 @@ export const TwoYearAnniversaryEvent: SideQuest = {
     // red
     color: 0xff0000,
 };
+
+export const CMoon: SideQuest = {
+    id: "Cmoon",
+    title: "Merge with Green Baby",
+    description:
+        "Distract Jolyne to transend into achiving power.",
+    emoji: Emojis.greenbaby,
+    rewards: async (ctx) => {
+        ctx.userData.level += 2;
+        ctx.userData.standsEvolved.whitesnake = 1;
+        // take away green baby
+        Functions.addItem(ctx.userData, Functions.findItem("green_baby"), -1);
+        ctx.followUp({
+            content: Functions.makeNPCString(
+                NPCs.Pucci,
+                `*Spiral Staircase. Rhinoceros Beetle. Ghost Town. Fig Tart. Rhinoceros Beetle. Via Dolorosa. Rhinoceros Beetle. Singularity Point. Giotto. Angel. Hydrangea. Rhinoceros Beetle. Singularity Point. **Secret Emperor***[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)`
+            ),
+        });
+        return true;
+    },
+    quests: (ctx) => [
+        Functions.generataRaidQuest(FightableNPCs.Jolyne),
+        Functions.generataRaidQuest(FightableNPCs.Jolyne),
+    ],
+    requirements: (ctx) => {
+        if (ctx.userData.standsEvolved["whitesnake"] !== undefined) return false;
+        if (ctx.userData.stand === Functions.findStand("whitesnake").id) {
+          if (ctx.userData.standsEvolved["whitesnake"] === undefined) {
+            if (ctx.userData.inventory[Functions.findItem("green_baby").id] >= 1) {
+              return true;
+            }
+          }
+        }
+    },
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    canReloadQuests: false,
+    canRedoSideQuest: false,
+    color: 0x61a954,
+};
