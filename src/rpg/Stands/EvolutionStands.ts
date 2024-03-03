@@ -114,22 +114,9 @@ export const Whitesnake: EvolutionStand = {
             description:
                 "Whitesnake is a humanoid Stand of a height and build similar to [Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci)'s. It is sparsely clothed in black, with a mask covering its face to the bottom of where its nose would be, in a piece that rises above its head by half its height in a row of peaks, like a crown.",
             rarity: "S",
-            abilities: [{
-              ...Abilities.StandBarrage,
-              name: "Gravity Shift",
-              description: "Shifts thr gravity around the user in a 3KM (1.9mil) Radius to snother direction.",
-              thumbnail: "https://jojowiki.com/File:C_moon_powa_01.gif",
-              damage: 20,
-              dodgeScore: 0,
-              cooldown: 4,
-              extraTurns: 0,
-            },{
-              ...Abilities.Gun,
-              name: "Surface Inversion",
-              description "Modify the Source of Gravity of an Object by touching it, Hence, inverting the objec.",
-              thumbnail: "https://jojowiki.com/File:C_moon_powa_02.gif",
-              dodgeScore: 4,
-            },
+            abilities: [
+                Abilities.StandBarrage,
+                Abilities.Gun,
                 Abilities.Hallucinogen,
                 Abilities.StandDisc,
             ],
@@ -151,9 +138,23 @@ export const Whitesnake: EvolutionStand = {
             description:
                 "C-MOON is a humanoid Stand with a threatening, inhuman appearance. It is born as a result of the Green Baby fusing with Pucci and his original Stand, Whitesnake. Due to this, its appearance shares similarities with both.",
             rarity: "S",
-            abilities: [
-                Abilities.StandBarrage,
-                Abilities.Gun,
+            abilities: [{
+              ...Abilities.StandBarrage,
+              name: "Gravity Shift",
+              description: "Shifts the gravity around the user in a 3KM (1.9mil) Radius to another direction.",
+              thumbnail: "https://jojowiki.com/File:C_moon_powa_01.gif",
+              damage: 20,
+              dodgeScore: 0,
+              cooldown: 4,
+              extraTurns: 0,
+            },{
+              ...Abilities.Gun,
+              name: "Surface Inversion",
+              description "Modify the Source of Gravity of an Object by touching it, Hence, inverting the object.",
+              thumbnail: "https://jojowiki.com/File:C_moon_powa_02.gif",
+              dodgeScore: 4,
+              damage: 40,
+            },
                 Abilities.Hallucinogen,
                 Abilities.StandDisc,
             ],
