@@ -425,14 +425,20 @@ export const CMoon: SideQuest = {
         ctx.followUp({
             content: Functions.makeNPCString(
                 NPCs.Pucci,
-                `*Spiral Staircase. Rhinoceros Beetle. Ghost Town. Fig Tart. Rhinoceros Beetle. Via Dolorosa. Rhinoceros Beetle. Singularity Point. Giotto. Angel. Hydrangea. Rhinoceros Beetle. Singularity Point. **Secret Emperor***[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)`
+                `*Spiral Staircase. Rhinoceros Beetle. Ghost Town. Fig Tart. Rhinoceros Beetle. Via Dolorosa. Rhinoceros Beetle. Singularity Point. Giotto. Angel. Hydrangea. Rhinoceros Beetle. Singularity Point. **Secret Emperor**[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)*`
             ),
         });
         return true;
     },
     quests: (ctx) => [
-        Functions.generataRaidQuest(FightableNPCs.Jolyne),
-        Functions.generataRaidQuest(FightableNPCs.Jolyne),
+        Functions.generateFightQuest(FightableNPCs.Jolyne),
+        Functions.generateFightQuest(
+            FightableNPCs.Jolyne,
+            Functions.pushQuest(ActionQuests.GrabGreenBaby),
+            null,
+            null
+        ),
+        
     ],
     requirements: (ctx) => {
         if (ctx.userData.standsEvolved["whitesnake"] !== undefined) return false;
@@ -444,6 +450,7 @@ export const CMoon: SideQuest = {
           }
         }
     },
+    requirementsMessage:"- You need to have ${ctx.client.localEmojis.whitesnake} Whitesnake as your stand.\n- You need to have atleast 1 ${ctx.client.localEmojis.greenbaby} Green Baby in your inventory.\n(Hint: Raid Jolyne for Green Baby)",
     cancelQuestIfRequirementsNotMetAnymore: true,
     canReloadQuests: false,
     canRedoSideQuest: false,

@@ -81,7 +81,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
             .setStyle(ButtonStyle.Secondary);
         const bottomBTN = new ButtonBuilder()
             .setCustomId("bottomId")
-            .setEmoji("🔽")
+            .setEmoji("⬇️")
             .setStyle(ButtonStyle.Secondary);
 
         function generateInvisibleBTN() {
@@ -385,7 +385,7 @@ export const RemoveFleshbudToPolnareff: ActionQuest = {
             .setStyle(ButtonStyle.Secondary);
         const bottomBTN = new ButtonBuilder()
             .setCustomId("bottomId")
-            .setEmoji("🔽")
+            .setEmoji("⬇️")
             .setStyle(ButtonStyle.Secondary);
 
         function generateInvisibleBTN() {
@@ -661,7 +661,7 @@ export const DriveBoatToRescue: ActionQuest = {
             .setStyle(ButtonStyle.Secondary);
         const bottomBTN = new ButtonBuilder()
             .setCustomId("bottomId")
-            .setEmoji("🔽")
+            .setEmoji("⬇️")
             .setStyle(ButtonStyle.Secondary);
 
         function generateInvisibleBTN() {
@@ -826,7 +826,7 @@ export const DriveBoatToSingapore: ActionQuest = {
             .setStyle(ButtonStyle.Secondary);
         const bottomBTN = new ButtonBuilder()
             .setCustomId("bottomId")
-            .setEmoji("🔽")
+            .setEmoji("⬇️")
             .setStyle(ButtonStyle.Secondary);
 
         function generateInvisibleBTN() {
@@ -970,5 +970,153 @@ export const getATramAndGoToIndia: ActionQuest = {
         pushQuest(ctx, quest, "get_a_tram_and_go_to_india");
         validateQuest(ctx, "get_a_tram_and_go_to_india");
         ctx.client.database.saveUserData(ctx.userData);
+    },
+};
+
+export const GrabGreenBaby: ActionQuest = {
+    type: "action",
+    id: "grab_green_baby",
+    completed: false,
+    i18n_key: "GRAB_GREEN_BABY",
+    emoji: Emojis.greenbaby,
+    use: async (ctx) => {
+        const handGrabEmoji = "🤚";
+        const map = ["🔲", "🔲", "🔲", "🔲", handGrabEmoji, "🔲", "🔲", "🔲", "🔲", "🔲"];
+        const crashEmoji = "<:redtick:1071137546819600424>";
+        for (let i = 0; i < 15; i++) {
+            const howMuch = Functions.randomNumber(1, 5);
+            const map2 = ["🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲"];
+            for (let i = 0; i < howMuch; i++) {
+                map2[i] = crashEmoji;
+            }
+            Functions.shuffleArray(map2);
+            for (const i of map2) map.push(i);
+        }
+
+        function splitEvery10Array(arr: string[]) {
+            const result: string[][] = [];
+            for (let i = 0; i < arr.length; i += 10) {
+                result.push(arr.slice(i, i + 10));
+            }
+            return result.map((v) => v.join(""));
+        }
+
+        let planeDirection = map.length - 5;
+        map[planeDirection - 10] = "🔲"; // anti impossible
+        let oldEmoji = "🔲";
+
+        const backId = ctx.interaction.id + "backId";
+        const centerId = ctx.interaction.id + "cennterId";
+        const forwardId = ctx.interaction.id + "forwardIdShinzoSasageyooo";
+
+        const backBTN = new ButtonBuilder()
+            .setCustomId(backId)
+            .setEmoji("⬅️")
+            .setStyle(ButtonStyle.Secondary);
+        const centerBTN = new ButtonBuilder()
+            .setCustomId(centerId)
+            .setEmoji("⬆️")
+            .setStyle(ButtonStyle.Secondary);
+        const forwardBTN = new ButtonBuilder()
+            .setCustomId(forwardId)
+            .setEmoji("➡️")
+            .setStyle(ButtonStyle.Secondary);
+        const bottomBTN = new ButtonBuilder()
+            .setCustomId("bottomId")
+            .setEmoji("⬇️")
+            .setStyle(ButtonStyle.Secondary);
+
+        function generateInvisibleBTN() {
+            const invisibleBTN2 = new ButtonBuilder()
+                .setCustomId("invisibleId" + Functions.generateRandomId())
+                .setLabel("ㅤ")
+                .setStyle(ButtonStyle.Secondary);
+            return invisibleBTN2;
+        }
+
+        async function makeMessage(): Promise<void> {
+            map[planeDirection] = handGrabEmoji;
+            await ctx.makeMessage({
+                components: [
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        centerBTN,
+                        generateInvisibleBTN(),
+                    ]),
+                    Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        bottomBTN,
+                        generateInvisibleBTN(),
+                    ]),
+                ],
+                embeds: [
+                    {
+                        title: `${Emojis.greenbaby} Green Baby`,
+                        description: splitEvery10Array(map).join("\n"),
+                        footer: {
+                            text: "Grab the Green Baby.",
+                        },
+                        color: 0x70926c,
+                    },
+                ],
+            });
+        }
+
+        await makeMessage();
+        ctx.interaction.fetchReply().then((r) => {
+            ctx.client.database.setCooldown(
+                ctx.user.id,
+                `You're currently grabbing the Green Baby. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+            );
+        });
+        const filter = async (i: MessageComponentInteraction) => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            i.deferUpdate().catch(() => {});
+            return (
+                (i.customId === backId ||
+                    i.customId === centerId ||
+                    i.customId === forwardId ||
+                    i.customId === "bottomId") &&
+                i.user.id === ctx.user.id
+            );
+        };
+        const collector = ctx.interaction.channel.createMessageComponentCollector({
+            filter,
+            time: 150000,
+        });
+
+        collector.on("collect", async (i: MessageComponentInteraction) => {
+            map[planeDirection] = oldEmoji;
+            if (i.customId === backId) {
+                planeDirection -= 1;
+            } else if (i.customId === forwardId) {
+                planeDirection += 1;
+            } else if (i.customId === centerId) {
+                planeDirection -= 10;
+            } else if (i.customId === "bottomId") {
+                planeDirection += 10;
+            }
+
+            if (map[planeDirection] === crashEmoji) {
+                collector.stop("crashed");
+                ctx.makeMessage({
+                    content: "You failed to grab the Green Baby. Try again.",
+                });
+            } else if (map[planeDirection] === handGrabEmoji) {
+                collector.stop("finished");
+                ctx.makeMessage({
+                    content: "You successfully grabbed the Green Baby.",
+                });
+                validateQuest(ctx, "grab_green_baby");
+                ctx.client.database.saveUserData(ctx.userData);
+            }
+            oldEmoji = map[planeDirection];
+            makeMessage();
+        });
+
+        collector.on("end", () => {
+            ctx.client.database.deleteCooldown(ctx.userData.id);
+        });
     },
 };
