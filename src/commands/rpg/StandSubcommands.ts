@@ -390,7 +390,7 @@ const slashCommand: SlashCommandFile = {
             for (const ability of stand.abilities) {
                 const damage: number = Functions.getAbilityDamage(userData, ability);
                 fields.push({
-                    name: `${ability.special ? "⭐" : ""}${ability.name}`,
+                    name: `${ability.special ? "⭐" : ""} ${ability.name}`,
                     inline: ability.special ? false : true,
                     value: `**\`Damages:\`** ${
                         damage === 0
@@ -417,11 +417,11 @@ const slashCommand: SlashCommandFile = {
                     stand.description +
                         "\n" +
                         `
-    **BONUSES:** +${Object.keys(stand.skillPoints)
+    **BONUSES:**\n- +${Object.keys(stand.skillPoints)
         .map((v) => stand.skillPoints[v as keyof typeof stand.skillPoints])
         .reduce((a, b) => a + b, 0)} Skill-Points:
     ${Object.keys(stand.skillPoints)
-        .map((r) => `  • +${stand.skillPoints[r as keyof typeof stand.skillPoints]} ${r}`)
+        .map((r) => ` - +${stand.skillPoints[r as keyof typeof stand.skillPoints]} ${r}`)
         .join("\n")}
     ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
         `
