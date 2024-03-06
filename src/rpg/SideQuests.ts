@@ -432,6 +432,10 @@ export const CMoon: SideQuest = {
     },
     quests: (ctx) => [
         Functions.generateFightQuest(FightableNPCs.Jolyne),
+        Functions.generateFightQuest(FightableNPCs.Jolyne),
+        Functions.generateFightQuest(FightableNPCs.Jolyne),
+        Functions.generateFightQuest(FightableNPCs.Jolyne),
+        Functions.generateFightQuest(FightableNPCs.Jolyne),
         Functions.generateFightQuest(
             FightableNPCs.Jolyne,
             Functions.pushQuest(ActionQuests.GrabGreenBaby),
