@@ -20,6 +20,7 @@ import * as Functions from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as SideQuests from "../../rpg/SideQuests";
 import { getQuestsStats } from "./Chapter";
+import Config from "../../config.json"
 
 const sideQuestsArr = Object.values(SideQuests);
 
@@ -64,7 +65,7 @@ const slashCommand: SlashCommandFile = {
         }
         if (!sideQuestsArr.find((r) => r.id === sideQuest)) {
             ctx.makeMessage({
-                content: `${ctx.client.localEmojis.jolyne} Wow there! You've found a side quest that doesn't exist! Please report this to the developers at https://discord.gg/jolyne. They probably temporairly removed it.`
+                content: `${ctx.client.localEmojis.jolyne} Wow there! You've found a side quest that doesn't exist! Please report this to the developers at ${Config.serverinvite}. They probably temporairly removed it.`
             });
             return;
         }

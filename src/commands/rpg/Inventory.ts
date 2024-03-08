@@ -20,6 +20,7 @@ import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
 import e from "express";
+import Config from "../../config.json"
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -275,7 +276,7 @@ const slashCommand: SlashCommandFile = {
 
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                 });
                 return;
             }
@@ -376,7 +377,7 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                 });
                 return;
             }
@@ -403,7 +404,7 @@ const slashCommand: SlashCommandFile = {
                     itemString = foundItem.id;
                 } else {
                     await ctx.makeMessage({
-                        content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                        content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                     });
                     return;
                 }
@@ -426,7 +427,7 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                 });
                 return;
             }
@@ -492,7 +493,7 @@ const slashCommand: SlashCommandFile = {
                     itemString = foundItem.id;
                 } else {
                     await ctx.makeMessage({
-                        content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                        content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                     });
                     return;
                 }
@@ -517,7 +518,7 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                 });
                 return;
             }
@@ -642,7 +643,7 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                 });
                 return;
             }
@@ -720,7 +721,7 @@ const slashCommand: SlashCommandFile = {
             // if item has been dropped for over a week, tell him it has been expired. If they think that is a mistake or bug, contact us at .gg/jolyne
             if (Date.now() - itemDataJSON.droppedAt > 604800000) {
                 await ctx.makeMessage({
-                    content: `This item has expired [${item.emoji} x${itemDataJSON.amount} \`${item.name}\`]. You can't claim it anymore. If you think this is a mistake, contact us at https://discord.gg/jolyne`,
+                    content: `This item has expired [${item.emoji} x${itemDataJSON.amount} \`${item.name}\`]. You can't claim it anymore. If you think this is a mistake, contact us at ${Config.serverinvite}`,
                 });
                 await ctx.client.database.redis.del("thrownItem_" + itemId);
                 return;
@@ -766,7 +767,7 @@ const slashCommand: SlashCommandFile = {
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne to get a possible refund.`,
+                    content: `Unknown item: \`${itemString}\`. Join ${Config.serverinvite} to get a possible refund.`,
                 });
                 return;
             }

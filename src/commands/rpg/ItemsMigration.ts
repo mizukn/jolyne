@@ -1,6 +1,7 @@
 import { SlashCommandFile, Leaderboard } from "../../@types";
 import { Message, APIEmbed, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
+import Config from "../../config.json"
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -27,7 +28,7 @@ const slashCommand: SlashCommandFile = {
                 "inventory throw"
             )} command if you would like to throw an item\n- Use the ${ctx.client.getSlashCommandMention(
                 "inventory claim"
-            )} command if you would like to claim an item that has been thrown.\n\nIf you're lost or need help, contact us on our [support server](https://discord.gg/jolyne) (https://discord.gg/jolyne)`
+            )} command if you would like to claim an item that has been thrown.\n\nIf you're lost or need help, contact us on our [support server](${Config.serverinvite}) (${Config.serverinvite})`
         });
     }
 };

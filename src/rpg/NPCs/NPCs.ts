@@ -224,3 +224,9 @@ export const ConfettiGolem: NPC = {
     name: "Confetti Golem",
     emoji: "🎊",
 };
+
+export const CMoonPucci: NPC = {
+    id: "cmoon_pucci",
+    name: "Trancended Enrico Pucci",
+    emoji: Emojis.CMoonPucci,
+};

@@ -422,12 +422,64 @@ export const CMoon: SideQuest = {
         ctx.userData.standsEvolved.whitesnake = 1;
         // take away green baby
         Functions.addItem(ctx.userData, Functions.findItem("green_baby"), -1);
-        ctx.followUp({
-            content: Functions.makeNPCString(
-                NPCs.Pucci,
-                `*Spiral Staircase. Rhinoceros Beetle. Ghost Town. Fig Tart. Rhinoceros Beetle. Via Dolorosa. Rhinoceros Beetle. Singularity Point. Giotto. Angel. Hydrangea. Rhinoceros Beetle. Singularity Point. **Secret Emperor**[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)*`
-            ),
-        });
+        
+        const sentences = [
+    "Spiral Staircase.",
+    "Rhinoceros Beetle.",
+    "Ghost Town.",
+    "Fig Tart.",
+    "Rhinoceros Beetle.",
+    "Via Dolorosa.",
+    "Rhinoceros Beetle.",
+    "Singularity Point.",
+    "Giotto.",
+    "Angel.",
+    "Hydrangea.",
+    "Rhinoceros Beetle.",
+    "Singularity Point.",
+    "**Secret Emperor**[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)"
+];
+
+export const CMoon: SideQuest = {
+    id: "Cmoon",
+    title: "Merge with Green Baby",
+    description: "Distract Jolyne to transcend into achieving power.",
+    emoji: Emojis.greenbaby,
+    rewards: async (ctx) => {
+        ctx.userData.level += 2;
+        ctx.userData.standsEvolved.whitesnake = 1;
+        // take away green baby
+        Functions.addItem(ctx.userData, Functions.findItem("green_baby"), -1);
+        
+        const sentences = [
+            "Spiral Staircase.",
+            "Rhinoceros Beetle.",
+            "Ghost Town.",
+            "Fig Tart.",
+            "Rhinoceros Beetle.",
+            "Via Dolorosa.",
+            "Rhinoceros Beetle.",
+            "Singularity Point.",
+            "Giotto.",
+            "Angel.",
+            "Hydrangea.",
+            "Rhinoceros Beetle.",
+            "Singularity Point.",
+            "**Secret Emperor**[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)"
+        ];
+        const sendNextSentence = (index) => {
+            if (index >= sentences.length) return;
+            const sentence = sentences[index];
+            const npc = index === sentences.length - 1 ? FightableNPCs.CMoonPucci : NPCs.Pucci;
+            setTimeout(() => {
+                ctx.followUp({
+                    content: Functions.makeNPCString(npc, `*${sentence}*`)
+                }).then(() => {
+                    sendNextSentence(index + 1);
+                });
+            }, 1000);
+        };
+        sendNextSentence(0);
         return true;
     },
     quests: (ctx) => [
@@ -442,19 +494,18 @@ export const CMoon: SideQuest = {
             null,
             null
         ),
-        
     ],
     requirements: (ctx) => {
         if (ctx.userData.standsEvolved["whitesnake"] !== undefined) return false;
         if (ctx.userData.stand === Functions.findStand("whitesnake").id) {
-          if (ctx.userData.standsEvolved["whitesnake"] === undefined) {
-            if (ctx.userData.inventory[Functions.findItem("green_baby").id] >= 1) {
-              return true;
+            if (ctx.userData.standsEvolved["whitesnake"] === undefined) {
+                if (ctx.userData.inventory[Functions.findItem("green_baby").id] >= 1) {
+                    return true;
+                }
             }
-          }
         }
     },
-    requirementsMessage:"- You need to have ${ctx.client.localEmojis.whitesnake} Whitesnake as your stand.\n- You need to have atleast 1 ${ctx.client.localEmojis.greenbaby} Green Baby in your inventory.\n(Hint: Raid Jolyne for Green Baby)",
+    requirementsMessage:"- You need to have ${Emojis.whitesnake} Whitesnake as your stand.\n- You need to have atleast 1 ${Emojis.greenbaby} Green Baby in your inventory.",
     cancelQuestIfRequirementsNotMetAnymore: true,
     canReloadQuests: false,
     canRedoSideQuest: false,

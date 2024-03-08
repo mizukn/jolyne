@@ -4,6 +4,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import { generateDiscordTimestamp, TopGGVoteRewards } from "../../utils/Functions";
 import simpleGit, { SimpleGit } from "simple-git";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
+import Condfig from "../../config.json"
 
 const width = 800;
 const height = 300;
@@ -173,7 +174,7 @@ const slashCommand: SlashCommandFile = {
         const embed: APIEmbed = {
             author: {
                 name: "Jolyne",
-                url: "https://jolyne.moe",
+                url: Config.SiteLink,
                 icon_url: ctx.client.user.displayAvatarURL(),
             },
             color: 0x70926c,
@@ -205,7 +206,7 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: ctx.translate("infos:SUPPORT_INVITE"),
-                    value: "https://discord.gg/9a2HYsum2v",
+                    value: Config.PermLink,
                     inline: true,
                 },
                 {

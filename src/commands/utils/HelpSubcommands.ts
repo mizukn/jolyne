@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import Config from "../../config.json"
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -64,7 +65,7 @@ const slashCommand: SlashCommandFile = {
 
         const embed: APIEmbed = {
             title: "Help menu",
-            description: `Jolyne has a total of ${ctx.client.allCommands.length} commands, including private commands.\nYou can use the ${ctx.client.getSlashCommandMention("help")} \`<command>\` command to get help for a specific command.\nIf you need help with something else, you can join the [support server](https://discord.gg/jolyne)\n\n# Commands\n${ctx.client.allCommands.filter(x => x.category !== "private").map(x => ` - ${ctx.client.getSlashCommandMention(x.name)}: ${x.description}`).join("\n")}`,
+            description: `Jolyne has a total of ${ctx.client.allCommands.length} commands, including private commands.\nYou can use the ${ctx.client.getSlashCommandMention("help")} \`<command>\` command to get help for a specific command.\nIf you need help with something else, you can join the [support server](${Config.serverinvite})\n\n# Commands\n${ctx.client.allCommands.filter(x => x.category !== "private").map(x => ` - ${ctx.client.getSlashCommandMention(x.name)}: ${x.description}`).join("\n")}`,
             fields: [],
             color: 0x70926c
         };

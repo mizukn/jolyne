@@ -389,7 +389,7 @@ export const ConfettiGolem: FightableNPC = {
 };
 
 export const CMoonPucci: FightableNPC = {
-    ...NPCs.Pucci,
+    ...NPCs.CMoonPucci,
     level: 150*2,
     skillPoints: {
         defense: 115*2,
