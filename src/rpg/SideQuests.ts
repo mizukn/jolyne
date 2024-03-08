@@ -411,34 +411,6 @@ export const TwoYearAnniversaryEvent: SideQuest = {
     color: 0xff0000,
 };
 
-export const CMoon: SideQuest = {
-    id: "Cmoon",
-    title: "Merge with Green Baby",
-    description:
-        "Distract Jolyne to transend into achiving power.",
-    emoji: Emojis.greenbaby,
-    rewards: async (ctx) => {
-        ctx.userData.level += 2;
-        ctx.userData.standsEvolved.whitesnake = 1;
-        // take away green baby
-        Functions.addItem(ctx.userData, Functions.findItem("green_baby"), -1);
-        
-        const sentences = [
-    "Spiral Staircase.",
-    "Rhinoceros Beetle.",
-    "Ghost Town.",
-    "Fig Tart.",
-    "Rhinoceros Beetle.",
-    "Via Dolorosa.",
-    "Rhinoceros Beetle.",
-    "Singularity Point.",
-    "Giotto.",
-    "Angel.",
-    "Hydrangea.",
-    "Rhinoceros Beetle.",
-    "Singularity Point.",
-    "**Secret Emperor**[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)"
-];
 
 export const CMoon: SideQuest = {
     id: "Cmoon",
@@ -450,7 +422,7 @@ export const CMoon: SideQuest = {
         ctx.userData.standsEvolved.whitesnake = 1;
         // take away green baby
         Functions.addItem(ctx.userData, Functions.findItem("green_baby"), -1);
-        
+
         const sentences = [
             "Spiral Staircase.",
             "Rhinoceros Beetle.",
@@ -467,19 +439,23 @@ export const CMoon: SideQuest = {
             "Singularity Point.",
             "**Secret Emperor**[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)"
         ];
-        const sendNextSentence = (index) => {
+
+        const sendNextSentence = (index, message) => {
             if (index >= sentences.length) return;
             const sentence = sentences[index];
-            const npc = index === sentences.length - 1 ? FightableNPCs.CMoonPucci : NPCs.Pucci;
+            const npc = index === sentences.length - 1 ? NPCs.CMoonPucci : NPCs.Pucci;
             setTimeout(() => {
-                ctx.followUp({
-                    content: Functions.makeNPCString(npc, `*${sentence}*`)
-                }).then(() => {
-                    sendNextSentence(index + 1);
+                const newContent = `${message.content}\n${Functions.makeNPCString(npc, `*${sentence}*`)}`;
+                message.edit(newContent).then(() => {
+                    sendNextSentence(index + 1, message);
                 });
             }, 1000);
         };
-        sendNextSentence(0);
+
+        ctx.channel.send(Functions.makeNPCString(NPCs.Pucci, `*${sentences[0]}*`)).then(message => {
+            sendNextSentence(1, message);
+        });
+
         return true;
     },
     quests: (ctx) => [
