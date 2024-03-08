@@ -4,7 +4,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import { generateDiscordTimestamp, TopGGVoteRewards } from "../../utils/Functions";
 import simpleGit, { SimpleGit } from "simple-git";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
-import Condfig from "../../config.json"
+import Config from "../../config.json"
 
 const width = 800;
 const height = 300;
