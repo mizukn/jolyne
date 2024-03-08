@@ -421,7 +421,7 @@ export const CMoon: SideQuest = {
         ctx.userData.level += 2;
         ctx.userData.standsEvolved.whitesnake = 1;
         // take away green baby
-        Functions.addItem(ctx.userData, Functions.findItem("green_baby"), -1);
+        Functions.removeItem(ctx.userData, Functions.findItem("green_baby"), 1);
 
         const sentences = [
             "Spiral Staircase.",
@@ -440,14 +440,14 @@ export const CMoon: SideQuest = {
             "**Secret Emperor**[!](https://media.tenor.com/L_gf6awyrjEAAAAC/pucci-green-baby.gif)"
         ];
 
-        const sendNextSentence = (index, message) => {
+        const sendNextSentence = (index, previousMessage) => {
             if (index >= sentences.length) return;
             const sentence = sentences[index];
             const npc = index === sentences.length - 1 ? NPCs.CMoonPucci : NPCs.Pucci;
             setTimeout(() => {
-                const newContent = `${message.content}\n${Functions.makeNPCString(npc, `*${sentence}*`)}`;
-                message.edit(newContent).then(() => {
-                    sendNextSentence(index + 1, message);
+                const newContent = `${previousMessage.content} ${Functions.makeNPCString(npc, `*${sentence}*`)}`;
+                previousMessage.edit(newContent).then(() => {
+                    sendNextSentence(index + 1, previousMessage);
                 });
             }, 1000);
         };
