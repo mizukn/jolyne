@@ -7,9 +7,6 @@ import { FightHandler, Fighter } from "../structures/FightHandler";
 export type numOrPerc = number | `${number}%`;
 
 // TODO: Remove blockable and dodgeable from abilities since they're not used anymore
-export interface DJSMessage extends Message {
-    client: JolyneClient;
-}
 
 /**
  * Disord Slash Command Data.
@@ -666,6 +663,7 @@ export interface Ability {
     trueDodgeScore?: number;
     ally?: boolean;
     target: "enemy" | "ally" | "onlyAlly" | "self" | "any";
+    noNextTurn?: boolean;
 }
 
 export interface RequiemStand extends Stand {

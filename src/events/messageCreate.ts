@@ -17,7 +17,7 @@ const Event: EventFile = {
         if (ownerIDs.includes(message.author.id)) {
             if (commandName === "eval") {
                 const content = args.join(" ");
-                const { client } = message;
+                const client = message.client as JolyneClient;
                 const result = new Promise((resolve) => resolve(eval(content)));
 
                 return result

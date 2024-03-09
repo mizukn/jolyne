@@ -76,7 +76,7 @@ const slashCommand: SlashCommandFile = {
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "list": {
-              const SSstands = [
+                const SSstands = [
                     ...regularStandList.filter((w) => w.rarity === "SS"),
                     ...evolvableStandList
                         .filter((w) => w.evolutions[0].rarity === "SS")
@@ -172,6 +172,7 @@ const slashCommand: SlashCommandFile = {
                 break;
             }
             case "display": {
+                ctx.interaction.deferReply().catch(() => {});
                 const stand = Functions.findStand(
                     ctx.userData.stand,
                     ctx.userData.standsEvolved[ctx.userData.stand]
