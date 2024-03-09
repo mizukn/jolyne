@@ -455,7 +455,8 @@ export const StandArrow: Special = {
 export const RareStandArrow: Special = {
     id: "rare_stand_arrow",
     name: "Rare Stand Arrow",
-    description: "**S tier:** 16% chance, **A tier:** 40% chance, **B tier:** 44% chance.",
+    description:
+        "**SS tier: 0.75% chance, S tier:** 16% chance, **A tier:** 40% chance, **B tier:** 44% chance.",
     rarity: "A",
     emoji: Emojis["mysterious_arrow"],
     price: 35000,
@@ -465,7 +466,7 @@ export const RareStandArrow: Special = {
         stand_arrow: 10,
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
-        const standArray = Object.values(Stands);
+        const standArray = Object.values(Stands).filter((x) => x.available && x.rarity !== "SS");
         standArray.push({
             id: "silver_chariot",
             ...EvolutionStands.SilverChariot.evolutions[0],
@@ -482,6 +483,8 @@ export const RareStandArrow: Special = {
             id: "echoes",
             ...EvolutionStands.Echoes.evolutions[0],
         });
+
+        standArray.push(Stands.KingCrimson);
 
         const percent = Math.floor(Math.random() * 100);
 
@@ -500,7 +503,10 @@ export const RareStandArrow: Special = {
         let stand: Stand;
         let color: number;
 
-        if (percent <= 16) {
+        if (Functions.percent(0.75)) {
+            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "SS"));
+            color = 0xff0000;
+        } else if (percent <= 16) {
             stand = Functions.randomArray(standArray.filter((r) => r.rarity === "S"));
             color = 0x2b82ab;
         } else if (percent <= 40) {
