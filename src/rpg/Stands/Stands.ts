@@ -871,3 +871,29 @@ export const TheChained: Stand = {
     available: true,
     image: "https://media.jolyne.moe/osoTRS/direct", // to be decided
 };
+
+export const KingCrimson: Stand = {
+    id: "king_crimson",
+    name: "King Crimson",
+    rarity: "SS",
+    description:
+        "King Crimson is a humanoid Stand of a height and build similar to Diavolo's. Its face is hidden apart from the mouth by a helmet, and it has spikes lining the underside of its arms from the shoulders to the wrists.",
+    abilities: [
+        Abilities.Chop,
+        Abilities.Impale,
+        Abilities.BloodBlind,
+        Abilities.Epitaph,
+        Abilities.TimeErase,
+    ],
+    emoji: "<:kingCrimson:1216114860241453057>",
+    skillPoints: {
+        strength: 15,
+        defense: 5,
+        perception: 15,
+        speed: 8,
+        stamina: 2,
+    },
+    color: 0x800000,
+    available: true,
+    image: "https://i.pinimg.com/474x/8f/60/88/8f6088c59c2355de39d7ede735768e3a.jpg",
+};

@@ -2619,3 +2619,222 @@ export const ConfettiBarrage: Ability = {
     name: "Confetti Barrage",
     description: "Barrage the opponent with confetti.",
 };
+
+// king crimson abilities!
+
+export const Chop: Ability = {
+    name: "Chop",
+    description: "A high precision slice with King Crimson's Hand",
+    cooldown: 4,
+    damage: 30,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 8,
+    target: "enemy",
+};
+
+export const Impale: Ability = {
+    name: "Impale",
+    description: "Impale the opponent with King Crimson's Hand, dealing bleed damage.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 30,
+    extraTurns: 0,
+    dodgeScore: 8,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 3.75);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += xdamage;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} IMPALE: **${user.name}** has dealt **${xdamage.toLocaleString(
+                "en-US"
+            )}** damages to **${target.name}**.`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const bleedDamageCalc = Math.round(
+                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+                );
+                poisonDamagePromise(ctx, target, bleedDamageCalc, user, 5);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} IMPALE: **${target.name}** took **${bleedDamageCalc}** bleed damage`
+                );
+            },
+        });
+    },
+};
+
+export const Epitaph: Ability = {
+    name: "Epitaph",
+    description:
+        "Allows the user to see the future, thus meaning they can dodge most attacks for 5 turns.",
+    cooldown: 10,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    special: true,
+    noNextTurn: true,
+    useMessage: (user, target, damage, ctx) => {
+        user.skillPoints.perception = Infinity;
+
+        ctx.nextRoundPromises.push({
+            cooldown: 5,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.skillPoints.perception = 1;
+                user.ignoreRequests = false;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} EPITAPH: **${user.name}** had seen the future until now...`
+                );
+            },
+        });
+        ctx.updateMessage().catch(() => {});
+    },
+};
+
+export const BloodBlind: Ability = {
+    extraTurns: 1,
+    name: "Blood Blind",
+    description:
+        "King Crimson sends some of the users blood towards the enemy blinding them for a turn granting the user a guaranteed hit.",
+    cooldown: 3,
+    damage: 0,
+    stamina: 20,
+    dodgeScore: 6,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        user.health -= Functions.getMaxHealth(user) * 0.03;
+        if (user.health <= 0) {
+            user.health = 0;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand?.emoji} BLOOD BLIND: **${user.name}** tried, but they failed...`
+            );
+            return;
+        }
+
+        target.frozenFor = 1;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} BLOOD BLIND: **${target.name}** has been blinded...`
+        );
+        const oldSkillPoints = cloneDeep(target.skillPoints);
+        target.skillPoints.speed = 0;
+        target.skillPoints.perception = 0;
+
+        ctx.nextRoundPromises.push({
+            cooldown: 2,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                target.skillPoints = oldSkillPoints;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} BLOOD BLIND: **${target.name}**'s sight has returned...`
+                );
+            },
+        });
+    },
+};
+
+/*
+export const SchizoidMan: Ability = {
+    name: "Schizoid Man",
+    description:
+        "King Crimson creates a clone of the user that can attack the opponent for 3 turns.",
+    cooldown: 0,
+    dodgeScore: 0,
+    target: "self",
+    special: true,
+    damage: 0,
+    extraTurns: 0,
+    stamina: 50,
+    useMessage: (user, target, damage, ctx) => {
+        const clone: Fighter = cloneDeep(user);
+        clone.id = Functions.generateRandomId();
+        clone.npc = true;
+        clone.level = Math.round(user.level * 0.7);
+        clone.stand = null;
+        clone.weapon = null;
+
+        const tempCloneOfUser = {
+            ...cloneDeep(ctx.ctx.userData),
+            level: clone.level,
+        };
+
+        Functions.generateSkillPoints(tempCloneOfUser);
+        clone.skillPoints = tempCloneOfUser.skillPoints;
+
+        ctx.fighters.push(clone);
+        ctx.teams.forEach((team) => {
+            if (team.find((x) => x.id === user.id)) team.push(clone);
+        });
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} !!!: **${user.name}** has created a clone...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                ctx.fighters = ctx.fighters.filter((x) => x.id !== clone.id);
+                ctx.teams.forEach((team) => {
+                    if (team.find((x) => x.id === clone.id))
+                        team = team.filter((x) => x.id !== clone.id);
+                });
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} !!!: **${user.name}**'s clone has disappeared...`
+                );
+            },
+        });
+    },
+};*/
+
+export const TimeErase: Ability = {
+    name: "Time Erase",
+    description:
+        "Erases time for 4 turns... In the erased time frame, other people will be unable to experience anything that happened and will retain no memories of it either.",
+    cooldown: 8,
+    damage: 0,
+    stamina: 5,
+    dodgeScore: 0,
+    target: "self",
+    special: true,
+    extraTurns: 1,
+    useMessage: (user, target, damage, ctx) => {
+        ctx.infos.cooldowns.forEach((x) => {
+            x.cooldown -= 4;
+            if (x.cooldown < 0) x.cooldown = 0;
+        });
+
+        for (let i = 0; i < 4; i++) {
+            if (ctx.turns[ctx.turns.length - 1].logs.length == 0)
+                ctx.turns[ctx.turns.length - 1].logs.push(`????????????????????????????`);
+
+            ctx.turns.push({
+                logs: [],
+                infos: ctx.infos,
+                teams: ctx.teams,
+                fighters: ctx.fighters,
+                nextRoundPromises: ctx.nextRoundPromises,
+                nextTurnPromises: ctx.nextTurnPromises,
+            });
+            ctx.turns[ctx.turns.length - 1].logs.push(`????????????????????????????`);
+        }
+        ctx.turns.push({
+            logs: [],
+            infos: ctx.infos,
+            teams: ctx.teams,
+            fighters: ctx.fighters,
+            nextRoundPromises: ctx.nextRoundPromises,
+            nextTurnPromises: ctx.nextTurnPromises,
+        });
+
+        ctx.infos.orderIndex = 0;
+    },
+};
