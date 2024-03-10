@@ -2808,6 +2808,7 @@ export const TimeErase: Ability = {
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
         ctx.infos.cooldowns.forEach((x) => {
+            if (x.id !== user.id || x.move.toLowerCase().includes("time")) return;
             x.cooldown -= 4;
             if (x.cooldown < 0) x.cooldown = 0;
         });
