@@ -960,11 +960,11 @@ export const getATramAndGoToIndia: ActionQuest = {
     i18n_key: "GET_TRAM_GO_INDIA",
     emoji: "🚋",
     use: async (ctx) => {
-        if (ctx.userData.coins < 100000) {
+        if (ctx.userData.coins < 10000) {
             ctx.sendTranslated("action:GET_TRAM_GO_INDIA.NO_COINS");
             return;
         }
-        Functions.addCoins(ctx.userData, -100000);
+        Functions.addCoins(ctx.userData, -10000);
         ctx.sendTranslated("action:GET_TRAM_GO_INDIA.SUCCESS");
         const quest = Functions.generateWaitQuest(60000 * 60 * 3, null, null, "GET_TRAM_GO_INDIA");
         pushQuest(ctx, quest, "get_a_tram_and_go_to_india");
