@@ -172,7 +172,6 @@ const slashCommand: SlashCommandFile = {
                 break;
             }
             case "display": {
-                ctx.interaction.deferReply().catch(() => {});
                 const stand = Functions.findStand(
                     ctx.userData.stand,
                     ctx.userData.standsEvolved[ctx.userData.stand]
