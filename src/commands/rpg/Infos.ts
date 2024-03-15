@@ -4,6 +4,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import { generateDiscordTimestamp, TopGGVoteRewards } from "../../utils/Functions";
 import simpleGit, { SimpleGit } from "simple-git";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
+import os from "os";
 
 const width = 800;
 const height = 300;
@@ -165,6 +166,8 @@ const slashCommand: SlashCommandFile = {
         const guilds = clusterPromises[0].reduce((acc, guild) => acc + guild, 0);
         const members = clusterPromises[1].reduce((acc, member) => acc + member, 0);
         const memory = clusterPromises[2].reduce((acc, mem) => acc + mem, 0);
+        const maxMemory = Number((os.totalmem() / 1024 ** 2).toFixed(2));
+        const usageInPercentage = (memory / maxMemory) * 100;
         const commit = await getCommit();
         const todayDateString = `${new Date().getUTCDate()}-${
             new Date().getUTCMonth() + 1
@@ -180,13 +183,17 @@ const slashCommand: SlashCommandFile = {
             fields: [
                 {
                     name: "Developer",
-                    value: "@**mizufare** (239739781238620160) `mizu@jolyne.moe`",
+                    value: `@**${
+                        ctx.client.users.cache.get("239739781238620160").username ?? "mizukn"
+                    }** (239739781238620160) \`mizu@jolyne.moe\``,
                 },
                 {
                     name: "Version",
-                    value: `\`v3.1.03:${commit["hash"].slice(0, 7)}\` (${
+                    value: `\`v3.1.3:${commit["hash"].slice(0, 7)}\` (${
                         commit["message"]
-                    } ${generateDiscordTimestamp(new Date(commit["date"]), "FROM_NOW")})`,
+                    } ${generateDiscordTimestamp(new Date(commit["date"]), "FROM_NOW")})\n\`${
+                        commit.refs
+                    }\``,
                 },
                 {
                     name: "Guilds",
@@ -200,7 +207,9 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Memory",
-                    value: `${memory.toLocaleString("en-US")} MB`,
+                    value: `${memory.toLocaleString("en-US")} / ${maxMemory.toLocaleString(
+                        "en-US"
+                    )} MB (${Math.round(usageInPercentage)}%)`,
                     inline: true,
                 },
                 {
@@ -255,4 +264,3 @@ const slashCommand: SlashCommandFile = {
 };
 
 export default slashCommand;
-                 
