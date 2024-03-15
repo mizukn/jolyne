@@ -8,3 +8,4 @@ export const claimedItemsWebhook = new WebhookClient({
     url: process.env.CLAIMED_ITEMS_WEBHOOK_URL,
 });
 export const commandLogsWebhook = new WebhookClient({ url: process.env.COMMAND_LOGS_WEBHOOK_URL });
+export const shardLogsWebhook = new WebhookClient({ url: process.env.SHARD_LOGS_WEBHOOK_URL });
