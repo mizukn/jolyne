@@ -53,12 +53,13 @@ const Event: EventFile = {
     name: Events.ClientReady,
     once: true,
     execute: async (client: Jolyne): Promise<void> => {
+        client.log("Green flag biven by discord, processing...", "ready");
         client.user.setActivity({
             type: ActivityType.Watching,
             name: "bugs...",
         });
         fetchPatreonsFromCache();
-        console.log("Successfully fetched patreons from cache.");
+        client.log("Successfully fetched patreons from cache.", "ready");
 
         if (client.guilds.cache.get("923608916540145694")) {
             // Jolyne Support Server
@@ -66,7 +67,7 @@ const Event: EventFile = {
             setInterval(async () => {
                 fetchSupportMembers(client);
             }, 1000 * 60 * 5);
-            console.log("Successfully fetched support members.");
+            client.log("Successfully fetched support members.", "ready");
         }
 
         // prettier-ignore
@@ -87,7 +88,7 @@ const Event: EventFile = {
                 .filter((v) => v.ownerOnly || v.adminOnly)
                 .map((v) => v.data);
             //if (JSON.stringify(commandsData) !== lastCommands) {
-            console.log("Updating slash commands...");
+            client.log("Updating slash commands...", 'command');
             await client.postSlashCommands(commandsData);
             await client.database.setString(
                 `jolyne_${client.user.id}:commands`,
