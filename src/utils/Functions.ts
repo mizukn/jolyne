@@ -470,7 +470,6 @@ export const RNG = (min: number, max: number): number => {
 
 export const percent = (percent: number): boolean => {
     const cal = RNG(0, 10000000) / 100000;
-    console.log(cal);
     return cal <= percent;
 };
 
