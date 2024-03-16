@@ -65,6 +65,16 @@ const slashCommand: SlashCommandFile = {
     },
     checkRPGCooldown: "raid",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+        try {
+            await ctx.channel.sendTyping();
+        } catch (e) {
+            return void ctx.makeMessage({
+                content: "I don't have permission to send messages in this channel.",
+                embeds: [],
+                components: [],
+            });
+        }
+
         const fixedBosses = cloneDeep(Object.values(Bosses));
         if (Date.now() < 1707606000000) {
             if (Functions.isTimeNext15(new Date(Date.now()))) {
@@ -201,6 +211,9 @@ const slashCommand: SlashCommandFile = {
             const users = [];
             if (raid.allies) for (const ally of raid.allies) users.push(ally);
             for (const user of joinedUsers) users.push(user);
+            ctx.makeMessage({
+                components: [],
+            });
 
             const fight = new FightHandler(
                 ctx,

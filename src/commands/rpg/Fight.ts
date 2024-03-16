@@ -73,7 +73,20 @@ const slashCommand: SlashCommandFile = {
             },
         ],
     },
-    execute: async (ctx: CommandInteractionContext, nfight?: boolean): Promise<Message | void> => {
+    execute: async (
+        ctx: CommandInteractionContext,
+        message: Message<boolean>
+    ): Promise<Message | void> => {
+        try {
+            await ctx.channel.sendTyping();
+        } catch (e) {
+            return void ctx.makeMessage({
+                content: "I don't have permission to send messages in this channel.",
+                embeds: [],
+                components: [],
+            });
+        }
+
         if (ctx.client.maintenanceReason) return void ctx.sendTranslated("global:MAINTENANCE_MODE");
         if (ctx.interaction.options.getSubcommand() === "custom") {
             let teams: RPGUserDataJSON[][] = [[ctx.userData]];
@@ -173,6 +186,7 @@ const slashCommand: SlashCommandFile = {
                     });
                     return;
                 }
+                ctx.interaction.deleteReply();
                 const fightHandler = new FightHandler(ctx, teams, FightTypes.Friendly);
 
                 fightHandler.on("end", async (winners) => {
@@ -221,6 +235,12 @@ const slashCommand: SlashCommandFile = {
             ctx.client.cluster.emit("matchmakingAdd", ctx);
             return;
         }*/
+        if (!ctx.interaction.replied || !message)
+            await ctx.interaction
+                .deferReply({
+                    ephemeral: true,
+                })
+                .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
 
         // todo: ADD FightTypes.SideQuest and support for it
         function startFight(
@@ -239,7 +259,9 @@ const slashCommand: SlashCommandFile = {
             }
             const npc = Functions.findNPC<FightableNPC>(npcId, true);
 
-            const fight = new FightHandler(ctx, [[ctx.userData], [npc]], type);
+            ctx.interaction.deleteReply();
+
+            const fight = new FightHandler(ctx, [[ctx.userData], [npc]], type, message);
             ctx.interaction.fetchReply().then((r) => {
                 ctx.client.database.setCooldown(
                     ctx.userData.id,
@@ -406,7 +428,7 @@ const slashCommand: SlashCommandFile = {
                     // todo: add rewards
                     // todo: check if quest has to add chapter quests and/or emails
 
-                    await ctx.followUp({
+                    await fight.message.reply({
                         content: `:crossed_swords: Congratulations on beating **${
                             npc.name
                         }**, you got the following rewards: \n${winContent.join(
@@ -451,7 +473,7 @@ const slashCommand: SlashCommandFile = {
                         sideQuestsNPC.length !== 0) &&
                     ctx.userData.health > 10
                 ) {
-                    await ctx.makeMessage({
+                    await fight.message.edit({
                         components: [Functions.actionRow([nextFightButton])],
                     });
 
@@ -470,7 +492,7 @@ const slashCommand: SlashCommandFile = {
                         if (await ctx.antiCheat(true)) {
                             return;
                         }
-                        return ctx.client.commands.get("fight").execute(ctx, true);
+                        return ctx.client.commands.get("fight").execute(ctx, fight.message);
                     });
                 }
             });
@@ -478,7 +500,7 @@ const slashCommand: SlashCommandFile = {
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "npc": {
-                if (nfight || ctx.interaction.options.getString("npc").length < 6) {
+                if (message || ctx.interaction.options.getString("npc").length < 6) {
                     const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
                         (r) => Functions.isFightNPCQuest(r) && !r.completed
                     );
@@ -592,11 +614,18 @@ const slashCommand: SlashCommandFile = {
                             )
                             .setMinValues(1)
                             .setMaxValues(1);
-                        await ctx.makeMessage({
-                            content: ctx.translate("fight:TOO_MANY_ENEMIES"),
-                            components: [Functions.actionRow([selectMenu])],
-                            embeds: [],
-                        });
+                        if (!message)
+                            await ctx.makeMessage({
+                                content: ctx.translate("fight:TOO_MANY_ENEMIES"),
+                                components: [Functions.actionRow([selectMenu])],
+                                embeds: [],
+                            });
+                        else
+                            await message.edit({
+                                content: ctx.translate("fight:TOO_MANY_ENEMIES"),
+                                components: [Functions.actionRow([selectMenu])],
+                                embeds: [],
+                            });
 
                         const filter = (i: MessageComponentInteraction) =>
                             i.user.id === ctx.interaction.user.id &&
@@ -687,6 +716,7 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
 
+                ctx.interaction.deleteReply();
                 new FightHandler(ctx, [[ctx.userData], [npcData]], FightTypes.Friendly);
             }
         }

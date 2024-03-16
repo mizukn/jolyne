@@ -8,7 +8,14 @@ import {
     Weapon,
     RPGUserDataJSON,
 } from "../../@types";
-import { Message, APIEmbed, InteractionResponse, ButtonBuilder, ButtonStyle } from "discord.js";
+import {
+    Message,
+    APIEmbed,
+    InteractionResponse,
+    ButtonBuilder,
+    ButtonStyle,
+    PermissionFlagsBits,
+} from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { makeChapterTitle } from "./Chapter";
@@ -61,6 +68,18 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
+        const clientMember =
+            ctx.interaction.guild.members.cache.get(ctx.user.id) ||
+            (await ctx.interaction.guild.members.fetch(ctx.user.id));
+        try {
+            await ctx.channel.sendTyping();
+        } catch (e) {
+            return void ctx.makeMessage({
+                content: "I don't have permission to send messages in this channel.",
+                embeds: [],
+                components: [],
+            });
+        }
         if ((ctx.userData.inventory["dungeon_key"] ?? 0) < 1) {
             return ctx.makeMessage({
                 content:
@@ -122,7 +141,16 @@ const slashCommand: SlashCommandFile = {
                     components: [Functions.actionRow([startButton, cancelButton])],
                 });
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
-                const dungeon = new DungeonHandler(ctx, totalPlayers);
+                const message = await ctx.interaction.channel.send(`Initializing dungeon...`);
+                ctx.makeMessage({
+                    content: `<:kars:1057261454421676092> **Kars:** The dungeon has started! ${Functions.generateMessageLink(
+                        message
+                    )}`,
+                    embeds: [],
+                    components: [],
+                });
+
+                const dungeon = new DungeonHandler(ctx, totalPlayers, message);
 
                 dungeon.on("end", async () => {
                     let xpRewards = 0;
@@ -175,7 +203,7 @@ const slashCommand: SlashCommandFile = {
 
                         ctx.client.database.saveUserData(player);
                     }
-                    ctx.makeMessage({
+                    message.edit({
                         content: `<:kars:1057261454421676092> **Kars:** well done, you've survived **${dungeon.getRoom()}** waves and beaten **${
                             dungeon.beatenEnemies.length
                         }** enemies (total damage: ${totalDamage.toLocaleString(
