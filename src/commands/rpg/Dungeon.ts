@@ -55,7 +55,7 @@ const rewards = [
 const slashCommand: SlashCommandFile = {
     data: {
         name: "dungeon",
-        description: "issou",
+        description: "Start a dungeon.",
         options: [],
     },
     execute: async (
