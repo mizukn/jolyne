@@ -61,7 +61,7 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
-        if (ctx.userData.inventory["dungeon_key"] ?? 0 < 1) {
+        if ((ctx.userData.inventory["dungeon_key"] ?? 0) < 1) {
             return ctx.makeMessage({
                 content:
                     "<:kars:1057261454421676092> **Kars:** HA! Where's your key? You can't enter without it!",
@@ -122,7 +122,7 @@ const slashCommand: SlashCommandFile = {
                     components: [Functions.actionRow([startButton, cancelButton])],
                 });
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
-                const dungeon = new DungeonHandler(ctx, [ctx.userData]);
+                const dungeon = new DungeonHandler(ctx, totalPlayers);
 
                 dungeon.on("end", async () => {
                     let xpRewards = 0;

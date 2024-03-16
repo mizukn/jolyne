@@ -51,6 +51,10 @@ const slashCommand: SlashCommandFile = {
                 emoji: "🚂",
                 loots: [
                     {
+                        percent: 1,
+                        loot: Items.DungeonKey,
+                    },
+                    {
                         percent: 3,
                         loot: Items.StandArrow,
                     },
@@ -134,6 +138,10 @@ const slashCommand: SlashCommandFile = {
                 name: "tree",
                 emoji: "🌲",
                 loots: [
+                    {
+                        percent: 1,
+                        loot: Items.DungeonKey,
+                    },
                     {
                         percent: 3,
                         loot: Items.StandArrow,
