@@ -236,3 +236,14 @@ export const CorruptedSoul: Item = {
     tradable: true,
     storable: true,
 };
+
+export const DungeonKey: Item = {
+    id: "dungeon_key",
+    name: "Dungeon Key",
+    description: "A key to a dungeon.",
+    rarity: "A",
+    emoji: "<:dungeon_key:1218578509363150969>",
+    price: 350000,
+    tradable: true,
+    storable: true,
+};
