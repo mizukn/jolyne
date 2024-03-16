@@ -83,7 +83,6 @@ const slashCommand: SlashCommandFile = {
                     },
                     {
                         item: "dungeon_key",
-                        price: 1000000,
                     },
                 ],
             };
