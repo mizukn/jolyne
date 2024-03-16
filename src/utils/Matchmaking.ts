@@ -3,16 +3,19 @@ import { RPGUserDataJSON } from "../@types";
 import Jolyne from "../structures/JolyneClient";
 import { FightHandler, FightTypes } from "../structures/FightHandler";
 
-const cache: Map<string, {
-    ctx: CommandInteractionContext,
-    enteredAt: number
-}> = new Map();
+const cache: Map<
+    string,
+    {
+        ctx: CommandInteractionContext;
+        enteredAt: number;
+    }
+> = new Map();
 export default (client: Jolyne): void => {
     client.cluster.on("matchmakingAdd", (ctx: CommandInteractionContext) => {
         cache.set(ctx.RPGUserData.id, { ctx, enteredAt: Date.now() });
         client.database.setCooldown(ctx.RPGUserData.id, `You're currently in a matchmaking.`);
         ctx.makeMessage({
-            content: `You have been added to the matchmaking queue. There are currently ${cache.size} users (including you) in queue.`
+            content: `You have been added to the matchmaking queue. There are currently ${cache.size} users (including you) in queue.`,
         });
     });
 
@@ -32,7 +35,13 @@ export default (client: Jolyne): void => {
         // after 1000: max 10% difference level
 
         const matchmaking = {
-            "1_5": keys.filter(x => cache.get(x).ctx.userData.level >= 1 && cache.get(x).ctx.userData.level <= 10000).sort((a, b) => cache.get(a).enteredAt - cache.get(b).enteredAt)
+            "1_5": keys
+                .filter(
+                    (x) =>
+                        cache.get(x).ctx.userData.level >= 1 &&
+                        cache.get(x).ctx.userData.level <= 10000
+                )
+                .sort((a, b) => cache.get(a).enteredAt - cache.get(b).enteredAt),
             /*
             "5_10": keys.filter(x => cache.get(x).ctx.userData.level >= 5 && cache.get(x).ctx.userData.level <= 10).sort((a, b) => cache.get(a).enteredAt - cache.get(b).enteredAt),
             "10_15": keys.filter(x => cache.get(x).ctx.userData.level >= 10 && cache.get(x).ctx.userData.level <= 15).sort((a, b) => cache.get(a).enteredAt - cache.get(b).enteredAt),
@@ -71,9 +80,10 @@ export default (client: Jolyne): void => {
         */
         };
 
-
         for (const key of Object.keys(matchmaking)) {
-            const match = matchmaking[key as keyof typeof matchmaking].filter(x => !couples.flat().find(c => c.userData.id === x));
+            const match = matchmaking[key as keyof typeof matchmaking].filter(
+                (x) => !couples.flat().find((c) => c.userData.id === x)
+            );
             while (match.length >= 2) {
                 const user1 = match.shift();
                 const user2 = match.shift();
@@ -84,25 +94,28 @@ export default (client: Jolyne): void => {
         }
 
         for (const couple of couples) {
-            const fight = new FightHandler(couple[0], [[couple[0].userData], [couple[1].userData]], FightTypes.Ranked, couple[1]);
-            couple.forEach(c => {
+            const fight = new FightHandler(
+                couple[0],
+                [[couple[0].userData], [couple[1].userData]],
+                FightTypes.Ranked
+            );
+            couple.forEach((c) => {
                 const userDataID = c.userData.id;
                 c.followUp({
-                    content: `You have been matched with ${couple.find(x => x.userData.id !== userDataID).userData.tag} (${couple.find(x => x.userData.id !== userDataID).userData.id})`
+                    content: `You have been matched with ${
+                        couple.find((x) => x.userData.id !== userDataID).userData.tag
+                    } (${couple.find((x) => x.userData.id !== userDataID).userData.id})`,
                 });
             });
 
             fight.on("end", (winners, losers) => {
-                winners.forEach(c => client.database.deleteCooldown(c.id));
-                losers.flat().forEach(c => client.database.deleteCooldown(c.id));
+                winners.forEach((c) => client.database.deleteCooldown(c.id));
+                losers.flat().forEach((c) => client.database.deleteCooldown(c.id));
             });
 
             fight.on("unexpectedEnd", () => {
-                couple.forEach(c => client.database.deleteCooldown(c.userData.id));
+                couple.forEach((c) => client.database.deleteCooldown(c.userData.id));
             });
         }
-
     }, 1000);
-
-
 };
