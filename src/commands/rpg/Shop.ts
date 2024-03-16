@@ -81,6 +81,10 @@ const slashCommand: SlashCommandFile = {
                     {
                         item: "skill_points_reset_potion",
                     },
+                    {
+                        item: "dungeon_key",
+                        price: 1000000,
+                    },
                 ],
             };
             const hasAlreadyBlackMarket = (await ctx.client.database.getJSONData(
