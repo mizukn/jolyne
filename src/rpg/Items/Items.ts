@@ -243,7 +243,7 @@ export const DungeonKey: Item = {
     description: "A key to a dungeon.",
     rarity: "A",
     emoji: "<:dungeon_key:1218578509363150969>",
-    price: 350000,
+    price: 500000,
     tradable: true,
     storable: true,
 };
