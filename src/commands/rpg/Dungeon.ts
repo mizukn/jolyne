@@ -175,6 +175,18 @@ const slashCommand: SlashCommandFile = {
                         players.push(data);
                     }
                     const newPlayers = cloneDeep(players);
+                    const userData = players.find((f) => f.id === ctx.userData.id);
+                    if ((userData.inventory["dungeon_key"] ?? 0) < 1) {
+                        ctx.client.users.fetch("239739781238620160").then((c) => {
+                            c.send(`**${ctx.userData.tag}** has tried to scam the dungeon system.`);
+                        });
+                        return ctx.makeMessage({
+                            content:
+                                "<:kars:1057261454421676092> **Kars:** Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]",
+                            embeds: [],
+                            components: [],
+                        });
+                    }
                     const totalDamage = Object.values(dungeon.damageDealt).reduce(
                         (a, b) => a + b,
                         0
