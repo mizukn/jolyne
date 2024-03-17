@@ -781,6 +781,16 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
+            if (itemData.id === "dungeon_key") {
+                await ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Pucci,
+                        "hey, i'm not interested in buying that. you should keep it for yourself..."
+                    ),
+                });
+                return;
+            }
+
             if (!itemData.price) {
                 await ctx.makeMessage({
                     content: Functions.makeNPCString(
