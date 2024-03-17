@@ -178,7 +178,13 @@ const slashCommand: SlashCommandFile = {
                     const userData = players.find((f) => f.id === ctx.userData.id);
                     if ((userData.inventory["dungeon_key"] ?? 0) < 1) {
                         ctx.client.users.fetch("239739781238620160").then((c) => {
-                            c.send(`**${ctx.userData.tag}** has tried to scam the dungeon system.`);
+                            c.send(
+                                `**${ctx.userData.tag}** (${
+                                    ctx.userData.id
+                                }) with players (${newPlayers
+                                    .map((x) => x.id)
+                                    .join(", ")}) has tried to scam the dungeon system.`
+                            );
                         });
                         return ctx.makeMessage({
                             content:
