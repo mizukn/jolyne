@@ -413,7 +413,7 @@ export interface Item {
     /**
      * The item's price.
      */
-    readonly price?: number;
+    price?: number;
     /**
      * If the item is tradable.
      */
