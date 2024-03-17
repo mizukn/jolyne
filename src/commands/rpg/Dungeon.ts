@@ -15,6 +15,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     PermissionFlagsBits,
+    AttachmentBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -23,6 +24,8 @@ import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import DungeonHandler from "../../structures/DungeonHandler";
 import { cloneDeep } from "lodash";
+import { dungeonLogsWebhook } from "../../utils/Webhooks";
+import { Image, createCanvas, loadImage } from "canvas";
 
 const rewards = [
     {
@@ -247,6 +250,96 @@ const slashCommand: SlashCommandFile = {
                             .join("\n\n")}`,
                         embeds: [],
                         components: [],
+                    });
+                    const canvas =
+                        players.length === 2 ? createCanvas(1024, 512) : createCanvas(512, 512);
+                    const ctxCanvas = canvas.getContext("2d");
+
+                    const images: Image[] = [];
+                    for (const player of players) {
+                        const playerUser = await ctx.client.users.fetch(player.id);
+                        const image = await loadImage(
+                            playerUser.displayAvatarURL({ size: 512, extension: "png" })
+                        );
+                        images.push(image);
+                    }
+
+                    if (players.length === 2) {
+                        ctxCanvas.drawImage(images[0], 0, 0, 512, 512);
+                        ctxCanvas.drawImage(images[1], 512, 0, 512, 512);
+                    } else {
+                        ctxCanvas.drawImage(images[0], 0, 0, 512, 512);
+                    }
+
+                    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+                        name: "dungeon.png",
+                    });
+
+                    dungeonLogsWebhook.send({
+                        embeds: [
+                            {
+                                title: `Dungeon`,
+                                description: `cleared **${dungeon.getRoom()}** waves and beaten **${
+                                    dungeon.beatenEnemies.length
+                                }** enemies (total stage = ${dungeon.stage})`,
+                                color: 0x70926c,
+                                fields: [
+                                    {
+                                        name: "Host",
+                                        value: ctx.userData.tag,
+                                        inline: true,
+                                    },
+                                    {
+                                        name: "Guild info",
+                                        value: `${ctx.guild.name} (${ctx.guild.id})`,
+                                        inline: true,
+                                    },
+
+                                    {
+                                        name: "Total damages",
+                                        value: Object.keys(dungeon.damageDealt)
+                                            .sort(
+                                                (a, b) =>
+                                                    dungeon.damageDealt[b] - dungeon.damageDealt[a]
+                                            )
+                                            .map(
+                                                (r) =>
+                                                    `- ${
+                                                        dungeon.players.find((f) => f.id === r).tag
+                                                    } (${r}): **${dungeon.damageDealt[
+                                                        r
+                                                    ].toLocaleString("en-US")}**`
+                                            )
+                                            .join("\n"),
+                                    },
+                                    {
+                                        name: "Rewards",
+                                        value: Object.keys(dungeon.damageDealt)
+                                            .map((r) => {
+                                                const player = players.find((f) => f.id === r);
+                                                const newPlayer = newPlayers.find(
+                                                    (f) => f.id === r
+                                                );
+                                                return `- **${
+                                                    player.tag
+                                                }**: \n${Functions.getRewardsCompareData(
+                                                    player,
+                                                    newPlayer
+                                                ).join("\n")}`;
+                                            })
+                                            .join("\n\n"),
+                                    },
+                                ],
+                                image: {
+                                    url: "attachment://dungeon.png",
+                                },
+                                thumbnail: {
+                                    url: ctx.guild.iconURL(),
+                                },
+                                timestamp: new Date().toISOString(),
+                            },
+                        ],
+                        files: [attachment],
                     });
                 });
                 collector.stop("start");
