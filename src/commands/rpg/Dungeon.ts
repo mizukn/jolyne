@@ -152,7 +152,13 @@ const slashCommand: SlashCommandFile = {
 
                 const dungeon = new DungeonHandler(ctx, totalPlayers, message);
 
-                dungeon.on("end", async () => {
+                dungeon.on("end", async (reason: string) => {
+                    if (reason === "maintenance" || ctx.client.maintenanceReason) {
+                        message.reply({
+                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
+                        });
+                    }
+
                     let xpRewards = 0;
                     let coinRewards = 0;
 
@@ -217,7 +223,7 @@ const slashCommand: SlashCommandFile = {
                         player.health = 0;
                         player.stamina = 0;
 
-                        if (player.id === ctx.userData.id)
+                        if (player.id === ctx.userData.id && !ctx.client.maintenanceReason)
                             Functions.removeItem(player, "dungeon_key", 1);
 
                         ctx.client.database.saveUserData(player);

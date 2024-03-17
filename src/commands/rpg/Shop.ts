@@ -221,6 +221,8 @@ const slashCommand: SlashCommandFile = {
                                 shopSelect.options.find((x) => x.data.label === xitem.name)
                             )
                                 continue;
+                            if (xitem.id === "box") xitem.price = 450000;
+
                             shopSelect.addOptions([
                                 {
                                     label: xitem.name,
@@ -264,6 +266,7 @@ const slashCommand: SlashCommandFile = {
                 for (const item of Shop.items) {
                     const xitem = Functions.findItem(item.item);
                     if (!xitem || (str.includes(xitem.emoji) && str.includes(xitem.name))) continue;
+                    if (xitem.id === "box") xitem.price = 450000;
                     str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                         xitem.name
                     }** - ${(item.price ?? xitem.price).toLocaleString("en-US")} ${
@@ -374,7 +377,8 @@ const slashCommand: SlashCommandFile = {
                 } else if (i.customId === `amount_${ctx.interaction.id}`) {
                     const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
 
-                    const price = (selectedItem.price ?? 10000) * amount;
+                    const price =
+                        selectedItem.id === "box" ? 450000 : (selectedItem.price ?? 10000) * amount;
 
                     if (ctx.userData.coins < price) {
                         sendMenuEmbed().then(() => {
