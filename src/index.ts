@@ -468,7 +468,6 @@ process.on("uncaughtException", (error) => {
     console.error("Uncaught exception:", error);
 });
 
-// @ts-expect-error because the typings are wrong
 client.cluster = new ClusterClient(client);
 
 async function init() {
