@@ -378,7 +378,9 @@ const slashCommand: SlashCommandFile = {
                     const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
 
                     const price =
-                        selectedItem.id === "box" ? 450000 : (selectedItem.price ?? 10000) * amount;
+                        selectedItem.id === "box"
+                            ? 550000 * amount
+                            : (selectedItem.price ?? 10000) * amount;
 
                     if (ctx.userData.coins < price) {
                         sendMenuEmbed().then(() => {
