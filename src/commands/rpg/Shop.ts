@@ -216,7 +216,11 @@ const slashCommand: SlashCommandFile = {
                         let str = "";
                         for (const item of Shop.items) {
                             const xitem = Functions.findItem(item.item);
-                            if (!xitem) continue;
+                            if (
+                                !xitem ||
+                                shopSelect.options.find((x) => x.data.label === xitem.name)
+                            )
+                                continue;
                             shopSelect.addOptions([
                                 {
                                     label: xitem.name,
@@ -259,7 +263,7 @@ const slashCommand: SlashCommandFile = {
                 let str = "";
                 for (const item of Shop.items) {
                     const xitem = Functions.findItem(item.item);
-                    if (!xitem) continue;
+                    if (!xitem || (str.includes(xitem.emoji) && str.includes(xitem.name))) continue;
                     str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                         xitem.name
                     }** - ${(item.price ?? xitem.price).toLocaleString("en-US")} ${
