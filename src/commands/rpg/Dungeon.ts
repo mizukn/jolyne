@@ -167,6 +167,7 @@ const slashCommand: SlashCommandFile = {
 
                     xpRewards += dungeon.stage * 1000;
                     coinRewards += dungeon.stage * 100;
+                    xpRewards = Math.round(xpRewards / 2.5);
 
                     const players: RPGUserDataJSON[] = [];
                     for (const player of dungeon.players) {
