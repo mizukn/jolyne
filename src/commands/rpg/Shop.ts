@@ -266,7 +266,10 @@ const slashCommand: SlashCommandFile = {
                 for (const item of Shop.items) {
                     const xitem = Functions.findItem(item.item);
                     if (!xitem || (str.includes(xitem.emoji) && str.includes(xitem.name))) continue;
-                    if (xitem.id === "box") xitem.price = 450000;
+                    if (xitem.id === "box") {
+                        xitem.price = 450000;
+                        item.price = 450000;
+                    }
                     str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                         xitem.name
                     }** - ${(item.price ?? xitem.price).toLocaleString("en-US")} ${
