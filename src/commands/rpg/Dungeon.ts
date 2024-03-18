@@ -71,9 +71,20 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
-        const clientMember =
-            ctx.interaction.guild.members.cache.get(ctx.user.id) ||
-            (await ctx.interaction.guild.members.fetch(ctx.user.id));
+        if (await ctx.client.database.getString(`tempCache_${ctx.user.id}:dungeon`)) {
+            /*ctx.client.users.fetch("239739781238620160").then((c) => {
+                c.send(
+                    `**${ctx.userData.tag}** (${
+                        ctx.userData.id
+                    }) has tried to start.`
+                );
+            });*/
+            return ctx.makeMessage({
+                content: "<:kars:1057261454421676092> **Kars:** Are you trying to scam me?",
+                embeds: [],
+                components: [],
+            });
+        }
         try {
             await ctx.channel.sendTyping();
         } catch (e) {
@@ -144,6 +155,24 @@ const slashCommand: SlashCommandFile = {
                     components: [Functions.actionRow([startButton, cancelButton])],
                 });
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
+                for (const player of totalPlayers) {
+                    if (await ctx.client.database.getString(`tempCache_${player.id}:dungeon`)) {
+                        /*ctx.client.users.fetch("239739781238620160").then((c) => {
+                            c.send(
+                                `**${ctx.userData.tag}** (${
+                                    ctx.userData.id
+                                }) has tried to start.`
+                            );
+                        });*/
+                        ctx.makeMessage({
+                            content: `<:kars:1057261454421676092> **Kars:** Are you trying to scam me? <@${player.id}>`,
+                            embeds: [],
+                            components: [],
+                        });
+                        collector.stop("scam");
+                        return;
+                    }
+                }
                 const message = await ctx.interaction.channel.send(`Initializing dungeon...`);
                 ctx.makeMessage({
                     content: `<:kars:1057261454421676092> **Kars:** The dungeon has started! ${Functions.generateMessageLink(
@@ -154,8 +183,25 @@ const slashCommand: SlashCommandFile = {
                 });
 
                 const dungeon = new DungeonHandler(ctx, totalPlayers, message);
+                for (const player of totalPlayers) {
+                    await ctx.client.database.setString(`tempCache_${player.id}:dungeon`, "true");
+                }
+
+                dungeon.on("unexpectedEnd", async (reason: string) => {
+                    for (const player of totalPlayers) {
+                        await ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
+                    }
+                    if (reason === "maintenance" || ctx.client.maintenanceReason) {
+                        message.reply({
+                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
+                        });
+                    }
+                });
 
                 dungeon.on("end", async (reason: string) => {
+                    for (const player of totalPlayers) {
+                        await ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
+                    }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         message.reply({
                             content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
@@ -176,7 +222,7 @@ const slashCommand: SlashCommandFile = {
 
                     xpRewards += dungeon.stage * 1000;
                     coinRewards += dungeon.stage * 100;
-                    xpRewards = Math.round(xpRewards / 2.5);
+                    xpRewards = Math.round(xpRewards / 3.75);
 
                     const players: RPGUserDataJSON[] = [];
                     for (const player of dungeon.players) {
