@@ -192,7 +192,7 @@ const slashCommand: SlashCommandFile = {
                         await ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
-                        message.reply({
+                        dungeon.message.reply({
                             content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         });
                     }
@@ -203,7 +203,7 @@ const slashCommand: SlashCommandFile = {
                         await ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
-                        message.reply({
+                        dungeon.message.reply({
                             content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         });
                     }
@@ -277,7 +277,7 @@ const slashCommand: SlashCommandFile = {
 
                         ctx.client.database.saveUserData(player);
                     }
-                    message.edit({
+                    dungeon.message.edit({
                         content: `<:kars:1057261454421676092> **Kars:** well done, you've survived **${dungeon.getRoom()}** waves and beaten **${
                             dungeon.beatenEnemies.length
                         }** enemies (total damage: ${totalDamage.toLocaleString(
