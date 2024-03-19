@@ -27,6 +27,25 @@ import { cloneDeep } from "lodash";
 import { dungeonLogsWebhook } from "../../utils/Webhooks";
 import { Image, createCanvas, loadImage } from "canvas";
 
+const timeFn = (ms: number) => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    return {
+        hours: hours % 24,
+        minutes: minutes % 60,
+        seconds: seconds % 60,
+    };
+};
+const msInMessage =
+    // ex: 1 hour, 3 minutes and 2 seconds
+    (ms: number) => {
+        const time = timeFn(ms);
+        return `${time.hours ? `${time.hours} hour${time.hours > 1 ? "s" : ""}, ` : ""}${
+            time.minutes ? `${time.minutes} minute${time.minutes > 1 ? "s" : ""} and ` : ""
+        }${time.seconds} second${time.seconds > 1 ? "s" : ""}`;
+    };
+
 const rewards = [
     {
         id: "stand_arrow",
@@ -35,10 +54,6 @@ const rewards = [
     {
         id: "rare_stand_arrow",
         percent: 35,
-    },
-    {
-        id: "dungeon_key",
-        percent: 3,
     },
     {
         id: "broken_arrow",
@@ -68,9 +83,28 @@ const slashCommand: SlashCommandFile = {
         description: "Start a dungeon.",
         options: [],
     },
+    checkRPGCooldown: "dungeon",
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
+        const dungeonDoneToday = await ctx.client.database.getString(
+            `dungeonDone:${ctx.user.id}:${Functions.getTodayString()}`
+        );
+        const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
+        const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
+        const nextDate = dateAtMidnight + 86400000;
+
+        if (dungeonDoneTodayCount >= 4) {
+            const timeLeft = nextDate - Date.now();
+            return ctx.makeMessage({
+                content: `<:kars:1057261454421676092> **Kars:** You've already done 4 dungeons today. Come back ${Functions.generateDiscordTimestamp(
+                    Date.now() + timeLeft,
+                    "FROM_NOW"
+                )}.`,
+                embeds: [],
+                components: [],
+            });
+        }
         if (await ctx.client.database.getString(`tempCache_${ctx.user.id}:dungeon`)) {
             /*ctx.client.users.fetch("239739781238620160").then((c) => {
                 c.send(
@@ -132,6 +166,25 @@ const slashCommand: SlashCommandFile = {
                 if (totalPlayers.length >= 2) {
                     return void i.reply({
                         content: "This dungeon is full.",
+                        ephemeral: true,
+                    });
+                }
+
+                // check if has done 5 dungeons today
+                const dungeonDoneToday = await ctx.client.database.getString(
+                    `dungeonDone:${i.user.id}:${Functions.getTodayString()}`
+                );
+                const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
+                const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
+                const nextDate = dateAtMidnight + 86400000;
+
+                if (dungeonDoneTodayCount >= 4) {
+                    const timeLeft = nextDate - Date.now();
+                    return void i.reply({
+                        content: `You've already done 4 dungeons today. Come back ${Functions.generateDiscordTimestamp(
+                            timeLeft,
+                            "FROM_NOW"
+                        )}.`,
                         ephemeral: true,
                     });
                 }
@@ -206,6 +259,25 @@ const slashCommand: SlashCommandFile = {
                         dungeon.message.reply({
                             content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         });
+                    } else {
+                        for (const player of totalPlayers) {
+                            await ctx.client.database.setRPGCooldown(
+                                player.id,
+                                "dungeon",
+                                1000 * 60 * 15
+                            );
+                            // incr dungeon done today
+                            const dungeonDoneToday = await ctx.client.database.getString(
+                                `dungeonDone:${player.id}:${Functions.getTodayString()}`
+                            );
+                            const dungeonDoneTodayCount = dungeonDoneToday
+                                ? parseInt(dungeonDoneToday)
+                                : 0;
+                            await ctx.client.database.redis.set(
+                                `dungeonDone:${player.id}:${Functions.getTodayString()}`,
+                                (dungeonDoneTodayCount + 1).toString()
+                            );
+                        }
                     }
 
                     let xpRewards = 0;
@@ -336,11 +408,20 @@ const slashCommand: SlashCommandFile = {
                                         inline: true,
                                     },
                                     {
+                                        name: "Time taken",
+                                        value: `${msInMessage(
+                                            Date.now() - dungeon.startedAt
+                                        )} (started: ${Functions.generateDiscordTimestamp(
+                                            dungeon.startedAt,
+                                            "FULL_DATE"
+                                        )})`,
+                                        inline: true,
+                                    },
+                                    {
                                         name: "Guild info",
                                         value: `${ctx.guild.name} (${ctx.guild.id})`,
                                         inline: true,
                                     },
-
                                     {
                                         name: "Total damages",
                                         value: Object.keys(dungeon.damageDealt)
@@ -357,6 +438,13 @@ const slashCommand: SlashCommandFile = {
                                                     ].toLocaleString("en-US")}**`
                                             )
                                             .join("\n"),
+                                    },
+                                    {
+                                        name: "Last enemy beaten",
+                                        value: dungeon.beatenEnemies[0]
+                                            ? `${dungeon.beatenEnemies[0].emoji} | ${dungeon.beatenEnemies[0].name} (level ${dungeon.beatenEnemies[0].level})`
+                                            : "none, too bad",
+                                        inline: true,
                                     },
                                     {
                                         name: "Rewards",
