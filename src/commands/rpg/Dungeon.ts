@@ -186,7 +186,7 @@ const slashCommand: SlashCommandFile = {
                     const timeLeft = nextDate - Date.now();
                     return void i.reply({
                         content: `You've already done 4 dungeons today. Come back ${Functions.generateDiscordTimestamp(
-                            timeLeft,
+                            Date.now() + timeLeft,
                             "FROM_NOW"
                         )}.`,
                         ephemeral: true,
@@ -284,7 +284,7 @@ const slashCommand: SlashCommandFile = {
                         }
                     }
 
-                    let xpRewards = 0;
+                    let xpRewards = 60000;
                     let coinRewards = 0;
 
                     for (const enemy of dungeon.beatenEnemies) {
@@ -444,22 +444,14 @@ const slashCommand: SlashCommandFile = {
                                             .join("\n"),
                                     },
                                     {
-                                        name: "Last enemy beaten",
-                                        value: dungeon.beatenEnemies[
-                                            dungeon.beatenEnemies.length - 1
-                                        ]
+                                        name: "Last enemy of the current wave",
+                                        value: dungeon.enemies[dungeon.enemies.length - 1]
                                             ? `${
-                                                  dungeon.beatenEnemies[
-                                                      dungeon.beatenEnemies.length - 1
-                                                  ].emoji
+                                                  dungeon.enemies[dungeon.enemies.length - 1].emoji
                                               } | ${
-                                                  dungeon.beatenEnemies[
-                                                      dungeon.beatenEnemies.length - 1
-                                                  ].name
+                                                  dungeon.enemies[dungeon.enemies.length - 1].name
                                               } (level ${
-                                                  dungeon.beatenEnemies[
-                                                      dungeon.beatenEnemies.length - 1
-                                                  ].level
+                                                  dungeon.enemies[dungeon.enemies.length - 1].level
                                               })`
                                             : "none, too bad",
                                         inline: true,

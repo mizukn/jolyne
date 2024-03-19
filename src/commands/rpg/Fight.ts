@@ -186,7 +186,6 @@ const slashCommand: SlashCommandFile = {
                     });
                     return;
                 }
-                ctx.interaction.deleteReply();
                 const fightHandler = new FightHandler(ctx, teams, FightTypes.Friendly);
 
                 fightHandler.on("end", async (winners) => {
@@ -259,7 +258,7 @@ const slashCommand: SlashCommandFile = {
             }
             const npc = Functions.findNPC<FightableNPC>(npcId, true);
 
-            ctx.interaction.deleteReply();
+            // ctx.interaction.deleteReply();
 
             const fight = new FightHandler(ctx, [[ctx.userData], [npc]], type, message);
             ctx.interaction.fetchReply().then((r) => {
@@ -716,7 +715,6 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
 
-                ctx.interaction.deleteReply();
                 new FightHandler(ctx, [[ctx.userData], [npcData]], FightTypes.Friendly);
             }
         }
