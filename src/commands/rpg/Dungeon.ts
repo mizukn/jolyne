@@ -94,7 +94,11 @@ const slashCommand: SlashCommandFile = {
         const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
         const nextDate = dateAtMidnight + 86400000;
 
-        if (dungeonDoneTodayCount >= 4) {
+        if (
+            dungeonDoneTodayCount >= 4 &&
+            !ctx.client.user.username.includes("Beta") &&
+            !ctx.client.user.username.includes("Alpha")
+        ) {
             const timeLeft = nextDate - Date.now();
             return ctx.makeMessage({
                 content: `<:kars:1057261454421676092> **Kars:** You've already done 4 dungeons today. Come back ${Functions.generateDiscordTimestamp(
