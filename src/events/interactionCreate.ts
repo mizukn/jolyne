@@ -95,7 +95,8 @@ const Event: EventFile = {
                     if (
                         cooldown &&
                         cooldown > Date.now() &&
-                        !ctx.client.user.username.includes("Beta")
+                        !ctx.client.user.username.includes("Beta") &&
+                        !ctx.client.user.username.includes("Alpha")
                     ) {
                         return ctx.makeMessage({
                             content: `You can use this RPG command again ${Functions.generateDiscordTimestamp(
