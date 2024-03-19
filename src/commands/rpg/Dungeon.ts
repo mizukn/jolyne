@@ -445,8 +445,22 @@ const slashCommand: SlashCommandFile = {
                                     },
                                     {
                                         name: "Last enemy beaten",
-                                        value: dungeon.beatenEnemies[0]
-                                            ? `${dungeon.beatenEnemies[0].emoji} | ${dungeon.beatenEnemies[0].name} (level ${dungeon.beatenEnemies[0].level})`
+                                        value: dungeon.beatenEnemies[
+                                            dungeon.beatenEnemies.length - 1
+                                        ]
+                                            ? `${
+                                                  dungeon.beatenEnemies[
+                                                      dungeon.beatenEnemies.length - 1
+                                                  ].emoji
+                                              } | ${
+                                                  dungeon.beatenEnemies[
+                                                      dungeon.beatenEnemies.length - 1
+                                                  ].name
+                                              } (level ${
+                                                  dungeon.beatenEnemies[
+                                                      dungeon.beatenEnemies.length - 1
+                                                  ].level
+                                              })`
                                             : "none, too bad",
                                         inline: true,
                                     },
