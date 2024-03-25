@@ -9,6 +9,6 @@
     "WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER": "You can get more daily bonuses by becoming a [patreon](https://www.patreon.com/mizuki54). You can also get some rewards by {{command.vote}} if you haven't already.",
     "WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER": "You can get more daily bonuses by boosting our [support server](https://discord.gg/jolyne). You can also get some rewards by {{command.vote}} if you haven't already.",
     "WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER": "You can get some rewards by {{command.vote}} if you haven't already.",
-    "REWARDS_MESSAGE": "{{emojis.timerIcon}} Resets {{discordUnix}}\n{{emojis.arrowRight}} You'll get **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}} and **1x Stand Arrow** {{emojis.mysterious_arrow}} if you complete all of them.",
-    "REWARDS_CLAIM_MESSAGE": "GG! You've completed all of the daily rewards. Here is your **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}} and **1x Stand Arrow** {{emojis.mysterious_arrow}}."
+    "REWARDS_MESSAGE": "{{emojis.timerIcon}} Resets {{discordUnix}}\n{{emojis.arrowRight}} You'll get **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}}, **1x Stand Arrow** {{emojis.mysterious_arrow}} and **1x Dungeon Key** {{dungeon_key}} if you complete all of them.",
+    "REWARDS_CLAIM_MESSAGE": "GG! You've completed all of the daily rewards. Here is your **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}}, **1x Stand Arrow** {{emojis.mysterious_arrow}} and **1x Dungeon Key** {{dungeon_key}}."
 }
