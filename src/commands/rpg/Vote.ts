@@ -1,7 +1,7 @@
 import { SlashCommandFile } from "../../@types";
 import { Message, InteractionResponse, APIEmbed } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
-import { generateDiscordTimestamp, TopGGVoteRewards } from "../../utils/Functions";
+import { generateDiscordTimestamp, TopGGVoteRewards, findItem } from "../../utils/Functions";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -34,7 +34,9 @@ const slashCommand: SlashCommandFile = {
                     ctx.client.localEmojis.mysterious_arrow
                 } **Stand Arrows** and x2 ${
                     ctx.client.localEmojis.mysterious_arrow
-                } **Rare Stand Arrows** every 2 votes.`,
+                } **Rare Stand Arrows** + 1x ${
+                    findItem("dungeon").emoji
+                } **Dungeon Key** every 2 votes.`,
                 color: 0xff3366,
                 fields: [],
             },
@@ -51,14 +53,18 @@ const slashCommand: SlashCommandFile = {
                 name: "Thank you for voting!",
                 value: `You have been given **${voteRewards.coins.toLocaleString("en-US")}** ${
                     ctx.client.localEmojis.jocoins
-                }, **${voteRewards.xp.toLocaleString("en-US")}** ${
-                    ctx.client.localEmojis.xp
-                } and x2 ${
+                }, **${voteRewards.xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}, x2 ${
                     ctx.client.localEmojis.mysterious_arrow
                 } **Stand Arrows** for voting ${generateDiscordTimestamp(lastVote, "FROM_NOW")}. ${
                     ctx.userData.totalVotes % 2 === 0
-                        ? `\nYou have also been giving x2 ${ctx.client.localEmojis.mysterious_arrow} Rare Stand Arrows for voting 2 times.`
-                        : `\nIf you vote 1 more time, you will be given x2 ${ctx.client.localEmojis.mysterious_arrow} Rare Stand Arrows.`
+                        ? `\nYou have also been giving x2 ${
+                              ctx.client.localEmojis.mysterious_arrow
+                          } Rare Stand Arrows and a ${
+                              findItem("dungeon").emoji
+                          } **Dungeon Key** for voting 2 times.`
+                        : `\nIf you vote 1 more time, you will be given x2 ${
+                              ctx.client.localEmojis.mysterious_arrow
+                          } Rare Stand Arrows and a ${findItem("dungeon").emoji} **Dungeon Key**.`
                 }`,
                 // }
                 // ]

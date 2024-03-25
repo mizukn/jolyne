@@ -324,6 +324,7 @@ const slashCommand: SlashCommandFile = {
                                         dateAtMidnight + 86400000,
                                         "FROM_NOW"
                                     ),
+                                    dungeon_key: Functions.findItem("Dungeon").emoji,
                                 }
                             )}`,
                             color: 0x70926c,
@@ -405,6 +406,7 @@ const slashCommand: SlashCommandFile = {
                         Functions.addCoins(ctx.userData, coinReward);
                         Functions.addXp(ctx.userData, xpReward);
                         Functions.addItem(ctx.userData, Functions.findItem("Stand Arrow"));
+                        Functions.addItem(ctx.userData, Functions.findItem("Dungeon"));
 
                         await ctx.client.database.saveUserData(ctx.userData);
                         await ctx.client.database.redis.set(
@@ -420,6 +422,7 @@ const slashCommand: SlashCommandFile = {
                             content: ctx.translate("daily:REWARDS_CLAIM_MESSAGE", {
                                 coins: coinReward.toLocaleString("en-US"),
                                 xp: xpReward.toLocaleString("en-US"),
+                                dungeon_key: Functions.findItem("Dungeon").emoji,
                             }),
                         });
                     });
