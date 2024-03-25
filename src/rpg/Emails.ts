@@ -263,3 +263,39 @@ export const SecondAnniversary: Email = {
         ],
     },
 };
+
+/**
+ * TopGG rewards buff 2
+ * You can now earn up to 1 dungeon key every 2 votes
+ */
+export const TOPGG_REWARDS_BUFF_2: Email = {
+    id: "2topgg_rewards_buff_2",
+    author: NPCs.JolyneTeam,
+
+    subject: "TopGG rewards buff (2)",
+    rewards: {
+        items: [
+            {
+                item: "stand_arrow",
+                amount: 2,
+            },
+            {
+                item: "rare_stand_arrow",
+                amount: 2,
+            },
+            {
+                item: "dungeon_key",
+                amount: 1,
+            },
+        ],
+    },
+    content: (ctx) => `
+Hello!
+
+We've decided to buff the TopGG rewards.
+You can now earn 1 dungeon key every 2 votes (${ctx.client.getSlashCommandMention("dungeon")}).
+
+You can also use the ${ctx.client.getSlashCommandMention("vote")} command for more information.
+`,
+    footer: "Thank you!",
+};
