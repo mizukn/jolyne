@@ -9,6 +9,6 @@
     "WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER": "Вы можете получать больше ежедневных бонусов, став [patreon](https://www. atreon.com/mizuki54). Вы также можете получить некоторые награды использовав {{command.vote}}, если вы еще их не получили.",
     "WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER": "Вы можете получать больше ежедневных бонусов, забустив наш [сервер поддержки](https://discord.gg/jolyne). Вы также можете получить некоторые награды использовав {{command.vote}}, если вы еще их не получили.",
     "WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER": "Ты можешь получить награды, если ты используешь команду {{command.vote}}(Работает каждые 12 часов).",
-    "REWARDS_MESSAGE": "{{emojis.timerIcon}} Resets {{discordUnix}}\n{{emojis.arrowRight}} You'll get **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}} and **1x Stand Arrow** {{emojis.mysterious_arrow}} if you complete all of them.",
-    "REWARDS_CLAIM_MESSAGE": "GG! You've completed all of the daily rewards. Here is your **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}} and **1x Stand Arrow** {{emojis.mysterious_arrow}}."
+    "REWARDS_MESSAGE": "{{emojis.timerIcon}} Resets {{discordUnix}}\n{{emojis.arrowRight}} You'll get **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}}, **1x Stand Arrow** {{emojis.mysterious_arrow}} and **1x Dungeon Key** {{dungeon_key}} if you complete all of them.",
+    "REWARDS_CLAIM_MESSAGE": "GG! You've completed all of the daily rewards. Here is your **{{coins}}** {{emojis.jocoins}}, **{{xp}}** {{emojis.xp}}, **1x Stand Arrow** {{emojis.mysterious_arrow}} and **1x Dungeon Key** {{dungeon_key}}."
 }
