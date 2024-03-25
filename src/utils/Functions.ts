@@ -168,6 +168,10 @@ export const pushEmail = (email: Email): RPGUserEmail => {
 
 export const findEmail = (query: string): Email => {
     if (!query) return;
+    if (Object.values(Emails).find((email) => email.id === query)) {
+        return Object.values(Emails).find((email) => email.id === query);
+    }
+
     const email = Object.values(Emails).find(
         (email) =>
             (email.id || email.subject) === query ||

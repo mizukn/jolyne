@@ -29,6 +29,7 @@ export default (client: JolyneClient): void => {
                 const rewards = TopGGVoteRewards(user);
                 user.coins += rewards.coins;
                 user.xp += rewards.xp;
+                addItem(user, "dungeon_key", 1);
                 addItem(user, "stand_arrow", 2);
 
                 const voteMonth = new Date().toLocaleString("en-US", {
