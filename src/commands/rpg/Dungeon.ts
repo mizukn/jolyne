@@ -341,8 +341,13 @@ const slashCommand: SlashCommandFile = {
                             }
                         }
 
-                        player.xp += Math.round(
-                            (dungeon.damageDealt[player.id] / totalDamage) * xpRewards
+                        Functions.addXp(
+                            player,
+                            Math.round(
+                                (dungeon.damageDealt[player.id] / totalDamage) *
+                                    xpRewards *
+                                    (players.length === 2 ? 1.2 : 1)
+                            )
                         );
                         player.coins += coinRewards;
                         player.health = 0;
