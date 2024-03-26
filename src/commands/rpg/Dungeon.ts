@@ -356,6 +356,8 @@ const slashCommand: SlashCommandFile = {
                                     (players.length === 2
                                         ? playerDiffPercent <= 0.5
                                             ? 1.2
+                                            : Math.max(players[0].level, players[1].level) < 60
+                                            ? 1.2
                                             : 1
                                         : 1)
                             )
