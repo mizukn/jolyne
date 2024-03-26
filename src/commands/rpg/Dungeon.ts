@@ -341,12 +341,23 @@ const slashCommand: SlashCommandFile = {
                             }
                         }
 
+                        const playerDiffPercent =
+                            players.length === 1
+                                ? 0
+                                : Math.abs(
+                                      (players[0].level - players[1].level) /
+                                          Math.max(players[0].level, players[1].level)
+                                  );
                         Functions.addXp(
                             player,
                             Math.round(
                                 (dungeon.damageDealt[player.id] / totalDamage) *
                                     xpRewards *
-                                    (players.length === 2 ? 1.2 : 1)
+                                    (players.length === 2
+                                        ? playerDiffPercent <= 0.5
+                                            ? 1.2
+                                            : 1
+                                        : 1)
                             )
                         );
                         player.coins += coinRewards;
