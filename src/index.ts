@@ -209,6 +209,11 @@ for (const stand of [
         .map((x) => x)
         .flat(),
 ]) {
+    // check if today is 1st april
+    if (new Date().getMonth() === 3 && new Date().getDate() === 1) {
+        stand.emoji = "🤡";
+        stand.image = `https://i.pinimg.com/originals/32/f2/ed/32f2eddb36d15d979a29c9728ac89472.jpg`;
+    }
     if (!stand.available) continue;
 
     // @ts-expect-error because it's a dynamic property
