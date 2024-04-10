@@ -903,7 +903,11 @@ export const generateStandCart = async function standCart(stand: Stand): Promise
     ctx.drawImage(image, 40, 50, 230 - RM + 15, 345 - RM + 20);
     ctx.drawImage(card_image, 0, 0, 230, 345);
     ctx.fillStyle = "white";
-    if (stand.name.length === 10) {
+    if (stand.name.toLocaleLowerCase() === "mommy queen") {
+        ctx.font = "22px Arial";
+        const content = stand.name;
+        ctx.fillText(content, 35, 40);
+    } else if (stand.name.length === 10) {
         ctx.font = "22px Arial";
         const content = stand.name.substring(0, 10);
         ctx.fillText(content, 50, 40);
