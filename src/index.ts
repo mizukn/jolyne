@@ -214,7 +214,7 @@ for (const stand of [
         stand.emoji = "🤡";
         stand.image = `https://i.pinimg.com/originals/32/f2/ed/32f2eddb36d15d979a29c9728ac89472.jpg`;
     }
-    if (!stand.available) continue;
+    if (!stand.available || stand.name.toLocaleLowerCase() === "mommy queen") continue;
 
     // @ts-expect-error because it's a dynamic property
     NPCs[`${stand.name.replace(" ", "")}User`] = {
