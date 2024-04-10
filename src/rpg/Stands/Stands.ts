@@ -897,3 +897,32 @@ export const KingCrimson: Stand = {
     available: true,
     image: "https://i.pinimg.com/474x/8f/60/88/8f6088c59c2355de39d7ede735768e3a.jpg",
 };
+
+export const KillerQueenWinterCustom: Stand = {
+    id: "winterhalloween:mommy_queen",
+    name: "Mommy QUEEN",
+    rarity: "T",
+    description: "Custom stand made for @winterhalloween.",
+    abilities: [
+        Abilities.CoinBomb,
+        {
+            ...Abilities.StandBarrage,
+            name: "Bomb Barrage",
+            description: "Killer Queen punches the enemy with its **huge** bombs",
+            damage: Abilities.StandBarrage.damage + 15,
+        },
+        Abilities.SheerHeartAttackBTD,
+        Abilities.BitesTheDust,
+    ],
+    emoji: "<:kqfm:1227725844257050749>",
+    skillPoints: {
+        perception: 15,
+        strength: 15,
+        speed: 15,
+        stamina: 15,
+        defense: 15,
+    },
+    color: 0xffc0cb,
+    available: true,
+    image: "https://media.jolyne.moe/cqoXD4/direct",
+};
