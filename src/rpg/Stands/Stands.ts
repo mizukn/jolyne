@@ -904,15 +904,15 @@ export const KillerQueenWinterCustom: Stand = {
     rarity: "T",
     description: "Custom stand made for @winterhalloween.",
     abilities: [
-        Abilities.CoinBomb,
+        { ...Abilities.CoinBomb, name: "Thigh Job" },
         {
             ...Abilities.StandBarrage,
-            name: "Bomb Barrage",
+            name: "Titty Fuck",
             description: "Killer Queen punches the enemy with its **huge** bombs",
             damage: Abilities.StandBarrage.damage + 15,
         },
-        Abilities.SheerHeartAttackBTD,
-        Abilities.BitesTheDust,
+        { ...Abilities.SheerHeartAttackBTD, name: "Armpit Job" },
+        { ...Abilities.BitesTheDust, name: "Face Sitting Sex" },
     ],
     emoji: "<:kqfm:1227725844257050749>",
     skillPoints: {
