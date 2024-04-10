@@ -122,7 +122,7 @@ const slashCommand: SlashCommandFile = {
             return;
         }
         const raid = fixedBosses.find((r) => r.boss.id === bossChosen);
-        const raidCost = (raid.baseRewards.coins ?? 25000) * 3;
+        const raidCost = (raid.baseRewards?.coins ?? 25000) * 3;
         if (!raid) {
             ctx.makeMessage({
                 content: "That boss doesn't exist!",
@@ -290,7 +290,7 @@ const slashCommand: SlashCommandFile = {
                         if (!winnerData) continue;
                         console.log("winnerData:", winnerData.id);
                         const winContent: string[] = [];
-                        if (raid.baseRewards.coins) {
+                        if (raid.baseRewards?.coins) {
                             const coins = Math.round(
                                 winner.health === 0
                                     ? raid.baseRewards.coins / 4
@@ -303,7 +303,7 @@ const slashCommand: SlashCommandFile = {
                                 }`
                             );
                         }
-                        if (raid.baseRewards.xp) {
+                        if (raid.baseRewards?.xp) {
                             // only give xps based of winner.totalDamageDealt . If totalDamageDealth is the boss.raid.health or higher, give full xp. Faites le proportionnellement
                             let xp = /*Math.round(
                                 winner.health === 0 ? raid.baseRewards.xp / 4 : raid.baseRewards.xp
@@ -317,7 +317,7 @@ const slashCommand: SlashCommandFile = {
                                 `+**${xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}`
                             );
                         }
-                        if (raid.baseRewards.items.length > 0) {
+                        if (raid.baseRewards && raid.baseRewards?.items.length > 0) {
                             for (const item of raid.baseRewards.items) {
                                 const chance = Math.round(
                                     (winner.totalDamageDealt /
@@ -571,11 +571,11 @@ const slashCommand: SlashCommandFile = {
                     {
                         name: "Rewards:",
 
-                        value: `> - **${(raid.baseRewards.coins ?? 0).toLocaleString("en-US")}**${
+                        value: `> - **${(raid.baseRewards?.coins ?? 0).toLocaleString("en-US")}**${
                             ctx.client.localEmojis.jocoins
-                        }\n> - **${(raid.baseRewards.xp ?? 0).toLocaleString("en-US")}**${
+                        }\n> - **${(raid.baseRewards?.xp ?? 0).toLocaleString("en-US")}**${
                             ctx.client.localEmojis.xp
-                        }\n${raid.baseRewards.items
+                        }\n${raid.baseRewards?.items
                             .map((i) => {
                                 const itemData = Functions.findItem(i.item);
                                 if (!itemData) return null;
@@ -585,7 +585,7 @@ const slashCommand: SlashCommandFile = {
                             })
                             .filter((r) => r)
                             .join("\n")}${
-                            raid.baseRewards.items.length !== 0
+                            raid.baseRewards?.items.length !== 0
                                 ? "\n\n\\- The drop rate of an item is determined by the damage you deal. If there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item. This logic applies to every reward."
                                 : ""
                         }`,
