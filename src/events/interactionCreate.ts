@@ -501,9 +501,10 @@ const Event: EventFile = {
                 // todo: temp, remove after a while
                 const dsui = await interaction.client.database.getString(`dsui:${ctx.user.id}`);
                 if (dsui) {
-                    ctx.userData.level += 10;
+                    if (ctx.userData.level) ctx.userData.level += 10;
+                    if (ctx.userData.daily?.claimStreak) ctx.userData.daily.claimStreak += 1;
                     ctx.followUpQueue.push({
-                        content: `We're sorry for the long maintenance that happened these days. You received a compensation of 10 levels.`,
+                        content: `We're sorry for the long maintenance that happened these days. You received a compensation of 10 levels and your dialy streak has been increased (and even if you couldn't claim it, it won't be reset).`,
                     });
                     interaction.client.database.setString(`dsui:${ctx.user.id}`, "true");
                 }
