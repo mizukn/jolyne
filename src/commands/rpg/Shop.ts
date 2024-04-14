@@ -383,8 +383,8 @@ const slashCommand: SlashCommandFile = {
                         ],
                     });
                 } else if (i.customId === `amount_${ctx.interaction.id}`) {
-                    const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
-                    if (isNaN(amount)) return;
+                    let amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
+                    if (isNaN(amount)) amount = 1000000000000;
 
                     const price =
                         selectedItem.id === "box"
