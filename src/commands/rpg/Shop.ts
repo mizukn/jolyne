@@ -80,10 +80,11 @@ const slashCommand: SlashCommandFile = {
                     },
                     {
                         item: "skill_points_reset_potion",
+                        price: Functions.findItem("skill_points_reset_potion").price ?? 10000,
                     },
                     {
                         item: "dungeon_key",
-                        price: 3500000,
+                        price: Functions.findItem("dungeon_key").price ?? 10000,
                     },
                 ],
             };
