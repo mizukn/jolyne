@@ -500,7 +500,7 @@ const Event: EventFile = {
 
                 // todo: temp, remove after a while
                 const dsui = await interaction.client.database.getString(`dsui:${ctx.user.id}`);
-                if (dsui) {
+                if (!dsui) {
                     if (ctx.userData.level) ctx.userData.level += 10;
                     if (ctx.userData.daily?.claimStreak) ctx.userData.daily.claimStreak += 1;
                     ctx.followUpQueue.push({
