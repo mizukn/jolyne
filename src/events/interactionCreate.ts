@@ -497,6 +497,17 @@ const Event: EventFile = {
                         )} command to see them!`,
                     });
                 }
+
+                // todo: temp, remove after a while
+                const dsui = await interaction.client.database.getString(`dsui:${ctx.user.id}`);
+                if (dsui) {
+                    ctx.userData.level += 10;
+                    ctx.followUpQueue.push({
+                        content: `We're sorry for the long maintenance that happened these days. You received a compensation of 10 levels.`,
+                    });
+                    interaction.client.database.setString(`dsui:${ctx.user.id}`, "true");
+                }
+
                 if (oldDataJSON !== JSON.stringify(ctx.userData))
                     ctx.client.database.saveUserData(ctx.userData);
             }
