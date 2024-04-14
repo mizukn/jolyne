@@ -83,6 +83,7 @@ const slashCommand: SlashCommandFile = {
                     },
                     {
                         item: "dungeon_key",
+                        price: 3500000,
                     },
                 ],
             };
@@ -222,6 +223,7 @@ const slashCommand: SlashCommandFile = {
                             )
                                 continue;
                             if (xitem.id === "box") xitem.price = 450000;
+                            if (isNaN(xitem.price)) xitem.price = 1000000000000;
 
                             shopSelect.addOptions([
                                 {
@@ -270,6 +272,8 @@ const slashCommand: SlashCommandFile = {
                         xitem.price = 450000;
                         item.price = 450000;
                     }
+                    if (isNaN(xitem.price)) xitem.price = 1000000000000;
+
                     str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                         xitem.name
                     }** - ${(item.price ?? xitem.price).toLocaleString("en-US")} ${
@@ -380,6 +384,7 @@ const slashCommand: SlashCommandFile = {
                     });
                 } else if (i.customId === `amount_${ctx.interaction.id}`) {
                     const amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
+                    if (isNaN(amount)) return;
 
                     const price =
                         selectedItem.id === "box"
