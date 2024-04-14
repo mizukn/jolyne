@@ -88,10 +88,11 @@ const slashCommand: SlashCommandFile = {
                 Functions.addCoins(ctx.userData, rewards.coins);
                 Functions.addXp(ctx.userData, rewards.xp);
 
+                /*
                 // check if the user last daily was claimed after 2 days
                 if (ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000) {
                     ctx.userData.daily.claimStreak = 0;
-                }
+                }*/ // TODO: TEMPARORY DISABLED, ENABLE IT IN 4  DAYS
 
                 ctx.userData.daily.claimStreak++;
                 ctx.userData.daily.lastClaimed = dateAtMidnight;
