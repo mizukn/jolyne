@@ -293,7 +293,7 @@ const slashCommand: SlashCommandFile = {
                 const Shop = Shops[shop as keyof typeof Shops];
                 handleShop(Shop);
             }
-            if (new Date().getDay() === 1) handleShop(await createUserBlackMarket());
+            if (new Date().getDay() === 0) handleShop(await createUserBlackMarket());
             const shopSelectMenu = new StringSelectMenuBuilder()
                 .setCustomId(`shop_${ctx.interaction.id}` + ctx.interaction.id)
                 .setPlaceholder("Select a shop")
