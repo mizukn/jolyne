@@ -924,5 +924,5 @@ export const KillerQueenWinterCustom: Stand = {
     },
     color: 0xffc0cb,
     available: true,
-    image: "https://media.jolyne.moe/cqoXD4/direct",
+    image: "https://media.jolyne.moe/ZTAetm/direct",
 };
