@@ -113,6 +113,22 @@ const slashCommand: SlashCommandFile = {
         // staff
         if (await ctx.client.database.redis.get(`jolyneRole_staff_${userOption.id}`)) {
             badges.push(`:shield: Jolyne Staff Team`);
+            // jolyne admin
+            if (
+                process.env.OWNER_IDS.split(",").includes(userOption.id) ||
+                process.env.ADMIN_IDS.split(",").includes(userOption.id)
+            ) {
+                badges.push(`:shield: Administrator`);
+            }
+        }
+
+        // participated to the 2023 jolyne beta tournament
+        if (
+            await ctx.client.database.redis.get(
+                `jolyneRole_beta_tournament_participant_${userOption.id}`
+            )
+        ) {
+            badges.push(`:crossed_swords: Beta Tournament Participant`);
         }
         if (ctx.client.patreons.find((x) => x.id === userOption.id)) {
             badges.push(
@@ -128,6 +144,10 @@ const slashCommand: SlashCommandFile = {
         // contributor
         if (await ctx.client.database.redis.get(`jolyneRole_contributor_${userOption.id}`)) {
             badges.push(`:white_check_mark: Contributor`);
+        }
+        // jolyneRole_huge_contributor_
+        if (await ctx.client.database.redis.get(`jolyneRole_huge_contributor_${userOption.id}`)) {
+            badges.push(`:star2: Huge Contributor`);
         }
 
         // booster
