@@ -1051,3 +1051,30 @@ export interface V2UserData {
         quests: Quest[];
     };
 }
+
+export type GangRoles = "boss" | "lieutenant" | "advisor" | "member";
+export interface GangMember {
+    id: string;
+    role: GangRoles;
+    joinedAt: number;
+    gang: Gang["id"];
+}
+
+export interface Gang {
+    id: string;
+    name: string;
+    description: string;
+    emoji: string;
+    color: number;
+}
+
+const GangMemberSQLQuery = `
+CREATE TABLE IF NOT EXISTS gang_members (
+    id TEXT PRIMARY KEY,
+    role TEXT NOT NULL,
+    joined_at INTEGER NOT NULL,
+    gang TEXT NOT NULL,
+    FOREIGN KEY (gang) REFERENCES gangs(id),
+);
+ALTER TABLE gang_members ADD CONSTRAINT unique_boss_per_gang UNIQUE (gang, role CHECK (role = 'boss'));
+`;
