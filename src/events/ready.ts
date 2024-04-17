@@ -16,6 +16,10 @@ async function fetchSupportMembers(client: Jolyne): Promise<void> {
     const contributors = members.filter((v) => v.roles.cache.has("926829876990844989"));
     const staff = members.filter((v) => v.roles.cache.has("926829641518424064"));
     const boosters = members.filter((v) => v.roles.cache.has("938432687386005585"));
+    const betaTournamentParticipants = members.filter((v) =>
+        v.roles.cache.has("1129091839023120415")
+    );
+    const hugeContributors = members.filter((v) => v.roles.cache.has("926829876990844989"));
 
     for (const member of betaTesters) {
         client.database.redis.set(`jolyneRole_beta_tester_${member.id}`, "true");
@@ -29,6 +33,14 @@ async function fetchSupportMembers(client: Jolyne): Promise<void> {
     for (const member of boosters) {
         client.database.redis.set(`jolyneRole_booster_${member.id}`, "true");
         client.boosters.push(member.id);
+    }
+
+    for (const member of betaTournamentParticipants) {
+        client.database.redis.set(`jolyneRole_beta_tournament_participant_${member.id}`, "true");
+    }
+
+    for (const member of hugeContributors) {
+        client.database.redis.set(`jolyneRole_huge_contributor_${member.id}`, "true");
     }
 
     // remove jolyne_beta_tester_ jolyne_contributor_ jolyne_staff_ from people that are not in the server anymore or dont have the role anymore
@@ -45,6 +57,13 @@ async function fetchSupportMembers(client: Jolyne): Promise<void> {
         } else if (role === "booster" && !boosters.find((v) => v.id === id)) {
             client.database.redis.del(key);
             client.boosters = client.boosters.filter((v) => v !== id);
+        } else if (
+            role === "beta_tournament_participant" &&
+            !betaTournamentParticipants.find((v) => v.id === id)
+        ) {
+            client.database.redis.del(key);
+        } else if (role === "huge_contributor" && !hugeContributors.find((v) => v.id === id)) {
+            client.database.redis.del(key);
         }
     }
 }
