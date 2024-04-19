@@ -48,6 +48,10 @@ const Event: EventFile = {
                 return interaction.reply({
                     content: interaction.client.localEmojis["jolyne"],
                 });
+            if (!interaction.channel)
+                return interaction.reply(
+                    "This command is not available here. If you're on a thread, please make sure that I have the permissions to send/read messages in this thread."
+                );
 
             // cooldown
             if (command.cooldown && !isNaN(command.cooldown)) {
