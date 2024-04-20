@@ -216,8 +216,9 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, u
                 `:fire: **${target.name}** took **${damage}** burn damage`
             );
             if (target.health > 0) {
+                const oldHealth = target.health;
                 target.health -= damage;
-                user.totalDamageDealt += damage;
+                user.totalDamageDealt += oldHealth - target.health;
                 if (target.health <= 0) {
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
@@ -238,8 +239,9 @@ const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, 
                 `🩸 **${target.name}** took **${damage}** bleed damage`
             );
             if (target.health > 0) {
+                const oldHealth = target.health;
                 target.health -= damage;
-                user.totalDamageDealt += damage;
+                user.totalDamageDealt += oldHealth - target.health;
                 if (target.health <= 0) {
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
@@ -955,8 +957,9 @@ export const BerserkersRampage: Ability = {
                     x.skillPoints.perception !== Infinity
                 ) {
                     const damages = Math.round(Functions.getAttackDamages(user) * 1.75);
+                    const oldHealth = x.health;
                     x.health -= damages;
-                    user.totalDamageDealt += damage;
+                    user.totalDamageDealt += oldHealth - x.health;
                     if (x.health <= 0) x.health = 0;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon.emoji} RAMPAGE: **${
@@ -1001,8 +1004,9 @@ export const KnivesThrow: Ability = {
                 );
             } else {
                 const damages = Math.round(Functions.getAttackDamages(user) * 0.75);
+                const oldHealth = target.health;
                 target.health -= damages;
-                user.totalDamageDealt += damages;
+                user.totalDamageDealt += oldHealth - target.health;
                 if (target.health <= 0) target.health = 0;
                 const stamina = Math.round(target.maxStamina * 0.03);
                 target.stamina -= stamina;
@@ -1051,8 +1055,9 @@ export const GasolineBullets: Ability = {
                     x.skillPoints.perception !== Infinity
                 ) {
                     const damages = Math.round(Functions.getAttackDamages(user) * 3);
+                    const oldHealth = x.health;
                     x.health -= damages;
-                    user.totalDamageDealt += damages;
+                    user.totalDamageDealt += oldHealth - x.health;
                     if (x.health <= 0) x.health = 0;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} GASOLINE BULLETS: **${
@@ -1288,8 +1293,9 @@ export const HealBarrage: Ability = {
         const damages = Math.round(Functions.getAbilityDamage(user, StandBarrage));
         const heal = Math.round(damages * 2);
 
+        const oldHealth = target.health;
         target.health -= damages;
-        user.totalDamageDealt += damages;
+        user.totalDamageDealt += oldHealth - target.health;
 
         if (target.health <= 0) target.health = 0;
         ctx.turns[ctx.turns.length - 1].logs.push(
@@ -1373,8 +1379,9 @@ export const HealPunch: Ability = {
     useMessage: (user, target, damage, ctx) => {
         const damages = Math.round(Functions.getAbilityDamage(user, StandBarrage) * 0.75);
 
+        const oldHealth = target.health;
         target.health -= damages;
-        user.totalDamageDealt += damages;
+        user.totalDamageDealt += oldHealth - target.health;
 
         if (target.health <= 0) target.health = 0;
 
@@ -1420,8 +1427,9 @@ const poisonDamagePromise = (
                 `☠️🧪☣️ **${target.name}** took **${damage}** poison damage`
             );
             if (target.health > 0) {
+                const oldHealth = target.health;
                 target.health -= damage;
-                user.totalDamageDealt += damage;
+                user.totalDamageDealt += oldHealth - target.health;
                 if (target.health <= 0) {
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
@@ -1446,9 +1454,10 @@ export const CapsuleShot: Ability = {
     thumbnail: "https://i.imgur.com/tpSzFjD.gif",
     useMessage: (user, target, damage, ctx) => {
         const damageX = Functions.getAttackDamages(user);
+        const oldHealth = target.health;
         target.health -= damageX;
-        user.totalDamageDealt += damageX;
         if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += oldHealth - target.health;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `> ${user.stand?.emoji} CAPSULE SHOT: **${
@@ -1509,8 +1518,9 @@ export const WristKnives: Ability = {
                         x.skillPoints.perception !== Infinity
                     ) {
                         const damages = Math.round(Functions.getAttackDamages(user));
+                        const oldHealth = x.health;
                         x.health -= damages;
-                        user.totalDamageDealt += damages;
+                        user.totalDamageDealt += oldHealth - x.health;
                         if (x.health <= 0) x.health = 0;
                         ctx.turns[ctx.turns.length - 1].logs.push(
                             `- ${user.stand?.emoji} WRIST KNIVES: **${
@@ -1632,9 +1642,10 @@ export const ArmSplitter: Ability = {
         bleedDamagePromise(ctx, target, burnDamageCalc, user);
 
         const armsplitterdmg = Math.round(Functions.getAttackDamages(user) * 1.89);
+        const oldHealth = target.health;
         target.health -= armsplitterdmg;
         if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += armsplitterdmg;
+        user.totalDamageDealt += oldHealth - target.health;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} ARM SPLITTER: **${
                 user.name
@@ -1958,9 +1969,10 @@ export const InfiniteDeathLoop: Ability = {
     useMessage: (user, target, damage, ctx) => {
         for (let i = 0; i < 5; i++) {
             const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+            const oldHealth = cloneDeep(target.health);
             target.health -= xdamage;
             if (target.health <= 0) target.health = 0;
-            user.totalDamageDealt += xdamage;
+            user.totalDamageDealt += oldHealth - target.health;
 
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `- ${user.stand?.emoji} INFINITE DEATH LOOP: **${
@@ -2030,9 +2042,10 @@ export const FrogRain: Ability = {
             .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
                 const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+                const oldHealth = cloneDeep(x.health);
                 x.health -= xdamage;
                 if (x.health <= 0) x.health = 0;
-                user.totalDamageDealt += xdamage;
+                user.totalDamageDealt += oldHealth - x.health;
 
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} FROG RAIN: **${
@@ -2088,9 +2101,10 @@ export const TotalCombustion: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        const oldHealth = cloneDeep(target.health);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += xdamage;
+        user.totalDamageDealt += oldHealth - target.health;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} TOTAL COMBUSTION: **${
@@ -2129,9 +2143,10 @@ export const Mach1Tornado: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 2.5);
+        const oldHealth = cloneDeep(target.health);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += xdamage;
+        user.totalDamageDealt += oldHealth - target.health;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} MACH 1 TORNADO: **${
@@ -2342,9 +2357,10 @@ export const AcidicTouch: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        const oldHealth = cloneDeep(target.health);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += xdamage;
+        user.totalDamageDealt += oldHealth - target.health;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} ACIDIC TOUCH: **${
@@ -2414,9 +2430,10 @@ export const TeaseBarrage: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        const oldHealth = cloneDeep(target.health);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += xdamage;
+        user.totalDamageDealt += oldHealth - target.health;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} TEASE BARRAGE: **${
@@ -2644,9 +2661,10 @@ export const Impale: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 3.75);
+        const oldHealth = cloneDeep(target.health);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += xdamage;
+        user.totalDamageDealt += oldHealth - target.health;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} IMPALE: **${user.name}** has dealt **${xdamage.toLocaleString(
