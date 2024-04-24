@@ -224,7 +224,7 @@ const slashCommand: SlashCommandFile = {
                             )
                                 continue;
                             if (xitem.id === "box") xitem.price = 450000;
-                            if (isNaN(xitem.price)) xitem.price = 1000000000000;
+                            if (isNaN(xitem.price)) continue;
 
                             shopSelect.addOptions([
                                 {
@@ -273,7 +273,7 @@ const slashCommand: SlashCommandFile = {
                         xitem.price = 450000;
                         item.price = 450000;
                     }
-                    if (isNaN(xitem.price)) xitem.price = 1000000000000;
+                    if (isNaN(xitem.price)) continue;
 
                     str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                         xitem.name
