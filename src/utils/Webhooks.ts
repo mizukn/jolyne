@@ -10,3 +10,10 @@ export const claimedItemsWebhook = new WebhookClient({
 export const commandLogsWebhook = new WebhookClient({ url: process.env.COMMAND_LOGS_WEBHOOK_URL });
 export const shardLogsWebhook = new WebhookClient({ url: process.env.SHARD_LOGS_WEBHOOK_URL });
 export const dungeonLogsWebhook = new WebhookClient({ url: process.env.DUNGEON_LOGS_WEBHOOK_URL });
+export const fightStartWebhook = new WebhookClient({
+    url: process.env.FIGHT_START_LOGS_WEBHOOK_URL,
+});
+export const fightEndWebhook = new WebhookClient({ url: process.env.FIGHT_END_LOGS_WEBHOOK_URL });
+export const standLogsWebhook = new WebhookClient({
+    url: process.env.STAND_OBTAINED_LOGS_WEBHOOK_URL,
+});
