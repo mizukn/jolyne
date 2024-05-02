@@ -8,6 +8,7 @@ import * as Consumables from "./ConsumableItems";
 import * as Items from "./Items";
 import { EvolutionStands } from "../Stands";
 import { cloneDeep } from "lodash";
+import { standLogsWebhook } from "../../utils/Webhooks";
 
 interface boxLoot {
     percent: number;
@@ -448,6 +449,20 @@ export const StandArrow: Special = {
             ],
         });
         await ctx.client.database.saveUserData(ctx.userData);
+        standLogsWebhook.send({
+            embeds: [
+                {
+                    title: "New Stand Obtained",
+                    description: `**User:** @${ctx.user.username} (${ctx.user.id})\n**Arrow:** Stand Arrow\n**Stand:** ${stand.name}\n**Rarity:** ${stand.rarity}`,
+                    color: color,
+                    thumbnail: {
+                        url: `attachment://stand.png`,
+                    },
+                    timestamp: new Date().toISOString(),
+                },
+            ],
+            files: [file],
+        });
         return 1;
     },
 };
@@ -546,6 +561,20 @@ export const RareStandArrow: Special = {
             ],
         });
         await ctx.client.database.saveUserData(ctx.userData);
+        standLogsWebhook.send({
+            embeds: [
+                {
+                    title: "New Stand Obtained",
+                    description: `**User:** @${ctx.user.username} (${ctx.user.id})\n**Arrow:** Rare Stand Arrow\n**Stand:** ${stand.name}\n**Rarity:** ${stand.rarity}`,
+                    color: color,
+                    thumbnail: {
+                        url: `attachment://stand.png`,
+                    },
+                    timestamp: new Date().toISOString(),
+                },
+            ],
+            files: [file],
+        });
         return 1;
     },
 };
