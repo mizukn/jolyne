@@ -90,6 +90,12 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message | void | InteractionResponse> => {
+        if (!ctx.client.database.postgresql) {
+            return void ctx.makeMessage({
+                content:
+                    "This command is disabled because the PostgreSQL database is currently having issues. For security reasons, this command is disabled until the issue is resolved.",
+            });
+        }
         if (ctx.interaction.options.getSubcommand() === "start") {
             const target = ctx.options.getUser("user") || ctx.user;
             const targetData = await ctx.client.database.getRPGUserData(target.id);
