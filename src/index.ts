@@ -447,22 +447,21 @@ for (const NPC of Object.values(FightableNPCs)) {
 }
 
 process.on("SIGINT", () => {
-    client.database.postgresql.end();
+    client.database.postgresql?.end();
     client.database.redis.quit();
     process.exit(0);
 });
 
 process.on("SIGTERM", () => {
-    client.database.postgresql.end();
+    client.database.postgresql?.end();
     client.database.redis.quit();
     process.exit(0);
 });
 
 process.on("exit", () => {
     console.log("Exiting...");
-    client.database.postgresql.end();
+    client.database.postgresql?.end();
     client.database.redis.quit();
-    exec("pm2 restart 1"); // add delay otherwise it wont resurrect. this is what caused unexpected downtime for every projects that uses pm2
 });
 
 process.on("unhandledRejection", (error: Error) => {
