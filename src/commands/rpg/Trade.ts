@@ -557,6 +557,7 @@ const slashCommand: SlashCommandFile = {
         }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
+        if (!interaction.client.database.postgresql) return;
         if (interaction.options.getSubcommand() === "view") {
             const rows = await interaction.client.database.postgresql.query(
                 `SELECT *
