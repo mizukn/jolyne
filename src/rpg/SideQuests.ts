@@ -66,7 +66,7 @@ export const Beginner: SideQuest = {
     id: "Beginner",
     title: "Beginner",
     description:
-        "Welcome to the game! This is a beginner quest, to help you get started. Remember, if you have any questions, you can always ask them in the support server.\n```\n--> https://discord.gg/jolyne\n```By completing this side quest, you will get x1 Stand Arrow and x1 Money Box. Good luck!",
+        "Welcome to the game! This is a beginner quest, to help you get started. Remember, if you have any questions, you can always ask them in the support server.\n```\n--> https://discord.gg/jolyne-support-923608916540145694\n```By completing this side quest, you will get x1 Stand Arrow and x1 Money Box. Good luck!",
     emoji: "⚔️",
     rewards: async (ctx) => {
         Functions.addItem(ctx.userData, Functions.findItem("stand_arrow"));

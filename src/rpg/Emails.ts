@@ -160,7 +160,7 @@ Regarding the Halloween event, use the ${ctx.client.getSlashCommandMention(
     )} command to get information on the current event.
 
 
-Should you have any questions or suggestions, please contact us on the [support server](https://discord.gg/jolyne) or contact the developer directly: **@mizufare** (mizu@jolyne.moe)
+Should you have any questions or suggestions, please contact us on the [support server](https://discord.gg/jolyne-support-923608916540145694) or contact the developer directly: **@mizufare** (mizu@jolyne.moe)
 
 We hope you all enjoy this update. Once again, happy Halloween!`,
 };
@@ -231,7 +231,7 @@ export const ChristmasEvent2023: Email = {
         )} (${generateDiscordTimestamp(
             1704582000000,
             "DATE"
-        )})\nFor the corrupted reindeer, you may need some people to help you, so don't hesitate to ask for help on the [support server](https://discord.gg/jolyne)!`,
+        )})\nFor the corrupted reindeer, you may need some people to help you, so don't hesitate to ask for help on the [support server](https://discord.gg/jolyne-support-923608916540145694)!`,
     footer: "Merry Christmas and have fun!",
     emoji: "🎄",
 };

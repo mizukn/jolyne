@@ -700,7 +700,7 @@ export const SkillPointsResetPotion: Special = {
         ctx.makeMessage({
             content: `You have successfully reset your skill points. You may want to use them again by using the ${ctx.client.getSlashCommandMention(
                 "skill points invest"
-            )} command. Should you need help or have any questions, please join our [support server](https://discord.gg/jolyne)`,
+            )} command. Should you need help or have any questions, please join our [support server](https://discord.gg/jolyne-support-923608916540145694)`,
         });
 
         return 1;
