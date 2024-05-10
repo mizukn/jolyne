@@ -13,7 +13,7 @@ import {
     UserSelectMenuInteraction,
     RoleSelectMenuInteraction,
     InteractionResponse,
-    MessageComponentInteraction
+    MessageComponentInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -44,13 +44,13 @@ const slashCommand: SlashCommandFile = {
                                 description: "The side quest you want to view",
                                 type: 3,
                                 required: true,
-                                autocomplete: true
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
+                                autocomplete: true,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -58,13 +58,13 @@ const slashCommand: SlashCommandFile = {
         const sideQuest = ctx.options.getString("side_quest", true);
         if (!ctx.userData.sideQuests.find((x) => x.id === sideQuest)) {
             ctx.makeMessage({
-                content: `UH OH! You don't have this side quest! Or it doesn't exist...`
+                content: `UH OH! You don't have this side quest! Or it doesn't exist...`,
             });
             return;
         }
         if (!sideQuestsArr.find((r) => r.id === sideQuest)) {
             ctx.makeMessage({
-                content: `${ctx.client.localEmojis.jolyne} Wow there! You've found a side quest that doesn't exist! Please report this to the developers at https://discord.gg/jolyne. They probably temporairly removed it.`
+                content: `${ctx.client.localEmojis.jolyne} Wow there! You've found a side quest that doesn't exist! Please report this to the developers at https://discord.gg/jolyne-support-923608916540145694. They probably temporairly removed it.`,
             });
             return;
         }
@@ -124,11 +124,9 @@ const slashCommand: SlashCommandFile = {
             embeds: [
                 {
                     title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
-                    description: `\`\`\`\n${
-                        SideQuest.description
-                    }\n\`\`\`\n\n${ctx.client.localEmojis.a_} **__Requirements:__**\n${
-                        SideQuest.requirementsMessage
-                    }${
+                    description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
+                        ctx.client.localEmojis.a_
+                    } **__Requirements:__**\n${SideQuest.requirementsMessage}${
                         SideQuest.cancelQuestIfRequirementsNotMetAnymore
                             ? "\n- ❗ This SideQuest will be automatically erased if you don't meet the requirements anymore! Be careful."
                             : ""
@@ -142,19 +140,19 @@ const slashCommand: SlashCommandFile = {
                             : ""
                     }
                     \n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
-                    color: SideQuest.color
+                    color: SideQuest.color,
                 },
             ],
-            components: components.length === 0 ? [] : [Functions.actionRow(components)]
+            components: components.length === 0 ? [] : [Functions.actionRow(components)],
         });
 
         if (components.length !== 0) {
             const collector = ctx.channel.createMessageComponentCollector({
                 filter: (i) =>
                     (i.user.id === ctx.user.id && i.customId === rewardsButtonID) ||
-                    (i.user.id === ctx.user.id && i.customId === redoQuestID ||
-                    i.user.id === ctx.user.id && i.customId === reloadQuestsButtonID),
-                time: 60000
+                    (i.user.id === ctx.user.id && i.customId === redoQuestID) ||
+                    (i.user.id === ctx.user.id && i.customId === reloadQuestsButtonID),
+                time: 60000,
             });
             collector.on("collect", async (i) => {
                 switch (i.customId) {
@@ -167,7 +165,7 @@ const slashCommand: SlashCommandFile = {
                         }
                         if (SideQuest.canRedoSideQuest) {
                             ctx.followUp({
-                                content: `You've claimed the rewards! BTW this quest can be redone as much as you want, so use this command again if you want to re do it.`
+                                content: `You've claimed the rewards! BTW this quest can be redone as much as you want, so use this command again if you want to re do it.`,
                             });
                         }
                         collector.stop();
@@ -181,7 +179,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.client.database.saveUserData(ctx.userData);
                         collector.stop();
                         ctx.followUp({
-                            content: `You've redone the quest! Use this command again to see your progress.`
+                            content: `You've redone the quest! Use this command again to see your progress.`,
                         });
                         break;
                     }
@@ -194,7 +192,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.client.database.saveUserData(ctx.userData);
                         collector.stop();
                         ctx.followUp({
-                            content: `You've reloaded the quests! Use this command again to see your progress.`
+                            content: `You've reloaded the quests! Use this command again to see your progress.`,
                         });
                         break;
                     }
@@ -218,13 +216,13 @@ const slashCommand: SlashCommandFile = {
             .map((x) => {
                 return {
                     name: x.title,
-                    value: x.id
+                    value: x.id,
                 };
             });
         if (matchCurringInput.length > 24) matchCurringInput.length = 24;
 
         interaction.respond(matchCurringInput.filter((x) => x));
-    }
+    },
 };
 
 export default slashCommand;

@@ -154,7 +154,7 @@ const slashCommand: SlashCommandFile = {
                         return void ctx.makeMessage({
                             content: Functions.makeNPCString(
                                 NPCs.Santa,
-                                "Sorry, you may seem strong but please bring some friends with you...\nIf you don't have any, ask the community for help! https://discord.gg/jolyne"
+                                "Sorry, you may seem strong but please bring some friends with you...\nIf you don't have any, ask the community for help! https://discord.gg/jolyne-support-923608916540145694"
                             ),
                             components: [],
                             embeds: [],

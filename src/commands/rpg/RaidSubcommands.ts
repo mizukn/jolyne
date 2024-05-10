@@ -87,7 +87,7 @@ const slashCommand: SlashCommandFile = {
                         } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
                             Functions.roundToNext15Minutes(new Date()),
                             "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694`,
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
                     });
                 } else {
                     ctx.followUpQueue.push({
@@ -96,7 +96,7 @@ const slashCommand: SlashCommandFile = {
                         } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
                             Functions.roundToNext15Minutes(new Date()),
                             "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694`,
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
                     });
                 }
             }
@@ -117,7 +117,7 @@ const slashCommand: SlashCommandFile = {
 
         if (bossChosen === "confetti_golem" && ctx.guild.id !== "923608916540145694") {
             ctx.followUpQueue.push({
-                content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694`,
+                content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
             });
             return;
         }
