@@ -115,7 +115,7 @@ const Event: EventFile = {
             if (command.category === "rpg" && ctx.userData) {
                 if (ctx.userData.inventory.candy_cane && ctx.userData.inventory.candy_cane < 0) {
                     return void ctx.makeMessage({
-                        content: `:x: | **${ctx.user.username}**, You are banned. Please contact us at https://discord.gg/jolyne-support-923608916540145694 to appeal (@mizufare).`,
+                        content: `:x: | **${ctx.user.username}**, You are banned. Please contact us at https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694 to appeal (@mizufare).`,
                     });
                 }
                 if (
@@ -151,7 +151,7 @@ const Event: EventFile = {
                             ))
                         ) {
                             ctx.followUp({
-                                content: `Reminder: If you can't find the command or someone deleted it, just wait a few minutes and your cooldown will be automatically deleted. If this problem still persists, please contact us at https://discord.gg/jolyne-support-923608916540145694`,
+                                content: `Reminder: If you can't find the command or someone deleted it, just wait a few minutes and your cooldown will be automatically deleted. If this problem still persists, please contact us at https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
                                 ephemeral: true,
                             });
                             await ctx.client.database.redis.set(
