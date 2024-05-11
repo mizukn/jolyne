@@ -385,7 +385,9 @@ export const getSkillPointsBonus = (
     rpgData: RPGUserDataJSON | FightableNPC | Fighter
 ): SkillPoints => {
     const skillPoints = { ...rpgData.skillPoints };
-    const stand = isFighter(rpgData) ? rpgData.stand : findStand(rpgData.stand);
+    const stand = isFighter(rpgData)
+        ? rpgData.stand
+        : findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand]);
     if (stand) {
         for (const id of Object.keys(stand.skillPoints)) {
             skillPoints[id as keyof typeof skillPoints] +=
