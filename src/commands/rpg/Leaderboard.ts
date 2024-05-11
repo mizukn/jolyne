@@ -20,6 +20,20 @@ const slashCommand: SlashCommandFile = {
                 description: "Shows the richest players",
                 type: 1,
             },
+            {
+                name: "items",
+                description: "Shows the most owned items",
+                type: 1,
+                // reverse option
+                options: [
+                    {
+                        name: "reverse",
+                        description: "Reverse the leaderboard",
+                        type: ApplicationCommandOptionType.Boolean,
+                        required: false,
+                    },
+                ],
+            },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -58,21 +72,38 @@ const slashCommand: SlashCommandFile = {
         const userPageButton = new ButtonBuilder()
             .setCustomId("userPage" + ctx.interaction.id)
             .setEmoji("📍")
+            .setDisabled(userPos === "N/A" || ctx.interaction.options.getSubcommand() === "items")
             .setStyle(ButtonStyle.Secondary);
+        const totalItems = lastLeaderboard.data.map((user) => user.inventory);
+        const totalItemsAmount = totalItems.reduce((acc, val) => {
+            for (const item in val) {
+                if (acc[item]) {
+                    acc[item] += val[item];
+                } else {
+                    acc[item] = val[item];
+                }
+            }
+            return acc;
+        }, {});
+        const totalItemsK = Object.values(totalItemsAmount).reduce((a, b) => a + b, 0);
+        const totalPages =
+            ctx.interaction.options.getSubcommand() === "items"
+                ? Math.ceil(Object.keys(totalItemsAmount).length / 10)
+                : Math.ceil(lastLeaderboard.data.length / 10);
 
         function updateMessage(page: number) {
             currentPage = page;
 
-            if (currentPage > Math.ceil(lastLeaderboard.data.length / 10)) {
-                currentPage = Math.ceil(lastLeaderboard.data.length / 10);
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
             } else if (currentPage < 1) {
                 currentPage = 1;
             }
 
             embed.footer = {
-                text: `Page ${currentPage}/${Math.ceil(
-                    lastLeaderboard.data.length / 10
-                )} | Last updated: ${new Date(lastLeaderboard.lastUpdated).toLocaleString()}`,
+                text: `Page ${currentPage}/${totalPages} | Last updated: ${new Date(
+                    lastLeaderboard.lastUpdated
+                ).toLocaleString()}`,
             };
 
             switch (ctx.interaction.options.getSubcommand()) {
@@ -113,6 +144,38 @@ const slashCommand: SlashCommandFile = {
                         }));
                     break;
                 }
+
+                case "items": {
+                    // user.inventory is like that { "itemID": amount }
+                    const reverse = ctx.interaction.options.getBoolean("reverse", false);
+                    embed.title = `${reverse ? "Less" : "Most"} Owned Items`;
+                    // field.name should be like 1 - Item Name ${item.emoji}
+                    // to get the item we can do Functions.findItem(itemID)
+                    // and to get the emoji we can do Functions.findItem(itemID).emoji
+                    // value should be the amount of the item/total amount of items (percentage)
+                    // check if reverse is true
+                    embed.fields = Object.entries(totalItemsAmount)
+                        .sort((a, b) => (reverse ? a[1] - b[1] : b[1] - a[1]))
+                        .slice((currentPage - 1) * 10, currentPage * 10)
+                        .map(([itemID, amount], i) => {
+                            const item = Functions.findItem(itemID);
+                            const ownedByXUsers = totalItems.filter((x) => x[itemID] > 0).length;
+                            return {
+                                name: `${(currentPage - 1) * 10 + i + 1} - ${item.name} ${
+                                    item.emoji
+                                }`,
+                                value: `${
+                                    ctx.client.localEmojis.replyEnd
+                                } \`${amount.toLocaleString(
+                                    "en-US"
+                                )}\` copies owned by **${ownedByXUsers.toLocaleString(
+                                    "en-US"
+                                )}** players (${((amount / totalItemsK) * 100).toFixed(2)}%)`,
+                                inline: false,
+                            };
+                        });
+                    break;
+                }
             }
 
             ctx.interaction.editReply({
@@ -133,7 +196,12 @@ const slashCommand: SlashCommandFile = {
             .reply({ embeds: [embed] }) // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {})
             .then(() => {
-                embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
+                if (ctx.interaction.options.getSubcommand() !== "items")
+                    embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
+                else
+                    embed.description = `:information_source: There are \`${totalItemsK.toLocaleString(
+                        "en-US"
+                    )}\` items in the game`;
                 updateMessage(currentPage);
             });
 
@@ -159,7 +227,7 @@ const slashCommand: SlashCommandFile = {
                     currentPage++;
                     break;
                 case "lastPage":
-                    currentPage = Math.ceil(lastLeaderboard.data.length / 10);
+                    currentPage = totalPages;
                     break;
                 case "userPage":
                     currentPage = Math.ceil(userPos !== "N/A" ? userPos : 1 / 10);
@@ -181,6 +249,10 @@ const slashCommand: SlashCommandFile = {
                     query = `SELECT id, tag, coins
                              FROM "RPGUsers"
                              ORDER BY coins DESC`;
+                    break;
+                case "items": // most owned items
+                    query = `SELECT inventory
+                             FROM "RPGUsers"`;
                     break;
                 default:
                     query = `SELECT *
