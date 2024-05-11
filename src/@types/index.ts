@@ -921,6 +921,7 @@ export interface Leaderboard {
         level: number;
         xp: number;
         coins: number;
+        inventory: RPGUserDataJSON["inventory"];
     }[];
 }
 
