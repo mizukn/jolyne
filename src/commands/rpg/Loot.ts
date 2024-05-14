@@ -67,7 +67,7 @@ const slashCommand: SlashCommandFile = {
                         loot: Items.Box,
                     },
                     {
-                        percent: 60,
+                        percent: 100,
                         loot: Items.Burger,
                     },
                 ],
@@ -94,7 +94,7 @@ const slashCommand: SlashCommandFile = {
                         loot: Items.DeadRat,
                     },
                     {
-                        percent: 40,
+                        percent: 100,
                         loot: Items.Slice_Of_Pizza,
                     },
                 ],
@@ -173,6 +173,14 @@ const slashCommand: SlashCommandFile = {
                         percent: 20,
                         loot: Items.AncientScroll,
                     },
+                    {
+                        percent: 69,
+                        loot: Items.Box,
+                    },
+                    {
+                        percent: 100,
+                        loot: Items.Box,
+                    },
                 ],
             },
             {
@@ -195,6 +203,10 @@ const slashCommand: SlashCommandFile = {
                     {
                         percent: 40,
                         loot: Items.DeadRat,
+                    },
+                    {
+                        percent: 100,
+                        loot: Items.Burger,
                     },
                 ],
             },

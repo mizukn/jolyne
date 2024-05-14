@@ -168,6 +168,22 @@ const slashCommand: SlashCommandFile = {
                     console.error(e);
                 }
             });
+
+        ctx.client.database.postgresql
+            .query<RPGUserDataJSON>('SELECT * FROM "RPGUsers"')
+            .then((res) => {
+                // find who has the most 'rat' in their inventory
+                let max = 0;
+                let user: RPGUserDataJSON | undefined;
+                for (const row of res.rows) {
+                    if (row.inventory.dead_rat > max) {
+                        max = row.inventory.dead_rat;
+                        user = row;
+                    }
+                }
+                console.log(user);
+            });
+
         for (const user of [
             "732308822131212359",
             "694532723187908670",
