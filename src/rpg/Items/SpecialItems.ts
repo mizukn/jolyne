@@ -282,7 +282,11 @@ export const PatreonBox: Special = {
                 },
                 {
                     percent: 100,
-                    xp: Functions.getMaxXp(ctx.userData.level ?? 1) * 2,
+                    xp:
+                        Functions.getMaxXp(ctx.userData.level ?? 1) * 2 +
+                        Functions.getMaxXp((ctx.userData.level ?? 1) + 1) +
+                        Functions.getMaxXp((ctx.userData.level ?? 1) + 2) +
+                        Functions.getMaxXp((ctx.userData.level ?? 1) + 3),
                 },
             ],
             [
@@ -821,7 +825,9 @@ export const BoosterBox: Special = {
                 },
                 {
                     percent: 100,
-                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
+                    xp:
+                        Functions.getMaxXp(ctx.userData.level ?? 1) +
+                        Functions.getMaxXp((ctx.userData.level ?? 1) + 1),
                 },
             ],
             [
