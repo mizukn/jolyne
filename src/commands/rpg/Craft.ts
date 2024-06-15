@@ -31,6 +31,12 @@ const slashCommand: SlashCommandFile = {
                 type: 3,
                 required: true,
                 autocomplete: true
+            },
+            {
+                name: "amount",
+                description: "Amount of items to craft",
+                type: 4,
+                required: false
             }
         ]
     },
@@ -38,6 +44,7 @@ const slashCommand: SlashCommandFile = {
         const itemChosen = ctx.options.getString("item", true);
         const item = Functions.findItem(itemChosen);
         let craftValuePrice = 0;
+        const amount = ctx.options.getInteger("amount", false) ?? 1;
 
         const contentCraft: string[][] = [[]];
         const contentPhaseMaxLengthCraft = 2048;
@@ -51,7 +58,7 @@ const slashCommand: SlashCommandFile = {
                     emoji: xitem.emoji,
                     rarity: xitem.rarity,
                     price: xitem.price,
-                    amount: item.craft[v],
+                    amount: item.craft[v] * amount,
                     id: xitem.id
                 };
             })
@@ -99,7 +106,7 @@ const slashCommand: SlashCommandFile = {
                 if (item.craft[v] === 0) return true;
                 return (
                     ctx.userData.inventory[v] &&
-                    ctx.userData.inventory[v] >= item.craft[v] &&
+                    ctx.userData.inventory[v] >= item.craft[v] * amount &&
                     ctx.userData.inventory[v] >= 0
                 );
             });
@@ -107,7 +114,7 @@ const slashCommand: SlashCommandFile = {
         ctx.makeMessage({
             embeds: [
                 {
-                    title: `${item.emoji} ${item.name}`,
+                    title: `${item.emoji} x${amount} ${item.name}`,
                     description: `In order to craft this item, you need the following items:\n\n${contentCraft[0].join(
                         "\n"
                     )}`,
@@ -119,7 +126,7 @@ const slashCommand: SlashCommandFile = {
                     fields: [
                         {
                             name: "Craft value (price)",
-                            value: `${craftValuePrice.toLocaleString("en-US")} ${
+                            value: `${(craftValuePrice * amount).toLocaleString("en-US")} ${
                                 ctx.client.localEmojis.jocoins
                             }`
                         },
@@ -161,14 +168,14 @@ const slashCommand: SlashCommandFile = {
                 }
                 // remove items from inventory
                 for (const item of craftItems) {
-                    Functions.removeItem(ctx.userData, item.id, item.amount);
+                    Functions.removeItem(ctx.userData, item.id, item.amount * amount);
                 }
 
                 // add item to inventory
-                Functions.addItem(ctx.userData, item.id, 1);
+                Functions.addItem(ctx.userData, item.id, amount);
 
                 ctx.interaction.followUp({
-                    content: `You have successfully crafted ${item.emoji} \`${item.name}\`!`
+                    content: `You have successfully crafted x${amount} ${item.emoji} \`${item.name}\`!`
                 });
                 ctx.client.database.saveUserData(ctx.userData);
             });

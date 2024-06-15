@@ -6,7 +6,7 @@ import {
     EquipableItem,
     SkillPoints,
     Weapon,
-    RPGUserDataJSON,
+    RPGUserDataJSON, possibleModifiers
 } from "../../@types";
 import {
     Message,
@@ -15,7 +15,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     PermissionFlagsBits,
-    AttachmentBuilder,
+    AttachmentBuilder
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -26,6 +26,37 @@ import DungeonHandler from "../../structures/DungeonHandler";
 import { cloneDeep } from "lodash";
 import { dungeonLogsWebhook } from "../../utils/Webhooks";
 import { Image, createCanvas, loadImage } from "canvas";
+import { StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+
+/**
+ * Modifiers:
+ * Speedrun - NPC levels increase twice as fast. EXP Increase - 1.5x, Drops Increase - 1.5x.
+ * No Breaks - Your health and stamina are not reset after each enemy. EXP Increase - 4x, Drops Increase - 2x.
+ * The Elite - All enemies will use S or SS tier stands and will always use a weapon. EXP Increase - 1.5x, Drops Increase - 2x.
+ * Clone - All enemies will have an exact clone of themselves. EXP Increase - 2x, Drops Increase - 2x.
+ */
+
+const possibleModifiers = [{
+    id: "speedrun",
+    description: "NPC levels increase twice as fast.",
+    xpIncrease: 1.5,
+    dropIncrease: 1.5
+}, {
+    id: "no_breaks",
+    description: "Your health and stamina are not reset after each enemy.",
+    xpIncrease: 4,
+    dropIncrease: 2
+}, {
+    id: "the_elite",
+    description: "All enemies will use S or SS tier stands and will always use a weapon.",
+    xpIncrease: 1.5,
+    dropIncrease: 2
+}, {
+    id: "clone",
+    description: "All enemies will have an exact clone of themselves.",
+    xpIncrease: 2,
+    dropIncrease: 2
+}];
 
 const timeFn = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -34,7 +65,7 @@ const timeFn = (ms: number) => {
     return {
         hours: hours % 24,
         minutes: minutes % 60,
-        seconds: seconds % 60,
+        seconds: seconds % 60
     };
 };
 const msInMessage =
@@ -49,39 +80,39 @@ const msInMessage =
 const rewards = [
     {
         id: "stand_arrow",
-        percent: 70,
+        percent: 70
     },
     {
         id: "rare_stand_arrow",
-        percent: 35,
+        percent: 35
     },
     {
         id: "broken_arrow",
-        percent: 100,
+        percent: 100
     },
     {
         id: "bloody_knife",
-        percent: 0.5,
+        percent: 0.5
     },
     {
         id: "gauntlets_of_the_berserker",
-        percent: 0.3,
+        percent: 0.3
     },
     {
         id: "dios_knives",
-        percent: 0.2,
+        percent: 0.2
     },
     {
         id: "megumins_wand",
-        percent: 0.2,
-    },
+        percent: 0.2
+    }
 ];
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "dungeon",
         description: "Start a dungeon.",
-        options: [],
+        options: []
     },
     checkRPGCooldown: "dungeon",
     execute: async (
@@ -106,7 +137,7 @@ const slashCommand: SlashCommandFile = {
                     "FROM_NOW"
                 )}.`,
                 embeds: [],
-                components: [],
+                components: []
             });
         }
         if (await ctx.client.database.getString(`tempCache_${ctx.user.id}:dungeon`)) {
@@ -120,7 +151,7 @@ const slashCommand: SlashCommandFile = {
             return ctx.makeMessage({
                 content: "<:kars:1057261454421676092> **Kars:** Are you trying to scam me?",
                 embeds: [],
-                components: [],
+                components: []
             });
         }
         try {
@@ -129,7 +160,7 @@ const slashCommand: SlashCommandFile = {
             return void ctx.makeMessage({
                 content: "I don't have permission to send messages in this channel.",
                 embeds: [],
-                components: [],
+                components: []
             });
         }
         if ((ctx.userData.inventory["dungeon_key"] ?? 0) < 1) {
@@ -137,7 +168,7 @@ const slashCommand: SlashCommandFile = {
                 content:
                     "<:kars:1057261454421676092> **Kars:** HA! Where's your key? You can't enter without it!",
                 embeds: [],
-                components: [],
+                components: []
             });
         }
 
@@ -154,15 +185,45 @@ const slashCommand: SlashCommandFile = {
             .setLabel("Cancel")
             .setStyle(ButtonStyle.Danger);
         const totalPlayers = [ctx.userData];
+        const modifiersStringSelectMenu = new StringSelectMenuBuilder()
+            .setCustomId("dungeon_modifiers" + ctx.interaction.id)
+            .setPlaceholder("Select modifiers to apply to the dungeon.")
+            .addOptions(
+                possibleModifiers.map((x) => {
+                    return {
+                        label: x.id,
+                        value: x.id,
+                        description: x.description.slice(0, 100)
+                    };
+                })
+            )
+            .setMinValues(0)
+            .setMaxValues(possibleModifiers.length);
+
+        const getTotalXpIncrease = (modifiers: string[]) => {
+            return modifiers.reduce((a, b) => {
+                const modifier = possibleModifiers.find((f) => f.id === b);
+                if (!modifier) return a;
+                return a + modifier.xpIncrease;
+            }, 1);
+        };
+        const getTotalDropIncrease = (modifiers: string[]) => {
+            return modifiers.reduce((a, b) => {
+                const modifier = possibleModifiers.find((f) => f.id === b);
+                if (!modifier) return a;
+                return a + modifier.dropIncrease;
+            }, 1);
+        };
+        const selectedModifiers: possibleModifiers[] = [];
 
         await ctx.makeMessage({
-            content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (1/2)`,
+            content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**Modifiers:** ${selectedModifiers.join(", ") || "None"}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
             embeds: [],
-            components: [Functions.actionRow([joinButton, startButton, cancelButton])],
+            components: [Functions.actionRow([joinButton, startButton, cancelButton]), Functions.actionRow([modifiersStringSelectMenu])]
         });
         const collector = ctx.channel.createMessageComponentCollector({
             time: 60000,
-            filter: (i) => i.customId.includes(ctx.interaction.id),
+            filter: (i) => i.customId.includes(ctx.interaction.id)
         });
 
         collector.on("collect", async (i) => {
@@ -170,7 +231,7 @@ const slashCommand: SlashCommandFile = {
                 if (totalPlayers.length >= 2) {
                     return void i.reply({
                         content: "This dungeon is full.",
-                        ephemeral: true,
+                        ephemeral: true
                     });
                 }
 
@@ -189,14 +250,14 @@ const slashCommand: SlashCommandFile = {
                             Date.now() + timeLeft,
                             "FROM_NOW"
                         )}.`,
-                        ephemeral: true,
+                        ephemeral: true
                     });
                 }
 
                 if (totalPlayers.find((f) => f.id === i.user.id)) {
                     return void i.reply({
                         content: "You're already in this dungeon.",
-                        ephemeral: true,
+                        ephemeral: true
                     });
                 }
                 const data = await ctx.client.database.getRPGUserData(i.user.id);
@@ -204,12 +265,12 @@ const slashCommand: SlashCommandFile = {
                 totalPlayers.push(data);
                 i.reply({
                     content: "You've joined the dungeon.",
-                    ephemeral: true,
+                    ephemeral: true
                 });
                 await ctx.makeMessage({
                     content: `<:kars:1057261454421676092> **Kars:** ${data.tag} has joined the dungeon! (${totalPlayers.length}/2)`,
                     embeds: [],
-                    components: [Functions.actionRow([startButton, cancelButton])],
+                    components: [Functions.actionRow([startButton, cancelButton])]
                 });
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
                 for (const player of totalPlayers) {
@@ -224,7 +285,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.makeMessage({
                             content: `<:kars:1057261454421676092> **Kars:** Are you trying to scam me? <@${player.id}>`,
                             embeds: [],
-                            components: [],
+                            components: []
                         });
                         collector.stop("scam");
                         return;
@@ -236,10 +297,10 @@ const slashCommand: SlashCommandFile = {
                         message
                     )}`,
                     embeds: [],
-                    components: [],
+                    components: []
                 });
 
-                const dungeon = new DungeonHandler(ctx, totalPlayers, message);
+                const dungeon = new DungeonHandler(ctx, totalPlayers, message, selectedModifiers);
                 for (const player of totalPlayers) {
                     await ctx.client.database.setString(`tempCache_${player.id}:dungeon`, "true");
                 }
@@ -250,7 +311,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         dungeon.message.reply({
-                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
+                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`
                         });
                     }
                 });
@@ -261,7 +322,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         dungeon.message.reply({
-                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
+                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`
                         });
                     } else {
                         for (const player of totalPlayers) {
@@ -322,7 +383,7 @@ const slashCommand: SlashCommandFile = {
                             content:
                                 "<:kars:1057261454421676092> **Kars:** Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]",
                             embeds: [],
-                            components: [],
+                            components: []
                         });
                     }
                     const totalDamage = Object.values(dungeon.damageDealt).reduce(
@@ -331,7 +392,7 @@ const slashCommand: SlashCommandFile = {
                     );
 
                     for (const player of newPlayers) {
-                        for (let i = 0; i < Math.round(dungeon.stage / 3); i++) {
+                        for (let i = 0; i < Math.round(dungeon.stage / 3) * getTotalDropIncrease(selectedModifiers); i++) {
                             for (const item of rewards) {
                                 const percent =
                                     (dungeon.damageDealt[player.id] / totalDamage) * item.percent;
@@ -345,22 +406,22 @@ const slashCommand: SlashCommandFile = {
                             players.length === 1
                                 ? 0
                                 : Math.abs(
-                                      (players[0].level - players[1].level) /
-                                          Math.max(players[0].level, players[1].level)
-                                  );
+                                    (players[0].level - players[1].level) /
+                                    Math.max(players[0].level, players[1].level)
+                                );
                         Functions.addXp(
                             player,
-                            Math.round(
+                            Math.round(Math.round(
                                 (dungeon.damageDealt[player.id] / totalDamage) *
-                                    xpRewards *
-                                    (players.length === 2
-                                        ? playerDiffPercent <= 0.5
-                                            ? 1.2
-                                            : Math.max(players[0].level, players[1].level) < 60
+                                xpRewards *
+                                (players.length === 2
+                                    ? playerDiffPercent <= 0.5
+                                        ? 1.2
+                                        : Math.max(players[0].level, players[1].level) < 60
                                             ? 1.2
                                             : 1
-                                        : 1)
-                            )
+                                    : 1)
+                            ) * getTotalXpIncrease(selectedModifiers))
                         );
                         player.coins += coinRewards;
                         player.health = 0;
@@ -389,7 +450,7 @@ const slashCommand: SlashCommandFile = {
                             })
                             .join("\n\n")}`,
                         embeds: [],
-                        components: [],
+                        components: []
                     });
                     const canvas =
                         players.length === 2 ? createCanvas(1024, 512) : createCanvas(512, 512);
@@ -412,7 +473,7 @@ const slashCommand: SlashCommandFile = {
                     }
 
                     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-                        name: "dungeon.png",
+                        name: "dungeon.png"
                     });
 
                     dungeonLogsWebhook.send({
@@ -427,7 +488,7 @@ const slashCommand: SlashCommandFile = {
                                     {
                                         name: "Host",
                                         value: ctx.userData.tag,
-                                        inline: true,
+                                        inline: true
                                     },
                                     {
                                         name: "Time taken",
@@ -437,12 +498,12 @@ const slashCommand: SlashCommandFile = {
                                             dungeon.startedAt,
                                             "FULL_DATE"
                                         )})`,
-                                        inline: true,
+                                        inline: true
                                     },
                                     {
                                         name: "Guild info",
                                         value: `${ctx.guild.name} (${ctx.guild.id})`,
-                                        inline: true,
+                                        inline: true
                                     },
                                     {
                                         name: "Total damages",
@@ -457,22 +518,22 @@ const slashCommand: SlashCommandFile = {
                                                         dungeon.players.find((f) => f.id === r).tag
                                                     } (${r}): **${dungeon.damageDealt[
                                                         r
-                                                    ].toLocaleString("en-US")}**`
+                                                        ].toLocaleString("en-US")}**`
                                             )
-                                            .join("\n"),
+                                            .join("\n")
                                     },
                                     {
                                         name: "Last enemy of the current wave",
                                         value: dungeon.enemies[dungeon.enemies.length - 1]
                                             ? `${
-                                                  dungeon.enemies[dungeon.enemies.length - 1].emoji
-                                              } | ${
-                                                  dungeon.enemies[dungeon.enemies.length - 1].name
-                                              } (level ${
-                                                  dungeon.enemies[dungeon.enemies.length - 1].level
-                                              })`
+                                                dungeon.enemies[dungeon.enemies.length - 1].emoji
+                                            } | ${
+                                                dungeon.enemies[dungeon.enemies.length - 1].name
+                                            } (level ${
+                                                dungeon.enemies[dungeon.enemies.length - 1].level
+                                            })`
                                             : "none, too bad",
-                                        inline: true,
+                                        inline: true
                                     },
                                     {
                                         name: "Rewards",
@@ -489,28 +550,42 @@ const slashCommand: SlashCommandFile = {
                                                     newPlayer
                                                 ).join("\n")}`;
                                             })
-                                            .join("\n\n"),
-                                    },
+                                            .join("\n\n")
+                                    }
                                 ],
                                 image: {
-                                    url: "attachment://dungeon.png",
+                                    url: "attachment://dungeon.png"
                                 },
                                 thumbnail: {
-                                    url: ctx.guild.iconURL(),
+                                    url: ctx.guild.iconURL()
                                 },
-                                timestamp: new Date().toISOString(),
-                            },
+                                timestamp: new Date().toISOString()
+                            }
                         ],
-                        files: [attachment],
+                        files: [attachment]
                     });
                 });
                 collector.stop("start");
             } else if (i.customId === "cancel_dungeon" + ctx.interaction.id) {
                 ctx.interaction.deleteReply();
                 collector.stop("cancel");
+            } else if (i.customId === "dungeon_modifiers" + ctx.interaction.id) {
+                i.deferUpdate().catch(() => {
+                });
+                selectedModifiers.length = 0;
+                for (const value of (i as StringSelectMenuInteraction).values) {
+                    if (possibleModifiers.find((f) => f.id === value)) {
+                        selectedModifiers.push(value as possibleModifiers);
+                    }
+                }
+                await ctx.makeMessage({
+                    content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__** ${selectedModifiers.join(", ") || "None"}${selectedModifiers.length !== 0 ? `\n${selectedModifiers.map(x => "- " + possibleModifiers.find(f => f.id === x).description).join("\n")}` : ""}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
+                    embeds: [],
+                    components: [Functions.actionRow([joinButton, startButton, cancelButton]), Functions.actionRow([modifiersStringSelectMenu])]
+                });
             }
         });
-    },
+    }
 };
 
 export default slashCommand;
