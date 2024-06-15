@@ -13,7 +13,7 @@ export const StandBarrage: Ability = {
     damage: 10,
     stamina: 10,
     dodgeScore: 1,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const KickBarrage: Ability = {
@@ -25,7 +25,7 @@ export const KickBarrage: Ability = {
     damage: 8,
     stamina: 6,
     dodgeScore: 1,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const StarFinger: Ability = {
@@ -36,14 +36,14 @@ export const StarFinger: Ability = {
     damage: 39,
     stamina: 18,
     dodgeScore: 9,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const RoadRoller: Ability = {
     ...StarFinger,
     name: "Road Roller",
     description:
-        "Jumps into the sky and throws an entire Road Roller on the opponent. CAN STACK FREE TURNS IF ENOUGH SPEED!",
+        "Jumps into the sky and throws an entire Road Roller on the opponent. CAN STACK FREE TURNS IF ENOUGH SPEED!"
 };
 
 export const TheWorld: Ability = {
@@ -63,7 +63,7 @@ export const TheWorld: Ability = {
                 );
                 user.hasStoppedTime = false;
             },
-            id: "" + Date.now() + Math.random() + "",
+            id: "" + Date.now() + Math.random() + ""
         });
         user.hasStoppedTime = true;
 
@@ -89,7 +89,7 @@ export const TheWorld: Ability = {
             );
     },
     dodgeScore: 0,
-    target: "self",
+    target: "self"
 };
 
 export const EmeraldSplash: Ability = {
@@ -100,7 +100,7 @@ export const EmeraldSplash: Ability = {
     damage: 10,
     stamina: 15,
     dodgeScore: 10,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const VolaBarrage: Ability = {
@@ -110,7 +110,7 @@ export const VolaBarrage: Ability = {
     thumbnail:
         "https://cdn.discordapp.com/attachments/940949551911690311/1100382611634913391/AdorableRemoteBigmouthbass-mobile.gif",
     dodgeScore: 3,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const LittleBoy: Ability = {
@@ -122,7 +122,7 @@ export const LittleBoy: Ability = {
     damage: 15,
     stamina: 8,
     dodgeScore: 3,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Manipulation: Ability = {
@@ -166,7 +166,7 @@ export const Manipulation: Ability = {
                 promise: (fight) => {
                     unmanipulate(fight);
                 },
-                id: "" + Date.now() + Math.random() + "",
+                id: "" + Date.now() + Math.random() + ""
             });
 
             ctx.turns[ctx.turns.length - 1].logs.push(
@@ -179,7 +179,7 @@ export const Manipulation: Ability = {
     extraTurns: 0,
     thumbnail: "https://media.tenor.com/zOTu19A7VoEAAAAC/jojo-hierophant-green.gif",
     dodgeScore: 1,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const LightSpeedBarrage: Ability = {
@@ -191,7 +191,7 @@ export const LightSpeedBarrage: Ability = {
     extraTurns: 1,
     thumbnail: "https://media.tenor.com/X1JHf1sGkwIAAAAd/okuyasu-the-hand.gif",
     dodgeScore: 4,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const DeadlyErasure: Ability = {
@@ -205,7 +205,7 @@ export const DeadlyErasure: Ability = {
     thumbnail:
         "https://cdn.discordapp.com/attachments/940949551911690311/1100382190166081647/RawDaringEeve-mobile.gif",
     dodgeScore: 4,
-    target: "enemy",
+    target: "enemy"
 };
 
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
@@ -227,7 +227,7 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, u
                 }
             }
         },
-        id: "" + Date.now() + Math.random() + "",
+        id: "" + Date.now() + Math.random() + ""
     });
 };
 
@@ -250,7 +250,7 @@ const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, 
                 }
             }
         },
-        id: "" + Date.now() + Math.random() + "",
+        id: "" + Date.now() + Math.random() + ""
     });
 };
 
@@ -269,7 +269,7 @@ export const CrossfireHurricane: Ability = {
     },
     thumbnail: "https://media.tenor.com/n79QWE9azhEAAAAC/magicians-red-avdol.gif",
     dodgeScore: 1,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const RedBind: Ability = {
@@ -284,7 +284,7 @@ export const RedBind: Ability = {
         burnDamagePromise(ctx, target, burnDamageCalc, user);
     },
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Bakugo: Ability = {
@@ -300,7 +300,7 @@ export const Bakugo: Ability = {
     },
     special: true,
     dodgeScore: 3,
-    target: "enemy",
+    target: "enemy"
 };
 /**
  * Hermit Purple DESU
@@ -335,12 +335,12 @@ export const OhMyGod: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${ctx.ctx.client.localEmojis.josephOMG} OH MY GOD! **${user.name}**'s EFFECT has disappeared...`
                 );
-            },
+            }
         });
     },
     thumbnail: "https://media.tenor.com/RQtghGnCYxEAAAAd/jojo-oh-my-god.gif",
     dodgeScore: 0,
-    target: "self",
+    target: "self"
 };
 export const VineSlap: Ability = {
     name: "Vine Slap",
@@ -350,14 +350,14 @@ export const VineSlap: Ability = {
     stamina: 20,
     extraTurns: 1,
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const VineBarrage: Ability = {
     ...StandBarrage,
     name: "Vine Barrage",
     description: "Extends {{standName}}'s vines to whip the opponent.",
-    target: "enemy",
+    target: "enemy"
 };
 
 /**
@@ -397,7 +397,7 @@ export const BulletsRafale: Ability = {
         ctx.ctx.client.fightCache.delete(bulletId + "fireX");
     },
     dodgeScore: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const DeterminationFlurry: Ability = {
@@ -414,14 +414,14 @@ export const DeterminationFlurry: Ability = {
         bleedDamagePromise(ctx, target, burnDamageCalc, user);
     },
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const FencingBarrage: Ability = {
     ...StandBarrage,
     name: "Fencing Barrage",
     description: "A Barrage with multiple slashes.",
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Finisher: Ability = {
@@ -437,7 +437,7 @@ export const Finisher: Ability = {
         bleedDamagePromise(ctx, target, burnDamageCalc, user);
     },
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const LifeTransference: Ability = {
@@ -478,7 +478,7 @@ export const LifeTransference: Ability = {
         }
     },
     dodgeScore: 0,
-    target: "any",
+    target: "any"
 };
 
 export const RequiemArrowBlast: Ability = {
@@ -489,7 +489,7 @@ export const RequiemArrowBlast: Ability = {
     stamina: 60,
     extraTurns: 0,
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const EternalSleep: Ability = {
@@ -534,7 +534,7 @@ export const EternalSleep: Ability = {
             });
     },
     dodgeScore: 0,
-    target: "self",
+    target: "self"
 };
 
 export const StandDisc: Ability = {
@@ -561,10 +561,10 @@ export const StandDisc: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} STAND DISC: **${target.name}** has recovered their stand?... (${stand?.name} ${stand?.emoji})`
                 );
-            },
+            }
         });
     },
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Hallucinogen: Ability = {
@@ -601,10 +601,10 @@ export const Hallucinogen: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} HALLUCINOGEN: **${user.name}**'s hallucinogen EFFECT has disappeared...`
                 );
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 export const Gun: Ability = {
@@ -615,7 +615,7 @@ export const Gun: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Heal: Ability = {
@@ -638,7 +638,7 @@ export const Heal: Ability = {
             }`
         );
     },
-    target: "onlyAlly",
+    target: "onlyAlly"
 };
 
 export const LifeShot: Ability = {
@@ -656,7 +656,7 @@ export const LifeShot: Ability = {
             `- ${user.stand?.emoji} LIFE SHOT: **${user.name}** has caused **${target.name}**'s soul to leave their body for 3 turns...`
         );
     },
-    target: "enemy",
+    target: "enemy"
 };
 
 export const LifeGiver: Ability = {
@@ -681,13 +681,13 @@ export const LifeGiver: Ability = {
                 perception: Math.round(target.skillPoints.perception) / 10,
                 speed: Math.round(target.skillPoints.speed) / 10,
                 defense: Math.round(target.skillPoints.defense) / 10,
-                stamina: Math.round(target.skillPoints.stamina) / 10,
+                stamina: Math.round(target.skillPoints.stamina) / 10
             },
             level: target.level / 10,
             stand: target.stand?.id,
             equippedItems: target.equippedItems,
             standsEvolved: target.standsEvolved,
-            emoji: target.stand?.emoji ?? "🤷‍♂️",
+            emoji: target.stand?.emoji ?? "🤷‍♂️"
         };
         team.push(new Fighter(NPC));
         ctx.fighters.push(new Fighter(NPC));
@@ -707,10 +707,10 @@ export const LifeGiver: Ability = {
                     );
                 }
                 ctx.fighters = ctx.fighters.filter((x) => x.id !== NPC.id);
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 // sand clone ability, similar to life giver
@@ -736,13 +736,13 @@ export const SandClone: Ability = {
                 perception: Math.round(user.skillPoints.perception) / 10,
                 speed: Math.round(user.skillPoints.speed) / 10,
                 defense: Math.round(user.skillPoints.defense) / 10,
-                stamina: Math.round(user.skillPoints.stamina) / 10,
+                stamina: Math.round(user.skillPoints.stamina) / 10
             },
             level: user.level / 10,
             stand: user.stand?.id,
             equippedItems: user.equippedItems,
             standsEvolved: user.standsEvolved,
-            emoji: user.stand?.emoji ?? "🤷‍♂️",
+            emoji: user.stand?.emoji ?? "🤷‍♂️"
         };
         team.push(new Fighter(NPC));
         ctx.fighters.push(new Fighter(NPC));
@@ -762,10 +762,10 @@ export const SandClone: Ability = {
                     );
                 }
                 ctx.fighters = ctx.fighters.filter((x) => x.id !== NPC.id);
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 export const SandProjectiles: Ability = {
@@ -776,7 +776,7 @@ export const SandProjectiles: Ability = {
     stamina: 20,
     extraTurns: 1,
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const SandMimicry: Ability = {
@@ -803,10 +803,10 @@ export const SandMimicry: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} SAND MIMICRY: **${user.name}**'s perception has been reset...`
                 );
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 export const SandStorm: Ability = {
@@ -845,10 +845,10 @@ export const SandStorm: Ability = {
                         `- ${user.stand?.emoji} SAND STORM: **${user.name}**'s sand storm EFFECT has disappeared...`
                     );
                 }
-            },
+            }
         });
     },
-    target: "enemy",
+    target: "enemy"
 };
 
 export const SandSelfHealing: Ability = {
@@ -868,7 +868,7 @@ export const SandSelfHealing: Ability = {
             `- ${user.stand?.emoji} SAND SELF HEALING: **${user.name}** has healed himself by **${heal}** health...`
         );
     },
-    target: "self",
+    target: "self"
 };
 
 export const SwiftStrike: Ability = {
@@ -879,7 +879,7 @@ export const SwiftStrike: Ability = {
     stamina: 30,
     extraTurns: 1,
     dodgeScore: 3,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const BerserkersFury: Ability = {
@@ -918,11 +918,11 @@ export const BerserkersFury: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `<:emoji_177:1136204824803819651> **${user.name}**'s berserker's fury has worn off.`
                 );
-            },
+            }
         });
     },
     dodgeScore: 0,
-    target: "self",
+    target: "self"
 };
 
 export const BerserkersRampage: Ability = {
@@ -976,7 +976,7 @@ export const BerserkersRampage: Ability = {
             });
     },
     dodgeScore: 0,
-    target: "self",
+    target: "self"
 };
 
 export const KnivesThrow: Ability = {
@@ -1020,7 +1020,7 @@ export const KnivesThrow: Ability = {
                 );
             }
         }
-    },
+    }
 };
 
 export const GasolineBullets: Ability = {
@@ -1072,7 +1072,7 @@ export const GasolineBullets: Ability = {
                     );
                 }
             });
-    },
+    }
 };
 
 export const CarCrash: Ability = {
@@ -1083,7 +1083,7 @@ export const CarCrash: Ability = {
     dodgeScore: 0,
     stamina: 30,
     extraTurns: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Transformation: Ability = {
@@ -1117,10 +1117,10 @@ export const Transformation: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} TRANSFORMATION: **${user.name}**'s transformation EFFECT has disappeared...`
                 );
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 export const Rage: Ability = {
@@ -1162,7 +1162,7 @@ export const Rage: Ability = {
                     if (!ctx.nextTurnPromises.find((x) => x.id === endId)) {
                         promiseToCheckHealthAndAddStrength();
                     }
-                },
+                }
             });
         }
 
@@ -1176,9 +1176,9 @@ export const Rage: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} RAGE: **${user.name}**'s rage EFFECT has disappeared...`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 export const ScytheSlash: Ability = {
@@ -1189,7 +1189,7 @@ export const ScytheSlash: Ability = {
     stamina: 5,
     dodgeScore: 0,
     extraTurns: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const MysteriousGas: Ability = {
@@ -1234,7 +1234,7 @@ export const MysteriousGas: Ability = {
                 }
             });
     },
-    target: "self",
+    target: "self"
 };
 
 export const PoisonGas: Ability = {
@@ -1273,10 +1273,10 @@ export const PoisonGas: Ability = {
                         }**.`
                     );
                 });
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 export const HealBarrage: Ability = {
@@ -1316,7 +1316,7 @@ export const HealBarrage: Ability = {
                     `- ${user.stand?.emoji} HEAL BARRAGE: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
                 );
             });
-    },
+    }
 };
 
 export const Restoration: Ability = {
@@ -1344,7 +1344,7 @@ export const Restoration: Ability = {
                     `- ${user.stand?.emoji} RESTORATION: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
                 );
             });
-    },
+    }
 };
 
 export const YoAngelo: Ability = {
@@ -1363,7 +1363,7 @@ export const YoAngelo: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} YO ANGELO: **${user.name}** has transformed **${target.name}** into a rock for 3 turns... LOL GET CLAPPED BOZO`
         );
-    },
+    }
 };
 
 export const HealPunch: Ability = {
@@ -1404,13 +1404,13 @@ export const HealPunch: Ability = {
                     `- ${user.stand?.emoji} HEAL PUNCH: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
                 );
             });
-    },
+    }
 };
 
 export const CoinBarrage: Ability = {
     ...StandBarrage,
     name: "Coin Barrage",
-    description: "Unleash a barrage of coins, that explodes on impact.",
+    description: "Unleash a barrage of coins, that explodes on impact."
 };
 
 const poisonDamagePromise = (
@@ -1438,7 +1438,7 @@ const poisonDamagePromise = (
                 }
             }
         },
-        id: "" + Date.now() + Math.random() + "",
+        id: "" + Date.now() + Math.random() + ""
     });
 };
 
@@ -1469,7 +1469,7 @@ export const CapsuleShot: Ability = {
             Functions.getAbilityDamage(user, CrossfireHurricane) / 10
         );
         poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
-    },
+    }
 };
 
 export const LightManifestation: Ability = {
@@ -1482,7 +1482,7 @@ export const LightManifestation: Ability = {
     extraTurns: 2,
     dodgeScore: 0,
     target: "enemy",
-    thumbnail: "https://static.wikia.nocookie.net/jjba/images/8/8d/Hanged_man_powa.gif",
+    thumbnail: "https://static.wikia.nocookie.net/jjba/images/8/8d/Hanged_man_powa.gif"
 };
 
 export const WristKnives: Ability = {
@@ -1536,7 +1536,7 @@ export const WristKnives: Ability = {
                     }
                 }
             });
-    },
+    }
 };
 
 export const HomingBullets: Ability = {
@@ -1548,7 +1548,7 @@ export const HomingBullets: Ability = {
     stamina: 30,
     extraTurns: 0,
     dodgeScore: 5,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const RapidStrikes: Ability = {
@@ -1560,14 +1560,14 @@ export const RapidStrikes: Ability = {
     stamina: 25,
     extraTurns: 0,
     dodgeScore: 4,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Razor_SharpScales: Ability = {
     ...RapidStrikes,
     name: "Razor-Sharp Scales",
     description:
-        "Dark Blue Moon can also use its scales as projectiles, throwing them against the enemy.",
+        "Dark Blue Moon can also use its scales as projectiles, throwing them against the enemy."
 };
 
 export const ObjectManipulation: Ability = {
@@ -1575,7 +1575,7 @@ export const ObjectManipulation: Ability = {
     name: "Object Manipulation",
     description: "Strength is capable of manipulating objects to attack the enemy.",
     cooldown: 2,
-    damage: 12,
+    damage: 12
 };
 
 export const ViolentBurst: Ability = {
@@ -1587,7 +1587,7 @@ export const ViolentBurst: Ability = {
     dodgeScore: 1,
     stamina: 15,
     extraTurns: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 /**
@@ -1618,10 +1618,10 @@ export const BonesEnlargement: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} BONES ELARGEMENT: **${user.name}**'s bones have returned to their normal size...`
                 );
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 /**
@@ -1654,7 +1654,7 @@ export const ArmSplitter: Ability = {
             }**.`
         );
     },
-    target: "enemy",
+    target: "enemy"
 };
 
 /**
@@ -1664,7 +1664,7 @@ export const FistEnlargement: Ability = {
     ...Finisher,
     name: "Fist Enlargement",
     description:
-        "You enlarge your fist, throwing a giant fist at the enemy! Does damage based on strength.",
+        "You enlarge your fist, throwing a giant fist at the enemy! Does damage based on strength."
 };
 
 /**
@@ -1697,7 +1697,7 @@ export const HeartBreaker: Ability = {
             }**.`
         );
     },
-    target: "enemy",
+    target: "enemy"
 };
 
 /**
@@ -1706,7 +1706,7 @@ export const HeartBreaker: Ability = {
 export const BoneSpear: Ability = {
     ...KickBarrage,
     name: "Bone Spear",
-    description: "You throw a spear made of bone at the enemy.",
+    description: "You throw a spear made of bone at the enemy."
 };
 
 export const SheerHeartAttackBTD: Ability = {
@@ -1739,12 +1739,12 @@ export const SheerHeartAttackBTD: Ability = {
                             )}** damages to **${x.name}**.`
                         );
                     });
-            },
+            }
         });
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} SHEER HEART ATTACK: **${user.name}**'s bomb is now targetting **EVERY ENEMIES**...`
         );
-    },
+    }
 };
 
 // sheer heart attack but only to a specific target
@@ -1774,12 +1774,12 @@ export const SheerHeartAttack: Ability = {
                         "en-US"
                     )}** damages to **${target.name}**.`
                 );
-            },
+            }
         });
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} SHEER HEART ATTACK: **${user.name}**'s bomb is now targetting **${target.name}**.`
         );
-    },
+    }
 };
 
 export const BitesTheDust: Ability = {
@@ -1828,17 +1828,17 @@ export const BitesTheDust: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} KILLER QUEEN! BITES THE DUST: **${user.name}**'s perception boost has disappeared...`
                 );
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 export const Arrivederci: Ability = {
     ...Finisher,
     name: "Arrivederci",
     description: "Arrivederci.",
-    thumbnail: "https://i.pinimg.com/originals/65/ae/27/65ae270df87c3c4adcea997e48f60852.gif",
+    thumbnail: "https://i.pinimg.com/originals/65/ae/27/65ae270df87c3c4adcea997e48f60852.gif"
 };
 
 export const ZipperPunch: Ability = {
@@ -1846,14 +1846,14 @@ export const ZipperPunch: Ability = {
     name: "Zipper Punch",
     description:
         "Sticky Fingers delivers a lightning-fast punch, channeling the power of its zipper-enhanced fist",
-    damage: StandBarrage.damage + 7,
+    damage: StandBarrage.damage + 7
 };
 
 export const DimensionUppercut: Ability = {
     ...StarFinger,
     name: "Dimension Uppercut",
     description:
-        "You go into the zipper dimension and then fling yourself out underneath the opponent, giving a uppercut.",
+        "You go into the zipper dimension and then fling yourself out underneath the opponent, giving a uppercut."
 };
 
 export const CoinBomb: Ability = {
@@ -1862,7 +1862,7 @@ export const CoinBomb: Ability = {
     name: "Coin Bomb",
     thumbnail: "https://i.imgur.com/IKMPUlz.gif",
     cooldown: 3,
-    damage: 15,
+    damage: 15
 };
 
 // megumin's wand ability:
@@ -1875,7 +1875,7 @@ export const Explosion: Ability = {
     extraTurns: 1,
     dodgeScore: 0,
     target: "enemy",
-    thumbnail: "https://media.tenor.com/RjnF10XDs4cAAAAC/megumin-explosion.gif",
+    thumbnail: "https://media.tenor.com/RjnF10XDs4cAAAAC/megumin-explosion.gif"
 };
 
 // special ability for gold experience
@@ -1906,7 +1906,7 @@ const lifePunchPromise = (
                 `🩸🩸🩸 **${target.name}** lost **${healthLost}** health and **${staminaLost}** stamina`
             );
         },
-        id: "" + Date.now() + Math.random() + "",
+        id: "" + Date.now() + Math.random() + ""
     });
 };
 
@@ -1932,7 +1932,7 @@ export const LifePunch: Ability = {
                 user.name
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
-    },
+    }
 };
 
 // life punch for ger, but removes 8% of the target's max health and stamina
@@ -1953,7 +1953,7 @@ export const LifePunchGER: Ability = {
                 user.name
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
-    },
+    }
 };
 
 export const InfiniteDeathLoop: Ability = {
@@ -1980,7 +1980,7 @@ export const InfiniteDeathLoop: Ability = {
                 }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
             );
         }
-    },
+    }
 };
 
 export const Fog: Ability = {
@@ -2021,10 +2021,10 @@ export const Fog: Ability = {
                             (w) => w.id === x.id
                         ).skillPoints.perception;
                     });
-            },
+            }
         });
     },
-    target: "self",
+    target: "self"
 };
 
 export const FrogRain: Ability = {
@@ -2064,10 +2064,10 @@ export const FrogRain: Ability = {
                         fight.turns[fight.turns.length - 1].logs.push(
                             `- ${user.stand?.emoji} FROG RAIN: **${x.name}** took **${burnDamageCalc}** poison damage`
                         );
-                    },
+                    }
                 });
             });
-    },
+    }
 };
 
 // ball of lightning:
@@ -2082,7 +2082,7 @@ export const BallOfLightning: Ability = {
     stamina: 15,
     extraTurns: 1,
     dodgeScore: 0,
-    target: "enemy",
+    target: "enemy"
 };
 // Total combustion:
 // Weather report punches the opponent with firey fists, causing burn damage.
@@ -2123,9 +2123,9 @@ export const TotalCombustion: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} TOTAL COMBUSTION: **${target.name}** took **${burnDamageCalc}** poison damage`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 // Mach 1 tornado
@@ -2153,7 +2153,7 @@ export const Mach1Tornado: Ability = {
                 user.name
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
-    },
+    }
 };
 
 // ebony devil's ability
@@ -2165,13 +2165,13 @@ export const DollPunch: Ability = {
     stamina: 15,
     extraTurns: 0,
     dodgeScore: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const DollBarrage: Ability = {
     ...StandBarrage,
     name: "Doll Barrage",
-    description: "Unleash a barrage of punches with the doll.",
+    description: "Unleash a barrage of punches with the doll."
 };
 
 export const DollThrow: Ability = {
@@ -2182,7 +2182,7 @@ export const DollThrow: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const CalamityManipulation: Ability = {
@@ -2192,7 +2192,7 @@ export const CalamityManipulation: Ability = {
     cooldown: 2,
     stamina: 5,
     damage: 15,
-    dodgeScore: 0,
+    dodgeScore: 0
 };
 
 export const IdentityAssumption: Ability = {
@@ -2203,7 +2203,7 @@ export const IdentityAssumption: Ability = {
     cooldown: 7,
     stamina: 25,
     damage: 25,
-    dodgeScore: 8,
+    dodgeScore: 8
 };
 
 export const IllusionCreation: Ability = {
@@ -2213,7 +2213,7 @@ export const IllusionCreation: Ability = {
     cooldown: 4,
     stamina: 15,
     damage: 15,
-    dodgeScore: 4,
+    dodgeScore: 4
 };
 export const MedicExp: Ability = {
     ...Heal,
@@ -2221,7 +2221,7 @@ export const MedicExp: Ability = {
     description: "Uses its medical experience to heal the targetted player.",
     cooldown: 5,
     stamina: 20,
-    target: "ally",
+    target: "ally"
 };
 
 export const StaffBarrage: Ability = {
@@ -2232,7 +2232,7 @@ export const StaffBarrage: Ability = {
     damage: 25,
     stamina: 5,
     dodgeScore: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const StaffSplash: Ability = {
@@ -2244,7 +2244,7 @@ export const StaffSplash: Ability = {
     stamina: 20,
     dodgeScore: 0,
     target: "enemy",
-    thumbnail: "https://media.jolyne.moe/UWAEPT/direct",
+    thumbnail: "https://media.jolyne.moe/UWAEPT/direct"
 };
 
 export const StaffBAN: Ability = {
@@ -2256,7 +2256,7 @@ export const StaffBAN: Ability = {
     stamina: 20,
     dodgeScore: 0,
     target: "enemy",
-    thumbnail: "https://media.jolyne.moe/UWAEPT/direct",
+    thumbnail: "https://media.jolyne.moe/UWAEPT/direct"
 };
 
 export const StaffToy: Ability = {
@@ -2267,7 +2267,7 @@ export const StaffToy: Ability = {
     damage: 20,
     stamina: 0,
     dodgeScore: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 //Stone Free
@@ -2276,40 +2276,40 @@ export const BallBarrage: Ability = {
     name: "Ball Barrage",
     description: "Throws balls at the opponent creating a barrage.",
     thumbnail: "https://media.tenor.com/UzE1QG36ED8AAAAC/jojo-jolyne.gif",
-    cooldown: 6,
+    cooldown: 6
 };
 
 export const Wrap: Ability = {
     ...LightManifestation,
     name: "Wrap",
     description: "Warps behind the opponent to attack.",
-    cooldown: 7,
+    cooldown: 7
 };
 
 export const StringWeb: Ability = {
     ...VineSlap,
     name: "String Web",
     description: "Creates a web using string to engulf the opponent.",
-    thumbnail: "https://media.tenor.com/MlXpp0Dn8JUAAAAC/jolyne-cujoh-jolyne.gif",
+    thumbnail: "https://media.tenor.com/MlXpp0Dn8JUAAAAC/jolyne-cujoh-jolyne.gif"
 };
 
 //Horus
 export const IceSickles: Ability = {
     ...KickBarrage,
     name: "Ice Sickles",
-    description: "Throws Sickles of Ice towards the opponent",
+    description: "Throws Sickles of Ice towards the opponent"
 };
 
 export const FreezingTouch: Ability = {
     ...StandBarrage,
     name: "Freezing Touch",
-    description: "Tries to infect the opponent with a Frost Bite.",
+    description: "Tries to infect the opponent with a Frost Bite."
 };
 
 export const IceBlockade: Ability = {
     ...LittleBoy,
     name: "Ice Blockade",
-    description: "Blocks the opponent with ice, to damage them.",
+    description: "Blocks the opponent with ice, to damage them."
 };
 
 // defensive form:
@@ -2341,9 +2341,9 @@ export const DefensiveForm: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} DEFENSIVE FORM: **${user.name}**'s health boost has disappeared...`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 export const AcidicTouch: Ability = {
@@ -2379,9 +2379,9 @@ export const AcidicTouch: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} ACIDIC TOUCH: **${target.name}** took **${burnDamageCalc}** poison damage`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 // Assimilation:
@@ -2411,9 +2411,9 @@ export const Assimilation: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} ASSIMILATION: **${user.name}**'s perception boost has disappeared...`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 // abilities for the femboy stand
@@ -2452,9 +2452,9 @@ export const TeaseBarrage: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} TEASE BARRAGE: **${target.name}** took **${burnDamageCalc}** EXPLOSION damage LOL`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 // 1st move: kiss the opponent and it removes there stand for like 6 turns and like has cooldown of like six turns
@@ -2483,9 +2483,9 @@ export const Kiss: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has returned...`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 // 2nd move: hug the opponent which halves their speed for 3 turns and has a cooldown of 4 turns no dodging
@@ -2513,9 +2513,9 @@ export const Hug: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} HUG: **${target.name}**'s speed has returned...`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 // 4th move: flash your opponent with the blinding light of the stands lower area ☠️☠️☠️ stunning completely for four turns and a CD of 7 turns "sounds goods?" - Luvvy no dodge
@@ -2534,7 +2534,7 @@ export const Flash: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} FLASH: **${target.name}** has been stunned... UwU`
         );
-    },
+    }
 };
 
 // The Chained abilities:
@@ -2546,7 +2546,7 @@ export const ChainedWhip: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const ChainedHook: Ability = {
@@ -2557,7 +2557,7 @@ export const ChainedHook: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const ChainedThrow: Ability = {
@@ -2568,7 +2568,7 @@ export const ChainedThrow: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 2,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const OneThousandChains: Ability = {
@@ -2580,7 +2580,7 @@ export const OneThousandChains: Ability = {
     extraTurns: 2,
     dodgeScore: 999,
     target: "enemy",
-    special: true,
+    special: true
 };
 
 // santa's candy cane abilities
@@ -2598,13 +2598,13 @@ export const Freeze: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} FREEZE: **${target.name}** has been frozen...`
         );
-    },
+    }
 };
 
 export const CandyCaneBarrage: Ability = {
     ...StandBarrage,
     name: "Candy Cane Barrage",
-    description: "Barrage the opponent with the candy cane.",
+    description: "Barrage the opponent with the candy cane."
 };
 
 export const CandyCanePull: Ability = {
@@ -2615,7 +2615,7 @@ export const CandyCanePull: Ability = {
     stamina: 20,
     extraTurns: 1,
     dodgeScore: 0,
-    target: "enemy",
+    target: "enemy"
 };
 
 // abilkity for weapon confetti bazooka
@@ -2628,13 +2628,13 @@ export const ConfettiBlast: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
-    special: true,
+    special: true
 };
 
 export const ConfettiBarrage: Ability = {
     ...StandBarrage,
     name: "Confetti Barrage",
-    description: "Barrage the opponent with confetti.",
+    description: "Barrage the opponent with confetti."
 };
 
 // king crimson abilities!
@@ -2647,7 +2647,7 @@ export const Chop: Ability = {
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 8,
-    target: "enemy",
+    target: "enemy"
 };
 
 export const Impale: Ability = {
@@ -2683,9 +2683,9 @@ export const Impale: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} IMPALE: **${target.name}** took **${bleedDamageCalc}** bleed damage`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 export const Epitaph: Ability = {
@@ -2712,10 +2712,11 @@ export const Epitaph: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} EPITAPH: **${user.name}** had seen the future until now...`
                 );
-            },
+            }
         });
-        ctx.updateMessage().catch(() => {});
-    },
+        ctx.updateMessage().catch(() => {
+        });
+    }
 };
 
 export const BloodBlind: Ability = {
@@ -2754,9 +2755,9 @@ export const BloodBlind: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} BLOOD BLIND: **${target.name}**'s sight has returned...`
                 );
-            },
+            }
         });
-    },
+    }
 };
 
 /*
@@ -2841,7 +2842,7 @@ export const TimeErase: Ability = {
                 teams: ctx.teams,
                 fighters: ctx.fighters,
                 nextRoundPromises: ctx.nextRoundPromises,
-                nextTurnPromises: ctx.nextTurnPromises,
+                nextTurnPromises: ctx.nextTurnPromises
             });
             ctx.turns[ctx.turns.length - 1].logs.push(`????????????????????????????`);
         }
@@ -2851,9 +2852,65 @@ export const TimeErase: Ability = {
             teams: ctx.teams,
             fighters: ctx.fighters,
             nextRoundPromises: ctx.nextRoundPromises,
-            nextTurnPromises: ctx.nextTurnPromises,
+            nextTurnPromises: ctx.nextTurnPromises
         });
 
         ctx.infos.orderIndex = 0;
-    },
+    }
+};
+
+export const PiercingStrike: Ability = {
+    name: "Piercing Strike",
+    description: "An attack sent straight at the opponent to pierce them, causing them to bleed.",
+    cooldown: 2,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
+        const oldHealth = cloneDeep(target.health);
+        target.health -= xdamage;
+        if (target.health <= 0) target.health = 0;
+        user.totalDamageDealt += oldHealth - target.health;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} PIERCING STRIKE: **${
+                user.name
+            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const bleedDamageCalc = Math.round(
+                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+                );
+                poisonDamagePromise(ctx, target, bleedDamageCalc, user, 5);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} PIERCING STRIKE: **${target.name}** took **${bleedDamageCalc}** bleed damage`
+                );
+            }
+        });
+    }
+};
+
+export const DisorientingStabs: Ability = {
+    name: "Disorienting Stabs",
+    description:
+        "With three quick movements, the user stabs the opponent & stuns them.",
+    cooldown: 4,
+    damage: 40,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        target.frozenFor = 2;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} DISORIENTING STABS: **${target.name}** has been stunned...`
+        );
+    }
 };
