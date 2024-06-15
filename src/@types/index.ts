@@ -314,7 +314,7 @@ export const equipableItemTypesLimit = {
     [equipableItemTypes.WEAPON]: 1,
     [equipableItemTypes.ACCESSORY]: 2,
     [equipableItemTypes.FACE]: 1,
-    [equipableItemTypes.BACK]: 1,
+    [equipableItemTypes.BACK]: 1
 };
 
 export const formattedEquipableItemTypes = {
@@ -326,7 +326,7 @@ export const formattedEquipableItemTypes = {
     [equipableItemTypes.HANDS]: "Hands",
     [equipableItemTypes.WEAPON]: "Weapon",
     [equipableItemTypes.ACCESSORY]: "Accessory",
-    [equipableItemTypes.BACK]: "Back",
+    [equipableItemTypes.BACK]: "Back"
 };
 
 export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
@@ -1054,6 +1054,7 @@ export interface V2UserData {
 }
 
 export type GangRoles = "boss" | "lieutenant" | "advisor" | "member";
+
 export interface GangMember {
     id: string;
     role: GangRoles;
@@ -1070,12 +1071,16 @@ export interface Gang {
 }
 
 const GangMemberSQLQuery = `
-CREATE TABLE IF NOT EXISTS gang_members (
-    id TEXT PRIMARY KEY,
-    role TEXT NOT NULL,
-    joined_at INTEGER NOT NULL,
-    gang TEXT NOT NULL,
-    FOREIGN KEY (gang) REFERENCES gangs(id),
-);
-ALTER TABLE gang_members ADD CONSTRAINT unique_boss_per_gang UNIQUE (gang, role CHECK (role = 'boss'));
+    CREATE TABLE IF NOT EXISTS gang_members
+    (
+        id        TEXT PRIMARY KEY,
+        role      TEXT    NOT NULL,
+        joined_at INTEGER NOT NULL,
+        gang      TEXT    NOT NULL,
+        FOREIGN KEY (gang) REFERENCES gangs (id),
+    );
+    ALTER TABLE gang_members
+        ADD CONSTRAINT unique_boss_per_gang UNIQUE (gang, role CHECK (role = 'boss'));
 `;
+
+export type possibleModifiers = "speedrun" | "no_breaks" | "the_elite" | "clone";
