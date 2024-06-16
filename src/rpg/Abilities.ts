@@ -2078,7 +2078,7 @@ export const BallOfLightning: Ability = {
     description:
         "Weather charges a ball of lightning and hits it into the opponent, giving you one extra turn.",
     cooldown: 5,
-    damage: 13,
+    damage: 30,
     stamina: 15,
     extraTurns: 1,
     dodgeScore: 0,
@@ -2140,9 +2140,10 @@ export const Mach1Tornado: Ability = {
     stamina: 25,
     extraTurns: 1,
     dodgeScore: 0,
+    trueDamage: 45,
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
-        const xdamage = Math.round(Functions.getAttackDamages(user) * 2.5);
+        const xdamage = Math.round(Functions.getAttackDamages(user) * 4.5);
         const oldHealth = cloneDeep(target.health);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;

@@ -7,13 +7,13 @@ import {
     MysteriousGas,
     RapidStrikes,
     Razor_SharpScales,
-    Transformation,
+    Transformation
 } from "../Abilities";
 
 function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
     return {
         ...ability,
-        thumbnail: gif,
+        thumbnail: gif
     };
 }
 
@@ -32,17 +32,17 @@ export const StarPlatinum: Stand = {
         ),
         Abilities.KickBarrage,
         Abilities.StarFinger,
-        Abilities.TheWorld,
+        Abilities.TheWorld
     ],
     skillPoints: {
         strength: 15,
         defense: 5,
         perception: 15,
         speed: 8,
-        stamina: 2,
+        stamina: 2
     },
     color: 0x985ca3,
-    available: true,
+    available: true
 };
 
 export const TheWorld: Stand = {
@@ -60,11 +60,11 @@ export const TheWorld: Stand = {
         ),
         Abilities.KickBarrage,
         Abilities.RoadRoller,
-        Abilities.TheWorld,
+        Abilities.TheWorld
     ],
     skillPoints: StarPlatinum.skillPoints,
     color: 0xffff00,
-    available: true,
+    available: true
 };
 
 export const HierophantGreen: Stand = {
@@ -81,10 +81,10 @@ export const HierophantGreen: Stand = {
         defense: 0,
         perception: 5,
         speed: 3,
-        stamina: 1,
+        stamina: 1
     },
     color: 0x6ad398,
-    available: true,
+    available: true
 };
 
 export const Aerosmith: Stand = {
@@ -98,13 +98,13 @@ export const Aerosmith: Stand = {
         defense: 0,
         perception: 2,
         speed: 2,
-        stamina: 1,
+        stamina: 1
     },
     image: "https://media.jolyne.moe/IDOJUv/direct",
     emoji: Emojis.aerosmith,
     abilities: [Abilities.VolaBarrage, Abilities.LittleBoy],
     color: 0x0981d1,
-    available: true,
+    available: true
 };
 
 export const TheHand: Stand = {
@@ -119,12 +119,12 @@ export const TheHand: Stand = {
         defense: 0,
         perception: 0,
         stamina: 0,
-        speed: 0,
+        speed: 0
     },
     image: "https://media.jolyne.moe/8IBtli/direct",
     emoji: Emojis.the_hand,
     color: 0x1d57e5,
-    available: true,
+    available: true
 };
 
 export const MagiciansRed: Stand = {
@@ -141,10 +141,10 @@ export const MagiciansRed: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     color: 0xff0000,
-    available: true,
+    available: true
 };
 
 export const HermitPurple: Stand = {
@@ -161,10 +161,10 @@ export const HermitPurple: Stand = {
         defense: 0,
         perception: 2,
         speed: 2,
-        stamina: 1,
+        stamina: 1
     },
     color: 0x800080,
-    available: true,
+    available: true
 };
 
 export const SexPistols: Stand = {
@@ -180,7 +180,7 @@ export const SexPistols: Stand = {
         defense: 0,
         perception: 3,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     color: 0x800080,
     available: true,
@@ -260,8 +260,8 @@ export const SexPistols: Stand = {
                 }
             }
             if (!ctx.ctx.client.fightCache.get(bulletId + "fireX")) ctx.nextTurn();
-        },
-    },
+        }
+    }
 };
 
 export const TheFool: Stand = {
@@ -273,7 +273,7 @@ export const TheFool: Stand = {
         Abilities.SandProjectiles,
         //Abilities.SandClone,
         Abilities.SandMimicry,
-        Abilities.SandStorm,
+        Abilities.SandStorm
     ],
     emoji: Emojis.theFool,
     skillPoints: {
@@ -282,11 +282,11 @@ export const TheFool: Stand = {
         defense: 8,
         perception: 2,
         speed: 2,
-        stamina: 1,
+        stamina: 1
     },
     color: 0x800080,
     available: true,
-    image: "https://media.jolyne.moe/SZEJL4/direct",
+    image: "https://media.jolyne.moe/SZEJL4/direct"
 };
 
 export const WheelOfFortune: Stand = {
@@ -303,10 +303,10 @@ export const WheelOfFortune: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     color: 0xff0000,
-    image: "https://media.jolyne.moe/1NLw3n/direct",
+    image: "https://media.jolyne.moe/1NLw3n/direct"
 };
 
 export const PurpleHaze: Stand = {
@@ -320,7 +320,7 @@ export const PurpleHaze: Stand = {
         addGif(Abilities.StandBarrage, "https://i.imgur.com/rXSPNxu.gif"),
         Abilities.CapsuleShot,
         Abilities.PoisonGas,
-        Abilities.Rage,
+        Abilities.Rage
     ],
     emoji: Emojis.purple_haze,
     skillPoints: {
@@ -328,10 +328,10 @@ export const PurpleHaze: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     available: true,
-    color: 0x800080,
+    color: 0x800080
 };
 
 export const HalloweenSpooks: Stand = {
@@ -349,11 +349,11 @@ export const HalloweenSpooks: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     available: true,
     // purple hex code
-    color: 0x800080,
+    color: 0x800080
 };
 
 export const BuffOPlatinum: Stand = {
@@ -371,10 +371,10 @@ export const BuffOPlatinum: Stand = {
         defense: 0,
         perception: 0,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     available: true,
-    color: StarPlatinum.color,
+    color: StarPlatinum.color
 };
 
 export const CrazyDiamond: Stand = {
@@ -389,7 +389,7 @@ export const CrazyDiamond: Stand = {
         Abilities.HealPunch,
         Abilities.HealBarrage,
         Abilities.Restoration,
-        Abilities.YoAngelo,
+        Abilities.YoAngelo
     ], //[Abilities.Heal, Abilities.HealBarrage, Abilities.HealPunch],
     emoji: Emojis.crazy_diamond,
     skillPoints: {
@@ -397,11 +397,11 @@ export const CrazyDiamond: Stand = {
         strength: 5,
         perception: 5,
         speed: 5,
-        stamina: 5,
+        stamina: 5
     },
     available: true,
     // blue-white hex code
-    color: 0xd8deec,
+    color: 0xd8deec
 };
 
 export const HangedMan: Stand = {
@@ -418,10 +418,10 @@ export const HangedMan: Stand = {
         perception: 7,
         speed: 1,
         stamina: 1,
-        defense: 1,
+        defense: 1
     },
     available: true,
-    color: 0x964b00,
+    color: 0x964b00
 };
 
 export const Emperor: Stand = {
@@ -438,7 +438,7 @@ export const Emperor: Stand = {
         perception: 0,
         speed: 0,
         stamina: 0,
-        defense: 0,
+        defense: 0
     },
     available: true,
     color: 0xd3d3d3,
@@ -478,8 +478,8 @@ export const Emperor: Stand = {
             }
 
             ctx.nextTurn();
-        },
-    },
+        }
+    }
 };
 
 export const TowerOfGray: Stand = {
@@ -496,10 +496,10 @@ export const TowerOfGray: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0,
+        defense: 0
     },
     available: true,
-    color: 0x808080,
+    color: 0x808080
 };
 
 export const DarkBlueMoon: Stand = {
@@ -510,7 +510,7 @@ export const DarkBlueMoon: Stand = {
     rarity: "C",
     image: "https://media.jolyne.moe/dRytbl/direct",
     abilities: [
-        Abilities.Razor_SharpScales,
+        Abilities.Razor_SharpScales
         // TODO: Abilities.Bernacles: Dark Blue Moon is capable of creating barnacles, specifically acorn barnaclesW, as seen when they attach to Star Platinum soon after making contact with Dark Blue Moon's skin.
         //
         // The barnacles drain the target of its strength and also allow Dark Blue Moon slight control over the infected body parts, allowing it to drag its foes back into the water if they try to escape it.[7]
@@ -521,10 +521,10 @@ export const DarkBlueMoon: Stand = {
         strength: 6,
         speed: 6,
         stamina: 0,
-        defense: 0,
+        defense: 0
     },
     available: true,
-    color: 0x0000ff,
+    color: 0x0000ff
 };
 
 export const Strength: Stand = {
@@ -542,10 +542,10 @@ export const Strength: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0,
+        defense: 0
     },
     available: true,
-    color: 0x964b00,
+    color: 0x964b00
 };
 
 export const SkeletalSpectre: Stand = {
@@ -561,7 +561,7 @@ export const SkeletalSpectre: Stand = {
         Abilities.BonesEnlargement,
         Abilities.ArmSplitter,
         Abilities.FistEnlargement,
-        Abilities.HeartBreaker,
+        Abilities.HeartBreaker
     ],
     emoji: "💀",
     skillPoints: {
@@ -570,11 +570,11 @@ export const SkeletalSpectre: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0,
+        defense: 0
     },
     available: true,
     // grey
-    color: 0x808080,
+    color: 0x808080
 };
 
 /**
@@ -591,22 +591,22 @@ export const TheWorldRu: Stand = {
         {
             ...Abilities.StandBarrage,
             name: "Suka Barrage",
-            description: "SUKA SUKA SUKA SUKA SUKA SUKA SUKA SUKA",
+            description: "SUKA SUKA SUKA SUKA SUKA SUKA SUKA SUKA"
         },
         {
             ...Abilities.KickBarrage,
             name: "Bear Attack",
-            description: "The World summons its bear to attack the enemy",
+            description: "The World summons its bear to attack the enemy"
         },
         {
             ...Abilities.RoadRoller,
             name: "AK-47",
-            description: "The World summons an AK-47 and shoots the enemy",
+            description: "The World summons an AK-47 and shoots the enemy"
         },
         {
             ...Abilities.TheWorld,
-            description: "SUKA BLYAT!",
-        },
+            description: "SUKA BLYAT!"
+        }
     ],
     emoji: Emojis.TWRU,
     skillPoints: {
@@ -615,10 +615,10 @@ export const TheWorldRu: Stand = {
         strength: 0,
         speed: 0,
         stamina: 0,
-        defense: 0,
+        defense: 0
     },
     color: TheWorld.color,
-    available: true,
+    available: true
 };
 
 export const StickyFingers: Stand = {
@@ -633,11 +633,11 @@ export const StickyFingers: Stand = {
         {
             ...Abilities.StandBarrage,
             name: "ARI Barrage",
-            description: "ARI ARI ARI ARI ARI ARI ARI ARI!",
+            description: "ARI ARI ARI ARI ARI ARI ARI ARI!"
         },
         Abilities.ZipperPunch,
         Abilities.DimensionUppercut,
-        Abilities.Arrivederci,
+        Abilities.Arrivederci
     ],
     emoji: Emojis.sticky_fingers,
     skillPoints: {
@@ -645,9 +645,9 @@ export const StickyFingers: Stand = {
         speed: 7,
         strength: 3,
         stamina: 3,
-        defense: 0,
+        defense: 0
     },
-    available: true,
+    available: true
 };
 
 export const WeatherReport: Stand = {
@@ -664,7 +664,7 @@ export const WeatherReport: Stand = {
         Abilities.Fog,
         Abilities.FrogRain,
         Abilities.Mach1Tornado,
-        Abilities.TotalCombustion,
+        Abilities.TotalCombustion
     ],
     emoji: Emojis.WeatherReport,
     skillPoints: {
@@ -672,9 +672,9 @@ export const WeatherReport: Stand = {
         speed: 7,
         strength: 3,
         stamina: 3,
-        defense: 0,
+        defense: 0
     },
-    available: true,
+    available: true
 };
 
 export const EbonyDevil: Stand = {
@@ -691,10 +691,10 @@ export const EbonyDevil: Stand = {
         strength: 6,
         speed: 6,
         stamina: 0,
-        defense: 0,
+        defense: 0
     },
     available: true,
-    color: 0x666420,
+    color: 0x666420
 };
 
 export const WonderOfU: Stand = {
@@ -709,7 +709,7 @@ export const WonderOfU: Stand = {
         Abilities.CalamityManipulation,
         Abilities.MedicExp,
         Abilities.IllusionCreation,
-        Abilities.IdentityAssumption,
+        Abilities.IdentityAssumption
     ],
     emoji: Emojis.WonderOfU,
     skillPoints: {
@@ -717,9 +717,9 @@ export const WonderOfU: Stand = {
         speed: 10,
         strength: 15,
         stamina: 10,
-        defense: 5,
+        defense: 5
     },
-    available: true,
+    available: true
 };
 
 export const StoneFree: Stand = {
@@ -739,17 +739,17 @@ export const StoneFree: Stand = {
         Abilities.StringWeb,
         Abilities.StandBarrage,
         Abilities.BallBarrage,
-        Abilities.Wrap,
+        Abilities.Wrap
     ],
     skillPoints: {
         strength: 5,
         defense: 0,
         perception: 10,
         speed: 5,
-        stamina: 0,
+        stamina: 0
     },
     color: 0x5c78a3,
-    available: true,
+    available: true
 };
 
 export const Horus: Stand = {
@@ -766,10 +766,10 @@ export const Horus: Stand = {
         defense: 0,
         perception: 5,
         speed: 5,
-        stamina: 0,
+        stamina: 0
     },
     color: 0xa9aaab,
-    available: true,
+    available: true
 };
 
 export const AdminStand: Stand = {
@@ -783,7 +783,7 @@ export const AdminStand: Stand = {
         Abilities.StaffToy,
         Abilities.StaffBarrage,
         Abilities.StaffSplash,
-        Abilities.StaffBAN,
+        Abilities.StaffBAN
     ],
     emoji: Emojis.BanHammer,
     skillPoints: {
@@ -791,9 +791,10 @@ export const AdminStand: Stand = {
         speed: 20,
         strength: 100,
         stamina: 300,
-        defense: 200,
+        defense: 200
     },
     available: true,
+    adminOnly: true
 };
 
 export const YellowTemperance: Stand = {
@@ -809,11 +810,11 @@ export const YellowTemperance: Stand = {
         defense: 7,
         perception: 2,
         speed: 2,
-        stamina: 3,
+        stamina: 3
     },
     color: 0xffff00, // Yellow color
     available: true,
-    image: "https://media.jolyne.moe/3T8Vf8/direct", // Replace with the actual image URL
+    image: "https://media.jolyne.moe/3T8Vf8/direct" // Replace with the actual image URL
 };
 
 export const TheFemboy: Stand = {
@@ -827,7 +828,7 @@ export const TheFemboy: Stand = {
         Abilities.TeaseBarrage,
         Abilities.Hug,
         Abilities.Flash,
-        Abilities.Kiss,
+        Abilities.Kiss
     ],
     emoji: Emojis.theFemboy,
     skillPoints: {
@@ -835,12 +836,12 @@ export const TheFemboy: Stand = {
         defense: 25,
         perception: 25,
         speed: 5,
-        stamina: 5,
+        stamina: 5
     },
     // uwu pink color
     color: 0xff69b4,
     available: true,
-    image: "https://media.jolyne.moe/ONObhp/direct", // Replace with the actual image URL
+    image: "https://media.jolyne.moe/ONObhp/direct" // Replace with the actual image URL
 };
 
 export const TheChained: Stand = {
@@ -853,11 +854,11 @@ export const TheChained: Stand = {
             ...Abilities.StandBarrage,
             name: "Chain Barrage",
             damage: Abilities.StandBarrage.damage + 6,
-            description: "The Chained barrages the enemy with its chains",
+            description: "The Chained barrages the enemy with its chains"
         },
         Abilities.ChainedHook,
         Abilities.ChainedWhip,
-        Abilities.OneThousandChains,
+        Abilities.OneThousandChains
     ],
     emoji: "⛓",
     skillPoints: {
@@ -865,11 +866,11 @@ export const TheChained: Stand = {
         defense: 0,
         perception: 10,
         speed: 0,
-        stamina: 0,
+        stamina: 0
     },
     color: 0x808080,
     available: true,
-    image: "https://media.jolyne.moe/osoTRS/direct", // to be decided
+    image: "https://media.jolyne.moe/osoTRS/direct" // to be decided
 };
 
 export const KingCrimson: Stand = {
@@ -883,7 +884,7 @@ export const KingCrimson: Stand = {
         Abilities.Impale,
         Abilities.BloodBlind,
         Abilities.Epitaph,
-        Abilities.TimeErase,
+        Abilities.TimeErase
     ],
     emoji: "<:kingCrimson:1216114860241453057>",
     skillPoints: {
@@ -891,11 +892,11 @@ export const KingCrimson: Stand = {
         defense: 5,
         perception: 15,
         speed: 8,
-        stamina: 2,
+        stamina: 2
     },
     color: 0x800000,
     available: true,
-    image: "https://i.pinimg.com/474x/8f/60/88/8f6088c59c2355de39d7ede735768e3a.jpg",
+    image: "https://i.pinimg.com/474x/8f/60/88/8f6088c59c2355de39d7ede735768e3a.jpg"
 };
 
 export const KillerQueenWinterCustom: Stand = {
@@ -909,10 +910,10 @@ export const KillerQueenWinterCustom: Stand = {
             ...Abilities.StandBarrage,
             name: "Titty Fuck",
             description: "Killer Queen punches the enemy with its **huge** bombs",
-            damage: Abilities.StandBarrage.damage + 15,
+            damage: Abilities.StandBarrage.damage + 15
         },
         { ...Abilities.SheerHeartAttackBTD, name: "Armpit Job" },
-        { ...Abilities.BitesTheDust, name: "Face Sitting Sex" },
+        { ...Abilities.BitesTheDust, name: "Face Sitting Sex" }
     ],
     emoji: "<:kqfm:1227725844257050749>",
     skillPoints: {
@@ -920,9 +921,9 @@ export const KillerQueenWinterCustom: Stand = {
         strength: 15,
         speed: 15,
         stamina: 15,
-        defense: 15,
+        defense: 15
     },
     color: 0xffc0cb,
     available: true,
-    image: "https://media.jolyne.moe/ZTAetm/direct",
+    image: "https://media.jolyne.moe/ZTAetm/direct"
 };
