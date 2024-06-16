@@ -611,6 +611,7 @@ export interface Stand {
      * If the stand is available.
      */
     available: boolean;
+    adminOnly?: boolean;
 }
 
 /**
