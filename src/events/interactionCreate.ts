@@ -1,5 +1,5 @@
 import type { EventFile, RPGUserDataJSON, RPGUserQuest, UseXCommandQuest } from "../@types";
-import { ButtonBuilder, ButtonStyle, Events, Interaction } from "discord.js";
+import { Events, Interaction } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";

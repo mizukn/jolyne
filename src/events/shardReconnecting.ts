@@ -1,11 +1,5 @@
 import type { EventFile } from "../@types";
-import * as Functions from "../utils/Functions";
-import { Events, ActivityType, ActivityOptions } from "discord.js";
-import * as Stands from "../rpg/Stands/Stands";
-import Jolyne from "../structures/JolyneClient";
-import { CronJob } from "cron";
-import TopGG from "../utils/TopGG";
-import Matchmaking from "../utils/Matchmaking";
+import { Events } from "discord.js";
 import { shardLogsWebhook } from "../utils/Webhooks";
 
 const Event: EventFile = {
@@ -17,6 +11,6 @@ const Event: EventFile = {
                 Number(process.env.TOTAL_SHARDS) - 1
             }** is reconnecting...`
         );
-    },
+    }
 };
 export default Event;

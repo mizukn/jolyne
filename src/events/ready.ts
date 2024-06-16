@@ -5,7 +5,6 @@ import * as Stands from "../rpg/Stands/Stands";
 import Jolyne from "../structures/JolyneClient";
 import { CronJob } from "cron";
 import TopGG from "../utils/TopGG";
-import Matchmaking from "../utils/Matchmaking";
 
 async function fetchSupportMembers(client: Jolyne): Promise<void> {
     const members = await client.guilds.cache
@@ -75,7 +74,7 @@ const Event: EventFile = {
         client.log("Green flag biven by discord, processing...", "ready");
         client.user.setActivity({
             type: ActivityType.Watching,
-            name: "bugs...",
+            name: "bugs..."
         });
         fetchPatreonsFromCache();
         client.log("Successfully fetched patreons from cache.", "ready");
@@ -107,7 +106,7 @@ const Event: EventFile = {
                 .filter((v) => v.ownerOnly || v.adminOnly)
                 .map((v) => v.data);
             //if (JSON.stringify(commandsData) !== lastCommands) {
-            client.log("Updating slash commands...", 'command');
+            client.log("Updating slash commands...", "command");
             await client.postSlashCommands(commandsData);
             await client.database.setString(
                 `jolyne_${client.user.id}:commands`,
@@ -139,7 +138,7 @@ const Event: EventFile = {
         // end
         client.user.setActivity({
             type: ActivityType.Watching,
-            name: "the beginning...",
+            name: "the beginning..."
         });
         client.cluster.on("updatePatreons", async () => {
             client.patreons = [];
@@ -150,20 +149,20 @@ const Event: EventFile = {
             const activies: ActivityOptions[] = [
                 {
                     type: ActivityType.Watching,
-                    name: "The World",
+                    name: "The World"
                 },
                 {
                     type: ActivityType.Watching,
-                    name: "The Way To Heaven",
+                    name: "The Way To Heaven"
                 },
                 {
                     type: ActivityType.Playing,
-                    name: "with " + Functions.randomArray(Object.values(Stands).map((v) => v.name)),
+                    name: "with " + Functions.randomArray(Object.values(Stands).map((v) => v.name))
                 },
                 {
                     type: ActivityType.Watching,
-                    name: "JoJo's Bizarre Adventure",
-                },
+                    name: "JoJo's Bizarre Adventure"
+                }
             ];
             client.user.setActivity(Functions.randomArray(activies));
         }, 1000 * 60);
@@ -180,10 +179,10 @@ const Event: EventFile = {
                     level: parseInt(data.split(":")[0]) as 1 | 2 | 3 | 4,
                     lastPatreonCharge: parseInt(data.split(":")[1]),
                     data: JSON.parse(patreonData) as typeof client.fetchPatrons extends Promise<
-                        infer U
-                    >
+                            infer U
+                        >
                         ? U
-                        : never,
+                        : never
                 });
             }
         }
@@ -269,7 +268,7 @@ const Event: EventFile = {
                             category: v.category,
                             options: v.data?.options?.filter((r) => r.name === c.name)[0]?.options,
                             name: `${v.data.name} ${c.name}`,
-                            description: removeEmoji(c.description),
+                            description: removeEmoji(c.description)
                         };
                     });
                 } else
@@ -280,7 +279,7 @@ const Event: EventFile = {
                             (r) => r.type === 3 || r.type === 6 || r.type === 4
                         ),
                         name: v.data.name,
-                        description: removeEmoji(v.data.description),
+                        description: removeEmoji(v.data.description)
                     };
             })
             .map((v) => {
@@ -291,7 +290,7 @@ const Event: EventFile = {
                             category: v.category,
                             options: v.options,
                             name: v.name,
-                            description: v.description,
+                            description: v.description
                         };
                     });
                 } else
@@ -300,7 +299,7 @@ const Event: EventFile = {
                         category: v.category,
                         options: v.options,
                         name: v.name,
-                        description: v.description,
+                        description: v.description
                     };
             });
         const commandsV2 = [];
@@ -320,7 +319,7 @@ const Event: EventFile = {
                         category: commands.category,
                         options: command.options,
                         name: `${commands.name} ${command.name}`,
-                        description: command.description,
+                        description: command.description
                     });
                 }
             } else commandsV3.push(commands);
@@ -339,7 +338,7 @@ const Event: EventFile = {
                 console.log(`Cleared ${keys.length} temp cache keys.`);
             });
         }, 1000 * 60 * 2);
-    },
+    }
 };
 export default Event;
 
