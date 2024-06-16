@@ -39,23 +39,27 @@ import { StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js
 const possibleModifiers = [{
     id: "speedrun",
     description: "NPC levels increase twice as fast.",
-    xpIncrease: 1.5,
-    dropIncrease: 1.5
+    xpIncrease: 1.1,
+    dropIncrease: 1.5,
+    emoji: "🏃"
 }, {
     id: "no_breaks",
     description: "Your health and stamina are not reset after each enemy.",
-    xpIncrease: 4,
-    dropIncrease: 2
+    xpIncrease: 1.5,
+    dropIncrease: 2,
+    emoji: "❌"
 }, {
     id: "the_elite",
     description: "All enemies will use S or SS tier stands and will always use a weapon.",
-    xpIncrease: 1.5,
-    dropIncrease: 2
+    xpIncrease: 1.1,
+    dropIncrease: 2,
+    emoji: "🔥"
 }, {
     id: "clone",
     description: "All enemies will have an exact clone of themselves.",
-    xpIncrease: 2,
-    dropIncrease: 2
+    xpIncrease: 1.5,
+    dropIncrease: 2,
+    emoji: "👥"
 }];
 
 const timeFn = (ms: number) => {
@@ -191,9 +195,10 @@ const slashCommand: SlashCommandFile = {
             .addOptions(
                 possibleModifiers.map((x) => {
                     return {
-                        label: x.id,
+                        label: Functions.capitalize(x.id.replace(/_/g, " ")),
                         value: x.id,
-                        description: x.description.slice(0, 100)
+                        description: x.description.slice(0, 100),
+                        emoji: x.emoji
                     };
                 })
             )
@@ -205,19 +210,30 @@ const slashCommand: SlashCommandFile = {
                 const modifier = possibleModifiers.find((f) => f.id === b);
                 if (!modifier) return a;
                 return a + modifier.xpIncrease;
-            }, 1);
+            }, 1) - modifiers.length;
         };
         const getTotalDropIncrease = (modifiers: string[]) => {
             return modifiers.reduce((a, b) => {
                 const modifier = possibleModifiers.find((f) => f.id === b);
                 if (!modifier) return a;
                 return a + modifier.dropIncrease;
-            }, 1);
+            }, 1) - modifiers.length;
         };
         const selectedModifiers: possibleModifiers[] = [];
 
         await ctx.makeMessage({
-            content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**Modifiers:** ${selectedModifiers.join(", ") || "None"}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
+            content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${selectedModifiers.length
+                ? "\n" + selectedModifiers
+                .map((x) => {
+                    const modifier = possibleModifiers.find(
+                        (f) => f.id === x
+                    );
+                    return `- ${modifier?.emoji} ${Functions.capitalize(
+                        x.replace(/_/g, " ")
+                    )}: ${modifier?.description}`;
+                })
+                .join("\n")
+                : ":x:"}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
             embeds: [],
             components: [Functions.actionRow([joinButton, startButton, cancelButton]), Functions.actionRow([modifiersStringSelectMenu])]
         });
@@ -448,7 +464,18 @@ const slashCommand: SlashCommandFile = {
                                     newPlayers.find((f) => f.id === x)
                                 ).join("\n- - ")}`;
                             })
-                            .join("\n\n")}`,
+                            .join("\n\n")}\n\n**Modifiers: (x${getTotalXpIncrease(selectedModifiers)} XP, x${getTotalDropIncrease(selectedModifiers)} Drop)**\n${selectedModifiers.length
+                            ? selectedModifiers
+                                .map((x) => {
+                                    const modifier = possibleModifiers.find(
+                                        (f) => f.id === x
+                                    );
+                                    return `- ${modifier?.emoji} ${Functions.capitalize(
+                                        x.replace(/_/g, " ")
+                                    )}: ${modifier?.description}`;
+                                })
+                                .join("\n")
+                            : "None"}`,
                         embeds: [],
                         components: []
                     });
@@ -551,6 +578,21 @@ const slashCommand: SlashCommandFile = {
                                                 ).join("\n")}`;
                                             })
                                             .join("\n\n")
+                                    },
+                                    {
+                                        name: "Modifiers",
+                                        value: selectedModifiers.length
+                                            ? selectedModifiers
+                                                .map((x) => {
+                                                    const modifier = possibleModifiers.find(
+                                                        (f) => f.id === x
+                                                    );
+                                                    return `- ${modifier?.emoji} ${Functions.capitalize(
+                                                        x.replace(/_/g, " ")
+                                                    )}: ${modifier?.description}`;
+                                                })
+                                                .join("\n")
+                                            : "None"
                                     }
                                 ],
                                 image: {
@@ -579,7 +621,18 @@ const slashCommand: SlashCommandFile = {
                     }
                 }
                 await ctx.makeMessage({
-                    content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__** ${selectedModifiers.join(", ") || "None"}${selectedModifiers.length !== 0 ? `\n${selectedModifiers.map(x => "- " + possibleModifiers.find(f => f.id === x).description).join("\n")}` : ""}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
+                    content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${selectedModifiers.length
+                        ? "\n" + selectedModifiers
+                        .map((x) => {
+                            const modifier = possibleModifiers.find(
+                                (f) => f.id === x
+                            );
+                            return `- ${modifier?.emoji} ${Functions.capitalize(
+                                x.replace(/_/g, " ")
+                            )}: ${modifier?.description}`;
+                        })
+                        .join("\n")
+                        : ":x:"}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
                     embeds: [],
                     components: [Functions.actionRow([joinButton, startButton, cancelButton]), Functions.actionRow([modifiersStringSelectMenu])]
                 });
