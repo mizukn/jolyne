@@ -5,222 +5,228 @@ export const Harry_Lester: NPC = {
     id: "harry_lester",
     name: "Harry Lester",
     email: "harry.lester78@mori.oh",
-    emoji: "👴",
+    emoji: "👴"
 };
 
 export const Kakyoin: NPC = {
     id: "kakyoin",
     name: "Kakyoin",
     emoji: Emojis["kakyoin_normal"],
-    email: "cock.yo_in69@mori.oh",
+    email: "cock.yo_in69@mori.oh"
 };
 
 export const Jotaro: NPC = {
     id: "jotaro",
     name: "Jotaro Kujo",
-    emoji: Emojis.jotaro,
+    emoji: Emojis.jotaro
 };
 
 export const Dio: NPC = {
     id: "dio",
     name: "Dio Brando",
-    emoji: Emojis.dio,
+    emoji: Emojis.dio
 };
 
 export const Heaven_Ascended_Dio: NPC = {
     id: "heaven_ascended_dio",
     name: "Heaven Ascended Dio",
-    emoji: Emojis.dioangry,
+    emoji: Emojis.dioangry
 };
 
 export const BanditLeader: NPC = {
     id: "bandit_leader",
     name: "Bandit Leader",
-    emoji: "🦹🏻",
+    emoji: "🦹🏻"
 };
 
 export const Bandit: NPC = {
     id: "bandit",
     name: "Bandit",
-    emoji: "👤",
+    emoji: "👤"
 };
 
 export const Joshua_Joengo: NPC = {
     id: "joshua_joengo",
     name: "Joshua Joengo",
-    emoji: Emojis.josephChad,
+    emoji: Emojis.josephChad
 };
 
 export const SPEEDWAGON_FOUNDATION: NPC = {
     id: "speedwagon_foundation",
     email: "contact@speedwagon.net",
     name: "Speedwagon Foundation",
-    emoji: "🔬",
+    emoji: "🔬"
 };
 
 export const Tonio_Trussardi: NPC = {
     id: "tonio_trussardi",
     name: "Tonio Trussardi",
-    emoji: Emojis["Tonio_Trussardi"],
+    emoji: Emojis["Tonio_Trussardi"]
 };
 
 export const Pucci: NPC = {
     id: "pucci",
     name: "Enrico Pucci",
-    emoji: Emojis.Pucci,
+    emoji: Emojis.Pucci
 };
 
 export const Daniel_J_DArby: NPC = {
     id: "daniel_j_darby",
     name: "Daniel J. D'Arby",
-    emoji: Emojis.daniel,
+    emoji: Emojis.daniel
 };
 
 export const SecurityGuard: NPC = {
     id: "security_guard",
     name: "Security Guard",
-    emoji: "💂",
+    emoji: "💂"
 };
 
 export const TaxiDriver: NPC = {
     id: "taxi_driver",
     name: "Taxi Driver",
-    emoji: "🚕",
+    emoji: "🚕"
 };
 
 export const Polnareff: NPC = {
     id: "polnareff",
     name: "Jean Pierre Polnareff",
-    emoji: Emojis.Polnareff,
+    emoji: Emojis.Polnareff
 };
 
 export const RequiemPolnareff: NPC = {
     id: "requiem_polnareff",
     name: "Requiem Polnareff",
-    emoji: Emojis.ReqPolnareff,
+    emoji: Emojis.ReqPolnareff
 };
 
 export const Golem: NPC = {
     id: "golem",
     name: "Golem",
-    emoji: "🗿",
+    emoji: "🗿"
 };
 
 export const GrayFly: NPC = {
     id: "gray_fly",
     name: "Gray Fly",
-    emoji: "🪰",
+    emoji: "🪰"
 };
 
 export const CaptainTennilleImpostor: NPC = {
     id: "captain_tennille_impostor",
     name: "Captain Tennille (Impostor)",
-    emoji: Emojis.CaptainTenilleImposter,
+    emoji: Emojis.CaptainTenilleImposter
 };
 
 export const Forever: NPC = {
     id: "forever",
     name: "Forever",
-    emoji: Emojis.Forever,
+    emoji: Emojis.Forever
 };
 
 export const JolyneTeam: NPC = {
     id: "jolyne_team",
     name: "Jolyne Team",
     emoji: Emojis.JolyneTray,
-    email: "mizu@jolyne.moe",
+    email: "mizu@jolyne.moe"
 };
 
 export const Megumin: NPC = {
     id: "megumin",
     name: "Megumin",
     emoji: Emojis.megumin,
-    email: "losion.losion.explosion@jolyne.moe",
+    email: "losion.losion.explosion@jolyne.moe"
 };
 
 export const GiornoGiovanna: NPC = {
     id: "giorno_giovanna",
     name: "Giorno Giovanna",
-    emoji: Emojis.Giorno,
+    emoji: Emojis.Giorno
 };
 
 export const GiornoGiovannaRequiem: NPC = {
     id: "giorno_giovanna_requiem",
     name: "Giorno Giovanna Requiem",
-    emoji: Emojis.Giorno,
+    emoji: Emojis.Giorno
 };
 
 export const Jolyne: NPC = {
     id: "jolyne",
     name: "Jolyne Cujoh",
-    emoji: Emojis.jolyne,
+    emoji: Emojis.jolyne
 };
 
 export const Devo: NPC = {
     id: "devo",
     name: "Devo the cursed",
-    emoji: Emojis.devo,
+    emoji: Emojis.devo
 };
 
 export const Toru: NPC = {
     id: "toru",
     name: "Toru",
-    emoji: Emojis.Toru,
+    emoji: Emojis.Toru
 };
 
 export const RubberSoul: NPC = {
     id: "rubber_soul",
     name: "Rubber Soul",
-    emoji: Emojis.rubberSoul,
+    emoji: Emojis.rubberSoul
 };
 
 export const YoshikageKira: NPC = {
     id: "yoshikage_kira",
     name: "Yoshikage Kira",
-    emoji: Emojis.yoshikageKira,
+    emoji: Emojis.yoshikageKira
 };
 
 export const Santa: NPC = {
     id: "santa",
     name: "Santa",
     // iconURL
-    emoji: Emojis.santa,
+    emoji: Emojis.santa
 };
 
 export const SantasElf: NPC = {
     id: "santas_elf",
     name: "Santa's elf",
     // iconURL
-    emoji: Emojis.santasElf, // place holder until i get the real emoji
+    emoji: Emojis.santasElf // place holder until i get the real emoji
 };
 
 export const CorruptedReindeer: NPC = {
     id: "corrupted_reindeer",
     name: "Corrupted Reindeer",
     // iconURL
-    emoji: Emojis.corrupted_reindeer, // place holder until i get the real emoji
+    emoji: Emojis.corrupted_reindeer // place holder until i get the real emoji
 };
 
 export const JGeil: NPC = {
     id: "j_geil",
     name: "J. Geil",
-    emoji: Emojis.jgeil,
+    emoji: Emojis.jgeil
 };
 
 export const HolHorse: NPC = {
     id: "hol_horse",
     name: "Hol Horse",
-    emoji: Emojis.HolHorse,
+    emoji: Emojis.HolHorse
 };
 
 export const MohammedAvdol: NPC = {
     id: "mohammed_avdol",
     name: "Mohammed Avdol",
-    emoji: Emojis.avdol,
+    emoji: Emojis.avdol
 };
 
 export const ConfettiGolem: NPC = {
     id: "confetti_golem",
     name: "Confetti Golem",
-    emoji: "🎊",
+    emoji: "🎊"
+};
+
+export const ZZ: NPC = {
+    id: "zz",
+    name: "ZZ",
+    emoji: "<:zz:1252621367958966345>"
 };
