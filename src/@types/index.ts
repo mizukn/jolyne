@@ -728,6 +728,15 @@ export interface MustReadEmailQuest
     type: "mustRead";
 }
 
+export interface StartDungeonQuest
+    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+    total: number;
+    type: "startDungeon";
+    completed: number;
+    modifiers?: possibleModifiers[] | number;
+    stage?: number;
+}
+
 export interface ActionQuest extends Omit<Quest, "completed" | "hintCommand" | "type"> {
     completed: boolean;
     type: "action";
@@ -791,7 +800,8 @@ export type Quests =
     | ClaimItemQuest
     | WaitQuest
     | RaidNPCQuest
-    | UseXCommandQuest;
+    | UseXCommandQuest
+    | StartDungeonQuest;
 export type QuestArray = Quests[];
 
 export type RPGUserQuest = Omit<
@@ -804,7 +814,7 @@ export type RPGUserQuest = Omit<
     | WaitQuest
     | RaidNPCQuest
     | UseXCommandQuest
-    | RaidNPCQuest,
+    | StartDungeonQuest,
     "i18n_key"
 > & {
     completed?: boolean;
