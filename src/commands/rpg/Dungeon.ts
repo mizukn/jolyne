@@ -6,6 +6,7 @@ import {
     EquipableItem,
     SkillPoints,
     Weapon,
+    StartDungeonQuest,
     RPGUserDataJSON, possibleModifiers
 } from "../../@types";
 import {
@@ -442,6 +443,47 @@ const slashCommand: SlashCommandFile = {
                         player.coins += coinRewards;
                         player.health = 0;
                         player.stamina = 0;
+
+                        for (const quests of [
+                            player.daily.quests,
+                            player.chapter.quests,
+                            ...player.sideQuests.map((v) => v.quests)
+                        ]) {
+                            for (const quest of quests.filter((x) => Functions.isStartDungeonQuest(x))) {
+
+                                let accepted = true;
+                                const realQuest = ((quest as unknown) as StartDungeonQuest);
+                                if (!realQuest.completed) realQuest.completed = 0;
+                                if (realQuest.completed >= realQuest.total) {
+                                    continue;
+                                }
+                                if (realQuest.stage) {
+                                    if (realQuest.stage && realQuest.stage > dungeon.stage) {
+                                        accepted = false;
+                                        console.log(`!!! Refused quest ${realQuest.id} because stage is lower than dungeon stage`);
+                                    }
+                                }
+
+                                if (realQuest.modifiers) {
+                                    if (typeof realQuest.modifiers === "number") {
+                                        if (selectedModifiers.length < realQuest.modifiers) {
+                                            accepted = false;
+                                            console.log(`!!! Refused quest ${realQuest.id} because not enough modifiers`);
+                                        }
+                                    } else {
+                                        if (!realQuest.modifiers.every((x) => selectedModifiers.includes(x))) {
+                                            accepted = false;
+                                            console.log(`!!! Refused quest ${realQuest.id} because not all modifiers are included`);
+                                        }
+                                    }
+                                }
+
+                                if (accepted) {
+                                    realQuest.completed++;
+                                }
+
+                            }
+                        }
 
                         if (player.id === ctx.userData.id && !ctx.client.maintenanceReason)
                             Functions.removeItem(player, "dungeon_key", 1);

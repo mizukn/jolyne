@@ -1,10 +1,18 @@
-import { SlashCommandFile, Chapter, ChapterPart, RPGUserQuest, RaidNPCQuest } from "../../@types";
+import {
+    SlashCommandFile,
+    Chapter,
+    ChapterPart,
+    RPGUserQuest,
+    RaidNPCQuest,
+    StartDungeonQuest,
+    possibleModifiers
+} from "../../@types";
 import {
     Message,
     ButtonBuilder,
     ButtonStyle,
     MessageComponentInteraction,
-    TextChannel,
+    TextChannel
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -143,7 +151,7 @@ export const getQuestsStats = (
                     cc: quest.goal.toLocaleString("en-US"),
                     s: Functions.s(quest.goal),
                     name: Functions.findItem(quest.item).name,
-                    emoji: Functions.findItem(quest.item).emoji,
+                    emoji: Functions.findItem(quest.item).emoji
                 });
                 console.log(
                     `user ${ctx.user.id} has ${quest.amount} ${
@@ -155,7 +163,7 @@ export const getQuestsStats = (
                 questMessage = ctx.translate("quest:USE_COMMAND", {
                     cmd,
                     cc: quest.goal.toLocaleString("en-US"),
-                    s: Functions.s(quest.goal),
+                    s: Functions.s(quest.goal)
                 });
                 console.log(
                     `user ${ctx.user.id} has ${quest.amount} ${quest.command} commands (completed: ${quest.amount}/${quest.goal})))`
@@ -164,7 +172,7 @@ export const getQuestsStats = (
                 const emoji = {
                     daily: "📆",
                     coin: ctx.client.localEmojis.jocoins,
-                    xp: ctx.client.localEmojis.xp,
+                    xp: ctx.client.localEmojis.xp
                 }[quest.x];
 
                 questMessage =
@@ -172,7 +180,7 @@ export const getQuestsStats = (
                         cc: quest.goal.toLocaleString("en-US"),
                         s: Functions.s(quest.goal),
                         emoji,
-                        name: quest.x,
+                        name: quest.x
                     }) +
                     (quest.x === "daily"
                         ? ` (${ctx.client.getSlashCommandMention("daily claim")})`
@@ -336,8 +344,8 @@ export const getQuestsStats = (
                     quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
                         .length !== 1
                         ? "x" +
-                          quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
-                              .length
+                        quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
+                            .length
                         : ""
                 } ${raid.emoji} **${raid.name}** (LVL: ${
                     raid.level
@@ -346,8 +354,8 @@ export const getQuestsStats = (
                         .length !== 1
                         ? completedSlashTotal
                         : quest.completed
-                        ? ":white_check_mark:"
-                        : ":x:"
+                            ? ":white_check_mark:"
+                            : ":x:"
                 }) **${(questPercent * 100).toFixed(2)}%**||`;
                 const found = message.find((messageX) => messageX === sMessage);
 
@@ -357,6 +365,33 @@ export const getQuestsStats = (
                 totalPercent += questPercent * 100;
                 continue;
             }
+        }
+
+        if (Functions.isStartDungeonQuest(quest)) {
+            let messageString = `Start ${(quest as StartDungeonQuest).total} ${ctx.client.getSlashCommandMention("dungeon")}${
+                (quest as StartDungeonQuest).total > 1 ? "s" : ""} `;
+            if (!(quest as StartDungeonQuest).completed) {
+                (quest as StartDungeonQuest).completed = 0;
+            }
+            if ((quest as StartDungeonQuest).modifiers) {
+                if (typeof (quest as StartDungeonQuest).modifiers === "number") {
+                    messageString += `with at least ${(quest as StartDungeonQuest).modifiers} modifiers `;
+                } else {
+                    messageString += `with the following modifiers: ${((quest as StartDungeonQuest)["modifiers"] as possibleModifiers[]).join(", ")} `;
+
+                }
+            }
+
+            if ((quest as StartDungeonQuest).stage) {
+                messageString += `and reach ${(quest as StartDungeonQuest).stage} stages `;
+            }
+
+            const questPercent = (quest as StartDungeonQuest).completed >= (quest as StartDungeonQuest).total ? 100 : Math.round(((quest as StartDungeonQuest).completed / (quest as StartDungeonQuest).total) * 100);
+            messageString += `(${(quest as StartDungeonQuest).completed}/${(quest as StartDungeonQuest).total}) **${questPercent}%**`;
+
+            message.push(messageString);
+            totalPercent += questPercent;
+            continue;
         }
 
         message.push(`??? Unknown Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`);
@@ -371,7 +406,7 @@ export const getQuestsStats = (
                 else return `${ctx.client.localEmojis.reply} ${v}`;
             })
             .join("\n"),
-        percent: totalPercent / quests.length,
+        percent: totalPercent / quests.length
     };
 };
 
@@ -387,7 +422,7 @@ const slashCommand: SlashCommandFile = {
     data: {
         name: "chapter",
         description: "Show your current chapter progress",
-        options: [],
+        options: []
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.chapter.quests.length === 0) {
@@ -414,12 +449,13 @@ const slashCommand: SlashCommandFile = {
                     .setStyle(ButtonStyle.Primary)
             );
             const filter = (i: MessageComponentInteraction) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+                i.deferUpdate().catch(() => {
+                }); // eslint-disable-line @typescript-eslint/no-empty-function
                 return i.customId === "next" && i.user.id === ctx.user.id;
             };
             const collector = ctx.interaction.channel.createMessageComponentCollector({
                 filter,
-                time: 30000,
+                time: 30000
             });
             collector.on("collect", async (i) => {
                 if (await ctx.antiCheat(true)) {
@@ -439,7 +475,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop();
                     ctx.followUp({
                         content: `We're sorry, but this is the last chapter for now. We're working on new content!`,
-                        ephemeral: true,
+                        ephemeral: true
                     });
                     return;
                 }
@@ -480,7 +516,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.followUp({
                         content: `You have completed the chapter and received the following rewards:\n${winContent.join(
                             ", "
-                        )}`,
+                        )}`
                     });
                 }
 
@@ -496,7 +532,7 @@ const slashCommand: SlashCommandFile = {
                         newChap.description[ctx.userData.language]
                     }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${
                         status.message
-                    }`,
+                    }`
                 });
 
                 // TODO: if chap dialogues...
@@ -511,15 +547,15 @@ const slashCommand: SlashCommandFile = {
             }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}${
                 chapter.hints
                     ? "\n\n" +
-                      chapter
-                          .hints(ctx)
-                          .map((x) => `:exclamation: HINT: ${x}`)
-                          .join("\n")
+                    chapter
+                        .hints(ctx)
+                        .map((x) => `:exclamation: HINT: ${x}`)
+                        .join("\n")
                     : ""
             }`,
-            components: components.length === 0 ? [] : [Functions.actionRow(components)],
+            components: components.length === 0 ? [] : [Functions.actionRow(components)]
         });
-    },
+    }
 };
 
 export default slashCommand;

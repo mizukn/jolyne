@@ -4,7 +4,7 @@ import {
     ChapterPart,
     RPGUserDataJSON,
     Consumable,
-    numOrPerc,
+    numOrPerc
 } from "../../@types";
 import {
     Message,
@@ -13,7 +13,7 @@ import {
     ButtonStyle,
     MessageComponentInteraction,
     ApplicationCommandOptionType,
-    AutocompleteInteraction,
+    AutocompleteInteraction
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -29,17 +29,18 @@ const slashCommand: SlashCommandFile = {
                 description: "Select a quest to use",
                 type: 3,
                 required: true,
-                autocomplete: true,
-            },
-        ],
+                autocomplete: true
+            }
+        ]
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+        return ActionQuestsL.DriveToPakistan.use(ctx);
         const questId = ctx.interaction.options.getString("use", true);
         const quest = Object.values(ActionQuestsL).find((v) => v.id === questId);
         if (!quest) {
             ctx.makeMessage({
                 content:
-                    "Error: Quest not found. MAKE SURE YOU'RE USING THE SUGGESTED QUESTS, DON'T TYPE IT YOURSELF!",
+                    "Error: Quest not found. MAKE SURE YOU'RE USING THE SUGGESTED QUESTS, DON'T TYPE IT YOURSELF!"
             });
             return;
         }
@@ -55,7 +56,7 @@ const slashCommand: SlashCommandFile = {
         for (const quests of [
             userData.daily.quests,
             userData.chapter.quests,
-            ...userData.sideQuests.map((v) => v.quests),
+            ...userData.sideQuests.map((v) => v.quests)
         ]) {
             for (const quest of quests) {
                 if (Functions.isActionQuest(quest) && !quest.completed) {
@@ -84,7 +85,7 @@ const slashCommand: SlashCommandFile = {
                                     ) +
                                     " " +
                                     from,
-                                value: originalQuest.id,
+                                value: originalQuest.id
                             });
                     }
                 }
@@ -92,7 +93,7 @@ const slashCommand: SlashCommandFile = {
         }
 
         interaction.respond(toRespond);
-    },
+    }
 };
 
 export default slashCommand;
