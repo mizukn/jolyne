@@ -34,7 +34,7 @@ const slashCommand: SlashCommandFile = {
         ]
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        return ActionQuestsL.DriveToPakistan.use(ctx);
+
         const questId = ctx.interaction.options.getString("use", true);
         const quest = Object.values(ActionQuestsL).find((v) => v.id === questId);
         if (!quest) {
