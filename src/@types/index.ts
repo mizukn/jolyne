@@ -314,7 +314,7 @@ export const equipableItemTypesLimit = {
     [equipableItemTypes.WEAPON]: 1,
     [equipableItemTypes.ACCESSORY]: 2,
     [equipableItemTypes.FACE]: 1,
-    [equipableItemTypes.BACK]: 1
+    [equipableItemTypes.BACK]: 1,
 };
 
 export const formattedEquipableItemTypes = {
@@ -326,7 +326,7 @@ export const formattedEquipableItemTypes = {
     [equipableItemTypes.HANDS]: "Hands",
     [equipableItemTypes.WEAPON]: "Weapon",
     [equipableItemTypes.ACCESSORY]: "Accessory",
-    [equipableItemTypes.BACK]: "Back"
+    [equipableItemTypes.BACK]: "Back",
 };
 
 export type possibleEquippedItems = keyof typeof equipableItemTypesLimit;
@@ -933,6 +933,7 @@ export interface Leaderboard {
         xp: number;
         coins: number;
         inventory: RPGUserDataJSON["inventory"];
+        daily: RPGUserDataJSON["daily"];
     }[];
 }
 
