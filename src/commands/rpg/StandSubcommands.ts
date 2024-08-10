@@ -1,4 +1,4 @@
-import { RPGUserDataJSON, SlashCommandFile, Stand } from "../../@types";
+import { EvolutionStand, RPGUserDataJSON, SlashCommandFile, Stand } from "../../@types";
 import {
     Message,
     MessageComponentInteraction,
@@ -15,6 +15,7 @@ import * as Stands from "../../rpg/Stands/Stands";
 import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
 
 import { fixFields, isEvolvableStand } from "../../utils/Functions";
+import { parse } from "dotenv";
 
 const regularStandList = Object.values(Stands);
 const evolvableStandList = Object.values(EvolvableStands);
@@ -28,7 +29,15 @@ const slashCommand: SlashCommandFile = {
                 type: 1,
                 name: "display",
                 description: "🔱 Display information about your current stand",
-                options: [],
+                options: [
+                    {
+                        name: "stand",
+                        description: "The stand to display",
+                        type: 3,
+                        required: false,
+                        autocomplete: true,
+                    },
+                ],
             },
             {
                 type: 1,
@@ -172,10 +181,21 @@ const slashCommand: SlashCommandFile = {
                 break;
             }
             case "display": {
-                const stand = Functions.findStand(
-                    ctx.userData.stand,
-                    ctx.userData.standsEvolved[ctx.userData.stand]
-                );
+                const choice = ctx.interaction.options.getString("stand");
+                console.log(choice, parseInt(choice.split("\\")[1]));
+                const stand = choice
+                    ? Functions.findStand(
+                          choice.split("\\")[0],
+                          choice.includes("\\") ? parseInt(choice.split("\\")[1]) : null
+                      )
+                    : Functions.findStand(
+                          ctx.userData.stand,
+                          ctx.userData.standsEvolved[ctx.userData.stand]
+                      );
+                if (!stand) {
+                    ctx.sendTranslated("base:NO_STAND");
+                    return;
+                }
                 const standCartBuffer = await Functions.generateStandCart(
                     Functions.findStand(
                         ctx.userData.stand,
@@ -436,6 +456,37 @@ const slashCommand: SlashCommandFile = {
             });
             return;
         }
+    },
+    autoComplete: async (interaction, userData, currentInput): Promise<void> => {
+        const toRespond: {
+            name: string;
+            value: string;
+        }[] = [];
+
+        const totalStands: Stand[] = Object.values(Stands);
+        for (const stand of Object.values(EvolvableStands)) {
+            const baseStand = stand.evolutions[0];
+            const rest = stand.evolutions.slice(1);
+
+            totalStands.push({ ...baseStand, id: stand.id });
+
+            for (let i = 0; i < rest.length; i++) {
+                const evolution = rest[i];
+                totalStands.push({ ...evolution, id: stand.id + `\\${i + 1}` });
+            }
+        }
+
+        for (const stand of totalStands) {
+            if (stand.name.toLowerCase().includes(currentInput.toLowerCase())) {
+                toRespond.push({
+                    name: stand.name,
+                    value: stand.id,
+                });
+            }
+        }
+        toRespond.length = Math.min(toRespond.length, 25);
+
+        interaction.respond(toRespond);
     },
 };
 
