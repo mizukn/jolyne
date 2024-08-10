@@ -182,7 +182,6 @@ const slashCommand: SlashCommandFile = {
             }
             case "display": {
                 const choice = ctx.interaction.options.getString("stand");
-                console.log(choice, parseInt(choice.split("\\")[1]));
                 const stand = choice
                     ? Functions.findStand(
                           choice.split("\\")[0],
