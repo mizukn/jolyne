@@ -197,10 +197,15 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
                 const standCartBuffer = await Functions.generateStandCart(
-                    Functions.findStand(
-                        ctx.userData.stand,
-                        ctx.userData.standsEvolved[ctx.userData.stand]
-                    )
+                    choice
+                        ? Functions.findStand(
+                              choice.split("\\")[0],
+                              choice.includes("\\") ? parseInt(choice.split("\\")[1]) : null
+                          )
+                        : Functions.findStand(
+                              ctx.userData.stand,
+                              ctx.userData.standsEvolved[ctx.userData.stand]
+                          )
                 );
                 const file = new AttachmentBuilder(standCartBuffer, { name: "stand.png" });
 
