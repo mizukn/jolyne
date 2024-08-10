@@ -34,6 +34,11 @@ const slashCommand: SlashCommandFile = {
                     },
                 ],
             },
+            {
+                name: "daily",
+                description: "Shows the users with the highest daily streak",
+                type: 1,
+            },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -42,8 +47,21 @@ const slashCommand: SlashCommandFile = {
                 `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`
             )
         ) as Leaderboard) || { lastUpdated: 0, data: [] };
-        const userPos =
+        let userPos: "N/A" | number =
             lastLeaderboard.data.findIndex((user) => user.id === ctx.user.id) + 1 || "N/A";
+        if (ctx.interaction.options.getSubcommand() === "daily") {
+            for (const user of lastLeaderboard.data) {
+                const userData = user.daily as RPGUserDataJSON["daily"];
+                // check if last time user claimed exceeds 25 hours
+                if (userData.lastClaimed + 1000 * 60 * 60 * 25 < Date.now()) {
+                    userData.claimStreak = 0;
+                }
+            }
+
+            lastLeaderboard.data.sort((a, b) => b.daily.claimStreak - a.daily.claimStreak);
+            userPos =
+                lastLeaderboard.data.findIndex((user) => user.id === ctx.user.id) + 1 || "N/A";
+        }
 
         const embed: APIEmbed = {
             title: "Leaderboard",
@@ -176,6 +194,21 @@ const slashCommand: SlashCommandFile = {
                         });
                     break;
                 }
+
+                // daily streaks are stored in UserData.daily.claimStreak
+                case "daily": {
+                    embed.title = "Highest Daily Streaks";
+                    embed.fields = lastLeaderboard.data
+                        .slice((currentPage - 1) * 10, currentPage * 10)
+                        .map((user, i) => ({
+                            name: `${
+                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
+                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
+                            value: `${ctx.client.localEmojis.replyEnd} **${user.daily.claimStreak}** days in a row 📅`,
+                            inline: false,
+                        }));
+                    break;
+                }
             }
 
             ctx.interaction.editReply({
@@ -253,6 +286,11 @@ const slashCommand: SlashCommandFile = {
                 case "items": // most owned items
                     query = `SELECT inventory
                              FROM "RPGUsers"`;
+                    break;
+                case "daily":
+                    query = `SELECT id, tag, daily
+                             FROM "RPGUsers"
+                             ORDER BY daily->>'claimStreak' DESC`;
                     break;
                 default:
                     query = `SELECT *
