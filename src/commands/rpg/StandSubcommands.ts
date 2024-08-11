@@ -60,12 +60,6 @@ const slashCommand: SlashCommandFile = {
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        if (
-            !Functions.findStand(ctx.userData.stand, ctx.userData.standsEvolved[ctx.userData.stand])
-        ) {
-            await ctx.sendTranslated("base:NO_STAND");
-            return;
-        }
         const switchID = Functions.generateRandomId();
         const confirmID = Functions.generateRandomId();
         const cancelID = Functions.generateRandomId();
