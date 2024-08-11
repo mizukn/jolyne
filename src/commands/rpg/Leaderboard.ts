@@ -53,7 +53,7 @@ const slashCommand: SlashCommandFile = {
             for (const user of lastLeaderboard.data) {
                 const userData = user.daily as RPGUserDataJSON["daily"];
                 // check if last time user claimed exceeds 25 hours
-                if (userData.lastClaimed + 1000 * 60 * 60 * 25 < Date.now()) {
+                if (userData.lastClaimed + 1000 * 60 * 60 * 48 < Date.now()) {
                     userData.claimStreak = 0;
                 }
             }
