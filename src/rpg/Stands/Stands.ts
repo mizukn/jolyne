@@ -579,7 +579,9 @@ export const SkeletalSpectre: Stand = {
 
 /**
  * The WORLD: Ru version (halloween 2023)
+ * !CANCELLED!
  */
+/*
 export const TheWorldRu: Stand = {
     id: "the_world_ru",
     name: "The World (RU)",
@@ -619,7 +621,7 @@ export const TheWorldRu: Stand = {
     },
     color: TheWorld.color,
     available: true,
-};
+};*/
 
 export const StickyFingers: Stand = {
     id: "sticky_fingers",
