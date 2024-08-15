@@ -278,6 +278,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.makeMessage({
                         content: `Unfortunately, you can't store more than **${limit}** stand discs in your inventory. This limit may increase the more S tier stands we add to the game. [Patreon members](https://patreon.com/mizuki54) have a higher limit btw.`,
                     });
+                    return;
                 }
 
                 /* -- FUTURE UPD
