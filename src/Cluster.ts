@@ -1,10 +1,21 @@
 import { ClusterManager } from "discord-hybrid-sharding";
 import redis from "ioredis";
 import "dotenv/config";
+import { exec } from "child_process";
 
 const TempRedis = new redis({ db: Number(process.env.REDIS_DB) });
+const port = 6969;
 
 (async () => {
+    // check at localhost if port is already in use
+    exec(`lsof -i:${port}`, (error, stdout) => {
+        if (stdout.includes("LISTEN")) {
+            console.log(`Port ${port} is already in use. Exiting...`);
+            process.exit(0);
+        } else {
+            console.log(`Port ${port} is available.`);
+        }
+    });
     // await TempRedis.set("rpgGlobalFightMatchmaking", JSON.stringify([]));
     await TempRedis.keys("*tempCache_*").then((keys) => {
         for (const key of keys) {
@@ -44,7 +55,7 @@ const manager = new ClusterManager(`${__dirname}/index.js`, {
     totalShards: "auto",
     shardsPerClusters: 8,
     mode: "process",
-    token: process.env.CLIENT_TOKEN
+    token: process.env.CLIENT_TOKEN,
 });
 
 manager.on("clusterCreate", (cluster) =>
@@ -57,7 +68,7 @@ manager.spawn({ timeout: -1 }).catch((e) => {
     //const response = JSON.parse(e.message);
     console.log(
         "DISCORD API LIMIT: ERROR, YOU HAVE BEEN RATELIMITED. PLEASE TRY AGAIN IN " +
-        e.headers.get("Retry-After") +
-        " SECONDS."
+            e.headers.get("Retry-After") +
+            " SECONDS."
     );
 });
