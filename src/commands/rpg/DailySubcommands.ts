@@ -19,31 +19,31 @@ const dailyQuestResetPrice = {
     undefined: 1000,
     null: 1000,
     0: 1000,
-    1: 10000,
-    2: 25000,
-    3: 50000,
-    4: 100000,
-    5: 500000,
-    6: 1000000,
-    7: 2500000,
-    8: 5000000,
-    9: 10000000,
-    10: 50000000,
-    11: 100000000,
-    12: 500000000,
-    13: 1000000000,
-    14: 5000000000,
-    15: 10000000000,
-    16: 50000000000,
-    17: 100000000000,
-    18: 500000000000,
-    19: 1000000000000,
-    20: 5000000000000,
-    21: 10000000000000,
-    22: 50000000000000,
-    23: 100000000000000,
-    24: 500000000000000,
-    25: 1000000000000000,
+    1: 100000,
+    2: 250000,
+    3: 500000,
+    4: 1000000,
+    5: 5000000,
+    6: 10000000,
+    7: 25000000,
+    8: 50000000,
+    9: 100000000,
+    10: 500000000,
+    11: 1000000000,
+    12: 5000000000,
+    13: 10000000000,
+    14: 50000000000,
+    15: 100000000000,
+    16: 500000000000,
+    17: 1000000000000,
+    18: 5000000000000,
+    19: 10000000000000,
+    20: 50000000000000,
+    21: 100000000000000,
+    22: 500000000000000,
+    23: 1000000000000000,
+    24: 5000000000000000,
+    25: 9000000000000000,
 };
 
 const slashCommand: SlashCommandFile = {
@@ -299,12 +299,10 @@ const slashCommand: SlashCommandFile = {
                                 .setEmoji("🔁")
                                 .setCustomId(ctx.interaction.id + "daily-quests-reset")
                                 .setLabel(
-                                    `Reset for ${
-                                        dailyQuestResetPrice[
-                                            ctx.userData.daily
-                                                .dailyQuestsReset as keyof typeof dailyQuestResetPrice
-                                        ]
-                                    } coins`
+                                    `Reset for ${dailyQuestResetPrice[
+                                        ctx.userData.daily
+                                            .dailyQuestsReset as keyof typeof dailyQuestResetPrice
+                                    ]?.toLocaleString("en-US")} coins`
                                 )
                         );
                     }
@@ -340,8 +338,6 @@ const slashCommand: SlashCommandFile = {
 
                 if (components.length > 0) {
                     const filter = (i: MessageComponentInteraction) => {
-                        i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-
                         return (
                             i.user.id === ctx.user.id &&
                             (i.customId === ctx.interaction.id + "daily-quests-claim" ||
@@ -376,7 +372,7 @@ const slashCommand: SlashCommandFile = {
                                         .dailyQuestsReset as keyof typeof dailyQuestResetPrice
                                 ];
                             if (ctx.userData.coins < price) {
-                                await i.followUp({
+                                await i.reply({
                                     content: `You don't have enough coins to reset your daily quests. You need ${price.toLocaleString(
                                         "en-US"
                                     )} coins to reset your daily quests.`,
@@ -394,7 +390,7 @@ const slashCommand: SlashCommandFile = {
                             }
                             ctx.userData.daily.dailyQuestsReset++;
                             await ctx.client.database.saveUserData(ctx.userData);
-                            i.followUp({
+                            i.reply({
                                 content: ctx.translate("daily:RESET_SUCCESS", {
                                     price: price.toLocaleString("en-US"),
                                 }),
