@@ -1156,7 +1156,7 @@ export const Rage: Ability = {
         ctx.nextTurnPromises.push({
             cooldown: 4,
             id: Functions.generateRandomId(),
-            executeOnlyOnce: true,
+            executeOnlyOnce: false,
             promise: (fight) => {
                 if (user.health < currentHealth) {
                     // add +5 strength every time user loses 1% of Functions.maxHealth(user);
