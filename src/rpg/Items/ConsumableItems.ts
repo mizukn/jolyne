@@ -116,7 +116,7 @@ export const Energy_Drink: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        stamina: "25%",
+        stamina: 75,
     },
 };
 

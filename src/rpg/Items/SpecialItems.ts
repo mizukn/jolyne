@@ -392,6 +392,10 @@ export const StandArrow: Special = {
             id: "echoes",
             ...EvolutionStands.Echoes.evolutions[0],
         });
+        standArray.push({
+            id: "killer_queen",
+            ...EvolutionStands.KillerQueen.evolutions[0],
+        });
 
         const percent = Math.floor(Math.random() * 100);
 

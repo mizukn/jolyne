@@ -57,6 +57,7 @@ export const TheWorld: Ability = {
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
             cooldown: 6,
+            executeOnlyOnce: true,
             promise: (fight) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
                     `> ${user.stand?.emoji} **${user.name}:** Toki wo Ugokidasu...`
@@ -159,6 +160,7 @@ export const Manipulation: Ability = {
             target.manipulatedBy = user;
             ctx.nextRoundPromises.push({
                 cooldown: 2,
+                executeOnlyOnce: true,
                 promise: (fight) => {
                     unmanipulate(fight);
                 },
@@ -207,6 +209,7 @@ export const DeadlyErasure: Ability = {
 const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
     ctx.nextTurnPromises.push({
         cooldown: 3,
+        executeOnlyOnce: false,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
                 `:fire: **${target.name}** took **${damage}** burn damage`
@@ -230,6 +233,7 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, u
 const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
     ctx.nextTurnPromises.push({
         cooldown: 3,
+        executeOnlyOnce: false,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
                 `🩸 **${target.name}** took **${damage}** bleed damage`
@@ -325,6 +329,7 @@ export const OhMyGod: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints = oldSkillPoints;
@@ -551,6 +556,7 @@ export const StandDisc: Ability = {
         );
         ctx.nextRoundPromises.push({
             cooldown: 6,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 target.stand = stand;
@@ -586,6 +592,7 @@ export const Hallucinogen: Ability = {
         );
         ctx.nextRoundPromises.push({
             cooldown: 5,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 ctx.fighters
@@ -693,6 +700,7 @@ export const LifeGiver: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const idx = team.findIndex((x) => x.id === NPC.id);
@@ -748,6 +756,7 @@ export const SandClone: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const idx = team.findIndex((x) => x.id === NPC.id);
@@ -793,6 +802,7 @@ export const SandMimicry: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints = oldSkillPoints;
@@ -830,6 +840,7 @@ export const SandStorm: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 for (const fighter of ctx.fighters.filter(
@@ -905,6 +916,7 @@ export const BerserkersFury: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints.strength -= strengthIncrease;
@@ -1107,6 +1119,7 @@ export const Transformation: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints = oldSkillPoints;
@@ -1144,6 +1157,7 @@ export const Rage: Ability = {
             ctx.nextTurnPromises.push({
                 cooldown: 1,
                 id: Functions.generateRandomId(),
+                executeOnlyOnce: true,
                 promise: (fight) => {
                     if (user.health < currentHealth) {
                         // add +5 strength every time user loses 1% of Functions.maxHealth(user);
@@ -1166,6 +1180,7 @@ export const Rage: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 4,
+            executeOnlyOnce: true,
             id: endId,
             promise: (fight) => {
                 user.skillPoints.strength = oldStrength;
@@ -1253,6 +1268,7 @@ export const PoisonGas: Ability = {
         ctx.nextTurnPromises.push({
             cooldown: 4,
             id: Functions.generateRandomId(),
+            executeOnlyOnce: false,
             promise: (fight) => {
                 fight.fighters.forEach((fighter) => {
                     const damages =
@@ -1418,6 +1434,7 @@ const poisonDamagePromise = (
 ) => {
     ctx.nextTurnPromises.push({
         cooldown,
+        executeOnlyOnce: false,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
                 `☠️🧪☣️ **${target.name}** took **${damage}** poison damage`
@@ -1607,6 +1624,7 @@ export const BonesEnlargement: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.maxHealth = oldMaxHealth;
@@ -1718,6 +1736,7 @@ export const SheerHeartAttackBTD: Ability = {
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const bombDamage = Math.round(Functions.getAttackDamages(user) * 3.5);
@@ -1757,6 +1776,7 @@ export const SheerHeartAttack: Ability = {
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const bombDamage = Math.round(Functions.getAttackDamages(user) * 2);
@@ -1818,6 +1838,7 @@ export const BitesTheDust: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 5,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints = oldSkillPoints;
@@ -1882,15 +1903,18 @@ const lifePunchPromise = (
     target: Fighter,
     damage: number,
     user: Fighter,
-    cooldown: number
+    cooldown: number,
+    percentage: number
 ) => {
     // removes 3% of the opponent's max health and stamina
 
     ctx.nextTurnPromises.push({
         cooldown,
+        executeOnlyOnce: false,
         promise: (fight) => {
-            const healthLost = Math.round(target.maxHealth * 0.03);
-            const staminaLost = Math.round(target.maxStamina * 0.03);
+            console.log("life punch promise");
+            const healthLost = Math.round(target.maxHealth * percentage);
+            const staminaLost = Math.round(target.maxStamina * percentage);
 
             target.health -= healthLost;
             target.stamina -= staminaLost;
@@ -1898,7 +1922,7 @@ const lifePunchPromise = (
             if (target.health <= 0) target.health = 0;
             if (target.stamina <= 0) target.stamina = 0;
 
-            fight.turns[ctx.turns.length - 1].logs.push(
+            fight.turns[fight.turns.length - 1].logs.push(
                 `🩸🩸🩸 **${target.name}** lost **${healthLost}** health and **${staminaLost}** stamina`
             );
         },
@@ -1910,7 +1934,7 @@ export const LifePunch: Ability = {
     name: "Life Punch",
     description:
         "Punch that drains the target's stamina and health (by 3% of their max stats) and effects that lasts for 3 turns.",
-    cooldown: 6,
+    cooldown: 8,
     damage: 0,
     stamina: 25,
     extraTurns: 0,
@@ -1918,7 +1942,7 @@ export const LifePunch: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
-        lifePunchPromise(ctx, target, damage, user, 5);
+        lifePunchPromise(ctx, target, damage, user, 5, 0.03);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
         user.totalDamageDealt += xdamage;
@@ -1939,7 +1963,7 @@ export const LifePunchGER: Ability = {
         "Punch that drains the target's stamina and health (by **8%** of their max stats) and effects that lasts for 3 turns",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
-        lifePunchPromise(ctx, target, damage, user, 5);
+        lifePunchPromise(ctx, target, damage, user, 5, 0.08);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
         user.totalDamageDealt += xdamage;
@@ -2005,6 +2029,7 @@ export const Fog: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 fight.turns[fight.turns.length - 1].logs.push(
@@ -2051,6 +2076,7 @@ export const FrogRain: Ability = {
 
                 ctx.nextRoundPromises.push({
                     cooldown: 3,
+                    executeOnlyOnce: false,
                     id: Functions.generateRandomId(),
                     promise: (fight) => {
                         const burnDamageCalc = Math.round(
@@ -2110,6 +2136,7 @@ export const TotalCombustion: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: false,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const burnDamageCalc = Math.round(
@@ -2331,6 +2358,7 @@ export const DefensiveForm: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.maxHealth = oldMaxHealth;
@@ -2367,6 +2395,7 @@ export const AcidicTouch: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: false,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const burnDamageCalc = Math.round(
@@ -2402,6 +2431,7 @@ export const Assimilation: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints = oldSkillPoints;
@@ -2440,6 +2470,7 @@ export const TeaseBarrage: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: false,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const burnDamageCalc = Math.round(
@@ -2447,7 +2478,7 @@ export const TeaseBarrage: Ability = {
                 );
                 poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
                 fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} TEASE BARRAGE: **${target.name}** took **${burnDamageCalc}** EXPLOSION damage LOL`
+                    `- ${user.stand?.emoji} TEASE BARRAGE: **${target.name}** took **${burnDamageCalc}** EXPLOSION damage`
                 );
             },
         });
@@ -2474,6 +2505,7 @@ export const Kiss: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 6,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 target.stand = oldSkillPoints;
@@ -2504,6 +2536,7 @@ export const Hug: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 target.skillPoints.speed = oldSpeed;
@@ -2671,6 +2704,7 @@ export const Impale: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: false,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const bleedDamageCalc = Math.round(
@@ -2702,6 +2736,7 @@ export const Epitaph: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 5,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 user.skillPoints.perception = 1;
@@ -2745,6 +2780,7 @@ export const BloodBlind: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 2,
+            executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 target.skillPoints = oldSkillPoints;
@@ -2879,6 +2915,7 @@ export const PiercingStrike: Ability = {
 
         ctx.nextRoundPromises.push({
             cooldown: 3,
+            executeOnlyOnce: false,
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const bleedDamageCalc = Math.round(
