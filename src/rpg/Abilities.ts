@@ -1153,30 +1153,23 @@ export const Rage: Ability = {
             `- ${user.stand?.emoji} RAGE: **${user.name}** has entered a state of rage...`
         );
 
-        function promiseToCheckHealthAndAddStrength() {
-            ctx.nextTurnPromises.push({
-                cooldown: 1,
-                id: Functions.generateRandomId(),
-                executeOnlyOnce: true,
-                promise: (fight) => {
-                    if (user.health < currentHealth) {
-                        // add +5 strength every time user loses 1% of Functions.maxHealth(user);
-                        const healthLost = currentHealth - user.health;
-                        const strengthToAdd = Math.round(healthLost * 0.05);
-                        user.skillPoints.strength += strengthToAdd;
-                        currentHealth = user.health;
-                        fight.turns[fight.turns.length - 1].logs.push(
-                            `- ${user.stand?.emoji} RAGE: **${user.name}** has gained **${strengthToAdd}** strength due to rage...`
-                        );
-                    }
-                    if (!ctx.nextTurnPromises.find((x) => x.id === endId)) {
-                        promiseToCheckHealthAndAddStrength();
-                    }
-                },
-            });
-        }
-
-        promiseToCheckHealthAndAddStrength();
+        ctx.nextTurnPromises.push({
+            cooldown: 4,
+            id: Functions.generateRandomId(),
+            executeOnlyOnce: true,
+            promise: (fight) => {
+                if (user.health < currentHealth) {
+                    // add +5 strength every time user loses 1% of Functions.maxHealth(user);
+                    const healthLost = currentHealth - user.health;
+                    const strengthToAdd = Math.round(healthLost * 0.05);
+                    user.skillPoints.strength += strengthToAdd;
+                    currentHealth = user.health;
+                    fight.turns[fight.turns.length - 1].logs.push(
+                        `- ${user.stand?.emoji} RAGE: **${user.name}** has gained **${strengthToAdd}** strength due to rage...`
+                    );
+                }
+            },
+        });
 
         ctx.nextRoundPromises.push({
             cooldown: 4,
