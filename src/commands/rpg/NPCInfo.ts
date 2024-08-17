@@ -24,6 +24,7 @@ const slashCommand: SlashCommandFile = {
                 description: "The NPC you want to see the profile of",
                 type: 3,
                 required: true,
+                autocomplete: true,
             },
         ],
     },
