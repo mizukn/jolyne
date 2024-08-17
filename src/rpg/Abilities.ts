@@ -1326,7 +1326,7 @@ export const HealBarrage: Ability = {
 
 export const Restoration: Ability = {
     name: "Restoration",
-    description: `Heals 10% of the healer's max health to every allies, except yourself ***[Do not use this ability if you don't have any allies]***.`,
+    description: `Heals 10% of the healer's max health to every allies, except yourself **[Do not use this ability if you don't have any allies]**.`,
     cooldown: 6,
     damage: 0,
     stamina: 35,
@@ -1953,10 +1953,10 @@ export const LifePunchGER: Ability = {
     ...LifePunch,
     name: "Life Punch",
     description:
-        "Punch that drains the target's stamina and health (by **8%** of their max stats) and effects that lasts for 3 turns",
+        "Punch that drains the target's stamina and health (by **5%** of their max stats) and effects that lasts for 3 turns",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
-        lifePunchPromise(ctx, target, damage, user, 5, 0.08);
+        lifePunchPromise(ctx, target, damage, user, 5, 0.05);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
         user.totalDamageDealt += xdamage;
