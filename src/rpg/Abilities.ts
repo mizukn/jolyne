@@ -12,7 +12,7 @@ export const StandBarrage: Ability = {
     extraTurns: 1,
     damage: 10,
     stamina: 10,
-    dodgeScore: 1,
+    dodgeScore: 2,
     target: "enemy",
 };
 
@@ -647,9 +647,9 @@ export const LifeShot: Ability = {
     dodgeScore: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor += 3;
+        target.frozenFor += 4;
         ctx.turns[ctx.turns.length - 1].logs.push(
-            `- ${user.stand?.emoji} LIFE SHOT: **${user.name}** has caused **${target.name}**'s soul to leave their body for 3 turns...`
+            `- ${user.stand?.emoji} LIFE SHOT: **${user.name}** has caused **${target.name}**'s soul to leave their body for 4 turns...`
         );
     },
     target: "enemy",
@@ -2735,7 +2735,7 @@ export const BloodBlind: Ability = {
             return;
         }
 
-        target.frozenFor = 1;
+        target.frozenFor = 2;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} BLOOD BLIND: **${target.name}** has been blinded...`
         );
