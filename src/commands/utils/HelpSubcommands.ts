@@ -74,19 +74,53 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
-        const embed: APIEmbed = {
-            title: "Help menu",
-            description: `Jolyne has a total of ${
+        const descriptions: string[] = [
+            `Jolyne has a total of ${
                 ctx.client.allCommands.length
             } commands, including private commands.\nYou can use the ${ctx.client.getSlashCommandMention(
                 "help"
-            )} \`<command>\` command to get help for a specific command.\nIf you need help with something else, you can join the [support server](https://discord.gg/jolyne-support-923608916540145694)\n\n# Commands\n${ctx.client.allCommands
-                .filter((x) => x.category !== "private")
-                .map((x) => ` - ${ctx.client.getSlashCommandMention(x.name)}: ${x.description}`)
-                .join("\n")}`,
-            fields: [],
-            color: 0x70926c,
-        };
+            )} \`<command>\` command to get help for a specific command.\nIf you need help with something else, you can join the [support server](https://discord.gg/jolyne-support-923608916540145694)\n\n`,
+        ];
+
+        for (
+            let i = 0;
+            i < ctx.client.allCommands.filter((x) => x.category !== "private").length;
+            i++
+        ) {
+            const lastDescription = descriptions[descriptions.length - 1];
+            const currentCommand = ctx.client.allCommands.filter((x) => x.category !== "private")[
+                i
+            ];
+            const toAdd = `- ${ctx.client.getSlashCommandMention(currentCommand.name)} ${
+                currentCommand.options?.length > 0
+                    ? `\`${currentCommand.options
+                          .sort((a, b) => {
+                              // required first
+                              if (a.required && !b.required) return -1;
+                              if (!a.required && b.required) return 1;
+                              return a.name.localeCompare(b.name);
+                          })
+                          .map((x) => `${x.required ? `<${x.name}>` : `[${x.name}]`}`)
+                          .join(" ")}\``
+                    : ""
+            }: ${currentCommand.description}\n`;
+            if (lastDescription.length + toAdd.length > 4096) {
+                descriptions.push(toAdd);
+            } else {
+                descriptions[descriptions.length - 1] += toAdd;
+            }
+        }
+
+        const embeds: APIEmbed[] = [];
+
+        for (let i = 0; i < descriptions.length; i++) {
+            embeds.push({
+                title: i === 0 ? "Help menu" : "",
+                description: descriptions[i],
+                fields: [],
+                color: 0x70926c,
+            });
+        }
         /*
         for (const category of ["rpg", "utils"]) {
             embed.fields.push({
@@ -96,7 +130,7 @@ const slashCommand: SlashCommandFile = {
         }*/
 
         return await ctx.makeMessage({
-            embeds: [embed],
+            embeds,
         });
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {

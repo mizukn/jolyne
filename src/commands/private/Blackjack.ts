@@ -52,6 +52,8 @@ const slashCommand: SlashCommandFile = {
             },
         ],
     },
+    adminOnly: true,
+
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         // return COMMAND disabled because too easy to win money
         return void ctx.makeMessage({
