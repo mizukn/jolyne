@@ -422,12 +422,12 @@ const slashCommand: SlashCommandFile = {
                                 : "???"
                             : damage
                     }
-    **\`Stamina Cost:\`** ${ability.stamina}
-    **\`Cooldown:\`** ${ability.cooldown} turns
-    **\`Dodge score:\`** ${!ability.dodgeScore ? "not dodgeable" : ability.dodgeScore}
+**\`Stamina Cost:\`** ${ability.stamina}
+**\`Cooldown:\`** ${ability.cooldown} turns
+**\`Dodge score:\`** ${!ability.dodgeScore ? "not dodgeable" : ability.dodgeScore}
                             
-    *${ability.description}*
-    ${ability.special ? "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" : "▬▬▬▬▬▬▬▬▬"}`,
+*${ability.description}*
+${ability.special ? "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" : "▬▬▬▬▬▬▬▬▬"}`,
                 });
             }
             const embed = new EmbedBuilder()
@@ -437,13 +437,13 @@ const slashCommand: SlashCommandFile = {
                     stand.description +
                         "\n" +
                         `
-    **BONUSES:** +${Object.keys(stand.skillPoints)
-        .map((v) => stand.skillPoints[v as keyof typeof stand.skillPoints])
-        .reduce((a, b) => a + b, 0)} Skill-Points:
-    ${Object.keys(stand.skillPoints)
-        .map((r) => `  • +${stand.skillPoints[r as keyof typeof stand.skillPoints]} ${r}`)
-        .join("\n")}
-    ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+ **BONUSES:** +${Object.keys(stand.skillPoints)
+     .map((v) => stand.skillPoints[v as keyof typeof stand.skillPoints])
+     .reduce((a, b) => a + b, 0)} Skill-Points:
+${Object.keys(stand.skillPoints)
+    .map((r) => `  • +${stand.skillPoints[r as keyof typeof stand.skillPoints]} ${r}`)
+    .join("\n")}
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
         `
                 )
                 .setFooter({ text: `Rarity: ${stand.rarity}` })
