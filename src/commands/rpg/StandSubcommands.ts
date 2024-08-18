@@ -356,10 +356,11 @@ const slashCommand: SlashCommandFile = {
 
                 await ctx.makeMessage({
                     content: `${Functions.makeNPCString(
-                        NPCs.Pucci
-                    )}: It'll cost you **${price.toLocaleString("en-US")}** ${
-                        ctx.client.localEmojis.jocoins
-                    } to reset your stand (${stand.name}). Are you sure?`,
+                        NPCs.Pucci,
+                        `It'll cost you **${price.toLocaleString("en-US")}** ${
+                            ctx.client.localEmojis.jocoins
+                        } to reset your stand (${stand.name}). Are you sure?`
+                    )}`,
                     components: [Functions.actionRow([confirmBTN, cancelBTN])],
                 });
                 const filter = (i: MessageComponentInteraction) => {
