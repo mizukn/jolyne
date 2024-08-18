@@ -361,6 +361,30 @@ export const StandBox: Special = {
     },
 };
 */ // what did he do
+const standArray = Object.values(Stands);
+standArray.push({
+    id: "silver_chariot",
+    ...EvolutionStands.SilverChariot.evolutions[0],
+});
+standArray.push({
+    id: "gold_experience",
+    ...EvolutionStands.GoldExperience.evolutions[0],
+});
+standArray.push({
+    id: "whitesnake",
+    ...EvolutionStands.Whitesnake.evolutions[0],
+});
+standArray.push({
+    id: "echoes",
+    ...EvolutionStands.Echoes.evolutions[0],
+});
+standArray.push({
+    id: "killer_queen",
+    ...EvolutionStands.KillerQueen.evolutions[0],
+});
+
+const rareStandArray = cloneDeep(standArray);
+rareStandArray.push(Stands.KingCrimson);
 
 export const StandArrow: Special = {
     id: "stand_arrow",
@@ -375,28 +399,6 @@ export const StandArrow: Special = {
         broken_arrow: 3,
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
-        const standArray = Object.values(Stands);
-        standArray.push({
-            id: "silver_chariot",
-            ...EvolutionStands.SilverChariot.evolutions[0],
-        });
-        standArray.push({
-            id: "gold_experience",
-            ...EvolutionStands.GoldExperience.evolutions[0],
-        });
-        standArray.push({
-            id: "whitesnake",
-            ...EvolutionStands.Whitesnake.evolutions[0],
-        });
-        standArray.push({
-            id: "echoes",
-            ...EvolutionStands.Echoes.evolutions[0],
-        });
-        standArray.push({
-            id: "killer_queen",
-            ...EvolutionStands.KillerQueen.evolutions[0],
-        });
-
         const percent = Math.floor(Math.random() * 100);
 
         if (Functions.findStand(ctx.userData.stand)) {
@@ -489,26 +491,6 @@ export const RareStandArrow: Special = {
         stand_arrow: 10,
     },
     use: async (ctx: CommandInteractionContext, ...args: string[]) => {
-        const standArray = Object.values(Stands).filter((x) => x.available && x.rarity !== "SS");
-        standArray.push({
-            id: "silver_chariot",
-            ...EvolutionStands.SilverChariot.evolutions[0],
-        });
-        standArray.push({
-            id: "gold_experience",
-            ...EvolutionStands.GoldExperience.evolutions[0],
-        });
-        standArray.push({
-            id: "whitesnake",
-            ...EvolutionStands.Whitesnake.evolutions[0],
-        });
-        standArray.push({
-            id: "echoes",
-            ...EvolutionStands.Echoes.evolutions[0],
-        });
-
-        standArray.push(Stands.KingCrimson);
-
         const percent = Math.floor(Math.random() * 100);
 
         if (Functions.findStand(ctx.userData.stand)) {
@@ -527,17 +509,17 @@ export const RareStandArrow: Special = {
         let color: number;
 
         if (Functions.percent(0.75)) {
-            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "SS"));
+            stand = Functions.randomArray(rareStandArray.filter((r) => r.rarity === "SS"));
             color = 0xff0000;
         } else if (percent <= 16) {
-            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "S"));
+            stand = Functions.randomArray(rareStandArray.filter((r) => r.rarity === "S"));
             color = 0x2b82ab;
         } else if (percent <= 40) {
             color = 0x3b8c4b;
-            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "A"));
+            stand = Functions.randomArray(rareStandArray.filter((r) => r.rarity === "A"));
         } else {
             color = 0x786d23;
-            stand = Functions.randomArray(standArray.filter((r) => r.rarity === "B"));
+            stand = Functions.randomArray(rareStandArray.filter((r) => r.rarity === "B"));
         }
 
         ctx.userData.stand = stand.id;
