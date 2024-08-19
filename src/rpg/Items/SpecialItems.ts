@@ -481,7 +481,7 @@ export const RareStandArrow: Special = {
     id: "rare_stand_arrow",
     name: "Rare Stand Arrow",
     description:
-        "**SS tier: 0.75% chance, S tier:** 16% chance, **A tier:** 40% chance, **B tier:** 44% chance.",
+        "**SS tier: 0.25% chance, S tier:** 16% chance, **A tier:** 40% chance, **B tier:** 44% chance.",
     rarity: "A",
     emoji: Emojis["mysterious_arrow"],
     price: 35000,
