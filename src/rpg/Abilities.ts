@@ -2725,6 +2725,7 @@ export const Epitaph: Ability = {
     special: true,
     noNextTurn: true,
     useMessage: (user, target, damage, ctx) => {
+        const oldUserPerception = cloneDeep(user.skillPoints.perception);
         user.skillPoints.perception = Infinity;
 
         ctx.nextRoundPromises.push({
@@ -2732,8 +2733,7 @@ export const Epitaph: Ability = {
             executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
-                user.skillPoints.perception = 1;
-                user.ignoreRequests = false;
+                user.skillPoints.perception = oldUserPerception;
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} EPITAPH: **${user.name}** had seen the future until now...`
                 );
@@ -2852,9 +2852,9 @@ export const TimeErase: Ability = {
     extraTurns: 1,
     useMessage: (user, target, damage, ctx) => {
         ctx.infos.cooldowns.forEach((x) => {
-            if (x.id !== user.id || x.move.toLowerCase().includes("time")) return;
             x.cooldown -= 4;
             if (x.cooldown < 0) x.cooldown = 0;
+            if (x.move === "Time Erase") x.cooldown = 8;
         });
 
         for (let i = 0; i < 4; i++) {
