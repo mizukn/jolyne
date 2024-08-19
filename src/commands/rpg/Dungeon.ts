@@ -7,7 +7,8 @@ import {
     SkillPoints,
     Weapon,
     StartDungeonQuest,
-    RPGUserDataJSON, possibleModifiers
+    RPGUserDataJSON,
+    possibleModifiers,
 } from "../../@types";
 import {
     Message,
@@ -16,7 +17,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     PermissionFlagsBits,
-    AttachmentBuilder
+    AttachmentBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -37,31 +38,36 @@ import { StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js
  * Clone - All enemies will have an exact clone of themselves. EXP Increase - 2x, Drops Increase - 2x.
  */
 
-const possibleModifiers = [{
-    id: "speedrun",
-    description: "NPC levels increase twice as fast.",
-    xpIncrease: 1.1,
-    dropIncrease: 1.5,
-    emoji: "🏃"
-}, {
-    id: "no_breaks",
-    description: "Your health and stamina are not reset after each enemy.",
-    xpIncrease: 1.5,
-    dropIncrease: 2,
-    emoji: "❌"
-}, {
-    id: "the_elite",
-    description: "All enemies will use S or SS tier stands and will always use a weapon.",
-    xpIncrease: 1.1,
-    dropIncrease: 2,
-    emoji: "🔥"
-}, {
-    id: "clone",
-    description: "All enemies will have an exact clone of themselves.",
-    xpIncrease: 1.5,
-    dropIncrease: 2,
-    emoji: "👥"
-}];
+const possibleModifiers = [
+    {
+        id: "speedrun",
+        description: "NPC levels increase twice as fast.",
+        xpIncrease: 1.1,
+        dropIncrease: 1.5,
+        emoji: "🏃",
+    },
+    {
+        id: "no_breaks",
+        description: "Your health and stamina are not reset after each enemy.",
+        xpIncrease: 1.5,
+        dropIncrease: 2,
+        emoji: "❌",
+    },
+    {
+        id: "the_elite",
+        description: "All enemies will use S or SS tier stands and will always use a weapon.",
+        xpIncrease: 1.1,
+        dropIncrease: 2,
+        emoji: "🔥",
+    },
+    {
+        id: "clone",
+        description: "All enemies will have an exact clone of themselves.",
+        xpIncrease: 1.5,
+        dropIncrease: 2,
+        emoji: "👥",
+    },
+];
 
 const timeFn = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -70,7 +76,7 @@ const timeFn = (ms: number) => {
     return {
         hours: hours % 24,
         minutes: minutes % 60,
-        seconds: seconds % 60
+        seconds: seconds % 60,
     };
 };
 const msInMessage =
@@ -85,39 +91,39 @@ const msInMessage =
 const rewards = [
     {
         id: "stand_arrow",
-        percent: 70
+        percent: 70,
     },
     {
         id: "rare_stand_arrow",
-        percent: 35
+        percent: 35,
     },
     {
         id: "broken_arrow",
-        percent: 100
+        percent: 100,
     },
     {
         id: "bloody_knife",
-        percent: 0.5
+        percent: 0.5,
     },
     {
         id: "gauntlets_of_the_berserker",
-        percent: 0.3
+        percent: 0.3,
     },
     {
         id: "dios_knives",
-        percent: 0.2
+        percent: 0.2,
     },
     {
         id: "megumins_wand",
-        percent: 0.2
-    }
+        percent: 0.2,
+    },
 ];
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "dungeon",
         description: "Start a dungeon.",
-        options: []
+        options: [],
     },
     checkRPGCooldown: "dungeon",
     execute: async (
@@ -142,7 +148,7 @@ const slashCommand: SlashCommandFile = {
                     "FROM_NOW"
                 )}.`,
                 embeds: [],
-                components: []
+                components: [],
             });
         }
         if (await ctx.client.database.getString(`tempCache_${ctx.user.id}:dungeon`)) {
@@ -156,7 +162,7 @@ const slashCommand: SlashCommandFile = {
             return ctx.makeMessage({
                 content: "<:kars:1057261454421676092> **Kars:** Are you trying to scam me?",
                 embeds: [],
-                components: []
+                components: [],
             });
         }
         try {
@@ -165,7 +171,7 @@ const slashCommand: SlashCommandFile = {
             return void ctx.makeMessage({
                 content: "I don't have permission to send messages in this channel.",
                 embeds: [],
-                components: []
+                components: [],
             });
         }
         if ((ctx.userData.inventory["dungeon_key"] ?? 0) < 1) {
@@ -173,7 +179,7 @@ const slashCommand: SlashCommandFile = {
                 content:
                     "<:kars:1057261454421676092> **Kars:** HA! Where's your key? You can't enter without it!",
                 embeds: [],
-                components: []
+                components: [],
             });
         }
 
@@ -199,7 +205,7 @@ const slashCommand: SlashCommandFile = {
                         label: Functions.capitalize(x.id.replace(/_/g, " ")),
                         value: x.id,
                         description: x.description.slice(0, 100),
-                        emoji: x.emoji
+                        emoji: x.emoji,
                     };
                 })
             )
@@ -207,40 +213,52 @@ const slashCommand: SlashCommandFile = {
             .setMaxValues(possibleModifiers.length);
 
         const getTotalXpIncrease = (modifiers: string[]) => {
-            return modifiers.reduce((a, b) => {
-                const modifier = possibleModifiers.find((f) => f.id === b);
-                if (!modifier) return a;
-                return a + modifier.xpIncrease;
-            }, 1) - modifiers.length;
+            return (
+                modifiers.reduce((a, b) => {
+                    const modifier = possibleModifiers.find((f) => f.id === b);
+                    if (!modifier) return a;
+                    return a + modifier.xpIncrease;
+                }, 1) - modifiers.length
+            );
         };
         const getTotalDropIncrease = (modifiers: string[]) => {
-            return modifiers.reduce((a, b) => {
-                const modifier = possibleModifiers.find((f) => f.id === b);
-                if (!modifier) return a;
-                return a + modifier.dropIncrease;
-            }, 1) - modifiers.length;
+            return (
+                modifiers.reduce((a, b) => {
+                    const modifier = possibleModifiers.find((f) => f.id === b);
+                    if (!modifier) return a;
+                    return a + modifier.dropIncrease;
+                }, 1) - modifiers.length
+            );
         };
         const selectedModifiers: possibleModifiers[] = [];
 
         await ctx.makeMessage({
-            content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${selectedModifiers.length
-                ? "\n" + selectedModifiers
-                .map((x) => {
-                    const modifier = possibleModifiers.find(
-                        (f) => f.id === x
-                    );
-                    return `- ${modifier?.emoji} ${Functions.capitalize(
-                        x.replace(/_/g, " ")
-                    )}: ${modifier?.description}`;
-                })
-                .join("\n")
-                : ":x:"}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
+            content: `<:kars:1057261454421676092> **Kars:** ${
+                ctx.userData.tag
+            } is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${
+                selectedModifiers.length
+                    ? "\n" +
+                      selectedModifiers
+                          .map((x) => {
+                              const modifier = possibleModifiers.find((f) => f.id === x);
+                              return `- ${modifier?.emoji} ${Functions.capitalize(
+                                  x.replace(/_/g, " ")
+                              )}: ${modifier?.description}`;
+                          })
+                          .join("\n")
+                    : ":x:"
+            }\n**Total XP Increase:** ${getTotalXpIncrease(
+                selectedModifiers
+            )}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
             embeds: [],
-            components: [Functions.actionRow([joinButton, startButton, cancelButton]), Functions.actionRow([modifiersStringSelectMenu])]
+            components: [
+                Functions.actionRow([joinButton, startButton, cancelButton]),
+                Functions.actionRow([modifiersStringSelectMenu]),
+            ],
         });
         const collector = ctx.channel.createMessageComponentCollector({
             time: 60000,
-            filter: (i) => i.customId.includes(ctx.interaction.id)
+            filter: (i) => i.customId.includes(ctx.interaction.id),
         });
 
         collector.on("collect", async (i) => {
@@ -248,7 +266,7 @@ const slashCommand: SlashCommandFile = {
                 if (totalPlayers.length >= 2) {
                     return void i.reply({
                         content: "This dungeon is full.",
-                        ephemeral: true
+                        ephemeral: true,
                     });
                 }
 
@@ -267,14 +285,14 @@ const slashCommand: SlashCommandFile = {
                             Date.now() + timeLeft,
                             "FROM_NOW"
                         )}.`,
-                        ephemeral: true
+                        ephemeral: true,
                     });
                 }
 
                 if (totalPlayers.find((f) => f.id === i.user.id)) {
                     return void i.reply({
                         content: "You're already in this dungeon.",
-                        ephemeral: true
+                        ephemeral: true,
                     });
                 }
                 const data = await ctx.client.database.getRPGUserData(i.user.id);
@@ -282,12 +300,12 @@ const slashCommand: SlashCommandFile = {
                 totalPlayers.push(data);
                 i.reply({
                     content: "You've joined the dungeon.",
-                    ephemeral: true
+                    ephemeral: true,
                 });
                 await ctx.makeMessage({
                     content: `<:kars:1057261454421676092> **Kars:** ${data.tag} has joined the dungeon! (${totalPlayers.length}/2)`,
                     embeds: [],
-                    components: [Functions.actionRow([startButton, cancelButton])]
+                    components: [Functions.actionRow([startButton, cancelButton])],
                 });
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
                 for (const player of totalPlayers) {
@@ -302,7 +320,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.makeMessage({
                             content: `<:kars:1057261454421676092> **Kars:** Are you trying to scam me? <@${player.id}>`,
                             embeds: [],
-                            components: []
+                            components: [],
                         });
                         collector.stop("scam");
                         return;
@@ -314,7 +332,7 @@ const slashCommand: SlashCommandFile = {
                         message
                     )}`,
                     embeds: [],
-                    components: []
+                    components: [],
                 });
 
                 const dungeon = new DungeonHandler(ctx, totalPlayers, message, selectedModifiers);
@@ -328,7 +346,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         dungeon.message.reply({
-                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`
+                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         });
                     }
                 });
@@ -339,7 +357,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         dungeon.message.reply({
-                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`
+                            content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         });
                     } else {
                         for (const player of totalPlayers) {
@@ -400,7 +418,7 @@ const slashCommand: SlashCommandFile = {
                             content:
                                 "<:kars:1057261454421676092> **Kars:** Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]",
                             embeds: [],
-                            components: []
+                            components: [],
                         });
                     }
                     const totalDamage = Object.values(dungeon.damageDealt).reduce(
@@ -409,7 +427,12 @@ const slashCommand: SlashCommandFile = {
                     );
 
                     for (const player of newPlayers) {
-                        for (let i = 0; i < Math.round(dungeon.stage / 3) * getTotalDropIncrease(selectedModifiers); i++) {
+                        for (
+                            let i = 0;
+                            i <
+                            Math.round(dungeon.stage / 3) * getTotalDropIncrease(selectedModifiers);
+                            i++
+                        ) {
                             for (const item of rewards) {
                                 const percent =
                                     (dungeon.damageDealt[player.id] / totalDamage) * item.percent;
@@ -423,22 +446,24 @@ const slashCommand: SlashCommandFile = {
                             players.length === 1
                                 ? 0
                                 : Math.abs(
-                                    (players[0].level - players[1].level) /
-                                    Math.max(players[0].level, players[1].level)
-                                );
+                                      (players[0].level - players[1].level) /
+                                          Math.max(players[0].level, players[1].level)
+                                  );
                         Functions.addXp(
                             player,
-                            Math.round(Math.round(
-                                (dungeon.damageDealt[player.id] / totalDamage) *
-                                xpRewards *
-                                (players.length === 2
-                                    ? playerDiffPercent <= 0.5
-                                        ? 1.2
-                                        : Math.max(players[0].level, players[1].level) < 60
-                                            ? 1.2
-                                            : 1
-                                    : 1)
-                            ) * getTotalXpIncrease(selectedModifiers))
+                            Math.round(
+                                Math.round(
+                                    (dungeon.damageDealt[player.id] / totalDamage) *
+                                        xpRewards *
+                                        (players.length === 2
+                                            ? playerDiffPercent <= 0.5
+                                                ? 1.2
+                                                : Math.max(players[0].level, players[1].level) < 60
+                                                ? 1.2
+                                                : 1
+                                            : 1)
+                                ) * getTotalXpIncrease(selectedModifiers)
+                            )
                         );
                         player.coins += coinRewards;
                         player.health = 0;
@@ -447,12 +472,13 @@ const slashCommand: SlashCommandFile = {
                         for (const quests of [
                             player.daily.quests,
                             player.chapter.quests,
-                            ...player.sideQuests.map((v) => v.quests)
+                            ...player.sideQuests.map((v) => v.quests),
                         ]) {
-                            for (const quest of quests.filter((x) => Functions.isStartDungeonQuest(x))) {
-
+                            for (const quest of quests.filter((x) =>
+                                Functions.isStartDungeonQuest(x)
+                            )) {
                                 let accepted = true;
-                                const realQuest = ((quest as unknown) as StartDungeonQuest);
+                                const realQuest = quest as unknown as StartDungeonQuest;
                                 if (!realQuest.completed) realQuest.completed = 0;
                                 if (realQuest.completed >= realQuest.total) {
                                     continue;
@@ -460,7 +486,9 @@ const slashCommand: SlashCommandFile = {
                                 if (realQuest.stage) {
                                     if (realQuest.stage && realQuest.stage > dungeon.stage) {
                                         accepted = false;
-                                        console.log(`!!! Refused quest ${realQuest.id} because stage is lower than dungeon stage`);
+                                        console.log(
+                                            `!!! Refused quest ${realQuest.id} because stage is lower than dungeon stage`
+                                        );
                                     }
                                 }
 
@@ -468,12 +496,20 @@ const slashCommand: SlashCommandFile = {
                                     if (typeof realQuest.modifiers === "number") {
                                         if (selectedModifiers.length < realQuest.modifiers) {
                                             accepted = false;
-                                            console.log(`!!! Refused quest ${realQuest.id} because not enough modifiers`);
+                                            console.log(
+                                                `!!! Refused quest ${realQuest.id} because not enough modifiers`
+                                            );
                                         }
                                     } else {
-                                        if (!realQuest.modifiers.every((x) => selectedModifiers.includes(x))) {
+                                        if (
+                                            !realQuest.modifiers.every((x) =>
+                                                selectedModifiers.includes(x)
+                                            )
+                                        ) {
                                             accepted = false;
-                                            console.log(`!!! Refused quest ${realQuest.id} because not all modifiers are included`);
+                                            console.log(
+                                                `!!! Refused quest ${realQuest.id} because not all modifiers are included`
+                                            );
                                         }
                                     }
                                 }
@@ -481,7 +517,6 @@ const slashCommand: SlashCommandFile = {
                                 if (accepted) {
                                     realQuest.completed++;
                                 }
-
                             }
                         }
 
@@ -506,20 +541,24 @@ const slashCommand: SlashCommandFile = {
                                     newPlayers.find((f) => f.id === x)
                                 ).join("\n- - ")}`;
                             })
-                            .join("\n\n")}\n\n**Modifiers: (x${getTotalXpIncrease(selectedModifiers)} XP, x${getTotalDropIncrease(selectedModifiers)} Drop)**\n${selectedModifiers.length
-                            ? selectedModifiers
-                                .map((x) => {
-                                    const modifier = possibleModifiers.find(
-                                        (f) => f.id === x
-                                    );
-                                    return `- ${modifier?.emoji} ${Functions.capitalize(
-                                        x.replace(/_/g, " ")
-                                    )}: ${modifier?.description}`;
-                                })
-                                .join("\n")
-                            : "None"}`,
+                            .join("\n\n")}\n\n**Modifiers: (x${getTotalXpIncrease(
+                            selectedModifiers
+                        )} XP, x${getTotalDropIncrease(selectedModifiers)} Drop)**\n${
+                            selectedModifiers.length
+                                ? selectedModifiers
+                                      .map((x) => {
+                                          const modifier = possibleModifiers.find(
+                                              (f) => f.id === x
+                                          );
+                                          return `- ${modifier?.emoji} ${Functions.capitalize(
+                                              x.replace(/_/g, " ")
+                                          )}: ${modifier?.description}`;
+                                      })
+                                      .join("\n")
+                                : "None"
+                        }`,
                         embeds: [],
-                        components: []
+                        components: [],
                     });
                     const canvas =
                         players.length === 2 ? createCanvas(1024, 512) : createCanvas(512, 512);
@@ -542,7 +581,7 @@ const slashCommand: SlashCommandFile = {
                     }
 
                     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-                        name: "dungeon.png"
+                        name: "dungeon.png",
                     });
 
                     dungeonLogsWebhook.send({
@@ -557,7 +596,7 @@ const slashCommand: SlashCommandFile = {
                                     {
                                         name: "Host",
                                         value: ctx.userData.tag,
-                                        inline: true
+                                        inline: true,
                                     },
                                     {
                                         name: "Time taken",
@@ -567,12 +606,12 @@ const slashCommand: SlashCommandFile = {
                                             dungeon.startedAt,
                                             "FULL_DATE"
                                         )})`,
-                                        inline: true
+                                        inline: true,
                                     },
                                     {
                                         name: "Guild info",
                                         value: `${ctx.guild.name} (${ctx.guild.id})`,
-                                        inline: true
+                                        inline: true,
                                     },
                                     {
                                         name: "Total damages",
@@ -587,22 +626,22 @@ const slashCommand: SlashCommandFile = {
                                                         dungeon.players.find((f) => f.id === r).tag
                                                     } (${r}): **${dungeon.damageDealt[
                                                         r
-                                                        ].toLocaleString("en-US")}**`
+                                                    ].toLocaleString("en-US")}**`
                                             )
-                                            .join("\n")
+                                            .join("\n"),
                                     },
                                     {
                                         name: "Last enemy of the current wave",
                                         value: dungeon.enemies[dungeon.enemies.length - 1]
                                             ? `${
-                                                dungeon.enemies[dungeon.enemies.length - 1].emoji
-                                            } | ${
-                                                dungeon.enemies[dungeon.enemies.length - 1].name
-                                            } (level ${
-                                                dungeon.enemies[dungeon.enemies.length - 1].level
-                                            })`
+                                                  dungeon.enemies[dungeon.enemies.length - 1].emoji
+                                              } | ${
+                                                  dungeon.enemies[dungeon.enemies.length - 1].name
+                                              } (level ${
+                                                  dungeon.enemies[dungeon.enemies.length - 1].level
+                                              })`
                                             : "none, too bad",
-                                        inline: true
+                                        inline: true,
                                     },
                                     {
                                         name: "Rewards",
@@ -619,34 +658,36 @@ const slashCommand: SlashCommandFile = {
                                                     newPlayer
                                                 ).join("\n")}`;
                                             })
-                                            .join("\n\n")
+                                            .join("\n\n"),
                                     },
                                     {
                                         name: "Modifiers",
                                         value: selectedModifiers.length
                                             ? selectedModifiers
-                                                .map((x) => {
-                                                    const modifier = possibleModifiers.find(
-                                                        (f) => f.id === x
-                                                    );
-                                                    return `- ${modifier?.emoji} ${Functions.capitalize(
-                                                        x.replace(/_/g, " ")
-                                                    )}: ${modifier?.description}`;
-                                                })
-                                                .join("\n")
-                                            : "None"
-                                    }
+                                                  .map((x) => {
+                                                      const modifier = possibleModifiers.find(
+                                                          (f) => f.id === x
+                                                      );
+                                                      return `- ${
+                                                          modifier?.emoji
+                                                      } ${Functions.capitalize(
+                                                          x.replace(/_/g, " ")
+                                                      )}: ${modifier?.description}`;
+                                                  })
+                                                  .join("\n")
+                                            : "None",
+                                    },
                                 ],
                                 image: {
-                                    url: "attachment://dungeon.png"
+                                    url: "attachment://dungeon.png",
                                 },
                                 thumbnail: {
-                                    url: ctx.guild.iconURL()
+                                    url: ctx.guild.iconURL(),
                                 },
-                                timestamp: new Date().toISOString()
-                            }
+                                timestamp: new Date().toISOString(),
+                            },
                         ],
-                        files: [attachment]
+                        files: [attachment],
                     });
                 });
                 collector.stop("start");
@@ -654,8 +695,7 @@ const slashCommand: SlashCommandFile = {
                 ctx.interaction.deleteReply();
                 collector.stop("cancel");
             } else if (i.customId === "dungeon_modifiers" + ctx.interaction.id) {
-                i.deferUpdate().catch(() => {
-                });
+                i.deferUpdate().catch(() => {});
                 selectedModifiers.length = 0;
                 for (const value of (i as StringSelectMenuInteraction).values) {
                     if (possibleModifiers.find((f) => f.id === value)) {
@@ -663,24 +703,32 @@ const slashCommand: SlashCommandFile = {
                     }
                 }
                 await ctx.makeMessage({
-                    content: `<:kars:1057261454421676092> **Kars:** ${ctx.userData.tag} is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${selectedModifiers.length
-                        ? "\n" + selectedModifiers
-                        .map((x) => {
-                            const modifier = possibleModifiers.find(
-                                (f) => f.id === x
-                            );
-                            return `- ${modifier?.emoji} ${Functions.capitalize(
-                                x.replace(/_/g, " ")
-                            )}: ${modifier?.description}`;
-                        })
-                        .join("\n")
-                        : ":x:"}\n**Total XP Increase:** ${getTotalXpIncrease(selectedModifiers)}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
+                    content: `<:kars:1057261454421676092> **Kars:** ${
+                        ctx.userData.tag
+                    } is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${
+                        selectedModifiers.length
+                            ? "\n" +
+                              selectedModifiers
+                                  .map((x) => {
+                                      const modifier = possibleModifiers.find((f) => f.id === x);
+                                      return `- ${modifier?.emoji} ${Functions.capitalize(
+                                          x.replace(/_/g, " ")
+                                      )}: ${modifier?.description}`;
+                                  })
+                                  .join("\n")
+                            : ":x:"
+                    }\n**Total XP Increase:** ${getTotalXpIncrease(
+                        selectedModifiers
+                    )}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
                     embeds: [],
-                    components: [Functions.actionRow([joinButton, startButton, cancelButton]), Functions.actionRow([modifiersStringSelectMenu])]
+                    components: [
+                        Functions.actionRow([joinButton, startButton, cancelButton]),
+                        Functions.actionRow([modifiersStringSelectMenu]),
+                    ],
                 });
             }
         });
-    }
+    },
 };
 
 export default slashCommand;

@@ -424,7 +424,11 @@ const slashCommand: SlashCommandFile = {
                     }
 **\`Stamina Cost:\`** ${ability.stamina}
 **\`Cooldown:\`** ${ability.cooldown} turns
-**\`Dodge score:\`** ${!ability.dodgeScore ? "not dodgeable" : ability.dodgeScore}
+**\`Dodge score:\`** ${
+                        !ability.dodgeScore
+                            ? ability.trueDodgeScore ?? "not dodgeable"
+                            : ability.dodgeScore
+                    }
                             
 *${ability.description}*
 ${ability.special ? "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" : "▬▬▬▬▬▬▬▬▬"}`,

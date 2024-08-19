@@ -222,7 +222,7 @@ const slashCommand: SlashCommandFile = {
                     targetOffer[item] = amount;
                 }
 
-                if (targetOffer[item] > targetData.inventory[item] ?? 0) {
+                if (targetOffer[item] > (targetData.inventory[item] ?? 0)) {
                     targetOffer[item] = targetData.inventory[item] ?? 0;
                 }
 
@@ -245,7 +245,7 @@ const slashCommand: SlashCommandFile = {
                     userOffer[item] = amount;
                 }
 
-                if (userOffer[item] > ctx.userData.inventory[item] ?? 0) {
+                if (userOffer[item] > (ctx.userData.inventory[item] ?? 0)) {
                     userOffer[item] = ctx.userData.inventory[item] ?? 0;
                 }
 
