@@ -361,7 +361,7 @@ export const StandBox: Special = {
     },
 };
 */ // what did he do
-const standArray = Object.values(Stands);
+const standArray = Object.values(Stands).filter((r) => r.available && r.rarity !== "SS");
 standArray.push({
     id: "silver_chariot",
     ...EvolutionStands.SilverChariot.evolutions[0],
@@ -383,7 +383,7 @@ standArray.push({
     ...EvolutionStands.KillerQueen.evolutions[0],
 });
 
-const rareStandArray = cloneDeep(standArray).filter((r) => r.rarity !== "SS");
+const rareStandArray = cloneDeep(standArray);
 rareStandArray.push(Stands.KingCrimson);
 
 export const StandArrow: Special = {
