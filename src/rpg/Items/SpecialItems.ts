@@ -383,7 +383,7 @@ standArray.push({
     ...EvolutionStands.KillerQueen.evolutions[0],
 });
 
-const rareStandArray = cloneDeep(standArray);
+const rareStandArray = cloneDeep(standArray).filter((r) => r.rarity !== "SS");
 rareStandArray.push(Stands.KingCrimson);
 
 export const StandArrow: Special = {
