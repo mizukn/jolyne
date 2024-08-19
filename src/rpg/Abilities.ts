@@ -230,9 +230,15 @@ const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, u
     });
 };
 
-const bleedDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
+const bleedDamagePromise = (
+    ctx: FightHandler,
+    target: Fighter,
+    damage: number,
+    user: Fighter,
+    cooldown?: number
+) => {
     ctx.nextTurnPromises.push({
-        cooldown: 3,
+        cooldown: cooldown ? cooldown : 3,
         executeOnlyOnce: false,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
@@ -1258,7 +1264,7 @@ export const PoisonGas: Ability = {
             `> ${user.stand?.emoji} POISON GAS: **${user.name}** has released a poisonous gas...`
         );
 
-        ctx.nextTurnPromises.push({
+        ctx.nextRoundPromises.push({
             cooldown: 4,
             id: Functions.generateRandomId(),
             executeOnlyOnce: false,
@@ -1425,7 +1431,7 @@ const poisonDamagePromise = (
     user: Fighter,
     cooldown: number
 ) => {
-    ctx.nextTurnPromises.push({
+    ctx.nextRoundPromises.push({
         cooldown,
         executeOnlyOnce: false,
         promise: (fight) => {
@@ -1474,7 +1480,7 @@ export const CapsuleShot: Ability = {
         const burnDamageCalc = Math.round(
             Functions.getAbilityDamage(user, CrossfireHurricane) / 10
         );
-        poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
+        poisonDamagePromise(ctx, target, burnDamageCalc, user, 3);
     },
 };
 
@@ -2066,21 +2072,10 @@ export const FrogRain: Ability = {
                         user.name
                     }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${x.name}**.`
                 );
-
-                ctx.nextRoundPromises.push({
-                    cooldown: 3,
-                    executeOnlyOnce: false,
-                    id: Functions.generateRandomId(),
-                    promise: (fight) => {
-                        const burnDamageCalc = Math.round(
-                            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-                        );
-                        poisonDamagePromise(ctx, x, burnDamageCalc, user, 5);
-                        fight.turns[fight.turns.length - 1].logs.push(
-                            `- ${user.stand?.emoji} FROG RAIN: **${x.name}** took **${burnDamageCalc}** poison damage`
-                        );
-                    },
-                });
+                const burnDamageCalc = Math.round(
+                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+                );
+                poisonDamagePromise(ctx, x, burnDamageCalc, user, 2);
             });
     },
 };
@@ -2126,21 +2121,10 @@ export const TotalCombustion: Ability = {
                 user.name
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
-
-        ctx.nextRoundPromises.push({
-            cooldown: 3,
-            executeOnlyOnce: false,
-            id: Functions.generateRandomId(),
-            promise: (fight) => {
-                const burnDamageCalc = Math.round(
-                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-                );
-                poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
-                fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} TOTAL COMBUSTION: **${target.name}** took **${burnDamageCalc}** poison damage`
-                );
-            },
-        });
+        const burnDamageCalc = Math.round(
+            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+        );
+        poisonDamagePromise(ctx, target, burnDamageCalc, user, 2);
     },
 };
 
@@ -2386,20 +2370,10 @@ export const AcidicTouch: Ability = {
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
 
-        ctx.nextRoundPromises.push({
-            cooldown: 3,
-            executeOnlyOnce: false,
-            id: Functions.generateRandomId(),
-            promise: (fight) => {
-                const burnDamageCalc = Math.round(
-                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-                );
-                poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
-                fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} ACIDIC TOUCH: **${target.name}** took **${burnDamageCalc}** poison damage`
-                );
-            },
-        });
+        const burnDamageCalc = Math.round(
+            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+        );
+        poisonDamagePromise(ctx, target, burnDamageCalc, user, 2);
     },
 };
 
@@ -2461,20 +2435,10 @@ export const TeaseBarrage: Ability = {
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
 
-        ctx.nextRoundPromises.push({
-            cooldown: 3,
-            executeOnlyOnce: false,
-            id: Functions.generateRandomId(),
-            promise: (fight) => {
-                const burnDamageCalc = Math.round(
-                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-                );
-                poisonDamagePromise(ctx, target, burnDamageCalc, user, 5);
-                fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} TEASE BARRAGE: **${target.name}** took **${burnDamageCalc}** EXPLOSION damage`
-                );
-            },
-        });
+        const burnDamageCalc = Math.round(
+            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+        );
+        poisonDamagePromise(ctx, target, burnDamageCalc, user, 2);
     },
 };
 
@@ -2695,20 +2659,10 @@ export const Impale: Ability = {
             )}** damages to **${target.name}**.`
         );
 
-        ctx.nextRoundPromises.push({
-            cooldown: 3,
-            executeOnlyOnce: false,
-            id: Functions.generateRandomId(),
-            promise: (fight) => {
-                const bleedDamageCalc = Math.round(
-                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-                );
-                poisonDamagePromise(ctx, target, bleedDamageCalc, user, 5);
-                fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} IMPALE: **${target.name}** took **${bleedDamageCalc}** bleed damage`
-                );
-            },
-        });
+        const burnDamageCalc = Math.round(
+            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+        );
+        poisonDamagePromise(ctx, target, burnDamageCalc, user, 2);
     },
 };
 
@@ -2906,20 +2860,10 @@ export const PiercingStrike: Ability = {
             }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
 
-        ctx.nextRoundPromises.push({
-            cooldown: 3,
-            executeOnlyOnce: false,
-            id: Functions.generateRandomId(),
-            promise: (fight) => {
-                const bleedDamageCalc = Math.round(
-                    Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-                );
-                poisonDamagePromise(ctx, target, bleedDamageCalc, user, 5);
-                fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} PIERCING STRIKE: **${target.name}** took **${bleedDamageCalc}** bleed damage`
-                );
-            },
-        });
+        const burnDamageCalc = Math.round(
+            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
+        );
+        poisonDamagePromise(ctx, target, burnDamageCalc, user, 2);
     },
 };
 
