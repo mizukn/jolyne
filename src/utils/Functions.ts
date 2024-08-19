@@ -1804,3 +1804,21 @@ export function roundToNext15Minutes(date: Date): Date {
 
     return roundedDate;
 }
+
+export async function hasDone4DungeonsToday(
+    ctx: CommandInteractionContext,
+    id: string
+): Promise<boolean> {
+    const dungeonDoneToday = await ctx.client.database.getString(
+        `dungeonDone:${id}:${getTodayString()}`
+    );
+    const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
+    const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
+    const nextDate = dateAtMidnight + 86400000;
+
+    if (dungeonDoneTodayCount >= 4) {
+        return true;
+    }
+
+    return false;
+}
