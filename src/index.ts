@@ -262,10 +262,10 @@ for (const stand of [
         ...NPCs[`${stand.name.replace(" ", "")}User`],
         level: formattedStandUsers[`${stand.name.replace(" ", "")}User`], // Functions.randomNumber(1, 50),
         skillPoints: {
-            defense: 1,
-            strength: 1,
-            speed: 1,
-            perception: 1,
+            defense: 0,
+            strength: 0,
+            speed: 0,
+            perception: 0,
             stamina: 0,
         },
         stand: stand.id,
@@ -318,10 +318,10 @@ for (const stand of [
             ...NPCs[ID],
             level: formattedStandUsers[ID], // Functions.randomNumber(1, 50),
             skillPoints: {
-                defense: 1,
-                strength: 1,
-                speed: 1,
-                perception: 1,
+                defense: 0,
+                strength: 0,
+                speed: 0,
+                perception: 0,
                 stamina: 0,
             },
             stand: stand.id,
@@ -414,9 +414,14 @@ for (const NPC of [...Object.values(NPCs), ...Object.values(FightableNPCs)]) {
 for (const NPC of Object.values(FightableNPCs)) {
     client.log(`Checking ${NPC.name} NPC...`, "npc");
     if (!Functions.skillPointsIsOK(NPC)) {
-        Functions.generateSkillPoints(NPC);
-        client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
-        console.log(NPC.skillPoints);
+        // check if it is not 0 skill point on everything
+        if (!Object.values(NPC.skillPoints).every((x) => x === 0)) {
+            Functions.generateSkillPoints(NPC);
+            client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
+            console.log(NPC.skillPoints);
+        } else {
+            Functions.generateSkillPoints(NPC);
+        }
     }
     if (!NPC.rewards) NPC.rewards = {};
     if (NPC.rewards.xp === undefined || NPC.rewards.coins === undefined) {
@@ -442,7 +447,7 @@ for (const NPC of Object.values(FightableNPCs)) {
             NPC.rewards.xp = Math.round(NPC.rewards.xp / 2);
         }
 
-        console.log(NPC.rewards);
+        //console.log(NPC.rewards);
     }
 }
 
