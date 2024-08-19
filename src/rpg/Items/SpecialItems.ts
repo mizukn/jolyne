@@ -508,7 +508,7 @@ export const RareStandArrow: Special = {
         let stand: Stand;
         let color: number;
 
-        if (Functions.percent(0.75)) {
+        if (Functions.percent(0.25)) {
             stand = Functions.randomArray(rareStandArray.filter((r) => r.rarity === "SS"));
             color = 0xff0000;
         } else if (percent <= 16) {
