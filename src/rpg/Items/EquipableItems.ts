@@ -441,3 +441,52 @@ export const SecondAnniversaryBag: EquipableItem = {
     tradable: true,
     storable: true,
 };
+
+export const DiavolosSuit: EquipableItem = {
+    id: "diavolos_suit",
+    name: "Diavolo's Suit",
+    emoji: "<:diavolos_suit:1275099602894196738>",
+    description: "A suit that belonged to Diavolo.",
+    type: equipableItemTypes.CHEST,
+    effects: {
+        skillPoints: {
+            defense: 15,
+            perception: 0,
+            strength: 5,
+            speed: 20,
+            stamina: 10,
+        },
+        xpBoost: 0.25,
+    },
+    rarity: "S",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};
+
+export const DiavolosPants: EquipableItem = {
+    id: "diavolos_pants",
+    name: "Diavolo's Pants",
+    emoji: "<:diavolos_pant:1275099620489433159>",
+    description: "Pants that belonged to Diavolo.",
+    type: equipableItemTypes.LEGS,
+    effects: {
+        skillPoints: {
+            defense: 20,
+            perception: 0,
+            strength: 20,
+            speed: 0,
+            stamina: 20,
+        },
+        health: "5%",
+        xpBoost: 0.25,
+    },
+    rarity: "S",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};

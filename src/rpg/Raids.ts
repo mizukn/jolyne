@@ -403,3 +403,44 @@ export const HolHorse: RaidBoss = {
     cooldown: 3 * 60 * 1000,
     allies: [FightableNPCs.MohammedAvdol],
 };
+
+export const Diavolo: RaidBoss = {
+    boss: FightableNPCs.Diavolo,
+    minions: [],
+    baseRewards: {
+        xp: FightableNPCs.Diavolo.rewards.xp,
+        coins: FightableNPCs.Diavolo.rewards.coins,
+        items: [
+            {
+                item: Functions.findItem("king_crimson").id,
+                amount: 1,
+                chance: 3,
+            },
+            {
+                item: Functions.findItem("diavolos_suit").id,
+                amount: 1,
+                chance: 3,
+            },
+            {
+                item: Functions.findItem("diavolos_pants").id,
+                amount: 1,
+                chance: 3,
+            },
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 10,
+                chance: 1000,
+            },
+            {
+                item: Functions.findItem("dungeon_key").id,
+                amount: 1,
+                chance: 40,
+            },
+        ],
+    },
+    level: 100,
+    maxLevel: Infinity,
+    maxPlayers: 3,
+    // 15 minutes
+    cooldown: 15 * 60 * 1000,
+};

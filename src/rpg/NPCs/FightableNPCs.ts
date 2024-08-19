@@ -1,18 +1,19 @@
 // Note: it doesn't matter if the NPC doesn't have balanced skill points because it'll be balanced when the bot starts.
-import type { FightableNPC } from "../../@types";
+import { equipableItemTypes, type FightableNPC } from "../../@types";
 import * as NPCs from "./NPCs";
+import * as EquipableItems from "../Items/EquipableItems";
 
 const baseSP = {
     defense: 1,
     strength: 1,
     speed: 1,
     perception: 1,
-    stamina: 0
+    stamina: 0,
 };
 
 const baseRewards = {
     coins: 100,
-    xp: 350
+    xp: 350,
 };
 
 export const Kakyoin: FightableNPC = {
@@ -23,42 +24,42 @@ export const Kakyoin: FightableNPC = {
         strength: 0,
         speed: 0,
         perception: 0,
-        stamina: 0
+        stamina: 0,
     },
     rewards: {
         items: [
             {
                 item: "kakyoins_snazzy_shades",
                 chance: 25,
-                amount: 1
+                amount: 1,
             },
             {
                 item: "broken_arrow",
                 chance: 100,
-                amount: 6
+                amount: 6,
             },
             {
                 item: "broken_arrow",
                 chance: 80,
-                amount: 3
+                amount: 3,
             },
             {
                 item: "broken_arrow",
                 chance: 50,
-                amount: 3
+                amount: 3,
             },
             {
                 item: "broken_arrow",
                 chance: 1,
-                amount: 50
-            }
-        ]
+                amount: 50,
+            },
+        ],
     },
     stand: "hierophant_green",
     equippedItems: {
-        kakyoins_snazzy_shades: 9
+        kakyoins_snazzy_shades: 9,
     },
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Harry_Lester: FightableNPC = {
@@ -69,11 +70,11 @@ export const Harry_Lester: FightableNPC = {
         strength: 1,
         speed: 1,
         perception: 1,
-        stamina: 0
+        stamina: 0,
     },
     stand: "hermit_purple",
     equippedItems: {},
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Jotaro: FightableNPC = {
@@ -84,11 +85,11 @@ export const Jotaro: FightableNPC = {
         strength: 100,
         speed: 100,
         perception: 100,
-        stamina: 100
+        stamina: 100,
     },
     equippedItems: {},
     stand: "star_platinum",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Dio: FightableNPC = {
@@ -96,7 +97,7 @@ export const Dio: FightableNPC = {
     level: 300,
     skillPoints: Jotaro.skillPoints,
     equippedItems: {
-        dios_knives: 6
+        dios_knives: 6,
     },
     standsEvolved: {},
     stand: "the_world",
@@ -105,15 +106,15 @@ export const Dio: FightableNPC = {
             {
                 item: "the_world.$disc$",
                 amount: 1,
-                chance: 2
+                chance: 2,
             },
             {
                 item: "dios_knives",
                 amount: 1,
-                chance: 1
-            }
-        ]
-    }
+                chance: 1,
+            },
+        ],
+    },
 };
 
 export const Heaven_Ascended_Dio: FightableNPC = {
@@ -124,11 +125,11 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         strength: Dio.skillPoints.strength * 5,
         speed: Dio.skillPoints.speed * 5,
         perception: Dio.skillPoints.perception * 5,
-        stamina: Dio.skillPoints.stamina * 5
+        stamina: Dio.skillPoints.stamina * 5,
     },
     equippedItems: {},
     standsEvolved: {},
-    stand: "The World"
+    stand: "The World",
 };
 
 export const BanditLeader: FightableNPC = {
@@ -137,7 +138,7 @@ export const BanditLeader: FightableNPC = {
     skillPoints: baseSP,
     stand: "hierophant_green",
     equippedItems: {},
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Bandit: FightableNPC = {
@@ -145,7 +146,7 @@ export const Bandit: FightableNPC = {
     level: 0,
     skillPoints: baseSP,
     equippedItems: {},
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const SecurityGuard: FightableNPC = {
@@ -153,7 +154,7 @@ export const SecurityGuard: FightableNPC = {
     level: 5,
     skillPoints: baseSP,
     equippedItems: {},
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Polnareff: FightableNPC = {
@@ -162,7 +163,7 @@ export const Polnareff: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "silver_chariot",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const RequiemPolnareff: FightableNPC = {
@@ -172,8 +173,8 @@ export const RequiemPolnareff: FightableNPC = {
     equippedItems: {},
     stand: "silver_chariot",
     standsEvolved: {
-        silver_chariot: 1
-    }
+        silver_chariot: 1,
+    },
 };
 
 export const Golem: FightableNPC = {
@@ -184,10 +185,10 @@ export const Golem: FightableNPC = {
         strength: 0,
         speed: 100 / 5 / 2,
         perception: 100 / 5 / 2,
-        stamina: 0
+        stamina: 0,
     },
     equippedItems: {},
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const GrayFly: FightableNPC = {
@@ -196,7 +197,7 @@ export const GrayFly: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     standsEvolved: {},
-    stand: "tower_of_gray"
+    stand: "tower_of_gray",
 };
 
 export const CaptainTennilleImpostor: FightableNPC = {
@@ -205,7 +206,7 @@ export const CaptainTennilleImpostor: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     standsEvolved: {},
-    stand: "dark_blue_moon"
+    stand: "dark_blue_moon",
 };
 
 export const Forever: FightableNPC = {
@@ -214,7 +215,7 @@ export const Forever: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     standsEvolved: {},
-    stand: "strength"
+    stand: "strength",
 };
 
 export const Megumin: FightableNPC = {
@@ -223,12 +224,12 @@ export const Megumin: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {
         megumins_hat: 1,
-        megumins_wand: 6
+        megumins_wand: 6,
     },
     stand: "killer_queen",
     standsEvolved: {
-        killer_queen: 1
-    }
+        killer_queen: 1,
+    },
 };
 
 export const GiornoGiovanna: FightableNPC = {
@@ -237,7 +238,7 @@ export const GiornoGiovanna: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "gold_experience",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const GiornoGiovannaRequiem: FightableNPC = {
@@ -247,8 +248,8 @@ export const GiornoGiovannaRequiem: FightableNPC = {
     equippedItems: {},
     stand: "gold_experience",
     standsEvolved: {
-        gold_experience: 1
-    }
+        gold_experience: 1,
+    },
 };
 
 export const Devo: FightableNPC = {
@@ -257,7 +258,7 @@ export const Devo: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "ebony_devil",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Toru: FightableNPC = {
@@ -268,13 +269,13 @@ export const Toru: FightableNPC = {
         strength: 250 * 3 - 250,
         speed: 250 / 5 / 2,
         perception: 250 / 5 / 2,
-        stamina: 350
+        stamina: 350,
     },
     equippedItems: {
-        megumins_hat: 1
+        megumins_hat: 1,
     },
     stand: "wonder_of_u",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Jolyne: FightableNPC = {
@@ -285,13 +286,13 @@ export const Jolyne: FightableNPC = {
         strength: 250,
         speed: 70,
         perception: 45,
-        stamina: 120
+        stamina: 120,
     },
     equippedItems: {
-        jotaros_hat: 1
+        jotaros_hat: 1,
     },
     stand: "stone_free",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const RubberSoul: FightableNPC = {
@@ -300,7 +301,7 @@ export const RubberSoul: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "yellow_temperance",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const YoshikageKira: FightableNPC = {
@@ -310,8 +311,8 @@ export const YoshikageKira: FightableNPC = {
     equippedItems: {},
     stand: "killer_queen",
     standsEvolved: {
-        killer_queen: 1
-    }
+        killer_queen: 1,
+    },
 };
 
 export const CorruptedReindeer: FightableNPC = {
@@ -319,10 +320,10 @@ export const CorruptedReindeer: FightableNPC = {
     level: 800,
     skillPoints: baseSP,
     equippedItems: {
-        santas_candy_cane: 6
+        santas_candy_cane: 6,
     },
     stand: "the_chained",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const Santa: FightableNPC = {
@@ -330,10 +331,10 @@ export const Santa: FightableNPC = {
     level: 600,
     skillPoints: baseSP,
     equippedItems: {
-        santas_candy_cane: 6
+        santas_candy_cane: 6,
     },
     stand: "the_chained",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const SantasElf: FightableNPC = {
@@ -341,10 +342,10 @@ export const SantasElf: FightableNPC = {
     level: 275,
     skillPoints: baseSP,
     equippedItems: {
-        santas_candy_cane: 6
+        santas_candy_cane: 6,
     },
     stand: "the_chained",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const JGeil: FightableNPC = {
@@ -353,7 +354,7 @@ export const JGeil: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "hanged_man",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const HolHorse: FightableNPC = {
@@ -362,7 +363,7 @@ export const HolHorse: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "emperor",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const MohammedAvdol: FightableNPC = {
@@ -371,7 +372,7 @@ export const MohammedAvdol: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "magicians_red",
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const ConfettiGolem: FightableNPC = {
@@ -382,10 +383,10 @@ export const ConfettiGolem: FightableNPC = {
         strength: 0,
         speed: 100 / 5 / 2,
         perception: 100 / 5 / 2,
-        stamina: 0
+        stamina: 0,
     },
     equippedItems: { confetti_bazooka: 6 },
-    standsEvolved: {}
+    standsEvolved: {},
 };
 
 export const ZZ: FightableNPC = {
@@ -394,5 +395,23 @@ export const ZZ: FightableNPC = {
     skillPoints: baseSP,
     equippedItems: {},
     stand: "wheel_of_fortune",
-    standsEvolved: {}
+    standsEvolved: {},
+};
+
+export const Diavolo: FightableNPC = {
+    ...NPCs.Diavolo,
+    level: 500,
+    skillPoints: {
+        defense: 450,
+        strength: 600,
+        speed: 225,
+        perception: 75,
+        stamina: 150,
+    },
+    equippedItems: {
+        diavolos_pants: equipableItemTypes.LEGS,
+        diavolos_suit: equipableItemTypes.CHEST,
+    },
+    stand: "king_crimson",
+    standsEvolved: {},
 };
