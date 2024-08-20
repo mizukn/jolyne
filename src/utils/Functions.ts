@@ -772,12 +772,12 @@ export const weaponAbilitiesEmbed = (
 
 export const getSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): number => {
     const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
-    return user.level * 3 - totalSkillPoints;
+    return user.level * 4 - totalSkillPoints;
 };
 
 export const skillPointsIsOK = (user: RPGUserDataJSON | FightableNPC): boolean => {
     const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
-    return totalSkillPoints === user.level * 3;
+    return totalSkillPoints === user.level * 4;
 };
 
 export const generateSkillPoints = (user: RPGUserDataJSON | FightableNPC): void => {
