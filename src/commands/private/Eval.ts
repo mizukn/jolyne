@@ -89,6 +89,7 @@ const slashCommand: SlashCommandFile = {
         const Functions = require("../../utils/Functions"); // eslint-disable-line @typescript-eslint/no-var-requires
         const { FightHandler } = require("../../structures/FightHandler"); // eslint-disable-line @typescript-eslint/no-var-requires
         const NPCs = require("../../rpg/NPCs/FightableNPCs"); // eslint-disable-line @typescript-eslint/no-var-requires
+        const SpecialItems = require("../../rpg/Items/SpecialItems"); // eslint-disable-line @typescript-eslint/no-var-requires
         await ctx.interaction.deferReply();
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
 
