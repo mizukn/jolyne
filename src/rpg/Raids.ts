@@ -460,17 +460,22 @@ export const Miku: RaidBoss = {
             {
                 item: Functions.findItem("mikus_pants").id,
                 amount: 1,
-                chance: 3,
+                chance: 2,
             },
             {
                 item: Functions.findItem("mikus_headset").id,
                 amount: 1,
-                chance: 1,
+                chance: 2,
             },
             {
                 item: Functions.findItem("mikus_vest").id,
                 amount: 1,
-                chance: 3,
+                chance: 2,
+            },
+            {
+                item: Functions.findItem("mikus_microphone").id,
+                amount: 1,
+                chance: 1,
             },
             {
                 item: Functions.findItem("dungeon_key").id,
