@@ -379,12 +379,13 @@ export const MohammedAvdol: FightableNPC = {
 
 export const ConfettiGolem: FightableNPC = {
     ...NPCs.ConfettiGolem,
-    level: 150,
+    level: 150, // max sp = level * 4 = 600
+    // lets make a full hp build
     skillPoints: {
-        defense: 100 * 3 - 100 / 5,
-        strength: 0,
-        speed: 100 / 5 / 2,
-        perception: 100 / 5 / 2,
+        defense: 500,
+        strength: 50,
+        speed: 25,
+        perception: 25,
         stamina: 0,
     },
     equippedItems: { confetti_bazooka: 6 },
@@ -406,8 +407,8 @@ export const Diavolo: FightableNPC = {
     skillPoints: {
         defense: 450 + 125,
         strength: 600 + 125,
-        speed: 225 + 75,
-        perception: 75,
+        speed: 225 + 125,
+        perception: 75 + 50,
         stamina: 150 + 75,
     },
     equippedItems: {
@@ -426,8 +427,8 @@ export const Miku: FightableNPC = {
         strength: 1200 + 300,
         speed: 450 + 150,
         perception: 150 + 150,
-        stamina: 300 + 150,
-    },
+        stamina: 300 + 100,
+    }, // total ( defense +...)
     equippedItems: {
         mikus_headset: equipableItemTypes.HEAD,
         mikus_pants: equipableItemTypes.LEGS,
