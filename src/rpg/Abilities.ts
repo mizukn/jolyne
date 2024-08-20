@@ -555,6 +555,13 @@ export const StandDisc: Ability = {
     thumbnail: "https://i.imgur.com/7CJQST6.gif",
     dodgeScore: 7,
     useMessage: (user, target, damage, ctx) => {
+        if (!target.stand) {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `:x: **${target.name}** doesn't have a stand to remove.`
+            );
+            return;
+        }
+
         const stand = target.stand;
         target.stand = null;
         ctx.turns[ctx.turns.length - 1].logs.push(
@@ -2205,6 +2212,7 @@ export const IdentityAssumption: Ability = {
     stamina: 25,
     damage: 25,
     dodgeScore: 8,
+    thumbnail: undefined,
 };
 
 export const IllusionCreation: Ability = {
