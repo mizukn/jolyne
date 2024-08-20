@@ -2438,7 +2438,7 @@ export const TeaseBarrage: Ability = {
         const burnDamageCalc = Math.round(
             Functions.getAbilityDamage(user, CrossfireHurricane) / 10
         );
-        poisonDamagePromise(ctx, target, burnDamageCalc, user, 2);
+        bleedDamagePromise(ctx, target, burnDamageCalc, user, 2);
     },
 };
 
@@ -2863,7 +2863,7 @@ export const PiercingStrike: Ability = {
         const burnDamageCalc = Math.round(
             Functions.getAbilityDamage(user, CrossfireHurricane) / 10
         );
-        poisonDamagePromise(ctx, target, burnDamageCalc, user, 2);
+        bleedDamagePromise(ctx, target, burnDamageCalc, user, 2);
     },
 };
 
