@@ -570,3 +570,28 @@ export const MikusPants: EquipableItem = {
         level: 50,
     },
 };
+
+export const MikusHedset = {
+    id: "mikus_headset",
+    name: "Miku's Headset",
+    emoji: "<:mikus_headset:1275434154321772604>",
+    description: "A headset that belonged to Miku.",
+    type: equipableItemTypes.HEAD,
+    effects: {
+        skillPoints: {
+            defense: 20,
+            perception: 20,
+            strength: 0,
+            speed: 20,
+            stamina: 0,
+        },
+        health: "5%",
+        xpBoost: 0.5,
+    },
+    rarity: "S",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};

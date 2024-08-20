@@ -444,3 +444,44 @@ export const Diavolo: RaidBoss = {
     // 15 minutes
     cooldown: 15 * 60 * 1000,
 };
+
+export const Miku: RaidBoss = {
+    boss: FightableNPCs.Miku,
+    minions: [],
+    baseRewards: {
+        xp: FightableNPCs.Miku.rewards.xp,
+        coins: FightableNPCs.Miku.rewards.coins,
+        items: [
+            {
+                item: Functions.findItem("Stand Arrow").id,
+                amount: 10,
+                chance: 1000,
+            },
+            {
+                item: Functions.findItem("mikus_pants").id,
+                amount: 1,
+                chance: 3,
+            },
+            {
+                item: Functions.findItem("mikus_headset").id,
+                amount: 1,
+                chance: 1,
+            },
+            {
+                item: Functions.findItem("mikus_vest").id,
+                amount: 1,
+                chance: 3,
+            },
+            {
+                item: Functions.findItem("dungeon_key").id,
+                amount: 1,
+                chance: 40,
+            },
+        ],
+    },
+    level: 300,
+    maxLevel: Infinity,
+    maxPlayers: 5,
+    // 15 minutes
+    cooldown: 15 * 60 * 1000,
+};

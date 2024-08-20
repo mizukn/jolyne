@@ -427,7 +427,7 @@ export const Miku: FightableNPC = {
         stamina: 300,
     },
     equippedItems: {
-        mikus_headphones: equipableItemTypes.HEAD,
+        mikus_headset: equipableItemTypes.HEAD,
         mikus_pants: equipableItemTypes.LEGS,
         mikus_vest: equipableItemTypes.CHEST,
         mikus_microphone: equipableItemTypes.WEAPON,
