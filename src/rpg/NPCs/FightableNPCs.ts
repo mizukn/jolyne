@@ -87,7 +87,9 @@ export const Jotaro: FightableNPC = {
         perception: 100,
         stamina: 100,
     },
-    equippedItems: {},
+    equippedItems: {
+        jotaros_hat: equipableItemTypes.HEAD,
+    },
     stand: "star_platinum",
     standsEvolved: {},
 };
