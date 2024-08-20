@@ -692,17 +692,31 @@ export const getEmojiId = (emoji: string): string => {
     return match[0];
 };
 
+export const isWeapon = (item: EquipableItem | Item | Weapon): item is Weapon => {
+    return (item as Weapon).abilities !== undefined;
+};
+
 export const weaponAbilitiesEmbed = (
     user: Fighter | RPGUserDataJSON | FightableNPC,
-    cooldowns?: FightInfos["cooldowns"]
+    cooldowns?: FightInfos["cooldowns"],
+    chosenWeapon?: string
 ): APIEmbed => {
-    const weapon = isFighter(user)
+    const weapon = chosenWeapon
+        ? findItem<Weapon>(chosenWeapon)
+        : isFighter(user)
         ? user.weapon
         : findItem<Weapon>(
               Object.keys(user.equippedItems).find(
                   (r) => user.equippedItems[r] === equipableItemTypes.WEAPON
               )
           );
+    if (!weapon)
+        return {
+            title: "No weapon found",
+            description: "No weapon found",
+            color: 0xff0000,
+        };
+
     const totalWeaponSkillPoints = Object.values(weapon.effects.skillPoints).reduce(
         (a, b) => a + b,
         0
@@ -716,7 +730,7 @@ export const weaponAbilitiesEmbed = (
                 weapon.effects.skillPoints
             )
                 .map(([key, value]) => `• +${value} ${key}`)
-                .join("\n")}`,
+                .join("\n")}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
         color: weapon.color,
         footer: {
             text: `Rarity: ${weapon.rarity}`,
