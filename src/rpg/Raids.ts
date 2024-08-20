@@ -41,7 +41,7 @@ export const Dio: RaidBoss = {
             },
         ],
     },
-    level: 25,
+    level: 75,
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
@@ -77,7 +77,7 @@ export const Jotaro: RaidBoss = {
             },
         ],
     },
-    level: 0,
+    level: 75,
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
@@ -164,7 +164,7 @@ export const JeanPierrePolnareffRequiem: RaidBoss = {
             },
         ],
     },
-    level: 50,
+    level: 75,
     maxLevel: Infinity,
     maxPlayers: 6,
     // 15 minutes
@@ -201,7 +201,7 @@ export const Golem: RaidBoss = {
             },
         ],
     },
-    level: 15,
+    level: 25,
     maxLevel: Infinity,
     maxPlayers: Math.round(100 / 15),
     cooldown: 1 * 60 * 1000,
@@ -251,7 +251,7 @@ export const Megumin: RaidBoss = {
             },
         ],
     },
-    level: 25,
+    level: 75,
     maxLevel: Infinity,
     maxPlayers: 10,
     // 5 minutes
@@ -282,7 +282,7 @@ export const GiornoGiovannaRequiem: RaidBoss = {
             },
         ],
     },
-    level: 50,
+    level: 75,
     maxLevel: Infinity,
     maxPlayers: 6,
     // 15 minutes
@@ -339,7 +339,7 @@ export const Toru: RaidBoss = {
             },
         ],
     },
-    level: 50,
+    level: 100,
     maxLevel: Infinity,
     maxPlayers: 8,
     // 15 minutes
@@ -365,7 +365,7 @@ export const YoshikageKira: RaidBoss = {
             },
         ],
     },
-    level: 25,
+    level: 75,
     maxLevel: Infinity,
     maxPlayers: 6,
     // 7 minutes
