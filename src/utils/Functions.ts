@@ -743,7 +743,7 @@ export const weaponAbilitiesEmbed = (
             weapon.name
         )}\n`;
 
-        if (ability.special) content += "��";
+        if (ability.special) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
 
         embed.fields.push({
