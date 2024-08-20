@@ -2883,3 +2883,57 @@ export const DisorientingStabs: Ability = {
         );
     },
 };
+
+export const MikuBeam: Ability = {
+    name: "Miku Beam",
+    description: "I'm thinking Mikuu Mikuu OO EE OO",
+    cooldown: 2,
+    damage: 40,
+    stamina: 5,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const MikuStun: Ability = {
+    name: "Miku Stun",
+    description: "Stuns everyone with the power of your voice.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 1,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter((x) => x.id !== user.id && ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
+            .forEach((x) => {
+                const dodgeResults: boolean[] = [];
+
+                for (let i = 0; i < 3; i++) {
+                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
+                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
+
+                    const randomNumber = Functions.randomNumber(0, 100);
+                    const dodgeThreshold =
+                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
+
+                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
+                }
+                if (
+                    dodgeResults.every((r) => r) &&
+                    dodgeResults.length !== 0 &&
+                    x.skillPoints.perception !== Infinity
+                ) {
+                    x.frozenFor += 4;
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.weapon?.emoji} OOO EEE OOO: **${x.name}** has been stunned...`
+                    );
+                } else {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.weapon?.emoji} OOO EEE OOO: **${x.name}** resisted.`
+                    );
+                }
+            });
+    },
+};

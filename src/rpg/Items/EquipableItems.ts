@@ -490,3 +490,83 @@ export const DiavolosPants: EquipableItem = {
         level: 50,
     },
 };
+
+export const MikusMicrophone: Weapon = {
+    id: "mikus_microphone",
+    name: "Miku's Microphone",
+    emoji: "<:mikus_microphone:1275437637380997162>",
+    description:
+        "Miku, Miku, you can call me Miku.\nBlue hair, blue tie, hiding in your WiFi.\nOpen secrets anyone can find me.\nHear your music running THROUGH MY MIND!!!",
+    type: equipableItemTypes.WEAPON,
+    attackName: "echo",
+    useMessageAttack: "echoes at",
+    staminaCost: 3,
+    color: 0x0eeadf,
+    effects: {
+        skillPoints: {
+            strength: 20,
+            perception: 0,
+            speed: 20,
+            stamina: 0,
+            defense: 0,
+        },
+        xpBoost: 0.5,
+    },
+    rarity: "S",
+    abilities: [Abilities.MikuBeam, Abilities.MikuStun],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};
+
+export const MikusVest: EquipableItem = {
+    id: "mikus_vest",
+    name: "Miku's Vest",
+    emoji: "<:mikus_vest:1275434192225833041>",
+    description: "A vest that belonged to Miku.",
+    type: equipableItemTypes.CHEST,
+    effects: {
+        skillPoints: {
+            defense: 20,
+            perception: 0,
+            strength: 0,
+            speed: 20,
+            stamina: 20,
+        },
+        health: "5%",
+        xpBoost: 0.5,
+    },
+    rarity: "S",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};
+
+export const MikusPants: EquipableItem = {
+    id: "mikus_pants",
+    name: "Miku's Pants",
+    emoji: "<:miku_pants:1275436318175924254>",
+    description: "Pants that belonged to Miku.",
+    type: equipableItemTypes.LEGS,
+    effects: {
+        skillPoints: {
+            defense: 20,
+            perception: 0,
+            strength: 20,
+            speed: 0,
+            stamina: 20,
+        },
+        health: "5%",
+        xpBoost: 0.5,
+    },
+    rarity: "S",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};

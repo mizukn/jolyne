@@ -236,3 +236,9 @@ export const Diavolo: NPC = {
     name: "Diavolo",
     emoji: Emojis.diavolo,
 };
+
+export const Miku: NPC = {
+    id: "miku",
+    name: "Miku",
+    emoji: "<:miku:1275439925621166162>",
+};

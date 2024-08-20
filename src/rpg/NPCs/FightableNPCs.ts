@@ -415,3 +415,22 @@ export const Diavolo: FightableNPC = {
     stand: "king_crimson",
     standsEvolved: {},
 };
+
+export const Miku: FightableNPC = {
+    ...NPCs.Miku,
+    level: 1000,
+    skillPoints: {
+        defense: 900,
+        strength: 1200,
+        speed: 450,
+        perception: 150,
+        stamina: 300,
+    },
+    equippedItems: {
+        mikus_headphones: equipableItemTypes.HEAD,
+        mikus_pants: equipableItemTypes.LEGS,
+        mikus_vest: equipableItemTypes.CHEST,
+        mikus_microphone: equipableItemTypes.WEAPON,
+    },
+    standsEvolved: {},
+};
