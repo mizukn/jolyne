@@ -571,7 +571,7 @@ export const MikusPants: EquipableItem = {
     },
 };
 
-export const MikusHedset = {
+export const MikusHedset: EquipableItem = {
     id: "mikus_headset",
     name: "Miku's Headset",
     emoji: "<:mikus_headset:1275434154321772604>",
