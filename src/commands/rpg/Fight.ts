@@ -5,7 +5,7 @@ import {
     ApplicationCommandOptionType,
     StringSelectMenuBuilder,
     MessageComponentInteraction,
-    StringSelectMenuInteraction
+    StringSelectMenuInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -29,9 +29,9 @@ const slashCommand: SlashCommandFile = {
                         description: "The NPC that you want to fight against",
                         type: ApplicationCommandOptionType.String, // 3
                         autocomplete: true,
-                        required: true
-                    }
-                ]
+                        required: true,
+                    },
+                ],
             },
             /*
             {
@@ -54,7 +54,7 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "custom",
                 description: "Starts a custom fight",
-                type: 1
+                type: 1,
             },
             {
                 name: "train",
@@ -67,11 +67,11 @@ const slashCommand: SlashCommandFile = {
                         description: "The NPC that you want to fight against",
                         type: ApplicationCommandOptionType.String, // 3
                         autocomplete: true,
-                        required: true
-                    }
-                ]
-            }
-        ]
+                        required: true,
+                    },
+                ],
+            },
+        ],
     },
     execute: async (
         ctx: CommandInteractionContext,
@@ -83,7 +83,7 @@ const slashCommand: SlashCommandFile = {
             return void ctx.makeMessage({
                 content: "I don't have permission to send messages in this channel.",
                 embeds: [],
-                components: []
+                components: [],
             });
         }
 
@@ -102,7 +102,7 @@ const slashCommand: SlashCommandFile = {
                         teams.map((team, idx) => {
                             return {
                                 label: `Team ${idx + 1}`,
-                                value: idx.toString()
+                                value: idx.toString(),
                             };
                         })
                     );
@@ -124,7 +124,7 @@ const slashCommand: SlashCommandFile = {
                         content:
                             "There are not enough players to start the fight. Fight cancelled.",
                         components: [],
-                        embeds: []
+                        embeds: [],
                     });
                     return;
                 }
@@ -134,7 +134,7 @@ const slashCommand: SlashCommandFile = {
                         endLimit,
                         "FROM_NOW"
                     )}`,
-                    fields: []
+                    fields: [],
                 };
 
                 for (let i = 0; i < teams.length; i++) {
@@ -146,7 +146,7 @@ const slashCommand: SlashCommandFile = {
                                     x
                                 )})) [LEVEL: ${x.level}]`;
                             })
-                            .join("\n")
+                            .join("\n"),
                     });
                 }
 
@@ -154,8 +154,8 @@ const slashCommand: SlashCommandFile = {
                     embeds: [embed],
                     components: [
                         Functions.actionRow([createTeamButton, leaveButton]),
-                        Functions.actionRow([joinTeamSelectMenu()])
-                    ]
+                        Functions.actionRow([joinTeamSelectMenu()]),
+                    ],
                 });
             }
 
@@ -171,7 +171,7 @@ const slashCommand: SlashCommandFile = {
                     i.customId === joinTeamId ||
                     i.customId === leaveButtonId ||
                     i.customId === createTeamButtonId,
-                time: endLimit - Date.now()
+                time: endLimit - Date.now(),
             });
 
             collector.on("end", async () => {
@@ -182,7 +182,7 @@ const slashCommand: SlashCommandFile = {
                         content:
                             "There are not enough players to start the fight. Fight cancelled.",
                         components: [],
-                        embeds: []
+                        embeds: [],
                     });
                     return;
                 }
@@ -192,25 +192,24 @@ const slashCommand: SlashCommandFile = {
                     await ctx.followUp({
                         content: `The fight has ended. The winners are: ${winners
                             .map((x) => x.name)
-                            .join(", ")}`
+                            .join(", ")}`,
                     });
                 });
                 fightHandler.on("unexpectedEnd", async (reason) => {
                     await ctx.followUp({
-                        content: `The fight has ended unexpectedly due to an error. Reason: ${reason}`
+                        content: `The fight has ended unexpectedly due to an error. Reason: ${reason}`,
                     });
                 });
             });
             collector.on("collect", async (i: MessageComponentInteraction) => {
                 const userData = await ctx.client.database.getRPGUserData(i.user.id);
                 if (!userData) return;
-                await i.deferUpdate().catch(() => {
-                }); // eslint-disable-line
+                await i.deferUpdate().catch(() => {}); // eslint-disable-line
 
                 switch (i.customId) {
                     case joinTeamId: {
                         removeUserFromTeam(userData.id);
-                        teams[parseInt((i as StringSelectMenuInteraction).values[0])].push(
+                        teams[parseInt((i as StringSelectMenuInteraction).values[0])]?.push(
                             userData
                         );
                         await makeMessage();
@@ -238,10 +237,9 @@ const slashCommand: SlashCommandFile = {
         if (!ctx.interaction.replied || !message)
             await ctx.interaction
                 .deferReply({
-                    ephemeral: true
+                    ephemeral: true,
                 })
-                .catch(() => {
-                }); // eslint-disable-line @typescript-eslint/no-empty-function
+                .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
 
         function startFight(
             questId: string,
@@ -254,7 +252,7 @@ const slashCommand: SlashCommandFile = {
                         "inventory use"
                     )} or ${ctx.client.getSlashCommandMention("shop")})`,
                     embeds: [],
-                    components: []
+                    components: [],
                 });
             }
             const npc = Functions.findNPC<FightableNPC>(npcId, true);
@@ -271,7 +269,7 @@ const slashCommand: SlashCommandFile = {
             fight.on("unexpectedEnd", (message) => {
                 ctx.client.database.deleteCooldown(ctx.userData.id);
                 ctx.followUp({
-                    content: `An error occured and your fight was ended. No changes were made towards your stats. \n\`\`\`${message}\`\`\``
+                    content: `An error occured and your fight was ended. No changes were made towards your stats. \n\`\`\`${message}\`\`\``,
                 });
             });
 
@@ -290,7 +288,7 @@ const slashCommand: SlashCommandFile = {
                             npc.name
                         }... Better luck next time or train yourself more.\n\nTIP: You can use ${ctx.client.getSlashCommandMention(
                             "fight train"
-                        )} to fight this NPC without losing any health or stamina.`
+                        )} to fight this NPC without losing any health or stamina.`,
                     });
                 } else {
                     const userDataFighter = winners.find((r) => r.id === ctx.userData.id);
@@ -433,7 +431,7 @@ const slashCommand: SlashCommandFile = {
                             npc.name
                         }**, you got the following rewards: \n${winContent.join(
                             " "
-                        )}\n\n---> Use the ${command} command to see your progression.`
+                        )}\n\n---> Use the ${command} command to see your progression.`,
                     });
                 }
 
@@ -474,7 +472,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.health > 10
                 ) {
                     await fight.message.edit({
-                        components: [Functions.actionRow([nextFightButton])]
+                        components: [Functions.actionRow([nextFightButton])],
                     });
 
                     const filter = (i: MessageComponentInteraction) =>
@@ -483,13 +481,12 @@ const slashCommand: SlashCommandFile = {
 
                     const collector = ctx.channel.createMessageComponentCollector({
                         filter,
-                        time: 15000
+                        time: 15000,
                     });
 
                     collector.on("collect", async (i) => {
                         collector.stop();
-                        await i.deferUpdate().catch(() => {
-                        }); // eslint-disable-line @typescript-eslint/no-empty-function
+                        await i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                         if (await ctx.antiCheat(true)) {
                             return;
                         }
@@ -589,7 +586,7 @@ const slashCommand: SlashCommandFile = {
                                         label: Functions.findNPC(r.npc, true).name,
                                         description: ctx.translate<string>("fight:FROM_CHAPTER"),
                                         value: r.id,
-                                        emoji: Functions.findNPC(r.npc, true).emoji
+                                        emoji: Functions.findNPC(r.npc, true).emoji,
                                     }))
                                     .filter((r) => r)
                             )
@@ -599,7 +596,7 @@ const slashCommand: SlashCommandFile = {
                                         label: Functions.findNPC(r.npc, true).name,
                                         description: ctx.translate<string>("fight:FROM_DAILY"),
                                         value: r.id,
-                                        emoji: Functions.findNPC(r.npc, true).emoji
+                                        emoji: Functions.findNPC(r.npc, true).emoji,
                                     }))
                                     .filter((r) => r)
                             )
@@ -609,7 +606,7 @@ const slashCommand: SlashCommandFile = {
                                         label: Functions.findNPC(r.npc, true).name,
                                         description: ctx.translate<string>("fight:FROM_SIDE_QUEST"),
                                         value: r.id,
-                                        emoji: Functions.findNPC(r.npc, true).emoji
+                                        emoji: Functions.findNPC(r.npc, true).emoji,
                                     }))
                                     .filter((r) => r)
                             )
@@ -619,13 +616,13 @@ const slashCommand: SlashCommandFile = {
                             await ctx.makeMessage({
                                 content: ctx.translate("fight:TOO_MANY_ENEMIES"),
                                 components: [Functions.actionRow([selectMenu])],
-                                embeds: []
+                                embeds: [],
                             });
                         else
                             await message.edit({
                                 content: ctx.translate("fight:TOO_MANY_ENEMIES"),
                                 components: [Functions.actionRow([selectMenu])],
-                                embeds: []
+                                embeds: [],
                             });
 
                         const filter = (i: MessageComponentInteraction) =>
@@ -633,12 +630,11 @@ const slashCommand: SlashCommandFile = {
                             i.customId.startsWith(ctx.interaction.id);
                         const collector = ctx.channel.createMessageComponentCollector({
                             filter,
-                            time: 15000
+                            time: 15000,
                         });
 
                         collector.on("collect", async (i) => {
-                            i.deferUpdate().catch(() => {
-                            }); // eslint-disable-line @typescript-eslint/no-empty-function
+                            i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                             if (await ctx.antiCheat(true)) {
                                 collector.stop();
                                 return;
@@ -699,7 +695,7 @@ const slashCommand: SlashCommandFile = {
                             content:
                                 "FATAL ERROR: COULD NOT FIND NPC: " +
                                 NPC +
-                                "\n\nIf this problem appears, just type `1` on the npc argument (exemple: `/fight npc npc:1`)"
+                                "\n\nIf this problem appears, just type `1` on the npc argument (exemple: `/fight npc npc:1`)",
                         });
                         return;
                     }
@@ -759,13 +755,13 @@ const slashCommand: SlashCommandFile = {
                         (userData.chapter.quests.find((x) => x.id === r.id)
                             ? "FROM YOUR CHAPTER QUESTS"
                             : userData.daily.quests.find((x) => x.id === r.id)
-                                ? "FROM YOUR DAILY QUESTS"
-                                : `FROM YOUR SIDE QUEST: ${
-                                    userData.sideQuests.find((xx) =>
-                                        xx.quests.find((qq) => qq.id === r.id)
-                                    ).id
-                                }`) +
-                        "]"
+                            ? "FROM YOUR DAILY QUESTS"
+                            : `FROM YOUR SIDE QUEST: ${
+                                  userData.sideQuests.find((xx) =>
+                                      xx.quests.find((qq) => qq.id === r.id)
+                                  ).id
+                              }`) +
+                        "]",
                 }))
                     .filter(
                         (r) =>
@@ -785,12 +781,12 @@ const slashCommand: SlashCommandFile = {
         );
         const options = filteredNPCs.map((r) => ({
             value: r.id,
-            name: r.name
+            name: r.name,
         }));
         if (options.length > 25) options.length = 25;
 
         await interaction.respond(options);
-    }
+    },
 };
 
 export default slashCommand;
