@@ -404,11 +404,11 @@ export const Diavolo: FightableNPC = {
     ...NPCs.Diavolo,
     level: 500,
     skillPoints: {
-        defense: 450,
-        strength: 600,
-        speed: 225,
+        defense: 450 + 125,
+        strength: 600 + 125,
+        speed: 225 + 75,
         perception: 75,
-        stamina: 150,
+        stamina: 150 + 75,
     },
     equippedItems: {
         diavolos_pants: equipableItemTypes.LEGS,
@@ -422,11 +422,11 @@ export const Miku: FightableNPC = {
     ...NPCs.Miku,
     level: 1000,
     skillPoints: {
-        defense: 900,
-        strength: 1200,
-        speed: 450,
-        perception: 150,
-        stamina: 300,
+        defense: 900 + 300,
+        strength: 1200 + 300,
+        speed: 450 + 150,
+        perception: 150 + 150,
+        stamina: 300 + 150,
     },
     equippedItems: {
         mikus_headset: equipableItemTypes.HEAD,
