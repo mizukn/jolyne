@@ -49,26 +49,26 @@ const port = 6969;
             TempRedis.quit();
         });
     }
-})();
 
-const manager = new ClusterManager(`${__dirname}/index.js`, {
-    totalShards: "auto",
-    shardsPerClusters: 8,
-    mode: "process",
-    token: process.env.CLIENT_TOKEN,
-});
+    const manager = new ClusterManager(`${__dirname}/index.js`, {
+        totalShards: "auto",
+        shardsPerClusters: 8,
+        mode: "process",
+        token: process.env.CLIENT_TOKEN,
+    });
 
-manager.on("clusterCreate", (cluster) =>
-    console.log(
-        `Launched Cluster ${cluster.id}\n-------------------------------------------------------------`
-    )
-);
-manager.spawn({ timeout: -1 }).catch((e) => {
-    console.log(process.env);
-    //const response = JSON.parse(e.message);
-    console.log(
-        "DISCORD API LIMIT: ERROR, YOU HAVE BEEN RATELIMITED. PLEASE TRY AGAIN IN " +
-            e.headers.get("Retry-After") +
-            " SECONDS."
+    manager.on("clusterCreate", (cluster) =>
+        console.log(
+            `Launched Cluster ${cluster.id}\n-------------------------------------------------------------`
+        )
     );
-});
+    manager.spawn({ timeout: -1 }).catch((e) => {
+        console.log(process.env);
+        //const response = JSON.parse(e.message);
+        console.log(
+            "DISCORD API LIMIT: ERROR, YOU HAVE BEEN RATELIMITED. PLEASE TRY AGAIN IN " +
+                e.headers.get("Retry-After") +
+                " SECONDS."
+        );
+    });
+})();
