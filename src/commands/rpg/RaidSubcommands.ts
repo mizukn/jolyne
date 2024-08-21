@@ -1,9 +1,13 @@
 import {
+    EquipableItem,
     FightableNPC,
+    Item,
     RPGUserDataJSON,
     RaidBoss,
     RaidNPCQuest,
     SlashCommandFile,
+    Special,
+    Weapon,
 } from "../../@types";
 import {
     Message,
@@ -283,6 +287,10 @@ const slashCommand: SlashCommandFile = {
                 });
                 if (winners.find((r) => r.id === joinedUsers[0].id)) {
                     for (const winner of winners) {
+                        const itemDidntDrop: {
+                            percentage: number;
+                            item: Item | EquipableItem | Special | Weapon;
+                        }[] = [];
                         console.log("winner:", winner.id);
                         if (!joinedUsers.find((r) => r.id === winner.id)) continue;
                         console.log("found human:", winner.id);
@@ -324,8 +332,14 @@ const slashCommand: SlashCommandFile = {
                                         Functions.getMaxHealth(enhancedBoss)) *
                                         item.chance
                                 );
-                                if (item.chance && Functions.RNG(0, 100) > chance) continue;
                                 const itemData = Functions.findItem(item.item);
+                                if (item.chance && Functions.RNG(0, 100) > chance) {
+                                    itemDidntDrop.push({
+                                        percentage: chance,
+                                        item: itemData,
+                                    });
+                                    continue;
+                                }
                                 if (!itemData) continue;
                                 Functions.addItem(winnerData, itemData.id, item.amount);
                                 winContent.push(
@@ -363,7 +377,16 @@ const slashCommand: SlashCommandFile = {
                                 winner.health === 0
                                     ? " but they died, so they only got the following rewards"
                                     : "and got the following rewards"
-                            }:\n${winContent.join(", ")}`,
+                            }:\n${winContent.join(", ")}${
+                                itemDidntDrop.length !== 0
+                                    ? ` (${itemDidntDrop
+                                          .map(
+                                              (r) =>
+                                                  `~~${r.item.emoji} ${r.item.name} (${r.percentage}%)~~`
+                                          )
+                                          .join(", ")})`
+                                    : ""
+                            }`,
                         });
                         ctx.client.database.saveUserData(winnerData);
                     }
