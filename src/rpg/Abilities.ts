@@ -735,9 +735,8 @@ export const SandClone: Ability = {
     name: "Sand Clone",
     description:
         "The Fool can create clones of itself out of sand, which can be used to attack or defend.",
-    cooldown: 2,
+    cooldown: 3,
     damage: 0,
-
     stamina: 50,
     extraTurns: 0,
     dodgeScore: 0,
@@ -746,7 +745,7 @@ export const SandClone: Ability = {
         const team = ctx.teams[teamIndex];
 
         const NPC: FightableNPC = {
-            id: Functions.randomArray(["speedwagon_foundation", "kakyoin", "jotaro", "dio"]),
+            id: `${user.name}_sand_clone`,
             name: `${user.name}'s Sand Clone`,
             skillPoints: {
                 strength: Math.round(user.skillPoints.strength) / 10,
@@ -755,14 +754,20 @@ export const SandClone: Ability = {
                 defense: Math.round(user.skillPoints.defense) / 10,
                 stamina: Math.round(user.skillPoints.stamina) / 10,
             },
-            level: user.level / 10,
+            level: Math.round(user.level / 10),
             stand: user.stand?.id,
             equippedItems: user.equippedItems,
             standsEvolved: user.standsEvolved,
             emoji: user.stand?.emoji ?? "🤷‍♂️",
         };
-        team.push(new Fighter(NPC));
-        ctx.fighters.push(new Fighter(NPC));
+        Functions.generateSkillPoints(NPC);
+
+        const fighter = new Fighter(NPC);
+        fighter.npc = true;
+        fighter.summonedBy = user.id;
+
+        team.push(fighter);
+        ctx.fighters.push(fighter);
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} SAND CLONE: **${user.name}** has created a clone of **${user.name}**...`
         );
@@ -772,12 +777,17 @@ export const SandClone: Ability = {
             executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
-                const idx = team.findIndex((x) => x.id === NPC.id);
-                if (idx !== -1) {
-                    team.splice(idx, 1);
-                    fight.turns[fight.turns.length - 1].logs.push(
-                        `- ${user.stand?.emoji} SAND CLONE: **${user.name}**'s clone of **${user.name}** has disappeared...`
-                    );
+                const userr = fight.fighters.find((x) => x.id === user.id);
+                const npcc = fight.fighters.find((x) => x.id === NPC.id);
+
+                userr.totalDamageDealt += npcc.totalDamageDealt;
+                for (const team of fight.teams) {
+                    if (team.find((x) => x.id === NPC.id)) {
+                        team.splice(
+                            team.findIndex((x) => x.id === NPC.id),
+                            1
+                        );
+                    }
                 }
                 ctx.fighters = ctx.fighters.filter((x) => x.id !== NPC.id);
             },
