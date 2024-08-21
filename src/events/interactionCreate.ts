@@ -272,8 +272,7 @@ const Event: EventFile = {
                         ctx.followUpQueue.push({
                             content: `:heart: <:patronbox:1056324158524502036> | **${
                                 ctx.user.username
-                            }**, you received your monthly Patreon rewards!\nYou
-                            got these items:\n${Functions.getRewardsCompareData(
+                            }**, you received your monthly Patreon rewards! You got these items:\n${Functions.getRewardsCompareData(
                                 oldDataPatreon,
                                 ctx.userData
                             ).join(", ")}`,
