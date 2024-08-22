@@ -258,7 +258,9 @@ const slashCommand: SlashCommandFile = {
         });
         const collector = ctx.channel.createMessageComponentCollector({
             time: 60000,
-            filter: (i) => i.customId.includes(ctx.interaction.id) && i.user.id === ctx.user.id,
+            filter: (i) =>
+                i.customId.includes(ctx.interaction.id) &&
+                (i.customId.includes("join_dungeon") ? true : i.user.id === ctx.userData.id),
         });
 
         collector.on("collect", async (i) => {
