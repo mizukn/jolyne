@@ -305,9 +305,28 @@ const slashCommand: SlashCommandFile = {
                     ephemeral: true,
                 });
                 await ctx.makeMessage({
-                    content: `<:kars:1057261454421676092> **Kars:** ${data.tag} has joined the dungeon! (${totalPlayers.length}/2)`,
+                    content: `<:kars:1057261454421676092> **Kars:** ${
+                        data.tag
+                    } has joined the dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${
+                        selectedModifiers.length
+                            ? "\n" +
+                              selectedModifiers
+                                  .map((x) => {
+                                      const modifier = possibleModifiers.find((f) => f.id === x);
+                                      return `- ${modifier?.emoji} ${Functions.capitalize(
+                                          x.replace(/_/g, " ")
+                                      )}: ${modifier?.description}`;
+                                  })
+                                  .join("\n")
+                            : ":x:"
+                    }\n**Total XP Increase:** ${getTotalXpIncrease(
+                        selectedModifiers
+                    )}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
                     embeds: [],
-                    components: [Functions.actionRow([startButton, cancelButton])],
+                    components: [
+                        Functions.actionRow([startButton, cancelButton]),
+                        Functions.actionRow([modifiersStringSelectMenu]),
+                    ],
                 });
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
                 for (const player of totalPlayers) {
