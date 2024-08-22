@@ -378,6 +378,7 @@ const slashCommand: SlashCommandFile = {
                                     ? " but they died, so they only got the following rewards"
                                     : "and got the following rewards"
                             }:\n${winContent.join(", ")}${
+                                /*
                                 itemDidntDrop.length !== 0
                                     ? ` (${itemDidntDrop
                                           .map(
@@ -386,6 +387,7 @@ const slashCommand: SlashCommandFile = {
                                           )
                                           .join(", ")})`
                                     : ""
+                            */ ""
                             }`,
                         });
                         ctx.client.database.saveUserData(winnerData);
