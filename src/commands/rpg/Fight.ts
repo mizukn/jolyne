@@ -87,7 +87,10 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
-        if (ctx.client.maintenanceReason) return void ctx.sendTranslated("global:MAINTENANCE_MODE");
+        if (ctx.client.maintenanceReason)
+            return void ctx.sendTranslated("global:MAINTENANCE_MODE", {
+                embeds: [],
+            });
         if (ctx.interaction.options.getSubcommand() === "custom") {
             let teams: RPGUserDataJSON[][] = [[ctx.userData]];
             const endLimit = Date.now() + 30000;
