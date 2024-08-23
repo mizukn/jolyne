@@ -285,9 +285,6 @@ const slashCommand: SlashCommandFile = {
 
             const timeout = Functions.randomNumber(2, 6) * 1000;
             await Functions.sleep(timeout);
-            setTimeout(() => {
-                ctx.client.database.deleteCooldown(ctx.userData.id);
-            }, timeout);
 
             ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
 
@@ -320,6 +317,7 @@ const slashCommand: SlashCommandFile = {
                 };
             }
             ctx.client.database.saveUserData(ctx.userData);
+            ctx.client.database.deleteCooldown(ctx.userData.id);
 
             ctx.makeMessage({
                 components: [],
