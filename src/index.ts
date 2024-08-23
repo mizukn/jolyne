@@ -444,7 +444,7 @@ for (const NPC of Object.values(FightableNPCs)) {
         if (NPC.level < 4) NPC.rewards.xp = 2500;
 
         if (NPC.level > 5) {
-            NPC.rewards.xp = Math.round(NPC.rewards.xp / 1.1);
+            NPC.rewards.xp = Math.round(NPC.rewards.xp / 1.3);
         }
 
         //console.log(NPC.rewards);
