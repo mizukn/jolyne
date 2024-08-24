@@ -133,6 +133,31 @@ export const Whitesnake: EvolutionStand = {
             },
             available: true,
         },
+        /*{
+            name: "C-Moon",
+            description:
+                "C-Moon is the Stand of [Enrico Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci), featured in Stone Ocean. It is a close-range Stand that has the ability to manipulate gravity.",
+            rarity: "SS",
+            abilities: [
+                Abilities.StandBarrage,
+                Abilities.GravityShift,
+                Abilities.GravityPull,
+                Abilities.GravityPush,
+                Abilities.SurfaceInversion,
+            ],
+            image: "https://static.jojowiki.com/images/8/8f/latest/20210420222949/C-Moon_Infobox_Manga.png",
+            // green color hex code
+            color: 0x008000,
+            emoji: "<:CMoon:983353299342360616>",
+            skillPoints: {
+                strength: 15,
+                perception: 15,
+                speed: 15,
+                defense: 15,
+                stamina: 15,
+            },
+            available: true,
+        },*/
     ],
 };
 

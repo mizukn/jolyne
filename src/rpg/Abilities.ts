@@ -2955,3 +2955,73 @@ export const MikuStun: Ability = {
             });
     },
 };
+
+// c-moon abilities
+export const GravityShift: Ability = {
+    name: "Gravity Shift",
+    description: "Shift the gravity around the opponent, dealing damage.",
+    cooldown: 4,
+    damage: 35,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const GravityPull: Ability = {
+    name: "Gravity Pull",
+    description: "Pull the opponent towards you with gravity, stunning them.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    trueDodgeScore: 3,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const dodgeResults: boolean[] = [];
+
+        for (let i = 0; i < 3; i++) {
+            const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
+            const fighterSpeedScore = Functions.getSpeedScore(target) + 10 + target.level / 10;
+
+            const randomNumber = Functions.randomNumber(0, 100);
+            const dodgeThreshold = userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
+
+            if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
+        }
+        if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+            target.frozenFor += 2;
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand?.emoji} GRAVITY PULL: **${target.name}** has been pulled...`
+            );
+        } else {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand?.emoji} GRAVITY PULL: **${target.name}** resisted.`
+            );
+        }
+    },
+};
+
+export const GravityPush: Ability = {
+    name: "Gravity Push",
+    description: "Push the opponent away from you with gravity, dealing damage.",
+    cooldown: 6,
+    damage: 35,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const SurfaceInversion: Ability = {
+    name: "Surface Inversion",
+    description:
+        "C-Moon punches the opponent, making the opponent's body turn inside-out and causing heavy damage.",
+    cooldown: 7,
+    damage: 40,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
