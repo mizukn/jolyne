@@ -11,22 +11,7 @@ export const Dio: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
-                chance: 300,
-            },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
-                chance: 300,
-            },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
-                chance: 300,
-            },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
+                amount: 2,
                 chance: 300,
             },
             {
@@ -93,22 +78,12 @@ export const BanditBoss: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 3,
+                amount: 1,
                 chance: 100,
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 3,
-                chance: 100,
-            },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 3,
-                chance: 100,
-            },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 3,
+                amount: 1,
                 chance: 100,
             },
         ],
@@ -178,17 +153,6 @@ export const Golem: RaidBoss = {
         xp: FightableNPCs.Golem.rewards.xp,
         coins: FightableNPCs.Golem.rewards.coins,
         items: [
-            // x5 arrow 300%, x5 arrow 300%, x1 arrow 200%, x2 arrow 200%
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 5,
-                chance: 300,
-            },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 5,
-                chance: 300,
-            },
             {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 2,
@@ -198,6 +162,11 @@ export const Golem: RaidBoss = {
                 item: Functions.findItem("Stand Arrow").id,
                 amount: 2,
                 chance: 200,
+            },
+            {
+                item: Functions.findItem("Rare Stand Arrow").id,
+                amount: 1,
+                chance: 100,
             },
         ],
     },
@@ -224,16 +193,7 @@ export const Megumin: RaidBoss = {
                 amount: 1,
                 chance: 300,
             },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
-                chance: 300,
-            },
-            {
-                item: Functions.findItem("Stand Arrow").id,
-                amount: 1,
-                chance: 300,
-            },
+
             {
                 item: Functions.findItem("megumins_hat").id,
                 amount: 1,
@@ -267,7 +227,7 @@ export const GiornoGiovannaRequiem: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 10,
+                amount: 2,
                 chance: 1000,
             },
             {
@@ -298,7 +258,7 @@ export const Jolyne: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 10,
+                amount: 2,
                 chance: 1000,
             },
             {
@@ -324,7 +284,7 @@ export const Toru: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 10,
+                amount: 3,
                 chance: 1000,
             },
             {
@@ -355,7 +315,7 @@ export const YoshikageKira: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 10,
+                amount: 2,
                 chance: 1000,
             },
             {
@@ -428,13 +388,13 @@ export const Diavolo: RaidBoss = {
             },
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 10,
+                amount: 4,
                 chance: 1000,
             },
             {
                 item: Functions.findItem("dungeon_key").id,
                 amount: 1,
-                chance: 40,
+                chance: 10,
             },
         ],
     },
@@ -454,7 +414,7 @@ export const Miku: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Stand Arrow").id,
-                amount: 10,
+                amount: 4,
                 chance: 1000,
             },
             {
@@ -480,7 +440,7 @@ export const Miku: RaidBoss = {
             {
                 item: Functions.findItem("dungeon_key").id,
                 amount: 1,
-                chance: 40,
+                chance: 10,
             },
         ],
     },

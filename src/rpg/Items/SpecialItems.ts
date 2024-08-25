@@ -392,7 +392,7 @@ export const StandArrow: Special = {
     description: "A stand arrow.",
     rarity: "A",
     emoji: Emojis["mysterious_arrow"],
-    price: 35000,
+    price: 15000,
     tradable: true,
     storable: true,
     craft: {
@@ -482,9 +482,9 @@ export const RareStandArrow: Special = {
     name: "Rare Stand Arrow",
     description:
         "**SS tier: 0.25% chance, S tier:** 16% chance, **A tier:** 40% chance, **B tier:** 44% chance.",
-    rarity: "A",
+    rarity: "S",
     emoji: Emojis["mysterious_arrow"],
-    price: 35000,
+    price: 25000,
     tradable: true,
     storable: true,
     craft: {
