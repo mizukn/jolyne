@@ -1931,12 +1931,14 @@ const lifePunchPromise = (
             console.log("life punch promise");
             const healthLost = Math.round(target.maxHealth * percentage);
             const staminaLost = Math.round(target.maxStamina * percentage);
+            const oldHealth = target.health;
 
             target.health -= healthLost;
             target.stamina -= staminaLost;
 
             if (target.health <= 0) target.health = 0;
             if (target.stamina <= 0) target.stamina = 0;
+            target.totalDamageDealt += oldHealth - target.health;
 
             fight.turns[fight.turns.length - 1].logs.push(
                 `🩸🩸🩸 **${target.name}** lost **${healthLost}** health and **${staminaLost}** stamina`
