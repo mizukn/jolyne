@@ -6,6 +6,7 @@ import type {
     Weapon,
     NPC,
     FightableNPC,
+    EvolutionStand,
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient } from "discord-hybrid-sharding";
@@ -23,6 +24,7 @@ import * as StandUsersNPCS from "../src/NPCs.json";
 import * as EquipableItems from "./rpg/Items/EquipableItems";
 import * as Sentry from "@sentry/node";
 import { exec } from "child_process";
+import { count } from "console";
 
 const weapons = Object.values(EquipableItems).filter(
     (x) => (x as Weapon).abilities !== undefined
@@ -265,6 +267,13 @@ for (const stand of [
     }
 
     if (rewards.items.length === 0) rewards = undefined;
+    // check if stand is an evolution
+    const evolution = Object.values(Stands.EvolutionStands).find((x) => x.id === stand.id)
+        ? Object.values(Stands.EvolutionStands)
+              .find((x) => x.id === stand.id)
+              .evolutions.findIndex((x) => x.name === stand.name)
+        : 0;
+
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[`${stand.name.replace(" ", "")}User`] = {
         // @ts-expect-error it exists
@@ -279,7 +288,9 @@ for (const stand of [
         },
         stand: stand.id,
         equippedItems: {},
-        standsEvolved: {},
+        standsEvolved: {
+            [stand.id]: evolution,
+        },
         rewards,
     };
 
@@ -337,7 +348,9 @@ for (const stand of [
             equippedItems: {
                 [weapon.id]: 6,
             },
-            standsEvolved: {},
+            standsEvolved: {
+                [stand.id]: evolution,
+            },
             rewards,
         };
     }
