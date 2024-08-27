@@ -332,7 +332,7 @@ const slashCommand: SlashCommandFile = {
                         const coins = Functions.addCoins(
                             ctx.userData,
                             fightType === FightTypes.DailyQuest
-                                ? Math.round(npc.rewards.coins / 100)
+                                ? Math.round(npc.rewards.coins / 2)
                                 : npc.rewards.coins
                         );
                         winContent.push(
