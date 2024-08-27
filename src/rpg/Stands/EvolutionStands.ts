@@ -1,6 +1,7 @@
 import { EvolutionStand } from "../../@types";
 import * as Abilities from "../Abilities";
 import * as Emojis from "../../emojis.json";
+import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 
 export const SilverChariot: EvolutionStand = {
     id: "silver_chariot",
@@ -133,10 +134,10 @@ export const Whitesnake: EvolutionStand = {
             },
             available: true,
         },
-        /*{
+        {
             name: "C-Moon",
             description:
-                "C-Moon is the Stand of [Enrico Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci), featured in Stone Ocean. It is a close-range Stand that has the ability to manipulate gravity.",
+                "C-Moon is the Stand of [Enrico Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci), featured in Stone Ocean. It is a close-range Stand that has the ability to manipulate gravity.\n\nPASSIVE: C-Moon's punches has an effect that changes every turn.",
             rarity: "SS",
             abilities: [
                 Abilities.StandBarrage,
@@ -157,7 +158,79 @@ export const Whitesnake: EvolutionStand = {
                 stamina: 15,
             },
             available: true,
-        },*/
+            customAttack: {
+                name: (ctx, user): string => {
+                    const cacheID = `${ctx.id}_${user.id}.attack.cmoon`;
+                    const attacks = (ctx.ctx.client.fightCache.get(cacheID) as number) || 0;
+
+                    if (attacks % 2 === 0) {
+                        return "Inverted Punch";
+                    } else {
+                        return "Gravity Punch";
+                    }
+                },
+                // punch emoji
+                emoji: "👊",
+                handleAttack: (ctx, user, target, damages): void => {
+                    const cacheID = `${ctx.id}_${user.id}.attack.cmoon`;
+                    const attacks = (ctx.ctx.client.fightCache.get(cacheID) as number) || 0;
+
+                    damages = Math.round(damages * (attacks % 2 === 0 ? 1.5 : 1));
+
+                    ctx.ctx.client.fightCache.set(cacheID, attacks + 1);
+
+                    const status = target.removeHealth(damages, user);
+                    const emoji = user.stand?.customAttack?.emoji || user.stand?.emoji;
+
+                    // example
+                    /*
+                                    if (status.type === FighterRemoveHealthTypes.Defended) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they defended themselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.Dodged) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${emoji}:x: \`${ctx.whosTurn.name}\` shoots **${target.name}** but they dodged`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${last ? "💥" : ""}${emoji}:shield: \`${ctx.whosTurn.name}\` shoots **${
+                            target.name
+                        }**' and broke their guard; -**${
+                            status.amount
+                        }** HP :heart: instead of **${damages}**`
+                    );
+                } else if (status.type === FighterRemoveHealthTypes.Normal) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `${last ? "💥" : ""}${emoji} \`${ctx.whosTurn.name}\` shoots **${
+                            target.name
+                        }** and deals **${status.amount}** damages`
+                    );
+                }*/
+
+                    const punchName = attacks % 2 === 0 ? "punches" : "crushes";
+                    if (status.type === FighterRemoveHealthTypes.Normal) {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `${emoji} \`${ctx.whosTurn.name}\` ${punchName} **${target.name}** and deals **${status.amount}** damages`
+                        );
+                    } else if (status.type === FighterRemoveHealthTypes.Defended) {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `${emoji}:shield: \`${ctx.whosTurn.name}\` ${punchName} **${target.name}** but they defended themselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
+                        );
+                    } else if (status.type === FighterRemoveHealthTypes.Dodged) {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `${emoji}:x: \`${ctx.whosTurn.name}\` ${punchName} **${target.name}** but they dodged`
+                        );
+                    } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `${emoji}:shield: \`${ctx.whosTurn.name}\` ${punchName} **${target.name}**' and broke their guard; -**${status.amount}** HP :heart: instead of **${damages}**`
+                        );
+                    }
+
+                    ctx.nextTurn();
+                },
+            },
+        },
     ],
 };
 
