@@ -633,7 +633,7 @@ const slashCommand: SlashCommandFile = {
                             i.customId.startsWith(ctx.interaction.id);
                         const collector = ctx.channel.createMessageComponentCollector({
                             filter,
-                            time: 15000,
+                            time: 60000,
                         });
 
                         collector.on("collect", async (i) => {
