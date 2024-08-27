@@ -59,11 +59,11 @@ const slashCommand: SlashCommandFile = {
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
         const type = ctx.interaction.options.getSubcommand() as "view" | "archived";
-        const emails =
+        const emails = () =>
             type === "view"
                 ? ctx.userData.emails.filter((email) => !email.archived)
                 : ctx.userData.emails.filter((email) => email.archived);
-        if (!emails.length) {
+        if (!emails().length) {
             ctx.makeMessage({
                 content: "You don't have any emails..",
             });
@@ -106,12 +106,12 @@ const slashCommand: SlashCommandFile = {
                     name: "Inbox",
                     icon_url: ctx.user.displayAvatarURL(),
                 },
-                description: `${emoji} You have ${emails.length} ${name} e-mails.`,
+                description: `${emoji} You have ${emails().length} ${name} e-mails.`,
                 fields: [],
                 color: 0x70926c,
             };
 
-            for (const email of emails) {
+            for (const email of emails()) {
                 const emailData = Functions.findEmail(email.id);
                 if (!emailData) continue;
                 EmailsSelection.addOptions([
@@ -271,26 +271,56 @@ const slashCommand: SlashCommandFile = {
 
         const collector = ctx.channel.createMessageComponentCollector({
             filter: (interaction) =>
-                (interaction.user.id === ctx.user.id && interaction.customId === goBackID) ||
-                interaction.customId === deleteEmailID ||
-                interaction.customId === EmailsSelectionID ||
-                interaction.customId === actionID,
+                interaction.user.id === ctx.user.id &&
+                (interaction.customId === goBackID ||
+                    interaction.customId === deleteEmailID ||
+                    interaction.customId === EmailsSelectionID ||
+                    interaction.customId === actionID),
             time: 60000,
         });
 
         collector.on("collect", async (interaction) => {
-            interaction.deferUpdate();
             if (await ctx.antiCheat(true)) {
                 collector.stop();
                 return;
             }
             switch (interaction.customId) {
                 case goBackID:
+                    interaction.deferUpdate();
                     menuEmbed();
                     break;
                 case EmailsSelectionID:
+                    interaction.deferUpdate();
                     makeEmailEmbed((interaction as StringSelectMenuInteraction).values[0]);
                     break;
+                case actionID: {
+                    if (!currentEmail) return;
+                    const email = ctx.userData.emails.find((email) => email.id === currentEmail);
+                    if (!email) return;
+                    email.archived = !email.archived;
+                    ctx.client.database.saveUserData(ctx.userData);
+                    menuEmbed();
+                    interaction.reply({
+                        content: `Email ${
+                            email.archived ? "archived" : "unarchived"
+                        } successfully!`,
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                case deleteEmailID: {
+                    if (!currentEmail) return;
+                    const email = ctx.userData.emails.find((email) => email.id === currentEmail);
+                    if (!email) return;
+                    ctx.userData.emails = ctx.userData.emails.filter((v) => v.id !== email.id);
+                    ctx.client.database.saveUserData(ctx.userData);
+                    menuEmbed();
+                    interaction.reply({
+                        content: "Email deleted successfully!",
+                        ephemeral: true,
+                    });
+                    break;
+                }
             }
         });
     },

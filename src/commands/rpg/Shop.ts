@@ -25,6 +25,8 @@ export const standPrice = {
     T: 6969696969696969,
 };
 
+const boxPrice = 450000;
+
 type cShop = {
     name: string;
     data: StringSelectMenuBuilder;
@@ -149,7 +151,7 @@ const slashCommand: SlashCommandFile = {
                     if (Functions.percent(item.percent)) {
                         BM.items.push({
                             item: Functions.findItem(item.id).id,
-                            price: item.price,
+                            price: item.id === "box" ? boxPrice : item.price,
                         });
                     }
                 }
@@ -223,13 +225,13 @@ const slashCommand: SlashCommandFile = {
                     value: (() => {
                         let str = "";
                         for (const item of Shop.items) {
-                            const xitem = Functions.findItem(item.item);
+                            const xitem = cloneDeep(Functions.findItem(item.item));
                             if (
                                 !xitem ||
                                 shopSelect.options.find((x) => x.data.label === xitem.name)
                             )
                                 continue;
-                            if (xitem.id === "box") xitem.price = 450000;
+                            if (xitem.id === "box") xitem.price = boxPrice;
                             if (isNaN(xitem.price)) continue;
 
                             shopSelect.addOptions([
@@ -273,11 +275,11 @@ const slashCommand: SlashCommandFile = {
             function createShopString(Shop: Shop): string {
                 let str = "";
                 for (const item of Shop.items) {
-                    const xitem = Functions.findItem(item.item);
+                    const xitem = cloneDeep(Functions.findItem(item.item));
                     if (!xitem || (str.includes(xitem.emoji) && str.includes(xitem.name))) continue;
                     if (xitem.id === "box") {
-                        xitem.price = 450000;
-                        item.price = 450000;
+                        xitem.price = boxPrice;
+                        item.price = boxPrice;
                     }
                     if (isNaN(xitem.price)) continue;
 
@@ -395,7 +397,7 @@ const slashCommand: SlashCommandFile = {
 
                     const price =
                         selectedItem.id === "box"
-                            ? 550000 * amount
+                            ? boxPrice * amount
                             : (selectedItem.price ?? 10000) * amount;
 
                     if (ctx.userData.coins < price) {

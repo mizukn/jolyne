@@ -42,6 +42,55 @@ const slashCommand: SlashCommandFile = {
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+        // refresh:
+
+        const startDate = Date.now();
+        let query;
+        switch (ctx.interaction.options.getSubcommand()) {
+            case "level":
+                query = `SELECT id, tag, level, xp
+                             FROM "RPGUsers"
+                             ORDER BY level DESC, xp DESC`;
+                break;
+            case "coins":
+                query = `SELECT id, tag, coins
+                             FROM "RPGUsers"
+                             ORDER BY coins DESC`;
+                break;
+            case "items": // most owned items
+                query = `SELECT inventory
+                             FROM "RPGUsers"`;
+                break;
+            case "daily":
+                query = `SELECT id, tag, daily
+                             FROM "RPGUsers"
+                             ORDER BY daily->>'claimStreak' DESC`;
+                break;
+            default:
+                query = `SELECT *
+                             FROM "RPGUsers"
+                             ORDER BY level DESC, xp DESC`;
+        }
+        const data = await ctx.client.database.postgresql
+            .query(query)
+            .then((res) => res.rows)
+            .catch((err) => {
+                console.error(err);
+                return [];
+            });
+        await ctx.client.database.setString(
+            `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`,
+            JSON.stringify({
+                lastUpdated: Date.now(),
+                data: data,
+            })
+        );
+        console.log(
+            `Leaderboard ${ctx.interaction.options.getSubcommand()} took ${
+                Date.now() - startDate
+            }ms to update`
+        );
+
         const lastLeaderboard = (JSON.parse(
             await ctx.client.database.getString(
                 `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`
@@ -213,6 +262,13 @@ const slashCommand: SlashCommandFile = {
 
             ctx.interaction.editReply({
                 embeds: [embed],
+                // if last updated is more than 6 hours, show a warning
+                content:
+                    lastLeaderboard.lastUpdated + 1000 * 60 * 60 * 6 < Date.now()
+                        ? `:warning: The leaderboard is outdated. Use ${ctx.client.getSlashCommandMention(
+                              `leaderboard ${ctx.interaction.options.getSubcommand()}`
+                          )} command to refresh it!`
+                        : "",
                 components: [
                     Functions.actionRow([
                         firstPageButton,
@@ -226,7 +282,15 @@ const slashCommand: SlashCommandFile = {
         }
 
         await ctx.interaction
-            .reply({ embeds: [embed] }) // eslint-disable-next-line @typescript-eslint/no-empty-function
+            .reply({
+                embeds: [embed],
+                content:
+                    lastLeaderboard.lastUpdated + 1000 * 60 * 60 * 6 < Date.now()
+                        ? `:warning: The leaderboard is outdated. Use ${ctx.client.getSlashCommandMention(
+                              `leaderboard ${ctx.interaction.options.getSubcommand()}`
+                          )} command to refresh it!`
+                        : "",
+            }) // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {})
             .then(() => {
                 if (ctx.interaction.options.getSubcommand() !== "items")
@@ -270,7 +334,9 @@ const slashCommand: SlashCommandFile = {
             updateMessage(currentPage);
         });
 
+        /*
         if (lastLeaderboard.lastUpdated + 1000 * 5 < Date.now()) {
+            const startDate = Date.now();
             let query;
             switch (ctx.interaction.options.getSubcommand()) {
                 case "level":
@@ -304,14 +370,19 @@ const slashCommand: SlashCommandFile = {
                     console.error(err);
                     return [];
                 });
-            ctx.client.database.setString(
+            await ctx.client.database.setString(
                 `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`,
                 JSON.stringify({
                     lastUpdated: Date.now(),
                     data: data,
                 })
             );
-        }
+            console.log(
+                `Leaderboard ${ctx.interaction.options.getSubcommand()} took ${
+                    Date.now() - startDate
+                }ms to update`
+            );
+        }*/
     },
 };
 

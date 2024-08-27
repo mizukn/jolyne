@@ -56,9 +56,10 @@ const slashCommand: SlashCommandFile = {
 
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         // return COMMAND disabled because too easy to win money
-        return void ctx.makeMessage({
+        /* return void ctx.makeMessage({
             content: `This command is disabled because it is too easy to win money. Please use the slot machine instead. This command may or may not be re-enabled in the future.`,
-        });
+        });*/
+        ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
         const bet = ctx.options.getInteger("bet", true);
         const oldMoney = cloneDeep(ctx.userData.coins);
 
