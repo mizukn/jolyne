@@ -444,7 +444,7 @@ export const Miku: RaidBoss = {
             },
         ],
     },
-    level: 300,
+    level: 50,
     maxLevel: Infinity,
     maxPlayers: 5,
     // 15 minutes

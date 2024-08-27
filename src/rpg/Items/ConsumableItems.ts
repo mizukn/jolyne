@@ -101,8 +101,8 @@ export const Meat: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 150,
-        stamina: 10,
+        health: 750,
+        stamina: 25,
     },
 };
 
@@ -130,7 +130,7 @@ export const Squid_Ink_Spaghetti: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 100,
+        health: 2500,
         stamina: 10,
     },
 };
@@ -221,7 +221,7 @@ export const Candy: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 10,
+        health: 50,
         stamina: 10,
     },
 };
@@ -236,7 +236,7 @@ export const Sandwich: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 20,
+        health: 125,
         stamina: 15,
     },
 };
@@ -251,7 +251,7 @@ export const Coconut: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 10,
+        health: 200,
         stamina: 10,
     },
 };
@@ -266,7 +266,7 @@ export const Burger: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 10,
+        health: 150,
         stamina: 15,
     },
 };
@@ -316,5 +316,19 @@ export const SpookyCandy: Consumable = {
     effects: {
         health: 1000000,
         stamina: 1000000,
+    },
+};
+
+export const HealthPotion: Consumable = {
+    id: "health_potion",
+    name: "Health Potion",
+    description: "A potion that restores health.",
+    emoji: Emojis.health_potion,
+    price: 50000,
+    rarity: "A",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: "100%",
     },
 };
