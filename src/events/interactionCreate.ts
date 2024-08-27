@@ -1,4 +1,10 @@
-import type { EventFile, RPGUserDataJSON, RPGUserQuest, UseXCommandQuest } from "../@types";
+import {
+    FightableNPC,
+    type EventFile,
+    type RPGUserDataJSON,
+    type RPGUserQuest,
+    type UseXCommandQuest,
+} from "../@types";
 import { Events, Interaction } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
@@ -487,7 +493,14 @@ const Event: EventFile = {
                 }
 
                 if (
-                    ctx.userData.daily.lastDailyQuestsReset !== new Date().setUTCHours(0, 0, 0, 0)
+                    ctx.userData.daily.lastDailyQuestsReset !==
+                        new Date().setUTCHours(0, 0, 0, 0) ||
+                    ctx.userData.daily.quests.find((r) =>
+                        Functions.isFightNPCQuest(r) && Functions.findNPC(r.npc)
+                            ? Functions.findNPC<FightableNPC>(r.npc, true).level >
+                              ctx.userData.level
+                            : false
+                    )
                 ) {
                     ctx.userData.daily.quests = Functions.generateDailyQuests(ctx.userData.level);
                     ctx.userData.daily.lastDailyQuestsReset = new Date().setUTCHours(0, 0, 0, 0);
