@@ -94,6 +94,14 @@ const rewards = [
         percent: 70,
     },
     {
+        id: "energy_drink",
+        percent: 45,
+    },
+    {
+        id: "health_potion",
+        percent: 70,
+    },
+    {
         id: "rare_stand_arrow",
         percent: 35,
     },

@@ -352,17 +352,11 @@ const slashCommand: SlashCommandFile = {
                     name: "Effects",
                     value: `${
                         itemData.effects.health
-                            ? `\`[+]\` Health: **${
-                                  itemData.effects.health +
-                                  (typeof itemData.effects.health === "string" ? "%" : "")
-                              }**\n`
+                            ? `\`[+]\` Health: **${itemData.effects.health}**\n`
                             : ""
                     }${
                         itemData.effects.stamina
-                            ? `\`[+]\` Stamina: **${
-                                  itemData.effects.health +
-                                  (typeof itemData.effects.health === "string" ? "%" : "")
-                              }**\n`
+                            ? `\`[+]\` Stamina: **${itemData.effects.health}**\n`
                             : ""
                     }`,
                 });
@@ -534,50 +528,8 @@ const slashCommand: SlashCommandFile = {
             const winContent = `You used ${itemData.emoji} x${amountX} \`${itemData.name}\` and got:`;
             const oldData = cloneDeep(ctx.userData);
 
-            // eslint-disable-next-line no-inner-declarations
-            function addHealthOrStamina(amount: numOrPerc, type: "health" | "stamina"): void {
-                const emoji = type === "health" ? ":heart:" : ":zap:";
-                const addX = type === "health" ? Functions.addHealth : Functions.addStamina;
-                const x =
-                    type === "health" ? () => ctx.userData.health : () => ctx.userData.stamina;
-                const oldX = x();
-
-                const maxX =
-                    type === "health"
-                        ? Functions.getMaxHealth(ctx.userData)
-                        : Functions.getMaxStamina(ctx.userData);
-
-                switch (typeof amount) {
-                    case "number":
-                        addX(ctx.userData, amount);
-                        break;
-                    case "string":
-                        // %
-                        addX(ctx.userData, Math.round((x() / maxX) * parseInt(amount)));
-                        break;
-                    // default: impossible
-                }
-            }
-
             if (Functions.isConsumable(itemData)) {
-                Functions.removeItem(ctx.userData, itemString, amountX);
-                for (let i = 0; i < amountX; i++) {
-                    if (itemData.effects.health !== undefined)
-                        addHealthOrStamina(itemData.effects.health, "health");
-                    if (itemData.effects.stamina !== undefined)
-                        addHealthOrStamina(itemData.effects.stamina, "stamina");
-
-                    if (itemData.effects.items) {
-                        const items = Object.keys(itemData.effects.items);
-
-                        for (const item of items) {
-                            const itemData2 = Functions.findItem(item);
-                            // if (!itemData2) impossible;
-
-                            Functions.addItem(ctx.userData, item, itemData.effects.items[item]);
-                        }
-                    }
-                }
+                Functions.useConsumableItem(itemData, ctx.userData, amountX);
             } else if (Functions.isSpecial(itemData)) {
                 const oldData = { ...ctx.userData } as RPGUserDataJSON;
                 await ctx.client.database.setCooldown(
@@ -621,8 +573,7 @@ const slashCommand: SlashCommandFile = {
 
             if (0 > amountX || amountX === 0 || amountX === Infinity) {
                 await ctx.makeMessage({
-                    content:
-                        "WARINING: What you just tried to do is to duplicate items. Nice try, a notification has been sent to the developers.",
+                    content: "WARINING: Stop trying to find glitches.",
                     ephemeral: true,
                 });
                 ctx.client.users.fetch("239739781238620160").then((user) => {
@@ -783,7 +734,9 @@ const slashCommand: SlashCommandFile = {
                 await ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Pucci,
-                        "bro, don't sell me trash items. wtf is that? you better throw that away."
+                        `bro, don't sell me trash items. wtf is that? you better ${ctx.client.getSlashCommandMention(
+                            "inventory throw"
+                        )} that away.`
                     ),
                 });
                 return;

@@ -583,12 +583,12 @@ const slashCommand: SlashCommandFile = {
 
             const embed: APIEmbed = {
                 title: `${enhancedBoss.emoji} ${enhancedBoss.name} RAID`,
-                description: `> \`Coins required:\` ${
+                description: `> \`Boss Level:\` ${enhancedBoss.level}\n> \`Coins required:\` ${
                     ctx.client.localEmojis.jocoins
                 } ${raidCost.toLocaleString("en-US")}\n> \`Min Level Requirement:\` ${
                     raid.level
                 }\n> \`Maximum Level Requirement:\` ${
-                    raid.maxLevel
+                    raid.maxLevel === Infinity ? "∞" : raid.maxLevel
                 }\n> \`Cooldown:\` ${Functions.msToString(
                     raid.cooldown
                 )}\n> \`Auto Starts\` ${Functions.generateDiscordTimestamp(startRaid, "FROM_NOW")}`,

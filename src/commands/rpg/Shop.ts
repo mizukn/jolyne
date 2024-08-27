@@ -412,60 +412,8 @@ const slashCommand: SlashCommandFile = {
                     Functions.addCoins(ctx.userData, -price);
                     const oldData = cloneDeep(ctx.userData);
                     if (!selectedItem.storable) {
-                        // eslint-disable-next-line no-inner-declarations
-                        function addHealthOrStamina(
-                            amount: numOrPerc,
-                            type: "health" | "stamina"
-                        ): void {
-                            const emoji = type === "health" ? ":heart:" : ":zap:";
-                            const addX =
-                                type === "health" ? Functions.addHealth : Functions.addStamina;
-                            const x =
-                                type === "health"
-                                    ? () => ctx.userData.health
-                                    : () => ctx.userData.stamina;
-                            const oldX = x();
-
-                            const maxX =
-                                type === "health"
-                                    ? Functions.getMaxHealth(ctx.userData)
-                                    : Functions.getMaxStamina(ctx.userData);
-
-                            switch (typeof amount) {
-                                case "number":
-                                    addX(ctx.userData, amount);
-                                    break;
-                                case "string":
-                                    // %
-                                    addX(ctx.userData, parseInt(amount) * 0.1 * maxX);
-                                    break;
-                                // default: impossible
-                            }
-                        }
-
                         if (Functions.isConsumable(selectedItem)) {
-                            if (selectedItem.effects.health !== undefined)
-                                for (let i = 0; i < amount; i++)
-                                    addHealthOrStamina(selectedItem.effects.health, "health");
-                            if (selectedItem.effects.stamina !== undefined)
-                                for (let i = 0; i < amount; i++)
-                                    addHealthOrStamina(selectedItem.effects.stamina, "stamina");
-
-                            if (selectedItem.effects.items) {
-                                const items = Object.keys(selectedItem.effects.items);
-
-                                for (let i = 0; i < amount; i++)
-                                    for (const item of items) {
-                                        const itemData2 = Functions.findItem(item);
-                                        // if (!itemData2) impossible;
-
-                                        Functions.addItem(
-                                            ctx.userData,
-                                            item,
-                                            selectedItem.effects.items[item]
-                                        );
-                                    }
-                            }
+                            Functions.useConsumableItem(selectedItem, ctx.userData, amount);
 
                             ctx.followUp({
                                 content: `${currentShop.emoji} x${amount} **${
