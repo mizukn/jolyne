@@ -1882,3 +1882,7 @@ export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amoun
             }
     }
 }
+
+export const isEvolutionStand = (stand: Stand | EvolutionStand): stand is EvolutionStand => {
+    return (stand as EvolutionStand).evolutions !== undefined;
+};
