@@ -11,8 +11,8 @@ export const Pizza: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 75,
-        stamina: 5,
+        health: "25%",
+        stamina: "25%",
     },
 };
 
@@ -26,7 +26,7 @@ export const Spaghetti_Bowl: Consumable = {
     tradable: false,
     storable: false,
     effects: {
-        health: 200,
+        health: 350,
         stamina: 15,
     },
 };
@@ -41,7 +41,7 @@ export const Slice_Of_Pizza: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: Math.round((Pizza.effects.health as number) / 8),
+        health: `${Math.floor(parseInt(Pizza.effects.health as string) / 8)}%`,
         stamina: 15,
     },
 };
@@ -56,7 +56,7 @@ export const Cola: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        stamina: 15,
+        stamina: "15%",
     },
 };
 
@@ -70,8 +70,8 @@ export const ToniosSpecialRecipe: Consumable = {
     tradable: true,
     storable: false,
     effects: {
-        health: 7000000000,
-        stamina: 250000000,
+        health: "100%",
+        stamina: "100%",
     },
 };
 
@@ -155,7 +155,7 @@ export const Shrimp_Fried_Rice: Consumable = {
     name: "Shrimp Fried Rice",
     description: "For the last time, Yes a shrimp did in fact fry this rice.",
     emoji: "🍚",
-    price: 1500,
+    price: 15000,
     rarity: "C",
     tradable: true,
     storable: true,
@@ -175,8 +175,8 @@ export const Bento_Box: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 100,
-        stamina: "10%",
+        health: "75%",
+        stamina: "65%",
     },
 };
 // end of zero's work
@@ -186,13 +186,13 @@ export const Salad_Bowl: Consumable = {
     name: "Salad Bowl",
     description: "A bowl of salad.",
     emoji: "🥗",
-    price: 500,
-    rarity: "C",
+    price: 50000,
+    rarity: "A",
     tradable: true,
     storable: true,
     effects: {
-        health: 50,
-        stamina: 25,
+        health: "75%",
+        stamina: "100%",
     },
 };
 
@@ -206,8 +206,8 @@ export const DeadRat: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: -99999999,
-        stamina: -99999999,
+        health: "-100%",
+        stamina: "-100%",
     },
 };
 
@@ -284,8 +284,8 @@ export const ChocolateBar: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 0,
-        stamina: 20,
+        health: 75,
+        stamina: 35,
     },
 };
 
@@ -299,8 +299,8 @@ export const CandyCane: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 1000000,
-        stamina: 1000000,
+        health: "100%",
+        stamina: "100%",
     },
 };
 
@@ -314,8 +314,8 @@ export const SpookyCandy: Consumable = {
     tradable: true,
     storable: true,
     effects: {
-        health: 1000000,
-        stamina: 1000000,
+        health: "100%",
+        stamina: "100%",
     },
 };
 
