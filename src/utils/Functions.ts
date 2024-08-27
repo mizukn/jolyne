@@ -27,6 +27,7 @@ import {
     Weapon,
     equipableItemTypes,
     RaidNPCQuest,
+    numOrPerc,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -589,7 +590,7 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
 
         if (percent <= 1) {
             staminaScaling = 0.5;
-        } else if (percent >= 100) {
+        } else if (percent >= 95) {
             staminaScaling = 1.1;
         } else {
             // Use some piecewise function or formula to map percent to staminaScaling
@@ -598,6 +599,8 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
             // This quadratic function will smoothly scale between 0.5 and 1.1 as percent goes from 1 to 100.
             staminaScaling = 0.5 + (percent / 100) ** 2 * 0.6;
         }
+
+        console.log(`Stamina scaling: ${staminaScaling} since stamina is ${user.stamina}`);
     }
 
     const damages = Math.round(
@@ -1835,4 +1838,47 @@ export async function hasDone4DungeonsToday(
     }
 
     return false;
+}
+
+export function addHealthOrStamina(
+    amount: numOrPerc,
+    type: "health" | "stamina",
+    data: RPGUserDataJSON
+): void {
+    const emoji = type === "health" ? ":heart:" : ":zap:";
+    const addX = type === "health" ? addHealth : addStamina;
+    const x = type === "health" ? () => data.health : () => data.stamina;
+    const oldX = x();
+
+    const maxX = type === "health" ? getMaxHealth(data) : getMaxStamina(data);
+
+    switch (typeof amount) {
+        case "number":
+            addX(data, amount);
+            break;
+        case "string": {
+            // %
+            const maxX = type === "health" ? getMaxHealth(data) : getMaxStamina(data);
+            const perc = parseInt(amount);
+            addX(data, (maxX / 100) * perc);
+            break;
+        }
+        // default: impossible
+    }
+}
+
+export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amount?: number): void {
+    if (!amount) amount = 1;
+    if (item.effects.health)
+        for (let i = 0; i < amount; i++) addHealthOrStamina(item.effects.health, "health", data);
+    if (item.effects.stamina)
+        for (let i = 0; i < amount; i++) addHealthOrStamina(item.effects.stamina, "stamina", data);
+    if (item.effects.items) {
+        const items = Object.keys(item.effects.items);
+
+        for (let i = 0; i < amount; i++)
+            for (const xitem of items) {
+                addItem(data, xitem, item.effects.items[xitem]);
+            }
+    }
 }
