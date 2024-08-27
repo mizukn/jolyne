@@ -233,9 +233,9 @@ for (const stand of [
                     : stand.rarity === "A"
                     ? 20
                     : stand.rarity === "S"
-                    ? 30
+                    ? 100
                     : stand.rarity === "SS"
-                    ? 40
+                    ? 200
                     : 30;
             const maxLevel = minLevel * 12;
             formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(
@@ -297,16 +297,16 @@ for (const stand of [
 
         if (!formattedStandUsers[ID]) {
             let minLevel =
-                stand.rarity === "C"
+                weapon.rarity === "C"
                     ? 1
-                    : stand.rarity === "B"
+                    : weapon.rarity === "B"
                     ? 10
-                    : stand.rarity === "A"
+                    : weapon.rarity === "A"
                     ? 20
-                    : stand.rarity === "S"
-                    ? 30
-                    : stand.rarity === "SS"
-                    ? 70
+                    : weapon.rarity === "S"
+                    ? 100
+                    : weapon.rarity === "SS"
+                    ? 200
                     : 30;
             if (weapon.abilities) minLevel *= 2;
             const maxLevel = minLevel * 12;
