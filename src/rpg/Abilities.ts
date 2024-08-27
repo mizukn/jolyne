@@ -2655,6 +2655,7 @@ export const Chop: Ability = {
     extraTurns: 0,
     dodgeScore: 8,
     target: "enemy",
+    thumbnail: "https://tenor.com/view/jojo-king-crimson-chop-bucciarati-kill-gif-19778774",
 };
 
 export const Impale: Ability = {
