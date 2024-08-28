@@ -275,6 +275,13 @@ export interface RPGUserDataJSON {
     standsEvolved: {
         [key: Stand["id"]]: number;
     };
+    // add a setting to set custom standsEvolved. if a user has evolved a stand, it will be stored to standsEvolved but if he wants to go back to the previous stand, he can do it with a command.
+    customStandsEvolved: {
+        [key: Stand["id"]]: {
+            active: boolean;
+            evolution: number;
+        };
+    };
     learnedItems: Item["id"][];
     /**
      * The unix timestamp of when the user started their adventure.
