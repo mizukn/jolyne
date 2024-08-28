@@ -530,6 +530,7 @@ const slashCommand: SlashCommandFile = {
 
             if (Functions.isConsumable(itemData)) {
                 Functions.useConsumableItem(itemData, ctx.userData, amountX);
+                Functions.removeItem(ctx.userData, itemString, amountX);
             } else if (Functions.isSpecial(itemData)) {
                 const oldData = { ...ctx.userData } as RPGUserDataJSON;
                 await ctx.client.database.setCooldown(
