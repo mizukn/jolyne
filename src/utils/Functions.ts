@@ -415,7 +415,10 @@ export const getSkillPointsBonus = (
     const skillPoints = { ...rpgData.skillPoints };
     const stand = isFighter(rpgData)
         ? rpgData.stand
+        : isRPGUserDataJSON(rpgData)
+        ? getCurrentStand(rpgData)
         : findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand]);
+
     if (stand) {
         for (const id of Object.keys(stand.skillPoints)) {
             skillPoints[id as keyof typeof skillPoints] +=
@@ -1885,4 +1888,14 @@ export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amoun
 
 export const isEvolutionStand = (stand: Stand | EvolutionStand): stand is EvolutionStand => {
     return (stand as EvolutionStand).evolutions !== undefined;
+};
+
+export const getCurrentStand = (data: RPGUserDataJSON): Stand => {
+    if (!data.stand) return;
+    const currentEvolution =
+        data.customStandsEvolved[data.stand] && data.customStandsEvolved[data.stand]?.active
+            ? data.customStandsEvolved[data.stand].evolution
+            : data.standsEvolved[data.stand];
+
+    return findStand(data.stand, currentEvolution);
 };
