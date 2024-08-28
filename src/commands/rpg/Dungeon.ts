@@ -95,11 +95,11 @@ const rewards = [
     },
     {
         id: "energy_drink",
-        percent: 45,
+        percent: 15,
     },
     {
         id: "health_potion",
-        percent: 70,
+        percent: 15,
     },
     {
         id: "rare_stand_arrow",
