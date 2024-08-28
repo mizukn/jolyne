@@ -351,7 +351,7 @@ export const OhMyGod: Ability = {
 };
 export const VineSlap: Ability = {
     name: "Vine Slap",
-    description: "Extends {{standName}}'s vines to whip twice in the opponent's direction.",
+    description: "Extends {standName}'s vines to whip twice in the opponent's direction.",
     cooldown: 4,
     damage: 15,
     stamina: 20,
@@ -363,7 +363,7 @@ export const VineSlap: Ability = {
 export const VineBarrage: Ability = {
     ...StandBarrage,
     name: "Vine Barrage",
-    description: "Extends {{standName}}'s vines to whip the opponent.",
+    description: "Extends {standName}'s vines to whip the opponent.",
     target: "enemy",
 };
 
@@ -534,6 +534,7 @@ export const EternalSleep: Ability = {
                         `- ${user.stand?.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 4 turns...`
                     );
                 } else {
+                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} ETERNAL SLEEP: **${x.name}** resisted.`
                     );
@@ -1000,6 +1001,7 @@ export const BerserkersRampage: Ability = {
                         }**.`
                     );
                 } else {
+                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} RAMPAGE: **${x.name}** dodged.`
                     );
@@ -1098,6 +1100,7 @@ export const GasolineBullets: Ability = {
                         }**.`
                     );
                 } else {
+                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} GASOLINE BULLETS: **${x.name}** dodged...`
                     );
@@ -1255,6 +1258,7 @@ export const MysteriousGas: Ability = {
                         `- ${user.stand?.emoji} MYSTERIOUS GAS: **${user.name}** has confused **${x.name}** for 3 turns...`
                     );
                 } else {
+                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} MYSTERIOUS GAS: **${x.name}** resisted.`
                     );
@@ -1559,6 +1563,7 @@ export const WristKnives: Ability = {
                             }**.`
                         );
                     } else {
+                        x.stats.dodges++;
                         ctx.turns[ctx.turns.length - 1].logs.push(
                             `- ${user.stand?.emoji} WRIST KNIVES: **${x.name}** dodged.`
                         );
@@ -1924,7 +1929,7 @@ const lifePunchPromise = (
 ) => {
     // removes 3% of the opponent's max health and stamina
 
-    ctx.nextTurnPromises.push({
+    ctx.nextRoundPromises.push({
         cooldown,
         executeOnlyOnce: false,
         promise: (fight) => {
@@ -1938,7 +1943,7 @@ const lifePunchPromise = (
 
             if (target.health <= 0) target.health = 0;
             if (target.stamina <= 0) target.stamina = 0;
-            target.totalDamageDealt += oldHealth - target.health;
+            user.totalDamageDealt += oldHealth - target.health;
 
             fight.turns[fight.turns.length - 1].logs.push(
                 `🩸🩸🩸 **${target.name}** lost **${healthLost}** health and **${staminaLost}** stamina`
@@ -1960,7 +1965,7 @@ export const LifePunch: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
-        lifePunchPromise(ctx, target, damage, user, 5, 0.03);
+        lifePunchPromise(ctx, target, damage, user, 3, 0.03);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
         user.totalDamageDealt += xdamage;
@@ -1981,7 +1986,7 @@ export const LifePunchGER: Ability = {
         "Punch that drains the target's stamina and health (by **5%** of their max stats) and effects that lasts for 3 turns",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
-        lifePunchPromise(ctx, target, damage, user, 5, 0.05);
+        lifePunchPromise(ctx, target, damage, user, 3, 0.05);
         target.health -= xdamage;
         if (target.health <= 0) target.health = 0;
         user.totalDamageDealt += xdamage;
@@ -2951,6 +2956,7 @@ export const MikuStun: Ability = {
                         `- ${user.weapon?.emoji} OOO EEE OOO: **${x.name}** has been stunned...`
                     );
                 } else {
+                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon?.emoji} OOO EEE OOO: **${x.name}** resisted.`
                     );
@@ -2999,6 +3005,7 @@ export const GravityPull: Ability = {
                 `- ${user.stand?.emoji} GRAVITY PULL: **${target.name}** has been pulled...`
             );
         } else {
+            target.stats.dodges++;
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `- ${user.stand?.emoji} GRAVITY PULL: **${target.name}** resisted.`
             );
