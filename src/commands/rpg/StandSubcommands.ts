@@ -57,6 +57,21 @@ const slashCommand: SlashCommandFile = {
                 description: "📜 List all the stands available in the RPG",
                 options: [],
             },
+            {
+                type: 1,
+                name: "set-evolution",
+                description:
+                    "If you previously evolved your stand, you can go back to the base stand at any time",
+                options: [
+                    {
+                        name: "evolution",
+                        description: "The evolution to set",
+                        type: 3,
+                        required: true,
+                        autocomplete: true,
+                    },
+                ],
+            },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -181,10 +196,7 @@ const slashCommand: SlashCommandFile = {
                           choice.split("\\")[0],
                           choice.includes("\\") ? parseInt(choice.split("\\")[1]) : null
                       )
-                    : Functions.findStand(
-                          ctx.userData.stand,
-                          ctx.userData.standsEvolved[ctx.userData.stand]
-                      );
+                    : Functions.getCurrentStand(ctx.userData);
                 if (!stand) {
                     ctx.sendTranslated("base:NO_STAND");
                     return;
@@ -195,10 +207,7 @@ const slashCommand: SlashCommandFile = {
                               choice.split("\\")[0],
                               choice.includes("\\") ? parseInt(choice.split("\\")[1]) : null
                           )
-                        : Functions.findStand(
-                              ctx.userData.stand,
-                              ctx.userData.standsEvolved[ctx.userData.stand]
-                          )
+                        : Functions.getCurrentStand(ctx.userData)
                 );
                 const file = new AttachmentBuilder(standCartBuffer, { name: "stand.png" });
 
@@ -263,10 +272,7 @@ const slashCommand: SlashCommandFile = {
                 break;
             }
             case "store": {
-                const stand = Functions.findStand(
-                    ctx.userData.stand,
-                    ctx.userData.standsEvolved[ctx.userData.stand]
-                );
+                const stand = Functions.getCurrentStand(ctx.userData);
                 if (!stand) {
                     ctx.sendTranslated("base:NO_STAND");
                     return;
@@ -348,10 +354,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.sendTranslated("base:NO_STAND");
                     return;
                 }
-                const stand = Functions.findStand(
-                    ctx.userData.stand,
-                    ctx.userData.standsEvolved[ctx.userData.stand]
-                );
+                const stand = Functions.getCurrentStand(ctx.userData);
                 const price = 1000;
 
                 await ctx.makeMessage({
@@ -398,6 +401,33 @@ const slashCommand: SlashCommandFile = {
                 });
                 break;
             }
+            case "set-evolution": {
+                const evolution = ctx.interaction.options.getString("evolution", true)
+                    ? parseInt(ctx.interaction.options.getString("evolution", true))
+                    : 0;
+
+                if (evolution > ctx.userData.standsEvolved[ctx.userData.stand] || evolution < 0) {
+                    ctx.makeMessage({
+                        content: `You can't set your stand to an evolution you haven't unlocked yet or that doesn't exist!`,
+                    });
+                    return;
+                }
+                if (evolution === ctx.userData.standsEvolved[ctx.userData.stand]) {
+                    ctx.userData.customStandsEvolved[ctx.userData.stand].active = false;
+                } else {
+                    ctx.userData.customStandsEvolved[ctx.userData.stand] = {
+                        active: true,
+                        evolution: evolution,
+                    };
+                }
+                const currentStand = Functions.getCurrentStand(ctx.userData);
+                ctx.client.database.saveUserData(ctx.userData);
+
+                ctx.makeMessage({
+                    content: `${currentStand.emoji} | You have successfully set your stand to **${currentStand.name}**!`,
+                });
+                break;
+            }
         }
 
         function sendStandPage(stand: Stand, userData: RPGUserDataJSON): Promise<Message<boolean>> {
@@ -430,7 +460,7 @@ const slashCommand: SlashCommandFile = {
                             : ability.dodgeScore
                     }
                             
-*${ability.description}*
+*${ability.description.replace(/{standName}/gi, stand.name)}*
 ${ability.special ? "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" : "▬▬▬▬▬▬▬▬▬"}`,
                 });
             }
@@ -467,27 +497,46 @@ ${Object.keys(stand.skillPoints)
             value: string;
         }[] = [];
 
-        const totalStands: Stand[] = Object.values(Stands);
-        for (const stand of Object.values(EvolvableStands)) {
-            const baseStand = stand.evolutions[0];
-            const rest = stand.evolutions.slice(1);
+        if (interaction.options.getSubcommand() === "set-evolution") {
+            const loop = userData.standsEvolved[userData.stand]
+                ? userData.standsEvolved[userData.stand]
+                : 0;
+            if (loop !== 0)
+                for (let i = 0; i <= loop; i++) {
+                    console.log(i);
+                    const stand = Functions.findStand(userData.stand, i);
+                    if (!stand) continue;
+                    if (stand.name.toLowerCase().includes(currentInput.toLowerCase())) {
+                        toRespond.push({
+                            name: stand.name,
+                            value: String(i),
+                        });
+                    }
+                }
+        } else {
+            const totalStands: Stand[] = Object.values(Stands);
+            for (const stand of Object.values(EvolvableStands)) {
+                const baseStand = stand.evolutions[0];
+                const rest = stand.evolutions.slice(1);
 
-            totalStands.push({ ...baseStand, id: stand.id });
+                totalStands.push({ ...baseStand, id: stand.id });
 
-            for (let i = 0; i < rest.length; i++) {
-                const evolution = rest[i];
-                totalStands.push({ ...evolution, id: stand.id + `\\${i + 1}` });
+                for (let i = 0; i < rest.length; i++) {
+                    const evolution = rest[i];
+                    totalStands.push({ ...evolution, id: stand.id + `\\${i + 1}` });
+                }
+            }
+
+            for (const stand of totalStands) {
+                if (stand.name.toLowerCase().includes(currentInput.toLowerCase())) {
+                    toRespond.push({
+                        name: stand.name,
+                        value: stand.id,
+                    });
+                }
             }
         }
 
-        for (const stand of totalStands) {
-            if (stand.name.toLowerCase().includes(currentInput.toLowerCase())) {
-                toRespond.push({
-                    name: stand.name,
-                    value: stand.id,
-                });
-            }
-        }
         toRespond.length = Math.min(toRespond.length, 25);
 
         interaction.respond(toRespond);
