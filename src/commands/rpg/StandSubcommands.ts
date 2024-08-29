@@ -406,7 +406,7 @@ const slashCommand: SlashCommandFile = {
                     ? parseInt(ctx.interaction.options.getString("evolution", true))
                     : 0;
 
-                if (evolution > ctx.userData.standsEvolved[ctx.userData.stand] || evolution < 0) {
+                if (evolution > (ctx.userData.standsEvolved[ctx.userData.stand] ??0) || evolution < 0) {
                     ctx.makeMessage({
                         content: `You can't set your stand to an evolution you haven't unlocked yet or that doesn't exist!`,
                     });
