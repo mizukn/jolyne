@@ -405,10 +405,41 @@ const slashCommand: SlashCommandFile = {
                 const evolution = ctx.interaction.options.getString("evolution", true)
                     ? parseInt(ctx.interaction.options.getString("evolution", true))
                     : 0;
-
-                if (evolution > (ctx.userData.standsEvolved[ctx.userData.stand] ??0) || evolution < 0) {
+                const stand = Object.values(EvolvableStands).find(
+                    (v) => v.id === ctx.userData.stand
+                );
+                if (!stand) {
                     ctx.makeMessage({
-                        content: `You can't set your stand to an evolution you haven't unlocked yet or that doesn't exist!`,
+                        content: `:interrobang: Your stand isn't even evolvable...\n\nThe only stands that can be evolved are the following:\n${Object.values(
+                            EvolvableStands
+                        )
+                            .map(
+                                (v, i) =>
+                                    `${i + 1}. ${v.evolutions[0].emoji} **${v.evolutions[0].name}**`
+                            )
+                            .join("\n")}`,
+                    });
+                    return;
+                }
+                if (stand.evolutions.length < evolution) {
+                    ctx.makeMessage({
+                        content: Functions.makeNPCString(
+                            NPCs.Pucci,
+                            `You can't set your stand to an evolution that doesn't exist!`
+                        ),
+                    });
+                    return;
+                }
+
+                if (
+                    evolution > (ctx.userData.standsEvolved[ctx.userData.stand] ?? 0) ||
+                    evolution < 0
+                ) {
+                    ctx.makeMessage({
+                        content: Functions.makeNPCString(
+                            NPCs.Pucci,
+                            `You can't set your stand to an evolution you haven't unlocked yet!`
+                        ),
                     });
                     return;
                 }

@@ -135,10 +135,11 @@ const slashCommand: SlashCommandFile = {
     },
     checkRPGCooldown: "dungeon",
     execute: async (
-        ctx: CommandInteractionContext
+        ctx: CommandInteractionContext,
+        stage?: number
     ): Promise<Message<boolean> | void | InteractionResponse> => {
         const dungeonDoneToday = await ctx.client.database.getString(
-            `dungeonDone:${ctx.user.id}:${Functions.getTodayString()}`
+            `dungeonDone:${ctx.userData.id}:${Functions.getTodayString()}`
         );
         const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
         const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
@@ -159,7 +160,7 @@ const slashCommand: SlashCommandFile = {
                 components: [],
             });
         }
-        if (await ctx.client.database.getString(`tempCache_${ctx.user.id}:dungeon`)) {
+        if (await ctx.client.database.getString(`tempCache_${ctx.userData.id}:dungeon`)) {
             /*ctx.client.users.fetch("239739781238620160").then((c) => {
                 c.send(
                     `**${ctx.userData.tag}** (${
@@ -364,7 +365,13 @@ const slashCommand: SlashCommandFile = {
                     components: [],
                 });
 
-                const dungeon = new DungeonHandler(ctx, totalPlayers, message, selectedModifiers);
+                const dungeon = new DungeonHandler(
+                    ctx,
+                    totalPlayers,
+                    message,
+                    selectedModifiers,
+                    stage
+                );
                 for (const player of totalPlayers) {
                     await ctx.client.database.setString(`tempCache_${player.id}:dungeon`, "true");
                 }
