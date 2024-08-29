@@ -137,7 +137,7 @@ export const Whitesnake: EvolutionStand = {
         {
             name: "C-Moon",
             description:
-                "C-Moon is the Stand of [Enrico Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci), featured in Stone Ocean. It is a close-range Stand that has the ability to manipulate gravity.\n\nPASSIVE: C-Moon's punches has an effect that changes every turn.",
+                "C-Moon is the Stand of [Enrico Pucci](https://jojo.fandom.com/wiki/Enrico_Pucci), featured in Stone Ocean. It is a close-range Stand that has the ability to manipulate gravity.\n\n> `PASSIVE:` C-Moon's punches has an effect that changes every turn.",
             rarity: "SS",
             abilities: [
                 Abilities.StandBarrage,
