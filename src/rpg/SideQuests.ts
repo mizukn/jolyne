@@ -452,7 +452,7 @@ export const CMoon: SideQuest = {
 
         if (NPCs.length < 6) {
             NPCs = Object.values(FightableNPCs)
-                .filter((npc) => !npc.private)
+                .filter((npc) => !npc.private && npc.level <= ctx.userData.level)
                 .sort((a, b) => b.level - a.level);
         }
 
@@ -472,6 +472,7 @@ export const CMoon: SideQuest = {
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,
+    canReloadQuests: true,
     // purple
     color: 0x800080,
 };
