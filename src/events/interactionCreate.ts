@@ -250,6 +250,9 @@ const Event: EventFile = {
                         )} command to read them.`,
                     });
                 }
+                ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
+                    (x) => x && x.quests?.length > 0
+                );
 
                 for (const sideQuest of ctx.userData.sideQuests) {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
@@ -316,12 +319,17 @@ const Event: EventFile = {
                                 ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)?.quests
                                     .length === 0)
                         ) {
-                            ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
-                                (r) => r.id !== SideQuest.id
-                            );
-                            ctx.followUpQueue.push({
-                                content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.`,
-                            });
+                            if (
+                                !ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)
+                                    .claimedPrize
+                            ) {
+                                ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
+                                    (r) => r.id !== SideQuest.id
+                                );
+                                ctx.followUpQueue.push({
+                                    content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.`,
+                                });
+                            }
                         }
                     }
                 }
