@@ -448,9 +448,8 @@ for (const NPC of Object.values(FightableNPCs)) {
         }
     }
     if (!NPC.rewards) NPC.rewards = {};
-    if (NPC.rewards.xp === undefined || NPC.rewards.coins === undefined) {
-        // shouldn't do if ! at the beginning because it's a number and if it's 0, it will be false
-        /*NPC.rewards.xp = 50;
+    // shouldn't do if ! at the beginning because it's a number and if it's 0, it will be false
+    /*NPC.rewards.xp = 50;
         NPC.rewards.coins = 50;
         NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 5000;
         NPC.rewards.coins += Functions.getMaxXp(NPC.level) / 5000;
@@ -470,7 +469,7 @@ for (const NPC of Object.values(FightableNPCs)) {
         if (NPC.level > 5) {
             NPC.rewards.xp = Math.round(NPC.rewards.xp / 1.3);
         }*/
-        /**
+    /**
         * 5000 +
 level * 1000 + 
 maxXp(level) * 0.05
@@ -489,36 +488,35 @@ A weapon=1.25
 B weapon=1.15
 C weapon=1
         */
-        const baseXp = 5000 + NPC.level * 750 + Functions.getMaxXp(NPC.level) * 0.005;
-        let multiplier = 1;
-        if (Functions.findStand(NPC.stand)) {
-            multiplier = Multiplier[Functions.findStand(NPC.stand).rarity];
-        }
-        // weapons are stored on equippedItems.X = 6
-        for (const type of Object.values(NPC.equippedItems)) {
-            if (type === 6) {
-                const weapon = Functions.findItem(
-                    Object.keys(NPC.equippedItems).find((x) => NPC.equippedItems[x] === 6)
-                ) as Weapon;
+    const baseXp = 5000 + NPC.level * 750 + Functions.getMaxXp(NPC.level) * 0.005;
+    let multiplier = 1;
+    if (Functions.findStand(NPC.stand)) {
+        multiplier = Multiplier[Functions.findStand(NPC.stand).rarity];
+    }
+    // weapons are stored on equippedItems.X = 6
+    for (const type of Object.values(NPC.equippedItems)) {
+        if (type === 6) {
+            const weapon = Functions.findItem(
+                Object.keys(NPC.equippedItems).find((x) => NPC.equippedItems[x] === 6)
+            ) as Weapon;
 
-                if (weapon) {
-                    multiplier *= Multiplier[weapon.rarity];
-                }
+            if (weapon) {
+                multiplier *= Multiplier[weapon.rarity];
             }
         }
-
-        NPC.rewards.xp = Math.round(baseXp * multiplier);
-        /**
-         * Coins formula:
-         * 1000 +
-         * level * 0.25 +
-         * maxXp(level) * 0.0005
-         */
-        const baseCoins = 1000 + NPC.level * 0.25 + Functions.getMaxXp(NPC.level) * 0.0005;
-        NPC.rewards.coins = Math.round(baseCoins * multiplier);
-
-        console.log(`Level: ${NPC.level} xp: ${NPC.rewards.xp} coins: ${NPC.rewards.coins}`);
     }
+
+    NPC.rewards.xp = Math.round(baseXp * multiplier);
+    /**
+     * Coins formula:
+     * 1000 +
+     * level * 0.25 +
+     * maxXp(level) * 0.0005
+     */
+    const baseCoins = 1000 + NPC.level * 0.25 + Functions.getMaxXp(NPC.level) * 0.0005;
+    NPC.rewards.coins = Math.round(baseCoins * multiplier);
+
+    console.log(`Level: ${NPC.level} xp: ${NPC.rewards.xp} coins: ${NPC.rewards.coins}`);
 }
 
 process.on("SIGINT", () => {
