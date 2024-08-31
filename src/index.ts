@@ -206,6 +206,48 @@ for (const stand of [
     Items.default[standDisc.id] = standDisc;
 }
 
+/*
+for (const item of Object.values(Items.default)) {
+    if (item.craft) {
+        const itemScroll: Special = {
+            id: item.id + ".$scroll$",
+            name: item.name + " Scroll",
+            description:
+                "A scroll that contains the recipe for " +
+                item.name +
+                ". Using it will use up the scroll.",
+            rarity: item.rarity,
+            price: item.price * 10,
+            tradable: true,
+            storable: true,
+            emoji: "📜",
+            use: async (ctx) => {
+                if (ctx.userData.learnedItems.includes(item.id)) {
+                    ctx.makeMessage({
+                        content: item.emoji + " | You have already learned this recipe!"
+                    });
+                    return false;
+                }
+                ctx.userData.learnedItems.push(item.id);
+                Functions.removeItem(ctx.userData, itemScroll.id, 1);
+                ctx.makeMessage({
+                    content:
+                        item.emoji +
+                        " | You have successfully learned the recipe for " +
+                        item.name +
+                        "!"
+                });
+            }
+        };
+        // @ts-expect-error because it's a dynamic property
+        Items.default[itemScroll.id] = itemScroll;
+    }
+}
+*/
+/**
+ * Temp code ends here
+ */
+
 for (const stand of [
     ...Object.values(Stands.Stands),
     ...Object.values(Stands.EvolutionStands)
@@ -274,8 +316,7 @@ for (const stand of [
               .evolutions.findIndex((x) => x.name === stand.name)
         : 0;
 
-    // @ts-expect-error because it's a dynamic property
-    FightableNPCs[`${stand.name.replace(" ", "")}User`] = {
+    const npcData = {
         // @ts-expect-error it exists
         ...NPCs[`${stand.name.replace(" ", "")}User`],
         level: formattedStandUsers[`${stand.name.replace(" ", "")}User`], // Functions.randomNumber(1, 50),
@@ -292,8 +333,13 @@ for (const stand of [
         standsEvolved: {
             [stand.id]: evolution,
         },
-        rewards,
+        rewards: {
+            items: rewards.items,
+        },
     };
+    Functions.generateSkillPoints(npcData);
+    // @ts-expect-error because it's a dynamic property
+    FightableNPCs[`${stand.name.replace(" ", "")}User`] = npcData;
 
     for (const weapon of weapons) {
         // creating NPCs with stand and with a custom weapon
@@ -333,8 +379,7 @@ for (const stand of [
             const maxLevel = minLevel * 12;
             formattedStandUsers[ID] = Functions.randomNumber(minLevel, maxLevel);
         }
-        // @ts-expect-error because it's a dynamic property
-        FightableNPCs[ID] = {
+        const npcData: FightableNPC = {
             // @ts-expect-error it exists
             ...NPCs[ID],
             level: formattedStandUsers[ID], // Functions.randomNumber(1, 50),
@@ -353,51 +398,15 @@ for (const stand of [
                 [stand.id]: evolution,
             },
             private: stand.adminOnly ? true : false,
-            rewards,
+            rewards: {
+                items: rewards.items,
+            },
         };
-    }
-}
-/*
-for (const item of Object.values(Items.default)) {
-    if (item.craft) {
-        const itemScroll: Special = {
-            id: item.id + ".$scroll$",
-            name: item.name + " Scroll",
-            description:
-                "A scroll that contains the recipe for " +
-                item.name +
-                ". Using it will use up the scroll.",
-            rarity: item.rarity,
-            price: item.price * 10,
-            tradable: true,
-            storable: true,
-            emoji: "📜",
-            use: async (ctx) => {
-                if (ctx.userData.learnedItems.includes(item.id)) {
-                    ctx.makeMessage({
-                        content: item.emoji + " | You have already learned this recipe!"
-                    });
-                    return false;
-                }
-                ctx.userData.learnedItems.push(item.id);
-                Functions.removeItem(ctx.userData, itemScroll.id, 1);
-                ctx.makeMessage({
-                    content:
-                        item.emoji +
-                        " | You have successfully learned the recipe for " +
-                        item.name +
-                        "!"
-                });
-            }
-        };
+        Functions.generateSkillPoints(npcData);
         // @ts-expect-error because it's a dynamic property
-        Items.default[itemScroll.id] = itemScroll;
+        FightableNPCs[ID] = npcData;
     }
 }
-*/
-/**
- * Temp code ends here
- */
 
 const intents = [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers];
 const partials = [];
@@ -441,82 +450,12 @@ for (const NPC of Object.values(FightableNPCs)) {
         // check if it is not 0 skill point on everything
         if (!Object.values(NPC.skillPoints).every((x) => x === 0)) {
             Functions.generateSkillPoints(NPC);
-            client.log(`NPC ${NPC.name} has unbalanced skill points. New skill points:`, "warn");
-            console.log(NPC.skillPoints);
         } else {
             Functions.generateSkillPoints(NPC);
         }
     }
     if (!NPC.rewards) NPC.rewards = {};
-    // shouldn't do if ! at the beginning because it's a number and if it's 0, it will be false
-    /*NPC.rewards.xp = 50;
-        NPC.rewards.coins = 50;
-        NPC.rewards.xp += Functions.getMaxXp(NPC.level) / 5000;
-        NPC.rewards.coins += Functions.getMaxXp(NPC.level) / 5000;
-
-        NPC.rewards.xp += NPC.level * 255;
-        NPC.rewards.coins += NPC.level * 0.65;
-
-        if (Functions.findStand(NPC.stand)) {
-            NPC.rewards.xp += standPrices[Functions.findStand(NPC.stand).rarity] / 115;
-            NPC.rewards.coins += standPrices[Functions.findStand(NPC.stand).rarity] / 1000;
-        }
-
-        NPC.rewards.xp = Math.round(NPC.rewards.xp) * 4;
-        NPC.rewards.coins = Math.round(NPC.rewards.coins) * 15;
-        if (NPC.level < 4) NPC.rewards.xp = 2500;
-
-        if (NPC.level > 5) {
-            NPC.rewards.xp = Math.round(NPC.rewards.xp / 1.3);
-        }*/
-    /**
-        * 5000 +
-level * 1000 + 
-maxXp(level) * 0.05
-----------
-multiplier:
-SS stand= 1.75
-S stand=1.50
-A stand=1.25
-B stand=1.15
-C stand=1
-----------
-multiplier (extra):
-SS weapon= 1.75
-S weapon=1.50
-A weapon=1.25
-B weapon=1.15
-C weapon=1
-        */
-    const baseXp = 5000 + NPC.level * 750 + Functions.getMaxXp(NPC.level) * 0.005;
-    let multiplier = 1;
-    if (Functions.findStand(NPC.stand)) {
-        multiplier = Multiplier[Functions.findStand(NPC.stand).rarity];
-    }
-    // weapons are stored on equippedItems.X = 6
-    for (const type of Object.values(NPC.equippedItems)) {
-        if (type === 6) {
-            const weapon = Functions.findItem(
-                Object.keys(NPC.equippedItems).find((x) => NPC.equippedItems[x] === 6)
-            ) as Weapon;
-
-            if (weapon) {
-                multiplier *= Multiplier[weapon.rarity];
-            }
-        }
-    }
-
-    NPC.rewards.xp = Math.round(baseXp * multiplier);
-    /**
-     * Coins formula:
-     * 1000 +
-     * level * 0.25 +
-     * maxXp(level) * 0.0005
-     */
-    const baseCoins = 1000 + NPC.level * 0.25 + Functions.getMaxXp(NPC.level) * 0.0005;
-    NPC.rewards.coins = Math.round(baseCoins * multiplier);
-
-    console.log(`Level: ${NPC.level} xp: ${NPC.rewards.xp} coins: ${NPC.rewards.coins}`);
+    Functions.fixNpcRewards(NPC);
 }
 
 process.on("SIGINT", () => {
