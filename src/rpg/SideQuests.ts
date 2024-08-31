@@ -440,8 +440,8 @@ export const CMoon: SideQuest = {
         let NPCs = Object.values(FightableNPCs)
             .filter(
                 (npc) =>
-                    npc.level > ctx.userData.level * 1.1 &&
-                    npc.level < ctx.userData.level * 1.25 &&
+                    npc.level > ctx.userData.level * 1.05 &&
+                    npc.level < ctx.userData.level * 1.2 &&
                     Object.values(npc.equippedItems).find((x) => x == 6) &&
                     (Functions.findStand(npc.stand, npc.standsEvolved[npc.stand])?.rarity === "S" ||
                         Functions.findStand(npc.stand, npc.standsEvolved[npc.stand])?.rarity ===
