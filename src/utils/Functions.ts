@@ -1299,7 +1299,14 @@ export const fixFields = function fixFields(
 ): { name: string; value: string; inline?: boolean }[] {
     for (const field of fields) {
         if (field.value.length > 1024) {
-            field.value = field.value.substring(field.value.length - 1024, field.value.length);
+            const content: string[] = [];
+            // until the next line exceeds 1024 characters, push the line to the content array
+            for (const line of field.value.split("\n").reverse()) {
+                if (content.join("\n").length + line.length > 1024) break;
+                content.push(line);
+            }
+
+            field.value = content.reverse().join("\n").substring(0, 1024);
         }
     }
 
@@ -1498,6 +1505,7 @@ export function splitEmbedIfExceedsLimit(embed: APIEmbed): APIEmbed[] {
     const embeds: APIEmbed[] = [];
     const MAX_EMBED_SIZE = 5000;
     const EMBED_HEADER_SIZE = 24; // Approximate size of the JSON header
+    const color = embed.color;
 
     let currentEmbed: APIEmbed = {};
     let currentLength = EMBED_HEADER_SIZE;
@@ -1508,7 +1516,9 @@ export function splitEmbedIfExceedsLimit(embed: APIEmbed): APIEmbed[] {
             for (const embed of splitEmbedIfExceedsLimit(currentEmbed)) {
                 embeds.push(embed);
             }
-        currentEmbed = {} as APIEmbed;
+        currentEmbed = {
+            color,
+        } as APIEmbed;
         currentLength = EMBED_HEADER_SIZE;
     }
 
