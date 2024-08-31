@@ -22,6 +22,7 @@ import { FightableNPCS } from "../../rpg/NPCs";
 import * as QuestsL from "../../rpg/Quests/Quests";
 import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
 import * as Raids from "../../rpg/Raids";
+import { capitalize } from "lodash";
 
 const raids = Object.values(Raids);
 
@@ -371,7 +372,7 @@ export const getQuestsStats = (
             let messageString = `Start ${
                 (quest as StartDungeonQuest).total
             } ${ctx.client.getSlashCommandMention("dungeon")}${
-                (quest as StartDungeonQuest).total > 1 ? "s" : ""
+                (quest as StartDungeonQuest).total > 1 ? "'s" : ""
             } `;
             if (!(quest as StartDungeonQuest).completed) {
                 (quest as StartDungeonQuest).completed = 0;
@@ -384,12 +385,24 @@ export const getQuestsStats = (
                 } else {
                     messageString += `with the following modifiers: ${(
                         (quest as StartDungeonQuest)["modifiers"] as possibleModifiers[]
-                    ).join(", ")} `;
+                    )
+                        .map(
+                            (x) =>
+                                "`" +
+                                x
+                                    .split("_")
+                                    .map((x) => capitalize(x))
+                                    .join(" ") +
+                                "`"
+                        )
+                        .join(", ")} `;
                 }
             }
 
             if ((quest as StartDungeonQuest).stage) {
-                messageString += `and reach ${(quest as StartDungeonQuest).stage} stages `;
+                messageString += `and reach Wave **#${
+                    ((quest as StartDungeonQuest).stage % 6) + 1
+                }** Room **#${Math.floor((quest as StartDungeonQuest).stage / 6 + 1)}** `;
             }
 
             const questPercent =

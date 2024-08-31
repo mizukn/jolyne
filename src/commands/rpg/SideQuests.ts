@@ -53,7 +53,8 @@ const slashCommand: SlashCommandFile = {
         ],
     },
     execute: async (
-        ctx: CommandInteractionContext
+        ctx: CommandInteractionContext,
+        reloaded?: boolean
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
         const sideQuest = ctx.options.getString("side_quest", true);
         if (!ctx.userData.sideQuests.find((x) => x.id === sideQuest)) {
@@ -90,10 +91,14 @@ const slashCommand: SlashCommandFile = {
             .setCustomId(reloadQuestsButtonID)
             .setLabel("Reload Quests")
             .setEmoji("🔁")
+            .setDisabled(reloaded ? true : false)
             .setStyle(ButtonStyle.Primary);
 
         if (status.percent >= 100) {
-            if (ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize)
+            if (
+                ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize &&
+                sideQuestsArr.find((r) => r.id === sideQuest).canRedoSideQuest
+            )
                 components.push(redoQuestButton);
             else components.push(rewardsButton);
         }
@@ -145,6 +150,7 @@ const slashCommand: SlashCommandFile = {
             ],
             components: components.length === 0 ? [] : [Functions.actionRow(components)],
         });
+        console.log(status.message);
 
         if (components.length !== 0) {
             const collector = ctx.channel.createMessageComponentCollector({
@@ -155,6 +161,7 @@ const slashCommand: SlashCommandFile = {
                 time: 60000,
             });
             collector.on("collect", async (i) => {
+                i.deferUpdate().catch(() => {});
                 switch (i.customId) {
                     case rewardsButtonID: {
                         const status = SideQuest.rewards ? SideQuest.rewards(ctx) : true;
@@ -191,9 +198,10 @@ const slashCommand: SlashCommandFile = {
                             false;
                         ctx.client.database.saveUserData(ctx.userData);
                         collector.stop();
-                        ctx.followUp({
+                        /*ctx.followUp({
                             content: `You've reloaded the quests! Use this command again to see your progress.`,
-                        });
+                        });*/
+                        ctx.client.commands.get("side")?.execute(ctx, true);
                         break;
                     }
                 }

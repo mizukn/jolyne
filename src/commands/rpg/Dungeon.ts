@@ -552,6 +552,9 @@ const slashCommand: SlashCommandFile = {
 
                                 if (accepted) {
                                     realQuest.completed++;
+                                    ctx.followUp({
+                                        content: `:white_check_mark: <@${player.id}> Your DungeonQUEST has been completed (\`${realQuest.id}\`)`,
+                                    });
                                 }
                             }
                         }
