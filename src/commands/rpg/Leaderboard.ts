@@ -327,7 +327,7 @@ const slashCommand: SlashCommandFile = {
                     currentPage = totalPages;
                     break;
                 case "userPage":
-                    currentPage = Math.ceil(userPos !== "N/A" ? userPos : 1 / 10);
+                    currentPage = Math.ceil(userPos !== "N/A" ? userPos / 10 : 1 / 10);
                     break;
             }
 
