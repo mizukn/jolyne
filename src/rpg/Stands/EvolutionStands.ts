@@ -149,13 +149,13 @@ export const Whitesnake: EvolutionStand = {
             image: "https://media.jolyne.moe/I7j4cq/direct",
             // green color hex code
             color: 0x5dd389,
-            emoji: "<:CMoon:983353299342360616>",
+            emoji: Emojis.cmoon,
             skillPoints: {
-                strength: 15,
-                perception: 15,
-                speed: 15,
-                defense: 15,
-                stamina: 15,
+                strength: 10,
+                perception: 10,
+                speed: 10,
+                defense: 10,
+                stamina: 10,
             },
             available: true,
             customAttack: {

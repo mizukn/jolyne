@@ -410,3 +410,68 @@ export const TwoYearAnniversaryEvent: SideQuest = {
     // red
     color: 0xff0000,
 };
+
+export const CMoon: SideQuest = {
+    id: "CMoon",
+    title: "C-Moon",
+    description: "You're now worthy of evolving your stand, Whitesnake.",
+    emoji: Emojis.cmoon,
+    rewards: async (ctx) => {
+        Functions.addItem(ctx.userData, Functions.findItem("green_baby"), 1);
+        ctx.followUp({
+            content: `You've been given a green baby, ${ctx.client.getSlashCommandMention(
+                "inventory use"
+            )} the item to awaken your stand. However, it's not over ; perhaps there is more potential? (${
+                ctx.client.localEmojis.mih
+            })`,
+        });
+        return true;
+    },
+    requirementsMessage: "- You need to have **Whitesnake** to do this quest and be level **100**",
+    quests: (ctx) => {
+        const baseQuests: QuestArray = [
+            Functions.generateUseXCommandQuest("assault", 36),
+            Functions.generataRaidQuest(Raids.Jotaro.boss),
+            Functions.generataRaidQuest(Raids.Dio.boss),
+            Functions.generataRaidQuest(Raids.Jolyne.boss),
+            Functions.generateStartDungeonQuest(5, 10, ["the_elite"]),
+        ];
+        // get enemies that are +10% of the user's level
+        let NPCs = Object.values(FightableNPCs)
+            .filter(
+                (npc) =>
+                    npc.level > ctx.userData.level * 1.1 &&
+                    npc.level < ctx.userData.level * 1.25 &&
+                    Object.values(npc.equippedItems).find((x) => x == 6) &&
+                    (Functions.findStand(npc.stand, npc.standsEvolved[npc.stand])?.rarity === "S" ||
+                        Functions.findStand(npc.stand, npc.standsEvolved[npc.stand])?.rarity ===
+                            "SS") &&
+                    !npc.private
+            )
+            .sort((a, b) => a.level - b.level);
+
+        if (NPCs.length < 6) {
+            NPCs = Object.values(FightableNPCs)
+                .filter((npc) => !npc.private)
+                .sort((a, b) => b.level - a.level);
+        }
+
+        for (let i = 0; i < 6; i++)
+            for (let j = 0; j < 6; j++) baseQuests.push(Functions.generateFightQuest(NPCs[i]));
+
+        return baseQuests;
+    },
+    requirements: (ctx) => {
+        if (ctx.userData.standsEvolved["whitesnake"]) return false;
+
+        if (ctx.userData.stand === "whitesnake") {
+            if (ctx.userData.level > 100) {
+                return true;
+            }
+        }
+    },
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    canRedoSideQuest: false,
+    // purple
+    color: 0x800080,
+};

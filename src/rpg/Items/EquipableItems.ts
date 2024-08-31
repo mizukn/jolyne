@@ -595,3 +595,28 @@ export const MikusHedset: EquipableItem = {
         level: 50,
     },
 };
+
+export const StoneFreeGlasses: EquipableItem = {
+    id: "stone_free_glasses",
+    name: "Stone Free Glasses",
+    emoji: Emojis.stone_free_glasses,
+    description: "Glasses that belonged to Jolyne Cujoh's stand.",
+    type: equipableItemTypes.FACE,
+    effects: {
+        skillPoints: {
+            defense: 15,
+            perception: 15,
+            strength: 0,
+            speed: 0,
+            stamina: 0,
+        },
+        health: "3%",
+        xpBoost: 0.1,
+    },
+    rarity: "S",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 25,
+    },
+};

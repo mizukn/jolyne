@@ -839,3 +839,36 @@ export const BoosterBox: Special = {
         );
     },
 };
+
+export const Greenbaby: Special = {
+    id: "green_baby",
+    name: "Green Baby",
+    description:
+        "What the hell is up with this green skinned child. Did it seriously just come from a bone? Pretty bizarre, wouldn't you say?",
+    rarity: "SS",
+    emoji: Emojis.greenbaby,
+    price: 702070,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        if (ctx.userData.level < 100 || ctx.userData.stand !== "whitesnake") {
+            await ctx.makeMessage({
+                content: "You are not worthy of this child yet...",
+            });
+            return 0;
+        }
+        if (ctx.userData.standsEvolved.whitesnake) {
+            await ctx.makeMessage({
+                content: "...",
+            });
+            return 0;
+        }
+
+        ctx.userData.standsEvolved.whitesnake = 1;
+        const stand = Functions.getCurrentStand(ctx.userData);
+        await ctx.makeMessage({
+            content: `${stand.emoji} | You have successfully evolved your stand to **C-Moon**!\n\nBut perhaps you can evolve it even further... (${ctx.client.localEmojis.mih})`,
+        });
+        return 1;
+    },
+};
