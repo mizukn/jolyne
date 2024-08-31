@@ -288,6 +288,7 @@ for (const stand of [
         },
         stand: stand.id,
         equippedItems: {},
+        private: stand.adminOnly ? true : false,
         standsEvolved: {
             [stand.id]: evolution,
         },
@@ -351,6 +352,7 @@ for (const stand of [
             standsEvolved: {
                 [stand.id]: evolution,
             },
+            private: stand.adminOnly ? true : false,
             rewards,
         };
     }
