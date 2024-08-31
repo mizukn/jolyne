@@ -319,7 +319,8 @@ const slashCommand: SlashCommandFile = {
                     if (npc.rewards.xp) {
                         const xp = Functions.addXp(
                             ctx.userData,
-                            fightType === FightTypes.DailyQuest
+                            fightType === FightTypes.DailyQuest ||
+                                fightType === FightTypes.SideQuest
                                 ? Math.round(npc.rewards.xp / 2)
                                 : npc.rewards.xp
                         );
