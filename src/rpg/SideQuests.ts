@@ -472,7 +472,6 @@ export const CMoon: SideQuest = {
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,
-    canReloadQuests: true,
     // purple
     color: 0x800080,
 };
