@@ -82,7 +82,9 @@ const slashCommand: SlashCommandFile = {
             .setCustomId(rewardsButtonID)
             .setLabel("Claim Rewards")
             .setEmoji("🎉")
-            .setDisabled(ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize)
+            .setDisabled(
+                ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize ? true : false
+            )
             .setStyle(ButtonStyle.Success);
         const redoQuestButton = new ButtonBuilder()
             .setCustomId(redoQuestID)
@@ -165,6 +167,7 @@ const slashCommand: SlashCommandFile = {
             });
             collector.on("collect", async (i) => {
                 i.deferUpdate().catch(() => {});
+                if (await ctx.antiCheat(true)) return;
                 switch (i.customId) {
                     case rewardsButtonID: {
                         const alreadyClaimed = ctx.userData.sideQuests.find(
