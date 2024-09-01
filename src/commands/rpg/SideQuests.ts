@@ -100,7 +100,10 @@ const slashCommand: SlashCommandFile = {
                 sideQuestsArr.find((r) => r.id === sideQuest).canRedoSideQuest
             )
                 components.push(redoQuestButton);
-            else components.push(rewardsButton);
+            else {
+                if (!ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize)
+                    components.push(rewardsButton);
+            }
         }
 
         if (status.percent !== 100 && SideQuest.canReloadQuests) {
@@ -164,6 +167,16 @@ const slashCommand: SlashCommandFile = {
                 i.deferUpdate().catch(() => {});
                 switch (i.customId) {
                     case rewardsButtonID: {
+                        const alreadyClaimed = ctx.userData.sideQuests.find(
+                            (x) => x.id === sideQuest
+                        ).claimedPrize;
+                        if (alreadyClaimed) {
+                            ctx.followUp({
+                                content: `You've already claimed the rewards!`,
+                            });
+                            collector.stop();
+                            return;
+                        }
                         const status = SideQuest.rewards ? SideQuest.rewards(ctx) : true;
                         if (status) {
                             ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize =
