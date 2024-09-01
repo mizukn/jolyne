@@ -20,6 +20,7 @@ exec(`lsof -i:${port}`, async (error, stdout) => {
             }
             console.log(`Cleared ${keys.length} temp cache keys.`);
         });
+        TempRedis.set("activeFights", JSON.stringify([]));
 
         await TempRedis.keys("*rpgCooldown:*").then(async (keys) => {
             let counter = 0;
