@@ -5,6 +5,7 @@ import * as Stands from "../rpg/Stands/Stands";
 import Jolyne from "../structures/JolyneClient";
 import { CronJob } from "cron";
 import TopGG from "../utils/TopGG";
+import { FightHandler } from "../structures/FightHandler";
 
 async function fetchSupportMembers(client: Jolyne): Promise<void> {
     const members = await client.guilds.cache
@@ -188,9 +189,10 @@ const Event: EventFile = {
         }
 
         async function fetchPatreons() {
+            console.log(parseInt(process.env.CLUSTER) + 1, parseInt(process.env.CLUSTER_COUNT));
             // fetching patrons, second priority to not make the bot laod slower
             // prettier-ignore
-            if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
+            if (parseInt(process.env.CLUSTER ) + 1 === parseInt(process.env.CLUSTER_COUNT)) {
                 const patrons = await client.fetchPatrons();
 
                 client.log("Clearing old patrons", "ready");
