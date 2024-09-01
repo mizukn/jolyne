@@ -82,6 +82,7 @@ const slashCommand: SlashCommandFile = {
             .setCustomId(rewardsButtonID)
             .setLabel("Claim Rewards")
             .setEmoji("🎉")
+            .setDisabled(ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize)
             .setStyle(ButtonStyle.Success);
         const redoQuestButton = new ButtonBuilder()
             .setCustomId(redoQuestID)
@@ -101,8 +102,7 @@ const slashCommand: SlashCommandFile = {
             )
                 components.push(redoQuestButton);
             else {
-                if (!ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize)
-                    components.push(rewardsButton);
+                components.push(rewardsButton);
             }
         }
 
