@@ -2,6 +2,9 @@ import { ClusterManager } from "discord-hybrid-sharding";
 import redis from "ioredis";
 import "dotenv/config";
 import { exec } from "child_process";
+import Jolyne from "./structures/JolyneClient";
+
+const clients = new Map<number, Jolyne>();
 
 const TempRedis = new redis({ db: Number(process.env.REDIS_DB) });
 const port = 6969;
@@ -55,11 +58,27 @@ exec(`lsof -i:${port}`, async (error, stdout) => {
             token: process.env.CLIENT_TOKEN,
         });
 
-        manager.on("clusterCreate", (cluster) =>
+        manager.on("clusterCreate", (cluster) => {
             console.log(
                 `Launched Cluster ${cluster.id}\n-------------------------------------------------------------`
-            )
-        );
+            );
+            /*
+            setInterval(() => {
+                cluster
+                    .request({
+                        content: "What are your fights?",
+                        fightHandlers: true,
+                    })
+                    .then((response: any) => {
+                        if (response.content === "alright") {
+                            clients.set(cluster.id, response.client);
+                        }
+                    });
+                setInterval(() => {
+                    cluster.send({ content: "fightTotal", fights: clients });
+                }, 2000);
+            }, 5000);*/
+        });
         manager.spawn({ timeout: -1 }).catch((e) => {
             console.log(process.env);
             //const response = JSON.parse(e.message);

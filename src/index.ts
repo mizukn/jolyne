@@ -9,7 +9,7 @@ import type {
     EvolutionStand,
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
-import { getInfo, ClusterClient } from "discord-hybrid-sharding";
+import { getInfo, ClusterClient, messageType } from "discord-hybrid-sharding";
 import JolyneClient from "./structures/JolyneClient";
 import * as FightableNPCs from "./rpg/NPCs/FightableNPCs";
 import * as Functions from "./utils/Functions";
@@ -25,6 +25,8 @@ import * as EquipableItems from "./rpg/Items/EquipableItems";
 import * as Sentry from "@sentry/node";
 import { exec } from "child_process";
 import { count } from "console";
+import { FightHandler } from "./structures/FightHandler";
+import { cloneDeep } from "lodash";
 
 const weapons = Object.values(EquipableItems).filter(
     (x) => (x as Weapon).abilities !== undefined
@@ -485,6 +487,34 @@ process.on("uncaughtException", (error) => {
 });
 
 client.cluster = new ClusterClient(client);
+client.cluster.on("fightStart", (fight: FightHandler) => {
+    client.fightHandlers.set(fight.id, fight);
+});
+client.cluster.on("fightEnd", (fight: FightHandler) => {
+    client.fightHandlers.delete(fight.id);
+});
+
+/*
+// @ts-expect-error because it's a dynamic property
+client.cluster.on(
+    "message",
+    (message: {
+        content: string;
+        _type: messageType;
+        fightHandlers: boolean;
+        fights: Map<string, FightHandler>;
+        reply: (message: { content: string; client: Map<string, FightHandler> }) => void;
+    }) => {
+        if (message.content === "fightTotal") {
+            console.log(message.fights);
+        }
+        if (message._type !== messageType.CUSTOM_REQUEST) return; // Check if the message needs a reply
+        if (message.fightHandlers) {
+            console.log("replying to client");
+            message.reply({ content: "alright", client: client.fightHandlers });
+        }
+    }
+);*/
 
 async function init() {
     client.translations = await i18n();
