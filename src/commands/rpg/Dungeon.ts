@@ -144,6 +144,13 @@ const slashCommand: SlashCommandFile = {
         const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
         const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
         const nextDate = dateAtMidnight + 86400000;
+        if (ctx.userData.health <= 0) {
+            return ctx.makeMessage({
+                content: "<:kars:1057261454421676092> **Kars:** You're dead, you can't do that.",
+                embeds: [],
+                components: [],
+            });
+        }
 
         if (
             dungeonDoneTodayCount >= 4 &&
