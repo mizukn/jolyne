@@ -124,18 +124,20 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.health = winners[0].health;
                     ctx.userData.stamina = winners[0].stamina;
                     await ctx.followUp({
-                        content: `You assaulted ${npc.name} and won! You got ${xp.toLocaleString(
-                            "en-US"
-                        )} ${ctx.client.localEmojis.xp} and ${coins.toLocaleString("en-US")} ${
+                        content: `${npc.emoji} | You assaulted \`${
+                            npc.name
+                        }\`$ and won! You got **${xp.toLocaleString("en-US")}** ${
+                            ctx.client.localEmojis.xp
+                        } and **${coins.toLocaleString("en-US")} ${
                             ctx.client.localEmojis.jocoins
-                        }.`,
+                        }**.`,
                     });
                 } else {
                     ctx.userData.health = 0;
                     ctx.userData.stamina = 0;
 
                     await ctx.followUp({
-                        content: `You assaulted ${npc.name} and lost! You lost all your health and stamina. Better luck next time or train yourself more.`,
+                        content: `${npc.emoji} |You assaulted \`${npc.name}\` and lost! You lost all your health and stamina. Better luck next time or train yourself more.`,
                     });
                 }
                 await ctx.client.database.saveUserData(ctx.userData);
