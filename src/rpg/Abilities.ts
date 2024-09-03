@@ -2727,7 +2727,7 @@ export const BloodBlind: Ability = {
     extraTurns: 1,
     name: "Blood Blind",
     description:
-        "King Crimson sends some of the users blood towards the enemy blinding them for a turn granting the user a guaranteed hit.",
+        "King Crimson sends some of the users blood towards the enemy blinding them for a turn granting the user a guaranteed hit (-90% speed & perception).",
     cooldown: 3,
     damage: 0,
     stamina: 20,
@@ -2748,8 +2748,8 @@ export const BloodBlind: Ability = {
             `- ${user.stand?.emoji} BLOOD BLIND: **${target.name}** has been blinded...`
         );
         const oldSkillPoints = cloneDeep(target.skillPoints);
-        target.skillPoints.speed = 0;
-        target.skillPoints.perception = 0;
+        target.skillPoints.speed = target.skillPoints.speed * 0.1;
+        target.skillPoints.perception = target.skillPoints.perception * 0.1;
 
         ctx.nextRoundPromises.push({
             cooldown: 2,
