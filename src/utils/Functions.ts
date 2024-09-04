@@ -28,6 +28,7 @@ import {
     equipableItemTypes,
     RaidNPCQuest,
     numOrPerc,
+    Rarity,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -51,6 +52,17 @@ import * as Emails from "../rpg/Emails";
 import * as EquipableItems from "../rpg/Items/EquipableItems";
 import { Command } from "ioredis";
 import * as Emojis from "../emojis.json";
+import { random } from "lodash";
+
+const totalStands = [
+    ...Object.values(Stands.Stands),
+    ...Object.values(Stands.EvolutionStands).map((x) => {
+        return {
+            ...x.evolutions[0],
+            id: x.id,
+        };
+    }),
+];
 
 export const generateRandomId = (): string => {
     return (
@@ -59,7 +71,7 @@ export const generateRandomId = (): string => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const randomArray = (array: any[]): any => {
+export const randomArray = <T>(array: T[]): T => {
     return array[Math.floor(Math.random() * array.length)];
 };
 
@@ -702,6 +714,8 @@ export const isWeapon = (item: EquipableItem | Item | Weapon): item is Weapon =>
     return (item as Weapon).abilities !== undefined;
 };
 
+const totalWeapons = Object.values(EquipableItems).filter((x) => isWeapon(x));
+
 export const weaponAbilitiesEmbed = (
     user: Fighter | RPGUserDataJSON | FightableNPC,
     cooldowns?: FightInfos["cooldowns"],
@@ -786,14 +800,18 @@ export const skillPointsIsOK = (user: RPGUserDataJSON | FightableNPC): boolean =
     return totalSkillPoints === user.level * 4;
 };
 
-export const generateSkillPoints = (user: RPGUserDataJSON | FightableNPC): void => {
-    user.skillPoints = {
-        strength: 0,
-        stamina: 0,
-        speed: 0,
-        defense: 0,
-        perception: 0,
-    };
+export const generateSkillPoints = (
+    user: RPGUserDataJSON | FightableNPC,
+    dontReset?: boolean
+): void => {
+    if (!dontReset)
+        user.skillPoints = {
+            strength: 0,
+            stamina: 0,
+            speed: 0,
+            defense: 0,
+            perception: 0,
+        };
     const skillPointsLeft = getSkillPointsLeft(user);
 
     for (let i = 0; i < skillPointsLeft; i++) {
@@ -1881,6 +1899,7 @@ export function addHealthOrStamina(
 }
 
 export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amount?: number): void {
+    console.log(amount);
     if (!amount) amount = 1;
     if (item.effects.health)
         for (let i = 0; i < amount; i++) addHealthOrStamina(item.effects.health, "health", data);
@@ -1953,3 +1972,35 @@ export function fixNpcRewards(npc: FightableNPC): void {
 
     console.log(`Level: ${npc.level} xp: ${npc.rewards.xp} coins: ${npc.rewards.coins}`);
 }
+
+export const getStandEvolution = (stand: Stand): number => {
+    const baseStand = Object.values(Stands.EvolutionStands).find((x) => x.id === stand.id);
+    if (!baseStand) return 0;
+
+    return baseStand.evolutions.findIndex((x) => x.name === stand.name);
+};
+
+export const getRandomStand = (
+    includeRarity?: Rarity[]
+): {
+    stand: Stand;
+    evolution: number;
+} => {
+    const randomStand = includeRarity
+        ? randomArray(totalStands.filter((x) => includeRarity.includes(x.rarity)))
+        : randomArray(totalStands);
+    const evolution = getStandEvolution(randomStand);
+
+    return {
+        stand: randomStand,
+        evolution,
+    };
+};
+
+export const getRandomWeapon = (includeRarity?: Rarity[]): Weapon => {
+    const randomWeapon = includeRarity
+        ? randomArray(totalWeapons.filter((x) => includeRarity.includes(x.rarity)))
+        : randomArray(totalWeapons);
+
+    return randomWeapon as Weapon;
+};
