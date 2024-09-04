@@ -1,4 +1,4 @@
-import { FightableNPC, SlashCommandFile } from "../../@types";
+import { FightableNPC, RPGUserDataJSON, SlashCommandFile } from "../../@types";
 import { Message, MessageComponentInteraction } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -6,6 +6,33 @@ import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { FightableNPCS, NPCs } from "../../rpg/NPCs";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
+
+function generateHighNPC(userData: RPGUserDataJSON): FightableNPC {
+    const stand = Functions.getCurrentStand(userData);
+    const generatedStand = Functions.getRandomStand(["SS", "S"]);
+    const highNPC = Functions.randomArray(
+        Object.values(FightableNPCS)
+            .sort((a, b) => b.level - a.level)
+            .slice(0, 10)
+    );
+    const generatedNPC: FightableNPC = {
+        id: "high_npc",
+        name: `You`,
+        emoji: stand?.emoji ?? generatedStand.stand.emoji,
+        level: Math.round(userData.level * 1),
+        skillPoints: userData.skillPoints,
+        equippedItems: userData.equippedItems,
+        standsEvolved: userData.standsEvolved,
+        stand: stand ? stand.id : generatedStand.stand.id,
+    };
+    if (!stand) {
+        generatedNPC.standsEvolved[generatedStand.stand.id] = generatedStand.evolution;
+    }
+
+    Functions.generateSkillPoints(generatedNPC);
+
+    return Functions.randomArray([highNPC, generatedNPC]);
+}
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -34,14 +61,15 @@ const slashCommand: SlashCommandFile = {
                     (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
             )
         ) as FightableNPC;
-        const highNPC = (Functions.randomArray(
-            Object.values(FightableNPCS).filter(
-                (r) =>
-                    r.level > ctx.userData.level &&
-                    r.stand !== "admin_stand" &&
-                    (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
-            )
-        ) || Functions.randomArray(Object.values(FightableNPCS))) as FightableNPC;
+        const highNPC =
+            Functions.randomArray(
+                Object.values(FightableNPCS).filter(
+                    (r) =>
+                        r.level > ctx.userData.level &&
+                        r.stand !== "admin_stand" &&
+                        (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
+                )
+            ) || generateHighNPC(ctx.userData);
         const randomNPC = Functions.randomArray(Object.values(FightableNPCS)) as FightableNPC;
 
         const normalNPCButton = new ButtonBuilder()
@@ -137,7 +165,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.stamina = 0;
 
                     await ctx.followUp({
-                        content: `${npc.emoji} |You assaulted \`${npc.name}\` and lost! You lost all your health and stamina. Better luck next time or train yourself more.`,
+                        content: `${npc.emoji} | You assaulted \`${npc.name}\` and lost! You lost all your health and stamina. Better luck next time or train yourself more.`,
                     });
                 }
                 await ctx.client.database.saveUserData(ctx.userData);
