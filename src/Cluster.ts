@@ -4,8 +4,6 @@ import "dotenv/config";
 import { exec } from "child_process";
 import Jolyne from "./structures/JolyneClient";
 
-const clients = new Map<number, Jolyne>();
-
 const TempRedis = new redis({ db: Number(process.env.REDIS_DB) });
 const port = 6969;
 
