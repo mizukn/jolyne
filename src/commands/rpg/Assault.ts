@@ -30,6 +30,7 @@ function generateHighNPC(userData: RPGUserDataJSON): FightableNPC {
     }
 
     Functions.generateSkillPoints(generatedNPC);
+    Functions.fixNpcRewards(generatedNPC);
 
     return Functions.randomArray([highNPC, generatedNPC]);
 }
