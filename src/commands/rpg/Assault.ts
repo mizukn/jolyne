@@ -155,7 +155,7 @@ const slashCommand: SlashCommandFile = {
                     await ctx.followUp({
                         content: `${npc.emoji} | You assaulted \`${
                             npc.name
-                        }\`$ and won! You got **${xp.toLocaleString("en-US")}** ${
+                        }\` and won! You got **${xp.toLocaleString("en-US")}** ${
                             ctx.client.localEmojis.xp
                         } and **${coins.toLocaleString("en-US")} ${
                             ctx.client.localEmojis.jocoins
