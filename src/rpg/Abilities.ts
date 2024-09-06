@@ -515,7 +515,7 @@ export const EternalSleep: Ability = {
                 const status = target.removeHealth(0, user, 3);
 
                 if (status.type !== FighterRemoveHealthTypes.Dodged) {
-                    x.frozenFor += 4;
+                    x.frozenFor += 3;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 4 turns...`
                     );
@@ -1177,7 +1177,7 @@ export const MysteriousGas: Ability = {
                 const status = x.removeHealth(1, user, 3);
 
                 if (status.type !== FighterRemoveHealthTypes.Dodged) {
-                    x.frozenFor += 3;
+                    x.frozenFor += 2;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} MYSTERIOUS GAS: **${user.name}** has confused **${x.name}** for 3 turns...`
                     );
@@ -2840,7 +2840,7 @@ export const MikuStun: Ability = {
                 const status = x.removeHealth(0, user, 4);
 
                 if (status.type !== FighterRemoveHealthTypes.Dodged) {
-                    x.frozenFor += 4;
+                    x.frozenFor += 2;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon?.emoji} OOO EEE OOO: **${x.name}** has been stunned...`
                     );
