@@ -126,13 +126,14 @@ const slashCommand: SlashCommandFile = {
             return;
         }
         const raid = fixedBosses.find((r) => r.boss.id === bossChosen);
-        const raidCost = (raid.baseRewards?.coins ?? 25000) * 3;
         if (!raid) {
             ctx.makeMessage({
                 content: "That boss doesn't exist!",
             });
             return;
         }
+
+        const raidCost = (raid.baseRewards?.coins ?? 25000) * 3;
         if (raid.level > ctx.userData.level) {
             ctx.makeMessage({
                 content: "You can't raid this boss yet.",
