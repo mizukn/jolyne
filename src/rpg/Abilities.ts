@@ -2647,7 +2647,7 @@ export const BloodBlind: Ability = {
             return;
         }
 
-        target.frozenFor = 2;
+        target.frozenFor += 2;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} BLOOD BLIND: **${target.name}** has been blinded...`
         );
