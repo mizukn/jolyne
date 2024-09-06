@@ -502,13 +502,14 @@ const Event: EventFile = {
 
                 if (
                     ctx.userData.daily.lastDailyQuestsReset !==
-                        new Date().setUTCHours(0, 0, 0, 0) ||
+                    new Date().setUTCHours(0, 0, 0, 0) /*
+                         ||
                     ctx.userData.daily.quests.find((r) =>
                         Functions.isFightNPCQuest(r) && Functions.findNPC(r.npc)
                             ? Functions.findNPC<FightableNPC>(r.npc, true).level >
                               ctx.userData.level
                             : false
-                    )
+                    ) */
                 ) {
                     ctx.userData.daily.quests = Functions.generateDailyQuests(ctx.userData.level);
                     ctx.userData.daily.lastDailyQuestsReset = new Date().setUTCHours(0, 0, 0, 0);
