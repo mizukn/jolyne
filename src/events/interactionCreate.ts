@@ -390,6 +390,7 @@ const Event: EventFile = {
                                 if (!itemData) continue;
                                 if (item.chance) {
                                     if (Functions.RNG(0, item.chance)) {
+                                        // wtf is this
                                         Functions.addItem(ctx.userData, item.item, item.amount);
                                         ctx.followUpQueue.push({
                                             content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`,
