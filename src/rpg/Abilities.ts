@@ -2632,7 +2632,7 @@ export const BloodBlind: Ability = {
     name: "Blood Blind",
     description:
         "King Crimson sends some of the users blood towards the enemy blinding them for a turn granting the user a guaranteed hit (-90% speed & perception).",
-    cooldown: 3,
+    cooldown: 5,
     damage: 0,
     stamina: 20,
     dodgeScore: 6,
