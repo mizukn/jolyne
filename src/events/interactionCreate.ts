@@ -121,7 +121,7 @@ const Event: EventFile = {
             if (command.category === "rpg" && ctx.userData) {
                 if (ctx.userData.inventory.candy_cane && ctx.userData.inventory.candy_cane < 0) {
                     return void ctx.makeMessage({
-                        content: `:x: | **${ctx.user.username}**, You are banned. Please contact us at https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694 to appeal (@mizufare).`,
+                        content: `:x: | **${ctx.user.username}**, You are banned. Please contact us at https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694 to appeal (@mizukn).`,
                     });
                 }
                 if (
@@ -222,7 +222,7 @@ const Event: EventFile = {
                     command.data.name !== "inventory" &&
                     command.data.name !== "campfire"
                 ) {
-                    if (Functions.percent(40))
+                    if (Functions.percent(20))
                         ctx.followUpQueue.push({
                             content: `🩸 | You're low in health/stamina. You should heal yourself. You can use the ${ctx.client.getSlashCommandMention(
                                 "shop"
@@ -241,7 +241,11 @@ const Event: EventFile = {
 
                 // check if emails filter !read      and tell user has x emails unread
                 const unreadEmails = ctx.userData.emails.filter((r) => !r.read);
-                if (unreadEmails.length > 0 && command.data.name !== "emails") {
+                if (
+                    unreadEmails.length > 0 &&
+                    command.data.name !== "emails" &&
+                    Functions.percent(50)
+                ) {
                     ctx.followUpQueue.push({
                         content: `📧 | You have **${unreadEmails.length}** unread email${
                             unreadEmails.length > 1 ? "s" : ""
@@ -462,7 +466,7 @@ const Event: EventFile = {
                         ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
 
                         if (!data) {
-                            if (Functions.percent(50))
+                            if (Functions.percent(20))
                                 ctx.followUpQueue.push({
                                     content: `🃏 | **${
                                         ctx.user.username
@@ -476,7 +480,8 @@ const Event: EventFile = {
 
                 if (
                     Functions.calculeSkillPointsLeft(ctx.userData) > 0 &&
-                    command.data.name !== "skill"
+                    command.data.name !== "skill" &&
+                    Functions.percent(40)
                 ) {
                     ctx.followUpQueue.push({
                         content: `:arrow_up: | **${
@@ -492,7 +497,10 @@ const Event: EventFile = {
                 // if user datA STAMINA is lower than 50% of their Functions.getMaxStamina(ctx.userData), and they used the fight command, follow up telling them that they just started a fight with low stamina, which affects their atk damage since it is based on their stam
                 if (
                     ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.5 &&
-                    command.data.name === "fight"
+                    (command.data.name === "fight" ||
+                        command.data.name === "dungeon" ||
+                        command.data.name === "assault") &&
+                    Functions.percent(40)
                 ) {
                     if (ctx.interaction.options.getSubcommand() !== "train")
                         ctx.followUpQueue.push({
