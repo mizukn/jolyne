@@ -1,5 +1,5 @@
 import { Ability, FightableNPC, SkillPoints } from "../@types";
-import { FightHandler, Fighter } from "../structures/FightHandler";
+import { FightHandler, Fighter, FighterRemoveHealthTypes } from "../structures/FightHandler";
 import { cloneDeep } from "lodash";
 import * as Stands from "./Stands/Stands";
 import * as Functions from "../utils/Functions";
@@ -509,32 +509,17 @@ export const EternalSleep: Ability = {
     stamina: 50,
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((x) => x.id !== user.id)
             .forEach((x) => {
-                const dodgeResults: boolean[] = [];
+                const status = target.removeHealth(0, user, 3);
 
-                for (let i = 0; i < 3; i++) {
-                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
-                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
-
-                    const randomNumber = Functions.randomNumber(0, 100);
-                    const dodgeThreshold =
-                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
-
-                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
-                }
-                if (
-                    dodgeResults.every((r) => r) &&
-                    dodgeResults.length !== 0 &&
-                    x.skillPoints.perception !== Infinity
-                ) {
+                if (status.type !== FighterRemoveHealthTypes.Dodged) {
                     x.frozenFor += 4;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} ETERNAL SLEEP: **${user.name}** has put **${x.name}** to sleep for 4 turns...`
                     );
                 } else {
-                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} ETERNAL SLEEP: **${x.name}** resisted.`
                     );
@@ -595,7 +580,7 @@ export const Hallucinogen: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((x) => x.id !== user.id && ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
             .forEach((x) => {
                 x.skillPoints.perception = Math.round(x.skillPoints.perception * 0.1);
@@ -609,7 +594,7 @@ export const Hallucinogen: Ability = {
             executeOnlyOnce: true,
             id: Functions.generateRandomId(),
             promise: (fight) => {
-                ctx.fighters
+                ctx.availableFighters
                     .filter((x) => x.id !== user.id && ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
                     .forEach((x) => {
                         x.skillPoints.perception = Math.round(x.skillPoints.perception / 0.1);
@@ -968,31 +953,12 @@ export const BerserkersRampage: Ability = {
     trueDodgeScore: 4,
     special: true,
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
-                const dodgeResults: boolean[] = [];
-
-                for (let i = 0; i < 4; i++) {
-                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
-                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
-
-                    const randomNumber = Functions.randomNumber(0, 100);
-                    const dodgeThreshold =
-                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
-
-                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
-                }
-                if (
-                    dodgeResults.every((r) => r) &&
-                    dodgeResults.length !== 0 &&
-                    x.skillPoints.perception !== Infinity
-                ) {
-                    const damages = Math.round(Functions.getAttackDamages(user) * 1.75);
-                    const oldHealth = x.health;
-                    x.health -= damages;
-                    user.totalDamageDealt += oldHealth - x.health;
-                    if (x.health <= 0) x.health = 0;
+                const damages = Math.round(Functions.getAttackDamages(user) * 1.75);
+                const status = x.removeHealth(damages, user, 4);
+                if (status.type !== FighterRemoveHealthTypes.Dodged) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon.emoji} RAMPAGE: **${
                             user.name
@@ -1001,7 +967,6 @@ export const BerserkersRampage: Ability = {
                         }**.`
                     );
                 } else {
-                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} RAMPAGE: **${x.name}** dodged.`
                     );
@@ -1025,29 +990,21 @@ export const KnivesThrow: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         for (let i = 0; i < 4; i++) {
-            const dodgeScore = Functions.getDodgeScore(target) + 5 + target.level / 10;
-            const userSpeedScore = Functions.getSpeedScore(user) + 10 + user.level / 10;
+            const damages = Math.round(Functions.getAttackDamages(user) * 0.75);
+            const status = user.removeHealth(damages, user, 4);
 
-            const randomNumber = Functions.randomNumber(0, 100);
-            const dodgeThreshold = dodgeScore / (userSpeedScore * 2 + dodgeScore);
-
-            if (randomNumber < dodgeThreshold * 100) {
+            if (status.type === FighterRemoveHealthTypes.Dodged) {
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${user.weapon.emoji} KNIVES THROW: **${target.name}** dodged.`
                 );
             } else {
-                const damages = Math.round(Functions.getAttackDamages(user) * 0.75);
-                const oldHealth = target.health;
-                target.health -= damages;
-                user.totalDamageDealt += oldHealth - target.health;
-                if (target.health <= 0) target.health = 0;
                 const stamina = Math.round(target.maxStamina * 0.03);
                 target.stamina -= stamina;
                 if (target.stamina <= 0) target.stamina = 0;
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${user.weapon.emoji} KNIVES THROW: **${
                         user.name
-                    }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
+                    }** has dealt **${status.amount.toLocaleString("en-US")}** damages to **${
                         target.name
                     }** and reduced their stamina by **${stamina}**.`
                 );
@@ -1067,31 +1024,13 @@ export const GasolineBullets: Ability = {
     extraTurns: 0,
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
-                const dodgeResults: boolean[] = [];
+                const damages = Math.round(Functions.getAttackDamages(user) * 3);
+                const status = x.removeHealth(damages, user, 2);
 
-                for (let i = 0; i < 2; i++) {
-                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
-                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
-
-                    const randomNumber = Functions.randomNumber(0, 100);
-                    const dodgeThreshold =
-                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
-
-                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
-                }
-                if (
-                    dodgeResults.every((r) => r) &&
-                    dodgeResults.length !== 0 &&
-                    x.skillPoints.perception !== Infinity
-                ) {
-                    const damages = Math.round(Functions.getAttackDamages(user) * 3);
-                    const oldHealth = x.health;
-                    x.health -= damages;
-                    user.totalDamageDealt += oldHealth - x.health;
-                    if (x.health <= 0) x.health = 0;
+                if (status.type !== FighterRemoveHealthTypes.Dodged) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} GASOLINE BULLETS: **${
                             user.name
@@ -1100,7 +1039,6 @@ export const GasolineBullets: Ability = {
                         }**.`
                     );
                 } else {
-                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} GASOLINE BULLETS: **${x.name}** dodged...`
                     );
@@ -1233,32 +1171,17 @@ export const MysteriousGas: Ability = {
     trueDodgeScore: 3,
     special: true,
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
-                const dodgeResults: boolean[] = [];
+                const status = x.removeHealth(1, user, 3);
 
-                for (let i = 0; i < 3; i++) {
-                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
-                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
-
-                    const randomNumber = Functions.randomNumber(0, 100);
-                    const dodgeThreshold =
-                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
-
-                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
-                }
-                if (
-                    dodgeResults.every((r) => r) &&
-                    dodgeResults.length !== 0 &&
-                    x.skillPoints.perception !== Infinity
-                ) {
+                if (status.type !== FighterRemoveHealthTypes.Dodged) {
                     x.frozenFor += 3;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} MYSTERIOUS GAS: **${user.name}** has confused **${x.name}** for 3 turns...`
                     );
                 } else {
-                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} MYSTERIOUS GAS: **${x.name}** resisted.`
                     );
@@ -1290,7 +1213,7 @@ export const PoisonGas: Ability = {
             id: Functions.generateRandomId(),
             executeOnlyOnce: false,
             promise: (fight) => {
-                fight.fighters.forEach((fighter) => {
+                fight.availableFighters.forEach((fighter) => {
                     const damages =
                         fight.getTeamIdx(fighter) !== fight.getTeamIdx(user)
                             ? poisonDamage
@@ -1336,7 +1259,7 @@ export const HealBarrage: Ability = {
             }** has dealt **${damages.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
 
-        ctx.fighters
+        ctx.availableFighters
             .filter((x) => ctx.getTeamIdx(x) === ctx.getTeamIdx(user))
             .filter((w) => w.health > 0)
             .filter((z) => z.id !== user.id)
@@ -1364,7 +1287,7 @@ export const Restoration: Ability = {
     useMessage: (user, target, damage, ctx) => {
         const heal = Math.round(user.maxHealth * 0.1);
 
-        ctx.fighters
+        ctx.availableFighters
             .filter((x) => ctx.getTeamIdx(x) === ctx.getTeamIdx(user))
             .filter((w) => w.id !== user.id)
             .forEach((x) => {
@@ -1423,7 +1346,7 @@ export const HealPunch: Ability = {
             }** has dealt **${damages.toLocaleString("en-US")}** damages to **${target.name}**.`
         );
 
-        ctx.fighters
+        ctx.availableFighters
             .filter((x) => ctx.getTeamIdx(x) === ctx.getTeamIdx(user))
             .filter((w) => w.id !== user.id)
             .forEach((x) => {
@@ -1529,43 +1452,24 @@ export const WristKnives: Ability = {
     trueDodgeScore: 3,
     target: "self",
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
+                const damages = Math.round(Functions.getAttackDamages(user));
                 for (let i = 0; i < 2; i++) {
-                    const dodgeResults: boolean[] = [];
+                    const status = x.removeHealth(damages, user, 3);
 
-                    for (let i = 0; i < 3; i++) {
-                        const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
-                        const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
-
-                        const randomNumber = Functions.randomNumber(0, 100);
-                        const dodgeThreshold =
-                            userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
-
-                        if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
-                    }
-                    if (
-                        dodgeResults.every((r) => r) &&
-                        dodgeResults.length !== 0 &&
-                        x.skillPoints.perception !== Infinity
-                    ) {
-                        const damages = Math.round(Functions.getAttackDamages(user));
-                        const oldHealth = x.health;
-                        x.health -= damages;
-                        user.totalDamageDealt += oldHealth - x.health;
-                        if (x.health <= 0) x.health = 0;
+                    if (status.type === FighterRemoveHealthTypes.Dodged) {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `- ${user.stand?.emoji} WRIST KNIVES: **${x.name}** dodged.`
+                        );
+                    } else {
                         ctx.turns[ctx.turns.length - 1].logs.push(
                             `- ${user.stand?.emoji} WRIST KNIVES: **${
                                 user.name
-                            }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
-                                x.name
-                            }**.`
-                        );
-                    } else {
-                        x.stats.dodges++;
-                        ctx.turns[ctx.turns.length - 1].logs.push(
-                            `- ${user.stand?.emoji} WRIST KNIVES: **${x.name}** dodged.`
+                            }** has dealt **${status.amount.toLocaleString(
+                                "en-US"
+                            )}** damages to **${x.name}**.`
                         );
                     }
                 }
@@ -1761,7 +1665,7 @@ export const SheerHeartAttackBTD: Ability = {
             id: Functions.generateRandomId(),
             promise: (fight) => {
                 const bombDamage = Math.round(Functions.getAttackDamages(user) * 3.5);
-                fight.fighters
+                fight.availableFighters
                     .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
                     .forEach((x) => {
                         x.health -= bombDamage;
@@ -2041,7 +1945,7 @@ export const Fog: Ability = {
             ctx.fighters.filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
         );
 
-        ctx.fighters
+        ctx.availableFighters
             .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
                 x.skillPoints.perception *= 0.85;
@@ -2058,7 +1962,7 @@ export const Fog: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} FOG: the effect have disappeared...`
                 );
-                fight.fighters
+                fight.availableFighters
                     .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
                     .forEach((x, i) => {
                         x.skillPoints.perception = fighters.find(
@@ -2082,7 +1986,7 @@ export const FrogRain: Ability = {
     trueDamage: 15,
     target: "self",
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((w) => ctx.getTeamIdx(w) !== ctx.getTeamIdx(user) && w.health > 0)
             .forEach((x) => {
                 const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
@@ -2875,15 +2779,14 @@ export const PiercingStrike: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const xdamage = Math.round(Functions.getAttackDamages(user) * 1.15);
-        const oldHealth = cloneDeep(target.health);
-        target.health -= xdamage;
-        if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += oldHealth - target.health;
+        const status = target.removeHealth(xdamage, user, 0);
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} PIERCING STRIKE: **${
                 user.name
-            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${status.amount.toLocaleString("en-US")}** damages to **${
+                target.name
+            }**.`
         );
 
         const burnDamageCalc = Math.round(
@@ -2928,35 +2831,20 @@ export const MikuStun: Ability = {
     damage: 0,
     stamina: 20,
     extraTurns: 1,
-    dodgeScore: 0,
+    dodgeScore: 4,
     target: "self",
     useMessage: (user, target, damage, ctx) => {
-        ctx.fighters
+        ctx.availableFighters
             .filter((x) => x.id !== user.id && ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
             .forEach((x) => {
-                const dodgeResults: boolean[] = [];
+                const status = x.removeHealth(0, user, 4);
 
-                for (let i = 0; i < 3; i++) {
-                    const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
-                    const fighterSpeedScore = Functions.getSpeedScore(x) + 10 + x.level / 10;
-
-                    const randomNumber = Functions.randomNumber(0, 100);
-                    const dodgeThreshold =
-                        userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
-
-                    if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
-                }
-                if (
-                    dodgeResults.every((r) => r) &&
-                    dodgeResults.length !== 0 &&
-                    x.skillPoints.perception !== Infinity
-                ) {
+                if (status.type !== FighterRemoveHealthTypes.Dodged) {
                     x.frozenFor += 4;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon?.emoji} OOO EEE OOO: **${x.name}** has been stunned...`
                     );
                 } else {
-                    x.stats.dodges++;
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon?.emoji} OOO EEE OOO: **${x.name}** resisted.`
                     );
@@ -2988,24 +2876,14 @@ export const GravityPull: Ability = {
     trueDodgeScore: 3,
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
-        const dodgeResults: boolean[] = [];
+        const status = target.removeHealth(0, user, 3);
 
-        for (let i = 0; i < 3; i++) {
-            const userDodgeScore = Functions.getDodgeScore(user) + 5 + user.level / 10;
-            const fighterSpeedScore = Functions.getSpeedScore(target) + 10 + target.level / 10;
-
-            const randomNumber = Functions.randomNumber(0, 100);
-            const dodgeThreshold = userDodgeScore / (fighterSpeedScore * 2 + userDodgeScore);
-
-            if (randomNumber < dodgeThreshold * 100) dodgeResults.push(true);
-        }
-        if (dodgeResults.every((r) => r) && dodgeResults.length !== 0) {
+        if (status.type !== FighterRemoveHealthTypes.Dodged) {
             target.frozenFor += 2;
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `- ${user.stand?.emoji} GRAVITY PULL: **${target.name}** has been pulled...`
             );
         } else {
-            target.stats.dodges++;
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `- ${user.stand?.emoji} GRAVITY PULL: **${target.name}** resisted.`
             );
