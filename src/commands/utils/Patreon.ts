@@ -27,8 +27,13 @@ const slashCommand: SlashCommandFile = {
         ],
     },
     execute: async (
-        ctx: CommandInteractionContext
+        ctx: CommandInteractionContext,
+        user?: string
     ): Promise<InteractionResponse | Message | void> => {
+        if (user) {
+            ctx.interaction.user = await ctx.client.users.fetch(user);
+        }
+
         const isInData = await ctx.client.database.getString(`patronData:${ctx.user.id}`);
         const isPublic = ctx.interaction.options.getBoolean("public");
 
