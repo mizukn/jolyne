@@ -1,8 +1,10 @@
 import { SlashCommandFile } from "../../@types";
-import { APIEmbed, InteractionResponse, Message } from "discord.js";
+import { APIEmbed, ButtonBuilder, ButtonStyle, InteractionResponse, Message } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { Patron } from "../../structures/JolyneClient";
+import { text } from "node:stream/consumers";
+import color from "get-image-colors";
 
 const tiers = {
     1: "Supporter",
@@ -93,10 +95,92 @@ const slashCommand: SlashCommandFile = {
                 ephemeral: !isPublic,
             });
         } else {
-            await ctx.makeMessage({
+            if (ctx.client.patreonTiers.length === 0) {
+                await ctx.makeMessage({
+                    content: "No patreon tiers found",
+                    ephemeral: true,
+                });
+                return;
+            }
+            await ctx.interaction.deferReply();
+            const embeds: APIEmbed[] = [];
+
+            for await (const tier of ctx.client.patreonTiers) {
+                const prominent = await Functions.getProminentColor(
+                    tier.attributes.image_url,
+                    5,
+                    ctx.client
+                );
+
+                embeds.push({
+                    title: tier.attributes.title + ` (${tier.attributes.amount_cents / 100}€)`,
+                    description: tier.attributes.description,
+                    url: `https://patreon.com${tier.attributes.url}`,
+                    image: {
+                        url: tier.attributes.image_url,
+                    },
+                    color: prominent,
+                    footer: {
+                        text: `Page ${embeds.length + 1}/${ctx.client.patreonTiers.length}`,
+                    },
+                });
+            }
+
+            let currentPage = 0;
+            const maxPage = embeds.length - 1;
+
+            const nextID = ctx.interaction.id + "next";
+            const prevID = ctx.interaction.id + "prev";
+            const nextBTN = () =>
+                new ButtonBuilder()
+                    .setCustomId(nextID)
+                    .setDisabled(currentPage === maxPage)
+                    .setEmoji("➡️")
+                    .setStyle(ButtonStyle.Secondary);
+            const prevBTN = () =>
+                new ButtonBuilder()
+                    .setCustomId(prevID)
+                    .setEmoji("⬅️")
+                    .setDisabled(currentPage === 0)
+                    .setStyle(ButtonStyle.Secondary);
+
+            const makeMesage = () =>
+                ctx.makeMessage({
+                    embeds: [embeds[currentPage]],
+                    components: [Functions.actionRow([prevBTN(), nextBTN()])],
+                });
+
+            await makeMesage();
+            ctx.interaction.followUp({
                 content: `Consider supporting Jolyne on Patreon to get rewards and help the bot grow!:pray: https://patreon.com/mizuki54`,
+                ephemeral: true,
+            });
+
+            const collector = ctx.channel.createMessageComponentCollector({
+                filter: (i) =>
+                    i.user.id === ctx.user.id && i.customId.startsWith(ctx.interaction.id),
+                time: 60000,
+            });
+
+            collector.on("collect", async (i) => {
+                if (i.customId === nextID) {
+                    currentPage++;
+                    if (currentPage > maxPage) currentPage = 0;
+                    await i.update({
+                        embeds: [embeds[currentPage]],
+                        components: [Functions.actionRow([prevBTN(), nextBTN()])],
+                    });
+                } else if (i.customId === prevID) {
+                    currentPage--;
+                    if (currentPage < 0) currentPage = maxPage;
+                    await i.update({
+                        embeds: [embeds[currentPage]],
+                        components: [Functions.actionRow([prevBTN(), nextBTN()])],
+                    });
+                }
             });
         }
     },
 };
+
 export default slashCommand;
