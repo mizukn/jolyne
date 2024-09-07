@@ -54,6 +54,7 @@ import { Command } from "ioredis";
 import * as Emojis from "../emojis.json";
 import { random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
+import color from "get-image-colors";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -2062,4 +2063,26 @@ export const hasVotedRecenty = (data: RPGUserDataJSON, client: Jolyne): boolean 
     const result = Date.now() - lastMonthVote < mustBeLessThan;
     console.log(`Result: ${result}`);
     return result;
+};
+
+const hextoNumber = (hex: string) => parseInt(hex.replace("#", ""), 16);
+
+export const getProminentColor = async (
+    url: string,
+    intensity: number,
+    client?: Jolyne
+): Promise<number> => {
+    if (client) {
+        const cache = await client.database.getString(`color.${intensity}:${url}`);
+        if (cache) return parseInt(cache);
+    }
+
+    const colors = await color(url, { count: intensity });
+    const hex = colors.map((x) => x.hex());
+    const prominentColors = hex.map((c) => hextoNumber(c));
+    const prominent = prominentColors.reduce((a, b) => (a > b ? a : b));
+
+    if (client) client.database.setString(`color.${intensity}:${url}`, prominent.toString());
+
+    return prominent;
 };
