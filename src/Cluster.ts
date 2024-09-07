@@ -10,8 +10,11 @@ const port = 6969;
 // check at localhost if port is already in use
 exec(`lsof -i:${port}`, async (error, stdout) => {
     if (stdout.includes("LISTEN")) {
-        console.log(`Port ${port} is already in use. Exiting...`);
-        process.exit(0);
+        while (process.env.JIFOSADIOJFAIOJOJIF !== "jisdgijksigk") {
+            // always true
+            console.log(`Port ${port} is already in use.`);
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
     } else {
         console.log(`Port ${port} is available.`);
         // await TempRedis.set("rpgGlobalFightMatchmaking", JSON.stringify([]));
