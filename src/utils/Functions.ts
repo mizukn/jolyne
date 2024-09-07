@@ -1696,7 +1696,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
                     ).toLocaleString("en-US")}** ${findItem(item).emoji} ${findItem(item).name}`
                 );
         }
-    } else console.log(JSON.stringify(data1.inventory), JSON.stringify(data2.inventory));
+    }
 
     if (data1.health !== data2.health)
         rewards.push(
