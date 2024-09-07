@@ -342,10 +342,10 @@ const Event: EventFile = {
         }, 1000 * 60 * 2);
 
         while (client.patreonTiers.length === 0) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
             const result = await client.fetchRewards();
             if (result) client.patreonTiers = result;
             console.log("Fetched patreon tiers");
+            await new Promise((resolve) => setTimeout(resolve, 15000));
         }
     },
 };
