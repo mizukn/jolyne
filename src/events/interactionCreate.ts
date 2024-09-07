@@ -501,12 +501,11 @@ const Event: EventFile = {
                     (command.data.name === "fight" ||
                         command.data.name === "dungeon" ||
                         command.data.name === "assault") &&
-                    Functions.percent(40)
+                    Functions.percent(10)
                 ) {
-                    if (ctx.interaction.options.getSubcommand() !== "train")
-                        ctx.followUpQueue.push({
-                            content: `:warning: | <@${ctx.user.id}>, you're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`,
-                        });
+                    ctx.followUpQueue.push({
+                        content: `:warning: | <@${ctx.user.id}>, you're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`,
+                    });
                 }
 
                 if (
