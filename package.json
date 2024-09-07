@@ -41,6 +41,8 @@
     "discord-hybrid-sharding": "^2.0.4",
     "discord.js": "^14.8.0",
     "dotenv": "^16.0.0",
+    "get-image-colors": "^4.0.1",
+    "get-rgba-palette": "^2.0.1",
     "graphql-request": "^4.3.0",
     "i18next": "^21.6.16",
     "i18next-fs-backend": "^1.1.4",
@@ -63,6 +65,7 @@
   "devDependencies": {
     "@types/cron": "^2.0.0",
     "@types/express": "^4.17.17",
+    "@types/get-image-colors": "^4.0.5",
     "@types/lodash": "^4.14.197",
     "@types/node-fetch": "^2.6.2",
     "@types/pg": "^8.6.6",
