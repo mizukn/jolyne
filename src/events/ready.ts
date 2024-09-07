@@ -340,6 +340,8 @@ const Event: EventFile = {
                 console.log(`Cleared ${keys.length} temp cache keys.`);
             });
         }, 1000 * 60 * 2);
+
+        client.fetchCampaign();
     },
 };
 export default Event;
