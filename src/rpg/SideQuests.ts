@@ -42,7 +42,7 @@ export const RequiemArrowEvolve: SideQuest = {
             ctx.userData.stand === Functions.findStand("gold_experience").id ||
             ctx.userData.stand === Functions.findStand("silver_chariot").id
         ) {
-            if (ctx.userData.level > 50 && ctx.userData.skillPoints.perception >= 25) {
+            if (ctx.userData.level >= 50 && ctx.userData.skillPoints.perception >= 25) {
                 if (
                     Object.keys(ctx.userData.inventory).find(
                         (x) => x === "requiem_arrow" && ctx.userData.inventory[x] >= 2

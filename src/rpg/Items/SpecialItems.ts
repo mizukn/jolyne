@@ -56,7 +56,7 @@ async function useBox(
             for await (const reward of lootBox) {
                 if (amount === 1) await Functions.sleep(1000);
                 if (reward.xp) {
-                    const xp = Functions.addXp(ctx.userData, reward.xp);
+                    const xp = Functions.addXp(ctx.userData, reward.xp, ctx.client);
                     winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
                 } else if (reward.coins) {
                     const coins = Functions.addCoins(ctx.userData, reward.coins);
