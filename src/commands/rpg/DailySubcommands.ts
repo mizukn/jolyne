@@ -9,11 +9,12 @@ import {
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { FightableNPCS } from "../../rpg/NPCs";
+import { FightableNPCS, NPCs } from "../../rpg/NPCs";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { StandArrow } from "../../rpg/Items/SpecialItems";
 import { getQuestsStats } from "./Chapter";
 import { cloneDeep } from "lodash";
+import Aes from "../../utils/Aes";
 
 const dailyQuestResetPrice = {
     undefined: 1000,
@@ -85,11 +86,42 @@ const slashCommand: SlashCommandFile = {
                 }
                 const rewards = Functions.getRewards(ctx.userData.level);
 
+                if (
+                    ctx.client.patreons.find((r) => r.id === ctx.userData.id) ||
+                    ctx.client.boosters.find((r) => r === ctx.userData.id)
+                ) {
+                    rewards.xp = Math.round(rewards.xp * 1.1);
+                }
+
                 Functions.addCoins(ctx.userData, rewards.coins);
-                Functions.addXp(ctx.userData, rewards.xp);
+                const added = Functions.addXp(ctx.userData, rewards.xp, ctx.client);
+
+                let embed_description = ctx.translate<string>("daily:CLAIMED_EMBED_DESCRIPTION", {
+                    coins: rewards.coins.toLocaleString("en-US"),
+                    xp: added.toLocaleString("en-US"),
+                });
 
                 if (ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000) {
+                    const oldStreak = ctx.userData.daily.claimStreak;
                     ctx.userData.daily.claimStreak = 0;
+
+                    if (oldStreak >= 7) {
+                        const data = Aes.encrypt(
+                            JSON.stringify({
+                                oldStreak: oldStreak,
+                                date: Date.now(),
+                                user_id: ctx.userData.id,
+                            })
+                        );
+
+                        ctx.followUpQueue.push({
+                            content: Functions.makeNPCString(
+                                NPCs.Jolyne,
+                                `You lost your **${oldStreak}-day streak**. You can try your luck by requesting a streak restore by [joining the support server](https://discord.gg/jolyne-support-923608916540145694) and providing the following code:\n\n\`${data}\`\n\n*Note that your streak may not be fully restored or restored at all.*`,
+                                ctx.client.localEmojis.JolyneAhhhhh
+                            ),
+                        });
+                    }
                 }
 
                 ctx.userData.daily.claimStreak++;
@@ -99,11 +131,6 @@ const slashCommand: SlashCommandFile = {
                 while (nextGoal % 7 !== 0) {
                     nextGoal++;
                 }
-
-                let embed_description = ctx.translate<string>("daily:CLAIMED_EMBED_DESCRIPTION", {
-                    coins: rewards.coins.toLocaleString("en-US"),
-                    xp: rewards.xp.toLocaleString("en-US"),
-                });
 
                 if (ctx.client.patreons.find((r) => r.id === ctx.userData.id)) {
                     const xpRewards = Math.round(
@@ -116,24 +143,29 @@ const slashCommand: SlashCommandFile = {
                             (ctx.client.patreons.find((r) => r.id === ctx.userData.id).level / 7 +
                                 0.25)
                     );
+
+                    const addedXP = Functions.addXp(ctx.userData, xpRewards, ctx.client);
                     embed_description +=
                         "\n" +
                         ctx.translate("daily:CLAIMED_EMBED_DESCRIPTION_PREMIUM", {
                             coins: moneyRewards.toLocaleString("en-US"),
-                            xp: xpRewards.toLocaleString("en-US"),
+                            xp: addedXP.toLocaleString("en-US"),
                             tier: ctx.client.patreons.find((r) => r.id === ctx.userData.id).level,
                         });
                     Functions.addCoins(ctx.userData, moneyRewards);
-                    Functions.addXp(ctx.userData, xpRewards);
                 }
                 if (ctx.client.boosters.find((r) => r === ctx.userData.id)) {
-                    Functions.addCoins(ctx.userData, 1000);
-                    Functions.addXp(ctx.userData, 1000);
+                    const xpRewards = Math.round(rewards.xp * 0.1);
+                    const moneyRewards = Math.round(rewards.coins * 0.1);
+
+                    Functions.addCoins(ctx.userData, moneyRewards);
+                    Functions.addXp(ctx.userData, xpRewards, ctx.client);
+
                     embed_description +=
                         "\n" +
                         ctx.translate("daily:CLAIMED_EMBED_DESCRIPTION_BOOSTER", {
-                            coins: (1000).toLocaleString("en-US"),
-                            xp: (1000).toLocaleString("en-US"),
+                            coins: moneyRewards.toLocaleString("en-US"),
+                            xp: xpRewards.toLocaleString("en-US"),
                         });
                 }
 
@@ -211,11 +243,11 @@ const slashCommand: SlashCommandFile = {
 
                 if (
                     Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
-                        Functions.getCurrentDate() as keyof typeof Functions.dailyClaimRewardsChristmas
+                        Functions.getCurrentDate()
                     ]
                 ) {
                     const rewards = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
-                        Functions.getCurrentDate() as keyof typeof Functions.dailyClaimRewardsChristmas
+                        Functions.getCurrentDate()
                     ];
 
                     const coins = rewards.coins;
@@ -224,7 +256,7 @@ const slashCommand: SlashCommandFile = {
 
                     const oldData = cloneDeep(ctx.userData);
                     if (coins) Functions.addCoins(ctx.userData, coins);
-                    if (xp) Functions.addXp(ctx.userData, xp);
+                    if (xp) Functions.addXp(ctx.userData, xp, ctx.client);
                     if (items) {
                         for (const item of Object.keys(items)) {
                             Functions.addItem(ctx.userData, Functions.findItem(item), items[item]);
@@ -232,11 +264,13 @@ const slashCommand: SlashCommandFile = {
                     }
 
                     embed.fields.push({
-                        name: "Christmas Event",
-                        value: `You got the following rewards for claiming today: ${Functions.getRewardsCompareData(
+                        name: "Merry Christmas!",
+                        value: `You got the following rewards for claiming today:\n${Functions.getRewardsCompareData(
                             oldData,
                             ctx.userData
-                        )} `,
+                        )
+                            .map((x) => `- ${x}`)
+                            .join("\n")} `,
                     });
                 }
 
@@ -275,6 +309,14 @@ const slashCommand: SlashCommandFile = {
                 }
                 if (coinReward > 50000) coinReward = 50000;
                 xpReward = Math.round(xpReward * 1.99);
+                // check if is booster or patreon
+
+                if (
+                    ctx.client.patreons.find((r) => r.id === ctx.userData.id) ||
+                    ctx.client.boosters.find((r) => r === ctx.userData.id)
+                ) {
+                    xpReward = Math.round(xpReward * 1.1);
+                }
 
                 const components: ButtonBuilder[] = [];
 
@@ -308,6 +350,8 @@ const slashCommand: SlashCommandFile = {
                     }
                 }
 
+                const toBeAdded = Functions.addXp(ctx.userData, xpReward, ctx.client, true);
+
                 await ctx.makeMessage({
                     embeds: [
                         {
@@ -316,7 +360,7 @@ const slashCommand: SlashCommandFile = {
                                 "daily:REWARDS_MESSAGE",
                                 {
                                     coins: coinReward.toLocaleString("en-US"),
-                                    xp: xpReward.toLocaleString("en-US"),
+                                    xp: toBeAdded.toLocaleString("en-US"),
                                     discordUnix: Functions.generateDiscordTimestamp(
                                         dateAtMidnight + 86400000,
                                         "FROM_NOW"
@@ -399,7 +443,7 @@ const slashCommand: SlashCommandFile = {
                         }
 
                         Functions.addCoins(ctx.userData, coinReward);
-                        Functions.addXp(ctx.userData, xpReward);
+                        Functions.addXp(ctx.userData, xpReward, ctx.client);
                         Functions.addItem(ctx.userData, Functions.findItem("Stand Arrow"));
                         Functions.addItem(ctx.userData, Functions.findItem("Dungeon"));
 

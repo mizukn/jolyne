@@ -430,8 +430,8 @@ const slashCommand: SlashCommandFile = {
                         xpRewards += enemy.level * 1000;
                         coinRewards += enemy.level * 100;
                         if (enemy.rewards) {
-                            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp;
-                            if (enemy.rewards.coins) coinRewards += enemy.rewards.coins;
+                            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp / 2;
+                            if (enemy.rewards.coins) coinRewards += enemy.rewards.coins / 4;
                         }
                     }
 
@@ -506,7 +506,8 @@ const slashCommand: SlashCommandFile = {
                                                 : 1
                                             : 1)
                                 ) * getTotalXpIncrease(selectedModifiers)
-                            )
+                            ),
+                            ctx.client
                         );
                         player.coins += coinRewards;
                         player.health = 0;

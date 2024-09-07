@@ -187,7 +187,7 @@ const slashCommand: SlashCommandFile = {
                                 ctx.client.localEmojis.a_
                             } Level **${user.level.toLocaleString(
                                 "en-US"
-                            )}** with  **${user.xp.toLocaleString("en-US")}** ${
+                            )}** with **${user.xp.toLocaleString("en-US")}** ${
                                 ctx.client.localEmojis.xp
                             }`,
                             inline: false,

@@ -228,7 +228,11 @@ const slashCommand: SlashCommandFile = {
             fight.on("end", async (winners, losers) => {
                 for (const user of joinedUsers) {
                     ctx.client.database.deleteCooldown(user.id);
-                    await ctx.client.database.setRPGCooldown(user.id, "raid", raid.cooldown);
+                    await ctx.client.database.setRPGCooldown(
+                        user.id,
+                        "raid",
+                        Functions.hasVotedRecenty(user, ctx.client) ? 30000 : raid.cooldown
+                    );
                 }
                 raidWebhook.send({
                     embeds: [
@@ -321,7 +325,7 @@ const slashCommand: SlashCommandFile = {
                                     raid.baseRewards.xp
                             );
 
-                            xp = Functions.addXp(winnerData, xp);
+                            xp = Functions.addXp(winnerData, xp, ctx.client);
                             winContent.push(
                                 `+**${xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}`
                             );

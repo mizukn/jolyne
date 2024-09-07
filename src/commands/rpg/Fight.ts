@@ -322,7 +322,8 @@ const slashCommand: SlashCommandFile = {
                             fightType === FightTypes.DailyQuest ||
                                 fightType === FightTypes.SideQuest
                                 ? Math.round(npc.rewards.xp / 2)
-                                : npc.rewards.xp
+                                : npc.rewards.xp,
+                            ctx.client
                         );
                         winContent.push(
                             `+${xp.toLocaleString("en-US")} ${ctx.client.localEmojis.xp}`

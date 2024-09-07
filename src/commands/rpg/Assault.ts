@@ -106,7 +106,14 @@ const slashCommand: SlashCommandFile = {
             ],
             components: [Functions.actionRow([normalNPCButton, randomNPCButton, highNPCButton])],
         });
-        await ctx.client.database.setRPGCooldown(ctx.user.id, "assault", 60000 * 5);
+
+        let cooldown = 60000 * 5;
+        if (Functions.hasVotedRecenty(ctx.userData, ctx.client)) {
+            console.log("Voted recently, so cooldown is 45 seconds");
+            cooldown = 45000;
+        }
+
+        await ctx.client.database.setRPGCooldown(ctx.user.id, "assault", cooldown);
         await ctx.client.database.setCooldown(
             ctx.userData.id,
             `You're currently assaulting someone. Please make a selection!`
@@ -144,7 +151,8 @@ const slashCommand: SlashCommandFile = {
                 if (winners.find((r) => r.id === ctx.userData.id)) {
                     const xp = Functions.addXp(
                         ctx.userData,
-                        npc.rewards?.xp ?? 0 ?? npc.level * 1000
+                        npc.rewards?.xp ?? 0 ?? npc.level * 1000,
+                        ctx.client
                     );
                     const coins = Functions.addCoins(
                         ctx.userData,

@@ -229,11 +229,9 @@ const slashCommand: SlashCommandFile = {
                         );
                     }
                     if (emailData.rewards.xp) {
-                        Functions.addXp(ctx.userData, emailData.rewards.xp);
+                        const xp = Functions.addXp(ctx.userData, emailData.rewards.xp, ctx.client);
                         winContent.push(
-                            `+${emailData.rewards.xp.toLocaleString("en-US")} ${
-                                ctx.client.localEmojis.xp
-                            }`
+                            `+${xp.toLocaleString("en-US")} ${ctx.client.localEmojis.xp}`
                         );
                     }
                     if (emailData.rewards.items) {

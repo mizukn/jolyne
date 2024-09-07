@@ -27,7 +27,11 @@ const slashCommand: SlashCommandFile = {
     },
     checkRPGCooldown: "loot",
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        await ctx.client.database.setRPGCooldown(ctx.user.id, "loot", 60000 * 10);
+        await ctx.client.database.setRPGCooldown(
+            ctx.user.id,
+            "loot",
+            Functions.hasVotedRecenty(ctx.userData, ctx.client) ? 30000 : 60000 * 10
+        );
 
         const rng: Loot[] = [
             {

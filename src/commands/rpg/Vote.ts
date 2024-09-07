@@ -1,7 +1,13 @@
 import { SlashCommandFile } from "../../@types";
 import { Message, InteractionResponse, APIEmbed } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
-import { generateDiscordTimestamp, TopGGVoteRewards, findItem } from "../../utils/Functions";
+import {
+    generateDiscordTimestamp,
+    TopGGVoteRewards,
+    findItem,
+    addXp,
+    hasVotedRecenty,
+} from "../../utils/Functions";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -17,6 +23,8 @@ const slashCommand: SlashCommandFile = {
         const monthVotes = ctx.userData.voteHistory[voteMonth] ?? []; // array of timestamps
         const voteRewards = TopGGVoteRewards(ctx.userData);
 
+        const xpRewards = addXp(ctx.userData, voteRewards.xp, ctx.client, true);
+
         const embeds: APIEmbed[] = [
             {
                 author: {
@@ -28,11 +36,9 @@ const slashCommand: SlashCommandFile = {
                     monthVotes.length
                 }** times this month and **${totalVotes}** times in total.\nBy voting, you can earn **${voteRewards.coins.toLocaleString(
                     "en-US"
-                )}** ${ctx.client.localEmojis.jocoins}, **${voteRewards.xp.toLocaleString(
-                    "en-US"
-                )}** ${ctx.client.localEmojis.xp}, x2 ${
-                    ctx.client.localEmojis.mysterious_arrow
-                } **Stand Arrows** and x2 ${
+                )}** ${ctx.client.localEmojis.jocoins}, **${xpRewards.toLocaleString("en-US")}** ${
+                    ctx.client.localEmojis.xp
+                }, x2 ${ctx.client.localEmojis.mysterious_arrow} **Stand Arrows** and x2 ${
                     ctx.client.localEmojis.mysterious_arrow
                 } **Rare Stand Arrows** + 1x ${
                     findItem("dungeon").emoji
@@ -46,6 +52,7 @@ const slashCommand: SlashCommandFile = {
         const lastVote = monthVotes[monthVotes.length - 1] || 0;
         const canVoteTimestamp = lastVote + 43200000;
         if (lastVote && Date.now() - lastVote < 43200000 && monthVotes.length > 0) {
+            const rewardXP = addXp(ctx.userData, voteRewards.xp, ctx.client, true);
             embeds[0].fields.push({
                 // color: 0xff3366,
                 // fields: [
@@ -53,7 +60,7 @@ const slashCommand: SlashCommandFile = {
                 name: "Thank you for voting!",
                 value: `You have been given **${voteRewards.coins.toLocaleString("en-US")}** ${
                     ctx.client.localEmojis.jocoins
-                }, **${voteRewards.xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}, x2 ${
+                }, **${rewardXP.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}, x2 ${
                     ctx.client.localEmojis.mysterious_arrow
                 } **Stand Arrows** for voting ${generateDiscordTimestamp(lastVote, "FROM_NOW")}. ${
                     ctx.userData.totalVotes % 2 === 0
@@ -69,6 +76,24 @@ const slashCommand: SlashCommandFile = {
                 // }
                 // ]
             });
+
+            if (hasVotedRecenty(ctx.userData, ctx.client)) {
+                const expire = lastVote + 60000 * 5; // only lasts for 5 minutes
+                embeds[0].fields.push({
+                    name: `${ctx.client.localEmojis.timerIcon} Low Cooldown!`,
+                    value: `Since you have voted recently, all your cooldowns are reduced by **45 seconds** !! (${[
+                        "assault",
+                        "loot",
+                        "raid",
+                    ]
+                        .map((x) => ctx.client.getSlashCommandMention(x))
+                        .join(", ")}) [expires ${generateDiscordTimestamp(
+                        expire,
+                        "FROM_NOW"
+                    )}]\nYou have also been fully healed and your stamina has been restored.`,
+                });
+                return await ctx.makeMessage({ embeds });
+            }
         }
         embeds[0].fields.push({
             //color: 0xff3366,

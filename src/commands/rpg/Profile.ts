@@ -163,6 +163,30 @@ const slashCommand: SlashCommandFile = {
             badges.push(`<:legacyplayer:1168585259084951652> Legacy Player`);
         }
 
+        let patreonMult = 0;
+        const patreonTier = ctx.client.patreons.find((v) => v.id === userOption.id)?.level;
+
+        if (patreonTier)
+            switch (patreonTier) {
+                case 4:
+                    patreonMult = 0.1;
+                    break;
+                case 3:
+                    patreonMult += 0.07;
+                    break;
+                case 2:
+                    patreonMult += 0.05;
+                    break;
+                case 1:
+                    patreonMult += 0.04;
+                    break;
+            }
+        let boosterMult = 0;
+
+        if (ctx.client.boosters.includes(userOption.id)) {
+            boosterMult = 0.03;
+        }
+
         const embed: APIEmbed = {
             author: {
                 name: userOption.username,
@@ -340,6 +364,18 @@ const slashCommand: SlashCommandFile = {
                 {
                     name: "Badges [" + badges.length + "]",
                     value: badges.length > 0 ? badges.join("\n") : "None",
+                    inline: true,
+                },
+                {
+                    name: "Extra Bonuses",
+                    value: `<:patreon:1282049298866901103> [Patreon Bonus:](https://patreon.com/mizuki54) +**${
+                        patreonMult * 100
+                    }%** ${
+                        ctx.client.localEmojis.xp
+                    }\n<:BoosterStatus:1282050059898458153> [Booster Bonus:](https://discord.gg/jolyne-support-923608916540145694) +**${
+                        boosterMult * 100
+                    }%** ${ctx.client.localEmojis.xp}`,
+                    inline: true,
                 },
             ],
         };

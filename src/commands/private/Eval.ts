@@ -92,6 +92,7 @@ const slashCommand: SlashCommandFile = {
         const SpecialItems = require("../../rpg/Items/SpecialItems"); // eslint-disable-line @typescript-eslint/no-var-requires
         await ctx.interaction.deferReply();
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+        const Aes = require("../../utils/Aes").default; // eslint-disable-line @typescript-eslint/no-var-requires
 
         const { client } = ctx;
         const content = ctx.options.getString("code", true);

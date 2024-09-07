@@ -285,7 +285,8 @@ const slashCommand: SlashCommandFile = {
                                     (fighter.totalDamageDealt /
                                         Functions.getMaxHealth(FightableNPCS.CorruptedReindeer)) *
                                         FightableNPCS.CorruptedReindeer.rewards.xp
-                                )
+                                ),
+                                ctx.client
                             );
 
                             if (Functions.percent(percentOfTheChained)) {
@@ -402,7 +403,8 @@ const slashCommand: SlashCommandFile = {
                 // give 1-3% of max xp
                 Functions.addXp(
                     ctx.userData,
-                    Math.round((Functions.getMaxXp(ctx.userData.level) / 100) * 0.8)
+                    Math.round((Functions.getMaxXp(ctx.userData.level) / 100) * 0.8),
+                    ctx.client
                 );
             }
             Functions.removeItem(ctx.userData, Items.CandyCane.id, candy);
