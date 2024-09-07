@@ -2055,7 +2055,9 @@ export const hasVotedRecenty = (data: RPGUserDataJSON, client: Jolyne): boolean 
         return false;
     }
 
-    const mustBeLessThan = 1000 * 60 * 5 + patreonTier * 1000 * 60; // 15 minutes + 1 minute per patreon tier
+    const isBooster = client.boosters.find((x) => x === data.id);
+
+    const mustBeLessThan = 1000 * 60 * 5 + patreonTier * 1000 * 60 + (isBooster ? 1000 * 60 : 0); // 5 minutes + 1 minute per patreon tier
 
     const result = Date.now() - lastMonthVote < mustBeLessThan;
     console.log(`Result: ${result}`);
