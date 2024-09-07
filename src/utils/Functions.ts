@@ -53,6 +53,7 @@ import * as EquipableItems from "../rpg/Items/EquipableItems";
 import { Command } from "ioredis";
 import * as Emojis from "../emojis.json";
 import { random } from "lodash";
+import Jolyne from "../structures/JolyneClient";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -1100,21 +1101,50 @@ export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: num
     return amount;
 };
 
-export const addXp = function addXp(userData: RPGUserDataJSON, amount: number): number {
+export const addXp = function addXp(
+    userData: RPGUserDataJSON,
+    amount: number,
+    client: Jolyne,
+    dontAdd?: boolean
+): number {
     if (calcEquipableItemsBonus(userData).xpBoost > 0) {
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
     if (Date.now() < 1707606000000) amount = Math.round(amount * 1.25);
+    let multiplier = 1;
+
+    const patreonTier = client.patreons.find((v) => v.id === userData.id)?.level;
+
+    if (patreonTier)
+        switch (patreonTier) {
+            case 4:
+                multiplier += 0.1;
+                break;
+            case 3:
+                multiplier += 0.07;
+                break;
+            case 2:
+                multiplier += 0.05;
+                break;
+            case 1:
+                multiplier += 0.04;
+                break;
+        }
+
+    if (client.boosters.find((x) => x === userData.id)) multiplier += 0.03;
 
     amount = Math.round(amount);
-    userData.xp += amount;
-    for (const quests of [
-        userData.daily.quests,
-        userData.chapter.quests,
-        ...userData.sideQuests.map((v) => v.quests),
-    ]) {
-        for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "xp")) {
-            (quest as ClaimXQuest).amount += amount;
+
+    if (!dontAdd) {
+        userData.xp += amount;
+        for (const quests of [
+            userData.daily.quests,
+            userData.chapter.quests,
+            ...userData.sideQuests.map((v) => v.quests),
+        ]) {
+            for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "xp")) {
+                (quest as ClaimXQuest).amount += amount;
+            }
         }
     }
     return amount;
@@ -1607,7 +1637,12 @@ export const TopGGVoteRewards = (userData: RPGUserDataJSON): { coins: number; xp
     let xp = Math.round((getMaxXp(userData.level) * 5) / 100);
     const coins = 15000;
 
-    if (xp > 20000) xp = 20000;
+    if (xp > 20000) {
+        xp = 20000;
+        xp += getMaxXp(userData.level) * 0.08;
+    }
+
+    xp = Math.round(xp * 2);
 
     return {
         coins,
@@ -2003,4 +2038,26 @@ export const getRandomWeapon = (includeRarity?: Rarity[]): Weapon => {
         : randomArray(totalWeapons);
 
     return randomWeapon as Weapon;
+};
+
+export const hasVotedRecenty = (data: RPGUserDataJSON, client: Jolyne): boolean => {
+    const patreonTier = client.patreons.find((v) => v.id === data.id)?.level ?? 0;
+    const voteMonth = new Date().toLocaleString("en-US", {
+        month: "long",
+        year: "numeric",
+    });
+
+    const lastMonthVote = (data.voteHistory[voteMonth] ?? []) // array of DAte.now() we must get the biggest one
+        .sort((a, b) => b - a)[0];
+
+    if (!lastMonthVote) {
+        console.log("No vote found");
+        return false;
+    }
+
+    const mustBeLessThan = 1000 * 60 * 5 + patreonTier * 1000 * 60; // 15 minutes + 1 minute per patreon tier
+
+    const result = Date.now() - lastMonthVote < mustBeLessThan;
+    console.log(`Result: ${result}`);
+    return result;
 };

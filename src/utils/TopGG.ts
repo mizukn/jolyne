@@ -2,7 +2,7 @@ import * as TopGG from "@top-gg/sdk";
 import JolyneClient from "../structures/JolyneClient";
 import { voteWebhook } from "./Webhooks";
 import express from "express";
-import { addItem, TopGGVoteRewards } from "./Functions";
+import { addItem, getMaxHealth, getMaxStamina, TopGGVoteRewards } from "./Functions";
 
 export default (client: JolyneClient): void => {
     const app = express();
@@ -29,6 +29,10 @@ export default (client: JolyneClient): void => {
                 const rewards = TopGGVoteRewards(user);
                 user.coins += rewards.coins;
                 user.xp += rewards.xp;
+
+                user.health = getMaxHealth(user);
+                user.stamina = getMaxStamina(user);
+
                 addItem(user, "dungeon_key", 1);
                 addItem(user, "stand_arrow", 2);
 
