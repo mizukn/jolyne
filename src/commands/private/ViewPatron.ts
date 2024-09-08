@@ -18,7 +18,7 @@ const slashCommand: SlashCommandFile = {
             },
         ],
     },
-    adminOnly: true,
+    ownerOnly: true,
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<void | Message<boolean> | InteractionResponse> => {

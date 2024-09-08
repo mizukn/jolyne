@@ -16,33 +16,29 @@ const tiers = {
 
 const slashCommand: SlashCommandFile = {
     data: {
-        name: "setpatron",
+        name: "exportpatronsfromcache",
         description: "yes",
-        options: [
-            {
-                name: "user",
-                description: "If the message should be public (everyone can see it)",
-                type: 6,
-                required: true,
-            },
-            {
-                name: "name",
-                description: "bame",
-                type: 3,
-                required: true,
-            },
-        ],
+        options: [],
     },
     ownerOnly: true,
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<InteractionResponse | Message | void> => {
-        const user = ctx.options.getUser("user", true);
-        const name = ctx.options.getString("name", true);
+        const patrons = await ctx.client.database.redis.keys("patronCache_*");
 
-        await ctx.client.database.setString(`patronCache_${name}`, user.id);
-        await ctx.makeMessage({
-            content: `Set ${user.username} as ${name}`,
+        const results = await Promise.all(
+            patrons.map(async (key) => {
+                const user = await ctx.client.database.redis.get(key);
+                return { key, user };
+            })
+        );
+
+        ctx.makeMessage({
+            embeds: [
+                {
+                    description: JSON.stringify(results),
+                },
+            ],
             ephemeral: true,
         });
     },

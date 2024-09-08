@@ -16,18 +16,12 @@ const tiers = {
 
 const slashCommand: SlashCommandFile = {
     data: {
-        name: "setpatron",
+        name: "importpatronstocache",
         description: "yes",
         options: [
             {
-                name: "user",
-                description: "If the message should be public (everyone can see it)",
-                type: 6,
-                required: true,
-            },
-            {
-                name: "name",
-                description: "bame",
+                name: "stringifiedjson",
+                description: "The stringified JSON of the patrons",
                 type: 3,
                 required: true,
             },
@@ -37,12 +31,17 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<InteractionResponse | Message | void> => {
-        const user = ctx.options.getUser("user", true);
-        const name = ctx.options.getString("name", true);
+        const data = ctx.options.getString("stringifiedjson", true);
+        const parsedData = JSON.parse(data) as { key: string; user: string }[];
 
-        await ctx.client.database.setString(`patronCache_${name}`, user.id);
+        await Promise.all(
+            parsedData.map(async (x) => {
+                await ctx.client.database.redis.set(x.key, x.user);
+            })
+        );
+
         await ctx.makeMessage({
-            content: `Set ${user.username} as ${name}`,
+            content: `Imported ${parsedData.length} patrons`,
             ephemeral: true,
         });
     },
