@@ -174,6 +174,7 @@ export const Whitesnake: EvolutionStand = {
                 handleAttack: (ctx, user, target, damages): void => {
                     const cacheID = `${ctx.id}_${user.id}.attack.cmoon`;
                     const attacks = (ctx.ctx.client.fightCache.get(cacheID) as number) || 0;
+                    user.stamina -= 1;
 
                     damages = Math.round(damages * (attacks % 2 === 0 ? 1.5 : 1));
 
