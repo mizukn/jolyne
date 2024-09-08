@@ -262,6 +262,7 @@ const Event: EventFile = {
                         .filter((r) => !r.choices)
                         .filter((r) => r.type !== 3)
                         .filter((r) => r.type !== 6)
+                        .filter((r) => r.type !== 5)
                         .filter((r) => r.type !== 4).length !== 0
                 ) {
                     return v.data.options.map((c) => {
@@ -278,7 +279,7 @@ const Event: EventFile = {
                         cooldown: v.cooldown,
                         category: v.category,
                         options: v.data?.options?.filter(
-                            (r) => r.type === 3 || r.type === 6 || r.type === 4
+                            (r) => r.type === 3 || r.type === 6 || r.type === 4 || r.type === 5
                         ),
                         name: v.data.name,
                         description: removeEmoji(v.data.description),
