@@ -375,7 +375,7 @@ export const BulletsRafale: Ability = {
     description: "Fires all your bullets at once.",
     cooldown: 3,
     damage: 0,
-    stamina: 35,
+    stamina: 15,
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
         const bulletId = `${ctx.id}_${user.id}`;
@@ -393,14 +393,19 @@ export const BulletsRafale: Ability = {
                 user.name
             }** fires all their bullets at once! (${6 - bullets})`
         );
+
+        user.skillPoints.perception *= 2;
+        user.skillPoints.speed *= 2;
         for (let i = 0; i < 6 - bullets; i++) {
             user.stand?.customAttack.handleAttack(
                 ctx,
                 user,
                 target,
-                Functions.getAttackDamages(user)
+                Math.round(Functions.getAttackDamages(user) * 1.5)
             );
         }
+        user.skillPoints.perception /= 2;
+        user.skillPoints.speed /= 2;
         ctx.ctx.client.fightCache.delete(bulletId + "fireX");
     },
     dodgeScore: 0,
