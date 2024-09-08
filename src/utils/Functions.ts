@@ -29,6 +29,7 @@ import {
     RaidNPCQuest,
     numOrPerc,
     Rarity,
+    LBData,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -1135,6 +1136,7 @@ export const addXp = function addXp(
     if (client.boosters.find((x) => x === userData.id)) multiplier += 0.03;
 
     amount = Math.round(amount);
+    if (userIsCommunityBanned(userData)) amount = Math.round(amount / 2);
 
     if (!dontAdd) {
         userData.xp += amount;
@@ -1277,11 +1279,12 @@ export const calculeSkillPointsLeft = function calculeSkillPointsLeft(
 };
 
 export const userIsCommunityBanned = function userIsCommunityBanned(
-    userData: RPGUserDataJSON
-): string {
+    userData: RPGUserDataJSON | LBData
+): RPGUserDataJSON["communityBans"][0] {
+    if (userData.communityBans?.length === 0 || !userData.communityBans) return;
     const activeCommunityBans = userData.communityBans.filter((v) => v.until > Date.now());
     if (activeCommunityBans.length === 0) return;
-    return activeCommunityBans[0].reason;
+    return activeCommunityBans[0];
 };
 
 export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
