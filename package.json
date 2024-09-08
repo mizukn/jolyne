@@ -41,6 +41,7 @@
     "discord-hybrid-sharding": "^2.0.4",
     "discord.js": "^14.8.0",
     "dotenv": "^16.0.0",
+    "form-data": "^4.0.0",
     "get-image-colors": "^4.0.1",
     "get-rgba-palette": "^2.0.1",
     "graphql-request": "^4.3.0",
