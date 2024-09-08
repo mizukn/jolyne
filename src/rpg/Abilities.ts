@@ -24,7 +24,7 @@ export const KickBarrage: Ability = {
     extraTurns: 0,
     damage: 8,
     stamina: 6,
-    dodgeScore: 1,
+    dodgeScore: 2,
     target: "enemy",
 };
 
