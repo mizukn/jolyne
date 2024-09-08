@@ -281,6 +281,13 @@ const slashCommand: SlashCommandFile = {
 
         collector.on("collect", async (i) => {
             if (i.customId === "join_dungeon" + ctx.interaction.id) {
+                if (Functions.userIsCommunityBanned(ctx.userData)) {
+                    return void i.reply({
+                        content: "The host is community banned.",
+                        ephemeral: true,
+                    });
+                }
+
                 if (totalPlayers.length >= 2) {
                     return void i.reply({
                         content: "This dungeon is full.",
@@ -303,6 +310,16 @@ const slashCommand: SlashCommandFile = {
                             Date.now() + timeLeft,
                             "FROM_NOW"
                         )}.`,
+                        ephemeral: true,
+                    });
+                }
+
+                const usrData = await ctx.client.database.getRPGUserData(i.user.id);
+                if (!usrData) return;
+
+                if (Functions.userIsCommunityBanned(usrData)) {
+                    return void i.reply({
+                        content: "You're community banned.",
                         ephemeral: true,
                     });
                 }

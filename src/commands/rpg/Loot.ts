@@ -216,6 +216,21 @@ const slashCommand: SlashCommandFile = {
             },
         ];
 
+        if (Functions.userIsCommunityBanned(ctx.userData)) {
+            for (const loot of rng) {
+                for (const l of loot.loots) {
+                    if (typeof l.loot !== "number") {
+                        l.loot = Items.DeadRat;
+                    } else {
+                        l.loot = 1;
+                    }
+                }
+            }
+            ctx.followUpQueue.push({
+                content: `You are currently community banned, you can only find dead rats. take the L bozo :joy_cat::pray::clown:`,
+            });
+        }
+
         const shuffledLoots: Loot[] = Functions.shuffle(rng);
         const choice1ID = Functions.generateRandomId();
         const choice2ID = Functions.generateRandomId();

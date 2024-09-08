@@ -712,6 +712,14 @@ const slashCommand: SlashCommandFile = {
             }
 
             case "train": {
+                if (Functions.userIsCommunityBanned(ctx.userData)) {
+                    await ctx.makeMessage({
+                        content: "You're community banned. Fuck you",
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
                 const npc = ctx.interaction.options.getString("npc", true);
                 const npcData = Functions.findNPC<FightableNPC>(npc, true);
                 if (!npcData || typeof npcData.level !== "number") {

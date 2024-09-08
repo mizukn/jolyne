@@ -569,6 +569,14 @@ const slashCommand: SlashCommandFile = {
                         "nothing"),
             });
         } else if (ctx.interaction.options.getSubcommand() === "throw") {
+            if (Functions.userIsCommunityBanned(ctx.userData)) {
+                await ctx.makeMessage({
+                    content:
+                        "You're community banned. You can't throw items. You should throw yourself instead.",
+                    ephemeral: true,
+                });
+                return;
+            }
             const itemString = ctx.interaction.options.getString("item", true);
             const left = ctx.userData.inventory[itemString] || 0;
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
@@ -639,6 +647,15 @@ const slashCommand: SlashCommandFile = {
                 )} command [ID: \`${itemId}\`])\n**The item will be deleted in a week.**`,
             });
         } else if (ctx.interaction.options.getSubcommand() === "claim") {
+            if (Functions.userIsCommunityBanned(ctx.userData)) {
+                await ctx.makeMessage({
+                    content:
+                        "You're community banned. You can't claim items. You should throw yourself instead.",
+                    ephemeral: true,
+                });
+                return;
+            }
+
             const itemId = ctx.interaction.options.getString("id", true);
             const itemData = await ctx.client.database.redis.get("thrownItem_" + itemId);
             if (!itemData) {

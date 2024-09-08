@@ -187,10 +187,27 @@ const slashCommand: SlashCommandFile = {
             boosterMult = 0.03;
         }
 
+        const color = await Functions.getProminentColor(
+            userOption.displayAvatarURL({ extension: "png" }),
+            50
+        );
+
+        const userIsCommunityBanned = Functions.userIsCommunityBanned(rpgData);
+        const userisbanned = Functions.userIsCommunityBanned(ctx.userData);
+
+        if (userisbanned) {
+            ctx.followUpQueue.push({
+                content: `You are banned until ${Functions.generateDiscordTimestamp(
+                    userisbanned.until,
+                    "FULL_DATE"
+                )} for the following reason: \`${userisbanned.reason}\``,
+            });
+        }
+
         const embed: APIEmbed = {
             author: {
                 name: userOption.username,
-                icon_url: userOption.displayAvatarURL({ extension: "gif" }),
+                icon_url: userOption.displayAvatarURL({ extension: "png" }),
             },
             description:
                 ctx.translate("profile:ADVENTUREAT", {
@@ -207,8 +224,11 @@ const slashCommand: SlashCommandFile = {
                 }) +
                 (badges.find((x) => x.toLowerCase().includes("staff"))
                     ? "\n🛠️ This player is part of the staff team."
+                    : "") +
+                (userIsCommunityBanned
+                    ? "\n:poop: This player is community banned. They get 50% less XP and they can't interact with other players."
                     : ""),
-            color: 0x70926c,
+            color, //: 0x70926c,
             thumbnail: {
                 url: rpgData.stand
                     ? Functions.getCurrentStand(rpgData)

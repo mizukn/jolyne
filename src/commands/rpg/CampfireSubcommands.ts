@@ -1,11 +1,9 @@
 import { RPGUserDataJSON, SlashCommandFile, Leaderboard, i18n_key } from "../../@types";
-import {
-    Message,
-    InteractionResponse
-} from "discord.js";
+import { Message, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import * as SideQuests from "../../rpg/SideQuests";
+import { NPCs } from "../../rpg/NPCs";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -17,19 +15,25 @@ const slashCommand: SlashCommandFile = {
                 name: "rest",
                 description: "Rest at the campfire. (+1% health +1% stamina every 2 minutes)",
                 type: 1,
-                options: []
+                options: [],
             },
             {
                 name: "leave",
                 description: "Leave the campfire.",
                 type: 1,
-                options: []
-            }
-        ]
+                options: [],
+            },
+        ],
     },
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
+        if (Functions.userIsCommunityBanned(ctx.userData)) {
+            return void ctx.makeMessage({
+                content: Functions.makeNPCString(NPCs.Jolyne, `Fuck you`),
+                ephemeral: true,
+            });
+        }
         async function getStats(): Promise<{
             health: number;
             stamina: number;
@@ -57,19 +61,19 @@ const slashCommand: SlashCommandFile = {
                 health: Math.round(healthWon),
                 stamina: Math.round(staminaWon),
                 currentHealth: ctx.userData.health + Math.round(healthWon),
-                currentStamina: ctx.userData.stamina + Math.round(staminaWon)
+                currentStamina: ctx.userData.stamina + Math.round(staminaWon),
             };
         }
 
         switch (ctx.interaction.options.getSubcommand()) {
             case "rest": {
                 getStats().then(async (stats) => {
-                    if ((stats.health === undefined) || isNaN(stats.health)) {
+                    if (stats.health === undefined || isNaN(stats.health)) {
                         ctx.userData.restingAtCampfire = Date.now();
                         ctx.makeMessage({
                             content: `🔥🪵 You're now resting at the campfire. Use this command again to see what you've gained. You can leave the campfire with ${ctx.client.getSlashCommandMention(
                                 "campfire leave"
-                            )} command.`
+                            )} command.`,
                         });
                         ctx.client.database.saveUserData(ctx.userData);
                     } else {
@@ -88,7 +92,7 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )} :zap:].\n You can leave the campfire with ${ctx.client.getSlashCommandMention(
                                 "campfire leave"
-                            )} command.`
+                            )} command.`,
                         });
                     }
                 });
@@ -100,7 +104,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.makeMessage({
                             content: `You're not resting at the campfire. Use ${ctx.client.getSlashCommandMention(
                                 "campfire rest"
-                            )} to rest.`
+                            )} to rest.`,
                         });
                     } else {
                         ctx.userData.restingAtCampfire = 0;
@@ -125,14 +129,14 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )}/${Functions.getMaxStamina(ctx.userData).toLocaleString(
                                 "en-US"
-                            )} :zap:]`
+                            )} :zap:]`,
                         });
                         await ctx.client.database.saveUserData(ctx.userData);
                     }
                 });
             }
         }
-    }
+    },
 };
 
 export default slashCommand;

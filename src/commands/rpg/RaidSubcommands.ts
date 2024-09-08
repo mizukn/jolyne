@@ -429,26 +429,7 @@ const slashCommand: SlashCommandFile = {
             interaction.deferUpdate().catch(() => {});
             const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
             if (!usrData) return;
-            if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
-                if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                    ctx.followUp({
-                        content: `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`,
-                    });
-                    cooldownedUsers.push(interaction.user.id);
-                }
-                return;
-            }
 
-            if (Functions.userIsCommunityBanned(ctx.userData)) {
-                if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                    ctx.followUp({
-                        content: `<@${ctx.userData.id}> tried to join the raid but the host is community banned.`,
-                    });
-                    cooldownedUsers.push(interaction.user.id);
-                }
-
-                return;
-            }
             if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
                 if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                     ctx.followUp({
@@ -460,6 +441,29 @@ const slashCommand: SlashCommandFile = {
             }
             switch (interaction.customId) {
                 case joinRaidID: {
+                    if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
+                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                            ctx.followUp({
+                                content: `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`,
+                            });
+                            cooldownedUsers.push(interaction.user.id);
+                        }
+                        return;
+                    }
+
+                    if (Functions.userIsCommunityBanned(ctx.userData)) {
+                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                            ctx.followUp({
+                                content: `<@${interaction.user.id}> tried to join the raid but the host is community banned.`,
+                            });
+                            cooldownedUsers.push(interaction.user.id);
+                        }
+
+                        return;
+                    }
+                    if (await ctx.client.database.getRPGCooldown(usrData.id, "raid")) {
+                        return;
+                    }
                     if (joinedUsers.length >= raid.maxPlayers) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                             ctx.followUp({

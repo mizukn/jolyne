@@ -96,6 +96,14 @@ const slashCommand: SlashCommandFile = {
                     "This command is disabled because the PostgreSQL database is currently having issues. For security reasons, this command is disabled until the issue is resolved.",
             });
         }
+
+        if (Functions.userIsCommunityBanned(ctx.userData)) {
+            return void ctx.makeMessage({
+                content: "Yeah go fuck yourself",
+                ephemeral: true,
+            });
+        }
+
         if (ctx.interaction.options.getSubcommand() === "start") {
             const target = ctx.options.getUser("user") || ctx.user;
             const targetData = await ctx.client.database.getRPGUserData(target.id);
@@ -110,6 +118,13 @@ const slashCommand: SlashCommandFile = {
                     content: `**${target.tag}** is currently on cooldown or haven't started their adventure yet!`,
                 });
                 return;
+            }
+
+            if (Functions.userIsCommunityBanned(targetData)) {
+                return void ctx.makeMessage({
+                    content: "This user is community banned...",
+                    ephemeral: true,
+                });
             }
 
             const targetOffer: RPGUserDataJSON["inventory"] = {};
@@ -558,6 +573,7 @@ const slashCommand: SlashCommandFile = {
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
         if (!interaction.client.database.postgresql) return;
+        if (Functions.userIsCommunityBanned(userData)) return;
         if (interaction.options.getSubcommand() === "view") {
             const rows = await interaction.client.database.postgresql.query(
                 `SELECT *

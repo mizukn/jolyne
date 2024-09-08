@@ -48,21 +48,21 @@ const slashCommand: SlashCommandFile = {
         let query;
         switch (ctx.interaction.options.getSubcommand()) {
             case "level":
-                query = `SELECT id, tag, level, xp
+                query = `SELECT id, tag, level, xp,"communityBans"
                              FROM "RPGUsers"
                              ORDER BY level DESC, xp DESC`;
                 break;
             case "coins":
-                query = `SELECT id, tag, coins
+                query = `SELECT id, tag, coins,"communityBans"
                              FROM "RPGUsers"
                              ORDER BY coins DESC`;
                 break;
             case "items": // most owned items
-                query = `SELECT inventory
+                query = `SELECT inventory,"communityBans"
                              FROM "RPGUsers"`;
                 break;
             case "daily":
-                query = `SELECT id, tag, daily
+                query = `SELECT id, tag, daily,"communityBans"
                              FROM "RPGUsers"
                              ORDER BY daily->>'claimStreak' DESC`;
                 break;
@@ -73,7 +73,7 @@ const slashCommand: SlashCommandFile = {
         }
         const data = await ctx.client.database.postgresql
             .query(query)
-            .then((res) => res.rows)
+            .then((res) => res.rows.filter((x) => !Functions.userIsCommunityBanned(x)))
             .catch((err) => {
                 console.error(err);
                 return [];
@@ -96,6 +96,9 @@ const slashCommand: SlashCommandFile = {
                 `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`
             )
         ) as Leaderboard) || { lastUpdated: 0, data: [] };
+        lastLeaderboard.data = lastLeaderboard.data.filter(
+            (x) => !Functions.userIsCommunityBanned(x)
+        );
         let userPos: "N/A" | number =
             lastLeaderboard.data.findIndex((user) => user.id === ctx.user.id) + 1 || "N/A";
         if (ctx.interaction.options.getSubcommand() === "daily") {
