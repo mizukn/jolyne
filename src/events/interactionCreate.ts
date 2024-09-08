@@ -11,7 +11,7 @@ import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep } from "lodash";
-import { commandLogsWebhook } from "../utils/Webhooks";
+import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
@@ -557,6 +557,18 @@ const Event: EventFile = {
                     interaction.guild.id
                 })\` with options: \`\`\`${JSON.stringify(interaction.options["data"])}\`\`\` _ _`
             );
+
+            if (command.category === "private") {
+                specialLogsWebhook.send(
+                    `:warning: | ${interaction.user.username} \`(${
+                        interaction.user.id
+                    })\` used \`/${interaction.commandName}\` in guild ${
+                        interaction.guild.name
+                    } \`(${interaction.guild.id})\` with options: \`\`\`${JSON.stringify(
+                        interaction.options["data"]
+                    )}\`\`\` _ _`
+                );
+            }
         } else if (interaction.isAutocomplete()) {
             if (
                 interaction.client.maintenanceReason &&
