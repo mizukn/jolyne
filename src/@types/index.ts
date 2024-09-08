@@ -933,15 +933,18 @@ export interface RPGUserDataEmailsHash {
 
 export interface Leaderboard {
     lastUpdated: number;
-    data: {
-        id: string;
-        tag: string;
-        level: number;
-        xp: number;
-        coins: number;
-        inventory: RPGUserDataJSON["inventory"];
-        daily: RPGUserDataJSON["daily"];
-    }[];
+    data: LBData[];
+}
+
+export interface LBData {
+    id: string;
+    tag: string;
+    level: number;
+    xp: number;
+    coins: number;
+    inventory: RPGUserDataJSON["inventory"];
+    daily: RPGUserDataJSON["daily"];
+    communityBans: RPGUserDataJSON["communityBans"];
 }
 
 export interface Shop {
