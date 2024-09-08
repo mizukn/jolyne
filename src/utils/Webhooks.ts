@@ -49,3 +49,11 @@ export const standLogsWebhook = new WebhookClient({
         ? process.env.BETA_FALLBACK_WEBHOOK_URL
         : process.env.STAND_OBTAINED_LOGS_WEBHOOK_URL,
 });
+
+// SPECIAL_LOGS_WEBHOOK_URL
+
+export const specialLogsWebhook = new WebhookClient({
+    url: process.env.BETA
+        ? process.env.BETA_FALLBACK_WEBHOOK_URL
+        : process.env.SPECIAL_LOGS_WEBHOOK_URL,
+});

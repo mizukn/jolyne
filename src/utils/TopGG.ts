@@ -50,6 +50,10 @@ export default (client: JolyneClient): void => {
                     addItem(user, "rare_stand_arrow", 2);
                 }
 
+                for (const key of ["assault", "loot", "raid"]) {
+                    client.database.deleteRPGCooldown(user.id, key);
+                }
+
                 await client.database.saveUserData(user);
             }
         })
