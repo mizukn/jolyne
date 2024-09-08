@@ -30,7 +30,7 @@ const slashCommand: SlashCommandFile = {
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
         if (Functions.userIsCommunityBanned(ctx.userData)) {
             return void ctx.makeMessage({
-                content: Functions.makeNPCString(NPCs.Jolyne, `Fuck you`),
+                content: Functions.makeNPCString(NPCs.Jolyne, `🖕 `),
                 ephemeral: true,
             });
         }

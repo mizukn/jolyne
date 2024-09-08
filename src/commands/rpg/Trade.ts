@@ -99,7 +99,7 @@ const slashCommand: SlashCommandFile = {
 
         if (Functions.userIsCommunityBanned(ctx.userData)) {
             return void ctx.makeMessage({
-                content: "Yeah go fuck yourself",
+                content: "🖕 ",
                 ephemeral: true,
             });
         }

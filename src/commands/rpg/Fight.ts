@@ -714,7 +714,7 @@ const slashCommand: SlashCommandFile = {
             case "train": {
                 if (Functions.userIsCommunityBanned(ctx.userData)) {
                     await ctx.makeMessage({
-                        content: "You're community banned. Fuck you",
+                        content: "You're community banned. 🖕 ",
                         ephemeral: true,
                     });
                     return;
