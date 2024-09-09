@@ -996,7 +996,7 @@ export const KnivesThrow: Ability = {
     useMessage: (user, target, damage, ctx) => {
         for (let i = 0; i < 4; i++) {
             const damages = Math.round(Functions.getAttackDamages(user) * 0.75);
-            const status = user.removeHealth(damages, user, 4);
+            const status = target.removeHealth(damages, user, 4);
 
             if (status.type === FighterRemoveHealthTypes.Dodged) {
                 ctx.turns[ctx.turns.length - 1].logs.push(
