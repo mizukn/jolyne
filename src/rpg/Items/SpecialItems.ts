@@ -27,11 +27,9 @@ async function useBox(
     shakingEmoji: string
 ): Promise<number> {
     let amount: number;
-    console.log(ctx.interaction.commandName);
     if (ctx.interaction.commandName === "inventory") {
         amount = ctx.interaction.options.getInteger("amount", false);
         if (amount < 1) amount = 1;
-        console.log(amount);
     }
     const oldData = cloneDeep(ctx.userData);
 
