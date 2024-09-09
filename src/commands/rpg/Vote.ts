@@ -42,7 +42,11 @@ const slashCommand: SlashCommandFile = {
                     ctx.client.localEmojis.mysterious_arrow
                 } **Rare Stand Arrows** + 1x ${
                     findItem("dungeon").emoji
-                } **Dungeon Key** every 2 votes.`,
+                } **Dungeon Key** every 2 votes.${
+                    hasVotedRecenty(ctx.userData, ctx.client)
+                        ? ""
+                        : `\nAlso, voting will reduce all your cooldowns by **45 seconds** for **5 minutes** (+1 minute if you're a [booster](https://discord.gg/jolyne-support-923608916540145694), +X minutes* where X equals your current tier if [you're an active patron](https://patreon.com/mizuki54)).`
+                }`,
                 color: 0xff3366,
                 fields: [],
             },
