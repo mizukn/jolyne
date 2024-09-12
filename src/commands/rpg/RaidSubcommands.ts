@@ -461,7 +461,7 @@ const slashCommand: SlashCommandFile = {
 
                         return;
                     }
-                    if (await ctx.client.database.getRPGCooldown(usrData.id, "raid")) {
+                    if (!(await ctx.client.database.canUseRPGCommand(usrData.id, "raid"))) {
                         return;
                     }
                     if (joinedUsers.length >= raid.maxPlayers) {
