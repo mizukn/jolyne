@@ -159,7 +159,7 @@ export const Manipulation: Ability = {
             target.name += " (Manipulated)";
             target.manipulatedBy = user;
             ctx.nextRoundPromises.push({
-                cooldown: 2,
+                cooldown: 4,
                 executeOnlyOnce: true,
                 promise: (fight) => {
                     unmanipulate(fight);
