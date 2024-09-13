@@ -332,13 +332,12 @@ const slashCommand: SlashCommandFile = {
                         }
                         if (raid.baseRewards && raid.baseRewards?.items.length > 0) {
                             for (const item of raid.baseRewards.items) {
-                                const chance = Math.round(
+                                const chance =
                                     (winner.totalDamageDealt /
                                         Functions.getMaxHealth(enhancedBoss)) *
-                                        item.chance
-                                );
+                                    item.chance;
                                 const itemData = Functions.findItem(item.item);
-                                if (item.chance && Functions.RNG(0, 100) > chance) {
+                                if (item.chance && !Functions.percent(chance)) {
                                     itemDidntDrop.push({
                                         percentage: chance,
                                         item: itemData,
@@ -348,7 +347,9 @@ const slashCommand: SlashCommandFile = {
                                 if (!itemData) continue;
                                 Functions.addItem(winnerData, itemData.id, item.amount);
                                 winContent.push(
-                                    `${item.amount}x ${itemData.emoji} **${itemData.name}** (${chance}%)`
+                                    `${item.amount}x ${itemData.emoji} **${
+                                        itemData.name
+                                    }** (${chance.toFixed(2)}%)`
                                 );
                             }
                         }
