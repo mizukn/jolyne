@@ -1,3 +1,6 @@
 [submodule "src/structuress"]
 	path = src/structuress
 	url = git@github.com:Jolyne-Developers/jolyne-structures.git
+[submodule "src/structures"]
+	path = src/structures
+	url = git@github.com:Jolyne-Developers/jolyne-structures.git
