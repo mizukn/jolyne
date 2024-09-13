@@ -151,8 +151,7 @@ const slashCommand: SlashCommandFile = {
                 try {
                     if (!ctx.interaction.replied)
                         ctx.makeMessage({
-                             
-                            content: `\`\`\`\js\n${output}\n\`\`\``,
+                            content: `\`\`\`js\n${output}\n\`\`\``,
                         });
                 } catch (_) {}
             })
@@ -163,8 +162,7 @@ const slashCommand: SlashCommandFile = {
                 }
                 try {
                     ctx.makeMessage({
-                         
-                        content: `\`\`\`\js\n${err}\n\`\`\``,
+                        content: `\`\`\`js\n${err}\n\`\`\``,
                     });
                 } catch (e) {
                     console.error(e);
