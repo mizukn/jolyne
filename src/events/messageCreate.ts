@@ -34,7 +34,7 @@ const Event: EventFile = {
                             );
                         }
                         try {
-                            // eslint-disable-next-line no-useless-escape
+                             
                             message.channel.send(`\`\`\`\js\n${output}\n\`\`\``);
                         } catch (e) {
                             console.error(e);
@@ -47,7 +47,7 @@ const Event: EventFile = {
                             err = err.replace(new RegExp(client.token, "gi"), `T0K3N`);
                         }
                         try {
-                            // eslint-disable-next-line no-useless-escape
+                             
                             message.channel.send(`\`\`\`\js\n${err}\n\`\`\``);
                         } catch (e) {
                             console.error(e);
