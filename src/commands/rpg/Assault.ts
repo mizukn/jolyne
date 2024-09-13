@@ -130,7 +130,7 @@ const slashCommand: SlashCommandFile = {
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
-            // eslint-disable-next-line
+             
             await i.deferUpdate().catch(() => {});
             const npc =
                 i.customId === "normal" + ctx.interaction.id

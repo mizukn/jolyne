@@ -154,7 +154,7 @@ const slashCommand: SlashCommandFile = {
 
             collector.on("collect", async (i) => {
                 i.deferUpdate().catch(() => {
-                }); // eslint-disable-line
+                });  
                 if (await ctx.antiCheat(true)) {
                     collector.stop();
                     return;

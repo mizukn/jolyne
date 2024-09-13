@@ -36,9 +36,9 @@ const slashCommand: SlashCommandFile = {
 
         const isInData = await ctx.client.database.getString(`patronData:${ctx.user.id}`);
         const isPublic = ctx.interaction.options.getBoolean("public");
+        const parsedData = isInData ? (JSON.parse(isInData) as Patron) : null;
 
-        if (isInData) {
-            const parsedData = JSON.parse(isInData) as Patron;
+        if (parsedData && parsedData?.lifetime_support_cents !== 0) {
             const tier = ctx.client.patreons.find((p) => p.id === ctx.user.id)?.level ?? 0;
 
             const embed: APIEmbed = {

@@ -14,21 +14,21 @@ const slashCommand: SlashCommandFile = {
                 name: "user",
                 description: "user to ban",
                 type: 6,
-                required: true,
+                required: true
             },
             {
                 name: "reason",
                 description: "reason for ban",
                 type: 3,
-                required: true,
+                required: true
             },
             {
                 name: "duration",
                 description: "duration of ban (in hours)",
                 type: 4,
-                required: true,
-            },
-        ],
+                required: true
+            }
+        ]
     },
     adminOnly: true,
     execute: async (
@@ -41,14 +41,14 @@ const slashCommand: SlashCommandFile = {
         const data = await ctx.client.database.getRPGUserData(user.id);
         if (!data) {
             return await ctx.makeMessage({
-                content: "User not found.",
+                content: "User not found."
             });
         }
 
         data.communityBans.push({
             reason,
             bannedAt: Date.now(),
-            until: Date.now() + duration * 60 * 60 * 1000,
+            until: Date.now() + duration * 60 * 60 * 1000
         });
 
         await ctx.client.database.saveUserData(data);
@@ -57,9 +57,9 @@ const slashCommand: SlashCommandFile = {
             content: `Successfully banned <@${user.id}> until ${Functions.generateDiscordTimestamp(
                 Date.now() + duration * 60 * 60 * 1000,
                 "FROM_NOW"
-            )}`,
+            )}`
         });
-    },
+    }
 };
 
 export default slashCommand;

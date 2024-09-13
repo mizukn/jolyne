@@ -226,7 +226,7 @@ const slashCommand: SlashCommandFile = {
             let page = 0;
 
             // wtf is that fucking rule???
-            // eslint-disable-next-line no-inner-declarations
+             
             function goToPage() {
                 return ctx.makeMessage({
                     embeds: [
@@ -822,7 +822,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop("cheat");
                     return;
                 }
-                i.deferUpdate().catch(() => {}); // eslint-disable-line
+                i.deferUpdate().catch(() => {});  
                 Functions.addCoins(
                     ctx.userData,
                     Math.round(itemData.price * itemTaxes[itemData.rarity] * amountX)

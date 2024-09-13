@@ -194,7 +194,7 @@ const slashCommand: SlashCommandFile = {
         });
 
         collector.on("collect", (interaction) => {
-            // eslint-disable-next-line
+             
             interaction.deferUpdate().catch(() => {});
             if (interaction.customId === hitID) {
                 const card = shuffledDeck.pop();

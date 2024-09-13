@@ -132,7 +132,7 @@ const slashCommand: SlashCommandFile = {
 
             let stage = 0; // 1 = trade started
 
-            // eslint-disable-next-line
+             
             function makeMessage(): void {
                 ctx.makeMessage({
                     content: "Trade in progress...",
@@ -270,7 +270,7 @@ const slashCommand: SlashCommandFile = {
             };
 
             collector.on("collect", async (i: ButtonInteraction) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line
+                i.deferUpdate().catch(() => {});  
                 switch (i.customId) {
                     case acceptID: {
                         if (stage === 0 && i.user.id === target.id) {

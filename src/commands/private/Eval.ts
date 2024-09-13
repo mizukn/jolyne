@@ -151,7 +151,7 @@ const slashCommand: SlashCommandFile = {
                 try {
                     if (!ctx.interaction.replied)
                         ctx.makeMessage({
-                            // eslint-disable-next-line no-useless-escape
+                             
                             content: `\`\`\`\js\n${output}\n\`\`\``,
                         });
                 } catch (_) {}
@@ -163,7 +163,7 @@ const slashCommand: SlashCommandFile = {
                 }
                 try {
                     ctx.makeMessage({
-                        // eslint-disable-next-line no-useless-escape
+                         
                         content: `\`\`\`\js\n${err}\n\`\`\``,
                     });
                 } catch (e) {

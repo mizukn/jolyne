@@ -15,15 +15,15 @@ const slashCommand: SlashCommandFile = {
                 name: "stage",
                 description: "Stage of the dungeon",
                 type: 4,
-                required: true,
+                required: true
             },
             {
                 name: "user",
                 description: "User to start the dungeon",
                 type: 6,
-                required: false,
-            },
-        ],
+                required: false
+            }
+        ]
     },
     adminOnly: true,
 
@@ -39,7 +39,7 @@ const slashCommand: SlashCommandFile = {
         );
 
         ctx.client.commands.get("dungeon")?.execute(ctx, stage);
-    },
+    }
 };
 
 export default slashCommand;

@@ -118,7 +118,7 @@ const slashCommand: SlashCommandFile = {
                 .setLabel("Create Team")
                 .setStyle(ButtonStyle.Primary);
 
-            // eslint-disable-next-line
+             
             async function makeMessage(): Promise<void> {
                 // check if there are no enough players (only one team or there is no player at all)
                 if (teams.every((team) => team.length === 0)) {
@@ -162,7 +162,7 @@ const slashCommand: SlashCommandFile = {
                 });
             }
 
-            // eslint-disable-next-line
+             
             function removeUserFromTeam(user: RPGUserDataJSON["id"]): void {
                 teams = teams.map((team) => team.filter((x) => x.id !== user));
                 teams = teams.filter((team) => team.length > 0);
@@ -207,7 +207,7 @@ const slashCommand: SlashCommandFile = {
             collector.on("collect", async (i: MessageComponentInteraction) => {
                 const userData = await ctx.client.database.getRPGUserData(i.user.id);
                 if (!userData) return;
-                await i.deferUpdate().catch(() => {}); // eslint-disable-line
+                await i.deferUpdate().catch(() => {});  
 
                 switch (i.customId) {
                     case joinTeamId: {
