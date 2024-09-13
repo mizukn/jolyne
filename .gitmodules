@@ -1,0 +1,3 @@
+[submodule "src/structuress"]
+	path = src/structuress
+	url = git@github.com:Jolyne-Developers/jolyne-structures.git
