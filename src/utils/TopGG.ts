@@ -63,7 +63,7 @@ export default (client: JolyneClient): void => {
         app.listen(6969, () => {
             client.log("TopGG webhook is now listening on port 6969", "info");
         });
-    } catch (err) {
+    } catch (_s) {
         client.log("Failed to start TopGG webhook.", "error");
     }
 };
