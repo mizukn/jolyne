@@ -105,7 +105,7 @@ const slashCommand: SlashCommandFile = {
             //  {
             name: "Vote for Jolyne",
             value: `[${
-                Date.now() - lastVote < 43200000
+                canVoteTimestamp > Date.now()
                     ? `You can vote again ${generateDiscordTimestamp(
                           canVoteTimestamp,
                           "FROM_NOW"
