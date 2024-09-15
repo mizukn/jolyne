@@ -2058,7 +2058,11 @@ export const hasVotedRecenty = (data: RPGUserDataJSON, client: Jolyne, time?: nu
         year: "numeric",
     });
 
-    const lastMonthVote = (data.voteHistory[voteMonth] ?? data.voteHistory[previousMonthDateFormat] ?? []) // array of DAte.now() we must get the biggest one
+    const lastMonthVote = (
+        data.voteHistory[voteMonth] ??
+        data.voteHistory[previousMonthDateFormat] ??
+        []
+    ) // array of DAte.now() we must get the biggest one
         .sort((a, b) => b - a)[0];
 
     if (!lastMonthVote) {
@@ -2096,4 +2100,10 @@ export const getProminentColor = async (
     if (client) client.database.setString(`color.${intensity}:${url}`, prominent.toString());
 
     return prominent;
+};
+
+// 'T̷̗̗̜̩̍̔̌͐̓͑͝Ì̴͉̖̝M̵̛̤̟̖͚̀͂̎͝Ḛ̶̮͉̉́͑͆͒̈̀̀̊̈́ ̵̢̢̮͖̘̱͈͖̯͗ͅS̷̢̭̯̭̬͎̙̼̯̿̐͂̇̍̎͆T̵̻͖͈̭͇̟̯̗̐͆̆̑̊̃͋́͘͝O̴̢̦̗̪̮̐̉̌̀̅͝͠͠͝Ṕ̶̧̰̦͛͂̚' to 'TIME STOP'
+
+export const removeZalgo = (str: string): string => {
+    return str.replace(/[^A-Za-z0-9 ]/g, "");
 };
