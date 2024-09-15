@@ -8,6 +8,7 @@ import {
     addXp,
     hasVotedRecenty,
 } from "../../utils/Functions";
+import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -19,9 +20,29 @@ const slashCommand: SlashCommandFile = {
         ctx: CommandInteractionContext
     ): Promise<Message | void | InteractionResponse> => {
         const voteMonth = new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
+        /*const previousMonthDateFormat = new Date(
+            `${new Date().getMonth() - 1}/1/${new Date().getFullYear()}`
+        ).toLocaleString("en-US", { month: "long", year: "numeric" });*/
+        // the code above is bad because if we're in january, it will return december of the previous year
+        // so we have to adapt
+        const month = new Date().getUTCMonth() - 1;
+        const year = new Date().getFullYear();
+        const previousMonthDateFormat = new Date(year, month, 1).toLocaleString("en-US", {
+            month: "long",
+            year: "numeric",
+        });
+        const previousMonthVotes =
+            ctx.userData.voteHistory[previousMonthDateFormat]?.sort((a, b) => a - b) ?? [];
         const totalVotes = ctx.userData.totalVotes || 0;
-        const monthVotes = ctx.userData.voteHistory[voteMonth] ?? []; // array of timestamps
+        const monthVotes = ctx.userData.voteHistory[voteMonth]?.sort((a, b) => a - b) ?? []; // array of timestamps
+
         const voteRewards = TopGGVoteRewards(ctx.userData);
+        const lastVote =
+            cloneDeep(
+                monthVotes[monthVotes.length - 1] ??
+                    previousMonthVotes[previousMonthVotes.length - 1]
+            ) || 0;
+        const canVoteTimestamp = lastVote + 43200000; // 12 hours
 
         const xpRewards = addXp(ctx.userData, voteRewards.xp, ctx.client, true);
 
@@ -34,16 +55,27 @@ const slashCommand: SlashCommandFile = {
                 },
                 description: `You have voted **${
                     monthVotes.length
-                }** times this month and **${totalVotes}** times in total.\nBy voting, you can earn **${voteRewards.coins.toLocaleString(
-                    "en-US"
-                )}** ${ctx.client.localEmojis.jocoins}, **${xpRewards.toLocaleString("en-US")}** ${
-                    ctx.client.localEmojis.xp
-                }, x2 ${ctx.client.localEmojis.mysterious_arrow} **Stand Arrows** and x2 ${
+                }** times this month and **${totalVotes}** times in total${
+                    monthVotes[monthVotes.length - 1] ??
+                    previousMonthVotes[previousMonthVotes.length - 1]
+                        ? " (last vote " +
+                          generateDiscordTimestamp(
+                              monthVotes[monthVotes.length - 1] ??
+                                  previousMonthVotes[previousMonthVotes.length - 1],
+                              "FROM_NOW"
+                          ) +
+                          ")"
+                        : ""
+                }.\nBy voting, you can earn **${voteRewards.coins.toLocaleString("en-US")}** ${
+                    ctx.client.localEmojis.jocoins
+                }, **${xpRewards.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}, x2 ${
+                    ctx.client.localEmojis.mysterious_arrow
+                } **Stand Arrows** and x2 ${
                     ctx.client.localEmojis.mysterious_arrow
                 } **Rare Stand Arrows** + 1x ${
                     findItem("dungeon").emoji
                 } **Dungeon Key** every 2 votes.${
-                    hasVotedRecenty(ctx.userData, ctx.client)
+                    hasVotedRecenty(cloneDeep(ctx.userData), ctx.client)
                         ? ""
                         : `\nAlso, voting will reduce all your cooldowns by **45 seconds** for **5 minutes** (+1 minute if you're a [booster](https://discord.gg/jolyne-support-923608916540145694), +X minutes* where X equals your current tier if [you're an active patron](https://patreon.com/mizuki54)).`
                 }`,
@@ -52,10 +84,10 @@ const slashCommand: SlashCommandFile = {
             },
         ];
 
-        // check if the user has voted less than 12 hours ago
-        const lastVote = monthVotes[monthVotes.length - 1] || 0;
-        const canVoteTimestamp = lastVote + 43200000;
-        if (lastVote && Date.now() - lastVote < 43200000 && monthVotes.length > 0) {
+        if (
+            canVoteTimestamp > Date.now() &&
+            (monthVotes.length > 0 || previousMonthVotes.length > 0)
+        ) {
             const rewardXP = addXp(ctx.userData, voteRewards.xp, ctx.client, true);
             embeds[0].fields.push({
                 // color: 0xff3366,
@@ -81,7 +113,7 @@ const slashCommand: SlashCommandFile = {
                 // ]
             });
 
-            if (hasVotedRecenty(ctx.userData, ctx.client)) {
+            if (hasVotedRecenty(cloneDeep(ctx.userData), ctx.client)) {
                 const expire = lastVote + 60000 * 5; // only lasts for 5 minutes
                 embeds[0].fields.push({
                     name: `${ctx.client.localEmojis.timerIcon} Low Cooldown!`,
@@ -105,9 +137,11 @@ const slashCommand: SlashCommandFile = {
             //  {
             name: "Vote for Jolyne",
             value: `[${
-                canVoteTimestamp > Date.now()
+                hasVotedRecenty(cloneDeep(ctx.userData), ctx.client, 43200000)
                     ? `You can vote again ${generateDiscordTimestamp(
-                          canVoteTimestamp,
+                          (monthVotes[monthVotes.length - 1] ??
+                              previousMonthVotes[previousMonthVotes.length - 1] ??
+                              Date.now()) + 43200000,
                           "FROM_NOW"
                       )}.`
                     : `You can vote now!`

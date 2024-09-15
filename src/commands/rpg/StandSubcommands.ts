@@ -340,6 +340,7 @@ const slashCommand: SlashCommandFile = {
                         ctx.sendTranslated("base:YOUR_STAND_DISC_HAS_BEEN_STORED", {
                             components: [],
                             stand: stand,
+                            //command: ctx.client.getSlashCommandMention("inventory use"),
                         });
                     } else collector.stop();
                 });
