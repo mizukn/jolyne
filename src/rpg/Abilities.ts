@@ -1,7 +1,6 @@
 import { Ability, FightableNPC, SkillPoints } from "../@types";
 import { FightHandler, Fighter, FighterRemoveHealthTypes } from "../structures/FightHandler";
 import { cloneDeep } from "lodash";
-import * as Stands from "./Stands/Stands";
 import * as Functions from "../utils/Functions";
 
 export const StandBarrage: Ability = {
@@ -56,7 +55,7 @@ export const TheWorld: Ability = {
     special: true,
     useMessage: (user, target, damage, ctx) => {
         ctx.nextTurnPromises.push({
-            cooldown: 6,
+            cooldown: user.stand?.id === "the_world" && user.standsEvolved.the_world ? 8 : 6,
             executeOnlyOnce: true,
             promise: (fight) => {
                 fight.turns[ctx.turns.length - 1].logs.push(
@@ -68,15 +67,21 @@ export const TheWorld: Ability = {
         });
         user.hasStoppedTime = true;
 
-        if (user.stand?.name === Stands.TheWorld.name) {
-            ctx.turns[ctx.turns.length - 1].logs.push(
-                `> ${user.stand?.emoji} **${user.name}:** THE WORLD! TOKI WO TOMARE!`
-            );
-        } else if (user.stand?.name === Stands.StarPlatinum.name) {
+        if (user.stand?.id === "the_world") {
+            if (user.standsEvolved.the_world) {
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `> ${user.stand?.emoji} **${user.name}:** THE WORLD! Ȍ̵̧̤̹͈̫͓̤̝͕̼͂͗V̷̧̢̧̘̥̱̊̑̄̋̆̀͠E̵̡̧̢̼͚̹͔̿̄̈́̑̚Ŕ̸̡̝̯͚́̇̇͛ ̷̩̱̮͙͈̺̙͠H̵̛̥̬̔̊̉͊͆͗́Ẽ̵͈̮̊̋̾͊̕ͅÀ̴̬͇̲̻̎͗͗̽̽́͝͝V̶͚͖͔̒̆̄̋͒͂É̸̜̠͈͔̲̿͊Ń̶̨̼̖͎̮̗͙̳͈̐͛̑̌͜͠`
+                );
+            } else {
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `> ${user.stand?.emoji} **${user.name}:** THE WORLD! TOKI WO TOMARE!`
+                );
+            }
+        } else if (user.stand?.id === "star_platinum") {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `> ${user.stand?.emoji} **${user.name}:** STAR PLATINUM: THE WORLD! TOKI WO TOMARE!`
             );
-        } else if (user.stand?.id === Stands.TheChained.id) {
+        } else if (user.stand?.id === "the_chained") {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `> ${user.stand?.emoji} **${user.name}:** This world and mine, and what is yours is also mine... `
             );
@@ -2916,4 +2921,56 @@ export const SurfaceInversion: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
+};
+
+export const RealityOverwrite: Ability = {
+    // The World Over Heaven
+    name: "Reality Overwrite",
+    description: "The World Over Heaven erases the opponent from reality, dealing massive damage.",
+    cooldown: 7,
+    damage: 55,
+    stamina: 20,
+    extraTurnsIfGB: 2,
+    dodgeScore: 0,
+    target: "enemy",
+    extraTurns: 0,
+};
+
+export const HeavenAscendedSmite: Ability = {
+    // The World Over Heaven
+    name: "Heaven Ascended Smite",
+    description: "The World Over Heaven smites the opponent with heavenly power.",
+    cooldown: 5,
+    damage: 45,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const RealityRevert: Ability = {
+    // The World Over Heaven
+    name: "Reality Revert",
+    description: "Heals the targetted player.",
+    cooldown: 4,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "ally",
+    useMessage: (user, target, damage, ctx) => {
+        //const oldHealth = cloneDeep(target.health);
+        target.health += Math.round(Functions.getMaxHealth(target) * 0.25);
+        if (target.health > Functions.getMaxHealth(target))
+            target.health = Functions.getMaxHealth(target);
+        //user.totalHealingDone += target.health - oldHealth;
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} REALITY REVERT: **${user.name}** has healed **${
+                target.name
+            }** by **${Math.round(Functions.getMaxHealth(target) * 0.25).toLocaleString(
+                "en-US"
+            )}** health.`
+        );
+    },
 };

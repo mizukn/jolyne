@@ -29,7 +29,7 @@ export const Dio: NPC = {
 
 export const Heaven_Ascended_Dio: NPC = {
     id: "heaven_ascended_dio",
-    name: "Heaven Ascended Dio",
+    name: "Heaven Ascension Dio",
     emoji: Emojis.dioangry,
 };
 

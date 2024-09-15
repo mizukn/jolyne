@@ -1,7 +1,14 @@
-import { EvolutionStand } from "../../@types";
+import { Ability, EvolutionStand } from "../../@types";
 import * as Abilities from "../Abilities";
 import * as Emojis from "../../emojis.json";
 import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
+
+function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
+    return {
+        ...ability,
+        thumbnail: gif,
+    };
+}
 
 export const SilverChariot: EvolutionStand = {
     id: "silver_chariot",
@@ -402,6 +409,93 @@ export const Echoes: EvolutionStand = {
             },
             available: true,
             color: 0x000000,
+        },
+    ],
+};
+
+export const StarPlatinum: EvolutionStand = {
+    id: "star_platinum",
+    evolutions: [
+        {
+            name: "Star Platinum",
+            description:
+                "Star Platinum is a very strong humanoid Stand. It was designed to look like a guardian spirit. It was used by [Jotaro Kujo](https://jojo.fandom.com/wiki/Jotaro_Kujo)",
+            rarity: "S",
+            image: "https://i.pinimg.com/originals/c8/a7/ed/c8a7edf03bcce4b74a24345bb1a109b7.jpg",
+            emoji: Emojis["star_platinum"],
+            abilities: [
+                addGif(
+                    Abilities.StandBarrage,
+                    "https://i.pinimg.com/originals/07/9f/ad/079fad3ce8871e86b93bff8b786aa179.gif"
+                ),
+                Abilities.KickBarrage,
+                Abilities.StarFinger,
+                Abilities.TheWorld,
+            ],
+            skillPoints: {
+                strength: 15,
+                defense: 5,
+                perception: 15,
+                speed: 8,
+                stamina: 2,
+            },
+            color: 0x985ca3,
+            available: true,
+        },
+    ],
+};
+
+export const TheWorld: EvolutionStand = {
+    id: "the_world",
+    evolutions: [
+        {
+            name: "The World",
+            description:
+                "The World, a humanoid Stand, is tall and has a very muscular build. It bears a striking resemblance to [Dio Brando](https://jojo.fandom.com/wiki/Dio_Brando) in terms of appearance.",
+            rarity: "S",
+            image: "https://media.jolyne.moe/HbE4h3/direct",
+            emoji: Emojis.the_world,
+            abilities: [
+                addGif(
+                    Abilities.StandBarrage,
+                    "https://img.wattpad.com/e8f5b0bedeb643f1344a8c31cb53946a1161e4b0/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f6f6a31774f4335725a3173314a513d3d2d313131373338353733352e313639633731363736353735623639373535383635393834393635392e676966"
+                ),
+                Abilities.KickBarrage,
+                Abilities.RoadRoller,
+                Abilities.TheWorld,
+            ],
+            skillPoints: StarPlatinum.evolutions[0].skillPoints,
+            color: 0xffff00,
+            available: true,
+        },
+        {
+            name: "The World Over Heaven",
+            description:
+                "The World Over Heaven is the Stand of [Dio Brando](https://jojo.fandom.com/wiki/Dio_Brando), featured in Eyes of Heaven. It is a close-range Stand that has the ability to overwrite reality.",
+            rarity: "SS",
+            image: "https://media.jolyne.moe/xV0VDW/direct",
+            emoji: "<:twoh:1284851298080002081>",
+            abilities: [
+                addGif(Abilities.StandBarrage, "https://media.jolyne.moe/9z7j4v/direct"),
+                Abilities.KickBarrage,
+                Abilities.RoadRoller,
+                Abilities.RealityOverwrite,
+                Abilities.RealityRevert,
+                {
+                    ...Abilities.TheWorld,
+                    description: "Stops time for 7 turns",
+                    cooldown: 2,
+                },
+            ],
+            skillPoints: {
+                strength: 25,
+                defense: 25,
+                perception: 25,
+                speed: 25,
+                stamina: 25,
+            },
+            color: 0xffff00,
+            available: false,
         },
     ],
 };

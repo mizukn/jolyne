@@ -9,6 +9,7 @@ import {
     Razor_SharpScales,
     Transformation,
 } from "../Abilities";
+import { StarPlatinum } from "./EvolutionStands";
 
 function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
     return {
@@ -16,7 +17,7 @@ function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
         thumbnail: gif,
     };
 }
-
+/*
 export const StarPlatinum: Stand = {
     id: "star_platinum",
     name: "Star Platinum",
@@ -65,7 +66,7 @@ export const TheWorld: Stand = {
     skillPoints: StarPlatinum.skillPoints,
     color: 0xffff00,
     available: true,
-};
+};*/
 
 export const HierophantGreen: Stand = {
     id: "hierophant_green",
@@ -363,7 +364,7 @@ export const BuffOPlatinum: Stand = {
     description:
         "Buff O' Platinum is a limited stand, was available during the Christmas event (2022).",
     image: "https://media.jolyne.moe/7A6SF4/direct",
-    abilities: StarPlatinum.abilities,
+    abilities: StarPlatinum.evolutions[0].abilities,
     emoji: Emojis.buffOPlatinum,
     skillPoints: {
         // event stands have 0 skill points
@@ -374,7 +375,7 @@ export const BuffOPlatinum: Stand = {
         stamina: 0,
     },
     available: true,
-    color: StarPlatinum.color,
+    color: StarPlatinum.evolutions[0].color,
 };
 
 export const CrazyDiamond: Stand = {

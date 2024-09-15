@@ -55,7 +55,7 @@ export const RequiemArrowEvolve: SideQuest = {
             }
         } else return false;
     },
-    requirementsMessage:
+    requirementsMessage: (ctx) =>
         "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n- If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quest will cancel automatically if you don't meet the requirements anymore, so be careful.",
     canRedoSideQuest: true,
     // brown
@@ -93,7 +93,7 @@ export const Beginner: SideQuest = {
         if (ctx.userData.level < 10) return true;
         return false;
     },
-    requirementsMessage: "- You must be not over level 10",
+    requirementsMessage: (ctx) => "- You must be not over level 10",
     cancelQuestIfRequirementsNotMetAnymore: true,
     // blue
     color: 0x0000ff,
@@ -138,10 +138,11 @@ export const HalloweenEvent2023: SideQuest = {
         return true;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
-    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(
-        1700348400000,
-        "FROM_NOW"
-    )} (${Functions.generateDiscordTimestamp(1700348400000, "DATE")})`,
+    requirementsMessage: (ctx) =>
+        `- This event will end ${Functions.generateDiscordTimestamp(
+            1700348400000,
+            "FROM_NOW"
+        )} (${Functions.generateDiscordTimestamp(1700348400000, "DATE")})`,
     canReloadQuests: true,
     // orange
     color: 0xffa500,
@@ -163,7 +164,8 @@ export const KillerQueenDitesTheDust: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: "- You need to have **Killer Queen** to do this quest and be level **75**",
+    requirementsMessage: (ctx) =>
+        "- You need to have **Killer Queen** to do this quest and be level **75**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 100),
@@ -258,10 +260,11 @@ export const ChristmasEvent2023: SideQuest = {
         return true;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
-    requirementsMessage: `- This event will end ${Functions.generateDiscordTimestamp(
-        1704582000000,
-        "FROM_NOW"
-    )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
+    requirementsMessage: (ctx) =>
+        `- This event will end ${Functions.generateDiscordTimestamp(
+            1704582000000,
+            "FROM_NOW"
+        )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
     canReloadQuests: true,
     canRedoSideQuest: true,
     // red
@@ -281,7 +284,8 @@ export const Echoes2: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: "- You need to have **Echoes** to do this quest and be level **10**",
+    requirementsMessage: (ctx) =>
+        "- You need to have **Echoes** to do this quest and be level **10**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 20),
@@ -320,7 +324,8 @@ export const Echoes3: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: "- You need to have **Echoes Act 2** to do this quest and be level **15**",
+    requirementsMessage: (ctx) =>
+        "- You need to have **Echoes Act 2** to do this quest and be level **15**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 30),
@@ -397,13 +402,14 @@ export const TwoYearAnniversaryEvent: SideQuest = {
             return false;
         return Date.now() < 1707606000000;
     },
-    requirementsMessage: `- The Confetti Golem will spawn ${Functions.generateDiscordTimestamp(
-        Functions.roundToNext15Minutes(new Date()),
-        "FROM_NOW"
-    )} at **this exact time** (/raid).\n- This event will end ${Functions.generateDiscordTimestamp(
-        1707606000000,
-        "FROM_NOW"
-    )} (${Functions.generateDiscordTimestamp(1707606000000, "DATE")})`,
+    requirementsMessage: (ctx) =>
+        `- The Confetti Golem will spawn ${Functions.generateDiscordTimestamp(
+            Functions.roundToNext15Minutes(new Date()),
+            "FROM_NOW"
+        )} at **this exact time** (/raid).\n- This event will end ${Functions.generateDiscordTimestamp(
+            1707606000000,
+            "FROM_NOW"
+        )} (${Functions.generateDiscordTimestamp(1707606000000, "DATE")})`,
     cancelQuestIfRequirementsNotMetAnymore: true,
     canReloadQuests: false,
     canRedoSideQuest: true,
@@ -427,7 +433,8 @@ export const CMoon: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: "- You need to have **Whitesnake** to do this quest and be level **100**",
+    requirementsMessage: (ctx) =>
+        "- You need to have **Whitesnake** to do this quest and be level **100**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 36),

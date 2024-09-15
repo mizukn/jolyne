@@ -130,8 +130,12 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         stamina: Dio.skillPoints.stamina * 5,
     },
     equippedItems: {},
-    standsEvolved: {},
-    stand: "The World",
+    standsEvolved: {
+        the_world: 1,
+    },
+    stand: "the_world",
+    avatarURL:
+        "https://static.wikia.nocookie.net/jjba/images/5/52/AIH_DIO.png/revision/latest?cb=20210114175706&path-prefix=fr",
 };
 
 export const BanditLeader: FightableNPC = {
