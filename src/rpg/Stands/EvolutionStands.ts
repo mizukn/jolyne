@@ -484,7 +484,7 @@ export const TheWorld: EvolutionStand = {
                 {
                     ...Abilities.TheWorld,
                     description: "Stops time for 7 turns",
-                    cooldown: 2,
+                    cooldown: 9,
                 },
             ],
             skillPoints: {
