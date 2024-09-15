@@ -30,6 +30,26 @@ import { dungeonLogsWebhook } from "../../utils/Webhooks";
 import { Image, createCanvas, loadImage } from "canvas";
 import { StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 
+const getTotalXpIncrease = (modifiers: string[]) => {
+    const totalXp =
+        modifiers.reduce((a, b) => {
+            const modifier = possibleModifiers.find((f) => f.id === b);
+            if (!modifier) return a;
+            return a + modifier.xpIncrease;
+        }, 1) - modifiers.length;
+
+    return Math.round(totalXp * 100) / 100;
+};
+const getTotalDropIncrease = (modifiers: string[]) => {
+    const totalDrop =
+        modifiers.reduce((a, b) => {
+            const modifier = possibleModifiers.find((f) => f.id === b);
+            if (!modifier) return a;
+            return a + modifier.dropIncrease;
+        }, 1) - modifiers.length;
+
+    return Math.round(totalDrop * 100) / 100;
+};
 /**
  * Modifiers:
  * Speedrun - NPC levels increase twice as fast. EXP Increase - 1.5x, Drops Increase - 1.5x.
@@ -228,24 +248,6 @@ const slashCommand: SlashCommandFile = {
             .setMinValues(0)
             .setMaxValues(possibleModifiers.length);
 
-        const getTotalXpIncrease = (modifiers: string[]) => {
-            return (
-                modifiers.reduce((a, b) => {
-                    const modifier = possibleModifiers.find((f) => f.id === b);
-                    if (!modifier) return a;
-                    return a + modifier.xpIncrease;
-                }, 1) - modifiers.length
-            );
-        };
-        const getTotalDropIncrease = (modifiers: string[]) => {
-            return (
-                modifiers.reduce((a, b) => {
-                    const modifier = possibleModifiers.find((f) => f.id === b);
-                    if (!modifier) return a;
-                    return a + modifier.dropIncrease;
-                }, 1) - modifiers.length
-            );
-        };
         const selectedModifiers: possibleModifiers[] = [];
 
         await ctx.makeMessage({
