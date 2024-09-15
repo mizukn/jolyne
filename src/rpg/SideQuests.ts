@@ -193,7 +193,7 @@ export const KillerQueenDitesTheDust: SideQuest = {
     },
     requirements: (ctx) => {
         if (ctx.userData.stand === Functions.findStand("killer_queen").id) {
-            if (ctx.userData.level > 75) {
+            if (ctx.userData.level >= 75) {
                 return true;
             }
         } else return false;
@@ -299,7 +299,7 @@ export const Echoes2: SideQuest = {
         if (ctx.userData.standsEvolved["echoes"] !== undefined) return false;
 
         if (ctx.userData.stand === Functions.findStand("echoes").id) {
-            if (ctx.userData.level > 10) {
+            if (ctx.userData.level >= 10) {
                 if (ctx.userData.standsEvolved["echoes"] === undefined) {
                     return true;
                 }
@@ -355,7 +355,7 @@ export const Echoes3: SideQuest = {
         if (ctx.userData.standsEvolved["echoes"] !== 1) return false;
 
         if (ctx.userData.stand === Functions.findStand("echoes").id) {
-            if (ctx.userData.level > 15) {
+            if (ctx.userData.level >= 15) {
                 if (ctx.userData.standsEvolved["echoes"] === 1) {
                     return true;
                 }
@@ -472,7 +472,7 @@ export const CMoon: SideQuest = {
         if (ctx.userData.standsEvolved["whitesnake"]) return false;
 
         if (ctx.userData.stand === "whitesnake") {
-            if (ctx.userData.level > 100) {
+            if (ctx.userData.level >= 100) {
                 return true;
             }
         }
