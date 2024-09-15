@@ -165,9 +165,8 @@ const slashCommand: SlashCommandFile = {
                             value: Cstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
                         },
                         {
-                            name: `Evolvable Stands
-                            [${evolvableStands.flat().length}] [S/SS]:`,
-                            value: evolvableStands
+                            name: `Evolvable Stands [${evolvableStands.flat().length}] [S/SS]:`,
+                            /*value: evolvableStands
                                 .flat()
                                 .map((w) => {
                                     // FIND BASE STAND
@@ -177,6 +176,31 @@ const slashCommand: SlashCommandFile = {
                                         })
                                         .filter((k) => k)[0].evolutions[0];
                                     return `- ${baseStand.emoji} ${baseStand.name} ${ctx.client.localEmojis.arrowRight} ${w.emoji} ${w.name}`;
+                                })
+                                .join("\n"),*/
+                            // this is bad because it will do something like:
+                            /*
+                                :echoes_1: Echoes Act 1 :arrowRight: :echoes_2: Echoes Act 2
+:echoes_1: Echoes Act 1 :arrowRight: :echoes_3: Echoes Act 3*/
+                            // instead of:
+                            /*
+:echoes_1: Echoes Act 1 :arrowRight: :echoes_2: Echoes Act 2
+:echoes_2: Echoes Act 2 :arrowRight: :echoes_3: Echoes Act 3
+*/
+                            value: evolvableStands
+                                .flat()
+                                .map((w) => {
+                                    const baseStand = Object.values(EvolvableStands)
+                                        .filter((k) => {
+                                            return k.evolutions.find((m) => m.name === w.name);
+                                        })
+                                        .filter((k) => k)[0];
+                                    const currentStand = baseStand.evolutions.find(
+                                        (k) => k.name === w.name
+                                    );
+                                    const previous = baseStand.evolutions.indexOf(currentStand) - 1;
+
+                                    return `- ${baseStand.evolutions[previous].emoji} ${baseStand.evolutions[previous].name} ${ctx.client.localEmojis.arrowRight} ${w.emoji} ${w.name}`;
                                 })
                                 .join("\n"),
                         },

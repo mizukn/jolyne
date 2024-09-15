@@ -13,6 +13,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     MessageComponentInteraction,
+    InteractionResponse,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -20,6 +21,33 @@ import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
 import e from "express";
+
+function goToPage(
+    ctx: CommandInteractionContext,
+    page: number,
+    prevPageButton: ButtonBuilder,
+    nextPageButton: ButtonBuilder,
+    content: string[][]
+): Promise<Message<boolean> | InteractionResponse<boolean>> {
+    return ctx.makeMessage({
+        embeds: [
+            {
+                title: `${ctx.client.localEmojis.inventory} Inventory`,
+                description: content[page].join("\n"),
+                color: 0x2f3136,
+                footer: {
+                    text: `Page ${page + 1}/${content.length}`,
+                },
+            },
+        ],
+        components: [
+            Functions.actionRow([
+                prevPageButton.setDisabled(page === 0),
+                nextPageButton.setDisabled(page === content.length - 1),
+            ]),
+        ],
+    });
+}
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -225,30 +253,7 @@ const slashCommand: SlashCommandFile = {
                 .setCustomId("prevPage");
             let page = 0;
 
-            // wtf is that fucking rule???
-             
-            function goToPage() {
-                return ctx.makeMessage({
-                    embeds: [
-                        {
-                            title: `${ctx.client.localEmojis.inventory} Inventory`,
-                            description: content[page].join("\n"),
-                            color: 0x2f3136,
-                            footer: {
-                                text: `Page ${page + 1}/${content.length}`,
-                            },
-                        },
-                    ],
-                    components: [
-                        Functions.actionRow([
-                            prevPageButton.setDisabled(page === 0),
-                            nextPageButton.setDisabled(page === content.length - 1),
-                        ]),
-                    ],
-                });
-            }
-
-            await goToPage();
+            await goToPage(ctx, page, prevPageButton, nextPageButton, content);
 
             if (content.length === 1) return;
 
@@ -267,7 +272,7 @@ const slashCommand: SlashCommandFile = {
                 } else if (i.customId === "prevPage") {
                     page--;
                 }
-                await goToPage();
+                await goToPage(ctx, page, prevPageButton, nextPageButton, content);
             });
         } else if (ctx.interaction.options.getSubcommand() === "info") {
             const itemString = ctx.interaction.options.getString("item", true);
@@ -822,7 +827,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop("cheat");
                     return;
                 }
-                i.deferUpdate().catch(() => {});  
+                i.deferUpdate().catch(() => {});
                 Functions.addCoins(
                     ctx.userData,
                     Math.round(itemData.price * itemTaxes[itemData.rarity] * amountX)

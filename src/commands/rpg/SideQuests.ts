@@ -133,7 +133,7 @@ const slashCommand: SlashCommandFile = {
                 /*content: `${SideQuest.emoji} **__${SideQuest.title}__**\n\`\`\`\n${
                     SideQuest.description
                 }\n\`\`\`\n\n${ctx.client.localEmojis.a_} **__Requirements:__**\n${
-                    SideQuest.requirementsMessage
+                    SideQuest.requirementsMessage(ctx)
                 }${
                     SideQuest.cancelQuestIfRequirementsNotMetAnymore
                         ? "\n- ❗ This SideQuest will be automatically erased if you don't meet the requirements anymore! Be careful."
@@ -153,7 +153,7 @@ const slashCommand: SlashCommandFile = {
                         title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
                         description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
                             ctx.client.localEmojis.a_
-                        } **__Requirements:__**\n${SideQuest.requirementsMessage}${
+                        } **__Requirements:__**\n${SideQuest.requirementsMessage(ctx)}${
                             SideQuest.cancelQuestIfRequirementsNotMetAnymore
                                 ? "\n- ❗ This SideQuest will be automatically erased if you don't meet the requirements anymore! Be careful."
                                 : ""
@@ -258,7 +258,7 @@ const slashCommand: SlashCommandFile = {
                         title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
                         description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
                             ctx.client.localEmojis.a_
-                        } **__Requirements:__**\n${SideQuest.requirementsMessage}${
+                        } **__Requirements:__**\n${SideQuest.requirementsMessage(ctx)}${
                             SideQuest.cancelQuestIfRequirementsNotMetAnymore
                                 ? "\n- ❗ This SideQuest will be automatically erased if you don't meet the requirements anymore! Be careful."
                                 : ""
@@ -279,7 +279,7 @@ const slashCommand: SlashCommandFile = {
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
         let sideQuestRealArr = sideQuestsArr;
-        if (interaction.options.getSubcommand() === "quest") {
+        if (interaction.options.getSubcommand() === "view") {
             sideQuestRealArr = sideQuestRealArr.filter((sideQuest) =>
                 userData.sideQuests.find((x) => x.id === sideQuest.id)
             );
