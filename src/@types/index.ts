@@ -370,7 +370,7 @@ export interface SideQuest {
      * The side quest's requirements.
      */
     requirements: (ctx: CommandInteractionContext) => boolean | Promise<boolean>;
-    requirementsMessage?: string;
+    requirementsMessage: (ctx: CommandInteractionContext) => string;
     cancelQuestIfRequirementsNotMetAnymore?: boolean;
     canRedoSideQuest?: boolean;
     canReloadQuests?: boolean;
