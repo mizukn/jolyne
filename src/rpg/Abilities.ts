@@ -3,6 +3,17 @@ import { FightHandler, Fighter, FighterRemoveHealthTypes } from "../structures/F
 import { cloneDeep } from "lodash";
 import * as Functions from "../utils/Functions";
 
+function emoji(type: FighterRemoveHealthTypes) {
+    switch (type) {
+        case FighterRemoveHealthTypes.BrokeGuard:
+            return "🛡️💥";
+        case FighterRemoveHealthTypes.Defended:
+            return "🛡️";
+        default:
+            return "";
+    }
+}
+
 export const StandBarrage: Ability = {
     name: "Stand Barrage",
     description:
@@ -531,7 +542,9 @@ export const EternalSleep: Ability = {
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.stand?.emoji} ETERNAL SLEEP: **${x.name}** resisted.`
+                        `- ${emoji(status.type)}${user.stand?.emoji} ETERNAL SLEEP: **${
+                            x.name
+                        }** resisted.`
                     );
                 }
             });
@@ -970,7 +983,7 @@ export const BerserkersRampage: Ability = {
                 const status = x.removeHealth(damages, user, 4);
                 if (status.type !== FighterRemoveHealthTypes.Dodged) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.weapon.emoji} RAMPAGE: **${
+                        `- ${emoji(status.type)}${user.weapon.emoji} RAMPAGE: **${
                             user.name
                         }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
                             x.name
@@ -978,7 +991,7 @@ export const BerserkersRampage: Ability = {
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.stand?.emoji} RAMPAGE: **${x.name}** dodged.`
+                        `- ${emoji(status.type)}${user.stand?.emoji} RAMPAGE: **${x.name}** dodged.`
                     );
                 }
             });
@@ -1012,7 +1025,7 @@ export const KnivesThrow: Ability = {
                 target.stamina -= stamina;
                 if (target.stamina <= 0) target.stamina = 0;
                 ctx.turns[ctx.turns.length - 1].logs.push(
-                    `- ${user.weapon.emoji} KNIVES THROW: **${
+                    `- ${emoji(status.type)}${user.weapon.emoji} KNIVES THROW: **${
                         user.name
                     }** has dealt **${status.amount.toLocaleString("en-US")}** damages to **${
                         target.name
@@ -1042,7 +1055,7 @@ export const GasolineBullets: Ability = {
 
                 if (status.type !== FighterRemoveHealthTypes.Dodged) {
                     ctx.turns[ctx.turns.length - 1].logs.push(
-                        `- ${user.stand?.emoji} GASOLINE BULLETS: **${
+                        `- ${emoji(status.type)}${user.stand?.emoji} GASOLINE BULLETS: **${
                             user.name
                         }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
                             x.name
@@ -1475,7 +1488,7 @@ export const WristKnives: Ability = {
                         );
                     } else {
                         ctx.turns[ctx.turns.length - 1].logs.push(
-                            `- ${user.stand?.emoji} WRIST KNIVES: **${
+                            `- ${emoji(status.type)}${user.stand?.emoji} WRIST KNIVES: **${
                                 user.name
                             }** has dealt **${status.amount.toLocaleString(
                                 "en-US"
