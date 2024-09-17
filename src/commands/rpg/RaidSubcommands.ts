@@ -290,7 +290,7 @@ const slashCommand: SlashCommandFile = {
                         },
                     ],
                 });
-                if (winners.find((r) => r.id === joinedUsers[0].id)) {
+                if (winners?.find((r) => r.id === joinedUsers[0].id)) {
                     for (const winner of winners) {
                         const itemDidntDrop: {
                             percentage: number;
