@@ -129,7 +129,9 @@ export const Heaven_Ascended_Dio: FightableNPC = {
         perception: Dio.skillPoints.perception * 5,
         stamina: Dio.skillPoints.stamina * 5,
     },
-    equippedItems: {},
+    equippedItems: {
+        dios_knives: 6,
+    },
     standsEvolved: {
         the_world: 1,
     },
