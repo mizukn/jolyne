@@ -35,6 +35,12 @@ const slashCommand: SlashCommandFile = {
                 type: 6,
                 required: false,
             },
+            {
+                name: "give-disc",
+                description: "Give the current stand to the user",
+                type: 5,
+                required: false,
+            },
         ],
     },
     adminOnly: true,
@@ -47,6 +53,7 @@ const slashCommand: SlashCommandFile = {
         const userOption = ctx.options.getUser("user", false);
         const stand = ctx.options.getString("stand", true);
         const standData = Functions.findStand(stand);
+        const giveDisc = ctx.options.getBoolean("give-disc", false);
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(
             userOption ? userOption.id : ctx.user.id
         );
@@ -55,13 +62,25 @@ const slashCommand: SlashCommandFile = {
                 content: "User not found",
             });
         }
+
+        if (giveDisc && ctx.userData.stand) {
+            const disc = `${ctx.userData.stand}.$disc$`;
+            const item = Functions.findItem(disc);
+            if (!item) {
+                return void ctx.makeMessage({
+                    content: `Disc not found`,
+                });
+            }
+
+            Functions.addItem(ctx.userData, disc, 1, true);
+        }
         ctx.userData.stand = standData.id;
         await ctx.client.database.saveUserData(ctx.userData);
 
         return void ctx.makeMessage({
             content: `${standData.emoji} | Stand **${standData.name}** has been OVERWRITTEN to ${
                 userOption ? userOption.username : ctx.user.username
-            }`,
+            }${giveDisc ? " and the disc has been given" : ""}`,
         });
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
