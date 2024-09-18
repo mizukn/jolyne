@@ -172,7 +172,6 @@ const slashCommand: SlashCommandFile = {
                 ],
                 components: components.length === 0 ? [] : [Functions.actionRow(components)],
             });
-            console.log(status.message);
 
             if (components.length !== 0) {
                 const collector = ctx.channel.createMessageComponentCollector({

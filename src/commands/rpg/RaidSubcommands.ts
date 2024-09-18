@@ -296,12 +296,10 @@ const slashCommand: SlashCommandFile = {
                             percentage: number;
                             item: Item | EquipableItem | Special | Weapon;
                         }[] = [];
-                        console.log("winner:", winner.id);
                         if (!joinedUsers.find((r) => r.id === winner.id)) continue;
-                        console.log("found human:", winner.id);
                         const winnerData = await ctx.client.database.getRPGUserData(winner.id);
                         if (!winnerData) continue;
-                        console.log("winnerData:", winnerData.id);
+
                         const winContent: string[] = [];
                         if (raid.baseRewards?.coins) {
                             const coins = Math.round(
@@ -363,7 +361,6 @@ const slashCommand: SlashCommandFile = {
                             ...winnerData.sideQuests.map((v) => v.quests),
                         ]) {
                             for (const quest of quests.filter((x) => Functions.isRaidNPCQuest(x))) {
-                                console.log(quest);
                                 if (
                                     (quest as RaidNPCQuest).boss === enhancedBoss.id &&
                                     !quest.completed

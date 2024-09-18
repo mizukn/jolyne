@@ -254,8 +254,6 @@ const slashCommand: SlashCommandFile = {
             timestamp: new Date().toISOString(),
         };
 
-        console.log(commit);
-
         return await ctx.interaction.editReply({
             files: [attachment],
             embeds: [embed],
