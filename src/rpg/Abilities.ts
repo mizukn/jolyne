@@ -2964,7 +2964,7 @@ export const HeavenAscendedSmite: Ability = {
 export const RealityRevert: Ability = {
     // The World Over Heaven
     name: "Reality Revert",
-    description: "Heals the targetted player.",
+    description: "Heals the targetted player by 25% of their max health.",
     cooldown: 4,
     damage: 0,
     stamina: 20,
