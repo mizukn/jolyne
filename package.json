@@ -30,6 +30,7 @@
   "dependencies": {
     "@discordjs/rest": "^0.3.0",
     "@sentry/node": "^7.63.0",
+    "@sentry/profiling-node": "^8.30.0",
     "@top-gg/sdk": "^3.1.5",
     "canvas": "^2.11.2",
     "chalk": "^4.1.2",
