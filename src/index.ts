@@ -27,6 +27,7 @@ import { exec } from "child_process";
 import { count } from "console";
 import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 const weapons = Object.values(EquipableItems).filter(
     (x) => (x as Weapon).abilities !== undefined
@@ -59,6 +60,8 @@ function balanceLevels(
 
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 1.0, //  Capture 100% of the transactions
+    profilesSampleRate: 1.0,
 });
 
 /*
