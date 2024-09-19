@@ -62,12 +62,8 @@ Sentry.init({
     dsn: process.env.SENTRY_DSN,
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     profilesSampleRate: 1.0,
+    integrations: [nodeProfilingIntegration()],
 });
-
-/*
-Sentry.Handlers.requestHandler();
-Sentry.Handlers.tracingHandler();
-Sentry.Handlers.errorHandler();*/
 /*
 for (let i = 1; i < 500; i += 3) {
     const SpookySkeletonNPC: NPC = {
