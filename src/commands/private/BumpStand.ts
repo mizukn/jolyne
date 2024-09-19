@@ -3,7 +3,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import { shuffleArray, actionRow, generateRandomId } from "../../utils/Functions";
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
-import { SlashCommandFile } from "../../@types";
+import { Item, SlashCommandFile } from "../../@types";
 import { cloneDeep } from "lodash";
 import * as Stands from "../../rpg/Stands";
 
@@ -63,9 +63,11 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
+        let item: Item;
+
         if (giveDisc && ctx.userData.stand) {
             const disc = `${ctx.userData.stand}.$disc$`;
-            const item = Functions.findItem(disc);
+            item = Functions.findItem(disc);
             if (!item) {
                 return void ctx.makeMessage({
                     content: `Disc not found`,
@@ -80,7 +82,7 @@ const slashCommand: SlashCommandFile = {
         return void ctx.makeMessage({
             content: `${standData.emoji} | Stand **${standData.name}** has been OVERWRITTEN to ${
                 userOption ? userOption.username : ctx.user.username
-            }${giveDisc ? " and the disc has been given" : ""}`,
+            }${giveDisc ? ` and **${item.name}** has been given` : ""}`,
         });
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
