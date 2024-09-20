@@ -172,6 +172,7 @@ const slashCommand: SlashCommandFile = {
         const todayDateString = `${new Date().getUTCDate()}-${
             new Date().getUTCMonth() + 1
         }-${new Date().getUTCFullYear()}`;
+        console.log(commit);
 
         const embed: APIEmbed = {
             author: {
@@ -188,13 +189,31 @@ const slashCommand: SlashCommandFile = {
                     }** (239739781238620160) \`mizu@jolyne.moe\``,
                 },
                 {
+                    name: "<:github:1286624448086151209> Source code",
+                    value:
+                        `Jolyne is fully open-source, you can find the source code [here](https://github.com/mizukn/jolyne)` +
+                        "\n" +
+                        `If you want to support us, you can put a :star: on the repository.` +
+                        (!ctx.client.patreons.find(
+                            (patreon) => patreon.id === ctx.interaction.user.id
+                        )
+                            ? `\nAlternatively, you can support us on [Patreon](https://www.patreon.com/mizuki54) and get exclusive rewards! (${ctx.client.getSlashCommandMention(
+                                  "patreon"
+                              )})`
+                            : ""),
+                },
+                {
                     name: "Version",
-                    value: `\`v3.1.3:${commit["hash"].slice(0, 7)}\` (${
+                    value: `\`v3.2.9\`:[\`${commit["hash"].slice(
+                        0,
+                        7
+                    )}\`](https://github.com/mizukn/jolyne/commit/${commit.hash}) (${
                         commit["message"]
                     } ${generateDiscordTimestamp(new Date(commit["date"]), "FROM_NOW")})\n\`${
                         commit.refs
                     }\``,
                 },
+
                 {
                     name: "Guilds",
                     value: guilds.toLocaleString("en-US"),

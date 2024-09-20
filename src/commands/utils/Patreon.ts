@@ -110,7 +110,9 @@ const slashCommand: SlashCommandFile = {
             await ctx.interaction.deferReply();
             const embeds: APIEmbed[] = [];
 
-            for await (const tier of ctx.client.patreonTiers) {
+            for await (const tier of ctx.client.patreonTiers.sort(
+                (a, b) => a.attributes.amount_cents - b.attributes.amount_cents
+            )) {
                 const prominent = await Functions.getProminentColor(
                     tier.attributes.image_url,
                     5,

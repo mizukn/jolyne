@@ -594,9 +594,9 @@ const slashCommand: SlashCommandFile = {
                     ctx.client.localEmojis.jocoins
                 } ${raidCost.toLocaleString("en-US")}\n> \`Min Level Requirement:\` ${
                     raid.level
-                }\n> \`Maximum Level Requirement:\` ${
-                    raid.maxLevel === Infinity ? "∞" : raid.maxLevel
-                }\n> \`Cooldown:\` ${Functions.msToString(
+                }\n> \`Maximum Level Requirement:\` ${raid.maxLevel.toLocaleString(
+                    "en-US"
+                )}\n> \`Cooldown:\` ${Functions.msToString(
                     raid.cooldown
                 )}\n> \`Auto Starts\` ${Functions.generateDiscordTimestamp(startRaid, "FROM_NOW")}`,
                 fields: [

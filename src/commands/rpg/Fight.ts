@@ -249,9 +249,20 @@ const slashCommand: SlashCommandFile = {
         ) {
             if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
                 return ctx.makeMessage({
-                    content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
-                        "inventory use"
-                    )} or ${ctx.client.getSlashCommandMention("shop")})`,
+                    content:
+                        `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
+                            "inventory use"
+                        )} or ${ctx.client.getSlashCommandMention("shop")})` +
+                        !Functions.hasVotedRecenty(
+                            ctx.userData,
+                            ctx.client,
+                            // 12 hours
+                            43200000
+                        )
+                            ? `\n\nYou can also ${ctx.client.getSlashCommandMention(
+                                  "vote"
+                              )} to restore your health & stamina and get some rewards.`
+                            : "",
                     embeds: [],
                     components: [],
                 });
