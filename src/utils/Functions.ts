@@ -1481,10 +1481,8 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
                 limit += 60;
                 break;
             case 3:
-                limit += 99999999999;
-                break;
             case 4:
-                limit += 99999999999;
+                limit = Infinity;
                 break;
         }
     }
