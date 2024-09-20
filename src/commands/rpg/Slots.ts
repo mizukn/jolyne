@@ -102,12 +102,12 @@ const totalFruits = Object.values(slotsChart)
     .map((d) => d.frequence)
     .reduce((arr, curr) => arr + curr);
 
-function getSymbolTwoOfThreeProbability(symbol: string): number {
-    return (slotsChart[symbol as keyof typeof slotsChart].frequence / totalFruits) ** 2;
+function getSymbolTwoOfThreeProbability(symbol: keyof typeof slotsChart): number {
+    return (slotsChart[symbol].frequence / totalFruits) ** 2;
 }
 
-function getSymbolThreeOfThreeProbability(symbol: string): number {
-    return (slotsChart[symbol as keyof typeof slotsChart].frequence / totalFruits) ** 3;
+function getSymbolThreeOfThreeProbability(symbol: keyof typeof slotsChart): number {
+    return (slotsChart[symbol].frequence / totalFruits) ** 3;
 }
 
 function getOverallTwoOfThreeProbability(): number {
@@ -252,8 +252,32 @@ const slashCommand: SlashCommandFile = {
                 },
             };
 
+            const frequenceEmbed: APIEmbed = {
+                title: "Frequencies",
+                description: "The frequency of each symbol in the slots machine.",
+                fields: [
+                    {
+                        name: "Symbol",
+                        value: Object.keys(slotsChart)
+                            .map((s) => s)
+                            .join("\n"),
+                        inline: true,
+                    },
+                    {
+                        name: "Frequency",
+                        value: Object.keys(slotsChart)
+                            .map((s) => slotsChart[s as keyof typeof slotsChart].frequence)
+                            .join("\n"),
+                        inline: true,
+                    },
+                ],
+                footer: {
+                    text: "The more frequent the symbol, the higher the chance of getting it.",
+                },
+            };
+
             return void ctx.makeMessage({
-                embeds: [embed, probabilityEmbed].map((d) => {
+                embeds: [embed, probabilityEmbed, frequenceEmbed].map((d) => {
                     d.color = 0x70926c;
                     return d;
                 }),
@@ -493,6 +517,115 @@ async function runMachine(
             content: msg,
             components: [],
         });
+    }
+}
+
+// function to simulate X times the slots machine and tell the user if it won or not every time
+async function consoleSimulate(times: number): Promise<void> {
+    const fruits = Object.keys(slotsChart);
+
+    for (const id in slotsChart) {
+        const symbol = slotsChart[id as keyof typeof slotsChart];
+        for (let i = 0; i < symbol.frequence; i++) fruits.push(id);
+    }
+
+    let left = Functions.randomNumber(2, 6);
+
+    while (times !== 0) {
+        let slotsMachine: string[] = Functions.shuffle([
+            ...Functions.shuffle([
+                ...Functions.shuffle(fruits),
+                ...Functions.shuffle(fruits),
+                ...Functions.shuffle(fruits),
+                ...Functions.shuffle(fruits),
+            ]),
+        ]); // Am I shuffling too much? Yes.
+
+        console.log("Spinning the slots machine...");
+        // while (left !== -1 || left >= 0) {
+        runMachineConsole(slotsMachine, left);
+        slotsMachine = slotsMachine.slice(3);
+        left--;
+        //  }
+        times--;
+    }
+}
+
+const results = {
+    win: 0,
+    loose: 0,
+    jackpot: 0,
+};
+
+function runMachineConsole(slotMachineFruits: string[], left: number): void {
+    let msg =
+        "[  :slot_machine: | **CASINO** ]\n+----------------+\n" +
+        "| " +
+        slotMachineFruits[0] +
+        " : " +
+        slotMachineFruits[1] +
+        " : " +
+        slotMachineFruits[2] +
+        "  | \n" +
+        "| " +
+        slotMachineFruits[3] +
+        " : " +
+        slotMachineFruits[4] +
+        " : " +
+        slotMachineFruits[5] +
+        "  | **<**\n" +
+        "| " +
+        slotMachineFruits[6] +
+        " : " +
+        slotMachineFruits[7] +
+        " : " +
+        slotMachineFruits[8] +
+        "  | \n+----------------+\n";
+    let followUpMsg: string;
+
+    let loose = true;
+
+    if (left === 0) {
+        if (
+            slotMachineFruits[3] === slotMachineFruits[4] &&
+            slotMachineFruits[4] === slotMachineFruits[5]
+        ) {
+            // JACKPOT
+            const multiplier = slotsChart[slotMachineFruits[3] as keyof typeof slotsChart][3];
+            loose = false;
+
+            msg += "| : : **JACKPOT** : : |\n";
+            followUpMsg = "JACKPOT";
+            results.jackpot++;
+        } else if (
+            slotMachineFruits[3] === slotMachineFruits[4] ||
+            slotMachineFruits[4] === slotMachineFruits[5] ||
+            slotMachineFruits[3] === slotMachineFruits[5]
+        ) {
+            // 2/3
+            const emojiMatch =
+                slotMachineFruits[3] === slotMachineFruits[4]
+                    ? slotMachineFruits[3]
+                    : slotMachineFruits[4] === slotMachineFruits[5]
+                    ? slotMachineFruits[4]
+                    : slotMachineFruits[3];
+            const multiplier = slotsChart[emojiMatch as keyof typeof slotsChart][2];
+            if (multiplier) {
+                msg += "| : : : : **WIN** : : : : |";
+                loose = false;
+                followUpMsg = "WIN";
+                results.win++;
+            }
+        }
+
+        if (loose) {
+            msg += "| : : : : **LOOSE** : : : : |";
+            followUpMsg = "LOOSE";
+            results.loose++;
+        }
+
+        console.log(msg);
+        console.log(followUpMsg);
     }
 }
 

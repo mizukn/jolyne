@@ -136,7 +136,7 @@ const slashCommand: SlashCommandFile = {
         const raidCost = (raid.baseRewards?.coins ?? 25000) * 3;
         if (raid.level > ctx.userData.level) {
             ctx.makeMessage({
-                content: "You can't raid this boss yet.",
+                content: `You need to be at least level **${raid.level}** to raid this boss.`,
             });
             return;
         }
@@ -678,7 +678,7 @@ const slashCommand: SlashCommandFile = {
             fixedBosses.push(eventRaid);
         }
 
-        const availableBosses = fixedBosses.filter((r) => r.level <= userData.level);
+        const availableBosses = fixedBosses; //.filter((r) => r.level <= userData.level);
 
         interaction.respond(
             availableBosses

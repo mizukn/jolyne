@@ -359,7 +359,7 @@ const slashCommand: SlashCommandFile = {
                         }
                     }
 
-                    if (quest.pushItemWhenCompleted)
+                    if (quest.pushItemWhenCompleted) {
                         for (const item of quest.pushItemWhenCompleted) {
                             Functions.addItem(
                                 ctx.userData,
@@ -372,6 +372,8 @@ const slashCommand: SlashCommandFile = {
                                 }`
                             );
                         }
+                        quest.pushItemWhenCompleted = undefined;
+                    }
 
                     let command: string;
                     if (fightType === FightTypes.DailyQuest) {
@@ -758,22 +760,23 @@ const slashCommand: SlashCommandFile = {
             const NPCs = [...chapterQuestsNPC, ...dailyQuestsNPC, ...sideQuestsNPC];
 
             await interaction.respond(
-                NPCs.map((r) => ({
-                    value: r.id,
-                    name:
-                        Functions.findNPC(r.npc, true).name +
-                        " [" +
-                        (userData.chapter.quests.find((x) => x.id === r.id)
-                            ? "FROM YOUR CHAPTER QUESTS"
-                            : userData.daily.quests.find((x) => x.id === r.id)
-                            ? "FROM YOUR DAILY QUESTS"
-                            : `FROM YOUR SIDE QUEST: ${
-                                  userData.sideQuests.find((xx) =>
-                                      xx.quests.find((qq) => qq.id === r.id)
-                                  ).id
-                              }`) +
-                        "]",
-                }))
+                NPCs.filter((x) => x)
+                    .map((r) => ({
+                        value: r.id,
+                        name:
+                            Functions.findNPC(r.npc, true).name +
+                            " [" +
+                            (userData.chapter.quests.find((x) => x.id === r.id)
+                                ? "FROM YOUR CHAPTER QUESTS"
+                                : userData.daily.quests.find((x) => x.id === r.id)
+                                ? "FROM YOUR DAILY QUESTS"
+                                : `FROM YOUR SIDE QUEST: ${
+                                      userData.sideQuests.find((xx) =>
+                                          xx.quests.find((qq) => qq.id === r.id)
+                                      ).id
+                                  }`) +
+                            "]",
+                    }))
                     .filter(
                         (r) =>
                             r.name.toLowerCase().includes(currentInput.toLowerCase()) ||
