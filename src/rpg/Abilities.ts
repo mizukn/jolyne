@@ -2973,17 +2973,13 @@ export const RealityRevert: Ability = {
     target: "ally",
     useMessage: (user, target, damage, ctx) => {
         //const oldHealth = cloneDeep(target.health);
-        target.health += Math.round(Functions.getMaxHealth(target) * 0.25);
-        if (target.health > Functions.getMaxHealth(target))
-            target.health = Functions.getMaxHealth(target);
+        const status = target.incrHealth(target.maxHealth * 0.25);
         //user.totalHealingDone += target.health - oldHealth;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} REALITY REVERT: **${user.name}** has healed **${
                 target.name
-            }** by **${Math.round(Functions.getMaxHealth(target) * 0.25).toLocaleString(
-                "en-US"
-            )}** health.`
+            }** by **${status.toLocaleString("en-US")}** health.`
         );
     },
 };
