@@ -389,7 +389,7 @@ const Event: EventFile = {
                                 const itemData = Functions.findItem(item.item);
                                 if (!itemData) continue;
                                 if (item.chance) {
-                                    if (Functions.RNG(0, item.chance)) {
+                                    if (Functions.percent(item.chance)) {
                                         // wtf is this
                                         Functions.addItem(ctx.userData, item.item, item.amount);
                                         ctx.followUpQueue.push({
