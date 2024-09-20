@@ -904,7 +904,7 @@ export const SandSelfHealing: Ability = {
         user.health += heal;
         if (user.health > user.maxHealth) user.health = user.maxHealth;
         ctx.turns[ctx.turns.length - 1].logs.push(
-            `- ${user.stand?.emoji} SAND SELF HEALING: **${user.name}** has healed himself by **${heal}** health...`
+            `- ${user.stand?.emoji} SAND SELF HEALING: **${user.name}** healed themselves by **${heal}** health...`
         );
     },
     target: "self",
