@@ -9,7 +9,7 @@ export const JotarosHat: EquipableItem = {
     description: "A hat that belonged to Jotaro Kujo.",
     type: equipableItemTypes.HEAD,
     effects: {
-        health: "25%",
+        health: "15%",
         stamina: 50,
         skillPoints: {
             defense: 20,
@@ -42,7 +42,7 @@ export const MeguminsHat: EquipableItem = {
     description: "A hat that belonged to Megumin.",
     type: equipableItemTypes.HEAD,
     effects: {
-        health: "25%",
+        health: "15%",
         stamina: 50,
         skillPoints: {
             defense: 0,

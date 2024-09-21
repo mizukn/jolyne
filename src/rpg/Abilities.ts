@@ -2838,7 +2838,7 @@ export const DisorientingStabs: Ability = {
 export const MikuBeam: Ability = {
     name: "Miku Beam",
     description: "I'm thinking Mikuu Mikuu OO EE OO",
-    cooldown: 3,
+    cooldown: 4,
     damage: 30,
     stamina: 20,
     extraTurns: 0,
