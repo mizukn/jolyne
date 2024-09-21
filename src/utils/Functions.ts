@@ -492,13 +492,15 @@ export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
 export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     if (rpgData.level === 0) return 0;
     const skillPoints = getSkillPointsBonus(rpgData);
-    return Math.round(Math.round(rpgData.level / 5 + skillPoints.perception / 1.1));
+    // return Math.round(Math.round(rpgData.level / 5 + skillPoints.perception / 1.1)); OLD
+    return Math.round(skillPoints.perception / 1.1);
 };
 
 export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     if (rpgData.level === 0) return 0;
     const skillPoints = getSkillPointsBonus(rpgData);
-    return Math.round(Math.round(rpgData.level / 5 + skillPoints.speed / 1.1));
+    // return Math.round(Math.round(rpgData.level / 5 + skillPoints.speed / 1.1));
+    return Math.round(Math.round(skillPoints.speed / 1.1));
 };
 
 export const generateDiscordTimestamp = (
@@ -621,11 +623,17 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
         console.log(`Stamina scaling: ${staminaScaling} since stamina is ${user.stamina}`);
     }
 
-    const damages = Math.round(
+    /*const damages = Math.round(
         baseDamage +
             Math.round(
                 (skillPoints.strength * 0.675 + (user.level / 10 + (baseDamage / 100) * 12.5) / 2) *
                     staminaScaling
+            )
+    );*/
+    const damages = Math.round(
+        baseDamage +
+            Math.round(
+                (skillPoints.strength * 0.675 + ((baseDamage / 100) * 12.5) / 2) * staminaScaling
             )
     );
 
