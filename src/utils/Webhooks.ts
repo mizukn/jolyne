@@ -57,3 +57,9 @@ export const specialLogsWebhook = new WebhookClient({
         ? process.env.BETA_FALLBACK_WEBHOOK_URL
         : process.env.SPECIAL_LOGS_WEBHOOK_URL,
 });
+
+export const erroredFightLogsWebhook = new WebhookClient({
+    url: process.env.BETA
+        ? process.env.BETA_FALLBACK_WEBHOOK_URL
+        : process.env.ERRORED_FIGHT_LOGS_WEBHOOK_URL,
+});
