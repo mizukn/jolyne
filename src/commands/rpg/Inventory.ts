@@ -275,7 +275,8 @@ const slashCommand: SlashCommandFile = {
                 await goToPage(ctx, page, prevPageButton, nextPageButton, content);
             });
         } else if (ctx.interaction.options.getSubcommand() === "info") {
-            const itemString = ctx.interaction.options.getString("item", true);
+            const itemString = fixItemString(ctx.interaction.options.getString("item", true));
+
             const itemData = Functions.findItem(itemString);
 
             if (!itemData) {
@@ -371,7 +372,7 @@ const slashCommand: SlashCommandFile = {
                 embeds: [embed],
             });
         } else if (ctx.interaction.options.getSubcommand() === "unequip") {
-            const itemString = ctx.interaction.options.getString("item", true);
+            const itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
                 await ctx.makeMessage({
@@ -393,7 +394,7 @@ const slashCommand: SlashCommandFile = {
                 content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,
             });
         } else if (ctx.interaction.options.getSubcommand() === "equip") {
-            let itemString = ctx.interaction.options.getString("item", true);
+            let itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
 
             if (ctx.userData.inventory[itemString] === undefined) {
@@ -482,7 +483,7 @@ const slashCommand: SlashCommandFile = {
             });
             await ctx.client.database.saveUserData(ctx.userData);
         } else if (ctx.interaction.options.getSubcommand() === "use") {
-            let itemString = ctx.interaction.options.getString("item", true);
+            let itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
 
             if (ctx.userData.inventory[itemString] === undefined) {
@@ -582,7 +583,7 @@ const slashCommand: SlashCommandFile = {
                 });
                 return;
             }
-            const itemString = ctx.interaction.options.getString("item", true);
+            const itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const left = ctx.userData.inventory[itemString] || 0;
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
 
@@ -721,7 +722,7 @@ const slashCommand: SlashCommandFile = {
                 content: `You claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`!`,
             });
         } else if (ctx.interaction.options.getSubcommand() === "sell") {
-            const itemString = ctx.interaction.options.getString("item", true);
+            const itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
             const left = ctx.userData.inventory[itemString] || 0;
 
@@ -1012,5 +1013,17 @@ const slashCommand: SlashCommandFile = {
         }
     },
 };
+
+function fixItemString(str: string): string {
+    let itemString = str;
+    if (str.includes("(") && str.includes(")") && str.includes("x") && str.includes("left")) {
+        // ex: Patron Box (x1 left)
+        // we want to get the item name from this
+        const itemName = itemString.split("(")[0].trim();
+        itemString = itemName;
+    }
+
+    return itemString;
+}
 
 export default slashCommand;
