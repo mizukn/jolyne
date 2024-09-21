@@ -151,15 +151,15 @@ const slashCommand: SlashCommandFile = {
                         loot: Items.StandArrow,
                     },
                     {
-                        percent: 20,
+                        percent: 10,
                         loot: Items.AncientScroll,
                     },
                     {
-                        percent: 60,
+                        percent: 50,
                         loot: Items.IronIngot,
                     },
                     {
-                        percent: 80,
+                        percent: 100,
                         loot: Items.Wood,
                     },
                 ],
