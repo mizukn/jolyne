@@ -2561,8 +2561,8 @@ export const CandyCanePull: Ability = {
 export const ConfettiBlast: Ability = {
     name: "Confetti Blast",
     description: "Blast the opponent with confetti.",
-    cooldown: 3,
-    damage: 37,
+    cooldown: 4,
+    damage: 30,
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,
@@ -2838,9 +2838,9 @@ export const DisorientingStabs: Ability = {
 export const MikuBeam: Ability = {
     name: "Miku Beam",
     description: "I'm thinking Mikuu Mikuu OO EE OO",
-    cooldown: 2,
-    damage: 40,
-    stamina: 5,
+    cooldown: 3,
+    damage: 30,
+    stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
