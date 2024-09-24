@@ -279,7 +279,7 @@ export const Toru: RaidBoss = {
     boss: FightableNPCs.Toru,
     minions: [],
     baseRewards: {
-        xp: 180000,
+        xp: FightableNPCs.Toru.rewards.xp,
         coins: 172700,
         items: [
             {
@@ -310,7 +310,7 @@ export const YoshikageKira: RaidBoss = {
     boss: FightableNPCs.YoshikageKira,
     minions: [],
     baseRewards: {
-        xp: 80000,
+        xp: FightableNPCs.YoshikageKira.rewards.xp,
         coins: 100727,
         items: [
             {

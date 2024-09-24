@@ -572,9 +572,10 @@ export const StandDisc: Ability = {
         }
 
         const stand = target.stand;
+        const emoji = user.stand?.emoji || "🤷‍♂️";
         target.stand = null;
         ctx.turns[ctx.turns.length - 1].logs.push(
-            `- ${user.stand?.emoji} STAND DISC: **${user.name}** has removed temporarily the stand of **${target.name}**... (${stand?.name} ${stand?.emoji})`
+            `- ${emoji} STAND DISC: **${user.name}** has removed temporarily the stand of **${target.name}**... (${stand?.name} ${stand?.emoji})`
         );
         ctx.nextRoundPromises.push({
             cooldown: 6,
@@ -583,7 +584,7 @@ export const StandDisc: Ability = {
             promise: (fight) => {
                 target.stand = stand;
                 fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} STAND DISC: **${target.name}** has recovered their stand?... (${stand?.name} ${stand?.emoji})`
+                    `- ${emoji} STAND DISC: **${target.name}** has recovered their stand?... (${stand?.name} ${stand?.emoji})`
                 );
             },
         });
@@ -2407,9 +2408,10 @@ export const Kiss: Ability = {
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         const oldSkillPoints = cloneDeep(target.stand);
+        const emoji = user.stand?.emoji || "👄";
         target.stand = null;
         ctx.turns[ctx.turns.length - 1].logs.push(
-            `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has been removed...`
+            `- ${emoji} KISS: **${target.name}**'s stand has been removed...`
         );
 
         ctx.nextRoundPromises.push({
@@ -2419,7 +2421,7 @@ export const Kiss: Ability = {
             promise: (fight) => {
                 target.stand = oldSkillPoints;
                 fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} KISS: **${target.name}**'s stand has returned...`
+                    `- ${emoji} KISS: **${target.name}**'s stand has returned...`
                 );
             },
         });
@@ -2979,7 +2981,7 @@ export const RealityRevert: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} REALITY REVERT: **${user.name}** has healed **${
                 target.name
-            }** by **${status.toLocaleString("en-US")}** health.`
+            }** by **${(status * -1).toLocaleString("en-US")}** health.`
         );
     },
 };

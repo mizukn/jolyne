@@ -138,14 +138,11 @@ Happy Halloween!
 
 The Halloween event and the long-awaited V3 update are out!
 
-As a reminder, V3 isn't just an update, but a rewrite of the bot from scratch, which is why it took so long. Note also that only one person is working on Jolyne (**@mizufare**)
-V3 allows the developer to add updates without constantly modifying structures and changing a lot of code. It's dynamic, which means that from now on, updates will be made on a regular basis.
+As a reminder, V3 isn't just an update, but a rewrite of the bot from scratch, which is why it took so long. Note also that only one person is working on Jolyne (**@mizukn**)
 
 Anyway, all your chapter progressions have been reset because the developer had to rework some chapters. There's no disadvantage to this, because by completing chapters again, you gain more xp. 
 
 Almost all the stands have been reworked, the mechanics of the game have changed; in fact, everything has changed so much that noting all the changes would take pages and pages.
-
-Many things have changed. For more details, read the Google Doc here (note that the Google Doc is not complete because it takes a huge amount of time to write)
 
 Also note that these items/stand have been removed from the RPG:
 - Spice Girl
@@ -160,7 +157,7 @@ Regarding the Halloween event, use the ${ctx.client.getSlashCommandMention(
     )} command to get information on the current event.
 
 
-Should you have any questions or suggestions, please contact us on the [support server](https://discord.gg/jolyne-support-923608916540145694) or contact the developer directly: **@mizufare** (mizu@jolyne.moe)
+Should you have any questions or suggestions, please contact us on the [support server](https://discord.gg/jolyne-support-923608916540145694) or contact the developer directly: **@mizukn** (mizu@jolyne.moe)
 
 We hope you all enjoy this update. Once again, happy Halloween!`,
 };
