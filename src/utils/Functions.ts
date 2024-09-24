@@ -30,6 +30,7 @@ import {
     numOrPerc,
     Rarity,
     LBData,
+    defaultUserSettings,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -42,6 +43,7 @@ import {
     Utils,
     Message,
     MessageActionRowComponent,
+    ChatInputCommandInteraction,
 } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
@@ -786,7 +788,7 @@ export const weaponAbilitiesEmbed = (
         content += `\n\`Cooldown:\` ${cooldown} turns\n\n${ability.description.replace(
             /{weaponName}/gi,
             weapon.name
-        )}\n`;
+        )}\nDodge score: ${ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable"}`;
 
         if (ability.special) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
@@ -867,6 +869,14 @@ export const isEquipableItem = (item: Item): item is EquipableItem => {
 
 export const findItem = <T extends Item | EquipableItem | Special | Weapon>(name: string): T => {
     if (!name) return null;
+    // first, check if Items.id.towLowercase() === name.toLowerCase()
+
+    if (Object.values(Items.default).find((item) => item.id.toLowerCase() === name.toLowerCase()))
+        return (
+            (Object.values(Items.default).find(
+                (item) => item.id.toLowerCase() === name.toLowerCase()
+            ) as T) || null
+        );
     return (Object.values(Items.default).find(
         (item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()
     ) ||
@@ -1230,10 +1240,7 @@ export const isConsumable = (item: Item | "string"): item is Consumable => {
         item = findItem(item);
     }
     if (!item) return false;
-    return (
-        (item as Consumable)["effects"] !== undefined &&
-        (item as EquipableItem)["requirements"] === undefined
-    );
+    return (item as Consumable)["effects"] !== undefined && !isEquipableItem(item);
 };
 
 export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: number): void {
@@ -1944,7 +1951,6 @@ export function addHealthOrStamina(
 }
 
 export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amount?: number): void {
-    console.log(amount);
     if (!amount) amount = 1;
     if (item.effects.health)
         for (let i = 0; i < amount; i++) addHealthOrStamina(item.effects.health, "health", data);
@@ -2112,4 +2118,64 @@ export const getProminentColor = async (
 
 export const removeZalgo = (str: string): string => {
     return str.replace(/[^A-Za-z0-9 ]/g, "");
+};
+
+export const getHealthEffect = (item: Consumable, data: RPGUserDataJSON): number => {
+    if (!item.effects.health) return 0;
+
+    switch (typeof item.effects.health) {
+        case "number":
+            return item.effects.health;
+        case "string":
+            return (getMaxHealth(data) / 100) * parseInt(item.effects.health);
+    }
+};
+
+export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): number => {
+    if (!item.effects.stamina) return 0;
+
+    switch (typeof item.effects.stamina) {
+        case "number":
+            return item.effects.stamina;
+        case "string":
+            return (getMaxStamina(data) / 100) * parseInt(item.effects.stamina);
+    }
+};
+
+export const disableRows = (interaction: ChatInputCommandInteraction): void => {
+    interaction.fetchReply().then((x) => {
+        if (!x) return; // message deleted
+        x.edit({
+            components: x.components.map((c) => {
+                c.components.forEach((c) => {
+                    // @ts-expect-error DNC ABOUT THE READ ONLY
+                    c.data.disabled = true;
+                });
+
+                return c;
+            }),
+        });
+    });
+};
+
+export const fixUserSettings = (data: RPGUserDataJSON): void => {
+    if (!data.settings) {
+        data.settings = defaultUserSettings;
+        return;
+    }
+
+    for (const key of Object.keys(defaultUserSettings)) {
+        if (data.settings[key] === undefined) {
+            data.settings[key] = defaultUserSettings[key];
+        }
+    }
+
+    for (const setting of Object.keys(data.settings)) {
+        const defaultSetting = defaultUserSettings[setting];
+        for (const key of Object.keys(defaultSetting)) {
+            if (data.settings[setting][key] === undefined) {
+                data.settings[setting][key] = defaultSetting[key];
+            }
+        }
+    }
 };
