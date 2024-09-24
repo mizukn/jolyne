@@ -235,12 +235,13 @@ const slashCommand: SlashCommandFile = {
             ctx.client.cluster.emit("matchmakingAdd", ctx);
             return;
         }*/
-        if (!ctx.interaction.replied || !message)
+        if (!ctx.interaction.replied || !message) {
             await ctx.interaction
                 .deferReply({
                     ephemeral: true,
                 })
                 .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        }
 
         function startFight(
             questId: string,
@@ -250,10 +251,12 @@ const slashCommand: SlashCommandFile = {
             if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
                 return ctx.makeMessage({
                     content:
-                        `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
+                        `You're too low on health to fight. Try to  ${ctx.client.getSlashCommandMention(
+                            "heal"
+                        )} yourself first by using some consumables (${ctx.client.getSlashCommandMention(
                             "inventory use"
                         )} or ${ctx.client.getSlashCommandMention("shop")})` +
-                        !Functions.hasVotedRecenty(
+                        (!Functions.hasVotedRecenty(
                             ctx.userData,
                             ctx.client,
                             // 12 hours
@@ -262,10 +265,14 @@ const slashCommand: SlashCommandFile = {
                             ? `\n\nYou can also ${ctx.client.getSlashCommandMention(
                                   "vote"
                               )} to restore your health & stamina and get some rewards.`
-                            : "",
+                            : ""),
                     embeds: [],
                     components: [],
                 });
+            } else {
+                if (!message) {
+                    console.log("NO MESSAGE FOUND, ATTEMTPING TO DELETE");
+                }
             }
             const npc = Functions.findNPC<FightableNPC>(npcId, true);
 
@@ -497,7 +504,7 @@ const slashCommand: SlashCommandFile = {
 
                     const collector = ctx.channel.createMessageComponentCollector({
                         filter,
-                        time: 15000,
+                        time: 30000,
                     });
 
                     collector.on("collect", async (i) => {
@@ -709,9 +716,9 @@ const slashCommand: SlashCommandFile = {
                     if (!realNPC) {
                         await ctx.makeMessage({
                             content:
-                                "FATAL ERROR: COULD NOT FIND NPC: " +
+                                "Could not find questId `" +
                                 NPC +
-                                "\n\nIf this problem appears, just type `1` on the npc argument (exemple: `/fight npc npc:1`)",
+                                "`\n\nIf this problem appears, just type `1` on the npc argument (example: `/fight npc npc:1`).\nThis is often due because you've not properly selected the choice (perhaps your wifi is slow).",
                         });
                         return;
                     }

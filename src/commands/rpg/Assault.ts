@@ -45,7 +45,9 @@ const slashCommand: SlashCommandFile = {
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
             await ctx.makeMessage({
-                content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
+                content: `You're too low on health to fight. Try to  ${ctx.client.getSlashCommandMention(
+                    "heal"
+                )} yourself first by using some consumables (${ctx.client.getSlashCommandMention(
                     "inventory use"
                 )} or ${ctx.client.getSlashCommandMention("shop")})`,
                 embeds: [],
@@ -125,12 +127,11 @@ const slashCommand: SlashCommandFile = {
             (i.user.id === ctx.user.id && i.customId === "random" + ctx.interaction.id);
         const collector = ctx.channel.createMessageComponentCollector({
             filter,
-            time: 30000,
+            time: 60000,
             max: 1,
         });
 
         collector.on("collect", async (i: MessageComponentInteraction) => {
-             
             await i.deferUpdate().catch(() => {});
             const npc =
                 i.customId === "normal" + ctx.interaction.id
@@ -174,7 +175,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.stamina = 0;
 
                     await ctx.followUp({
-                        content: `${npc.emoji} | You assaulted \`${npc.name}\` and lost! You lost all your health and stamina. Better luck next time or train yourself more.`,
+                        content: `${npc.emoji} | You assaulted \`${npc.name}\` and lost! You lost all your health. Better luck next time or train yourself more.`,
                     });
                 }
                 await ctx.client.database.saveUserData(ctx.userData);

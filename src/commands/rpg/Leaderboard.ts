@@ -117,7 +117,7 @@ const slashCommand: SlashCommandFile = {
 
         const embed: APIEmbed = {
             title: "Leaderboard",
-            description: "Loading...",
+            description: `${ctx.client.localEmojis.loading} | Loading...`,
             color: 0x70926c,
             fields: [],
         };

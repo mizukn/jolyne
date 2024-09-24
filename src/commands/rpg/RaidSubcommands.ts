@@ -108,7 +108,9 @@ const slashCommand: SlashCommandFile = {
 
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
             ctx.makeMessage({
-                content: `You're too low on health to fight. Try to heal yourself first by using some consumables (${ctx.client.getSlashCommandMention(
+                content: `You're too low on health to fight. Try to  ${ctx.client.getSlashCommandMention(
+                    "heal"
+                )} yourself first by using some consumables (${ctx.client.getSlashCommandMention(
                     "inventory use"
                 )} or ${ctx.client.getSlashCommandMention("shop")})`,
                 embeds: [],

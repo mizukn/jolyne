@@ -20,7 +20,15 @@ import * as Functions from "../../utils/Functions";
 import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
-import e from "express";
+
+const itemTaxes = {
+    T: 1,
+    SS: 1,
+    S: 0.78,
+    A: 0.65,
+    B: 0.46,
+    C: 0.3,
+};
 
 function goToPage(
     ctx: CommandInteractionContext,
@@ -362,7 +370,7 @@ const slashCommand: SlashCommandFile = {
                             : ""
                     }${
                         itemData.effects.stamina
-                            ? `\`[+]\` Stamina: **${itemData.effects.health}**\n`
+                            ? `\`[+]\` Stamina: **${itemData.effects.stamina}**\n`
                             : ""
                     }`,
                 });
@@ -771,7 +779,9 @@ const slashCommand: SlashCommandFile = {
                 await ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Pucci,
-                        "hey, i'm not interested in buying that. you should keep it for yourself..."
+                        `H-Hey... I'm not interested in buying that. Y-You should keep it for yourself... (${ctx.client.getSlashCommandMention(
+                            "dungeon"
+                        )})`
                     ),
                 });
                 return;
@@ -779,21 +789,11 @@ const slashCommand: SlashCommandFile = {
 
             if (!itemData.price) {
                 await ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Pucci,
-                        "sorry, I don't know what that item is. that's weird..."
-                    ),
+                    content: Functions.makeNPCString(NPCs.Pucci, ""),
                 });
                 return;
             }
-            const itemTaxes = {
-                T: 1,
-                SS: 1,
-                S: 0.78,
-                A: 0.65,
-                B: 0.46,
-                C: 0.3,
-            };
+
             await ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.Pucci,
