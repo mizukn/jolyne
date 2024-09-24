@@ -222,13 +222,13 @@ const Event: EventFile = {
                     command.data.name !== "inventory" &&
                     command.data.name !== "campfire"
                 ) {
-                    if (Functions.percent(20))
+                    if (ctx.userData.settings.notifications.low_health_or_stamina)
                         ctx.followUpQueue.push({
-                            content: `🩸 | You're low in health/stamina. You should heal yourself. You can use the ${ctx.client.getSlashCommandMention(
+                            content: `🩸 | You're low in health/stamina. You should  ${ctx.client.getSlashCommandMention(
+                                "heal"
+                            )} yourself. You can use the ${ctx.client.getSlashCommandMention(
                                 "shop"
-                            )} command to use consumables. If you already have consumables in your inventory, use the ${ctx.client.getSlashCommandMention(
-                                "inventory use"
-                            )} command. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
+                            )} command to use consumables. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
                                 "campfire rest"
                             )} (1% of your max health every 2 minutes)`,
                         });
@@ -244,7 +244,7 @@ const Event: EventFile = {
                 if (
                     unreadEmails.length > 0 &&
                     command.data.name !== "emails" &&
-                    Functions.percent(50)
+                    ctx.userData.settings.notifications.email
                 ) {
                     ctx.followUpQueue.push({
                         content: `📧 | You have **${unreadEmails.length}** unread email${
@@ -467,13 +467,15 @@ const Event: EventFile = {
                         ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
 
                         if (!data) {
-                            if (Functions.percent(20))
+                            if (ctx.userData.settings.notifications.black_market)
                                 ctx.followUpQueue.push({
                                     content: `🃏 | **${
                                         ctx.user.username
                                     }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
                                         "shop"
-                                    )} command to see what's available! [$$]`,
+                                    )} command to see what's available! [$$]\n\nYou can disable this notification with the ${ctx.client.getSlashCommandMention(
+                                        "settings notifications"
+                                    )} command.`,
                                 });
                         }
                     }
@@ -482,7 +484,7 @@ const Event: EventFile = {
                 if (
                     Functions.calculeSkillPointsLeft(ctx.userData) > 0 &&
                     command.data.name !== "skill" &&
-                    Functions.percent(40)
+                    ctx.userData.settings.notifications.skill_points
                 ) {
                     ctx.followUpQueue.push({
                         content: `:arrow_up: | **${
@@ -501,7 +503,7 @@ const Event: EventFile = {
                     (command.data.name === "fight" ||
                         command.data.name === "dungeon" ||
                         command.data.name === "assault") &&
-                    Functions.percent(10)
+                    ctx.userData.settings.notifications.low_health_or_stamina
                 ) {
                     ctx.followUpQueue.push({
                         content: `:warning: | <@${ctx.user.id}>, you're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`,
