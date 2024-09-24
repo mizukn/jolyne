@@ -44,6 +44,13 @@ const slashCommand: SlashCommandFile = {
                 type: ApplicationCommandOptionType.Boolean,
                 required: false,
             },
+            {
+                name: "strict-mode",
+                description:
+                    "When this is enabled, it won't use items that will make you go over the max health OR max stamina.",
+                type: ApplicationCommandOptionType.Boolean,
+                required: false,
+            },
         ],
     },
     execute: async (
@@ -54,6 +61,7 @@ const slashCommand: SlashCommandFile = {
         const maxHealth = Functions.getMaxHealth(ctx.userData);
         const maxStamina = Functions.getMaxStamina(ctx.userData);
         const isPreview = ctx.options.getBoolean("preview") || false;
+        const strictMode = ctx.options.getBoolean("strict-mode", false);
         let sortByStrongest = ctx.options.getBoolean("sort-by-strongest", false);
 
         if (sortByStrongest === null || sortByStrongest === undefined)
@@ -101,7 +109,6 @@ const slashCommand: SlashCommandFile = {
                 );
             })
             .sort((a, b) => {
-                console.log("Sorting", a, b);
                 const aoldData = cloneDeep(ctx.userData);
                 Functions.useConsumableItem(a.item, aoldData);
 
@@ -119,12 +126,12 @@ const slashCommand: SlashCommandFile = {
                 };
 
                 const expectedBEffects = {
-                    health: Functions.getHealthEffect(a.item, ctx.userData),
-                    stamina: Functions.getStaminaEffect(a.item, ctx.userData),
-                };
-                const expectedAEffects = {
                     health: Functions.getHealthEffect(b.item, ctx.userData),
                     stamina: Functions.getStaminaEffect(b.item, ctx.userData),
+                };
+                const expectedAEffects = {
+                    health: Functions.getHealthEffect(a.item, ctx.userData),
+                    stamina: Functions.getStaminaEffect(a.item, ctx.userData),
                 };
 
                 // check if
@@ -162,24 +169,30 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 if (sortByStrongest) {
-                    aPriority = expectedAEffects.health + expectedAEffects.stamina;
-                    bPriority = expectedBEffects.health + expectedBEffects.stamina;
+                    aPriority = (expectedAEffects.health + expectedAEffects.stamina) * 100;
+                    bPriority = (expectedBEffects.health + expectedBEffects.stamina) * 100;
+                    console.log(
+                        "Sorting by strongest",
+                        a.item.name,
+                        aPriority,
+                        b.item.name,
+                        bPriority
+                    );
                 }
 
                 return (
                     bPriority *
                         (sortByStrongest
-                            ? expectedAEffects.health + expectedAEffects.stamina
+                            ? expectedBEffects.health + expectedBEffects.stamina
                             : b.amount) -
                     aPriority *
                         (sortByStrongest
-                            ? expectedBEffects.health + expectedBEffects.stamina
+                            ? expectedAEffects.health + expectedAEffects.stamina
                             : a.amount)
                 );
             });
 
         const itemsUsed: Consumable[] = [];
-        console.log("Formatted Inventory", formattedInventory);
 
         const constMaxLoop = 500;
         let maximumLoop = constMaxLoop;
@@ -228,10 +241,13 @@ const slashCommand: SlashCommandFile = {
             };
 
             if (
-                ctx.userData.health + expectedEffects.health > maxHealth &&
-                ctx.userData.stamina + expectedEffects.stamina > maxStamina
+                (ctx.userData.health + expectedEffects.health > maxHealth &&
+                    ctx.userData.stamina + expectedEffects.stamina > maxStamina) ||
+                (strictMode &&
+                    (ctx.userData.health + expectedEffects.health > maxHealth ||
+                        ctx.userData.stamina + expectedEffects.stamina > maxStamina))
             ) {
-                continue;
+                formattedInventory.splice(formattedInventory.indexOf(item), 1);
             }
             const oldData = cloneDeep(ctx.userData);
             Functions.useConsumableItem(item.item, ctx.userData);
