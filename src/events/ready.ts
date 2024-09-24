@@ -6,6 +6,7 @@ import Jolyne from "../structures/JolyneClient";
 import { CronJob } from "cron";
 import TopGG from "../utils/TopGG";
 import { FightHandler } from "../structures/FightHandler";
+import { cli } from "winston/lib/winston/config";
 
 async function fetchSupportMembers(client: Jolyne): Promise<void> {
     const members = await client.guilds.cache
@@ -327,8 +328,16 @@ const Event: EventFile = {
                 }
             } else commandsV3.push(commands);
         }
+
+        if (!(await client.database.redis.get("updateSettings"))) {
+            await client.database.fixSettingsToEveryone();
+            await client.database.redis.set("updateSettings", "true");
+            console.log("Updated settings to everyone");
+        }
+
         client.log(`Logged in as ${client.user?.tag}`, "ready");
         client.allCommands = commandsV3;
+
         // client.database.migrateData();
 
         setInterval(() => {

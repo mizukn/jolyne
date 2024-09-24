@@ -29,6 +29,9 @@ const Event: EventFile = {
                 interaction.client.maintenanceReason &&
                 !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
             ) {
+                console.log(
+                    `${interaction.user.username} tried to use a command while in maintenance.`
+                );
                 return interaction.reply({
                     content: `The bot is currently in maintenance mode. Reason: \`${interaction.client.maintenanceReason}\``,
                     ephemeral: true,
