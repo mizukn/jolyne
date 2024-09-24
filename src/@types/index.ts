@@ -298,7 +298,43 @@ export interface RPGUserDataJSON {
     restingAtCampfire: number;
     lastPatreonReward: number;
     lastSeen: Date;
+    settings: RPGUserSettings;
 }
+
+export interface RPGUserSettings {
+    fight?: {
+        auto_target_lock?: boolean;
+    };
+    notifications?: {
+        low_health_or_stamina?: boolean;
+        email?: boolean;
+        skill_points?: boolean;
+        black_market?: boolean;
+        daily_quests?: boolean;
+    };
+    auto_heal?: {
+        sort_by_strongest?: boolean;
+        excluded_items?: Item["id"][];
+    };
+    [key: string]: Record<string, unknown>;
+}
+
+export const defaultUserSettings: RPGUserSettings = {
+    fight: {
+        auto_target_lock: true,
+    },
+    notifications: {
+        low_health_or_stamina: true,
+        email: true,
+        skill_points: true,
+        black_market: true,
+        daily_quests: true,
+    },
+    auto_heal: {
+        sort_by_strongest: true,
+        excluded_items: [],
+    },
+};
 
 export enum equipableItemTypes {
     HEAD = 1,
