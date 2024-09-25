@@ -34,9 +34,9 @@ const slashCommand: SlashCommandFile = {
                     });
                 } else {
                     ctx.followUpQueue.push({
-                        content: `Fight \`${fight.id}\` | ${fight.infos.type}: ${fight.fighters.map(
-                            (x) => x.name
-                        )}`,
+                        content: `Fight \`${fight.id}\` | ${
+                            fight.infos?.type
+                        }: ${fight.fighters.map((x) => x.name)}`,
                     });
                 }
             }
@@ -78,7 +78,7 @@ const slashCommand: SlashCommandFile = {
             console.log(fight.fighters);
             if (fight.id.toLowerCase().includes(input)) {
                 toRespond.push({
-                    name: `${fight.id} | ${fight.infos.type}: ${fight.fighters
+                    name: `${fight.id} | ${fight.infos?.type}: ${fight.fighters
                         .map((x) => x.name)
                         .join(", ")}`.substring(0, 150),
                     value: fight.id,

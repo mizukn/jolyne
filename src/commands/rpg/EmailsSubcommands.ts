@@ -66,6 +66,8 @@ const slashCommand: SlashCommandFile = {
         if (!emails().length) {
             ctx.makeMessage({
                 content: "You don't have any emails..",
+                components: [],
+                embeds: [],
             });
             return;
         }
@@ -96,6 +98,15 @@ const slashCommand: SlashCommandFile = {
             .setCustomId(actionID);
 
         function menuEmbed(): void {
+            if (!emails().length) {
+                ctx.makeMessage({
+                    content: "You don't have any emails..",
+                    components: [],
+                    embeds: [],
+                });
+                return;
+            }
+
             currentEmail = null;
             EmailsSelection = new StringSelectMenuBuilder()
                 .setCustomId(EmailsSelectionID)
@@ -139,9 +150,29 @@ const slashCommand: SlashCommandFile = {
                 });
             }
 
+            const components = [];
+            if (EmailsSelection.options.length <= 25) {
+                components.push(Functions.actionRow([EmailsSelection]));
+            } else {
+                let left = EmailsSelection.options.length;
+                let i = 0;
+                while (left > 0) {
+                    const options = EmailsSelection.options.slice(i, i + 25);
+                    components.push(
+                        Functions.actionRow([
+                            new StringSelectMenuBuilder()
+                                .setCustomId(EmailsSelectionID + i)
+                                .setPlaceholder("Select an email to view")
+                                .addOptions(options),
+                        ])
+                    );
+                    left -= 25;
+                    i += 25;
+                }
+            }
             ctx.makeMessage({
                 embeds: [menuEmbed],
-                components: [Functions.actionRow([EmailsSelection])],
+                components,
             });
         }
 
@@ -272,7 +303,7 @@ const slashCommand: SlashCommandFile = {
                 interaction.user.id === ctx.user.id &&
                 (interaction.customId === goBackID ||
                     interaction.customId === deleteEmailID ||
-                    interaction.customId === EmailsSelectionID ||
+                    interaction.customId.startsWith(EmailsSelectionID) ||
                     interaction.customId === actionID),
             time: 60000,
         });
@@ -282,6 +313,16 @@ const slashCommand: SlashCommandFile = {
                 collector.stop();
                 return;
             }
+
+            if (!emails().length) {
+                ctx.makeMessage({
+                    content: "You don't have any emails..",
+                    components: [],
+                    embeds: [],
+                });
+                return;
+            }
+
             switch (interaction.customId) {
                 case goBackID:
                     interaction.deferUpdate();
