@@ -59,6 +59,10 @@ import { random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
 import color from "get-image-colors";
 
+setTimeout(() => {
+    console.log(Object.values(Emails).map((x) => x.id));
+}, 5000);
+
 const totalStands = [
     ...Object.values(Stands.Stands),
     ...Object.values(Stands.EvolutionStands).map((x) => {
