@@ -13,7 +13,7 @@ import * as Functions from "../../utils/Functions";
 import * as Shops from "../../rpg/Shops";
 import * as Stands from "../../rpg/Stands/Stands";
 import * as Emojis from "../../emojis.json";
-import { cloneDeep } from "lodash";
+import { clone, cloneDeep } from "lodash";
 import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
 
 export const standPrice = {
@@ -90,6 +90,11 @@ const slashCommand: SlashCommandFile = {
                     },
                 ],
             };
+
+            BM.items.forEach((x) => {
+                x.item = cloneDeep(Functions.findItem(x.item).id);
+                x.price = cloneDeep(x.price);
+            });
             const hasAlreadyBlackMarket = (await ctx.client.database.getJSONData(
                 Functions.getBlackMarketString(ctx.user.id)
             )) as Shop["items"];
@@ -274,7 +279,7 @@ const slashCommand: SlashCommandFile = {
 
             function createShopString(Shop: Shop): string {
                 let str = "";
-                for (const item of Shop.items) {
+                for (const item of cloneDeep(Shop.items)) {
                     const xitem = cloneDeep(Functions.findItem(item.item));
                     if (!xitem || (str.includes(xitem.emoji) && str.includes(xitem.name))) continue;
                     if (xitem.id === "box") {
