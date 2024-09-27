@@ -89,6 +89,294 @@ const possibleModifiers = [
     },
 ];
 
+async function giveRewards(
+    dungeon: DungeonHandler,
+    ctx: CommandInteractionContext,
+    selectedModifiers: string[],
+    endedUnexpectedly = false
+): Promise<void> {
+    let xpRewards = 60000;
+    let coinRewards = 0;
+
+    for (const enemy of dungeon.beatenEnemies) {
+        xpRewards += enemy.level * 1000;
+        coinRewards += enemy.level * 100;
+        if (enemy.rewards) {
+            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp / 2;
+            if (enemy.rewards.coins) coinRewards += enemy.rewards.coins / 4;
+        }
+    }
+
+    xpRewards += dungeon.stage * 1000;
+    coinRewards += dungeon.stage * 100;
+    xpRewards = Math.round(xpRewards / 3.5);
+
+    const players: RPGUserDataJSON[] = [];
+    for (const player of dungeon.players) {
+        const data = await ctx.client.database.getRPGUserData(player.id);
+        if (!data) continue;
+        players.push(data);
+    }
+    const newPlayers = cloneDeep(players);
+    const userData = players.find((f) => f.id === ctx.userData.id);
+    if ((userData.inventory["dungeon_key"] ?? 0) < 1) {
+        ctx.client.users.fetch("239739781238620160").then((c) => {
+            c.send(
+                `**${ctx.userData.tag}** (${ctx.userData.id}) with players (${newPlayers
+                    .map((x) => x.id)
+                    .join(", ")}) has tried to scam the dungeon system.`
+            );
+        });
+        return void ctx.makeMessage({
+            content:
+                "<:kars:1057261454421676092> **Kars:** Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]",
+            embeds: [],
+            components: [],
+        });
+    }
+    const totalDamage = Object.values(dungeon.damageDealt).reduce((a, b) => a + b, 0);
+
+    for (const player of newPlayers) {
+        for (
+            let i = 0;
+            i < Math.round(dungeon.stage / 3) * getTotalDropIncrease(selectedModifiers);
+            i++
+        ) {
+            for (const item of rewards) {
+                const percent = (dungeon.damageDealt[player.id] / totalDamage) * item.percent;
+                if (Functions.percent(percent)) {
+                    Functions.addItem(player, item.id, 1);
+                }
+            }
+        }
+
+        const playerDiffPercent =
+            players.length === 1
+                ? 0
+                : Math.abs(
+                      (players[0].level - players[1].level) /
+                          Math.max(players[0].level, players[1].level)
+                  );
+        Functions.addXp(
+            player,
+            Math.round(
+                Math.round(
+                    (dungeon.damageDealt[player.id] / totalDamage) *
+                        xpRewards *
+                        (players.length === 2
+                            ? playerDiffPercent <= 0.5
+                                ? 1.2
+                                : Math.max(players[0].level, players[1].level) < 60
+                                ? 1.2
+                                : 1
+                            : 1)
+                ) * getTotalXpIncrease(selectedModifiers)
+            ),
+            ctx.client
+        );
+        player.coins += coinRewards;
+        player.health = 0;
+        player.stamina = 0;
+
+        for (const quests of [
+            player.daily.quests,
+            player.chapter.quests,
+            ...player.sideQuests.map((v) => v.quests),
+        ]) {
+            for (const quest of quests.filter((x) => Functions.isStartDungeonQuest(x))) {
+                let accepted = true;
+                const realQuest = quest as unknown as StartDungeonQuest;
+                if (!realQuest.completed) realQuest.completed = 0;
+                if (realQuest.completed >= realQuest.total) {
+                    continue;
+                }
+                if (realQuest.stage) {
+                    if (realQuest.stage && realQuest.stage > dungeon.stage) {
+                        accepted = false;
+                        console.log(
+                            `!!! Refused quest ${realQuest.id} because stage is lower than dungeon stage`
+                        );
+                    }
+                }
+
+                if (realQuest.modifiers) {
+                    if (typeof realQuest.modifiers === "number") {
+                        if (selectedModifiers.length < realQuest.modifiers) {
+                            accepted = false;
+                            console.log(
+                                `!!! Refused quest ${realQuest.id} because not enough modifiers`
+                            );
+                        }
+                    } else {
+                        if (!realQuest.modifiers.every((x) => selectedModifiers.includes(x))) {
+                            accepted = false;
+                            console.log(
+                                `!!! Refused quest ${realQuest.id} because not all modifiers are included`
+                            );
+                        }
+                    }
+                }
+
+                if (accepted) {
+                    realQuest.completed++;
+                    ctx.followUp({
+                        content: `:white_check_mark: <@${player.id}> Your DungeonQUEST has been completed (\`${realQuest.id}\`)`,
+                    });
+                }
+            }
+        }
+
+        if (
+            player.id === ctx.userData.id &&
+            (!ctx.client.maintenanceReason || !endedUnexpectedly)
+        ) {
+            Functions.removeItem(player, "dungeon_key", 1);
+        }
+
+        ctx.client.database.saveUserData(player);
+    }
+    dungeon.message.edit({
+        content: `<:kars:1057261454421676092> **Kars:** well done, you've survived **${dungeon.getRoom()}** waves and beaten **${
+            dungeon.beatenEnemies.length
+        }** enemies (total damage: ${totalDamage.toLocaleString("en-US")}).\n\n${Object.keys(
+            dungeon.damageDealt
+        )
+            .map((x) => {
+                return `- **${dungeon.players.find((f) => f.id === x).tag}**: ${(
+                    dungeon.damageDealt[x] ?? 0
+                ).toLocaleString("en-US")} damages dealt\n- - ${Functions.getRewardsCompareData(
+                    players.find((f) => f.id === x),
+                    newPlayers.find((f) => f.id === x)
+                ).join("\n- - ")}`;
+            })
+            .join("\n\n")}\n\n**Modifiers: (x${getTotalXpIncrease(
+            selectedModifiers
+        )} XP, x${getTotalDropIncrease(selectedModifiers)} Drop)**\n${
+            selectedModifiers.length
+                ? selectedModifiers
+                      .map((x) => {
+                          const modifier = possibleModifiers.find((f) => f.id === x);
+                          return `- ${modifier?.emoji} ${Functions.capitalize(
+                              x.replace(/_/g, " ")
+                          )}: ${modifier?.description}`;
+                      })
+                      .join("\n")
+                : "None"
+        }`,
+        embeds: [],
+        components: [],
+    });
+    const canvas = players.length === 2 ? createCanvas(1024, 512) : createCanvas(512, 512);
+    const ctxCanvas = canvas.getContext("2d");
+
+    const images: Image[] = [];
+    for (const player of players) {
+        const playerUser = await ctx.client.users.fetch(player.id);
+        const image = await loadImage(playerUser.displayAvatarURL({ size: 512, extension: "png" }));
+        images.push(image);
+    }
+
+    if (players.length === 2) {
+        ctxCanvas.drawImage(images[0], 0, 0, 512, 512);
+        ctxCanvas.drawImage(images[1], 512, 0, 512, 512);
+    } else {
+        ctxCanvas.drawImage(images[0], 0, 0, 512, 512);
+    }
+
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+        name: "dungeon.png",
+    });
+
+    dungeonLogsWebhook.send({
+        embeds: [
+            {
+                title: `Dungeon`,
+                description: `cleared **${dungeon.getRoom()}** waves and beaten **${
+                    dungeon.beatenEnemies.length
+                }** enemies (total stage = ${dungeon.stage})`,
+                color: 0x70926c,
+                fields: [
+                    {
+                        name: "Host",
+                        value: ctx.userData.tag,
+                        inline: true,
+                    },
+                    {
+                        name: "Time taken",
+                        value: `${msInMessage(
+                            Date.now() - dungeon.startedAt
+                        )} (started: ${Functions.generateDiscordTimestamp(
+                            dungeon.startedAt,
+                            "FULL_DATE"
+                        )})`,
+                        inline: true,
+                    },
+                    {
+                        name: "Guild info",
+                        value: `${ctx.guild.name} (${ctx.guild.id})`,
+                        inline: true,
+                    },
+                    {
+                        name: "Total damages",
+                        value: Object.keys(dungeon.damageDealt)
+                            .sort((a, b) => dungeon.damageDealt[b] - dungeon.damageDealt[a])
+                            .map(
+                                (r) =>
+                                    `- ${
+                                        dungeon.players.find((f) => f.id === r).tag
+                                    } (${r}): **${dungeon.damageDealt[r].toLocaleString("en-US")}**`
+                            )
+                            .join("\n"),
+                    },
+                    {
+                        name: "Last enemy of the current wave",
+                        value: dungeon.enemies[dungeon.enemies.length - 1]
+                            ? `${dungeon.enemies[dungeon.enemies.length - 1].emoji} | ${
+                                  dungeon.enemies[dungeon.enemies.length - 1].name
+                              } (level ${dungeon.enemies[dungeon.enemies.length - 1].level})`
+                            : "none, too bad",
+                        inline: true,
+                    },
+                    {
+                        name: "Rewards",
+                        value: Object.keys(dungeon.damageDealt)
+                            .map((r) => {
+                                const player = players.find((f) => f.id === r);
+                                const newPlayer = newPlayers.find((f) => f.id === r);
+                                return `- **${player.tag}**: \n${Functions.getRewardsCompareData(
+                                    player,
+                                    newPlayer
+                                ).join("\n")}`;
+                            })
+                            .join("\n\n"),
+                    },
+                    {
+                        name: "Modifiers",
+                        value: selectedModifiers.length
+                            ? selectedModifiers
+                                  .map((x) => {
+                                      const modifier = possibleModifiers.find((f) => f.id === x);
+                                      return `- ${modifier?.emoji} ${Functions.capitalize(
+                                          x.replace(/_/g, " ")
+                                      )}: ${modifier?.description}`;
+                                  })
+                                  .join("\n")
+                            : "None",
+                    },
+                ],
+                image: {
+                    url: "attachment://dungeon.png",
+                },
+                thumbnail: {
+                    url: ctx.guild.iconURL(),
+                },
+                timestamp: new Date().toISOString(),
+            },
+        ],
+        files: [attachment],
+    });
+}
+
 const timeFn = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -249,6 +537,7 @@ const slashCommand: SlashCommandFile = {
             .setMaxValues(possibleModifiers.length);
 
         const selectedModifiers: possibleModifiers[] = [];
+        ctx.client.database.setCooldown(ctx.user.id, `You are in a dungeon.`);
 
         await ctx.makeMessage({
             content: `<:kars:1057261454421676092> **Kars:** ${
@@ -363,6 +652,10 @@ const slashCommand: SlashCommandFile = {
                         Functions.actionRow([modifiersStringSelectMenu]),
                     ],
                 });
+                ctx.client.database.setCooldown(
+                    i.user.id,
+                    `You are in a dungeon with ${ctx.userData.tag} (${ctx.userData.id})`
+                );
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
                 for (const player of totalPlayers) {
                     if (await ctx.client.database.getString(`tempCache_${player.id}:dungeon`)) {
@@ -399,23 +692,32 @@ const slashCommand: SlashCommandFile = {
                     stage
                 );
                 for (const player of totalPlayers) {
-                    await ctx.client.database.setString(`tempCache_${player.id}:dungeon`, "true");
+                    ctx.client.database.setString(`tempCache_${player.id}:dungeon`, "true");
+                    ctx.client.database.deleteCooldown(player.id);
                 }
 
                 dungeon.on("unexpectedEnd", async (reason: string) => {
                     for (const player of totalPlayers) {
-                        await ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
+                        ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
+                        ctx.client.database.deleteCooldown(player.id);
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         dungeon.message.reply({
                             content: `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         });
+                    } else {
+                        dungeon.message.reply({
+                            content: `The dungeon has ended unexpectedly: \`${reason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
+                        });
                     }
+
+                    giveRewards(dungeon, ctx, selectedModifiers, true);
                 });
 
                 dungeon.on("end", async (reason: string) => {
                     for (const player of totalPlayers) {
-                        await ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
+                        ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
+                        ctx.client.database.deleteCooldown(player.id);
                     }
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         dungeon.message.reply({
@@ -442,323 +744,14 @@ const slashCommand: SlashCommandFile = {
                         }
                     }
 
-                    let xpRewards = 60000;
-                    let coinRewards = 0;
-
-                    for (const enemy of dungeon.beatenEnemies) {
-                        xpRewards += enemy.level * 1000;
-                        coinRewards += enemy.level * 100;
-                        if (enemy.rewards) {
-                            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp / 2;
-                            if (enemy.rewards.coins) coinRewards += enemy.rewards.coins / 4;
-                        }
-                    }
-
-                    xpRewards += dungeon.stage * 1000;
-                    coinRewards += dungeon.stage * 100;
-                    xpRewards = Math.round(xpRewards / 3.5);
-
-                    const players: RPGUserDataJSON[] = [];
-                    for (const player of dungeon.players) {
-                        const data = await ctx.client.database.getRPGUserData(player.id);
-                        if (!data) continue;
-                        players.push(data);
-                    }
-                    const newPlayers = cloneDeep(players);
-                    const userData = players.find((f) => f.id === ctx.userData.id);
-                    if ((userData.inventory["dungeon_key"] ?? 0) < 1) {
-                        ctx.client.users.fetch("239739781238620160").then((c) => {
-                            c.send(
-                                `**${ctx.userData.tag}** (${
-                                    ctx.userData.id
-                                }) with players (${newPlayers
-                                    .map((x) => x.id)
-                                    .join(", ")}) has tried to scam the dungeon system.`
-                            );
-                        });
-                        return ctx.makeMessage({
-                            content:
-                                "<:kars:1057261454421676092> **Kars:** Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]",
-                            embeds: [],
-                            components: [],
-                        });
-                    }
-                    const totalDamage = Object.values(dungeon.damageDealt).reduce(
-                        (a, b) => a + b,
-                        0
-                    );
-
-                    for (const player of newPlayers) {
-                        for (
-                            let i = 0;
-                            i <
-                            Math.round(dungeon.stage / 3) * getTotalDropIncrease(selectedModifiers);
-                            i++
-                        ) {
-                            for (const item of rewards) {
-                                const percent =
-                                    (dungeon.damageDealt[player.id] / totalDamage) * item.percent;
-                                if (Functions.percent(percent)) {
-                                    Functions.addItem(player, item.id, 1);
-                                }
-                            }
-                        }
-
-                        const playerDiffPercent =
-                            players.length === 1
-                                ? 0
-                                : Math.abs(
-                                      (players[0].level - players[1].level) /
-                                          Math.max(players[0].level, players[1].level)
-                                  );
-                        Functions.addXp(
-                            player,
-                            Math.round(
-                                Math.round(
-                                    (dungeon.damageDealt[player.id] / totalDamage) *
-                                        xpRewards *
-                                        (players.length === 2
-                                            ? playerDiffPercent <= 0.5
-                                                ? 1.2
-                                                : Math.max(players[0].level, players[1].level) < 60
-                                                ? 1.2
-                                                : 1
-                                            : 1)
-                                ) * getTotalXpIncrease(selectedModifiers)
-                            ),
-                            ctx.client
-                        );
-                        player.coins += coinRewards;
-                        player.health = 0;
-                        player.stamina = 0;
-
-                        for (const quests of [
-                            player.daily.quests,
-                            player.chapter.quests,
-                            ...player.sideQuests.map((v) => v.quests),
-                        ]) {
-                            for (const quest of quests.filter((x) =>
-                                Functions.isStartDungeonQuest(x)
-                            )) {
-                                let accepted = true;
-                                const realQuest = quest as unknown as StartDungeonQuest;
-                                if (!realQuest.completed) realQuest.completed = 0;
-                                if (realQuest.completed >= realQuest.total) {
-                                    continue;
-                                }
-                                if (realQuest.stage) {
-                                    if (realQuest.stage && realQuest.stage > dungeon.stage) {
-                                        accepted = false;
-                                        console.log(
-                                            `!!! Refused quest ${realQuest.id} because stage is lower than dungeon stage`
-                                        );
-                                    }
-                                }
-
-                                if (realQuest.modifiers) {
-                                    if (typeof realQuest.modifiers === "number") {
-                                        if (selectedModifiers.length < realQuest.modifiers) {
-                                            accepted = false;
-                                            console.log(
-                                                `!!! Refused quest ${realQuest.id} because not enough modifiers`
-                                            );
-                                        }
-                                    } else {
-                                        if (
-                                            !realQuest.modifiers.every((x) =>
-                                                selectedModifiers.includes(x)
-                                            )
-                                        ) {
-                                            accepted = false;
-                                            console.log(
-                                                `!!! Refused quest ${realQuest.id} because not all modifiers are included`
-                                            );
-                                        }
-                                    }
-                                }
-
-                                if (accepted) {
-                                    realQuest.completed++;
-                                    ctx.followUp({
-                                        content: `:white_check_mark: <@${player.id}> Your DungeonQUEST has been completed (\`${realQuest.id}\`)`,
-                                    });
-                                }
-                            }
-                        }
-
-                        if (player.id === ctx.userData.id && !ctx.client.maintenanceReason)
-                            Functions.removeItem(player, "dungeon_key", 1);
-
-                        ctx.client.database.saveUserData(player);
-                    }
-                    dungeon.message.edit({
-                        content: `<:kars:1057261454421676092> **Kars:** well done, you've survived **${dungeon.getRoom()}** waves and beaten **${
-                            dungeon.beatenEnemies.length
-                        }** enemies (total damage: ${totalDamage.toLocaleString(
-                            "en-US"
-                        )}).\n\n${Object.keys(dungeon.damageDealt)
-                            .map((x) => {
-                                return `- **${dungeon.players.find((f) => f.id === x).tag}**: ${(
-                                    dungeon.damageDealt[x] ?? 0
-                                ).toLocaleString(
-                                    "en-US"
-                                )} damages dealt\n- - ${Functions.getRewardsCompareData(
-                                    players.find((f) => f.id === x),
-                                    newPlayers.find((f) => f.id === x)
-                                ).join("\n- - ")}`;
-                            })
-                            .join("\n\n")}\n\n**Modifiers: (x${getTotalXpIncrease(
-                            selectedModifiers
-                        )} XP, x${getTotalDropIncrease(selectedModifiers)} Drop)**\n${
-                            selectedModifiers.length
-                                ? selectedModifiers
-                                      .map((x) => {
-                                          const modifier = possibleModifiers.find(
-                                              (f) => f.id === x
-                                          );
-                                          return `- ${modifier?.emoji} ${Functions.capitalize(
-                                              x.replace(/_/g, " ")
-                                          )}: ${modifier?.description}`;
-                                      })
-                                      .join("\n")
-                                : "None"
-                        }`,
-                        embeds: [],
-                        components: [],
-                    });
-                    const canvas =
-                        players.length === 2 ? createCanvas(1024, 512) : createCanvas(512, 512);
-                    const ctxCanvas = canvas.getContext("2d");
-
-                    const images: Image[] = [];
-                    for (const player of players) {
-                        const playerUser = await ctx.client.users.fetch(player.id);
-                        const image = await loadImage(
-                            playerUser.displayAvatarURL({ size: 512, extension: "png" })
-                        );
-                        images.push(image);
-                    }
-
-                    if (players.length === 2) {
-                        ctxCanvas.drawImage(images[0], 0, 0, 512, 512);
-                        ctxCanvas.drawImage(images[1], 512, 0, 512, 512);
-                    } else {
-                        ctxCanvas.drawImage(images[0], 0, 0, 512, 512);
-                    }
-
-                    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-                        name: "dungeon.png",
-                    });
-
-                    dungeonLogsWebhook.send({
-                        embeds: [
-                            {
-                                title: `Dungeon`,
-                                description: `cleared **${dungeon.getRoom()}** waves and beaten **${
-                                    dungeon.beatenEnemies.length
-                                }** enemies (total stage = ${dungeon.stage})`,
-                                color: 0x70926c,
-                                fields: [
-                                    {
-                                        name: "Host",
-                                        value: ctx.userData.tag,
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Time taken",
-                                        value: `${msInMessage(
-                                            Date.now() - dungeon.startedAt
-                                        )} (started: ${Functions.generateDiscordTimestamp(
-                                            dungeon.startedAt,
-                                            "FULL_DATE"
-                                        )})`,
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Guild info",
-                                        value: `${ctx.guild.name} (${ctx.guild.id})`,
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Total damages",
-                                        value: Object.keys(dungeon.damageDealt)
-                                            .sort(
-                                                (a, b) =>
-                                                    dungeon.damageDealt[b] - dungeon.damageDealt[a]
-                                            )
-                                            .map(
-                                                (r) =>
-                                                    `- ${
-                                                        dungeon.players.find((f) => f.id === r).tag
-                                                    } (${r}): **${dungeon.damageDealt[
-                                                        r
-                                                    ].toLocaleString("en-US")}**`
-                                            )
-                                            .join("\n"),
-                                    },
-                                    {
-                                        name: "Last enemy of the current wave",
-                                        value: dungeon.enemies[dungeon.enemies.length - 1]
-                                            ? `${
-                                                  dungeon.enemies[dungeon.enemies.length - 1].emoji
-                                              } | ${
-                                                  dungeon.enemies[dungeon.enemies.length - 1].name
-                                              } (level ${
-                                                  dungeon.enemies[dungeon.enemies.length - 1].level
-                                              })`
-                                            : "none, too bad",
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Rewards",
-                                        value: Object.keys(dungeon.damageDealt)
-                                            .map((r) => {
-                                                const player = players.find((f) => f.id === r);
-                                                const newPlayer = newPlayers.find(
-                                                    (f) => f.id === r
-                                                );
-                                                return `- **${
-                                                    player.tag
-                                                }**: \n${Functions.getRewardsCompareData(
-                                                    player,
-                                                    newPlayer
-                                                ).join("\n")}`;
-                                            })
-                                            .join("\n\n"),
-                                    },
-                                    {
-                                        name: "Modifiers",
-                                        value: selectedModifiers.length
-                                            ? selectedModifiers
-                                                  .map((x) => {
-                                                      const modifier = possibleModifiers.find(
-                                                          (f) => f.id === x
-                                                      );
-                                                      return `- ${
-                                                          modifier?.emoji
-                                                      } ${Functions.capitalize(
-                                                          x.replace(/_/g, " ")
-                                                      )}: ${modifier?.description}`;
-                                                  })
-                                                  .join("\n")
-                                            : "None",
-                                    },
-                                ],
-                                image: {
-                                    url: "attachment://dungeon.png",
-                                },
-                                thumbnail: {
-                                    url: ctx.guild.iconURL(),
-                                },
-                                timestamp: new Date().toISOString(),
-                            },
-                        ],
-                        files: [attachment],
-                    });
+                    giveRewards(dungeon, ctx, selectedModifiers);
                 });
                 collector.stop("start");
             } else if (i.customId === "cancel_dungeon" + ctx.interaction.id) {
                 ctx.interaction.deleteReply();
+                for (const player of totalPlayers) {
+                    await ctx.client.database.deleteCooldown(player.id);
+                }
                 collector.stop("cancel");
             } else if (i.customId === "dungeon_modifiers" + ctx.interaction.id) {
                 i.deferUpdate().catch(() => {});
