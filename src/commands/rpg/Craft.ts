@@ -1,9 +1,5 @@
-import {
-    SlashCommandFile
-} from "../../@types";
-import {
-    Message
-} from "discord.js";
+import { SlashCommandFile } from "../../@types";
+import { Message } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { ButtonBuilder } from "discord.js";
@@ -17,7 +13,7 @@ const rarityValue = {
     S: 50,
     A: 25,
     B: 15,
-    C: 0
+    C: 0,
 };
 
 const slashCommand: SlashCommandFile = {
@@ -30,9 +26,9 @@ const slashCommand: SlashCommandFile = {
                 description: "Item to make",
                 type: 3,
                 required: true,
-                autocomplete: true
-            }
-        ]
+                autocomplete: true,
+            },
+        ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         const itemChosen = ctx.options.getString("item", true);
@@ -52,7 +48,7 @@ const slashCommand: SlashCommandFile = {
                     rarity: xitem.rarity,
                     price: xitem.price,
                     amount: item.craft[v],
-                    id: xitem.id
+                    id: xitem.id,
                 };
             })
             .filter((v) => v !== undefined)
@@ -114,34 +110,34 @@ const slashCommand: SlashCommandFile = {
                     thumbnail: {
                         url: `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
                             item.emoji
-                        )}.png`
+                        )}.png`,
                     },
                     fields: [
                         {
-                            name: "Craft value (price)",
+                            name: "Craft value",
                             value: `${craftValuePrice.toLocaleString("en-US")} ${
                                 ctx.client.localEmojis.jocoins
-                            }`
+                            }`,
                         },
                         {
                             name: "Requirements met?",
                             value: meetRequirements
                                 ? "✅, click the button below if you wish to craft this item"
-                                : "❌"
-                        }
-                    ]
-                }
+                                : "❌",
+                        },
+                    ],
+                },
             ],
             components: meetRequirements
                 ? [
-                    Functions.actionRow([
-                        new ButtonBuilder()
-                            .setCustomId(`craft_${ctx.interaction.id}`)
-                            .setEmoji(item.emoji)
-                            .setStyle(ButtonStyle.Secondary)
-                    ])
-                ]
-                : []
+                      Functions.actionRow([
+                          new ButtonBuilder()
+                              .setCustomId(`craft_${ctx.interaction.id}`)
+                              .setEmoji(item.emoji)
+                              .setStyle(ButtonStyle.Secondary),
+                      ]),
+                  ]
+                : [],
         });
 
         if (meetRequirements) {
@@ -149,12 +145,11 @@ const slashCommand: SlashCommandFile = {
                 filter: (i) =>
                     i.customId === `craft_${ctx.interaction.id}` && i.user.id === ctx.userData.id,
                 time: 60000,
-                max: 1
+                max: 1,
             });
 
             collector.on("collect", async (i) => {
-                i.deferUpdate().catch(() => {
-                });  
+                i.deferUpdate().catch(() => {});
                 if (await ctx.antiCheat(true)) {
                     collector.stop();
                     return;
@@ -168,7 +163,7 @@ const slashCommand: SlashCommandFile = {
                 Functions.addItem(ctx.userData, item.id, 1);
 
                 ctx.interaction.followUp({
-                    content: `You have successfully crafted ${item.emoji} \`${item.name}\`!`
+                    content: `You have successfully crafted ${item.emoji} \`${item.name}\`!`,
                 });
                 ctx.client.database.saveUserData(ctx.userData);
             });
@@ -186,13 +181,13 @@ const slashCommand: SlashCommandFile = {
         const realItems = items.map((x) => {
             return {
                 name: x.name,
-                value: x.id
+                value: x.id,
             };
         });
         if (realItems.length > 24) realItems.length = 24;
 
         interaction.respond(realItems);
-    }
+    },
 };
 
 export default slashCommand;
