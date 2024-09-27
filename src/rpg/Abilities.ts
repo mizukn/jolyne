@@ -2985,3 +2985,37 @@ export const RealityRevert: Ability = {
         );
     },
 };
+
+export const KillEveryone: Ability = {
+    // admin ability
+    name: "Kill Everyone",
+    description: "Kills everyone in the fight.",
+    cooldown: 0,
+    damage: 0,
+    stamina: 0,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} KILL EVERYONE: **${user.name}** has killed everyone...`
+        );
+        ctx.fighters.forEach((x) => {
+            x.health = 0;
+        });
+
+        ctx.nextRoundPromises.push({
+            cooldown: 1,
+            executeOnlyOnce: true,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} KILL EVERYONE: **${user.name}** has killed everyone...`
+                );
+                fight.fighters.forEach((x) => {
+                    x.health = 0;
+                });
+            },
+        });
+    },
+};
