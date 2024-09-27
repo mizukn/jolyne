@@ -783,7 +783,7 @@ export const AdminStand: Stand = {
     image: "https://media.jolyne.moe/UWAEPT/direct",
     color: 0xa83232,
     abilities: [
-        Abilities.KillEveryone,
+        //Abilities.KillEveryone,
         Abilities.StaffToy,
         Abilities.StaffBarrage,
         Abilities.StaffSplash,

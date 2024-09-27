@@ -2997,6 +2997,10 @@ export const KillEveryone: Ability = {
     dodgeScore: 0,
     target: "self",
     useMessage: (user, target, damage, ctx) => {
+        if (ctx.ctx.client.user.id === "923619190831730698") {
+            // in case I forgot to remove this ability in production
+            return StandBarrage.useMessage(user, target, damage, ctx);
+        }
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} KILL EVERYONE: **${user.name}** has killed everyone...`
         );
