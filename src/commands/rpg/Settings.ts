@@ -218,7 +218,7 @@ const slashCommand: SlashCommandFile = {
                                 description:
                                     "Should we sort your items that give the most effective healing?",
                                 type: ApplicationCommandOptionType.Boolean,
-                                required: false,
+                                required: true,
                             },
                         ],
                     },
@@ -538,6 +538,25 @@ const slashCommand: SlashCommandFile = {
                     content: "You didn't provide any items to exclude or remove.",
                 });
             }
+        } else if (subcommand === "sort-by-strongest") {
+            const mode = ctx.options.getBoolean("mode", false);
+            if (mode === undefined) {
+                return void ctx.makeMessage({
+                    content: "You didn't provide a mode.",
+                });
+            }
+            if (ctx.userData.settings.auto_heal.sort_by_strongest === mode) {
+                return void ctx.makeMessage({
+                    content: `The auto-heal mode is already set to: ${booleanToEmoji(mode)}`,
+                });
+            }
+
+            ctx.userData.settings.auto_heal.sort_by_strongest = mode;
+            ctx.client.database.saveUserData(ctx.userData);
+
+            return void ctx.makeMessage({
+                content: `Set the auto-heal mode to: ${booleanToEmoji(mode)}`,
+            });
         }
     },
 };
