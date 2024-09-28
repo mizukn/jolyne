@@ -539,7 +539,7 @@ const slashCommand: SlashCommandFile = {
                 });
             }
         } else if (subcommand === "sort-by-strongest") {
-            const mode = ctx.options.getBoolean("mode", false);
+            const mode = ctx.options.getBoolean("mode", true);
             if (mode === undefined) {
                 return void ctx.makeMessage({
                     content: "You didn't provide a mode.",
