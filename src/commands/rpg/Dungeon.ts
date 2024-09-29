@@ -749,8 +749,10 @@ const slashCommand: SlashCommandFile = {
                 collector.stop("start");
             } else if (i.customId === "cancel_dungeon" + ctx.interaction.id) {
                 ctx.interaction.deleteReply();
+                ctx.client.database.deleteCooldown(ctx.user.id);
                 for (const player of totalPlayers) {
-                    await ctx.client.database.deleteCooldown(player.id);
+                    ctx.client.database.deleteCooldown(player.id);
+                    ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
                 }
                 collector.stop("cancel");
             } else if (i.customId === "dungeon_modifiers" + ctx.interaction.id) {

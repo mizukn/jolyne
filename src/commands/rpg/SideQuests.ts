@@ -117,7 +117,8 @@ const slashCommand: SlashCommandFile = {
             if (status.percent >= 100) {
                 if (
                     ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize &&
-                    sideQuestsArr.find((r) => r.id === sideQuest).canRedoSideQuest
+                    sideQuestsArr.find((r) => r.id === sideQuest).canRedoSideQuest &&
+                    (await sideQuestsArr.find((r) => r.id === sideQuest).requirements(ctx))
                 )
                     components.push(redoQuestButton);
                 else {

@@ -1062,12 +1062,12 @@ export const addItem = (
     item: Item | string,
     amount?: number,
     ignoreQuests?: boolean
-): void => {
+): boolean => {
     if (typeof item === "string") {
         item = findItem(item);
     }
-    if (!item) return;
-    if (!item.storable) return;
+    if (!item) return false;
+    if (!item.storable) return false;
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {
         userData.inventory[item.id] += amount;
@@ -1087,17 +1087,22 @@ export const addItem = (
             (quest as ClaimItemQuest).amount += amount || 1;
         }
     }
+
+    return true;
 };
 
 export const removeItem = (
     userData: RPGUserDataJSON,
     item: Item | string,
     amount?: number
-): void => {
+): boolean => {
     if (typeof item === "string") {
         item = findItem(item);
     }
-    if (!item) return;
+    if (!item) return false;
+    const amountLeft = userData.inventory[item.id] || 0;
+    if (amountLeft < (amount || 1)) return false;
+
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {
         userData.inventory[item.id] -= amount;
@@ -1106,6 +1111,8 @@ export const removeItem = (
     }
 
     if (userData.inventory[item.id] === 0) delete userData.inventory[item.id];
+
+    return true;
 };
 
 export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): number {

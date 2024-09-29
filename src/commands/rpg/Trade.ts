@@ -132,7 +132,6 @@ const slashCommand: SlashCommandFile = {
 
             let stage = 0; // 1 = trade started
 
-             
             function makeMessage(): void {
                 ctx.makeMessage({
                     content: "Trade in progress...",
@@ -270,7 +269,7 @@ const slashCommand: SlashCommandFile = {
             };
 
             collector.on("collect", async (i: ButtonInteraction) => {
-                i.deferUpdate().catch(() => {});  
+                i.deferUpdate().catch(() => {});
                 switch (i.customId) {
                     case acceptID: {
                         if (stage === 0 && i.user.id === target.id) {
@@ -327,13 +326,24 @@ const slashCommand: SlashCommandFile = {
                                 const targetData = await ctx.client.database.getRPGUserData(
                                     target.id
                                 );
+
+                                const results: boolean[] = [];
                                 for (const [item, amount] of Object.entries(userOffer)) {
-                                    Functions.removeItem(userData, item, amount);
-                                    Functions.addItem(targetData, item, amount, true);
+                                    results.push(Functions.removeItem(userData, item, amount));
+                                    results.push(Functions.addItem(targetData, item, amount, true));
                                 }
                                 for (const [item, amount] of Object.entries(targetOffer)) {
-                                    Functions.removeItem(targetData, item, amount);
-                                    Functions.addItem(userData, item, amount, true);
+                                    results.push(Functions.removeItem(targetData, item, amount));
+                                    results.push(Functions.addItem(userData, item, amount, true));
+                                }
+
+                                if (results.includes(false)) {
+                                    await ctx.makeMessage({
+                                        content: `:x: Something went wrong while trading.`,
+                                        embeds: [],
+                                    });
+                                    Functions.disableRows(ctx.interaction);
+                                    return;
                                 }
                                 await ctx.client.database.saveUserData(userData);
                                 await ctx.client.database.saveUserData(targetData);
