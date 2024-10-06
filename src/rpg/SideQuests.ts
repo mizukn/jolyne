@@ -9,7 +9,7 @@ const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
     Functions.generateUseXCommandQuest("loot", 50),
     Functions.generateUseXCommandQuest("raid", 10),
-    Functions.generateClaimXQuest("daily", 7),
+    Functions.generateClaimXQuest("daily", 3),
     Functions.generataRaidQuest(Raids.JeanPierrePolnareffRequiem.boss),
     Functions.generataRaidQuest(Raids.GiornoGiovannaRequiem.boss),
 ];
@@ -169,7 +169,7 @@ export const KillerQueenDitesTheDust: SideQuest = {
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 100),
-            Functions.generateClaimXQuest("daily", 7),
+            Functions.generateClaimXQuest("daily", 4),
             Functions.generataRaidQuest(Raids.YoshikageKira.boss),
             Functions.generataRaidQuest(Raids.YoshikageKira.boss),
         ];
