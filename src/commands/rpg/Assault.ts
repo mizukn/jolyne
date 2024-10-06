@@ -77,19 +77,19 @@ const slashCommand: SlashCommandFile = {
 
         const normalNPCButton = new ButtonBuilder()
             .setCustomId("normal" + ctx.interaction.id)
-            .setLabel(normalNPC.name)
+            .setLabel(`[LVL ${normalNPC.level.toLocaleString("en-US")}] ` + normalNPC.name)
             .setEmoji(normalNPC.emoji)
             .setStyle(ButtonStyle.Primary);
         const highNPCButton = new ButtonBuilder()
             .setCustomId("high" + ctx.interaction.id)
-            .setLabel(highNPC.name)
+            .setLabel(`[LVL ${highNPC.level.toLocaleString("en-US")}] ` + highNPC.name)
             .setEmoji(highNPC.emoji)
             .setStyle(
                 highNPC.level < ctx.userData.level ? ButtonStyle.Secondary : ButtonStyle.Danger
             );
         const randomNPCButton = new ButtonBuilder()
             .setCustomId("random" + ctx.interaction.id)
-            .setLabel(randomNPC.name)
+            .setLabel(`[LVL ${randomNPC.level.toLocaleString("en-US")}] ` + randomNPC.name)
             .setEmoji(randomNPC.emoji)
             .setStyle(
                 randomNPC.level < ctx.userData.level ? ButtonStyle.Secondary : ButtonStyle.Danger
