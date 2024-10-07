@@ -944,7 +944,7 @@ export const BerserkersFury: Ability = {
         user.maxHealth -= maxHealth; // 10% decrease in max health
         user.maxHealth -= Math.round(user.maxHealth * 0.1); // 10% decrease in max health
         ctx.turns[ctx.turns.length - 1].logs.push(
-            `<:emoji_177:1136204824803819651> **${user.name}** enters a state of berserker's fury! Their strength is increased by **${strengthIncrease}**, but their defense and max health suffer.`
+            `${user.weapon?.emoji} **${user.name}** enters a state of berserker's fury! Their strength is increased by **${strengthIncrease}**, but their defense and max health suffer.`
         );
 
         ctx.nextRoundPromises.push({
@@ -957,7 +957,7 @@ export const BerserkersFury: Ability = {
                 user.maxHealth += maxHealth;
                 user.health += health;
                 fight.turns[fight.turns.length - 1].logs.push(
-                    `<:emoji_177:1136204824803819651> **${user.name}**'s berserker's fury has worn off.`
+                    `${user.weapon?.emoji} **${user.name}**'s berserker's fury has worn off.`
                 );
             },
         });
