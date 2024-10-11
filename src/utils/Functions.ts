@@ -2153,11 +2153,10 @@ export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): numbe
     }
 };
 
-export const disableRows = (interaction: ChatInputCommandInteraction): void => {
-    interaction.fetchReply().then((x) => {
-        if (!x) return; // message deleted
-        x.edit({
-            components: x.components.map((c) => {
+export const disableRows = (interaction: ChatInputCommandInteraction | Message): void => {
+    if (interaction instanceof Message) {
+        interaction.edit({
+            components: interaction.components.map((c) => {
                 c.components.forEach((c) => {
                     // @ts-expect-error DNC ABOUT THE READ ONLY
                     c.data.disabled = true;
@@ -2166,7 +2165,21 @@ export const disableRows = (interaction: ChatInputCommandInteraction): void => {
                 return c;
             }),
         });
-    });
+    } else {
+        interaction.fetchReply().then((x) => {
+            if (!x) return; // message deleted
+            x.edit({
+                components: x.components.map((c) => {
+                    c.components.forEach((c) => {
+                        // @ts-expect-error DNC ABOUT THE READ ONLY
+                        c.data.disabled = true;
+                    });
+
+                    return c;
+                }),
+            });
+        });
+    }
 };
 
 export const fixUserSettings = (data: RPGUserDataJSON): void => {
