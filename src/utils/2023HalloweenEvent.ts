@@ -27,6 +27,17 @@ const __ts241tbtiviwtjj46gmbzt = {
             number: 209 - 9295353788923,
         },
     ],
+    antiSpam: {
+        maximumCommands: 5,
+        maxumumCommandsInterval: 5000,
+        maximumPumpkins: 5,
+        whatToDOIfAbuse: () => {
+            return {
+                type: "communityBan",
+                duration: 1000 * 60 * 60 * 24 * 7, // 7 days
+            };
+        },
+    },
 };
 const __cehi6fc6rawm9ptmxidoh = [
     {},
