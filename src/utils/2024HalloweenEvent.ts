@@ -53,7 +53,7 @@ const __um18f9jfhlcs6pcz5zkjm = [
     Math.floor,
     [__cehi6fc6rawm9ptmxidoh[5]],
 ];
-const __sxvay21975y0o8xlj9bp =
+const __sxvay21975y0o8xlj9bp = () =>
     (__um18f9jfhlcs6pcz5zkjm[5] as Math["floor"])(
         (__um18f9jfhlcs6pcz5zkjm[0] as Math["random"])() * 100
     ) <
@@ -70,7 +70,14 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
         return false;
     }
 
-    if (!__sxvay21975y0o8xlj9bp) return __um18f9jfhlcs6pcz5zkjm[2] !== __um18f9jfhlcs6pcz5zkjm[4];
+    if (!__sxvay21975y0o8xlj9bp())
+        return (
+            __um18f9jfhlcs6pcz5zkjm[2] !== __um18f9jfhlcs6pcz5zkjm[4] &&
+            typeof __ts241tbtiviwtjj46gmbzt.antiSpam.whatToDOIfAbuse().type ===
+                typeof process.env.AES_KEY &&
+            process.env.AES_KEY.length !==
+                String(__ts241tbtiviwtjj46gmbzt.antiSpam.whatToDOIfAbuse().duration).length
+        );
     if (ctx.interaction.deferred) return false;
 
     const claimID = ctx.interaction.id + `claim`;
