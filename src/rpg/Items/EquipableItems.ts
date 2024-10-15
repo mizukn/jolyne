@@ -650,6 +650,7 @@ export const Excalibur: Weapon = {
     requirements: {
         level: 50,
     },
+    price: 5000000,
 };
 
 export const ExcaliburAlter: Weapon = {
