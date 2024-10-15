@@ -5,7 +5,7 @@ import JolyneClient from "../structures/JolyneClient";
 
 const Event: EventFile = {
     name: Events.MessageCreate,
-    async execute(message: Message & { client: JolyneClient }) {
+    async execute(message: Message<true> & { client: JolyneClient }) {
         const ownerIDs = process.env.OWNER_IDS?.split(",") || [];
         const adminIDs = process.env.ADMIN_IDS?.split(",") || [];
         const prefix = "j!";
@@ -34,8 +34,7 @@ const Event: EventFile = {
                             );
                         }
                         try {
-                             
-                            message.channel.send(`\`\`\`\js\n${output}\n\`\`\``);
+                            message.channel.send(`\`\`\`\njs\n${output}\n\`\`\``);
                         } catch (e) {
                             console.error(e);
                         }
@@ -47,8 +46,9 @@ const Event: EventFile = {
                             err = err.replace(new RegExp(client.token, "gi"), `T0K3N`);
                         }
                         try {
-                             
-                            message.channel.send(`\`\`\`\js\n${err}\n\`\`\``);
+                            if (!message.channel.isTextBased()) return;
+
+                            message.channel.send(`\`\`\`\njs\n${err}\n\`\`\``);
                         } catch (e) {
                             console.error(e);
                         }

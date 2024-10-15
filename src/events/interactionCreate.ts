@@ -10,8 +10,9 @@ import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
-import { cloneDeep } from "lodash";
+import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
+import { handlePumpkinAppeared } from "../utils/2024HalloweenEvent";
 
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
@@ -274,6 +275,12 @@ const Event: EventFile = {
                     });
                     Functions.addEmail(ctx.userData, "second_anniversary");
                 }
+
+                // temp: halloween 2024
+                if (command.category == "rpg")
+                    setTimeout(async () => {
+                        handlePumpkinAppeared(ctx);
+                    }, 2000);
 
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
                     if (
