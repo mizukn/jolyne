@@ -342,7 +342,7 @@ for (const stand of [
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[`${stand.name.replace(" ", "")}User`] = npcData;
 
-    for (const weapon of weapons) {
+    for (const weapon of weapons.filter((x) => !x.private)) {
         // creating NPCs with stand and with a custom weapon
         const ID = `${stand.name.replace(" ", "")}User${weapon.id}`;
         // @ts-expect-error because it's a dynamic property
