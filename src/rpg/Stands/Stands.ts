@@ -2,6 +2,7 @@ import { Stand, Ability } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
 import * as Abilities from "../Abilities";
+import * as Passives from "../Passives";
 import {
     HealPunch,
     MysteriousGas,
@@ -317,11 +318,11 @@ export const PurpleHaze: Stand = {
     description:
         "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     image: "https://media.jolyne.moe/NNszFI/direct",
+    passives: [Passives.Rage],
     abilities: [
         addGif(Abilities.StandBarrage, "https://i.imgur.com/rXSPNxu.gif"),
         Abilities.CapsuleShot,
         Abilities.PoisonGas,
-        Abilities.Rage,
     ],
     emoji: Emojis.purple_haze,
     skillPoints: {
@@ -342,7 +343,8 @@ export const HalloweenSpooks: Stand = {
     description:
         "Halloween Spooks is a limited stand, was available during the Halloween event (2022).",
     image: "https://media.jolyne.moe/g3w4Ec/direct",
-    abilities: [Abilities.Rage, Abilities.ScytheSlash, Abilities.MysteriousGas],
+    passives: [Passives.Rage],
+    abilities: [Abilities.ScytheSlash, Abilities.MysteriousGas],
     emoji: "🎃",
     skillPoints: {
         // event stands have 0 skill points
@@ -901,6 +903,31 @@ export const KingCrimson: Stand = {
     color: 0x800000,
     available: true,
     image: "https://i.pinimg.com/474x/8f/60/88/8f6088c59c2355de39d7ede735768e3a.jpg",
+};
+
+export const Nix: Stand = {
+    id: "nix",
+    name: "Nix",
+    rarity: "T",
+    description: "Nix is a humanoid Stand. Was available during the 2024 Halloween Event.",
+    abilities: [
+        Abilities.DarkWave,
+        Abilities.NightsVeil,
+        Abilities.FearsGrasp,
+        Abilities.DarkFinisher,
+    ],
+    emoji: "<:nix:1294949386547101737>",
+    skillPoints: {
+        strength: 0,
+        defense: 0,
+        perception: 25,
+        speed: 25,
+        stamina: 0,
+    },
+    passives: [Passives.Darkness],
+    color: 0x631b60,
+    available: true,
+    image: "https://media.jolyne.moe/mOxWVp/direct",
 };
 
 /*

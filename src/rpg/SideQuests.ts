@@ -4,6 +4,7 @@ import { NPCs } from "./NPCs";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
 import * as Raids from "./Raids";
 import Emojis from "../emojis.json";
+import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "../utils/2024HalloweenEvent";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
@@ -481,4 +482,69 @@ export const CMoon: SideQuest = {
     canRedoSideQuest: false,
     // purple
     color: 0x800080,
+};
+
+/*
+side quest story:
+yeah i was thinking since we are anyways next to the whole haunted city arc
+we can go for something like that
+all of the enemies you have defeated until now coming back on halloween
+wanting revenge
+and you have to defeat them again
+we can blame justice for all of it if we want it to be cannon (jjba reference)
+*/
+export const Halloween2024EventSideQuest: SideQuest = {
+    description:
+        "The enemies you have defeated until now are coming back on Halloween, wanting revenge. Blame Justice (Enya Geil) for all of it!\n\nAll of the enemies have 15% chance to drop a 🎃 Pumpkin.\nFinishing this side quest will give you 10x 🎃 Pumpkins.",
+    title: "Halloween 2024 Event (Haunted City Arc)",
+    id: "HalloweenEvent2024",
+    emoji: "🎃",
+    canRedoSideQuest: true,
+    rewards: async (ctx) => {
+        Functions.addItem(ctx.userData, Functions.findItem("pumpkin"), 10);
+        ctx.followUp({
+            content: `You have been given 10 pumpkins. You can trade them by using the ${ctx.client.getSlashCommandMention(
+                "event trade"
+            )} command.`,
+        });
+        return true;
+    },
+    quests: (ctx) => {
+        const quests: QuestArray = [Functions.generateClaimItemQuest("pumpkin", 5)];
+        const MAX_NPCS = 25;
+
+        const EventNPCs = Object.values(FightableNPCs).filter((w) => {
+            return w.level <= (ctx.userData.level > 12 ? ctx.userData.level : 12) && !w.private;
+        });
+
+        if (EventNPCs.length !== 0)
+            for (
+                let i = 0;
+                i < (ctx.userData.level < MAX_NPCS ? ctx.userData.level : MAX_NPCS);
+                i++
+            ) {
+                quests.push(
+                    Functions.generateFightQuest(Functions.randomArray(EventNPCs), null, null, [
+                        {
+                            item: Functions.findItem("pumpkin").id,
+                            chance: 15,
+                            amount: 1,
+                        },
+                    ])
+                );
+            }
+
+        return quests;
+    },
+    requirements: is2024HalloweenEvent,
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    // orange
+    color: 0xffa500,
+    canReloadQuests: true,
+    requirementsMessage: () => {
+        return `- This event will end ${Functions.generateDiscordTimestamp(
+            endOf2024HalloweenEvent,
+            "FROM_NOW"
+        )} (${Functions.generateDiscordTimestamp(endOf2024HalloweenEvent, "DATE")})`;
+    },
 };

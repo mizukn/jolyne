@@ -332,3 +332,18 @@ export const HealthPotion: Consumable = {
         health: "100%",
     },
 };
+
+export const Pumpkin: Consumable = {
+    id: "pumpkin",
+    name: "Pumpkin",
+    description: "A pumpkin",
+    emoji: "🎃",
+    price: 69,
+    rarity: "T",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 69,
+        stamina: 69,
+    },
+};

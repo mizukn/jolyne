@@ -29,8 +29,9 @@ async function useBox(
     let amount: number;
     if (ctx.interaction.commandName === "inventory") {
         amount = ctx.interaction.options.getInteger("amount", false);
-        if (amount < 1) amount = 1;
     }
+    if (!amount) amount = 1;
+    if (amount < 1) amount = 1;
     const oldData = cloneDeep(ctx.userData);
 
     await ctx.makeMessage({
@@ -53,6 +54,9 @@ async function useBox(
             }
             for await (const reward of lootBox) {
                 if (amount === 1) await Functions.sleep(1000);
+                if (reward.percent) {
+                    if (!Functions.percent(reward.percent)) continue;
+                }
                 if (reward.xp) {
                     const xp = Functions.addXp(ctx.userData, reward.xp, ctx.client);
                     winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
@@ -868,5 +872,45 @@ export const Greenbaby: Special = {
             content: `${stand.emoji} | You have successfully evolved your stand to **C-Moon**!\n\nBut perhaps you can evolve it even further... (${ctx.client.localEmojis.mih})`,
         });
         return 1;
+    },
+};
+
+// gives up from 20% of max xp to 40% of max xp
+export const XPBox: Special = {
+    id: "xp_box",
+    name: "Experience Box",
+    description: "An Experience filled Box.\nBut maybe there is a secret hidden in here?",
+    rarity: "SS",
+    emoji: Emojis.xp,
+    price: 60009,
+    tradable: true,
+    storable: true,
+    use: async (ctx: CommandInteractionContext) => {
+        const finalLoot: boxLoot[][] = [
+            [
+                {
+                    percent: 100,
+                    xp: Functions.randomNumber(
+                        Functions.getMaxXp(ctx.userData.level ?? 1) * 0.2,
+                        Functions.getMaxXp(ctx.userData.level ?? 1) * 0.4
+                    ),
+                },
+                {
+                    percent: 1,
+                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
+                },
+            ],
+            [],
+            [],
+        ];
+
+        return useBox(
+            ctx,
+            finalLoot,
+            "XP Box",
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            Emojis["xp_box"],
+            Emojis["xp_box_shake"]
+        );
     },
 };

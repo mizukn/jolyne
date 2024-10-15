@@ -1,5 +1,6 @@
 import { EquipableItem, equipableItemTypes, Weapon } from "../../@types";
 import * as Abilities from "../Abilities";
+import * as Passives from "../Passives";
 import * as Emojis from "../../emojis.json";
 
 export const JotarosHat: EquipableItem = {
@@ -268,8 +269,7 @@ export const DiosKnives: Weapon = {
     id: "dios_knives",
     name: "Dio's Knives",
     emoji: Emojis.DioKnives,
-    description:
-        "A pair of knives that belonged to Dio Brando. [PASSIVE: During time stop, it throws knives to every enemies.]",
+    description: "A pair of knives that belonged to Dio Brando.",
     type: equipableItemTypes.WEAPON,
     // it throws knives
     attackName: "throw",
@@ -287,6 +287,7 @@ export const DiosKnives: Weapon = {
     },
     rarity: "S",
     abilities: [Abilities.KnivesThrow],
+    passives: [Passives.KnivesThrow],
     tradable: true,
     storable: true,
     requirements: {
@@ -619,4 +620,64 @@ export const StoneFreeGlasses: EquipableItem = {
     requirements: {
         level: 25,
     },
+};
+
+export const Excalibur: Weapon = {
+    id: "excalibur",
+    name: "Excalibur",
+    emoji: "<:excalibur:1295831271368425548>",
+    description: "The legendary sword of King Arthur.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "slash",
+    useMessageAttack: "slashes",
+    staminaCost: 4,
+    // yellow
+    color: 0xffcc00,
+    effects: {
+        skillPoints: {
+            strength: 30,
+            perception: 0,
+            defense: 10,
+            speed: 0,
+            stamina: 0,
+        },
+    },
+    rarity: "S",
+    abilities: [Abilities.SwordOfPromisedVictory],
+    passives: [Passives.Regeneration, Passives.Alter],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};
+
+export const ExcaliburAlter: Weapon = {
+    id: "excalibur_alter",
+    name: "Excalibur Alter",
+    emoji: "<:excalibur_alter:1295831475278839871>",
+    description: "The corrupted version of the legendary sword of King Arthur.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "slash",
+    useMessageAttack: "slashes",
+    staminaCost: 4,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 15,
+            perception: 5,
+            defense: 5,
+            speed: 0,
+            stamina: 5,
+        },
+    },
+    rarity: "SS",
+    abilities: [Abilities.SwordOfPromisedVictory],
+    passives: [Passives.RegenerationAlter, Passives.Rage],
+    tradable: false,
+    storable: false,
+    requirements: {
+        level: 100,
+    },
+    private: true,
 };

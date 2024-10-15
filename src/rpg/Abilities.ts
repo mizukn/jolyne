@@ -258,7 +258,7 @@ const bleedDamagePromise = (
         executeOnlyOnce: false,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
-                `🩸 **${target.name}** took **${damage}** bleed damage`
+                `-# 🩸 **${target.name}** took **${damage}** bleed damage`
             );
             if (target.health > 0) {
                 const oldHealth = target.health;
@@ -267,7 +267,7 @@ const bleedDamagePromise = (
                 if (target.health <= 0) {
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
-                        `🩸 **${target.name}** died from bleed damage`
+                        `-# 🩸 **${target.name}** died from bleed damage`
                     );
                 }
             }
@@ -1120,59 +1120,6 @@ export const Transformation: Ability = {
     target: "self",
 };
 
-export const Rage: Ability = {
-    name: "Rage",
-    description:
-        "When enabled, the more damage you take, the more damage you deal for 3 turns (+5 strength everytime you loose 1% of your max health). [USABLE PASSIVE, USES NO STAMINA].",
-    cooldown: 5,
-    damage: 0,
-    thumbnail: "https://i.imgur.com/S0RUnuC.gif",
-    stamina: 0,
-    extraTurns: 0,
-    dodgeScore: 0,
-    special: true,
-    target: "self",
-    useMessage: (user, target, damage, ctx) => {
-        let currentHealth = user.health;
-        const oldStrength = user.skillPoints.strength;
-
-        const endId = Functions.generateRandomId();
-        ctx.turns[ctx.turns.length - 1].logs.push(
-            `- ${user.stand?.emoji} RAGE: **${user.name}** has entered a state of rage...`
-        );
-
-        ctx.nextTurnPromises.push({
-            cooldown: 4,
-            id: Functions.generateRandomId(),
-            executeOnlyOnce: false,
-            promise: (fight) => {
-                if (user.health < currentHealth) {
-                    // add +5 strength every time user loses 1% of Functions.maxHealth(user);
-                    const healthLost = currentHealth - user.health;
-                    const strengthToAdd = Math.round(healthLost * 0.05);
-                    user.skillPoints.strength += strengthToAdd;
-                    currentHealth = user.health;
-                    fight.turns[fight.turns.length - 1].logs.push(
-                        `- ${user.stand?.emoji} RAGE: **${user.name}** has gained **${strengthToAdd}** strength due to rage...`
-                    );
-                }
-            },
-        });
-
-        ctx.nextRoundPromises.push({
-            cooldown: 4,
-            executeOnlyOnce: true,
-            id: endId,
-            promise: (fight) => {
-                user.skillPoints.strength = oldStrength;
-                fight.turns[fight.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} RAGE: **${user.name}**'s rage EFFECT has disappeared...`
-                );
-            },
-        });
-    },
-};
-
 export const ScytheSlash: Ability = {
     name: "Scythe Slash",
     description: "Slash your opponent with your scythe, dealing damage.",
@@ -1404,7 +1351,7 @@ const poisonDamagePromise = (
         executeOnlyOnce: false,
         promise: (fight) => {
             fight.turns[ctx.turns.length - 1].logs.push(
-                `☠️🧪☣️ **${target.name}** took **${damage}** poison damage`
+                `-# ☠️🧪☣️ **${target.name}** took **${damage}** poison damage`
             );
             if (target.health > 0) {
                 const oldHealth = target.health;
@@ -1413,7 +1360,7 @@ const poisonDamagePromise = (
                 if (target.health <= 0) {
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
-                        `☠️🧪☣️ **${target.name}** died from poison damage`
+                        `-# ☠️🧪☣️ **${target.name}** died from poison damage`
                     );
                 }
             }
@@ -3022,4 +2969,136 @@ export const KillEveryone: Ability = {
             },
         });
     },
+};
+
+export const DarkWave: Ability = {
+    name: "Dark Wave",
+    description: "Send a wave of darkness towards everyone except allies.",
+    cooldown: 4,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    trueDamage: 20,
+    trueDodgeScore: 4,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter((x) => ctx.getTeamIdx(user) !== ctx.getTeamIdx(x))
+            .forEach((x) => {
+                const status = x.removeHealth(Functions.getAttackDamages(user) * 1.2, user, 4);
+                if (status.type !== FighterRemoveHealthTypes.Dodged) {
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.stand?.emoji} DARK WAVE: **${
+                            x.name
+                        }** has been hit... (-${status.amount.toLocaleString("en-US")} :heart:)`
+                    );
+                    ctx.infos.lastHit = {
+                        user: user.id,
+                        target: x.id,
+                    };
+                    user.stand.passives
+                        .find((x) => x.name === "Darkness")
+                        ?.promise(user, ctx, "stand");
+                }
+            });
+    },
+};
+
+/*
+Night's Veil
+Nix envelops himself in a cloak of darkness temporarily increasing his speed and perception by 30% for the following 3 turns. 
+5Turn Cooldown
+25 Stamina cost
+*/
+
+export const NightsVeil: Ability = {
+    name: "Night's Veil",
+    description:
+        "Nix envelops himself in a cloak of darkness temporarily increasing your speed and perception by 30% for the following 3 turns.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 25,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        const oldSkillPoints = cloneDeep(user.skillPoints);
+        const speedBuff = user.skillPoints.speed * 0.3;
+        const perceptionBuff = user.skillPoints.perception * 0.3;
+        user.skillPoints.speed += speedBuff;
+        user.skillPoints.perception += perceptionBuff;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} NIGHT'S VEIL: **${user.name}**'s speed and perception has been boosted...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            executeOnlyOnce: true,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.skillPoints.speed -= speedBuff;
+                user.skillPoints.perception -= perceptionBuff;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} NIGHT'S VEIL: **${user.name}**'s speed and perception boost has disappeared...`
+                );
+            },
+        });
+    },
+};
+
+export const FearsGrasp: Ability = {
+    name: "Fear's Grasp",
+    description:
+        "Upon activation Nix amplifies the effects of Darkness making them 30% stronger for the following 3 turns.",
+    cooldown: 8,
+    damage: 0,
+    stamina: 25,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        const multiplierId = `darkness_${user.id}_${ctx.id}.multiplier`;
+        const oldMultiplier = Number(ctx.cache.get(multiplierId)) || 1;
+        ctx.cache.set(multiplierId, oldMultiplier * 1.3);
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `-# **${user.name}**'s Darkness has been amplified...`
+        );
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            executeOnlyOnce: true,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                ctx.cache.delete(multiplierId);
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `-# **${user.name}**'s Darkness amplification has disappeared...`
+                );
+            },
+        });
+    },
+};
+
+export const DarkFinisher: Ability = {
+    name: "Dark Finisher",
+    description: "Heavily damages the opponent with the power of darkness.",
+    cooldown: 10,
+    damage: 100,
+    stamina: 100,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    special: true,
+};
+
+export const SwordOfPromisedVictory: Ability = {
+    name: "Sword of Promised Victory",
+    description: "Deals heavy damage to the opponent.",
+    cooldown: 6,
+    damage: 45,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
 };
