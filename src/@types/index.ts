@@ -473,6 +473,7 @@ export interface Item {
      * If the item is craftable, so its requirements.
      */
     readonly craft?: RPGUserDataJSON["inventory"];
+    private?: boolean;
 }
 
 /**
@@ -538,6 +539,7 @@ export interface Weapon extends EquipableItem {
     staminaCost: number;
     color: number;
     handleAttack?: (ctx: FightHandler, user: Fighter, target: Fighter, damages: number) => void;
+    passives?: Passive[];
 }
 
 /**
@@ -655,6 +657,7 @@ export interface Stand {
      */
     available: boolean;
     adminOnly?: boolean;
+    passives?: Passive[];
 }
 
 /**
@@ -992,17 +995,6 @@ export interface Shop {
         price?: number; // If not specified, the item's price will be used.
     }[];
 }
-
-export interface Passive {
-    name: string;
-
-    description: string;
-
-    cooldown: number;
-
-    execute: (ctx: CommandInteractionContext) => Promise<void>;
-}
-
 export interface Rewards {
     coins?: number;
     items?: itemRewards;
@@ -1142,3 +1134,20 @@ const GangMemberSQLQuery = `
 `;
 
 export type possibleModifiers = "speedrun" | "no_breaks" | "the_elite" | "clone";
+
+export type FightPromise = {
+    promise: (thus: FightHandler) => void;
+    cooldown: number;
+    executeOnlyOnce: boolean;
+    id: string;
+};
+
+export interface Passive {
+    name: string;
+    description: string;
+    type: "round" | "turn";
+    cooldown?: number;
+    executeOnlyOnce?: boolean;
+    getId: (user: Fighter, context: FightHandler, from: string) => string;
+    promise: (user: Fighter, context: FightHandler, from: string) => void;
+}
