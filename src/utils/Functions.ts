@@ -664,9 +664,10 @@ export const getAbilityDamage = (
 
 export const standAbilitiesEmbed = (
     user: Fighter | RPGUserDataJSON | FightableNPC,
-    cooldowns?: FightInfos["cooldowns"]
+    cooldowns?: FightInfos["cooldowns"],
+    chosenStand?: Stand
 ): APIEmbed => {
-    const stand = isFighter(user) ? user.stand : findStand(user.stand);
+    const stand = chosenStand ? chosenStand : isFighter(user) ? user.stand : findStand(user.stand);
     const totalStandSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
 
     const embed: APIEmbed = {
@@ -689,11 +690,17 @@ export const standAbilitiesEmbed = (
     };
 
     for (const ability of stand.abilities) {
+        const index = stand.abilities.findIndex((w) => w.name === ability.name);
+        const isLast = index === stand.abilities.length - 1;
+
         let content = `\`Damages:\` ${
-            getAbilityDamage(user, ability) ??
-            (ability.trueDamage
-                ? Math.round(getAttackDamages(user) * (1 + ability.trueDamage / 100))
-                : "???")
+            getAbilityDamage(user, ability)
+                ? getAbilityDamage(user, ability).toLocaleString("en-US")
+                : ability.trueDamage
+                ? Math.round(
+                      getAttackDamages(user) * (1 + ability.trueDamage / 100)
+                  ).toLocaleString("en-US")
+                : "???"
         }\n\`Stamina cost:\` ${ability.stamina}`;
 
         let cooldown: number;
@@ -703,18 +710,28 @@ export const standAbilitiesEmbed = (
         else cooldown = ability.cooldown;
 
         const dodgeScore = ability.dodgeScore ?? ability.trueDodgeScore;
-        content += `\n\`Cooldown:\` ${cooldown} turns\n\n${ability.description.replace(
-            /{standName}/gi,
-            stand.name
-        )}\nDodge score: ${!dodgeScore ? "not dodgeable" : dodgeScore}\n\n`;
+        content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
+            !dodgeScore ? "not dodgeable" : dodgeScore
+        }\n\n${ability.description.replace(/{standName}/gi, stand.name)}\n\n`;
 
-        if (ability.special) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
+        if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
 
         embed.fields.push({
             name: ability.name + (ability.special ? " ⭐" : ""),
             value: content,
-            inline: ability.special ? false : true,
+            inline: ability.special || isLast ? false : true,
+        });
+    }
+
+    const passives = stand.passives ?? [];
+    if (passives.length) {
+        embed.fields.push({
+            name: "Passives",
+            value:
+                passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n") +
+                "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            inline: false,
         });
     }
 
@@ -739,7 +756,7 @@ export const weaponAbilitiesEmbed = (
     chosenWeapon?: string
 ): APIEmbed => {
     const weapon = chosenWeapon
-        ? findItem<Weapon>(chosenWeapon)
+        ? findItem<Weapon>(chosenWeapon, true)
         : isFighter(user)
         ? user.weapon
         : findItem<Weapon>(
@@ -767,7 +784,7 @@ export const weaponAbilitiesEmbed = (
                 weapon.effects.skillPoints
             )
                 .map(([key, value]) => `• +${value} ${key}`)
-                .join("\n")}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
+                .join("\n")}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
         color: weapon.color,
         footer: {
             text: `Rarity: ${weapon.rarity}`,
@@ -779,9 +796,17 @@ export const weaponAbilitiesEmbed = (
     };
 
     for (const ability of weapon.abilities) {
-        let content = `\`Damages:\` ${getAbilityDamage(user, ability)}\n\`Stamina cost:\` ${
-            ability.stamina
-        }`;
+        const index = weapon.abilities.findIndex((w) => w.name === ability.name);
+        const isLast = index === weapon.abilities.length - 1;
+        let content = `\`Damages:\` ${
+            getAbilityDamage(user, ability)
+                ? getAbilityDamage(user, ability).toLocaleString("en-US")
+                : ability.trueDamage
+                ? Math.round(
+                      getAttackDamages(user) * (1 + ability.trueDamage / 100)
+                  ).toLocaleString("en-US")
+                : "???"
+        }\n\`Stamina cost:\` ${ability.stamina}`;
 
         let cooldown: number;
         if (cooldowns)
@@ -789,18 +814,32 @@ export const weaponAbilitiesEmbed = (
                 cooldowns.find((c) => c.move === ability.name && c.id === user.id)?.cooldown ?? 0;
         else cooldown = ability.cooldown;
 
-        content += `\n\`Cooldown:\` ${cooldown} turns\n\n${ability.description.replace(
-            /{weaponName}/gi,
-            weapon.name
-        )}\nDodge score: ${ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable"}`;
+        content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
+            ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable"
+        }\n\n${ability.description.replace(/{weaponName}/gi, weapon.name)}\n\n`;
 
-        if (ability.special) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
+        if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
 
+        console.log(index, totalWeapons.length - 1, index === totalWeapons.length - 1);
         embed.fields.push({
             name: ability.name + (ability.special ? " ⭐" : ""),
             value: content,
-            inline: ability.special ? false : true,
+            inline:
+                ability.special || isLast
+                    ? false // check if latest
+                    : true,
+        });
+    }
+
+    const passives = weapon.passives ?? [];
+    if (passives.length) {
+        embed.fields.push({
+            name: "Passives",
+            value:
+                passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n") +
+                "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            inline: false,
         });
     }
 
@@ -871,44 +910,41 @@ export const isEquipableItem = (item: Item): item is EquipableItem => {
     return equipables.some((i) => i.id === item.id);
 };
 
-export const findItem = <T extends Item | EquipableItem | Special | Weapon>(name: string): T => {
+export const findItem = <T extends Item | EquipableItem | Special | Weapon>(
+    name: string,
+    includePrivate?: boolean
+): T => {
     if (!name) return null;
+    const totalitems = Object.values(Items.default).filter((x) =>
+        includePrivate ? true : !x.private
+    );
+
     // first, check if Items.id.towLowercase() === name.toLowerCase()
 
-    if (Object.values(Items.default).find((item) => item.id.toLowerCase() === name.toLowerCase()))
+    if (totalitems.find((item) => item.id.toLowerCase() === name.toLowerCase()))
         return (
-            (Object.values(Items.default).find(
-                (item) => item.id.toLowerCase() === name.toLowerCase()
-            ) as T) || null
+            (totalitems.find((item) => item.id.toLowerCase() === name.toLowerCase()) as T) || null
         );
-    return (Object.values(Items.default).find(
-        (item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()
-    ) ||
-        Object.values(Items.default).find((item) =>
-            item.id.toLocaleLowerCase().includes(name.toLocaleLowerCase())
-        ) ||
-        Object.values(Items.default).find((item) =>
+    return (totalitems.find((item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()) ||
+        totalitems.find((item) => item.id.toLocaleLowerCase().includes(name.toLocaleLowerCase())) ||
+        totalitems.find((item) =>
             item.id.toLocaleLowerCase().startsWith(name.toLocaleLowerCase())
         ) ||
-        Object.values(Items.default).find((item) =>
-            item.id.toLocaleLowerCase().endsWith(name.toLocaleLowerCase())
-        ) ||
-        Object.values(Items.default).find((item) =>
+        totalitems.find((item) => item.id.toLocaleLowerCase().endsWith(name.toLocaleLowerCase())) ||
+        totalitems.find((item) =>
             item.id.toLocaleLowerCase().includes(name.toLocaleLowerCase().replace(/ /g, ""))
         ) ||
-        Object.values(Items.default).find(
-            (item) => item.name.toLocaleLowerCase() === name.toLocaleLowerCase()
-        ) ||
-        Object.values(Items.default).find((item) =>
+        totalitems.find((item) => item.name.toLocaleLowerCase() === name.toLocaleLowerCase()) ||
+        totalitems.find((item) =>
             item.name.toLocaleLowerCase().includes(name.toLocaleLowerCase())
         ) ||
-        Object.values(Items.default).find((item) =>
+        totalitems.find((item) =>
             item.name.toLocaleLowerCase().startsWith(name.toLocaleLowerCase())
         ) ||
-        Object.values(Items.default).find((item) =>
+        totalitems.find((item) =>
             item.name.toLocaleLowerCase().endsWith(name.toLocaleLowerCase())
         ) ||
-        Object.values(Items.default).find((item) =>
+        totalitems.find((item) =>
             item.name.toLocaleLowerCase().includes(name.toLocaleLowerCase().replace(/ /g, ""))
         )) as T;
 };
@@ -1004,39 +1040,29 @@ export const generateStandCart = async function standCart(stand: Stand): Promise
     ctx.drawImage(image, 40, 50, 230 - RM + 15, 345 - RM + 20);
     ctx.drawImage(card_image, 0, 0, 230, 345);
     ctx.fillStyle = "white";
-    if (stand.name.toLocaleLowerCase() === "mommy queen") {
-        ctx.font = "22px Arial";
-        const content = stand.name;
-        ctx.fillText(content, 35, 40);
-    } else if (stand.name.length === 10) {
-        ctx.font = "22px Arial";
-        const content = stand.name.substring(0, 10);
-        ctx.fillText(content, 50, 40);
-    } else if (stand.name.length <= 7) {
-        ctx.font = "30px Arial";
-        ctx.fillText(stand.name, 74, 40);
-    } else if (stand.name.length <= 11) {
-        ctx.font = "25px Arial";
-        ctx.fillText(`${stand.name}`, 55, 45 - (12 - stand.name.length));
-    } else if (stand.name.length <= 14) {
-        ctx.font = "22px Arial";
-        ctx.fillText(`${stand.name}`, 40, 43 - (15 - stand.name.length));
-    } else {
-        ctx.font = "20px Arial";
-        let content;
-        if (stand.name.length >= 15) {
-            content =
-                stand.name.substring(
-                    0,
-                    13 -
-                        (stand.name.split("").filter((v) => v === ".").length +
-                            stand.name.split("").filter((v) => v === " ").length)
-                ) + "...";
-        } else {
-            content = stand.name;
-        }
-        ctx.fillText(content, 40, 40 - (20 - stand.name.length));
+    const maxWidth = 180; // Set a max width for the text
+    const minFontSize = 16; // Set a minimum font size
+    const maxFontSize = 30; // Set a maximum font size
+    let fontSize = maxFontSize;
+    ctx.font = `${fontSize}px Arial`;
+
+    const content = stand.name;
+    let textWidth = ctx.measureText(content).width;
+
+    // Decrease font size until text fits the maxWidth
+    while (textWidth > maxWidth && fontSize > minFontSize) {
+        fontSize -= 1;
+        ctx.font = `${fontSize}px Arial`;
+        textWidth = ctx.measureText(content).width;
     }
+
+    // Calculate dynamic positioning
+    const xPos = 115 - textWidth / 2; // Center the text horizontally
+    const yPos = 42;
+
+    // Render the text
+    ctx.fillText(content, xPos, yPos);
+
     bufferCache[stand.name as keyof typeof bufferCache] = canvas.toBuffer();
 
     return canvas.toBuffer();
@@ -1067,7 +1093,7 @@ export const addItem = (
         item = findItem(item);
     }
     if (!item) return false;
-    if (!item.storable) return false;
+    if (!item.storable || item.private) return false;
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {
         userData.inventory[item.id] += amount;
@@ -2202,4 +2228,77 @@ export const fixUserSettings = (data: RPGUserDataJSON): void => {
             }
         }
     }
+};
+
+const MAX_DESCRIPTION_LENGTH = 4096; // Maximum length for embed descriptions, Discord's limit
+
+export const fixEmbeds = (embeds: APIEmbed[]): APIEmbed[] => {
+    const resultEmbeds: APIEmbed[] = [];
+
+    embeds.forEach((embed) => {
+        const { description = "", footer, color } = embed;
+
+        // If description is within limits, just push the embed as is
+        if (description.length <= MAX_DESCRIPTION_LENGTH) {
+            resultEmbeds.push(embed);
+        } else {
+            // Split the description by new lines to avoid breaking in the middle of words or emojis
+            const chunks = splitDescriptionNicely(description, MAX_DESCRIPTION_LENGTH);
+
+            // Create a new embed for each chunk, copying color and other properties
+            chunks.forEach((chunk, index) => {
+                const newEmbed: APIEmbed = {
+                    description: chunk,
+                    color: color,
+                };
+
+                // Only add the footer to the last embed in the series
+                if (index === chunks.length - 1 && footer) {
+                    newEmbed.footer = footer;
+                }
+
+                resultEmbeds.push(newEmbed);
+            });
+        }
+    });
+
+    if (embeds[0].title) resultEmbeds[0].title = embeds[0].title;
+    if (embeds[0].author) resultEmbeds[0].author = embeds[0].author;
+
+    return resultEmbeds;
+};
+
+// Utility function to split the description nicely, respecting word boundaries
+const splitDescriptionNicely = (text: string, maxLength: number): string[] => {
+    const result: string[] = [];
+    let remainingText = text;
+
+    while (remainingText.length > maxLength) {
+        // Find the largest possible chunk that fits within the maxLength
+        let chunk = remainingText.slice(0, maxLength);
+
+        // Try to find the last occurrence of a newline within the chunk
+        const lastNewlineIndex = chunk.lastIndexOf("\n");
+
+        // If we found a newline, we split at that point for a cleaner break
+        if (lastNewlineIndex !== -1) {
+            chunk = remainingText.slice(0, lastNewlineIndex + 1); // Include the newline in the chunk
+        } else {
+            // Otherwise, try to split at the last space to avoid cutting off words or emojis
+            const lastSpaceIndex = chunk.lastIndexOf(" ");
+            if (lastSpaceIndex !== -1) {
+                chunk = remainingText.slice(0, lastSpaceIndex);
+            }
+        }
+
+        result.push(chunk);
+        remainingText = remainingText.slice(chunk.length).trim(); // Remove the processed chunk
+    }
+
+    // Add the remaining part as the final chunk
+    if (remainingText.length > 0) {
+        result.push(remainingText);
+    }
+
+    return result;
 };
