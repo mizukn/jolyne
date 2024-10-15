@@ -77,7 +77,7 @@ const slashCommand: SlashCommandFile = {
                 } **Dungeon Key** every 2 votes.${
                     hasVotedRecenty(cloneDeep(ctx.userData), ctx.client)
                         ? ""
-                        : `\nAlso, voting will reduce all your cooldowns by **45 seconds** for **5 minutes** (+1 minute if you're a [booster](https://discord.gg/jolyne-support-923608916540145694), +X minutes* where X equals your current tier if [you're an active patron](https://patreon.com/mizuki54)).`
+                        : `\nAlso, voting will reduce all your cooldowns to **45 seconds** for **5 minutes** (+1 minute if you're a [booster](https://discord.gg/jolyne-support-923608916540145694), +X minutes* where X equals your current tier if [you're an active patron](https://patreon.com/mizuki54)).`
                 }`,
                 color: 0xff3366,
                 fields: [],
@@ -117,7 +117,7 @@ const slashCommand: SlashCommandFile = {
                 const expire = lastVote + 60000 * 5; // only lasts for 5 minutes
                 embeds[0].fields.push({
                     name: `${ctx.client.localEmojis.timerIcon} Low Cooldown!`,
-                    value: `Since you have voted recently, all your cooldowns are reduced by **45 seconds** !! (${[
+                    value: `Since you have voted recently, all your cooldowns are reduced to **45 seconds** !! (${[
                         "assault",
                         "loot",
                         "raid",

@@ -197,7 +197,9 @@ const slashCommand: SlashCommandFile = {
 
         if (userisbanned) {
             ctx.followUpQueue.push({
-                content: `You are banned until ${Functions.generateDiscordTimestamp(
+                content: `${
+                    ctx.user.id === rpgData.id ? "You are" : userOption.username + " is"
+                } banned until ${Functions.generateDiscordTimestamp(
                     userisbanned.until,
                     "FULL_DATE"
                 )} for the following reason: \`${userisbanned.reason}\``,

@@ -273,6 +273,7 @@ const slashCommand: SlashCommandFile = {
             time: 15000,
         });
         collector.on("collect", async (i: MessageComponentInteraction) => {
+            if (!i.isButton()) return;
             collector.stop();
             if (!i.isButton()) return;
             // Anti-cheat
@@ -280,9 +281,12 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
-            const choosedLoot = shuffledLoots.find(
-                (loot) => loot.name === i.component.label.toLowerCase()
-            );
+            const choosedLoot =
+                i.customId === choice1ID
+                    ? shuffledLoots[0]
+                    : i.customId === choice2ID
+                    ? shuffledLoots[1]
+                    : shuffledLoots[2];
             await ctx.makeMessage({
                 components: [],
                 embeds: [

@@ -75,7 +75,7 @@ const slashCommand: SlashCommandFile = {
     },
     execute: async (
         ctx: CommandInteractionContext,
-        message: Message<boolean>
+        message: Message<true>
     ): Promise<Message | void> => {
         try {
             await ctx.channel.sendTyping();
@@ -379,6 +379,10 @@ const slashCommand: SlashCommandFile = {
 
                     if (quest.pushItemWhenCompleted) {
                         for (const item of quest.pushItemWhenCompleted) {
+                            quest.pushItemWhenCompleted = undefined;
+                            if (item.chance) {
+                                if (!Functions.percent(item.chance)) continue;
+                            }
                             Functions.addItem(
                                 ctx.userData,
                                 Functions.findItem(item.item),
@@ -390,7 +394,6 @@ const slashCommand: SlashCommandFile = {
                                 }`
                             );
                         }
-                        quest.pushItemWhenCompleted = undefined;
                     }
 
                     let command: string;
@@ -778,7 +781,8 @@ const slashCommand: SlashCommandFile = {
             const NPCs = [...chapterQuestsNPC, ...dailyQuestsNPC, ...sideQuestsNPC];
 
             await interaction.respond(
-                NPCs.filter((x) => x)
+                NPCs.filter((r) => Functions.findNPC(r.npc, true))
+                    .filter((x) => x)
                     .map((r) => ({
                         value: r.id,
                         name:

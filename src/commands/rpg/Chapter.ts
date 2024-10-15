@@ -188,6 +188,11 @@ export const getQuestsStats = (
 
         if (Functions.isFightNPCQuest(quest)) {
             const npc = Object.values(FightableNPCS).find((v) => v.id === quest.npc);
+            if (!npc) {
+                message.push(`??? Unknown NPC (${quest.npc}) ???::: ${JSON.stringify(quest)}`);
+                totalPercent += 100;
+                continue;
+            }
             questPercent =
                 quests.filter(
                     (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed

@@ -127,6 +127,7 @@ const slashCommand: SlashCommandFile = {
             }
 
             if (status.percent !== 100 && SideQuest.canReloadQuests) {
+                console.log("reload");
                 components.push(reloadQuestsButton);
             }
 
@@ -149,7 +150,7 @@ const slashCommand: SlashCommandFile = {
                         : ""
                 }
                 }\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,*/
-                embeds: [
+                embeds: Functions.fixEmbeds([
                     {
                         title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
                         description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
@@ -170,7 +171,7 @@ const slashCommand: SlashCommandFile = {
                         \n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
                         color: SideQuest.color,
                     },
-                ],
+                ]),
                 components: components.length === 0 ? [] : [Functions.actionRow(components)],
             });
 
@@ -253,7 +254,7 @@ const slashCommand: SlashCommandFile = {
             const status = getQuestsStats(quests, ctx);
             ctx.makeMessage({
                 content: `> [Preview: \`${SideQuest.id}\`]`,
-                embeds: [
+                embeds: Functions.fixEmbeds([
                     {
                         title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
                         description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
@@ -273,7 +274,7 @@ const slashCommand: SlashCommandFile = {
                         }\n\n📜 **__Quests:__** [PREVIEW]\n${status.message}`,
                         color: SideQuest.color,
                     },
-                ],
+                ]),
             });
         }
     },

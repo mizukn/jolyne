@@ -51,7 +51,7 @@ const slashCommand: SlashCommandFile = {
             });
             return;
         }
-        if (!Functions.findItem<Weapon>(hasWeaponEquipped)) {
+        if (!Functions.findItem<Weapon>(hasWeaponEquipped, true)) {
             ctx.makeMessage({
                 content: "That weapon doesn't exist...",
             });

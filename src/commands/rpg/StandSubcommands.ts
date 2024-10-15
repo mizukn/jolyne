@@ -544,7 +544,7 @@ ${Object.keys(stand.skillPoints)
                 .setColor(stand.color)
                 .setThumbnail(stand.image);
             ctx.makeMessage({
-                embeds: [embed],
+                embeds: [Functions.standAbilitiesEmbed(userData, null, stand)],
                 files: [],
                 components: [Functions.actionRow([switchBTN])],
             });
