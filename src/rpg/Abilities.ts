@@ -654,12 +654,13 @@ export const Heal: Ability = {
     dodgeScore: 0,
     useMessage: (user, target, damage, ctx) => {
         const heal = Math.round(user.maxHealth * 0.15);
-        target.health += heal;
+        const status = target.incrHealth(heal) * -1;
+        user.totalHealingDone += status;
         if (target.health > target.maxHealth) target.health = target.maxHealth;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} HEAL: **${user.name}** has healed **${
                 target.name
-            }** by **${heal}** health... ${
+            }** by **${status.toLocaleString("en-US")}** health... ${
                 ctx.getTeamIdx(user) === ctx.getTeamIdx(target) ? "" : "[You just Healed An Ememy!]"
             }`
         );
@@ -1235,11 +1236,11 @@ export const HealBarrage: Ability = {
             .filter((w) => w.health > 0)
             .filter((z) => z.id !== user.id)
             .forEach((x) => {
-                x.health += heal;
-                if (x.health > x.maxHealth) x.health = x.maxHealth;
+                const status = x.incrHealth(heal) * -1;
+                user.totalHealingDone += status;
 
                 ctx.turns[ctx.turns.length - 1].logs.push(
-                    `- ${user.stand?.emoji} HEAL BARRAGE: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
+                    `- ${user.stand?.emoji} HEAL BARRAGE: **${user.name}** has healed **${x.name}** by **${status}** :heart:.`
                 );
             });
     },
@@ -1262,9 +1263,8 @@ export const Restoration: Ability = {
             .filter((x) => ctx.getTeamIdx(x) === ctx.getTeamIdx(user))
             .filter((w) => w.id !== user.id)
             .forEach((x) => {
-                x.health += heal;
-
-                if (x.health > x.maxHealth) x.health = x.maxHealth;
+                const status = x.incrHealth(heal) * -1;
+                user.totalHealingDone += status;
 
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} RESTORATION: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
@@ -1322,9 +1322,8 @@ export const HealPunch: Ability = {
             .filter((w) => w.id !== user.id)
             .forEach((x) => {
                 const heal = Math.round(damages * 1.5);
-                x.health += heal;
-
-                if (x.health > x.maxHealth) x.health = x.maxHealth;
+                const status = x.incrHealth(heal) * -1;
+                user.totalHealingDone += status;
 
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} HEAL PUNCH: **${user.name}** has healed **${x.name}** by **${heal}** :heart:.`
@@ -3085,9 +3084,9 @@ export const DarkFinisher: Ability = {
     description: "Heavily damages the opponent with the power of darkness.",
     cooldown: 10,
     damage: 100,
-    stamina: 100,
+    stamina: 200,
     extraTurns: 0,
-    dodgeScore: 0,
+    dodgeScore: 5,
     target: "enemy",
     special: true,
 };

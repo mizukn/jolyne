@@ -9,8 +9,11 @@ export const Rage: Passive = {
     type: "turn",
     getId: (user: Fighter, context: FightHandler, from) => `${from}rage_${user.id}_${context.id}`,
     promise: (user: Fighter, thus: FightHandler, from) => {
+        const hasTwo =
+            user.stand?.passives?.find((x) => x.name === "Rage") &&
+            user.weapon?.passives?.find((x) => x.name === "Rage");
         const lastHealthId = `${from}rage_${user.id}_${thus.id}.lasthealth`;
-        const baseStrengthId = `${from}rage_${user.id}_${thus.id}.basestrength`;
+        const baseStrengthId = `$rage_${user.id}_${thus.id}.basestrength`;
         const totalStrengthGainedId = `${from}rage_${user.id}_${thus.id}.totalstrengthgained`;
         if (!thus.cache.has(baseStrengthId)) {
             thus.cache.set(baseStrengthId, user.skillPoints.strength);
@@ -31,7 +34,7 @@ export const Rage: Passive = {
         const lastHealth = Number(thus.cache.get(lastHealthId)) ?? newUser.health;
 
         const healthLost = lastHealth - newUser.health;
-        console.log(lastHealth, newUser.health, healthLost);
+        console.log(totalStrengthGained, baseStrength);
 
         if (healthLost > 0) {
             const healthLostPercent = healthLost / user.maxHealth;
@@ -40,7 +43,9 @@ export const Rage: Passive = {
             newUser.skillPoints.strength += strengthIncrease;
             if (strengthIncrease > 0) {
                 thus.turns[thus.turns.length - 1].logs.push(
-                    `-# ${newUser.name} gained **${strengthIncrease}** strength from Rage!`
+                    `-# ${newUser.name} gained **${strengthIncrease}** strength from Rage! ${
+                        hasTwo ? `[${from}]` : ""
+                    }`
                 );
                 thus.cache.set(
                     totalStrengthGainedId,
@@ -50,7 +55,7 @@ export const Rage: Passive = {
         }
 
         thus.cache.set(lastHealthId, newUser.health);
-        thus.cache.set(baseStrengthId, newUser.skillPoints.strength);
+        //thus.cache.set(baseStrengthId, newUser.skillPoints.strength);
     },
 };
 
@@ -125,6 +130,7 @@ export const Darkness: Passive = {
         if (!enemy || !userAttacker) return;
         if (userAttacker.id !== user.id) return;
         if (userAttacker.id === enemy.id) return;
+        if (enemy.health <= 0) return;
         thus.infos.lastHit = undefined;
 
         if (currentStacks < maxStacks) {
@@ -209,11 +215,28 @@ export const Alter: Passive = {
 
 export const Regeneration: Passive = {
     name: "Regeneration",
-    description: "At the end of each 'round', the user regenerates 2% of their max health.",
+    description:
+        "At the end of each 'round', the user regenerates 2% of their max health (capped at 10%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `regeneration_${user.id}_${context.id}`,
     promise: (user: Fighter, thus: FightHandler) => {
-        const status = user.incrHealth(Math.round(user.maxHealth * 0.02));
+        const totalHealingDoneId = `regeneration_${user.id}_${thus.id}.totalhealingdone`;
+        if (!thus.cache.has(totalHealingDoneId)) {
+            thus.cache.set(totalHealingDoneId, 0);
+        }
+        const baseHealthId = `regeneration_${user.id}_${thus.id}.basehealth`;
+        if (!thus.cache.has(baseHealthId)) {
+            thus.cache.set(baseHealthId, user.maxHealth);
+        }
+
+        const totalHealingDone = Number(thus.cache.get(totalHealingDoneId));
+        const baseHealth = Number(thus.cache.get(baseHealthId));
+
+        if (totalHealingDone >= baseHealth * 0.1) return;
+
+        const status = user.incrHealth(Math.round(user.maxHealth * 0.02)) * -1;
+
+        user.totalHealingDone += status;
         if (status !== 0)
             thus.turns[thus.turns.length - 1].logs.push(
                 `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health.`
@@ -224,12 +247,34 @@ export const Regeneration: Passive = {
 export const RegenerationAlter: Passive = {
     name: "Regeneration Alter",
     description:
-        "At the end of each 'round', the user regenerates 4% of their max health and stamina.",
+        "At the end of each 'round', the user regenerates 4% of their max health and stamina (capped at 25%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `regeneration_alter_${user.id}_${context.id}`,
     promise: (user: Fighter, thus: FightHandler) => {
-        const status = user.incrHealth(Math.round(user.maxHealth * 0.04));
-        const statusStamina = user.incrStamina(Math.round(user.maxStamina * 0.04));
+        const totalHealingDoneId = `regeneration_alter_${user.id}_${thus.id}.totalhealingdone`;
+        if (!thus.cache.has(totalHealingDoneId)) {
+            thus.cache.set(totalHealingDoneId, 0);
+        }
+
+        const totalHealingDone = Number(thus.cache.get(totalHealingDoneId));
+        const baseHealthId = `regeneration_alter_${user.id}_${thus.id}.basehealth`;
+        if (!thus.cache.has(baseHealthId)) {
+            thus.cache.set(baseHealthId, user.maxHealth);
+        }
+
+        const baseStaminaId = `regeneration_alter_${user.id}_${thus.id}.basestamina`;
+        if (!thus.cache.has(baseStaminaId)) {
+            thus.cache.set(baseStaminaId, user.maxStamina);
+        }
+
+        const baseHealth = Number(thus.cache.get(baseHealthId));
+
+        if (totalHealingDone >= baseHealth * 0.25) return;
+
+        const status = user.incrHealth(Math.round(user.maxHealth * 0.04)) * -1;
+
+        const statusStamina = user.incrStamina(Math.round(user.maxStamina * 0.04)) * -1;
+        user.totalHealingDone += status;
         if (statusStamina !== 0 || status !== 0)
             thus.turns[thus.turns.length - 1].logs.push(
                 `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health and **${statusStamina}** stamina.`

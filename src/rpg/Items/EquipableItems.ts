@@ -657,19 +657,20 @@ export const ExcaliburAlter: Weapon = {
     id: "excalibur_alter",
     name: "Excalibur Alter",
     emoji: "<:excalibur_alter:1295831475278839871>",
-    description: "The corrupted version of the legendary sword of King Arthur.",
+    description:
+        "The corrupted version of the legendary sword of King Arthur.\nUpon transformation, the user's stats are increased by 30% (so please, ignore the stats below).",
     type: equipableItemTypes.WEAPON,
     attackName: "slash",
     useMessageAttack: "slashes",
-    staminaCost: 4,
+    staminaCost: 5,
     color: 0xff0000,
     effects: {
         skillPoints: {
-            strength: 15,
-            perception: 5,
-            defense: 5,
+            strength: 0,
+            perception: 0,
+            defense: 0,
             speed: 0,
-            stamina: 5,
+            stamina: 0,
         },
     },
     rarity: "SS",
@@ -678,7 +679,14 @@ export const ExcaliburAlter: Weapon = {
     tradable: false,
     storable: false,
     requirements: {
-        level: 100,
+        level: 150,
+        skillPoints: {
+            strength: 0,
+            perception: 0,
+            defense: 0,
+            speed: 0,
+            stamina: 50,
+        },
     },
     private: true,
 };

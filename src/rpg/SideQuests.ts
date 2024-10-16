@@ -1,4 +1,4 @@
-import { SideQuest, QuestArray, Quests } from "../@types";
+import { SideQuest, QuestArray, Quests, RequirementStatus } from "../@types";
 import * as Functions from "../utils/Functions";
 import { NPCs } from "./NPCs";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
@@ -38,7 +38,7 @@ export const RequiemArrowEvolve: SideQuest = {
         return true;
     },
     quests: (ctx) => RequiemArrowEvolveQuests,
-    requirements: (ctx) => {
+    /*requirements: (ctx) => {
         if (
             ctx.userData.stand === Functions.findStand("gold_experience").id ||
             ctx.userData.stand === Functions.findStand("silver_chariot").id
@@ -57,7 +57,39 @@ export const RequiemArrowEvolve: SideQuest = {
         } else return false;
     },
     requirementsMessage: (ctx) =>
-        "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n- If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quest will cancel automatically if you don't meet the requirements anymore, so be careful.",
+        "- You need to have **Gold Experience** or **Silver Chariot** to do this quest\n- If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest\n- You need to be level **50**\n- You need to have spent **25 perception** skill points (SKILL POINTS BONUS FROM STANDS AND ITEMS DON'T COUNT)\n- Do not use a **skill points reset potion**! This quest will cancel automatically if you don't meet the requirements anymore, so be careful.",*/
+    requirements: (ctx) => {
+        const statuses: RequirementStatus[] = [];
+        statuses.push({
+            requirement:
+                "You need to have **Gold Experience** or **Silver Chariot** to do this quest",
+            status:
+                ctx.userData.stand === Functions.findStand("gold_experience").id ||
+                ctx.userData.stand === Functions.findStand("silver_chariot").id,
+        });
+
+        statuses.push({
+            requirement: "You need to be level **50**",
+            status: ctx.userData.level >= 50,
+        });
+
+        statuses.push({
+            requirement: "You need to have spent **25 perception** skill points",
+            status: ctx.userData.skillPoints.perception >= 25,
+        });
+
+        statuses.push({
+            requirement:
+                "If you have more than 2 **Requiem Arrows** in your inventory and you're not a [patreon member](https://patreon.com/mizuki54), you won't be able to redo this quest",
+            status: !(
+                Object.keys(ctx.userData.inventory).find(
+                    (x) => x === "requiem_arrow" && ctx.userData.inventory[x] >= 2
+                ) && !ctx.client.patreons.find((x) => x.id === ctx.userData.id)
+            ),
+        });
+
+        return statuses;
+    },
     canRedoSideQuest: true,
     // brown
     color: 0x8b4513,
@@ -90,11 +122,19 @@ export const Beginner: SideQuest = {
         //Functions.generateFightQuest(Functions.findNPC("kakyoin")),
         Functions.generateUseXCommandQuest("loot", 1),
     ],
-    requirements: (ctx) => {
+    /*requirements: (ctx) => {
         if (ctx.userData.level < 10) return true;
         return false;
     },
-    requirementsMessage: (ctx) => "- You must be not over level 10",
+    requirementsMessage: (ctx) => "- You must be not over level 10",*/
+    requirements: (ctx) => {
+        return [
+            {
+                requirement: "You must be not over level 10",
+                status: ctx.userData.level < 10,
+            },
+        ];
+    },
     cancelQuestIfRequirementsNotMetAnymore: true,
     // blue
     color: 0x0000ff,
@@ -134,16 +174,27 @@ export const HalloweenEvent2023: SideQuest = {
 
         return quests;
     },
-    requirements: (ctx) => {
+    /*requirements: (ctx) => {
         if (Date.now() > 1700348400000) return false; // Fri Dec 01 2023 22:59:59 GMT+0000
         return true;
-    },
+    },*/
     cancelQuestIfRequirementsNotMetAnymore: true,
-    requirementsMessage: (ctx) =>
+    /*requirementsMessage: (ctx) =>
         `- This event will end ${Functions.generateDiscordTimestamp(
             1700348400000,
             "FROM_NOW"
-        )} (${Functions.generateDiscordTimestamp(1700348400000, "DATE")})`,
+        )} (${Functions.generateDiscordTimestamp(1700348400000, "FULL_DATE")})`,*/
+    requirements: (ctx) => {
+        return [
+            {
+                requirement: `Time must be before ${Functions.generateDiscordTimestamp(
+                    1700348400000,
+                    "FULL_DATE"
+                )}`,
+                status: Date.now() < 1700348400000,
+            },
+        ];
+    },
     canReloadQuests: true,
     // orange
     color: 0xffa500,
@@ -165,8 +216,8 @@ export const KillerQueenDitesTheDust: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: (ctx) =>
-        "- You need to have **Killer Queen** to do this quest and be level **75**",
+    /*requirementsMessage: (ctx) =>
+        "- You need to have **Killer Queen** to do this quest and be level **75**",*/
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 100),
@@ -192,12 +243,26 @@ export const KillerQueenDitesTheDust: SideQuest = {
 
         return baseQuests;
     },
-    requirements: (ctx) => {
+    /*requirements: (ctx) => {
         if (ctx.userData.stand === Functions.findStand("killer_queen").id) {
             if (ctx.userData.level >= 75) {
                 return true;
             }
         } else return false;
+    },*/
+    requirements: (ctx) => {
+        const statuses: RequirementStatus[] = [];
+        statuses.push({
+            requirement: "You need to have **Killer Queen** to do this quest",
+            status: ctx.userData.stand === Functions.findStand("killer_queen").id,
+        });
+
+        statuses.push({
+            requirement: "You need to be level **75**",
+            status: ctx.userData.level >= 75,
+        });
+
+        return statuses;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,
@@ -256,16 +321,29 @@ export const ChristmasEvent2023: SideQuest = {
 
         return quests;
     },
-    requirements: (ctx) => {
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    /*
+        requirements: (ctx) => {
         if (Date.now() > 1704582000000) return false;
         return true;
     },
-    cancelQuestIfRequirementsNotMetAnymore: true,
+
     requirementsMessage: (ctx) =>
         `- This event will end ${Functions.generateDiscordTimestamp(
             1704582000000,
             "FROM_NOW"
-        )} (${Functions.generateDiscordTimestamp(1704582000000, "DATE")})`,
+        )} (${Functions.generateDiscordTimestamp(1704582000000, "FULL_DATE")})`,*/
+    requirements: (ctx) => {
+        return [
+            {
+                requirement: `Time must be before ${Functions.generateDiscordTimestamp(
+                    1704582000000,
+                    "FULL_DATE"
+                )}`,
+                status: Date.now() < 1704582000000,
+            },
+        ];
+    },
     canReloadQuests: true,
     canRedoSideQuest: true,
     // red
@@ -285,8 +363,6 @@ export const Echoes2: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: (ctx) =>
-        "- You need to have **Echoes** to do this quest and be level **10**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 20),
@@ -295,7 +371,9 @@ export const Echoes2: SideQuest = {
         ];
 
         return baseQuests;
-    },
+    } /*
+    requirementsMessage: (ctx) =>
+        "- You need to have **Echoes** to do this quest and be level **10**",
     requirements: (ctx) => {
         if (ctx.userData.standsEvolved["echoes"] !== undefined) return false;
 
@@ -306,6 +384,25 @@ export const Echoes2: SideQuest = {
                 }
             }
         }
+    },*/,
+    requirements: (ctx) => {
+        const statuses: RequirementStatus[] = [];
+        statuses.push({
+            requirement: "You need to have **Echoes** to do this quest",
+            status: ctx.userData.stand === Functions.findStand("echoes").id,
+        });
+
+        statuses.push({
+            requirement: "You need to be level **10**",
+            status: ctx.userData.level >= 10,
+        });
+
+        statuses.push({
+            requirement: "You need to have not evolved Echoes yet",
+            status: ctx.userData.standsEvolved["echoes"] === undefined,
+        });
+
+        return statuses;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,
@@ -325,8 +422,6 @@ export const Echoes3: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: (ctx) =>
-        "- You need to have **Echoes Act 2** to do this quest and be level **15**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 30),
@@ -352,6 +447,8 @@ export const Echoes3: SideQuest = {
 
         return baseQuests;
     },
+    /*requirementsMessage: (ctx) =>
+        "- You need to have **Echoes Act 2** to do this quest and be level **15**",
     requirements: (ctx) => {
         if (ctx.userData.standsEvolved["echoes"] !== 1) return false;
 
@@ -362,6 +459,25 @@ export const Echoes3: SideQuest = {
                 }
             }
         }
+    },*/
+    requirements: (ctx) => {
+        const statuses: RequirementStatus[] = [];
+        statuses.push({
+            requirement: "You need to have **Echoes** to do this quest",
+            status: ctx.userData.stand === Functions.findStand("echoes").id,
+        });
+
+        statuses.push({
+            requirement: "You need to be level **15**",
+            status: ctx.userData.level >= 15,
+        });
+
+        statuses.push({
+            requirement: "You need to have evolved Echoes Act 2",
+            status: ctx.userData.standsEvolved["echoes"] === 1,
+        });
+
+        return statuses;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,
@@ -395,6 +511,7 @@ export const TwoYearAnniversaryEvent: SideQuest = {
         Functions.generataRaidQuest(FightableNPCs.ConfettiGolem),
         Functions.generateClaimItemQuest(Functions.findItem("confetti_bazooka").id, 1),
     ],
+    /*
     requirements: (ctx) => {
         if (
             ctx.userData.inventory[Functions.findItem("second_anniversary_bag").id] > 14 &&
@@ -410,7 +527,25 @@ export const TwoYearAnniversaryEvent: SideQuest = {
         )} at **this exact time** (/raid).\n- This event will end ${Functions.generateDiscordTimestamp(
             1707606000000,
             "FROM_NOW"
-        )} (${Functions.generateDiscordTimestamp(1707606000000, "DATE")})`,
+        )} (${Functions.generateDiscordTimestamp(1707606000000, "FULL_DATE")})`,*/
+    requirements: (ctx) => {
+        return [
+            {
+                requirement: `Time must be before ${Functions.generateDiscordTimestamp(
+                    1707606000000,
+                    "FULL_DATE"
+                )}`,
+                status: Date.now() < 1707606000000,
+            },
+            {
+                requirement:
+                    "You must not have more than 14 second anniversary bags and confetti bazookas",
+                status:
+                    ctx.userData.inventory[Functions.findItem("second_anniversary_bag").id] < 15 &&
+                    ctx.userData.inventory[Functions.findItem("confetti_bazooka").id] < 15,
+            },
+        ];
+    },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canReloadQuests: false,
     canRedoSideQuest: true,
@@ -434,8 +569,6 @@ export const CMoon: SideQuest = {
         });
         return true;
     },
-    requirementsMessage: (ctx) =>
-        "- You need to have **Whitesnake** to do this quest and be level **100**",
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateUseXCommandQuest("assault", 36),
@@ -468,7 +601,10 @@ export const CMoon: SideQuest = {
             for (let j = 0; j < 6; j++) baseQuests.push(Functions.generateFightQuest(NPCs[i]));
 
         return baseQuests;
-    },
+    } /*
+    requirementsMessage: (ctx) =>
+        "- You need to have **Whitesnake** to do this quest and be level **100**",
+
     requirements: (ctx) => {
         if (ctx.userData.standsEvolved["whitesnake"]) return false;
 
@@ -477,6 +613,20 @@ export const CMoon: SideQuest = {
                 return true;
             }
         }
+    },*/,
+    requirements: (ctx) => {
+        const statuses: RequirementStatus[] = [];
+        statuses.push({
+            requirement: "You need to have **Whitesnake** to do this quest",
+            status: ctx.userData.stand === "whitesnake",
+        });
+
+        statuses.push({
+            requirement: "You need to be level **100**",
+            status: ctx.userData.level >= 100,
+        });
+
+        return statuses;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     canRedoSideQuest: false,
@@ -536,15 +686,24 @@ export const Halloween2024EventSideQuest: SideQuest = {
 
         return quests;
     },
-    requirements: is2024HalloweenEvent,
+    requirements: (ctx) => [
+        {
+            requirement: `Time must be before ${Functions.generateDiscordTimestamp(
+                endOf2024HalloweenEvent,
+                "FULL_DATE"
+            )}`,
+            status: is2024HalloweenEvent(),
+        },
+    ],
+    //requirements: is2024HalloweenEvent,
     cancelQuestIfRequirementsNotMetAnymore: true,
     // orange
     color: 0xffa500,
     canReloadQuests: true,
-    requirementsMessage: () => {
+    /*requirementsMessage: () => {
         return `- This event will end ${Functions.generateDiscordTimestamp(
             endOf2024HalloweenEvent,
             "FROM_NOW"
-        )} (${Functions.generateDiscordTimestamp(endOf2024HalloweenEvent, "DATE")})`;
-    },
+        )} (${Functions.generateDiscordTimestamp(endOf2024HalloweenEvent, "FULL_DATE")})`;
+    },*/
 };
