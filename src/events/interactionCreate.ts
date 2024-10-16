@@ -54,10 +54,14 @@ const Event: EventFile = {
             if (
                 command.adminOnly &&
                 !process.env.ADMIN_IDS.split(",").includes(interaction.user.id)
-            )
-                return interaction.reply({
-                    content: interaction.client.localEmojis["jolyne"],
-                });
+            ) {
+                // if not process.env.BETA then tell no perms
+                if (!interaction.client.user.username.includes("Beta"))
+                    return interaction.reply({
+                        content: "You don't have permission to use this command.",
+                        ephemeral: true,
+                    });
+            }
             if (!interaction.channel)
                 return interaction.reply(
                     "This command is not available here. If you're on a thread, please make sure that I have the permissions to send/read messages in this thread."
@@ -306,7 +310,8 @@ const Event: EventFile = {
                     }
                 }
                 for (const SideQuest of Object.values(SideQuests)) {
-                    if (await SideQuest.requirements(ctx)) {
+                    const status = Functions.getSideQuestRequirements(SideQuest, ctx);
+                    if (status.status) {
                         if (!ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)) {
                             const fixedQuests = SideQuest.quests(ctx).map((v) =>
                                 Functions.pushQuest(v)
@@ -341,7 +346,7 @@ const Event: EventFile = {
                                     (r) => r.id !== SideQuest.id
                                 );
                                 ctx.followUpQueue.push({
-                                    content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.`,
+                                    content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.\n\n${status.notMeet}`,
                                 });
                             }
                         }
