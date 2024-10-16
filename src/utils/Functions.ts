@@ -31,6 +31,8 @@ import {
     Rarity,
     LBData,
     defaultUserSettings,
+    SideQuest,
+    RequirementStatus,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -712,7 +714,7 @@ export const standAbilitiesEmbed = (
         const dodgeScore = ability.dodgeScore ?? ability.trueDodgeScore;
         content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
             !dodgeScore ? "not dodgeable" : dodgeScore
-        }\n\n${ability.description.replace(/{standName}/gi, stand.name)}\n\n`;
+        }\n\n*${ability.description.replace(/{standName}/gi, stand.name)}*\n`;
 
         if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
@@ -816,7 +818,7 @@ export const weaponAbilitiesEmbed = (
 
         content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
             ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable"
-        }\n\n${ability.description.replace(/{weaponName}/gi, weapon.name)}\n\n`;
+        }\n\n*${ability.description.replace(/{weaponName}/gi, weapon.name)}*\n`;
 
         if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
@@ -2301,4 +2303,24 @@ const splitDescriptionNicely = (text: string, maxLength: number): string[] => {
     }
 
     return result;
+};
+
+export const getSideQuestRequirements = (
+    sideQuest: SideQuest,
+    ctx: CommandInteractionContext
+): {
+    status: boolean;
+    message: string;
+    notMeet: string;
+} => {
+    const req = sideQuest.requirements(ctx);
+    const notMeet = req.filter((x) => !x.status);
+    const mapper = // RequirementStatus
+        (x: RequirementStatus, i: number) =>
+            `${i + 1}. ${x.requirement} (${x.status ? "✅" : "❌"})`;
+    return {
+        status: req.filter((x) => !x.status).length === 0,
+        message: req.map(mapper).join("\n"),
+        notMeet: notMeet.map(mapper).join("\n"),
+    };
 };
