@@ -405,13 +405,19 @@ export interface SideQuest {
     /**
      * The side quest's requirements.
      */
-    requirements: (ctx: CommandInteractionContext) => boolean | Promise<boolean>;
-    requirementsMessage: (ctx: CommandInteractionContext) => string;
+    /*requirements: (ctx: CommandInteractionContext) => boolean | Promise<boolean>;
+    requirementsMessage: (ctx: CommandInteractionContext) => string;*/
+    requirements: (ctx: CommandInteractionContext) => RequirementStatus[];
     cancelQuestIfRequirementsNotMetAnymore?: boolean;
     canRedoSideQuest?: boolean;
     canReloadQuests?: boolean;
     color?: number;
 }
+
+export type RequirementStatus = {
+    requirement: string;
+    status: boolean;
+};
 
 /*
 export interface Rewards {
