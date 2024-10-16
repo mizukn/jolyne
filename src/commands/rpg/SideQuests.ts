@@ -1,4 +1,11 @@
-import { RPGUserDataJSON, SlashCommandFile, Leaderboard, i18n_key } from "../../@types";
+import {
+    RPGUserDataJSON,
+    SlashCommandFile,
+    Leaderboard,
+    i18n_key,
+    RequirementStatus,
+    SideQuest,
+} from "../../@types";
 import {
     Message,
     APIEmbed,
@@ -17,6 +24,7 @@ import {
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import { getSideQuestRequirements } from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as SideQuests from "../../rpg/SideQuests";
 import { getQuestsStats } from "./Chapter";
@@ -118,7 +126,10 @@ const slashCommand: SlashCommandFile = {
                 if (
                     ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize &&
                     sideQuestsArr.find((r) => r.id === sideQuest).canRedoSideQuest &&
-                    (await sideQuestsArr.find((r) => r.id === sideQuest).requirements(ctx))
+                    Functions.getSideQuestRequirements(
+                        sideQuestsArr.find((r) => r.id === sideQuest),
+                        ctx
+                    )
                 )
                     components.push(redoQuestButton);
                 else {
@@ -130,6 +141,8 @@ const slashCommand: SlashCommandFile = {
                 console.log("reload");
                 components.push(reloadQuestsButton);
             }
+
+            const sideQuestRequirementStatus = Functions.getSideQuestRequirements(SideQuest, ctx);
 
             ctx.makeMessage({
                 /*content: `${SideQuest.emoji} **__${SideQuest.title}__**\n\`\`\`\n${
@@ -150,28 +163,7 @@ const slashCommand: SlashCommandFile = {
                         : ""
                 }
                 }\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,*/
-                embeds: Functions.fixEmbeds([
-                    {
-                        title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
-                        description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
-                            ctx.client.localEmojis.a_
-                        } **__Requirements:__**\n${SideQuest.requirementsMessage(ctx)}${
-                            SideQuest.cancelQuestIfRequirementsNotMetAnymore
-                                ? "\n- ❗ This SideQuest will be automatically erased if you don't meet the requirements anymore! Be careful."
-                                : ""
-                        }${
-                            SideQuest.canRedoSideQuest
-                                ? `\n- 🔁 You'll be able to redo this SideQuest as much as you want`
-                                : ""
-                        }${
-                            SideQuest.canReloadQuests
-                                ? `\n- 🔁 NPCs are too hard? Feel free to reload this quest whenever you want`
-                                : ""
-                        }
-                        \n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
-                        color: SideQuest.color,
-                    },
-                ]),
+                embeds: generateSideQuestEmbed(SideQuest, status, sideQuestRequirementStatus, ctx),
                 components: components.length === 0 ? [] : [Functions.actionRow(components)],
             });
 
@@ -252,29 +244,10 @@ const slashCommand: SlashCommandFile = {
             const SideQuest = sideQuestsArr.find((r) => r.id === sideQuest);
             const quests = SideQuest.quests(ctx).map((x) => Functions.pushQuest(x));
             const status = getQuestsStats(quests, ctx);
+            const sideQuestRequirementStatus = Functions.getSideQuestRequirements(SideQuest, ctx);
             ctx.makeMessage({
                 content: `> [Preview: \`${SideQuest.id}\`]`,
-                embeds: Functions.fixEmbeds([
-                    {
-                        title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
-                        description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
-                            ctx.client.localEmojis.a_
-                        } **__Requirements:__**\n${SideQuest.requirementsMessage(ctx)}${
-                            SideQuest.cancelQuestIfRequirementsNotMetAnymore
-                                ? "\n- ❗ This SideQuest will be automatically erased if you don't meet the requirements anymore! Be careful."
-                                : ""
-                        }${
-                            SideQuest.canRedoSideQuest
-                                ? `\n- 🔁 You'll be able to redo this SideQuest as much as you want`
-                                : ""
-                        }${
-                            SideQuest.canReloadQuests
-                                ? `\n- 🔁 NPCs are too hard? Feel free to reload this quest whenever you want`
-                                : ""
-                        }\n\n📜 **__Quests:__** [PREVIEW]\n${status.message}`,
-                        color: SideQuest.color,
-                    },
-                ]),
+                embeds: generateSideQuestEmbed(SideQuest, status, sideQuestRequirementStatus, ctx),
             });
         }
     },
@@ -306,3 +279,68 @@ const slashCommand: SlashCommandFile = {
 };
 
 export default slashCommand;
+
+/**
+ *                 embeds: Functions.fixEmbeds([
+                    {
+                        title: `${SideQuest.emoji} **__${SideQuest.title}__**`,
+                        description: `\`\`\`\n${SideQuest.description}\n\`\`\`\n\n${
+                            ctx.client.localEmojis.a_
+                        } **__Requirements:__**\n${sideQuestRequirementStatus.message}
+                        \n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${
+                            status.message
+                        }\n\n${
+                            SideQuest.cancelQuestIfRequirementsNotMetAnymore
+                                ? "\n-# - This side quest will be automatically erased if you don't meet the requirements anymore."
+                                : ""
+                        }${
+                            SideQuest.canRedoSideQuest
+                                ? `\n-# - You'll be able to redo this side quest as much as you want`
+                                : ""
+                        }${
+                            SideQuest.canReloadQuests
+                                ? `\n-# - You can reload this side quest whenever you want, but note that it will reset your progress`
+                                : ""
+                        }`,
+                        color: SideQuest.color,
+                    },
+                ]),
+
+ */
+
+function generateSideQuestEmbed(
+    sideQuest: SideQuest,
+    status: {
+        message: string;
+        percent: number;
+    },
+    sideQuestRequirementStatus: {
+        status: boolean;
+        message: string;
+    },
+    ctx: CommandInteractionContext
+): APIEmbed[] {
+    const extraInfo = [];
+    if (sideQuest.cancelQuestIfRequirementsNotMetAnymore)
+        extraInfo.push(
+            "-# - This side quest will be automatically erased if you don't meet the requirements anymore."
+        );
+
+    if (sideQuest.canRedoSideQuest)
+        extraInfo.push("-# - You'll be able to redo this side quest as much as you want");
+    if (sideQuest.canReloadQuests)
+        extraInfo.push(
+            "-# - You can reload this side quest whenever you want, but note that it will reset your progress"
+        );
+
+    return Functions.fixEmbeds([
+        {
+            title: `${sideQuest.emoji} **__${sideQuest.title}__**`,
+            description: `\`\`\`\n${sideQuest.description}\n\`\`\`\n${extraInfo.join("\n")}\n\n${
+                ctx.client.localEmojis.a_
+            } **__Requirements:__**\n${sideQuestRequirementStatus.message}
+            \n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
+            color: sideQuest.color,
+        },
+    ]);
+}

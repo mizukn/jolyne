@@ -573,6 +573,10 @@ const slashCommand: SlashCommandFile = {
                 await ctx.client.database.deleteCooldown(ctx.user.id);
                 return;
                 // TODO: If used multiple times
+            } else {
+                return void ctx.makeMessage({
+                    content: `You can't use this item..?`,
+                });
             }
             ctx.client.database.saveUserData(ctx.userData);
             ctx.makeMessage({
