@@ -434,12 +434,49 @@ export const Miku: FightableNPC = {
         speed: 450 + 150,
         perception: 150 + 150,
         stamina: 300 + 100,
-    }, // total ( defense +...)
+    }, // total=
     equippedItems: {
         mikus_headset: equipableItemTypes.HEAD,
         mikus_pants: equipableItemTypes.LEGS,
         mikus_vest: equipableItemTypes.CHEST,
         mikus_microphone: equipableItemTypes.WEAPON,
+    },
+    standsEvolved: {},
+};
+
+// 2024 halloween boss lvl 500
+/*
+export const PaleDark: FightableNPC = {
+    ...NPCs.PaleDark,
+    level: 500,
+    skillPoints: {
+        // total = 500 * 4 = 2000
+        defense: 500 - 75 + 100,
+        strength: 500 + 75 + 100,
+        speed: 500 - 20 - 100,
+        perception: 500 - 60 - 100,
+        stamina: 0 + 60 + 20,
+    },
+    stand: "nix",
+    equippedItems: {
+        excalibur: equipableItemTypes.WEAPON,
+    },
+    standsEvolved: {},
+};*/
+
+export const PaleDark: FightableNPC = {
+    ...NPCs.PaleDark,
+    level: 125,
+    skillPoints: {
+        defense: 125 - 75 / 2 + 100 / 2,
+        strength: 125 + 75 / 2 + 100 / 2,
+        speed: 125 - 20 / 2 - 100 / 2,
+        perception: 125 - 60 / 2 - 100 / 2,
+        stamina: 0 + 60 / 2 + 20 / 2,
+    },
+    stand: "nix",
+    equippedItems: {
+        excalibur: equipableItemTypes.WEAPON,
     },
     standsEvolved: {},
 };

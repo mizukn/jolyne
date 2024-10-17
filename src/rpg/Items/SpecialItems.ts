@@ -881,7 +881,7 @@ export const XPBox: Special = {
     name: "Experience Box",
     description: "An Experience filled Box.\nBut maybe there is a secret hidden in here?",
     rarity: "SS",
-    emoji: Emojis.xp,
+    emoji: Emojis.xp_box,
     price: 60009,
     tradable: true,
     storable: true,

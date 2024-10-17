@@ -248,3 +248,10 @@ export const SpookyPolpo: NPC = {
     name: "Spooky Polpo",
     emoji: Emojis.spooky_polpo,
 };
+
+export const PaleDark: NPC = {
+    id: "pale_dark",
+    name: "Pale Dark",
+    emoji: "<:paledark:1296559815426052116>",
+    avatarURL: "https://media.jolyne.moe/KlipBm/direct",
+};

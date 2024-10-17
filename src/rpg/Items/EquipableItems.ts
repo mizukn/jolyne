@@ -2,6 +2,7 @@ import { EquipableItem, equipableItemTypes, Weapon } from "../../@types";
 import * as Abilities from "../Abilities";
 import * as Passives from "../Passives";
 import * as Emojis from "../../emojis.json";
+import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "../../utils/2024HalloweenEvent";
 
 export const JotarosHat: EquipableItem = {
     id: "jotaros_hat",
@@ -645,13 +646,23 @@ export const Excalibur: Weapon = {
     rarity: "S",
     abilities: [Abilities.SwordOfPromisedVictory],
     passives: [Passives.Regeneration, Passives.Alter],
-    tradable: true,
+    tradable: !is2024HalloweenEvent(),
     storable: true,
     requirements: {
         level: 50,
     },
     price: 5000000,
 };
+
+// timeout for when it is no longer 2024 halloween event
+const timeout = endOf2024HalloweenEvent - Date.now();
+if (is2024HalloweenEvent()) {
+    setTimeout(() => {
+        // @ts-expect-error because it's a private property
+        Excalibur.tradable = true;
+    }, timeout);
+    console.log(`Excalibur will be tradable in ${timeout}ms.`);
+}
 
 export const ExcaliburAlter: Weapon = {
     id: "excalibur_alter",
