@@ -634,6 +634,13 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
+            if (!itemData.tradable || !itemData.storable) {
+                await ctx.makeMessage({
+                    content: "You can't throw this item.",
+                });
+                return;
+            }
+
             const itemId = Functions.generateRandomId();
             const itemDataJSON = {
                 item: itemData.id,

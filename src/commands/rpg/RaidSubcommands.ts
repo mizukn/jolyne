@@ -25,6 +25,7 @@ import * as Bosses from "../../rpg/Raids";
 import { raidWebhook } from "../../utils/Webhooks";
 import { cloneDeep } from "lodash";
 import { FightableNPCS } from "../../rpg/NPCs";
+import { is2024HalloweenEvent } from "../../utils/2024HalloweenEvent";
 
 const eventRaid: RaidBoss = {
     boss: FightableNPCS.ConfettiGolem,
@@ -50,6 +51,52 @@ const eventRaid: RaidBoss = {
     maxLevel: Infinity,
     maxPlayers: 10,
     cooldown: 60000,
+};
+
+const Halloween2024EventRaid: RaidBoss = {
+    boss: FightableNPCS.PaleDark,
+    minions: [],
+    level: 0,
+    baseRewards: {
+        coins: 50000,
+        xp: Functions.getMaxXp(FightableNPCS.PaleDark.level),
+        items: [
+            {
+                item: Functions.findItem("Pumpkin").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("Pumpkin").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("Pumpkin").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("Pumpkin").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("nix").id,
+                amount: 1,
+                chance: 2,
+            },
+            {
+                item: Functions.findItem("excalibur").id,
+                amount: 1,
+                chance: 0.5,
+            },
+        ],
+    },
+    allies: [FightableNPCS.Jolyne],
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    cooldown: 60000 * 15,
 };
 
 const slashCommand: SlashCommandFile = {
@@ -80,6 +127,10 @@ const slashCommand: SlashCommandFile = {
         }
 
         const fixedBosses = cloneDeep(Object.values(Bosses));
+        if (is2024HalloweenEvent()) {
+            fixedBosses.push(Halloween2024EventRaid);
+        }
+
         if (Date.now() < 1707606000000) {
             if (Functions.isTimeNext15(new Date(Date.now()))) {
                 fixedBosses.push(eventRaid);
@@ -121,7 +172,10 @@ const slashCommand: SlashCommandFile = {
 
         const bossChosen = ctx.options.getString("npc", true);
 
-        if (bossChosen === "confetti_golem" && ctx.guild.id !== "923608916540145694") {
+        if (
+            (bossChosen === "confetti_golem" || bossChosen === "pale_dark") &&
+            ctx.guild.id !== "923608916540145694"
+        ) {
             ctx.followUpQueue.push({
                 content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
             });
@@ -678,6 +732,10 @@ const slashCommand: SlashCommandFile = {
         const fixedBosses = cloneDeep(Object.values(Bosses));
         if (Date.now() < 1707606000000) {
             fixedBosses.push(eventRaid);
+        }
+
+        if (is2024HalloweenEvent()) {
+            fixedBosses.push(Halloween2024EventRaid);
         }
 
         const availableBosses = fixedBosses; //.filter((r) => r.level <= userData.level);

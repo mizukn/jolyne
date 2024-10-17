@@ -434,6 +434,12 @@ const slashCommand: SlashCommandFile = {
                 const evolution = ctx.interaction.options.getString("evolution", true)
                     ? parseInt(ctx.interaction.options.getString("evolution", true))
                     : 0;
+                if (isNaN(evolution) || evolution < 0 || evolution === undefined) {
+                    ctx.makeMessage({
+                        content: `:interrobang: Please provide a valid evolution number!`,
+                    });
+                    return;
+                }
                 const stand = Object.values(EvolvableStands).find(
                     (v) => v.id === ctx.userData.stand
                 );
@@ -473,7 +479,7 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
                 if (evolution === ctx.userData.standsEvolved[ctx.userData.stand]) {
-                    ctx.userData.customStandsEvolved[ctx.userData.stand].active = false;
+                    delete ctx.userData.customStandsEvolved[ctx.userData.stand];
                 } else {
                     ctx.userData.customStandsEvolved[ctx.userData.stand] = {
                         active: true,
