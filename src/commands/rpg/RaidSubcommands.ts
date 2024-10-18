@@ -72,6 +72,42 @@ const Halloween2024EventRaid: RaidBoss = {
                 chance: 50,
             },
             {
+                item: Functions.findItem("nix").id,
+                amount: 1,
+                chance: 1,
+            },
+        ],
+    },
+    allies: [FightableNPCS.Jolyne],
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    cooldown: 60000 * 15,
+};
+
+const Halloween2024EventRaids: RaidBoss = {
+    boss: FightableNPCS.PaleDarkElite,
+    minions: [],
+    level: 0,
+    baseRewards: {
+        coins: 50000,
+        xp: Functions.getMaxXp(FightableNPCS.PaleDarkElite.level),
+        items: [
+            {
+                item: Functions.findItem("Pumpkin").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("Pumpkin").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("Pumpkin").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
                 item: Functions.findItem("Pumpkin").id,
                 amount: 1,
                 chance: 50,
@@ -85,11 +121,6 @@ const Halloween2024EventRaid: RaidBoss = {
                 item: Functions.findItem("nix").id,
                 amount: 1,
                 chance: 2,
-            },
-            {
-                item: Functions.findItem("excalibur").id,
-                amount: 1,
-                chance: 0.5,
             },
         ],
     },
@@ -129,6 +160,7 @@ const slashCommand: SlashCommandFile = {
         const fixedBosses = cloneDeep(Object.values(Bosses));
         if (is2024HalloweenEvent()) {
             fixedBosses.push(Halloween2024EventRaid);
+            fixedBosses.push(Halloween2024EventRaids);
         }
 
         if (Date.now() < 1707606000000) {
@@ -736,6 +768,7 @@ const slashCommand: SlashCommandFile = {
 
         if (is2024HalloweenEvent()) {
             fixedBosses.push(Halloween2024EventRaid);
+            fixedBosses.push(Halloween2024EventRaids);
         }
 
         const availableBosses = fixedBosses; //.filter((r) => r.level <= userData.level);

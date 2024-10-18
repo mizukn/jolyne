@@ -13,7 +13,7 @@ import {
     UserSelectMenuInteraction,
     RoleSelectMenuInteraction,
     InteractionResponse,
-    MessageComponentInteraction
+    MessageComponentInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -41,35 +41,39 @@ const slashCommand: SlashCommandFile = {
                             {
                                 name: "strength",
                                 type: 4,
-                                description: "The amount of points you want to invest in strength"
+                                description: "The amount of points you want to invest in strength",
                             },
                             {
                                 name: "defense",
                                 type: 4,
-                                description: "The amount of points you want to invest in defense"
-                            }, {
+                                description: "The amount of points you want to invest in defense",
+                            },
+                            {
                                 name: "speed",
                                 type: 4,
-                                description: "The amount of points you want to invest in speed"
-                            }, {
+                                description: "The amount of points you want to invest in speed",
+                            },
+                            {
                                 name: "perception",
                                 type: 4,
-                                description: "The amount of points you want to invest in perception"
-                            }, {
+                                description:
+                                    "The amount of points you want to invest in perception",
+                            },
+                            {
                                 name: "stamina",
                                 type: 4,
-                                description: "The amount of points you want to invest in stamina"
-                            }
-                        ]
+                                description: "The amount of points you want to invest in stamina",
+                            },
+                        ],
                     },
                     {
                         name: "view",
                         description: "View your skill points without investing them",
-                        type: 1
-                    }
-                ]
-            }
-        ]
+                        type: 1,
+                    },
+                ],
+            },
+        ],
     },
     execute: async (
         ctx: CommandInteractionContext
@@ -85,21 +89,26 @@ const slashCommand: SlashCommandFile = {
 
             if (!strength && !defense && !speed && !perception && !stamina) {
                 return ctx.makeMessage({
-                    content: `Hey, what do you want to upgrade, uh? https://imgur.com/a/yVgD5AL`
+                    content: `Hey, what do you want to upgrade, uh? https://imgur.com/a/yVgD5AL`,
                 });
             }
 
             const totalAmount = strength + defense + speed + perception + stamina;
             // check if any options is < 1
-            if (strength && strength < 1 || defense && defense < 1 || speed && speed < 1 || perception && perception < 1 || stamina && stamina < 1)
-
+            if (
+                (strength && strength < 1) ||
+                (defense && defense < 1) ||
+                (speed && speed < 1) ||
+                (perception && perception < 1) ||
+                (stamina && stamina < 1)
+            )
                 return await ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Dio,
                         "You can't invest less than 1 point... smh",
-                        ctx.client.localEmojis.dioangry)
+                        ctx.client.localEmojis.dioangry
+                    ),
                 });
-
 
             if (totalAmount > Functions.calculeSkillPointsLeft(ctx.userData))
                 return await ctx.makeMessage({
@@ -111,17 +120,33 @@ const slashCommand: SlashCommandFile = {
                             ctx.userData
                         )}** points... WRYY`,
                         ctx.client.localEmojis.dioangry
-                    )
+                    ),
                 });
 
             //}, 2000);
             await ctx.client.database.saveUserData(ctx.userData);
-            for (const key of Object.keys(ctx.userData.skillPoints).filter(key => ctx.options.getInteger(key))) {
-                ctx.userData.skillPoints[key as keyof typeof ctx.userData.skillPoints] += ctx.options.getInteger(key);
-                ctx.followUpQueue.push({
+            const messages = [];
+            for (const key of Object.keys(ctx.userData.skillPoints).filter((key) =>
+                ctx.options.getInteger(key)
+            )) {
+                ctx.userData.skillPoints[key as keyof typeof ctx.userData.skillPoints] +=
+                    ctx.options.getInteger(key);
+                /*ctx.followUpQueue.push({
                     content: Functions.makeNPCString(
                         NPCs.Dio,
                         `You've invested **${ctx.options.getInteger(key)}** points in **${key}**!`)
+                });*/
+                messages.push(
+                    `You've invested **${ctx.options.getInteger(key)}** points in **${key}**.`
+                );
+            }
+
+            if (messages.length) {
+                ctx.followUpQueue.push({
+                    content: Functions.makeNPCString(
+                        NPCs.Dio,
+                        "\n\n" + messages.map((x, i) => `${i + 1}. ${x}`).join("\n")
+                    ),
                 });
             }
             await ctx.client.database.saveUserData(ctx.userData);
@@ -141,11 +166,11 @@ const slashCommand: SlashCommandFile = {
                         .setLabel(`${Functions.calculeSkillPointsLeft(ctx.userData)} points left`)
                         .setEmoji("925416226547707924")
                         .setDisabled(true)
-                        .setStyle(ButtonStyle.Secondary)
-                ])
-            ]
+                        .setStyle(ButtonStyle.Secondary),
+                ]),
+            ],
         });
-    }
+    },
 };
 
 export default slashCommand;

@@ -723,7 +723,18 @@ const slashCommand: SlashCommandFile = {
             }
             // TODO: count stand discsc in inventory, anti bypass
 
-            Functions.addItem(ctx.userData, itemDataJSON.item, itemDataJSON.amount, true);
+            const result = Functions.addItem(
+                ctx.userData,
+                itemDataJSON.item,
+                itemDataJSON.amount,
+                true
+            );
+            if (!result) {
+                await ctx.makeMessage({
+                    content: "Looks like you can't claim this item.",
+                });
+                return;
+            }
             await ctx.client.database.redis.del("thrownItem_" + itemId);
 
             await ctx.client.database.saveUserData(ctx.userData);
