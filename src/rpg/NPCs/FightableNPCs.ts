@@ -445,16 +445,16 @@ export const Miku: FightableNPC = {
 };
 
 // 2024 halloween boss lvl 500
-/*
-export const PaleDark: FightableNPC = {
-    ...NPCs.PaleDark,
-    level: 500,
+
+export const PaleDarkElite: FightableNPC = {
+    ...NPCs.PaleDarkElite,
+    level: 600,
     skillPoints: {
         // total = 500 * 4 = 2000
-        defense: 500 - 75 + 100,
-        strength: 500 + 75 + 100,
-        speed: 500 - 20 - 100,
-        perception: 500 - 60 - 100,
+        defense: 600 - 75 + 100,
+        strength: 600 + 75 + 100,
+        speed: 600 - 20 - 100,
+        perception: 600 - 60 - 100,
         stamina: 0 + 60 + 20,
     },
     stand: "nix",
@@ -462,7 +462,7 @@ export const PaleDark: FightableNPC = {
         excalibur: equipableItemTypes.WEAPON,
     },
     standsEvolved: {},
-};*/
+};
 
 export const PaleDark: FightableNPC = {
     ...NPCs.PaleDark,

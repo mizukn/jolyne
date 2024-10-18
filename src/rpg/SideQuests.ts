@@ -661,28 +661,57 @@ export const Halloween2024EventSideQuest: SideQuest = {
     },
     quests: (ctx) => {
         const quests: QuestArray = [Functions.generateClaimItemQuest("pumpkin", 5)];
-        const MAX_NPCS = 25;
+        const MAX_NPCS = 15;
+        if (ctx.userData.level < 500) {
+            for (let i = 0; i < 1; i++)
+                quests.push(
+                    Functions.generataRaidQuest(FightableNPCs.PaleDark, null, null, [
+                        {
+                            item: Functions.findItem("pumpkin").id,
+                            chance: 50,
+                            amount: 1,
+                        },
+                    ])
+                );
+        } else {
+            for (let i = 0; i < 1; i++)
+                quests.push(
+                    Functions.generataRaidQuest(FightableNPCs.PaleDarkElite, null, null, [
+                        {
+                            item: Functions.findItem("pumpkin").id,
+                            chance: 50,
+                            amount: 2,
+                        },
+                    ])
+                );
+        }
 
         const EventNPCs = Object.values(FightableNPCs).filter((w) => {
             return w.level <= (ctx.userData.level > 12 ? ctx.userData.level : 12) && !w.private;
         });
 
-        if (EventNPCs.length !== 0)
-            for (
-                let i = 0;
-                i < (ctx.userData.level < MAX_NPCS ? ctx.userData.level : MAX_NPCS);
-                i++
-            ) {
-                quests.push(
-                    Functions.generateFightQuest(Functions.randomArray(EventNPCs), null, null, [
-                        {
-                            item: Functions.findItem("pumpkin").id,
-                            chance: 15,
-                            amount: 1,
-                        },
-                    ])
-                );
+        if (EventNPCs.length !== 0) {
+            let loop = 0;
+            while (quests.length < MAX_NPCS) {
+                if (loop > 100) break;
+                for (
+                    let i = 0;
+                    i < (ctx.userData.level < MAX_NPCS ? ctx.userData.level : MAX_NPCS);
+                    i++
+                ) {
+                    quests.push(
+                        Functions.generateFightQuest(Functions.randomArray(EventNPCs), null, null, [
+                            {
+                                item: Functions.findItem("pumpkin").id,
+                                chance: 15,
+                                amount: 1,
+                            },
+                        ])
+                    );
+                }
+                loop++;
             }
+        }
 
         return quests;
     },

@@ -255,3 +255,10 @@ export const PaleDark: NPC = {
     emoji: "<:paledark:1296559815426052116>",
     avatarURL: "https://media.jolyne.moe/KlipBm/direct",
 };
+
+export const PaleDarkElite: NPC = {
+    id: "pale_dark_elite",
+    name: "Pale Dark [Elite]",
+    emoji: "<:paledark:1296559815426052116>",
+    avatarURL: "https://media.jolyne.moe/KlipBm/direct",
+};
