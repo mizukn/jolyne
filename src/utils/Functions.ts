@@ -1096,6 +1096,7 @@ export const addItem = (
     }
     if (!item) return false;
     if (!item.storable || item.private) return false;
+    if (item.id === "nix.$disc$") return false;
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {
         userData.inventory[item.id] += amount;

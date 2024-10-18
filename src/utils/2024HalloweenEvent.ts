@@ -2,7 +2,7 @@ import * as Functions from "./Functions";
 import { Pumpkin } from "../rpg/Items/ConsumableItems";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
-import { method } from "lodash";
+import { get, method } from "lodash";
 import { SideQuest, SlashCommand } from "../@types";
 import { it } from "node:test";
 
@@ -304,38 +304,53 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
             hasEnough: () => pumpkins() >= trade.amount,
         }));
 
+        const getSelectMenuTrades = () =>
+            formattedTrades
+                .filter((trade) => trade.hasEnough())
+                .map((trade) => ({
+                    label: `${trade.item.name}`,
+                    value: trade.item.name,
+                    description: `${trade.amount} Pumpkins`,
+                    emoji: trade.item.emoji,
+                }));
+
         const selectMenu = () =>
             new StringSelectMenuBuilder()
                 .setCustomId(ctx.interaction.id + "trade")
                 .setPlaceholder("Select a trade")
                 .addOptions(
-                    formattedTrades
-                        .filter((trade) => trade.hasEnough())
-                        .map((trade) => ({
-                            label: `${trade.item.name}`,
-                            value: trade.item.name,
-                            description: `${trade.amount} Pumpkins`,
-                            emoji: trade.item.emoji,
-                        }))
+                    getSelectMenuTrades().length === 0
+                        ? [{ label: "No options", value: "no" }]
+                        : getSelectMenuTrades()
+                )
+                .setDisabled(formattedTrades.filter((trade) => trade.hasEnough()).length === 0);
+
+        const getOptions = () =>
+            Array.from({ length: 25 }, (_, i) => i + 1)
+                .map((i) => ({
+                    label: `x${i} (${
+                        i *
+                        formattedTrades.find((trade) => trade.item.name === currentTrade.item)
+                            .amount
+                    } Pumpkins)`,
+                    value: i.toString(),
+                }))
+                .filter(
+                    (i) =>
+                        pumpkins() >=
+                        parseInt(i.value) *
+                            formattedTrades.find((trade) => trade.item.name === currentTrade.item)
+                                .amount
                 );
         const selectAnAmountMenu = () =>
             new StringSelectMenuBuilder()
                 .setCustomId(ctx.interaction.id + "amount")
                 .setPlaceholder("Select an amount")
+                .setDisabled(getOptions().length === 0)
                 .addOptions(
-                    Array.from({ length: 25 }, (_, i) => i + 1)
-                        .map((i) => ({
-                            label: `${i}`,
-                            value: i.toString(),
-                        }))
-                        .filter(
-                            (i) =>
-                                pumpkins() >=
-                                parseInt(i.label) *
-                                    formattedTrades.find(
-                                        (trade) => trade.item.name === currentTrade.item
-                                    ).amount
-                        )
+                    getOptions().length === 0
+                        ? [{ label: "No options", value: "no" }]
+                        : getOptions()
                 );
         let currentTrade: { item: string; amount: number } | null = null;
 
@@ -387,29 +402,6 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
 
             if (await ctx.antiCheat(true)) return;
 
-            /*
-            const trade = trades.find((trade) => trade.item === interaction.values[0]);
-            if (!trade) {
-                return;
-            }
-            if (pumpkins() < trade.amount) {
-                await interaction.reply({
-                    content: "You don't have enough pumpkins.",
-                    ephemeral: true,
-                });
-                return;
-            }
-
-            Functions.addItem(userData, trade.item, 1);
-            Functions.removeItem(userData, Pumpkin.id, trade.amount);
-            ctx.client.database.saveUserData(userData);
-
-            await interaction.reply({
-                content: `You traded ${trade.amount} pumpkins for ${trade.item}.`,
-                ephemeral: true,
-            });
-            await ctx.makeMessage({ embeds: [embed()], components: [components] });*/
-
             switch (interaction.customId) {
                 case ctx.interaction.id + "trade": {
                     if (!interaction.isStringSelectMenu()) return;
@@ -438,8 +430,13 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                     if (!currentTrade) {
                         return;
                     }
-                    const amount = parseInt(interaction.values[0]);
-                    if (amount > pumpkins()) {
+                    const selectedAmount = parseInt(interaction.values[0]); //currentTrade.amount = parseInt(interaction.values[0]);
+                    const amountBought =
+                        selectedAmount *
+                        formattedTrades.find((trade) => trade.item.name === currentTrade.item)
+                            .amount;
+
+                    if (pumpkins() < selectedAmount) {
                         await interaction.reply({
                             content: "You don't have enough pumpkins.",
                             ephemeral: true,
@@ -447,8 +444,8 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                         return;
                     }
                     const status: boolean[] = [
-                        Functions.addItem(ctx.userData, currentTrade.item, 1),
-                        Functions.removeItem(ctx.userData, Pumpkin.id, amount),
+                        Functions.addItem(ctx.userData, currentTrade.item, selectedAmount),
+                        Functions.removeItem(ctx.userData, Pumpkin.id, amountBought),
                     ];
                     if (!status.every((s) => s)) {
                         await interaction.reply({
@@ -460,10 +457,14 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                     ctx.client.database.saveUserData(ctx.userData);
 
                     await interaction.reply({
-                        content: `You traded x${amount} pumpkins for ${currentTrade.item}.`,
+                        content: `You traded ${amountBought} pumpkins for ${selectedAmount}x ${currentTrade.item}.`,
                         ephemeral: true,
                     });
-                    await interaction.update({ embeds: [embed()], components: [components()] });
+                    await ctx.makeMessage({
+                        content: null,
+                        embeds: [embed()],
+                        components: [components()],
+                    });
                     break;
                 }
 
