@@ -1188,8 +1188,8 @@ export const PoisonGas: Ability = {
                                 user: user.id,
                                 target: x.id,
                             };
-                            user.stand.passives
-                                .find((x) => x.name === "Poison")
+                            user.stand?.passives
+                                ?.find((x) => x.name === "Poison")
                                 ?.promise(user, ctx, "stand");
                         } else {
                             ctx.turns[ctx.turns.length - 1].logs.push(
