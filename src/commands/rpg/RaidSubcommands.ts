@@ -81,13 +81,13 @@ const Halloween2024EventRaid: RaidBoss = {
     allies: [FightableNPCS.Jolyne],
     maxLevel: Infinity,
     maxPlayers: 10,
-    cooldown: 60000 * 15,
+    cooldown: 60000 * 5,
 };
 
 const Halloween2024EventRaids: RaidBoss = {
     boss: FightableNPCS.PaleDarkElite,
     minions: [],
-    level: 0,
+    level: 200,
     baseRewards: {
         coins: 50000,
         xp: Functions.getMaxXp(FightableNPCS.PaleDarkElite.level),
@@ -124,7 +124,7 @@ const Halloween2024EventRaids: RaidBoss = {
             },
         ],
     },
-    allies: [FightableNPCS.Jolyne],
+    allies: [],
     maxLevel: Infinity,
     maxPlayers: 10,
     cooldown: 60000 * 15,

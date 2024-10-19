@@ -355,11 +355,18 @@ const slashCommand: SlashCommandFile = {
                         }
                         Functions.addCoins(ctx.userData, -Functions.standPrices[stand.rarity]);
                         ctx.userData.stand = null;
-                        Functions.addItem(
+                        const status = Functions.addItem(
                             ctx.userData,
                             Functions.findItem(stand.id + ".$disc$"),
                             1
                         );
+                        if (!status) {
+                            return void ctx.makeMessage({
+                                content: `An error occurred while storing your stand's disc. Perhaps this stand is limited and you exceeded the limit?\n\nIf the stand you are trying to store is a limited stand, you'll be able to store it once the event ends. If that's not the case, please [contact us](https://discord.gg/jolyne-support-923608916540145694)`,
+                                components: [],
+                                embeds: [],
+                            });
+                        }
                         ctx.client.database.saveUserData(ctx.userData);
                         ctx.sendTranslated("base:YOUR_STAND_DISC_HAS_BEEN_STORED", {
                             components: [],

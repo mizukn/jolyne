@@ -307,13 +307,14 @@ const slashCommand: SlashCommandFile = {
                     {
                         name: "Price",
                         value: `${ctx.client.localEmojis.jocoins} ${
-                            itemData.price ?? "N/A (unbuyable/not sellable)"
+                            itemData.price?.toLocaleString("en-US") ??
+                            "N/A (unbuyable/not sellable)"
                         }`,
                         inline: true,
                     },
                     {
                         name: "Tradable?",
-                        value: itemData.tradable ? "Yes" : "Unofortunately not :pensive:",
+                        value: itemData.tradable ? "Yes" : "No",
                         inline: true,
                     },
                 ],
