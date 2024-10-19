@@ -1146,6 +1146,7 @@ export type FightPromise = {
     cooldown: number;
     executeOnlyOnce: boolean;
     id: string;
+    callerId: string;
 };
 
 export interface Passive {
