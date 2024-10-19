@@ -205,13 +205,14 @@ const slashCommand: SlashCommandFile = {
         const bossChosen = ctx.options.getString("npc", true);
 
         if (
-            (bossChosen === "confetti_golem" || bossChosen === "pale_dark") &&
+            (bossChosen === "confetti_golem" ||
+                (bossChosen === "pale_dark" && ctx.userData.level < 150) ||
+                bossChosen === "pale_dark_elite") &&
             ctx.guild.id !== "923608916540145694"
         ) {
             ctx.followUpQueue.push({
                 content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
             });
-            return;
         }
         const raid = fixedBosses.find((r) => r.boss.id === bossChosen);
         if (!raid) {
@@ -757,7 +758,6 @@ const slashCommand: SlashCommandFile = {
                 components,
             });
         }
-
         makeMenuMessage();
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {

@@ -268,7 +268,7 @@ const slashCommand: SlashCommandFile = {
                 url: "attachment://image.png",
             },
             footer: {
-                text: `Cluster #${process.env.CLUSTER} | Shard #${ctx.interaction.guild.shardId}`,
+                text: `Cluster #${process.env.CLUSTER} | Shard #${ctx.interaction.guild?.shardId}`,
             },
             timestamp: new Date().toISOString(),
         };
