@@ -438,10 +438,11 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                     };
                     const selectAnAmountComponents = Functions.actionRow([selectAnAmountMenu()]);
                     const goBack = Functions.actionRow([goBackButton]);
-                    await interaction.update({
+                    ctx.makeMessage({
                         content: `${selectedItem.item.emoji} | You selected **${selectedItem.item.name}**.`,
                         components: [selectAnAmountComponents, goBack],
                     });
+                    interaction.deferUpdate().catch(() => {});
                     break;
                 }
 
