@@ -149,6 +149,7 @@ const slashCommand: SlashCommandFile = {
 
             fightHandler.on("end", async (winners, losers) => {
                 await ctx.client.database.deleteCooldown(ctx.userData.id);
+                ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
                 if (winners.find((r) => r.id === ctx.userData.id)) {
                     const xp = Functions.addXp(
                         ctx.userData,
