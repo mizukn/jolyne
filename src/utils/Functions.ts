@@ -60,6 +60,7 @@ import * as Emojis from "../emojis.json";
 import { random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
 import color from "get-image-colors";
+import { is2024HalloweenEvent } from "./2024HalloweenEvent";
 
 setTimeout(() => {
     console.log(Object.values(Emails).map((x) => x.id));
@@ -1096,7 +1097,10 @@ export const addItem = (
     }
     if (!item) return false;
     if (!item.storable || item.private) return false;
-    if (item.id === "nix.$disc$") return false;
+    if (is2024HalloweenEvent() && item.id === "nix.$disc$") {
+        const nixDisc = userData.inventory["nix.$disc$"] || 0;
+        if (nixDisc >= 3) return false;
+    }
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {
         userData.inventory[item.id] += amount;
@@ -1525,6 +1529,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
     const realUserData = userData ?? ctx.userData;
     limit += Math.floor(realUserData.level / 50);
     limit += Math.floor(realUserData.level / 100);
+    if (userData?.id === "239739781238620160") limit = Infinity;
 
     const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
     if (patronTier) {

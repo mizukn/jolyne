@@ -227,23 +227,32 @@ export const trades = [
         item: "xp_box",
     },
     {
-        amount: 1,
-        item: "health_potion",
-    },
-    {
-        amount: 5,
+        amount: 3,
         item: "stand_arrow",
     },
     {
-        amount: 10,
+        amount: 3,
+        item: "skill_points_reset_potion",
+    },
+    {
+        amount: 9,
         item: "rare_stand_arrow",
     },
+    {
+        amount: 500,
+        item: "requiem_arrow",
+    },
+    {
+        amount: 50,
+        item: "bloody_knife",
+    },
+
     {
         amount: 150,
         item: "nix.$disc$",
     },
     {
-        amount: 150 * 10,
+        amount: 250 * 10,
         item: "excalibur",
     },
 ].sort((a, b) => a.amount - b.amount);
@@ -310,7 +319,7 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                 .map((trade) => ({
                     label: `${trade.item.name}`,
                     value: trade.item.name,
-                    description: `${trade.amount} Pumpkins`,
+                    description: `${trade.amount.toLocaleString("en-US")} Pumpkins`,
                     emoji: trade.item.emoji,
                 }));
 
@@ -361,12 +370,23 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                     icon_url: "https://media.jolyne.moe/KUQjZ3/direct",
                 },
                 color: 0x800080,
-                description: `${ctx.client.localEmojis.replyEnd} You have ${pumpkins()} pumpkins`,
-                fields: formattedTrades.map((trade) => ({
-                    name: `${trade.item.emoji} ${trade.item.name}`,
-                    value: `${ctx.client.localEmojis.replyEnd} \`x${trade.amount}\` 🎃`,
-                    inline: true,
-                })),
+                description: `${
+                    ctx.client.localEmojis.replyEnd
+                } You have \`${pumpkins().toLocaleString("en-US")}\` pumpkins 🎃`,
+                fields: [
+                    ...formattedTrades.map((trade) => ({
+                        name: `${trade.item.emoji} ${trade.item.name}`,
+                        value: `${ctx.client.localEmojis.replyEnd} \`x${trade.amount.toLocaleString(
+                            "en-US"
+                        )}\` 🎃`,
+                        inline: true,
+                    })),
+                    {
+                        // blank
+                        name: "\u200b",
+                        value: `-# You can only have x3 copies of the **Nix Stand Disc**.`,
+                    },
+                ],
                 /*thumbnail: {
                     url: "https://cdn.discordapp.com/emojis/1294731380017856715.webp?size=512",
                 },*/
@@ -449,7 +469,8 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                     ];
                     if (!status.every((s) => s)) {
                         await interaction.reply({
-                            content: "An error occurred.",
+                            content:
+                                "An error occurred. If you selected Nix Stand Disc, please note that you can't have more than 3 copies of it.",
                             ephemeral: true,
                         });
                         return;
