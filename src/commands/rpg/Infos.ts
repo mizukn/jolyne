@@ -204,7 +204,7 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Version",
-                    value: `\`v3.3\`:[\`${commit["hash"].slice(
+                    value: `\`v3.5\`:[\`${commit["hash"].slice(
                         0,
                         7
                     )}\`](https://github.com/mizukn/jolyne/commit/${commit.hash}) (${
