@@ -1108,7 +1108,7 @@ export const addItem = (
         userData.inventory[item.id]++;
     }
 
-    if (ignoreQuests) return;
+    if (ignoreQuests) return true;
     for (const quests of [
         userData.daily.quests,
         userData.chapter.quests,
