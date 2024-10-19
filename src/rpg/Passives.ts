@@ -164,7 +164,7 @@ export const Poison: Passive = {
     type: "turn",
     getId: (user: Fighter, context: FightHandler) => `poison_${user.id}_${context.id}`,
     promise: (user: Fighter, thus: FightHandler) => {
-        const maxStacks = 10;
+        const maxStacks = Infinity;
         const stackId = `poison_${user.id}_${thus.id}.stacks`;
         const baseHealthId = `poison_${user.id}_${thus.id}.basehealth`;
         const multiplierId = `poison_${user.id}_${thus.id}.multiplier`;
@@ -214,7 +214,7 @@ export const Poison: Passive = {
 export const Fire: Passive = {
     name: "Fire",
     description:
-        "For every successful hit, applies a stack of Burn Damage. Each stack deals 50% of the user's attack damages for 3 turns.",
+        "For every successful hit, applies a stack of Burn Damage. Each stack deals 50% of the user's attack damages.",
     type: "turn",
     getId: (user: Fighter, context: FightHandler) => `burn_damage_${user.id}_${context.id}`,
     promise: (user: Fighter, thus: FightHandler) => {
