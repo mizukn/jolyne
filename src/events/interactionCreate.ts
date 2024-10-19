@@ -294,7 +294,7 @@ const Event: EventFile = {
                         );
 
                         ctx.followUpQueue.push({
-                            content: `:jack_o_lantern: | **${ctx.user.username}**, you received a special email & quest for the 2024 Halloween event!`,
+                            content: `:jack_o_lantern: | **${ctx.user.username}**, Happy Halloween! You received a special email & quest for the 2024 Halloween event.`,
                         });
                         Functions.addEmail(ctx.userData, "halloween_2024");
                     }
