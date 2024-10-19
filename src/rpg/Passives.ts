@@ -8,30 +8,30 @@ export const Rage: Passive = {
     description: "For every 1% of health lost, the user gains 1% of their strength.",
     type: "turn",
     getId: (user: Fighter, context: FightHandler, from) => `${from}rage_${user.id}_${context.id}`,
-    promise: (user: Fighter, thus: FightHandler, from) => {
+    promise: (user: Fighter, fight: FightHandler, from) => {
         const hasTwo =
             user.stand?.passives?.find((x) => x.name === "Rage") &&
             user.weapon?.passives?.find((x) => x.name === "Rage");
-        const lastHealthId = `${from}rage_${user.id}_${thus.id}.lasthealth`;
-        const baseStrengthId = `$rage_${user.id}_${thus.id}.basestrength`;
-        const totalStrengthGainedId = `${from}rage_${user.id}_${thus.id}.totalstrengthgained`;
-        if (!thus.cache.has(baseStrengthId)) {
-            thus.cache.set(baseStrengthId, user.skillPoints.strength);
+        const lastHealthId = `${from}rage_${user.id}_${fight.id}.lasthealth`;
+        const baseStrengthId = `$rage_${user.id}_${fight.id}.basestrength`;
+        const totalStrengthGainedId = `${from}rage_${user.id}_${fight.id}.totalstrengthgained`;
+        if (!fight.cache.has(baseStrengthId)) {
+            fight.cache.set(baseStrengthId, user.skillPoints.strength);
         }
-        if (!thus.cache.has(lastHealthId)) {
-            thus.cache.set(lastHealthId, user.health);
+        if (!fight.cache.has(lastHealthId)) {
+            fight.cache.set(lastHealthId, user.health);
         }
-        if (!thus.cache.has(totalStrengthGainedId)) {
-            thus.cache.set(totalStrengthGainedId, 0);
+        if (!fight.cache.has(totalStrengthGainedId)) {
+            fight.cache.set(totalStrengthGainedId, 0);
         }
 
-        const totalStrengthGained = Number(thus.cache.get(totalStrengthGainedId));
-        const baseStrength = Number(thus.cache.get(baseStrengthId));
+        const totalStrengthGained = Number(fight.cache.get(totalStrengthGainedId));
+        const baseStrength = Number(fight.cache.get(baseStrengthId));
         if (totalStrengthGained >= baseStrength) return;
 
-        const newUser = thus.fighters.find((x) => x.id === user.id);
+        const newUser = fight.fighters.find((x) => x.id === user.id);
         if (!newUser) return;
-        const lastHealth = Number(thus.cache.get(lastHealthId)) ?? newUser.health;
+        const lastHealth = Number(fight.cache.get(lastHealthId)) ?? newUser.health;
 
         const healthLost = lastHealth - newUser.health;
         console.log(totalStrengthGained, baseStrength);
@@ -42,20 +42,20 @@ export const Rage: Passive = {
 
             newUser.skillPoints.strength += strengthIncrease;
             if (strengthIncrease > 0) {
-                thus.turns[thus.turns.length - 1].logs.push(
+                fight.turns[fight.turns.length - 1].logs.push(
                     `-# ${newUser.name} gained **${strengthIncrease}** strength from Rage! ${
                         hasTwo ? `[${from}]` : ""
                     }`
                 );
-                thus.cache.set(
+                fight.cache.set(
                     totalStrengthGainedId,
-                    Number(thus.cache.get(totalStrengthGainedId)) + strengthIncrease
+                    Number(fight.cache.get(totalStrengthGainedId)) + strengthIncrease
                 );
             }
         }
 
-        thus.cache.set(lastHealthId, newUser.health);
-        //thus.cache.set(baseStrengthId, newUser.skillPoints.strength);
+        fight.cache.set(lastHealthId, newUser.health);
+        //fight.cache.set(baseStrengthId, newUser.skillPoints.strength);
     },
 };
 
@@ -67,10 +67,10 @@ export const KnivesThrow: Passive = {
     getId: (user: Fighter, context: FightHandler) => {
         return `knives_throw_${user.id}_${context.id}`;
     },
-    promise: (user: Fighter, thus: FightHandler) => {
+    promise: (user: Fighter, fight: FightHandler) => {
         if (user.hasStoppedTime && user.equippedItems.dios_knives === 6) {
-            thus.fighters
-                .filter((x) => x.health > 0 && thus.getTeamIdx(x) !== thus.getTeamIdx(user))
+            fight.fighters
+                .filter((x) => x.health > 0 && fight.getTeamIdx(x) !== fight.getTeamIdx(user))
                 .forEach((enemy) => {
                     const damages = Math.round(getAttackDamages(user) / 2);
                     const status = enemy.removeHealth(damages, user, 0);
@@ -83,7 +83,7 @@ export const KnivesThrow: Passive = {
                         emojis += "💥";
                     }
 
-                    thus.turns[thus.turns.length - 1].logs.push(
+                    fight.turns[fight.turns.length - 1].logs.push(
                         `-# ${emojis} **${user.name}** throws a knife at **${enemy.name}** and deals **${status.amount}** damages`
                     );
                 });
@@ -97,46 +97,46 @@ export const Darkness: Passive = {
         "For every successful hit, applies a stack of Darkness. Each stack reduces the enemy's speed and perception by 4%, stacking up to 12 times (max 48%).",
     type: "turn",
     getId: (user: Fighter, context: FightHandler) => `darkness_${user.id}_${context.id}`,
-    promise: (user: Fighter, thus: FightHandler) => {
+    promise: (user: Fighter, fight: FightHandler) => {
         const maxStacks = 12;
-        const stackId = `darkness_${user.id}_${thus.id}.stacks`;
-        const baseSpeedId = `darkness_${user.id}_${thus.id}.basespeed`;
-        const basePerceptionId = `darkness_${user.id}_${thus.id}.baseperception`;
-        const multiplierId = `darkness_${user.id}_${thus.id}.multiplier`;
+        const stackId = `darkness_${user.id}_${fight.id}.stacks`;
+        const baseSpeedId = `darkness_${user.id}_${fight.id}.basespeed`;
+        const basePerceptionId = `darkness_${user.id}_${fight.id}.baseperception`;
+        const multiplierId = `darkness_${user.id}_${fight.id}.multiplier`;
 
-        if (!thus.cache.has(stackId)) {
-            thus.cache.set(stackId, 0); // Initialize stacks if not present
+        if (!fight.cache.has(stackId)) {
+            fight.cache.set(stackId, 0); // Initialize stacks if not present
         }
-        if (!thus.cache.has(baseSpeedId)) {
-            thus.cache.set(baseSpeedId, user.skillPoints.speed);
+        if (!fight.cache.has(baseSpeedId)) {
+            fight.cache.set(baseSpeedId, user.skillPoints.speed);
         }
-        if (!thus.cache.has(basePerceptionId)) {
-            thus.cache.set(basePerceptionId, user.skillPoints.perception);
+        if (!fight.cache.has(basePerceptionId)) {
+            fight.cache.set(basePerceptionId, user.skillPoints.perception);
         }
-        if (!thus.cache.has(multiplierId)) {
-            thus.cache.set(multiplierId, 1);
+        if (!fight.cache.has(multiplierId)) {
+            fight.cache.set(multiplierId, 1);
         }
 
-        const currentStacks = Number(thus.cache.get(stackId));
-        const multiplier = Number(thus.cache.get(multiplierId));
+        const currentStacks = Number(fight.cache.get(stackId));
+        const multiplier = Number(fight.cache.get(multiplierId));
 
         // Find an enemy to apply the stack of Darkness
-        const enemy = thus.infos.lastHit?.target
-            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.target)
+        const enemy = fight.infos.lastHit?.target
+            ? fight.fighters.find((x) => x.id === fight.infos.lastHit.target)
             : null;
-        const userAttacker = thus.infos.lastHit?.user
-            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.user)
+        const userAttacker = fight.infos.lastHit?.user
+            ? fight.fighters.find((x) => x.id === fight.infos.lastHit.user)
             : null;
         if (!enemy || !userAttacker) return;
         if (userAttacker.id !== user.id) return;
         if (userAttacker.id === enemy.id) return;
         if (enemy.health <= 0) return;
-        thus.infos.lastHit = undefined;
+        fight.infos.lastHit = undefined;
 
         if (currentStacks < maxStacks) {
             // Increment stack and apply debuffs
             const newStacks = currentStacks + 1;
-            thus.cache.set(stackId, newStacks);
+            fight.cache.set(stackId, newStacks);
 
             const speedReduction = Math.floor(
                 enemy.skillPoints.speed * 0.04 * newStacks * multiplier
@@ -150,7 +150,7 @@ export const Darkness: Passive = {
             if (enemy.skillPoints.speed < 0) enemy.skillPoints.speed = 0;
             if (enemy.skillPoints.perception < 0) enemy.skillPoints.perception = 0;
             // Log the application of Darkness
-            thus.turns[thus.turns.length - 1].logs.push(
+            fight.turns[fight.turns.length - 1].logs.push(
                 `-# ${enemy.name} is afflicted with Darkness! ${newStacks} stack(s) applied, reducing speed by **${speedReduction}** and perception by **${perceptionReduction}**.`
             );
         }
@@ -163,48 +163,48 @@ export const Poison: Passive = {
         "For every successful hit, applies a stack of Poison. Each stack deals 75% of the user's attack damages", // turn based
     type: "turn",
     getId: (user: Fighter, context: FightHandler) => `poison_${user.id}_${context.id}`,
-    promise: (user: Fighter, thus: FightHandler) => {
+    promise: (user: Fighter, fight: FightHandler) => {
         const maxStacks = Infinity;
-        const stackId = `poison_${user.id}_${thus.id}.stacks`;
-        const baseHealthId = `poison_${user.id}_${thus.id}.basehealth`;
-        const multiplierId = `poison_${user.id}_${thus.id}.multiplier`;
+        const stackId = `poison_${user.id}_${fight.id}.stacks`;
+        const baseHealthId = `poison_${user.id}_${fight.id}.basehealth`;
+        const multiplierId = `poison_${user.id}_${fight.id}.multiplier`;
 
-        if (!thus.cache.has(stackId)) {
-            thus.cache.set(stackId, 0); // Initialize stacks if not present
+        if (!fight.cache.has(stackId)) {
+            fight.cache.set(stackId, 0); // Initialize stacks if not present
         }
-        if (!thus.cache.has(baseHealthId)) {
-            thus.cache.set(baseHealthId, user.maxHealth);
+        if (!fight.cache.has(baseHealthId)) {
+            fight.cache.set(baseHealthId, user.maxHealth);
         }
-        if (!thus.cache.has(multiplierId)) {
-            thus.cache.set(multiplierId, 1);
+        if (!fight.cache.has(multiplierId)) {
+            fight.cache.set(multiplierId, 1);
         }
 
-        const currentStacks = Number(thus.cache.get(stackId));
-        const multiplier = Number(thus.cache.get(multiplierId));
+        const currentStacks = Number(fight.cache.get(stackId));
+        const multiplier = Number(fight.cache.get(multiplierId));
 
         // Find an enemy to apply the stack of Poison
-        const enemy = thus.infos.lastHit?.target
-            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.target)
+        const enemy = fight.infos.lastHit?.target
+            ? fight.fighters.find((x) => x.id === fight.infos.lastHit.target)
             : null;
-        const userAttacker = thus.infos.lastHit?.user
-            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.user)
+        const userAttacker = fight.infos.lastHit?.user
+            ? fight.fighters.find((x) => x.id === fight.infos.lastHit.user)
             : null;
         if (!enemy || !userAttacker) return;
         if (userAttacker.id !== user.id) return;
         if (userAttacker.id === enemy.id) return;
         if (enemy.health <= 0) return;
-        thus.infos.lastHit = undefined;
+        fight.infos.lastHit = undefined;
 
         if (currentStacks < maxStacks) {
             // Increment stack and apply debuffs
             const newStacks = currentStacks + 1;
-            thus.cache.set(stackId, newStacks);
+            fight.cache.set(stackId, newStacks);
 
             const damages = Math.round(getAttackDamages(user) * 0.75 * multiplier);
             const status = enemy.removeHealth(damages, user, 0);
 
             // Log the application of Poison
-            thus.turns[thus.turns.length - 1].logs.push(
+            fight.turns[fight.turns.length - 1].logs.push(
                 `-# ${user.stand?.emoji} ${enemy.name} took **${status.amount}** poison damages.`
             );
         }
@@ -217,48 +217,48 @@ export const Fire: Passive = {
         "For every successful hit, applies a stack of Burn Damage. Each stack deals 50% of the user's attack damages.",
     type: "turn",
     getId: (user: Fighter, context: FightHandler) => `burn_damage_${user.id}_${context.id}`,
-    promise: (user: Fighter, thus: FightHandler) => {
+    promise: (user: Fighter, fight: FightHandler) => {
         const maxStacks = Infinity;
-        const stackId = `burn_damage_${user.id}_${thus.id}.stacks`;
-        const baseHealthId = `burn_damage_${user.id}_${thus.id}.basehealth`;
-        const multiplierId = `burn_damage_${user.id}_${thus.id}.multiplier`;
+        const stackId = `burn_damage_${user.id}_${fight.id}.stacks`;
+        const baseHealthId = `burn_damage_${user.id}_${fight.id}.basehealth`;
+        const multiplierId = `burn_damage_${user.id}_${fight.id}.multiplier`;
 
-        if (!thus.cache.has(stackId)) {
-            thus.cache.set(stackId, 0); // Initialize stacks if not present
+        if (!fight.cache.has(stackId)) {
+            fight.cache.set(stackId, 0); // Initialize stacks if not present
         }
-        if (!thus.cache.has(baseHealthId)) {
-            thus.cache.set(baseHealthId, user.maxHealth);
+        if (!fight.cache.has(baseHealthId)) {
+            fight.cache.set(baseHealthId, user.maxHealth);
         }
-        if (!thus.cache.has(multiplierId)) {
-            thus.cache.set(multiplierId, 1);
+        if (!fight.cache.has(multiplierId)) {
+            fight.cache.set(multiplierId, 1);
         }
 
-        const currentStacks = Number(thus.cache.get(stackId));
-        const multiplier = Number(thus.cache.get(multiplierId));
+        const currentStacks = Number(fight.cache.get(stackId));
+        const multiplier = Number(fight.cache.get(multiplierId));
 
         // Find an enemy to apply the stack of Burn Damage
-        const enemy = thus.infos.lastHit?.target
-            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.target)
+        const enemy = fight.infos.lastHit?.target
+            ? fight.fighters.find((x) => x.id === fight.infos.lastHit.target)
             : null;
-        const userAttacker = thus.infos.lastHit?.user
-            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.user)
+        const userAttacker = fight.infos.lastHit?.user
+            ? fight.fighters.find((x) => x.id === fight.infos.lastHit.user)
             : null;
         if (!enemy || !userAttacker) return;
         if (userAttacker.id !== user.id) return;
         if (userAttacker.id === enemy.id) return;
         if (enemy.health <= 0) return;
-        thus.infos.lastHit = undefined;
+        fight.infos.lastHit = undefined;
 
         if (currentStacks < maxStacks) {
             // Increment stack and apply debuffs
             const newStacks = currentStacks + 1;
-            thus.cache.set(stackId, newStacks);
+            fight.cache.set(stackId, newStacks);
 
             const damages = Math.round(getAttackDamages(user) * 0.5 * multiplier);
             const status = enemy.removeHealth(damages, user, 0);
 
             // Log the application of Burn Damage
-            thus.turns[thus.turns.length - 1].logs.push(
+            fight.turns[fight.turns.length - 1].logs.push(
                 `-# :fire: ${enemy.name} took **${status.amount}** burn damages.`
             );
         }
@@ -273,30 +273,30 @@ export const Alter: Passive = {
         "When the holder has 50% less health or stamina, the weapon transforms into **Excalibur Alter**, healing the user by 15% of their max health and stamina, gains new abilities and increases every user's stats by 30%.",
     type: "turn",
     getId: (user: Fighter, context: FightHandler) => `alter_${user.id}_${context.id}`,
-    promise: (user: Fighter, thus: FightHandler, from) => {
-        const isEnabledId = `alter_${user.id}_${thus.id}.enabled`;
-        const baseHealthId = `alter_${user.id}_${thus.id}.basehealth`;
-        const baseStaminaId = `alter_${user.id}_${thus.id}.basestamina`;
+    promise: (user: Fighter, fight: FightHandler, from) => {
+        const isEnabledId = `alter_${user.id}_${fight.id}.enabled`;
+        const baseHealthId = `alter_${user.id}_${fight.id}.basehealth`;
+        const baseStaminaId = `alter_${user.id}_${fight.id}.basestamina`;
 
-        if (!thus.cache.has(isEnabledId)) {
-            thus.cache.set(isEnabledId, 0);
+        if (!fight.cache.has(isEnabledId)) {
+            fight.cache.set(isEnabledId, 0);
         }
 
-        const isEnabled = Number(thus.cache.get(isEnabledId));
+        const isEnabled = Number(fight.cache.get(isEnabledId));
 
-        if (!thus.cache.has(baseHealthId)) {
-            thus.cache.set(baseHealthId, user.maxHealth);
+        if (!fight.cache.has(baseHealthId)) {
+            fight.cache.set(baseHealthId, user.maxHealth);
         }
 
-        if (!thus.cache.has(baseStaminaId)) {
-            thus.cache.set(baseStaminaId, user.maxStamina);
+        if (!fight.cache.has(baseStaminaId)) {
+            fight.cache.set(baseStaminaId, user.maxStamina);
         }
 
-        const baseHealth = Number(thus.cache.get(baseHealthId));
-        const baseStamina = Number(thus.cache.get(baseStaminaId));
+        const baseHealth = Number(fight.cache.get(baseHealthId));
+        const baseStamina = Number(fight.cache.get(baseStaminaId));
 
         if (isEnabled === 0 && (user.health <= baseHealth / 2 || user.stamina <= baseStamina / 2)) {
-            thus.cache.set(isEnabledId, 1);
+            fight.cache.set(isEnabledId, 1);
             const weapon = findItem<Weapon>("excalibur_alter", true);
             if (!weapon) return;
             user.weapon = cloneDeep(weapon);
@@ -313,7 +313,7 @@ export const Alter: Passive = {
             user.stamina += Math.round(user.maxStamina * 0.15);
 
             user.name += " (Alter)";
-            thus.turns[thus.turns.length - 1].logs.push(
+            fight.turns[fight.turns.length - 1].logs.push(
                 `-# ${weapon.emoji} **${user.name}:** EXCALIBUR!`
             );
             user.extraTurns++;
@@ -327,18 +327,18 @@ export const Regeneration: Passive = {
         "At the end of each 'round', the user regenerates 2% of their max health (capped at 10%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `regeneration_${user.id}_${context.id}`,
-    promise: (user: Fighter, thus: FightHandler) => {
-        const totalHealingDoneId = `regeneration_${user.id}_${thus.id}.totalhealingdone`;
-        if (!thus.cache.has(totalHealingDoneId)) {
-            thus.cache.set(totalHealingDoneId, 0);
+    promise: (user: Fighter, fight: FightHandler) => {
+        const totalHealingDoneId = `regeneration_${user.id}_${fight.id}.totalhealingdone`;
+        if (!fight.cache.has(totalHealingDoneId)) {
+            fight.cache.set(totalHealingDoneId, 0);
         }
-        const baseHealthId = `regeneration_${user.id}_${thus.id}.basehealth`;
-        if (!thus.cache.has(baseHealthId)) {
-            thus.cache.set(baseHealthId, user.maxHealth);
+        const baseHealthId = `regeneration_${user.id}_${fight.id}.basehealth`;
+        if (!fight.cache.has(baseHealthId)) {
+            fight.cache.set(baseHealthId, user.maxHealth);
         }
 
-        const totalHealingDone = Number(thus.cache.get(totalHealingDoneId));
-        const baseHealth = Number(thus.cache.get(baseHealthId));
+        const totalHealingDone = Number(fight.cache.get(totalHealingDoneId));
+        const baseHealth = Number(fight.cache.get(baseHealthId));
 
         if (totalHealingDone >= baseHealth * 0.1) return;
 
@@ -346,7 +346,7 @@ export const Regeneration: Passive = {
 
         user.totalHealingDone += status;
         if (status !== 0)
-            thus.turns[thus.turns.length - 1].logs.push(
+            fight.turns[fight.turns.length - 1].logs.push(
                 `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health.`
             );
     },
@@ -358,24 +358,24 @@ export const RegenerationAlter: Passive = {
         "At the end of each 'round', the user regenerates 4% of their max health and stamina (capped at 25%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `regeneration_alter_${user.id}_${context.id}`,
-    promise: (user: Fighter, thus: FightHandler) => {
-        const totalHealingDoneId = `regeneration_alter_${user.id}_${thus.id}.totalhealingdone`;
-        if (!thus.cache.has(totalHealingDoneId)) {
-            thus.cache.set(totalHealingDoneId, 0);
+    promise: (user: Fighter, fight: FightHandler) => {
+        const totalHealingDoneId = `regeneration_alter_${user.id}_${fight.id}.totalhealingdone`;
+        if (!fight.cache.has(totalHealingDoneId)) {
+            fight.cache.set(totalHealingDoneId, 0);
         }
 
-        const totalHealingDone = Number(thus.cache.get(totalHealingDoneId));
-        const baseHealthId = `regeneration_alter_${user.id}_${thus.id}.basehealth`;
-        if (!thus.cache.has(baseHealthId)) {
-            thus.cache.set(baseHealthId, user.maxHealth);
+        const totalHealingDone = Number(fight.cache.get(totalHealingDoneId));
+        const baseHealthId = `regeneration_alter_${user.id}_${fight.id}.basehealth`;
+        if (!fight.cache.has(baseHealthId)) {
+            fight.cache.set(baseHealthId, user.maxHealth);
         }
 
-        const baseStaminaId = `regeneration_alter_${user.id}_${thus.id}.basestamina`;
-        if (!thus.cache.has(baseStaminaId)) {
-            thus.cache.set(baseStaminaId, user.maxStamina);
+        const baseStaminaId = `regeneration_alter_${user.id}_${fight.id}.basestamina`;
+        if (!fight.cache.has(baseStaminaId)) {
+            fight.cache.set(baseStaminaId, user.maxStamina);
         }
 
-        const baseHealth = Number(thus.cache.get(baseHealthId));
+        const baseHealth = Number(fight.cache.get(baseHealthId));
 
         if (totalHealingDone >= baseHealth * 0.25) return;
 
@@ -384,7 +384,7 @@ export const RegenerationAlter: Passive = {
         const statusStamina = user.incrStamina(Math.round(user.maxStamina * 0.04)) * -1;
         user.totalHealingDone += status;
         if (statusStamina !== 0 || status !== 0)
-            thus.turns[thus.turns.length - 1].logs.push(
+            fight.turns[fight.turns.length - 1].logs.push(
                 `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health and **${statusStamina}** stamina.`
             );
     },
