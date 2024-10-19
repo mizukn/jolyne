@@ -211,7 +211,7 @@ const slashCommand: SlashCommandFile = {
             ctx.guild.id !== "923608916540145694"
         ) {
             ctx.followUpQueue.push({
-                content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
+                content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694`,
             });
         }
         const raid = fixedBosses.find((r) => r.boss.id === bossChosen);
