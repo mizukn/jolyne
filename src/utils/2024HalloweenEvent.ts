@@ -96,7 +96,7 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
 
     if (
         currentCooldown &&
-        currentCooldown >= 11 &&
+        currentCooldown >= 14 &&
         !Functions.userIsCommunityBanned(ctx.userData)
     ) {
         ctx.userData.communityBans.push({
@@ -110,7 +110,7 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
         });
         return false;
     }
-    if (currentCooldown && currentCooldown >= 5) {
+    if (currentCooldown && currentCooldown >= 7) {
         ctx.interaction.followUp({
             content:
                 "You are spamming too much. If you continue spamming, you will automatically be banned from the community (trade, events, etc.)\n\nYou should stop using commands for a moment.",
