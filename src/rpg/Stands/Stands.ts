@@ -274,7 +274,7 @@ export const TheFool: Stand = {
     description: "waf waf sand grr wuwu",
     abilities: [
         Abilities.SandProjectiles,
-        //Abilities.SandClone,
+        Abilities.SandClone,
         Abilities.SandMimicry,
         Abilities.SandStorm,
     ],
