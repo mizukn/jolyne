@@ -188,10 +188,6 @@ function generateAutoHealField(user: RPGUserDataJSON, commands?: string[]): APIE
     };
 }
 
-setTimeout(() => {
-    console.log(descriptions.notifications[0].format(true));
-}, 5000);
-
 const slashCommand: SlashCommandFile = {
     data: {
         name: "settings",
