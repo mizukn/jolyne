@@ -674,7 +674,7 @@ export const Halloween2024EventSideQuest: SideQuest = {
                     ])
                 );
         } else {
-            for (let i = 0; i < ctx.userData.level / 100; i++)
+            for (let i = 0; i < ctx.userData.level / 100 / 3; i++)
                 quests.push(
                     Functions.generataRaidQuest(FightableNPCs.PaleDarkElite, null, null, [
                         {
