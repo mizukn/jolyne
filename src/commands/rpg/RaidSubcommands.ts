@@ -58,7 +58,7 @@ const Halloween2024EventRaid: RaidBoss = {
     minions: [],
     level: 0,
     baseRewards: {
-        coins: 50000,
+        coins: 10000,
         xp: Functions.getMaxXp(FightableNPCS.PaleDark.level),
         items: [
             {
