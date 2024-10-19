@@ -12,7 +12,7 @@ import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
-import { handlePumpkinAppeared } from "../utils/2024HalloweenEvent";
+import { handlePumpkinAppeared, is2024HalloweenEvent } from "../utils/2024HalloweenEvent";
 
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
@@ -278,6 +278,26 @@ const Event: EventFile = {
                         content: `:tada: | **${ctx.user.username}**, thank you for playing Jolyne's RPG! You received a special email & quest for the 2nd anniversary of the bot!`,
                     });
                     Functions.addEmail(ctx.userData, "second_anniversary");
+                }
+
+                if (
+                    is2024HalloweenEvent() &&
+                    !ctx.userData.emails.find((r) => r.id === "halloween_2024")
+                ) {
+                    const hasAlreadyAdded = await ctx.client.database.getString(
+                        `setHalloween2024:${ctx.user.id}`
+                    );
+                    if (!hasAlreadyAdded) {
+                        await ctx.client.database.setString(
+                            `setHalloween2024:${ctx.user.id}`,
+                            "true"
+                        );
+
+                        ctx.followUpQueue.push({
+                            content: `:jack_o_lantern: | **${ctx.user.username}**, you received a special email & quest for the 2024 Halloween event!`,
+                        });
+                        Functions.addEmail(ctx.userData, "halloween_2024");
+                    }
                 }
 
                 // temp: halloween 2024
