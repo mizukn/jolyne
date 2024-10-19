@@ -4,6 +4,7 @@ import * as fNPCs from "./NPCs/FightableNPCs";
 import * as ActionQuests from "./Quests/ActionQuests";
 import { Quest, FightNPCQuest, NPC } from "../@types";
 import Items from "./Items";
+import { eventMessage } from "../utils/2024HalloweenEvent";
 
 /**
  * CIRCULAR DEPENDENCIES FIX
@@ -295,4 +296,29 @@ You can now earn 1 dungeon key every 2 votes (${ctx.client.getSlashCommandMentio
 You can also use the ${ctx.client.getSlashCommandMention("vote")} command for more information.
 `,
     footer: "Thank you!",
+};
+
+export const Halloween2024: Email = {
+    id: "halloween_2024",
+    author: NPCs.JolyneTeam,
+    subject: "Halloween 2024 [Event]",
+    content: (ctx) => `${eventMessage(ctx)}`,
+    footer: "Have fun!",
+    emoji: "🎃",
+    rewards: {
+        items: [
+            {
+                item: "stand_arrow",
+                amount: 5,
+            },
+            {
+                item: "xp_box",
+                amount: 5,
+            },
+            {
+                item: "pumpkin",
+                amount: 5,
+            },
+        ],
+    },
 };

@@ -157,6 +157,114 @@ export const Darkness: Passive = {
     },
 };
 
+export const Poison: Passive = {
+    name: "Poison",
+    description:
+        "For every successful hit, applies a stack of Poison. Each stack deals 75% of the user's attack damages", // turn based
+    type: "turn",
+    getId: (user: Fighter, context: FightHandler) => `poison_${user.id}_${context.id}`,
+    promise: (user: Fighter, thus: FightHandler) => {
+        const maxStacks = 10;
+        const stackId = `poison_${user.id}_${thus.id}.stacks`;
+        const baseHealthId = `poison_${user.id}_${thus.id}.basehealth`;
+        const multiplierId = `poison_${user.id}_${thus.id}.multiplier`;
+
+        if (!thus.cache.has(stackId)) {
+            thus.cache.set(stackId, 0); // Initialize stacks if not present
+        }
+        if (!thus.cache.has(baseHealthId)) {
+            thus.cache.set(baseHealthId, user.maxHealth);
+        }
+        if (!thus.cache.has(multiplierId)) {
+            thus.cache.set(multiplierId, 1);
+        }
+
+        const currentStacks = Number(thus.cache.get(stackId));
+        const multiplier = Number(thus.cache.get(multiplierId));
+
+        // Find an enemy to apply the stack of Poison
+        const enemy = thus.infos.lastHit?.target
+            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.target)
+            : null;
+        const userAttacker = thus.infos.lastHit?.user
+            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.user)
+            : null;
+        if (!enemy || !userAttacker) return;
+        if (userAttacker.id !== user.id) return;
+        if (userAttacker.id === enemy.id) return;
+        if (enemy.health <= 0) return;
+        thus.infos.lastHit = undefined;
+
+        if (currentStacks < maxStacks) {
+            // Increment stack and apply debuffs
+            const newStacks = currentStacks + 1;
+            thus.cache.set(stackId, newStacks);
+
+            const damages = Math.round(getAttackDamages(user) * 0.75 * multiplier);
+            const status = enemy.removeHealth(damages, user, 0);
+
+            // Log the application of Poison
+            thus.turns[thus.turns.length - 1].logs.push(
+                `-# ${user.stand?.emoji} ${enemy.name} took **${status.amount}** poison damages.`
+            );
+        }
+    },
+};
+
+export const Fire: Passive = {
+    name: "Fire",
+    description:
+        "For every successful hit, applies a stack of Burn Damage. Each stack deals 50% of the user's attack damages for 3 turns.",
+    type: "turn",
+    getId: (user: Fighter, context: FightHandler) => `burn_damage_${user.id}_${context.id}`,
+    promise: (user: Fighter, thus: FightHandler) => {
+        const maxStacks = Infinity;
+        const stackId = `burn_damage_${user.id}_${thus.id}.stacks`;
+        const baseHealthId = `burn_damage_${user.id}_${thus.id}.basehealth`;
+        const multiplierId = `burn_damage_${user.id}_${thus.id}.multiplier`;
+
+        if (!thus.cache.has(stackId)) {
+            thus.cache.set(stackId, 0); // Initialize stacks if not present
+        }
+        if (!thus.cache.has(baseHealthId)) {
+            thus.cache.set(baseHealthId, user.maxHealth);
+        }
+        if (!thus.cache.has(multiplierId)) {
+            thus.cache.set(multiplierId, 1);
+        }
+
+        const currentStacks = Number(thus.cache.get(stackId));
+        const multiplier = Number(thus.cache.get(multiplierId));
+
+        // Find an enemy to apply the stack of Burn Damage
+        const enemy = thus.infos.lastHit?.target
+            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.target)
+            : null;
+        const userAttacker = thus.infos.lastHit?.user
+            ? thus.fighters.find((x) => x.id === thus.infos.lastHit.user)
+            : null;
+        if (!enemy || !userAttacker) return;
+        if (userAttacker.id !== user.id) return;
+        if (userAttacker.id === enemy.id) return;
+        if (enemy.health <= 0) return;
+        thus.infos.lastHit = undefined;
+
+        if (currentStacks < maxStacks) {
+            // Increment stack and apply debuffs
+            const newStacks = currentStacks + 1;
+            thus.cache.set(stackId, newStacks);
+
+            const damages = Math.round(getAttackDamages(user) * 0.5 * multiplier);
+            const status = enemy.removeHealth(damages, user, 0);
+
+            // Log the application of Burn Damage
+            thus.turns[thus.turns.length - 1].logs.push(
+                `-# :fire: ${enemy.name} took **${status.amount}** burn damages.`
+            );
+        }
+    },
+};
+
 // passive for weapon excalibur: called
 export const Alter: Passive = {
     name: "Alter",

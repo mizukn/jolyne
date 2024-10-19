@@ -145,6 +145,7 @@ export const MagiciansRed: Stand = {
         speed: 0,
         stamina: 0,
     },
+    passives: [Passives.Fire],
     color: 0xff0000,
     available: true,
 };
@@ -318,7 +319,7 @@ export const PurpleHaze: Stand = {
     description:
         "Purple Haze is a humanoid stand of height and and builds similar to Fugo's. Its face and body are patterned by horizontal lozenges of alternating shade, and armor pieces are present on its shoulders, elbows, and knees. It has spikes along its back.",
     image: "https://media.jolyne.moe/NNszFI/direct",
-    passives: [Passives.Rage],
+    passives: [Passives.Rage, Passives.Poison],
     abilities: [
         addGif(Abilities.StandBarrage, "https://i.imgur.com/rXSPNxu.gif"),
         Abilities.CapsuleShot,
@@ -328,7 +329,7 @@ export const PurpleHaze: Stand = {
     skillPoints: {
         strength: 10,
         defense: 0,
-        perception: 0,
+        perception: 15,
         speed: 0,
         stamina: 0,
     },

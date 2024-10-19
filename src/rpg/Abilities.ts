@@ -283,12 +283,6 @@ export const CrossfireHurricane: Ability = {
     damage: 10,
     stamina: 12,
     extraTurns: 0,
-    useMessage: (user, target, damage, ctx) => {
-        const burnDamageCalc = Math.round(
-            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-        );
-        burnDamagePromise(ctx, target, burnDamageCalc, user);
-    },
     thumbnail: "https://media.tenor.com/n79QWE9azhEAAAAC/magicians-red-avdol.gif",
     dodgeScore: 1,
     target: "enemy",
@@ -301,10 +295,6 @@ export const RedBind: Ability = {
     damage: 17,
     stamina: 15,
     extraTurns: 0,
-    useMessage: (user, target, damage, ctx) => {
-        const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, RedBind) / 10);
-        burnDamagePromise(ctx, target, burnDamageCalc, user);
-    },
     dodgeScore: 2,
     target: "enemy",
 };
@@ -312,14 +302,10 @@ export const RedBind: Ability = {
 export const Bakugo: Ability = {
     name: "Bakugo",
     description: "Grabs the opponent before engulfing their head in flames.",
-    cooldown: 12,
-    damage: 25,
+    cooldown: 8,
+    damage: 35,
     stamina: 15,
     extraTurns: 1,
-    useMessage: (user, target, damage, ctx) => {
-        const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Bakugo) / 10);
-        burnDamagePromise(ctx, target, burnDamageCalc, user);
-    },
     special: true,
     dodgeScore: 3,
     target: "enemy",
@@ -1166,7 +1152,7 @@ export const MysteriousGas: Ability = {
 export const PoisonGas: Ability = {
     name: "Poison Gas",
     description:
-        "Release a poisonous gas that will poison every enemies for 3 turns This will also damage your teammates including you but 90% less.", // deals your atk damage every turn to every opponents for some turns. 10% of your atk damage is also dealt to you every turn.
+        "Release a poisonous gas that will poison every enemies for 3 turns and boosts your perception by 50%. This will also damage your teammates including you but 90% less.", // deals your atk damage every turn to every opponents for some turns. 10% of your atk damage is also dealt to you every turn.
     cooldown: 8,
     damage: 0,
     thumbnail: "https://i.imgur.com/fJSzpMQ.gif",
@@ -1175,33 +1161,62 @@ export const PoisonGas: Ability = {
     dodgeScore: 0,
     special: true,
     useMessage: (user, target, damage, ctx) => {
-        const poisonDamage = Math.round(Functions.getAttackDamages(user));
-        ctx.turns[ctx.turns.length - 1].logs.push(
-            `> ${user.stand?.emoji} POISON GAS: **${user.name}** has released a poisonous gas...`
-        );
-
+        const perceptionIncrease = Math.round(user.skillPoints.perception * 0.5);
+        user.skillPoints.perception += perceptionIncrease;
         ctx.nextRoundPromises.push({
-            cooldown: 4,
+            cooldown: 3,
             id: Functions.generateRandomId(),
             executeOnlyOnce: false,
             promise: (fight) => {
-                fight.availableFighters.forEach((fighter) => {
-                    const damages =
-                        fight.getTeamIdx(fighter) !== fight.getTeamIdx(user)
-                            ? poisonDamage
-                            : Math.round(poisonDamage * 0.1);
-                    fighter.health -= damages;
-                    if (fighter.health <= 0) fighter.health = 0;
-                    fight.turns[fight.turns.length - 1].logs.push(
-                        `- ${user.stand?.emoji} POISON GAS: **${
-                            user.name
-                        }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
-                            fighter.name
-                        }**.`
-                    );
-                });
+                fight.availableFighters
+                    .filter((w) => w.health > 0)
+                    .forEach((x) => {
+                        const damages =
+                            fight.getTeamIdx(x) !== ctx.getTeamIdx(user)
+                                ? Math.round(Functions.getAttackDamages(user) * 0.75)
+                                : Math.round(Functions.getAttackDamages(user) * 0.075);
+                        const status = x.removeHealth(damages, user, 3);
+                        if (status.type !== FighterRemoveHealthTypes.Dodged) {
+                            ctx.turns[ctx.turns.length - 1].logs.push(
+                                `- ${emoji(status.type)}${user.stand?.emoji} POISON GAS: **${
+                                    user.name
+                                }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
+                                    x.name
+                                }**.`
+                            );
+                            ctx.infos.lastHit = {
+                                user: user.id,
+                                target: x.id,
+                            };
+                            user.stand.passives
+                                .find((x) => x.name === "Poison")
+                                ?.promise(user, ctx, "stand");
+                        } else {
+                            ctx.turns[ctx.turns.length - 1].logs.push(
+                                `- ${emoji(status.type)}${user.stand?.emoji} POISON GAS: **${
+                                    x.name
+                                }** dodged.`
+                            );
+                        }
+                    });
             },
         });
+
+        ctx.nextRoundPromises.push({
+            cooldown: 3,
+            executeOnlyOnce: true,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                user.skillPoints.perception -= perceptionIncrease;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} POISON GAS: **${user.name}**'s perception has been reset...`
+                );
+            },
+        });
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} POISON GAS: **${user.name}** has released a poisonous gas...`
+        );
     },
     target: "self",
 };
@@ -1370,31 +1385,36 @@ const poisonDamagePromise = (
 
 export const CapsuleShot: Ability = {
     name: "Capsule Shot",
-    description: "Shoots the capsules from your fist at your enemy, poisoning them for 5 turns.",
+    description: "Shoots the capsules from your fist at your enemy.",
     cooldown: 7,
     damage: 0,
     stamina: 30,
     extraTurns: 0,
-    dodgeScore: 0,
+    dodgeScore: 4,
     target: "enemy",
     thumbnail: "https://i.imgur.com/tpSzFjD.gif",
     useMessage: (user, target, damage, ctx) => {
-        const damageX = Functions.getAttackDamages(user);
-        const oldHealth = target.health;
-        target.health -= damageX;
-        if (target.health <= 0) target.health = 0;
-        user.totalDamageDealt += oldHealth - target.health;
+        const status = target.removeHealth(Functions.getAttackDamages(user) * 2.5, user, 4);
 
-        ctx.turns[ctx.turns.length - 1].logs.push(
-            `> ${user.stand?.emoji} CAPSULE SHOT: **${
-                user.name
-            }** has dealt **${damageX.toLocaleString("en-US")}** damages to **${target.name}**.`
-        );
+        if (status.type === FighterRemoveHealthTypes.Dodged) {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${user.stand?.emoji} CAPSULE SHOT: **${target.name}** dodged.`
+            );
+        } else {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `- ${emoji(status.type)}${user.stand?.emoji} CAPSULE SHOT: **${
+                    user.name
+                }** has dealt **${status.amount.toLocaleString("en-US")}** damages to **${
+                    target.name
+                }**.`
+            );
+            ctx.infos.lastHit = {
+                user: user.id,
+                target: target.id,
+            };
 
-        const burnDamageCalc = Math.round(
-            Functions.getAbilityDamage(user, CrossfireHurricane) / 10
-        );
-        poisonDamagePromise(ctx, target, burnDamageCalc, user, 3);
+            user.stand.passives.find((x) => x.name === "Poison")?.promise(user, ctx, "stand");
+        }
     },
 };
 
