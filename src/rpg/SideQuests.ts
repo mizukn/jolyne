@@ -662,8 +662,8 @@ export const Halloween2024EventSideQuest: SideQuest = {
     quests: (ctx) => {
         const quests: QuestArray = [Functions.generateClaimItemQuest("pumpkin", 5)];
         const MAX_NPCS = 15;
-        if (ctx.userData.level < 500) {
-            for (let i = 0; i < 1; i++)
+        if (ctx.userData.level < 700) {
+            for (let i = 0; i < ctx.userData.level / 400; i++)
                 quests.push(
                     Functions.generataRaidQuest(FightableNPCs.PaleDark, null, null, [
                         {
@@ -674,7 +674,7 @@ export const Halloween2024EventSideQuest: SideQuest = {
                     ])
                 );
         } else {
-            for (let i = 0; i < 1; i++)
+            for (let i = 0; i < ctx.userData.level / 100; i++)
                 quests.push(
                     Functions.generataRaidQuest(FightableNPCs.PaleDarkElite, null, null, [
                         {
