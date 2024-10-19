@@ -273,7 +273,7 @@ The enemies you have defeated until now are coming back on Halloween, wanting re
     )} command
 - You can ${ctx.client.getSlashCommandMention(
         "raid"
-    )} **Pale Dark**, the event boss to get more :jack_o_lantern: **Pumpkins** and other rewards (Excalibur, Nix Stand Disc...)
+    )} **Pale Dark**, the event boss to get more :jack_o_lantern: **Pumpkins** and other rewards
 -# - The event ends on ${Functions.generateDiscordTimestamp(
         endOf2024HalloweenEvent,
         "FULL_DATE"
