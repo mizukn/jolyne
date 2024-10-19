@@ -109,6 +109,7 @@ const slashCommand: SlashCommandFile = {
             }
             await ctx.interaction.deferReply();
             const embeds: APIEmbed[] = [];
+            const buttons: ButtonBuilder[] = [];
 
             for await (const tier of ctx.client.patreonTiers.sort(
                 (a, b) => a.attributes.amount_cents - b.attributes.amount_cents
@@ -118,11 +119,18 @@ const slashCommand: SlashCommandFile = {
                     5,
                     ctx.client
                 );
+                const url = `https://patreon.com${tier.attributes.url}`;
+                buttons.push(
+                    new ButtonBuilder()
+                        .setURL(url)
+                        .setLabel(`Join ${tier.attributes.title}`)
+                        .setStyle(ButtonStyle.Link)
+                );
 
                 embeds.push({
                     title: tier.attributes.title + ` (${tier.attributes.amount_cents / 100}€)`,
                     description: tier.attributes.description,
-                    url: `https://patreon.com${tier.attributes.url}`,
+                    url,
                     image: {
                         url: tier.attributes.image_url,
                     },
@@ -154,7 +162,10 @@ const slashCommand: SlashCommandFile = {
             const makeMesage = () =>
                 ctx.makeMessage({
                     embeds: [embeds[currentPage]],
-                    components: [Functions.actionRow([prevBTN(), nextBTN()])],
+                    components: [
+                        Functions.actionRow([buttons[currentPage]]),
+                        Functions.actionRow([prevBTN(), nextBTN()]),
+                    ],
                 });
 
             await makeMesage();
@@ -175,14 +186,20 @@ const slashCommand: SlashCommandFile = {
                     if (currentPage > maxPage) currentPage = 0;
                     await i.update({
                         embeds: [embeds[currentPage]],
-                        components: [Functions.actionRow([prevBTN(), nextBTN()])],
+                        components: [
+                            Functions.actionRow([buttons[currentPage]]),
+                            Functions.actionRow([prevBTN(), nextBTN()]),
+                        ],
                     });
                 } else if (i.customId === prevID) {
                     currentPage--;
                     if (currentPage < 0) currentPage = maxPage;
                     await i.update({
                         embeds: [embeds[currentPage]],
-                        components: [Functions.actionRow([prevBTN(), nextBTN()])],
+                        components: [
+                            Functions.actionRow([buttons[currentPage]]),
+                            Functions.actionRow([prevBTN(), nextBTN()]),
+                        ],
                     });
                 }
             });

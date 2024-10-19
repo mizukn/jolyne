@@ -1,5 +1,5 @@
 import { SlashCommandFile } from "../../@types";
-import { Message, InteractionResponse, APIEmbed } from "discord.js";
+import { Message, InteractionResponse, APIEmbed, ButtonBuilder, ButtonStyle } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import {
     generateDiscordTimestamp,
@@ -7,8 +7,14 @@ import {
     findItem,
     addXp,
     hasVotedRecenty,
+    actionRow,
 } from "../../utils/Functions";
 import { cloneDeep } from "lodash";
+
+const voteForJolyneButton = new ButtonBuilder()
+    .setLabel("Vote for Jolyne")
+    .setStyle(ButtonStyle.Link)
+    .setURL("https://top.gg/bot/923619190831730698");
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -150,7 +156,7 @@ const slashCommand: SlashCommandFile = {
             //]
         });
 
-        return await ctx.makeMessage({ embeds });
+        return await ctx.makeMessage({ embeds, components: [actionRow([voteForJolyneButton])] });
     },
 };
 
