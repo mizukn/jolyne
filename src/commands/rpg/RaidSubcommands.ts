@@ -127,7 +127,7 @@ const Halloween2024EventRaids: RaidBoss = {
     allies: [],
     maxLevel: Infinity,
     maxPlayers: 10,
-    cooldown: 60000 * 15,
+    cooldown: 60000 * 10,
 };
 
 const slashCommand: SlashCommandFile = {
