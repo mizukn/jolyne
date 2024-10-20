@@ -448,13 +448,13 @@ export const Miku: FightableNPC = {
 
 export const PaleDarkElite: FightableNPC = {
     ...NPCs.PaleDarkElite,
-    level: 600,
+    level: 500,
     skillPoints: {
         // total = 500 * 4 = 2000
-        defense: 600 - 75 + 100,
-        strength: 600 + 75 + 100,
-        speed: 600 - 20 - 100,
-        perception: 600 - 60 - 100,
+        defense: 500 - 75 + 100,
+        strength: 500 + 75 + 100,
+        speed: 500 - 20 - 100,
+        perception: 500 - 60 - 100,
         stamina: 0 + 60 + 20,
     },
     stand: "nix",
