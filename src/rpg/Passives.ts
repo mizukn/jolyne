@@ -355,7 +355,7 @@ export const Regeneration: Passive = {
 export const RegenerationAlter: Passive = {
     name: "Regeneration Alter",
     description:
-        "At the end of each 'round', the user regenerates 4% of their max health and stamina (capped at 25%).",
+        "At the end of each 'round', the user regenerates 4% of their max health and stamina (capped at 10%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `regeneration_alter_${user.id}_${context.id}`,
     promise: (user: Fighter, fight: FightHandler) => {
@@ -377,7 +377,7 @@ export const RegenerationAlter: Passive = {
 
         const baseHealth = Number(fight.cache.get(baseHealthId));
 
-        if (totalHealingDone >= baseHealth * 0.25) return;
+        if (totalHealingDone >= baseHealth * 0.1) return;
 
         const status = user.incrHealth(Math.round(user.maxHealth * 0.04)) * -1;
 
