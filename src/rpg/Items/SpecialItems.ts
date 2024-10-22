@@ -68,8 +68,18 @@ async function useBox(
                 } else {
                     const item = Functions.findItem(reward.loot);
                     if (!item) continue;
-                    Functions.addItem(ctx.userData, reward.loot, reward.mult ?? 1);
-                    winContent.push(`- ${reward.mult ?? 1}x **${item.emoji} ${item.name}**`);
+                    const status = Functions.addItem(
+                        ctx.userData,
+                        reward.loot,
+                        reward.mult ?? 1,
+                        false,
+                        ctx
+                    );
+                    winContent.push(
+                        `- ${status ? "" : "~~"}${reward.mult ?? 1}x **${item.emoji} ${
+                            item.name
+                        }**${status ? "" : "~~"}`
+                    );
                 }
                 if (amount === 1) updateMessage();
             }
@@ -112,27 +122,22 @@ export const Box: Special = {
                 r.rarity !== "S" &&
                 r.rarity !== "T"
         );
-        const midItemsList1 = Object.values(Items).filter(
-            (r) =>
-                r.tradable &&
-                r.storable &&
-                r.rarity !== "A" &&
-                r.rarity !== "B" &&
-                r.rarity !== "SS" &&
-                r.rarity !== "T"
-        );
-        const standList = Object.values(Stands).filter(
-            (r) => r.available && r.rarity !== "SS" && r.rarity !== "T"
-        );
+        const midItemsList1 = Object.values(Items)
+            .filter(
+                (r) =>
+                    r.tradable &&
+                    r.storable &&
+                    r.rarity !== "A" &&
+                    r.rarity !== "B" &&
+                    r.rarity !== "SS" &&
+                    r.rarity !== "T"
+            )
+            .filter((x) => !x.id.includes("$disc$"));
+        const standList = Object.values(Stands)
+            .filter((r) => r.available && r.rarity !== "SS" && r.rarity !== "T")
+            .filter((x) => !x.id.includes("$disc$"));
 
-        const midItems = [
-            ...possibleConsumables,
-            ...midItemsList1,
-            ...standList
-                .filter((r) => r.rarity === "C")
-                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
-        ].filter((r) => r);
-        const okItems = [Items.Diamond, Items.AncientScroll];
+        const midItems = [...possibleConsumables, ...midItemsList1].filter((r) => r);
         const rareItems = [
             ...standList
                 .filter((r) => r.rarity === "B")
