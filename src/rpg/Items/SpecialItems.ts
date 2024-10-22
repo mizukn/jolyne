@@ -486,6 +486,10 @@ const standArray = totalStands.filter((x) => x.obtainableBy === "arrow");
 const rareStandArray = totalStands.filter(
     (x) => x.obtainableBy === "rare_stand_arrow" || x.obtainableBy === "arrow"
 );
+setTimeout(() => {
+    console.log(rareStandArray.map((x) => x.id));
+    console.log(standArray.map((x) => x.id));
+}, 5000);
 
 export const StandArrow: Special = {
     id: "stand_arrow",
