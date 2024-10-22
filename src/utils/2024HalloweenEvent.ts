@@ -252,7 +252,7 @@ export const trades = [
         item: "nix.$disc$",
     },
     {
-        amount: 250 * 10,
+        amount: 450 * 10,
         item: "excalibur",
     },
 ].sort((a, b) => a.amount - b.amount);
