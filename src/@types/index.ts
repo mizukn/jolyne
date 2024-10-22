@@ -664,6 +664,7 @@ export interface Stand {
     available: boolean;
     adminOnly?: boolean;
     passives?: Passive[];
+    obtainableBy?: "arrow" | "rare_stand_arrow";
 }
 
 /**
@@ -739,7 +740,8 @@ export interface EvolutionStand {
     /**
      * The stand's evolution level.
      */
-    evolutions: Omit<Stand, "id">[];
+    evolutions: Omit<Stand, "id" | "obtainableBy">[];
+    obtainableBy: Stand["obtainableBy"];
 }
 
 export type itemRewards = {
