@@ -1090,7 +1090,8 @@ export const addItem = (
     userData: RPGUserDataJSON,
     item: Item | string,
     amount?: number,
-    ignoreQuests?: boolean
+    ignoreQuests?: boolean,
+    ctx?: CommandInteractionContext
 ): boolean => {
     if (typeof item === "string") {
         item = findItem(item);
@@ -1100,6 +1101,18 @@ export const addItem = (
     if (is2024HalloweenEvent() && item.id === "nix.$disc$") {
         const nixDisc = userData.inventory["nix.$disc$"] || 0;
         if (nixDisc >= 3) return false;
+    }
+    if (item.id.includes("$disc$") && ctx) {
+        const totalItems = Object.keys(userData.inventory)
+            .map((x) => {
+                return {
+                    id: x,
+                    amount: userData.inventory[x],
+                };
+            })
+            .filter((x) => x.id.includes("$disc$"));
+        const totalDiscs = totalItems.reduce((a, b) => a + b.amount, 0) + (amount || 1);
+        if (totalDiscs >= calcStandDiscLimit(ctx, userData)) return false;
     }
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {
@@ -1529,7 +1542,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
     const realUserData = userData ?? ctx.userData;
     limit += Math.floor(realUserData.level / 50);
     limit += Math.floor(realUserData.level / 100);
-    if (userData?.id === "239739781238620160") limit = Infinity;
+    //if (userData?.id === "239739781238620160") limit = Infinity;
 
     const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
     if (patronTier) {
