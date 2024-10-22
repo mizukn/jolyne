@@ -1112,7 +1112,7 @@ export const addItem = (
             })
             .filter((x) => x.id.includes("$disc$"));
         const totalDiscs = totalItems.reduce((a, b) => a + b.amount, 0) + (amount || 1);
-        if (totalDiscs >= calcStandDiscLimit(ctx, userData)) return false;
+        if (totalDiscs > calcStandDiscLimit(ctx, userData)) return false;
     }
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {

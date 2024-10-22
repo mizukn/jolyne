@@ -59,8 +59,10 @@ export default (client: JolyneClient): void => {
         })
     );
 
+    const port = process.env.CLIENT_TOKEN === process.env.ALPHA_TOKEN ? 6060 : 6969;
+
     try {
-        app.listen(6969, () => {
+        app.listen(port, () => {
             client.log("TopGG webhook is now listening on port 6969", "info");
         });
     } catch (_s) {
