@@ -433,11 +433,15 @@ const slashCommand: SlashCommandFile = {
                                     continue;
                                 }
                                 if (!itemData) continue;
-                                Functions.addItem(winnerData, itemData.id, item.amount);
+                                const status = Functions.addItem(
+                                    winnerData,
+                                    itemData.id,
+                                    item.amount
+                                );
                                 winContent.push(
-                                    `${item.amount}x ${itemData.emoji} **${
+                                    `${status ? "" : "~~"}${item.amount}x ${itemData.emoji} **${
                                         itemData.name
-                                    }** (${chance.toFixed(2)}%)`
+                                    }** (${chance.toFixed(2)}%)${status ? "" : "~~"}`
                                 );
                             }
                         }

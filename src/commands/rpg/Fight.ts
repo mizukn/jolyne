@@ -364,15 +364,15 @@ const slashCommand: SlashCommandFile = {
                                 if (!Functions.percent(item.chance)) continue;
                             }
 
-                            Functions.addItem(
+                            const status = Functions.addItem(
                                 ctx.userData,
                                 Functions.findItem(item.item),
                                 item.amount
                             );
                             winContent.push(
-                                `${item.amount}x ${Functions.findItem(item.item).name} ${
-                                    Functions.findItem(item.item).emoji
-                                }`
+                                `${status ? "" : "~~"}${item.amount}x ${
+                                    Functions.findItem(item.item).name
+                                } ${Functions.findItem(item.item).emoji}${status ? "" : "~~"}`
                             );
                         }
                     }

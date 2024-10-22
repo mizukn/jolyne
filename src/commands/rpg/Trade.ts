@@ -330,11 +330,14 @@ const slashCommand: SlashCommandFile = {
                                 const results: boolean[] = [];
                                 for (const [item, amount] of Object.entries(userOffer)) {
                                     results.push(Functions.removeItem(userData, item, amount));
-                                    results.push(Functions.addItem(targetData, item, amount, true));
+                                    results.push(
+                                        Functions.addItem(targetData, item, amount, true, ctx)
+                                    );
                                 }
                                 for (const [item, amount] of Object.entries(targetOffer)) {
                                     results.push(Functions.removeItem(targetData, item, amount));
-                                    results.push(Functions.addItem(userData, item, amount, true));
+                                    results.push();
+                                    Functions.addItem(userData, item, amount, true, ctx);
                                 }
 
                                 if (results.includes(false)) {
