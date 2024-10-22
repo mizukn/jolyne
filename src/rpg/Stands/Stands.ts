@@ -87,6 +87,7 @@ export const HierophantGreen: Stand = {
     },
     color: 0x6ad398,
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const Aerosmith: Stand = {
@@ -107,6 +108,7 @@ export const Aerosmith: Stand = {
     abilities: [Abilities.VolaBarrage, Abilities.LittleBoy],
     color: 0x0981d1,
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const TheHand: Stand = {
@@ -127,6 +129,7 @@ export const TheHand: Stand = {
     emoji: Emojis.the_hand,
     color: 0x1d57e5,
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const MagiciansRed: Stand = {
@@ -148,6 +151,7 @@ export const MagiciansRed: Stand = {
     passives: [Passives.Fire],
     color: 0xff0000,
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const HermitPurple: Stand = {
@@ -168,6 +172,7 @@ export const HermitPurple: Stand = {
     },
     color: 0x800080,
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const SexPistols: Stand = {
@@ -265,6 +270,7 @@ export const SexPistols: Stand = {
             if (!ctx.ctx.client.fightCache.get(bulletId + "fireX")) ctx.nextTurn();
         },
     },
+    obtainableBy: "arrow",
 };
 
 export const TheFool: Stand = {
@@ -290,6 +296,7 @@ export const TheFool: Stand = {
     color: 0x800080,
     available: true,
     image: "https://media.jolyne.moe/SZEJL4/direct",
+    obtainableBy: "arrow",
 };
 
 export const WheelOfFortune: Stand = {
@@ -310,6 +317,7 @@ export const WheelOfFortune: Stand = {
     },
     color: 0xff0000,
     image: "https://media.jolyne.moe/1NLw3n/direct",
+    obtainableBy: "arrow",
 };
 
 export const PurpleHaze: Stand = {
@@ -335,6 +343,7 @@ export const PurpleHaze: Stand = {
     },
     available: true,
     color: 0x800080,
+    obtainableBy: "arrow",
 };
 
 export const HalloweenSpooks: Stand = {
@@ -406,6 +415,7 @@ export const CrazyDiamond: Stand = {
     available: true,
     // blue-white hex code
     color: 0xd8deec,
+    obtainableBy: "arrow",
 };
 
 export const HangedMan: Stand = {
@@ -426,6 +436,7 @@ export const HangedMan: Stand = {
     },
     available: true,
     color: 0x964b00,
+    obtainableBy: "arrow",
 };
 
 export const Emperor: Stand = {
@@ -484,6 +495,7 @@ export const Emperor: Stand = {
             ctx.nextTurn();
         },
     },
+    obtainableBy: "arrow",
 };
 
 export const TowerOfGray: Stand = {
@@ -504,6 +516,7 @@ export const TowerOfGray: Stand = {
     },
     available: true,
     color: 0x808080,
+    obtainableBy: "arrow",
 };
 
 export const DarkBlueMoon: Stand = {
@@ -529,6 +542,7 @@ export const DarkBlueMoon: Stand = {
     },
     available: true,
     color: 0x0000ff,
+    obtainableBy: "arrow",
 };
 
 export const Strength: Stand = {
@@ -550,6 +564,7 @@ export const Strength: Stand = {
     },
     available: true,
     color: 0x964b00,
+    obtainableBy: "arrow",
 };
 
 export const SkeletalSpectre: Stand = {
@@ -654,6 +669,7 @@ export const StickyFingers: Stand = {
         defense: 0,
     },
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const WeatherReport: Stand = {
@@ -681,6 +697,7 @@ export const WeatherReport: Stand = {
         defense: 0,
     },
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const EbonyDevil: Stand = {
@@ -701,6 +718,7 @@ export const EbonyDevil: Stand = {
     },
     available: true,
     color: 0x666420,
+    obtainableBy: "arrow",
 };
 
 export const WonderOfU: Stand = {
@@ -756,6 +774,7 @@ export const StoneFree: Stand = {
     },
     color: 0x5c78a3,
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const Horus: Stand = {
@@ -776,6 +795,7 @@ export const Horus: Stand = {
     },
     color: 0xa9aaab,
     available: true,
+    obtainableBy: "arrow",
 };
 
 export const AdminStand: Stand = {
@@ -821,6 +841,8 @@ export const YellowTemperance: Stand = {
     },
     color: 0xffff00, // Yellow color
     available: true,
+    obtainableBy: "arrow",
+
     image: "https://media.jolyne.moe/3T8Vf8/direct", // Replace with the actual image URL
 };
 
@@ -903,6 +925,8 @@ export const KingCrimson: Stand = {
     },
     color: 0x800000,
     available: true,
+    obtainableBy: "rare_stand_arrow",
+
     image: "https://i.pinimg.com/474x/8f/60/88/8f6088c59c2355de39d7ede735768e3a.jpg",
 };
 

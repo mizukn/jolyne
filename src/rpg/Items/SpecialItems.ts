@@ -10,6 +10,17 @@ import { EvolutionStands } from "../Stands";
 import { cloneDeep } from "lodash";
 import { standLogsWebhook } from "../../utils/Webhooks";
 
+const totalStands = [
+    ...Object.values(Stands),
+    ...Object.values(EvolutionStands).map((x) => {
+        return {
+            ...x.evolutions[0],
+            id: x.id,
+            obtainableBy: x.obtainableBy,
+        };
+    }),
+];
+
 interface boxLoot {
     percent: number;
     loot?: string;
@@ -24,14 +35,9 @@ async function useBox(
     name: string,
     superator: string,
     emoji: string,
-    shakingEmoji: string
+    shakingEmoji: string,
+    amount = 1
 ): Promise<number> {
-    let amount: number;
-    if (ctx.interaction.commandName === "inventory") {
-        amount = ctx.interaction.options.getInteger("amount", false);
-    }
-    if (!amount) amount = 1;
-    if (amount < 1) amount = 1;
     const oldData = cloneDeep(ctx.userData);
 
     await ctx.makeMessage({
@@ -40,20 +46,74 @@ async function useBox(
     await Functions.sleep(2000);
 
     loot = loot.filter((r) => r.length > 0);
+
+    for (const Loot of loot) {
+        // we need to fix Loot.
+        // for example, if loot has [{ xp: 9599 }, { xp: 9599 }, { xp: 9599 }]
+        // then loot should be [{ xp: 28797 }]]
+        // same thing for items, if loot is [{ loot: "stand_arrow", percent: 1 }, { loot: "stand_arrow", percent: 1 }, { loot: "rare_stand_arrow": percent: 2 }, { loot: "rare_stand_arrow": percent: 4 }]
+        // then loot should be [{ loot: "stand_arrow", percent: 1, mult: 2 }, , { loot: "rare_stand_arrow": percent: 2 }, { loot: "rare_stand_arrow": percent: 4 }]
+        const newLoot: boxLoot[] = [];
+        for (const lootItem of Loot) {
+            if (lootItem.loot) {
+                const existing = newLoot.find(
+                    (r) => r.loot === lootItem.loot && r.percent === lootItem.percent
+                );
+                if (existing) {
+                    existing.mult = (existing.mult ?? 1) + (lootItem.mult ?? 1);
+                } else {
+                    newLoot.push(lootItem);
+                }
+            } else {
+                // xp or coins
+                const existing = newLoot.find(
+                    (r) => r.xp === lootItem.xp || r.coins === lootItem.coins
+                );
+
+                if (existing) {
+                    if (lootItem.xp) {
+                        existing.xp = (existing.xp ?? 0) + lootItem.xp;
+                    } else {
+                        existing.coins = (existing.coins ?? 0) + lootItem.coins;
+                    }
+                } else {
+                    newLoot.push(lootItem);
+                }
+            }
+        }
+
+        const index = loot.indexOf(Loot);
+        loot[index] = newLoot;
+    }
     const winContent: string[] = [`▬▬▬▬▬**「${emoji} ${name.toUpperCase()}」**▬▬▬▬▬▬`];
-    const updateMessage = () => ctx.makeMessage({ content: winContent.join("\n") });
-    if (amount === 1) updateMessage();
+    const updateMessage = () => {
+        const message = winContent.join("\n");
+        if (message.length <= 2000) return ctx.makeMessage({ content: message }).catch(() => {});
+        else
+            return ctx
+                .makeMessage({
+                    content: null,
+                    embeds: Functions.fixEmbeds([
+                        {
+                            description: message,
+                            color: 0x70926c,
+                        },
+                    ]),
+                })
+                .catch(() => {});
+    };
+    updateMessage();
     let counter = 0;
-    for (let i = 0; i < amount; i++)
+    for (let i = 0; i < 1; i++)
         for await (const lootBox of loot) {
             counter++;
             if (counter !== 1) {
                 winContent.push(superator);
-                if (amount === 1) await Functions.sleep(1000);
-                if (amount === 1) updateMessage();
+                await Functions.sleep(1000);
+                updateMessage();
             }
             for await (const reward of lootBox) {
-                if (amount === 1) await Functions.sleep(1000);
+                await Functions.sleep(1000);
                 if (reward.percent) {
                     if (!Functions.percent(reward.percent)) continue;
                 }
@@ -81,25 +141,14 @@ async function useBox(
                         }**${status ? "" : "~~"}`
                     );
                 }
-                if (amount === 1) updateMessage();
+                updateMessage();
             }
-            if (amount === 1) updateMessage();
+            updateMessage();
         }
     await Functions.sleep(1000);
     winContent.push(superator);
-    ctx.client.database.saveUserData(ctx.userData);
-    if (amount === 1) updateMessage();
-    else
-        ctx.makeMessage({
-            content: `${emoji} | You used **x${amount} ${Functions.capitalize(
-                name
-            )}** and got: (fast mode: true)\n\n${Functions.getRewardsCompareData(
-                oldData,
-                ctx.userData
-            )
-                .map((x) => `- ${x}`)
-                .join("\n")}`,
-        });
+    //ctx.client.database.saveUserData(ctx.userData);
+    updateMessage();
 
     return amount;
 }
@@ -114,6 +163,13 @@ export const Box: Special = {
     tradable: true,
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
+        let amount: number;
+        if (ctx.interaction.commandName === "inventory") {
+            amount = ctx.interaction.options.getInteger("amount", false);
+        }
+        if (!amount) amount = 1;
+        if (amount < 1) amount = 1;
+
         const possibleConsumables = Object.values(Consumables).filter(
             (r) =>
                 r.tradable &&
@@ -150,44 +206,53 @@ export const Box: Special = {
             Functions.findItem("stand_arrow"),
         ].filter((r) => r);
 
-        const finalLoot: boxLoot[][] = [
-            [
-                {
+        const realLoot: boxLoot[][] = [[], [], []];
+        for (let i = 0; i < amount; i++) {
+            const finalLoot: boxLoot[][] = [
+                [
+                    {
+                        percent: 100,
+                        coins: Functions.randomNumber(1000, 5000),
+                    },
+                    {
+                        percent: 100,
+                        xp: Functions.randomNumber(
+                            Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
+                            Functions.getMaxXp(ctx.userData.level ?? 1) / 50
+                        ),
+                    },
+                ],
+                [],
+                [],
+            ];
+
+            for (const item of midItems.filter((r) => Functions.percent(70))) {
+                const target = finalLoot[1];
+
+                if (!Functions.percent(30)) continue;
+                target.push({
                     percent: 100,
-                    coins: Functions.randomNumber(1000, 5000),
-                },
-                {
+                    loot: item.id,
+                });
+            }
+
+            for (const item of rareItems.filter((r) => Functions.percent(30))) {
+                const target = finalLoot[2];
+
+                if (!Functions.percent(30)) continue;
+                target.push({
                     percent: 100,
-                    xp: Functions.randomNumber(
-                        Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
-                        Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                    ),
-                },
-            ],
-            [],
-            [],
-        ];
+                    loot: item.id,
+                });
+            }
 
-        for (const item of midItems.filter((r) => Functions.percent(70))) {
-            const target = finalLoot[1];
-
-            if (!Functions.percent(30)) continue;
-            target.push({
-                percent: 100,
-                loot: item.id,
-            });
+            for (let i = 0; i < 3; i++) {
+                realLoot[i].push(...finalLoot[i]);
+            }
         }
+        await useBox(ctx, realLoot, "box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "📦", Emojis.box_shaking);
 
-        for (const item of rareItems.filter((r) => Functions.percent(30))) {
-            const target = finalLoot[2];
-
-            if (!Functions.percent(30)) continue;
-            target.push({
-                percent: 100,
-                loot: item.id,
-            });
-        }
-        return useBox(ctx, finalLoot, "box", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "📦", Emojis.box_shaking);
+        return amount;
     },
 };
 
@@ -201,32 +266,47 @@ export const MoneyBox: Special = {
     tradable: true,
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
-        const finalLoot: boxLoot[][] = [
-            [
-                {
-                    percent: 100,
-                    coins: Functions.randomNumber(20000, 50000),
-                },
-                {
-                    percent: 100,
-                    xp: Functions.randomNumber(
-                        Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
-                        Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                    ),
-                },
-            ],
-            [],
-            [],
-        ];
+        const realLoot: boxLoot[][] = [[], [], []];
+        let amount = 1;
+        if (ctx.interaction.commandName === "inventory") {
+            amount = ctx.interaction.options.getInteger("amount", false);
+        }
+        if (!amount) amount = 1;
 
-        return useBox(
+        for (let i = 0; i < amount; i++) {
+            const finalLoot: boxLoot[][] = [
+                [
+                    {
+                        percent: 100,
+                        coins: Functions.randomNumber(20000, 50000),
+                    },
+                    {
+                        percent: 100,
+                        xp: Functions.randomNumber(
+                            Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
+                            Functions.getMaxXp(ctx.userData.level ?? 1) / 50
+                        ),
+                    },
+                ],
+                [],
+                [],
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                realLoot[i].push(...finalLoot[i]);
+            }
+        }
+
+        await useBox(
             ctx,
-            finalLoot,
+            realLoot,
             "Money Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
             Emojis["moneyBox"],
             Emojis["moneyBox_shaking"]
         );
+
+        return amount;
     },
 };
 /*
@@ -281,6 +361,7 @@ export const PatreonBox: Special = {
     use: async (ctx: CommandInteractionContext) => {
         const standList = Object.values(Stands).filter((r) => r.available && r.rarity === "S");
 
+        /*
         const finalLoot: boxLoot[][] = [
             [
                 {
@@ -307,16 +388,49 @@ export const PatreonBox: Special = {
                     mult: 30,
                 },
             ],
-        ];
+        ];*/
+        let amount = 1;
+        if (ctx.interaction.commandName === "inventory") {
+            amount = ctx.interaction.options.getInteger("amount", false);
+        }
+        if (!amount) amount = 1;
+        if (amount < 1) amount = 1;
 
-        return useBox(
+        const realLoot: boxLoot[][] = [[], [], []];
+
+        for (let i = 0; i < amount; i++) {
+            const finalLoot: boxLoot[][] = [
+                [
+                    {
+                        percent: 100,
+                        coins: Functions.randomNumber(20000, 50000),
+                    },
+                    {
+                        percent: 100,
+                        xp: Functions.randomNumber(
+                            Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
+                            Functions.getMaxXp(ctx.userData.level ?? 1) / 50
+                        ),
+                    },
+                ],
+                [],
+                [],
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                realLoot[i].push(...finalLoot[i]);
+            }
+        }
+
+        await useBox(
             ctx,
-            finalLoot,
+            realLoot,
             "Patron Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
             Emojis["patronbox"],
             Emojis["patronbox_shake"]
         );
+        return amount;
     },
 };
 
@@ -368,30 +482,10 @@ export const StandBox: Special = {
     },
 };
 */ // what did he do
-const standArray = Object.values(Stands).filter((r) => r.available && r.rarity !== "SS");
-standArray.push({
-    id: "silver_chariot",
-    ...EvolutionStands.SilverChariot.evolutions[0],
-});
-standArray.push({
-    id: "gold_experience",
-    ...EvolutionStands.GoldExperience.evolutions[0],
-});
-standArray.push({
-    id: "whitesnake",
-    ...EvolutionStands.Whitesnake.evolutions[0],
-});
-standArray.push({
-    id: "echoes",
-    ...EvolutionStands.Echoes.evolutions[0],
-});
-standArray.push({
-    id: "killer_queen",
-    ...EvolutionStands.KillerQueen.evolutions[0],
-});
-
-const rareStandArray = cloneDeep(standArray);
-rareStandArray.push(Stands.KingCrimson);
+const standArray = totalStands.filter((x) => x.obtainableBy === "arrow");
+const rareStandArray = totalStands.filter(
+    (x) => x.obtainableBy === "rare_stand_arrow" || x.obtainableBy === "arrow"
+);
 
 export const StandArrow: Special = {
     id: "stand_arrow",
@@ -714,87 +808,67 @@ export const ChristmasGift: Special = {
     tradable: true,
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
-        const possibleConsumables = Object.values(Consumables).filter(
-            (r) =>
-                r.tradable &&
-                r.storable &&
-                r.rarity !== "T" &&
-                r.rarity !== "SS" &&
-                r.rarity !== "S"
-        );
-        const midItemsList1 = Object.values(Items).filter(
-            (r) =>
-                r.tradable &&
-                r.storable &&
-                r.rarity !== "A" &&
-                r.rarity !== "B" &&
-                r.rarity !== "T" &&
-                r.rarity !== "SS" &&
-                r.rarity !== "S"
-        );
         const standList = Object.values(Stands).filter(
             (r) => r.available && r.rarity !== "SS" && r.rarity !== "T" && r.rarity !== "S"
         );
+        let amount = 1;
+        if (ctx.interaction.commandName === "inventory") {
+            amount = ctx.interaction.options.getInteger("amount", false);
+        }
+        if (!amount) amount = 1;
+        if (amount < 1) amount = 1;
 
-        const midItems = [
-            ...possibleConsumables,
-            ...midItemsList1,
-            ...standList
-                .filter((r) => r.rarity === "C")
-                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
-        ].filter((r) => r);
-        const okItems = [Items.Diamond, Items.AncientScroll];
-        const rareItems = [
-            ...standList
-                .filter((r) => r.rarity === "B")
-                .map((x) => Functions.findItem(`${x.id}.$disc$`)),
-            ...Object.values(Items).filter(
-                (r) =>
-                    (r.tradable && r.storable && r.rarity === "B") ||
-                    (r.tradable && r.storable && r.rarity === "A")
-            ),
-            Functions.findItem("stand_arrow"),
-        ].filter((r) => r);
+        const realLoot: boxLoot[][] = [[], []];
 
-        const finalLoot: boxLoot[][] = [
-            [
-                {
-                    percent: 100,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                    mult: 1,
-                },
-                {
-                    percent: 85,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                    mult: 1,
-                },
-                {
-                    percent: 25,
-                    loot: Functions.findItem(Functions.randomArray(standList).id).id,
-                    mult: 1,
-                },
-            ],
-            [
-                {
-                    percent: 100,
-                    loot: Functions.findItem("rare_stand_arrow").id,
-                },
-                {
-                    percent: 100,
-                    loot: Functions.findItem("candy_cane").id,
-                    mult: 5,
-                },
-            ],
-        ];
+        for (let i = 0; i < amount; i++) {
+            const finalLoot: boxLoot[][] = [
+                [
+                    {
+                        percent: 100,
+                        loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                        mult: 1,
+                    },
+                    {
+                        percent: 85,
+                        loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                        mult: 1,
+                    },
+                    {
+                        percent: 25,
+                        loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                        mult: 1,
+                    },
+                ],
+                [
+                    {
+                        percent: 100,
+                        loot: Functions.findItem("rare_stand_arrow").id,
+                    },
+                    {
+                        percent: 100,
+                        loot: Functions.findItem("candy_cane").id,
+                        mult: 5,
+                    },
+                ],
+            ];
 
-        return useBox(
+            for (let i = 0; i < 2; i++) {
+                if (!realLoot[i] && !finalLoot[i]) continue;
+                if (!realLoot[i].length && !finalLoot[i].length) continue;
+                if (!realLoot[i]) realLoot[i] = [];
+                realLoot[i].push(...finalLoot[i]);
+            }
+        }
+
+        await useBox(
             ctx,
-            finalLoot,
+            realLoot,
             "Christmas Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
             Emojis["xmasgift"],
             Emojis["xmasgift_shake"]
         );
+        return amount;
     },
 };
 

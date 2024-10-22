@@ -12,6 +12,7 @@ function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
 
 export const SilverChariot: EvolutionStand = {
     id: "silver_chariot",
+    obtainableBy: "arrow",
     evolutions: [
         {
             name: "Silver Chariot",
@@ -61,6 +62,8 @@ export const SilverChariot: EvolutionStand = {
 
 export const GoldExperience: EvolutionStand = {
     id: "gold_experience",
+    obtainableBy: "arrow",
+
     evolutions: [
         {
             name: "Gold Experience",
@@ -116,6 +119,8 @@ export const GoldExperience: EvolutionStand = {
 
 export const Whitesnake: EvolutionStand = {
     id: "whitesnake",
+    obtainableBy: "arrow",
+
     evolutions: [
         {
             name: "Whitesnake",
@@ -244,6 +249,8 @@ export const Whitesnake: EvolutionStand = {
 
 export const KillerQueen: EvolutionStand = {
     id: "killer_queen",
+    obtainableBy: "arrow",
+
     evolutions: [
         {
             name: "Killer Queen",
@@ -304,6 +311,8 @@ export const KillerQueen: EvolutionStand = {
 
 export const Echoes: EvolutionStand = {
     id: "echoes",
+    obtainableBy: "arrow",
+
     evolutions: [
         {
             name: "Echoes Act 1",
@@ -415,6 +424,8 @@ export const Echoes: EvolutionStand = {
 
 export const StarPlatinum: EvolutionStand = {
     id: "star_platinum",
+    obtainableBy: "arrow",
+
     evolutions: [
         {
             name: "Star Platinum",
@@ -447,6 +458,7 @@ export const StarPlatinum: EvolutionStand = {
 
 export const TheWorld: EvolutionStand = {
     id: "the_world",
+    obtainableBy: "arrow",
     evolutions: [
         {
             name: "The World",

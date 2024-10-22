@@ -466,7 +466,7 @@ export const PaleDarkElite: FightableNPC = {
 
 export const PaleDark: FightableNPC = {
     ...NPCs.PaleDark,
-    level: 125,
+    level: 110,
     skillPoints: {
         defense: 125 - 75 / 2 + 100 / 2,
         strength: 125 + 75 / 2 + 100 / 2,
