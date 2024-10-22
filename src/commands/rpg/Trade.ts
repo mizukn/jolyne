@@ -244,6 +244,7 @@ const slashCommand: SlashCommandFile = {
 
                 makeMessage();
             };
+
             const callback2 = (item: string, amount: number) => {
                 if (Functions.hasExceedStandLimit(ctx, targetData) && item.includes("$disc$")) {
                     ctx.interaction.followUp({
@@ -336,13 +337,14 @@ const slashCommand: SlashCommandFile = {
                                 }
                                 for (const [item, amount] of Object.entries(targetOffer)) {
                                     results.push(Functions.removeItem(targetData, item, amount));
-                                    results.push();
-                                    Functions.addItem(userData, item, amount, true, ctx);
+                                    results.push(
+                                        Functions.addItem(userData, item, amount, true, ctx)
+                                    );
                                 }
 
                                 if (results.includes(false)) {
                                     await ctx.makeMessage({
-                                        content: `:x: Something went wrong while trading.`,
+                                        content: `:x: TRANSACTION REJECTED:: Please check if one of you has enough stand disc space, or if one of the items is limited and a user has reached the limit. If you believe this is an error, please [contact us](https://discord.gg/jolyne-support-923608916540145694).`,
                                         embeds: [],
                                     });
                                     Functions.disableRows(ctx.interaction);

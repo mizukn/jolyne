@@ -548,7 +548,7 @@ const slashCommand: SlashCommandFile = {
                 Functions.useConsumableItem(itemData, ctx.userData, amountX);
                 Functions.removeItem(ctx.userData, itemString, amountX);
             } else if (Functions.isSpecial(itemData)) {
-                const oldData = { ...ctx.userData } as RPGUserDataJSON;
+                const oldData = cloneDeep(ctx.userData);
                 await ctx.client.database.setCooldown(
                     ctx.user.id,
                     "You're currently using an item."
@@ -556,7 +556,14 @@ const slashCommand: SlashCommandFile = {
                 try {
                     const status = await itemData.use(ctx);
                     if (status) {
-                        Functions.removeItem(ctx.userData, itemString, status);
+                        ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+                        const statusX = Functions.removeItem(ctx.userData, itemString, status);
+                        if (!statusX) {
+                            ctx.RPGUserData = oldData;
+                            ctx.interaction.followUp({
+                                content: `An error occured while using this item. Your data has been rolled back.`,
+                            });
+                        }
                         ctx.client.database.saveUserData(ctx.userData);
                     }
                 } catch (e) {

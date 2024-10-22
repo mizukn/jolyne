@@ -358,7 +358,9 @@ const slashCommand: SlashCommandFile = {
                         const status = Functions.addItem(
                             ctx.userData,
                             Functions.findItem(stand.id + ".$disc$"),
-                            1
+                            1,
+                            true,
+                            ctx
                         );
                         if (!status) {
                             return void ctx.makeMessage({
