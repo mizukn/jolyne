@@ -5,7 +5,7 @@ import { exec } from "child_process";
 import Jolyne from "./structures/JolyneClient";
 
 const TempRedis = new redis({ db: Number(process.env.REDIS_DB) });
-const port = 6969;
+const port = process.env.CLIENT_TOKEN === process.env.ALPHA_TOKEN ? 6060 : 6969;
 
 // check at localhost if port is already in use
 exec(`lsof -i:${port}`, async (error, stdout) => {
