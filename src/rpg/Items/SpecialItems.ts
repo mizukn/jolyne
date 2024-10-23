@@ -962,14 +962,21 @@ export const Greenbaby: Special = {
 export const XPBox: Special = {
     id: "xp_box",
     name: "Experience Box",
-    description: "An Experience filled Box.\nBut maybe there is a secret hidden in here?",
+    description: "An Experience filled Box.",
     rarity: "SS",
     emoji: Emojis.xp_box,
     price: 60009,
     tradable: true,
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
-        const finalLoot: boxLoot[][] = [
+        let amount = 1;
+        if (ctx.interaction.commandName === "inventory") {
+            amount = ctx.interaction.options.getInteger("amount", false);
+        }
+        if (!amount) amount = 1;
+        if (amount < 1) amount = 1;
+
+        /*        const finalLoot: boxLoot[][] = [
             [
                 {
                     percent: 100,
@@ -978,22 +985,39 @@ export const XPBox: Special = {
                         Functions.getMaxXp(ctx.userData.level ?? 1) * 0.4
                     ),
                 },
-                {
-                    percent: 1,
-                    xp: Functions.getMaxXp(ctx.userData.level ?? 1),
-                },
-            ],
-            [],
-            [],
-        ];
+            ]
+        ];*/
 
-        return useBox(
+        const realLoot: boxLoot[][] = [[]];
+
+        for (let i = 0; i < amount; i++) {
+            const finalLoot: boxLoot[][] = [
+                [
+                    {
+                        percent: 100,
+                        xp: Functions.randomNumber(
+                            Functions.getMaxXp(ctx.userData.level ?? 1) * 0.2,
+                            Functions.getMaxXp(ctx.userData.level ?? 1) * 0.4
+                        ),
+                    },
+                ],
+                [],
+                [],
+            ];
+            for (let i = 0; i < 1; i++) {
+                realLoot[0].push(...finalLoot[0]);
+            }
+        }
+
+        await useBox(
             ctx,
-            finalLoot,
+            realLoot,
             "XP Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
             Emojis["xp_box"],
             Emojis["xp_box_shake"]
         );
+
+        return amount;
     },
 };
