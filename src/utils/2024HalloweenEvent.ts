@@ -458,10 +458,11 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                             .amount;
 
                     if (pumpkins() < selectedAmount) {
-                        await interaction.reply({
+                        ctx.interaction.followUp({
                             content: "You don't have enough pumpkins.",
                             ephemeral: true,
                         });
+                        interaction.deferUpdate().catch(() => {});
                         return;
                     }
                     const status: boolean[] = [
@@ -469,33 +470,38 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                         Functions.removeItem(ctx.userData, Pumpkin.id, amountBought),
                     ];
                     if (!status.every((s) => s)) {
-                        await interaction.reply({
-                            content:
-                                "An error occurred. If you selected Nix Stand Disc, please note that you can't have more than 3 copies of it.",
-                            ephemeral: true,
-                        });
+                        ctx.interaction
+                            .followUp({
+                                content:
+                                    "An error occurred. If you selected Nix Stand Disc, please note that you can't have more than 3 copies of it.",
+                                ephemeral: true,
+                            })
+                            .catch(() => {});
                         return;
                     }
                     ctx.client.database.saveUserData(ctx.userData);
 
-                    await interaction.reply({
-                        content: `You traded ${amountBought} pumpkins for ${selectedAmount}x ${currentTrade.item}.`,
-                        ephemeral: true,
-                    });
-                    await ctx.makeMessage({
+                    ctx.interaction
+                        .followUp({
+                            content: `You traded ${amountBought} pumpkins for ${selectedAmount}x ${currentTrade.item}.`,
+                            ephemeral: true,
+                        })
+                        .catch(() => {});
+                    ctx.makeMessage({
                         content: null,
                         embeds: [embed()],
                         components: [components()],
-                    });
+                    }).catch(() => {});
                     break;
                 }
 
                 case ctx.interaction.id + "goBack": {
-                    await interaction.update({
+                    ctx.makeMessage({
                         content: null,
                         components: [components()],
                         embeds: [embed()],
                     });
+                    interaction.deferUpdate().catch(() => {});
                     return;
                 }
             }
