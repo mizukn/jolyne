@@ -887,36 +887,53 @@ export const BoosterBox: Special = {
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
         const standList = Object.values(Stands).filter((r) => r.available && r.rarity === "S");
+        let amount = 1;
+        if (ctx.interaction.commandName === "inventory") {
+            amount = ctx.interaction.options.getInteger("amount", false);
+        }
+        if (!amount) amount = 1;
 
-        const finalLoot: boxLoot[][] = [
-            [
-                {
-                    percent: 100,
-                    coins: 100000,
-                },
-                {
-                    percent: 100,
-                    xp:
-                        Functions.getMaxXp(ctx.userData.level ?? 1) +
-                        Functions.getMaxXp((ctx.userData.level ?? 1) + 1),
-                },
-            ],
-            [
-                {
-                    percent: 100,
-                    loot: standList[Math.floor(Math.random() * standList.length)].id + ".$disc$",
-                },
-                {
-                    percent: 100,
-                    loot: StandArrow.id,
-                    mult: 30,
-                },
-            ],
-        ];
+        const realLoot: boxLoot[][] = [[], []];
+
+        for (let i = 0; i < amount; i++) {
+            const finalLoot: boxLoot[][] = [
+                [
+                    {
+                        percent: 100,
+                        coins: 100000,
+                    },
+                    {
+                        percent: 100,
+                        xp:
+                            Functions.getMaxXp(ctx.userData.level ?? 1) +
+                            Functions.getMaxXp((ctx.userData.level ?? 1) + 1),
+                    },
+                ],
+                [
+                    {
+                        percent: 100,
+                        loot:
+                            standList[Math.floor(Math.random() * standList.length)].id + ".$disc$",
+                    },
+                    {
+                        percent: 100,
+                        loot: StandArrow.id,
+                        mult: 30,
+                    },
+                ],
+            ];
+
+            for (let i = 0; i < 2; i++) {
+                if (!realLoot[i] && !finalLoot[i]) continue;
+                if (!realLoot[i].length && !finalLoot[i].length) continue;
+                if (!realLoot[i]) realLoot[i] = [];
+                realLoot[i].push(...finalLoot[i]);
+            }
+        }
 
         return useBox(
             ctx,
-            finalLoot,
+            realLoot,
             "Booster Box",
             "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
             "📦" + "<a:booster:1212488355158302740>",
