@@ -63,3 +63,9 @@ export const erroredFightLogsWebhook = new WebhookClient({
         ? process.env.BETA_FALLBACK_WEBHOOK_URL
         : process.env.ERRORED_FIGHT_LOGS_WEBHOOK_URL,
 });
+
+export const halloweenClaimsWebhook = new WebhookClient({
+    url: process.env.BETA
+        ? process.env.BETA_FALLBACK_WEBHOOK_URL
+        : process.env.HALLOWEEN_CLAIMS_WEBHOOK_URL,
+});

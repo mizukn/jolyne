@@ -5,6 +5,7 @@ import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "d
 import { get, method } from "lodash";
 import { SideQuest, SlashCommand } from "../@types";
 import { it } from "node:test";
+import { halloweenClaimsWebhook } from "./Webhooks";
 
 const currentDayMonthHourMinute = () => {
     const date = new Date();
@@ -178,14 +179,44 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
         if (!userData || claimed) {
             return;
         }
+        const status = Functions.addItem(userData, item.item.id, item.amount);
+        if (!status) {
+            return;
+        }
+        if (claimed) return; // extra check
         claimed = true;
         collector.stop();
         Functions.disableRows(reply);
-        Functions.addItem(userData, item.item.id, item.amount);
         ctx.client.database.saveUserData(userData);
 
         reply.edit({
             content: `Claimed by <@${interaction.user.id}>.`,
+        });
+
+        halloweenClaimsWebhook.send({
+            embeds: [
+                {
+                    title: `${item.item.emoji} ${item.amount}x ${item.item.name} appeared!`,
+                    description: `Claimed by <@${interaction.user.id}> (${interaction.user.id})`,
+                    color: item.color,
+                    fields: [
+                        {
+                            name: "Guild",
+                            value: `${ctx.interaction.guild.name} (${ctx.interaction.guild.id})`,
+                            inline: true,
+                        },
+                        {
+                            name: "Channel",
+                            value: `<#${ctx.interaction.channel.id}>`,
+                            inline: true,
+                        },
+                    ],
+                    thumbnail: {
+                        url: interaction.user.displayAvatarURL(),
+                    },
+                    timestamp: new Date().toISOString(),
+                },
+            ],
         });
 
         interaction.reply({
