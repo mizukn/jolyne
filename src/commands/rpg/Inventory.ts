@@ -556,7 +556,7 @@ const slashCommand: SlashCommandFile = {
                 try {
                     const status = await itemData.use(ctx);
                     if (status) {
-                        ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+                        //ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
                         const statusX = Functions.removeItem(ctx.userData, itemString, status);
                         if (!statusX) {
                             ctx.RPGUserData = oldData;
