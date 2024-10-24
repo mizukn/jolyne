@@ -80,8 +80,21 @@ const __sxvay21975y0o8xlj9bp = () =>
 
 export const endOf2024HalloweenEvent = 1730700000000;
 export const is2024HalloweenEvent = (): boolean => Date.now() < endOf2024HalloweenEvent;
+export const is2024HalloweenEventEndingSoon = (): boolean => // 3 days before the end
+    Date.now() > endOf2024HalloweenEvent - 1000 * 60 * 60 * 24 * 3;
 
 export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Promise<boolean> => {
+    const pumpkinsLeft = ctx.userData.inventory[Pumpkin.id] || 0;
+    if (is2024HalloweenEventEndingSoon() && pumpkinsLeft > 150 && Functions.percent(30)) {
+        ctx.interaction.followUp({
+            content: `${
+                Pumpkin.emoji
+            } | The halloween event is ending soon! You currently have **${pumpkinsLeft}** pumpkins. You should ${ctx.client.getSlashCommandMention(
+                "event trade"
+            )} them with Polpo before the event ends.`,
+            ephemeral: true,
+        });
+    }
     if (Functions.userIsCommunityBanned(ctx.userData)) {
         return false;
     }
