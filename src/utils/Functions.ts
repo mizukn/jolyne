@@ -671,6 +671,7 @@ export const standAbilitiesEmbed = (
     chosenStand?: Stand
 ): APIEmbed => {
     const stand = chosenStand ? chosenStand : isFighter(user) ? user.stand : findStand(user.stand);
+    if (!stand) return { title: "No stand found", description: "No stand found", color: 0xff0000 };
     const totalStandSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
 
     const embed: APIEmbed = {
