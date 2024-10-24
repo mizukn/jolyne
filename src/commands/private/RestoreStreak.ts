@@ -68,6 +68,7 @@ const slashCommand: SlashCommandFile = {
                 userData.daily.claimStreak + streakDataParsed.oldStreak * (percentage / 100)
             );
             userData.daily.lastClaimed = dateAtMidnight;
+            ctx.client.database.saveUserData(userData);
 
             ctx.makeMessage({
                 content: `${userMention(
