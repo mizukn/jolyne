@@ -1,0 +1,4 @@
+{
+	"ADVENTUREAT": ":calendar: Started their adventure {{rUnix}} ({{dUnix}})\n:question: This player was last seen {{lastSeenRUnix}} ({{lastSeenDUnix}})",
+	"STATS": "Player Stats"
+}
