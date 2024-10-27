@@ -265,13 +265,23 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Player Stats",
-                    value: `${ctx.client.localEmojis.a_} Level: ${rpgData.level}\n${
-                        ctx.client.localEmojis.xp
-                    } XP: ${rpgData.xp.toLocaleString("en-US")}/${Functions.getMaxXp(
-                        rpgData.level
-                    ).toLocaleString("en-US")}\n${
-                        ctx.client.localEmojis.jocoins
-                    } Coins: ${rpgData.coins.toLocaleString()}`,
+                    value: process.env.ENABLE_PRESTIGE
+                        ? `${ctx.client.localEmojis.a_} Level: ${rpgData.level.toLocaleString(
+                              "en-US"
+                          )}/${Functions.getMaxPrestigeLevel(rpgData.prestige ?? 0)} (prestige: **${
+                              rpgData.prestige ?? 0
+                          }**)\n${ctx.client.localEmojis.xp} XP: ${rpgData.xp.toLocaleString(
+                              "en-US"
+                          )}/${Functions.getMaxXp(rpgData.level).toLocaleString("en-US")}\n${
+                              ctx.client.localEmojis.jocoins
+                          } Coins: ${rpgData.coins.toLocaleString()}`
+                        : `${ctx.client.localEmojis.a_} Level: ${rpgData.level.toLocaleString(
+                              "en-US"
+                          )}\n${ctx.client.localEmojis.xp} XP: ${rpgData.xp.toLocaleString(
+                              "en-US"
+                          )}/${Functions.getMaxXp(rpgData.level).toLocaleString("en-US")}\n${
+                              ctx.client.localEmojis.jocoins
+                          } Coins: ${rpgData.coins.toLocaleString()}`,
                     inline: true,
                 },
                 {

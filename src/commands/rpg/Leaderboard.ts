@@ -39,6 +39,11 @@ const slashCommand: SlashCommandFile = {
                 description: "Shows the users with the highest daily streak",
                 type: 1,
             },
+            /*{
+                name: "xp",
+                description: "Shows the users with the most gained xp",
+                type: 1,
+            },*/
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -257,6 +262,23 @@ const slashCommand: SlashCommandFile = {
                                 lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
                             } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
                             value: `${ctx.client.localEmojis.replyEnd} **${user.daily.claimStreak}** days in a row 📅`,
+                            inline: false,
+                        }));
+                    break;
+                }
+
+                case "xp": {
+                    embed.title = "Most Gained XP";
+                    embed.fields = lastLeaderboard.data
+                        .sort((a, b) => Functions.getTotalXp(b) - Functions.getTotalXp(a))
+                        .slice((currentPage - 1) * 10, currentPage * 10)
+                        .map((user, i) => ({
+                            name: `${
+                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
+                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
+                            value: `${ctx.client.localEmojis.a_} **${Functions.getTotalXp(
+                                user
+                            ).toLocaleString("en-US")}** total ${ctx.client.localEmojis.xp}`,
                             inline: false,
                         }));
                     break;

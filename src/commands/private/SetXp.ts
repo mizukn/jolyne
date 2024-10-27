@@ -19,12 +19,12 @@ const totalStands = [
 
 const slashCommand: SlashCommandFile = {
     data: {
-        name: "adminsetlevel",
-        description: "instant setlevel",
+        name: "adminsetxp",
+        description: "instant xp",
         options: [
             {
-                name: "level",
-                description: "level to set",
+                name: "xp",
+                description: "xp to set",
                 type: 4,
                 required: true,
             },
@@ -37,24 +37,23 @@ const slashCommand: SlashCommandFile = {
         /* return void ctx.makeMessage({
             content: `This command is disabled because it is too easy to win money. Please use the slot machine instead. This command may or may not be re-enabled in the future.`,
         });*/
-        const level = ctx.options.getInteger("level", true);
-        if (level > 4000) {
+        const xp = ctx.options.getInteger("xp", true);
+        if (xp > 2147483647) {
             return void ctx.makeMessage({
-                content: "Level must be less than 4000",
+                content: "XP DOES NOT FIT IN A 32-BIT SIGNED INTEGER",
             });
         }
 
-        if (level < 1) {
+        if (xp < -2147483648) {
             return void ctx.makeMessage({
-                content: "Level must be greater than 0",
+                content: "XP DOES NOT FIT IN A 32-BIT SIGNED INTEGER",
             });
         }
 
         // 	-2147483648 to +2147483647
 
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
-        ctx.userData.level = level;
-        ctx.userData.xp = 0;
+        ctx.userData.xp = xp;
 
         if (Functions.getSkillPointsLeft(ctx.userData) < 0) {
             for (const key in ctx.userData.skillPoints) {
@@ -65,7 +64,7 @@ const slashCommand: SlashCommandFile = {
         await ctx.client.database.saveUserData(ctx.userData);
 
         ctx.makeMessage({
-            content: `Level set to ${level}`,
+            content: `XP set to ${xp}`,
         });
     },
 };

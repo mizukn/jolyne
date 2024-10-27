@@ -253,7 +253,7 @@ const slashCommand: SlashCommandFile = {
             level: Math.round(protectedBoss.level * 1.25),
         };
 
-        Functions.generateSkillPoints(enhancedBoss);
+        Functions.generateSkillPoints(enhancedBoss, true);
 
         const joinRaidButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Primary)
