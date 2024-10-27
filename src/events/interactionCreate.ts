@@ -483,7 +483,12 @@ const Event: EventFile = {
                     }
                 }
                 // while checker if userData xp greater than maxXp
-                while (ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level)) {
+                while (
+                    ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level) &&
+                    (process.env.ENABLE_PRESTIGE
+                        ? ctx.userData.level < Functions.getMaxPrestigeLevel(ctx.userData.prestige)
+                        : true)
+                ) {
                     ctx.userData.xp -= Functions.getMaxXp(ctx.userData.level);
                     ctx.userData.level++;
                     ctx.followUpQueue.push({

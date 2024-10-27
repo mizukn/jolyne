@@ -1,4 +1,4 @@
-import type { EventFile } from "../@types";
+import type { EventFile, SkillPointsBuildArr } from "../@types";
 import * as Functions from "../utils/Functions";
 import { Events, ActivityType, ActivityOptions } from "discord.js";
 import * as Stands from "../rpg/Stands/Stands";
@@ -7,6 +7,7 @@ import { CronJob } from "cron";
 import TopGG from "../utils/TopGG";
 import { FightHandler } from "../structures/FightHandler";
 import { cli } from "winston/lib/winston/config";
+import * as FightableNPCs from "../rpg/NPCs/FightableNPCs";
 
 async function fetchSupportMembers(client: Jolyne): Promise<void> {
     const members = await client.guilds.cache
@@ -333,6 +334,41 @@ const Event: EventFile = {
             await client.database.fixSettingsToEveryone();
             await client.database.redis.set("updateSettings", "true");
             console.log("Updated settings to everyone");
+        }
+
+        const build = await client.database.updateSkillPointsBuilds();
+
+        for (const NPC of Object.values(FightableNPCs)) {
+            client.log(`Generating ${NPC.name} skill points...`, "npc");
+
+            if (!Functions.skillPointsIsOK(NPC)) {
+                const stand = Functions.findStand(NPC.stand, NPC.standsEvolved[NPC.stand]);
+                const weapon = Functions.getWeapon(NPC);
+                if (
+                    (stand &&
+                        (stand.rarity === "S" || stand.rarity === "SS" || stand.rarity === "T")) ||
+                    (weapon &&
+                        (weapon.rarity === "S" || weapon.rarity === "SS" || weapon.rarity === "T"))
+                ) {
+                    const Build =
+                        Functions.randomArray(build.filter((x) => x.level === NPC.level)) ||
+                        build
+                            .filter((x) => x.level <= NPC.level && NPC.level >= x.level * 0.8)
+                            .sort((a, b) => b.level - a.level)[0] ||
+                        Functions.randomArray(build);
+
+                    Functions.generateSkillPointsByBuild(NPC, Build.skillPoints);
+                    /*console.log(
+                        `Used build LVL ${Build.level} for ${NPC.name} (${NPC.level})`,
+                        Build.skillPoints
+                    );*/
+                } else {
+                    Functions.generateSkillPoints(NPC);
+                    //console.log(`Generated random skill points for ${NPC.name} (${NPC.level})`);
+                }
+            } else {
+                //console.log(`Skill points are OK for ${NPC.name} (${NPC.level})`, NPC.skillPoints);
+            }
         }
 
         client.log(`Logged in as ${client.user?.tag}`, "ready");
