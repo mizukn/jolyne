@@ -13,8 +13,8 @@
     "ALREADY_REQUIEM": "{{emojis.requiem_arrow}} **Реквием стрела:** Что? Что ты делаешь? Ты что правда пытаешься превратить {{stand}} Реквием в {{stand}} Реквием Реквием? Чел хорош шутканул."
   },
   "RARE_MYSTERIOUS_ARROW": {
-    "NAME": "Mysterious Arrow",
-    "DESCRIPTION": "A mysterious arrow...",
+    "NAME": "Таинственная Стрела",
+    "DESCRIPTION": "Таинственная стрела...",
     "ALREADY_STAND": "{{emojis.mysterious_arrow}} **Rare Stand Arrow:** The arrow doesn't respond...",
     "ALREADY_STAND2": "{{emojis.mysterious_arrow}} **Rare Stand Arrow:** The arrow doesn't respond...\n\nLooks like you already have a stand. Reset it by using `/stand delete` or store it by using `/stand store` and then try again.",
     "MANIFESTING": "{{emojis.mysterious_arrow}} **Rare Stand Arrow:** Your spirit is manifesting...",

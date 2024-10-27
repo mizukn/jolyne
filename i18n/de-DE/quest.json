@@ -8,12 +8,12 @@
         "DESCRIPTION": "Remove the creature on the head of the Kakyoin (50% success rate)"
     },
     "TELL_GRANDFATHER": {
-        "TITLE": "Tell to your grandfather about Dio",
+        "TITLE": "Erzähl deinem Großvater von Dio",
         "DESCRIPTION": "Send an e-mail to your grandfather"
     },
     "BRING_KAKYOIN_HOSPITAL": {
-        "TITLE": "Bring Kakyoin to the hospital",
-        "DESCRIPTION": "Bring Kakyoin to the hospital"
+        "TITLE": "Bring Kakyoin ins Krankenhaus.",
+        "DESCRIPTION": "Bring Kakyoin ins Krankenhaus."
     },
     "AWAKE_STAND": {
         "DESCRIPTION": "Awaken your stand"
@@ -47,7 +47,7 @@
     },
     "TYGAD": {
         "TITLE": "Send an e-mail to your grandfather about the situation",
-        "DESCRIPTION": "Tell to your grandfather about Dio"
+        "DESCRIPTION": "Erzähl deinem Großvater von Dio"
     },
     "TYGAD_ANSWER": {
         "DESCRIPTION": "Wait for your grandfather to answer"
@@ -58,12 +58,12 @@
         "CHAP_DESC": "Wait for the taxi to arrive."
     },
     "REMOVE_FLESHBUD_POLNAREFF": {
-        "TITLE": "Remove the fleshbud",
+        "TITLE": "Entfernen Sie die Fleischknospe",
         "DESCRIPTION": "Remove the fleshbud on the head of the polnareff"
     },
     "DRIVE_AIRPLANE_TO_HONGKONG": {
-        "TITLE": "Drive the airplane",
-        "DESCRIPTION": "Drive the airplane immediately to Hong Kong"
+        "TITLE": "Steuern Sie das Flugzeug",
+        "DESCRIPTION": "Fahr das Flugzeug sofort nach Hongkong"
     },
     "THROW_RUBBER_SOUL_BODY_TO_THE_SEA": {
         "TITLE": "Throw rubber soul's body",
