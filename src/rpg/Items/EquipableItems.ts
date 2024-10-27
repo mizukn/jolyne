@@ -643,13 +643,13 @@ export const Excalibur: Weapon = {
             stamina: 0,
         },
     },
-    rarity: "S",
+    rarity: "SS",
     abilities: [Abilities.SwordOfPromisedVictory],
     passives: [Passives.Regeneration, Passives.Alter],
     tradable: !is2024HalloweenEvent(),
     storable: true,
     requirements: {
-        level: 50,
+        level: 150,
     },
     price: 5000000,
 };

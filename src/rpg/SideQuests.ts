@@ -69,8 +69,8 @@ export const RequiemArrowEvolve: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **50**",
-            status: ctx.userData.level >= 50,
+            requirement: "You need to be level **50** or over presige 0",
+            status: ctx.userData.level >= 50 || !!ctx.userData.prestige,
         });
 
         statuses.push({
@@ -130,8 +130,12 @@ export const Beginner: SideQuest = {
     requirements: (ctx) => {
         return [
             {
-                requirement: "You must be not over level 10",
-                status: ctx.userData.level < 10,
+                requirement: "You must be not over level **10**",
+                status: ctx.userData.level <= 10,
+            },
+            {
+                requirement: "You must be prestige **0**",
+                status: !ctx.userData.prestige,
             },
         ];
     },
@@ -258,8 +262,8 @@ export const KillerQueenDitesTheDust: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **75**",
-            status: ctx.userData.level >= 75,
+            requirement: "You need to be level **75** or over presige 0",
+            status: ctx.userData.level >= 75 || !!ctx.userData.prestige,
         });
 
         return statuses;
@@ -393,8 +397,8 @@ export const Echoes2: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **10**",
-            status: ctx.userData.level >= 10,
+            requirement: "You need to be level **10** or over presige 0",
+            status: ctx.userData.level >= 10 || !!ctx.userData.prestige,
         });
 
         statuses.push({
@@ -468,8 +472,8 @@ export const Echoes3: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **15**",
-            status: ctx.userData.level >= 15,
+            requirement: "You need to be level **15** or over presige 0",
+            status: ctx.userData.level >= 15 || !!ctx.userData.prestige,
         });
 
         statuses.push({
@@ -622,8 +626,8 @@ export const CMoon: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **100**",
-            status: ctx.userData.level >= 100,
+            requirement: "You need to be level **100** or over presige 0",
+            status: ctx.userData.level >= 100 || !!ctx.userData.prestige,
         });
 
         return statuses;
