@@ -52,8 +52,7 @@ export const StarFinger: Ability = {
 export const RoadRoller: Ability = {
     ...StarFinger,
     name: "Road Roller",
-    description:
-        "Jumps into the sky and throws an entire Road Roller on the opponent. CAN STACK FREE TURNS IF ENOUGH SPEED!",
+    description: "Jumps into the sky and throws an entire Road Roller on the opponent.",
 };
 
 export const TheWorld: Ability = {
