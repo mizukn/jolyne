@@ -5,7 +5,7 @@ import {
     type RPGUserQuest,
     type UseXCommandQuest,
 } from "../@types";
-import { Events, Interaction } from "discord.js";
+import { Events, Interaction, InteractionReplyOptions, MessagePayload } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
@@ -483,6 +483,8 @@ const Event: EventFile = {
                     }
                 }
                 // while checker if userData xp greater than maxXp
+                const queue: (MessagePayload | InteractionReplyOptions)[] = [];
+                const oldLevel = ctx.userData.level;
                 while (
                     ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level) &&
                     (process.env.ENABLE_PRESTIGE
@@ -491,13 +493,26 @@ const Event: EventFile = {
                 ) {
                     ctx.userData.xp -= Functions.getMaxXp(ctx.userData.level);
                     ctx.userData.level++;
-                    ctx.followUpQueue.push({
+                    queue.push({
                         content: `:up: | **${ctx.user.username}** leveled up to level **${
                             ctx.userData.level
                         }**!\n\nUse the ${ctx.client.getSlashCommandMention(
                             "skill points invest"
                         )} command to invest your skill points!`,
                     });
+                }
+                if (queue.length > 5) {
+                    ctx.followUpQueue.push({
+                        content: `:up: | **${ctx.user.username}** leveled up: **${oldLevel}** ${
+                            ctx.client.localEmojis.arrowRight
+                        } **${ctx.userData.level}**!\n\nUse the ${ctx.client.getSlashCommandMention(
+                            "skill points invest"
+                        )} command to invest your skill points!`,
+                    });
+                } else {
+                    for (const item of queue) {
+                        ctx.followUpQueue.push(item);
+                    }
                 }
                 if (new Date().getDay() === 0 && command.data.name !== "shop") {
                     if (!ctx.client.otherCache.get(`black_market:${ctx.user.id}`)) {
@@ -547,6 +562,21 @@ const Event: EventFile = {
                 ) {
                     ctx.followUpQueue.push({
                         content: `:warning: | <@${ctx.user.id}>, you're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`,
+                    });
+                }
+
+                if (
+                    ctx.userData.level >= Functions.getMaxPrestigeLevel(ctx.userData.prestige) &&
+                    process.env.ENABLE_PRESTIGE &&
+                    ctx.userData.settings.notifications.reached_max_level &&
+                    command.data.name !== "prestige"
+                ) {
+                    ctx.followUpQueue.push({
+                        content: `:star: | **${
+                            ctx.user.username
+                        }**, you reached the maximum level for your prestige level! Use the ${ctx.client.getSlashCommandMention(
+                            "prestige"
+                        )} command to prestige and start over...`,
                     });
                 }
 

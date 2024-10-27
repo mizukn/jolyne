@@ -330,12 +330,6 @@ const Event: EventFile = {
             } else commandsV3.push(commands);
         }
 
-        if (!(await client.database.redis.get("updateSettings"))) {
-            await client.database.fixSettingsToEveryone();
-            await client.database.redis.set("updateSettings", "true");
-            console.log("Updated settings to everyone");
-        }
-
         const build = await client.database.updateSkillPointsBuilds();
 
         for (const NPC of Object.values(FightableNPCs)) {
@@ -392,6 +386,12 @@ const Event: EventFile = {
             if (result) client.patreonTiers = result;
             console.log("Fetched patreon tiers");
             await new Promise((resolve) => setTimeout(resolve, 15000));
+        }
+
+        if (!(await client.database.redis.get("updateSettingsPrestige"))) {
+            await client.database.fixSettingsToEveryone();
+            await client.database.redis.set("updateSettingsPrestige", "true");
+            console.log("Updated settings to everyone");
         }
     },
 };
