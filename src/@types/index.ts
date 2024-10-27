@@ -299,6 +299,7 @@ export interface RPGUserDataJSON {
     lastPatreonReward: number;
     lastSeen: Date;
     settings: RPGUserSettings;
+    prestige: number;
 }
 
 export interface RPGUserSettings {
@@ -1157,6 +1158,12 @@ export interface Passive {
     type: "round" | "turn";
     cooldown?: number;
     executeOnlyOnce?: boolean;
+    evenIfDead?: boolean;
     getId: (user: Fighter, context: FightHandler, from: string) => string;
     promise: (user: Fighter, context: FightHandler, from: string) => void;
 }
+
+export type SkillPointsBuildArr = {
+    level: number;
+    skillPoints: SkillPoints;
+}[];
