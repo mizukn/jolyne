@@ -338,7 +338,7 @@ for (const stand of [
             items: rewards.items,
         },
     };
-    Functions.generateSkillPoints(npcData);
+    //Functions.generateSkillPoints(npcData);
     // @ts-expect-error because it's a dynamic property
     FightableNPCs[`${stand.name.replace(" ", "")}User`] = npcData;
 
@@ -403,7 +403,7 @@ for (const stand of [
                 items: rewards.items,
             },
         };
-        Functions.generateSkillPoints(npcData);
+        //Functions.generateSkillPoints(npcData);
         // @ts-expect-error because it's a dynamic property
         FightableNPCs[ID] = npcData;
     }
@@ -446,15 +446,15 @@ for (const NPC of [...Object.values(NPCs), ...Object.values(FightableNPCs)]) {
         NPC.avatarURL = `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(NPC.emoji)}.png`;
 }
 for (const NPC of Object.values(FightableNPCs)) {
-    client.log(`Checking ${NPC.name} NPC...`, "npc");
-    if (!Functions.skillPointsIsOK(NPC)) {
+    client.log(`Generating ${NPC.name} rewards...`, "npc");
+    /*if (!Functions.skillPointsIsOK(NPC)) {
         // check if it is not 0 skill point on everything
         if (!Object.values(NPC.skillPoints).every((x) => x === 0)) {
             Functions.generateSkillPoints(NPC);
         } else {
             Functions.generateSkillPoints(NPC);
         }
-    }
+    }*/
     if (!NPC.rewards) NPC.rewards = {};
     Functions.fixNpcRewards(NPC);
 }
