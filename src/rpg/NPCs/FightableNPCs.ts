@@ -1,4 +1,5 @@
 // Note: it doesn't matter if the NPC doesn't have balanced skill points because it'll be balanced when the bot starts.
+// DO NOT IMPORT FUNCTIONS BECAUSE CIRCULAR DEPENDENCY
 import { equipableItemTypes, type FightableNPC } from "../../@types";
 import * as NPCs from "./NPCs";
 import * as EquipableItems from "../Items/EquipableItems";

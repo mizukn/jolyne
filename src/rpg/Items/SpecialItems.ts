@@ -805,16 +805,13 @@ export const SkillPointsResetPotion: Special = {
 export const ChristmasGift: Special = {
     id: "christmas_gift",
     name: "Christmas Gift",
-    description: "A gift that was available during Christmas.",
+    description: "A gift that was available during Christmas (2023 & 2024).",
     rarity: "T",
     emoji: Emojis["xmasgift"],
     price: 5000,
     tradable: true,
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
-        const standList = Object.values(Stands).filter(
-            (r) => r.available && r.rarity !== "SS" && r.rarity !== "T" && r.rarity !== "S"
-        );
         let amount = 1;
         if (ctx.interaction.commandName === "inventory") {
             amount = ctx.interaction.options.getInteger("amount", false);
@@ -829,17 +826,17 @@ export const ChristmasGift: Special = {
                 [
                     {
                         percent: 100,
-                        loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                        loot: Functions.findItem(Functions.randomArray(standArray).id).id,
                         mult: 1,
                     },
                     {
                         percent: 85,
-                        loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                        loot: Functions.findItem(Functions.randomArray(standArray).id).id,
                         mult: 1,
                     },
                     {
                         percent: 25,
-                        loot: Functions.findItem(Functions.randomArray(standList).id).id,
+                        loot: Functions.findItem(Functions.randomArray(rareStandArray).id).id,
                         mult: 1,
                     },
                 ],
@@ -847,12 +844,12 @@ export const ChristmasGift: Special = {
                     {
                         percent: 100,
                         loot: Functions.findItem("rare_stand_arrow").id,
-                    },
+                    } /*,
                     {
                         percent: 100,
                         loot: Functions.findItem("candy_cane").id,
                         mult: 5,
-                    },
+                    }*/,
                 ],
             ];
 

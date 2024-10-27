@@ -389,3 +389,44 @@ export const RegenerationAlter: Passive = {
             );
     },
 };
+
+export const Resurrection: Passive = {
+    name: "Resurrection",
+    description:
+        "When the user dies, they are resurrected with 50% of their max health and stamina. This passive can only be triggered once per battle.",
+    type: "turn",
+    evenIfDead: true,
+    getId: (user: Fighter, context: FightHandler) => `resurrection_${user.id}_${context.id}`,
+    promise: (user: Fighter, fight: FightHandler) => {
+        const isEnabledId = `resurrection_${user.id}_${fight.id}.enabled`;
+        if (!fight.cache.has(isEnabledId)) {
+            fight.cache.set(isEnabledId, 0);
+        }
+
+        const isEnabled = Number(fight.cache.get(isEnabledId));
+        // check if user has forfeited
+        // fight.turns.forEach((x) => x.logs.forEach(g => g.includes(user.name) && g.includes("forfeited")))
+
+        let foundForfeit = false;
+        fight.turns.forEach((x) => {
+            x.logs.forEach((g) => {
+                if (g.includes(user.name) && g.includes("forfeited")) {
+                    foundForfeit = true;
+                }
+            });
+        });
+
+        /*if (foundForfeit) {
+            console.log("Forfeit found");
+            return;
+        }*/
+        if (isEnabled === 0 && user.health <= 0) {
+            fight.cache.set(isEnabledId, 1);
+            user.health = Math.round(user.maxHealth / 2);
+            user.stamina = Math.round(user.maxStamina / 2);
+            fight.turns[fight.turns.length - 1].logs.push(
+                `-# **${user.name}** has been resurrected!`
+            );
+        }
+    },
+};
