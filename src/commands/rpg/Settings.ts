@@ -119,6 +119,14 @@ const descriptions: SettingDescriptions<RPGUserSettings> = {
             description: "Get notified when your health or stamina is low.",
             format: (value: unknown | string) => booleanToEmoji(value as boolean),
         },
+        {
+            id: "reached_max_level",
+            name: "Reached Max Level",
+            emoji: "<:a_:927885909976834078>",
+            description:
+                "Get notified when you reach the maximum level for your current prestige lvl.",
+            format: (value: unknown | string) => booleanToEmoji(value as boolean),
+        },
     ],
     auto_heal: [
         {
