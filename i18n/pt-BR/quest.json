@@ -1,0 +1,82 @@
+{
+    "ANALYSE_HAIR": {
+        "TITLE": "Analyse these hairs",
+        "DESCRIPTION": "Send these yellow hairs to the SPEEDWAGON FOUNDATION"
+    },
+    "REMOVE_THING_KAKYOIN": {
+        "TITLE": "Remove the creature",
+        "DESCRIPTION": "Remove the creature on the head of the Kakyoin (50% success rate)"
+    },
+    "TELL_GRANDFATHER": {
+        "TITLE": "Tell to your grandfather about Dio",
+        "DESCRIPTION": "Send an e-mail to your grandfather"
+    },
+    "BRING_KAKYOIN_HOSPITAL": {
+        "TITLE": "Bring Kakyoin to the hospital",
+        "DESCRIPTION": "Bring Kakyoin to the hospital"
+    },
+    "AWAKE_STAND": {
+        "DESCRIPTION": "Awaken your stand"
+    },
+    "INVEST_SKILL_POINTS": {
+        "DESCRIPTION": "Invest your skill points"
+    },
+    "COMPLETE_BEGINNER_SIDE_QUEST": {
+        "DESCRIPTION": "Complete the beginner side quest and claim its rewards!"
+    },
+    "LOOT_COINS": {
+        "DESCRIPTION": "Loot {{cc}} coins (using the {{command.loot}} command)"
+    },
+    "CLAIMX": "Claim **{{cc}}** {{name}}{{s}} {{emoji}}",
+    "USE_COMMAND": "Use the {{cmd}} command {{cc}} time{{s}}",
+    "SPEEDWAGON_ANSWER": {
+        "TITLE": "Wait for the SPEEDWAGON to answer",
+        "DESCRIPTION": "Wait for the SPEEDWAGON to send you their results about these hairs"
+    },
+    "KAKYOIN_BACK": {
+        "TITLE": "Wait for kakyoin to recover",
+        "DESCRIPTION": "Wait for kakyoin to recover from the hospital"
+    },
+    "GET_TRAM_GO_INDIA": {
+        "TITLE": "Get a tram",
+        "DESCRIPTION": "Get a tram and go to India",
+        "CHAP_DESC": "Wait for the tram to arrive."
+    },
+    "TAXIUPGO": {
+        "DESCRIPTION": "Get at the Morioh airport 🚕"
+    },
+    "TYGAD": {
+        "TITLE": "Send an e-mail to your grandfather about the situation",
+        "DESCRIPTION": "Tell to your grandfather about Dio"
+    },
+    "TYGAD_ANSWER": {
+        "DESCRIPTION": "Wait for your grandfather to answer"
+    },
+    "GO_TO_AIRPORT": {
+        "TITLE": "Get to the airport",
+        "DESCRIPTION": "Find a taxi that goes to the Morioh's International Airport",
+        "CHAP_DESC": "Wait for the taxi to arrive."
+    },
+    "REMOVE_FLESHBUD_POLNAREFF": {
+        "TITLE": "Remove the fleshbud",
+        "DESCRIPTION": "Remove the fleshbud on the head of the polnareff"
+    },
+    "DRIVE_AIRPLANE_TO_HONGKONG": {
+        "TITLE": "Drive the airplane",
+        "DESCRIPTION": "Drive the airplane immediately to Hong Kong"
+    },
+    "THROW_RUBBER_SOUL_BODY_TO_THE_SEA": {
+        "TITLE": "Throw rubber soul's body",
+        "DESCRIPTION": "Throw rubber soul's body to the sea"
+    },
+    "GET_A_TRAM_AND_GO_TO_INDIA": {
+        "TITLE": "Get a tram",
+        "DESCRIPTION": "Get a tram and go to India"
+    },
+    "WAIT_FOR_THE_TRAM_TO_ARRIVE_IN_INDIA": {
+        "DESCRIPTION": "Wait for the tram to arrive in India"
+    },
+    "MUST_READ_EMAIL": {
+        "DESCRIPTION": "Read the e-mail from `{{email.author}}` ({{email.subject}}: {{command.emails view}})"
+    }
+}
