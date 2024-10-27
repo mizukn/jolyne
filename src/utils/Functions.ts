@@ -711,7 +711,7 @@ export const standAbilitiesEmbed = (
 
         const dodgeScore = ability.dodgeScore ?? ability.trueDodgeScore;
         content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
-            !dodgeScore ? "not dodgeable" : dodgeScore
+            dodgeScore ? "not dodgeable" : dodgeScore
         }\n\n*${ability.description.replace(/{standName}/gi, stand.name)}*\n`;
 
         if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
@@ -1621,7 +1621,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
         limit += Math.floor(realUserData.level / 50);
         limit += Math.floor(realUserData.level / 100);
     }
-    //if (userData?.id === "239739781238620160") limit = Infinity;
+    if (userData?.id === "239739781238620160") limit = Infinity;
 
     const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
     if (patronTier) {
