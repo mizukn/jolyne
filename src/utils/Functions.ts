@@ -64,6 +64,8 @@ import color from "get-image-colors";
 import { is2024HalloweenEvent } from "./2024HalloweenEvent";
 import { level } from "winston";
 import e from "express";
+import seedrandom from "seedrandom";
+
 const totalStands = [
     ...Object.values(Stands.Stands),
     ...Object.values(Stands.EvolutionStands).map((x) => {
@@ -959,8 +961,10 @@ export const shuffleArray = <T>(array: T[]): T[] => {
     return array;
 };
 
+const rng = seedrandom(); // or use a custom seed for consistency across runs
+
 export const randomNumber = (min: number, max: number): number => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(rng() * (max - min + 1)) + min;
 };
 
 export const isClaimItemQuest = (quest: RPGUserQuest): quest is ClaimItemQuest => {
@@ -1598,6 +1602,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
     ctx: CommandInteractionContext,
     userData?: RPGUserDataJSON
 ): number {
+    if (!ctx.userData.prestige) ctx.userData.prestige = 0;
     let limit =
         Object.values(Stands.Stands).filter((x) => x.rarity === "S").length +
         ctx.userData.prestige * 5;
