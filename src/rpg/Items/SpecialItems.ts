@@ -403,21 +403,33 @@ export const PatreonBox: Special = {
                 [
                     {
                         percent: 100,
-                        coins: Functions.randomNumber(20000, 50000),
+                        coins: Functions.randomNumber(100000, 200000),
                     },
                     {
                         percent: 100,
-                        xp: Functions.randomNumber(
-                            Functions.getMaxXp(ctx.userData.level ?? 1) / 100,
-                            Functions.getMaxXp(ctx.userData.level ?? 1) / 50
-                        ),
+                        xp:
+                            Functions.getMaxXp(ctx.userData.level ?? 1) * 2 +
+                            Functions.getMaxXp((ctx.userData.level ?? 1) + 1) +
+                            Functions.getMaxXp((ctx.userData.level ?? 1) + 2) +
+                            Functions.getMaxXp((ctx.userData.level ?? 1) + 3),
                     },
                 ],
-                [],
-                [],
+                [
+                    {
+                        percent: 100,
+                        loot:
+                            rareStandArray[Math.floor(Math.random() * rareStandArray.length)].id +
+                            ".$disc$",
+                    },
+                    {
+                        percent: 100,
+                        loot: RareStandArrow.id,
+                        mult: 30,
+                    },
+                ],
             ];
 
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
                 realLoot[i].push(...finalLoot[i]);
             }
         }
