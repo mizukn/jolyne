@@ -39,8 +39,8 @@ export const SilverChariot: EvolutionStand = {
                 "Silver Chariot Requiem is the requiem form of Silver Chariot, evolved by obtaining a Requiem Arrow. It is featured in Vento Aureo. It is known for being one of the most powerful and frightening Stands introduced in the series.",
             rarity: "SS",
             abilities: [
-                Abilities.FencingBarrage,
-                Abilities.Finisher,
+                { ...Abilities.FencingBarrage, dodgeScore: 6 },
+                { ...Abilities.Finisher, dodgeScore: 15 },
                 Abilities.RequiemArrowBlast,
                 Abilities.LifeTransference,
                 Abilities.EternalSleep,

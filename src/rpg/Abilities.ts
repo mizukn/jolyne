@@ -506,7 +506,7 @@ export const RequiemArrowBlast: Ability = {
     damage: 65,
     stamina: 60,
     extraTurns: 0,
-    dodgeScore: 2,
+    dodgeScore: 20,
     target: "enemy",
 };
 
