@@ -46,6 +46,7 @@ import {
     Message,
     MessageActionRowComponent,
     ChatInputCommandInteraction,
+    ActionRow,
 } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
@@ -57,15 +58,12 @@ import * as Emails from "../rpg/Emails";
 import * as EquipableItems from "../rpg/Items/EquipableItems";
 import { Command } from "ioredis";
 import * as Emojis from "../emojis.json";
-import { random } from "lodash";
+import { get, random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
 import color from "get-image-colors";
 import { is2024HalloweenEvent } from "./2024HalloweenEvent";
-
-setTimeout(() => {
-    console.log(Object.values(Emails).map((x) => x.id));
-}, 5000);
-
+import { level } from "winston";
+import e from "express";
 const totalStands = [
     ...Object.values(Stands.Stands),
     ...Object.values(Stands.EvolutionStands).map((x) => {
@@ -536,10 +534,6 @@ export const percent = (percent: number): boolean => {
     return cal <= percent;
 };
 
-const test = [];
-for (let i = 0; i < 100; i++) test.push(percent(100));
-console.log(test.filter((x) => x).length);
-
 export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
     const quests: RPGUserQuest[] = [];
     if (level > 200) level = 200;
@@ -825,7 +819,6 @@ export const weaponAbilitiesEmbed = (
         if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         else content += "▬▬▬▬▬▬▬▬▬";
 
-        console.log(index, totalWeapons.length - 1, index === totalWeapons.length - 1);
         embed.fields.push({
             name: ability.name + (ability.special ? " ⭐" : ""),
             value: content,
@@ -852,12 +845,12 @@ export const weaponAbilitiesEmbed = (
 
 export const getSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): number => {
     const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
-    return user.level * 4 - totalSkillPoints;
+    return getTotalSkillPoints(user) - totalSkillPoints;
 };
 
 export const skillPointsIsOK = (user: RPGUserDataJSON | FightableNPC): boolean => {
     const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
-    return totalSkillPoints === user.level * 4;
+    return totalSkillPoints === getTotalSkillPoints(user);
 };
 
 export const generateSkillPoints = (
@@ -887,6 +880,75 @@ export const generateSkillPoints = (
 
         user.skillPoints[skill]++;
     }
+};
+
+export const generateSkillPointsByBuild = (
+    user: RPGUserDataJSON | FightableNPC,
+    sp: {
+        strength: number;
+        stamina: number;
+        speed: number;
+        defense: number;
+        perception: number;
+    }
+): void => {
+    // sp.properties ARE BY PERCENTAGE!!!
+    const sum = Math.trunc(Object.values(sp).reduce((a, b) => a + b, 0));
+    if (sum > 100) {
+        console.log("Sum of skill points is greater than 100%", sum);
+        return generateSkillPoints(user, true);
+    }
+
+    const spLeft = Object.keys(sp);
+    user.skillPoints = {
+        strength: 0,
+        stamina: 0,
+        speed: 0,
+        defense: 0,
+        perception: 0,
+    };
+    const toSpend = getSkillPointsLeft(user);
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+        const spx = spLeft.pop();
+        if (!spx) break;
+
+        user.skillPoints[spx as keyof SkillPoints] = Math.min(
+            Math.round((sp[spx as keyof SkillPoints] / 100) * toSpend),
+            getSkillPointsLeft(user)
+        );
+    }
+
+    while (getSkillPointsLeft(user) > 0) {
+        const skill = randomArray(
+            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter((x) =>
+                user.skillPoints.stamina >= 100 ? x !== "stamina" : true
+            )
+        ) as keyof SkillPoints;
+
+        if (skill === "stamina" && user.skillPoints.stamina >= 100) {
+            continue; // Skip increasing stamina if it's already 100
+        }
+
+        user.skillPoints[skill]++;
+    }
+};
+
+export const getTotalSkillPoints = (data: number | RPGUserDataJSON | FightableNPC): number => {
+    if (typeof data === "number") return data * 4;
+    else return data.level * 4;
+};
+
+export const getSkillPointsBuild = (data: RPGUserDataJSON | FightableNPC): SkillPoints => {
+    const totalSkillPoints = getTotalSkillPoints(data);
+    const sp = { ...data.skillPoints };
+
+    for (const key of Object.keys(sp)) {
+        sp[key as keyof SkillPoints] = (sp[key as keyof SkillPoints] / totalSkillPoints) * 100;
+    }
+
+    return sp;
 };
 
 export const shuffleArray = <T>(array: T[]): T[] => {
@@ -1213,6 +1275,10 @@ export const addXp = function addXp(
 
     amount = Math.round(amount);
     if (userIsCommunityBanned(userData)) amount = Math.round(amount / 2);
+    if (process.env.ENABLE_PRESTIGE && userData.level >= getMaxPrestigeLevel(userData.prestige)) {
+        console.log("Prestige level reached");
+        amount = 0;
+    }
 
     if (!dontAdd) {
         userData.xp += amount;
@@ -1341,14 +1407,8 @@ export const makeNPCString = function makeNPCString(
 export const calculeSkillPointsLeft = function calculeSkillPointsLeft(
     userData: RPGUserDataJSON
 ): number {
-    return (
-        userData.level * 4 -
-        (userData.skillPoints.perception +
-            userData.skillPoints.strength +
-            userData.skillPoints.stamina +
-            userData.skillPoints.defense +
-            userData.skillPoints.speed)
-    );
+    const usedSkillPoints = Object.values(userData.skillPoints).reduce((a, b) => a + b, 0);
+    return getTotalSkillPoints(userData) - usedSkillPoints;
 };
 
 export const userIsCommunityBanned = function userIsCommunityBanned(
@@ -1538,11 +1598,24 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
     ctx: CommandInteractionContext,
     userData?: RPGUserDataJSON
 ): number {
-    let limit = Object.values(Stands.Stands).filter((x) => x.rarity === "S").length;
+    let limit =
+        Object.values(Stands.Stands).filter((x) => x.rarity === "S").length +
+        ctx.userData.prestige * 5;
     // every 50 levels, the limit increases by 1
     const realUserData = userData ?? ctx.userData;
-    limit += Math.floor(realUserData.level / 50);
-    limit += Math.floor(realUserData.level / 100);
+
+    if (process.env.ENABLE_PRESTIGE) {
+        let currentLevel = realUserData.level;
+        for (let i = 0; i < ctx.userData.prestige - 1; i++) {
+            const maxLevel = getMaxPrestigeLevel(i);
+            currentLevel += maxLevel;
+        }
+        limit += Math.floor(currentLevel / 50);
+        limit += Math.floor(currentLevel / 100);
+    } else {
+        limit += Math.floor(realUserData.level / 50);
+        limit += Math.floor(realUserData.level / 100);
+    }
     //if (userData?.id === "239739781238620160") limit = Infinity;
 
     const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
@@ -1899,6 +1972,15 @@ export const dailyClaimRewardsChristmas = (
                 rare_stand_arrow: 25,
             },
         },
+        "2024-12-01": {
+            coins: 10000,
+            xp: getMaxXp(level) * 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
+                rare_stand_arrow: 25,
+            },
+        },
     };
 };
 
@@ -2069,8 +2151,6 @@ export function fixNpcRewards(npc: FightableNPC): void {
     }
 
     npc.rewards.xp = Math.round(baseXp * multiplier);
-    if (npc.id === "AerosmithUserconfetti_bazooka")
-        console.log("coco", baseXp, multiplier, npc.rewards.xp);
     /**
      * Coins formula:
      * 1000 +
@@ -2201,33 +2281,63 @@ export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): numbe
     }
 };
 
+export const disableComponents = (
+    components: ActionRow<MessageActionRowComponent>[]
+): ActionRow<MessageActionRowComponent>[] => {
+    components.forEach((c) => {
+        c.components.forEach((c) => {
+            // @ts-expect-error DNC ABOUT THE READ ONLY
+            c.data.disabled = true;
+        });
+    });
+
+    return components;
+};
+
 export const disableRows = (interaction: ChatInputCommandInteraction | Message): void => {
     if (interaction instanceof Message) {
         interaction.edit({
-            components: interaction.components.map((c) => {
-                c.components.forEach((c) => {
-                    // @ts-expect-error DNC ABOUT THE READ ONLY
-                    c.data.disabled = true;
-                });
+            components: disableComponents(interaction.components),
+        });
+    } else {
+        interaction.fetchReply().then((x) => {
+            if (!x) return; // message deleted
+            x.edit({
+                components: disableComponents(x.components),
+            });
+        });
+    }
+};
 
-                return c;
+export const redEmbeds = (interaction: ChatInputCommandInteraction | Message): void => {
+    if (interaction instanceof Message) {
+        interaction.edit({
+            embeds: interaction.embeds.map((x) => {
+                // @ts-expect-error DNC ABOUT THE READ ONLY
+                x.data.color = 0xff0000;
+                return x;
             }),
         });
     } else {
         interaction.fetchReply().then((x) => {
             if (!x) return; // message deleted
             x.edit({
-                components: x.components.map((c) => {
-                    c.components.forEach((c) => {
-                        // @ts-expect-error DNC ABOUT THE READ ONLY
-                        c.data.disabled = true;
-                    });
-
-                    return c;
+                embeds: x.embeds.map((x) => {
+                    // @ts-expect-error DNC ABOUT THE READ ONLY
+                    x.data.color = 0xff0000;
+                    return x;
                 }),
             });
         });
     }
+};
+
+export const makeEmbedReds = (embeds: APIEmbed[]): APIEmbed[] => {
+    return embeds.map((x) => {
+        // @ts-expect-error DNC ABOUT THE READ ONLY
+        x.data.color = 0xff0000;
+        return x;
+    });
 };
 
 export const fixUserSettings = (data: RPGUserDataJSON): void => {
@@ -2343,4 +2453,124 @@ export const getSideQuestRequirements = (
         message: req.map(mapper).join("\n"),
         notMeet: notMeet.map(mapper).join("\n"),
     };
+};
+
+const levelXpCache: { [level: number]: number } = {}; // avoid max call stack
+export const getTotalXp = (
+    data:
+        | RPGUserDataJSON
+        | {
+              level: number;
+              xp: number;
+          }
+): number => {
+    if (levelXpCache[data.level]) return levelXpCache[data.level] + (data.xp || 0);
+    let xp = 0;
+    for (let i = 1; i <= data.level; i++) {
+        if (levelXpCache[i]) {
+            xp += levelXpCache[i];
+            continue;
+        }
+
+        const newXp = getMaxXp(i);
+        xp += newXp;
+        levelXpCache[i] = newXp;
+    }
+
+    levelXpCache[data.level] = xp;
+    return xp + (data.xp || 0);
+};
+
+export const getMaxPrestigeLevel = (prestigeLevel: number): number => {
+    const base = 50;
+    // every 1 lvl, add +50
+    let lvl = base + (prestigeLevel ?? 0) * 150;
+    if (lvl > 500) lvl = 500;
+    return lvl;
+};
+
+export const prestigeUser = (data: RPGUserDataJSON): boolean => {
+    if (!process.env.ENABLE_PRESTIGE) return false;
+    return prestigeUserMethod2(data);
+    // return prestigeUserMethod2(data);
+    // TODO: must have completed current chapter
+    // TODO: NPCs from chapter quests should be based on your lvl
+    if (data.level < getMaxPrestigeLevel(data.prestige ?? 0)) return false;
+    const currentPrestige = data.prestige ?? 0;
+
+    const totalXp = getTotalXp(data);
+
+    const remainingXp = Math.max(
+        totalXp - getMaxXp(getMaxPrestigeLevel(currentPrestige)),
+        totalXp * 0.9
+    );
+
+    data.prestige = currentPrestige + 1;
+    data.level = 1;
+
+    const to = Math.trunc(
+        totalXp * (1 - 0.1) - getTotalXp({ level: getMaxPrestigeLevel(currentPrestige), xp: 0 })
+    );
+    //data.xp = to > 0 ? to : 0; // If the user was already over the required xp, keep the remaining xp at exponential rate
+    //data.xp = remainingXp > 0 ? remainingXp * 0.9 : 0;
+
+    const maxRemainingXp = getTotalXp({ level: 2000, xp: 0 });
+    const minMultiplier = 0.6;
+    const maxMultiplier = 0.9;
+
+    // Calculate the multiplier based on remaining XP
+    const mult =
+        remainingXp > 0
+            ? minMultiplier +
+              (maxMultiplier - minMultiplier) * Math.min(remainingXp / maxRemainingXp, 1)
+            : 0;
+
+    // Apply the calculated multiplier to remainingXp
+    data.xp = Math.round(remainingXp * Math.max(minMultiplier, mult));
+
+    for (const key of Object.keys(data.skillPoints)) {
+        data.skillPoints[key as keyof typeof data.skillPoints] = 0;
+    }
+
+    while (
+        data.xp >= getMaxXp(data.level) &&
+        data.level < getMaxPrestigeLevel(data.prestige ?? 0)
+    ) {
+        data.xp -= getMaxXp(data.level);
+        data.level++;
+    }
+
+    return true;
+};
+
+export const prestigeUserMethod2 = (data: RPGUserDataJSON): boolean => {
+    if (!process.env.ENABLE_PRESTIGE) return false;
+    if (data.level < getMaxPrestigeLevel(data.prestige ?? 0)) return false;
+    data.level -= getMaxPrestigeLevel(data.prestige ?? 0);
+    data.prestige = (data.prestige ?? 0) + 1;
+    //data.xp = 0;
+    while (
+        data.xp >= getMaxXp(data.level) &&
+        data.level < getMaxPrestigeLevel(data.prestige ?? 0)
+    ) {
+        data.xp -= getMaxXp(data.level);
+        data.level++;
+    }
+    data.skillPoints = {
+        strength: 0,
+        defense: 0,
+        stamina: 0,
+        perception: 0,
+        speed: 0,
+    };
+
+    return true;
+};
+
+export const getWeapon = (data: RPGUserDataJSON | FightableNPC): Weapon => {
+    return findItem<Weapon>(
+        Object.keys(data.equippedItems).find(
+            (r) => data.equippedItems[r] === equipableItemTypes.WEAPON
+        )
+    );
 };
