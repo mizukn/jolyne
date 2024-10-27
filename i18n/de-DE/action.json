@@ -1,61 +1,61 @@
 {
-  "NO_ACTIONS": "You can't do anything for the moment.",
+  "NO_ACTIONS": "Du kannst im Moment nichts tun.",
   "REMOVE_THING_KAKYOIN": {
-    "BASE": "You tried to remove the thing...",
-    "FAILED": "And you failed. Your only choice now is to bring kakyoin to the hospital.",
-    "SUCCESS": "And you succeeded."
+    "BASE": "Du hast versucht, das Ding zu entfernen...",
+    "FAILED": "Und du bist gescheitert. Deine einzige Wahl ist jetzt, Kakyoin ins Krankenhaus zu bringen.",
+    "SUCCESS": "Und du hast es geschafft."
   },
   "BRING_KAKYOIN_HOSPITAL": {
-    "SUCCESS": "👨‍⚕️ **Male Nurse:** Kakyoin was taken back to the hospital and his costs were paid. He'll get back to you when he's better.",
-    "DESCRIPTION": "Bring Kakyoin to the hospital",
-    "MONEY": "👨‍⚕️ **Male Nurse:** It is the hospital that does not care about charity... WHERE'S YOUR MONEY ???"
+    "SUCCESS": "👨‍⚕️ **Krankenpfleger:** Kakyoin wurde zurück ins Krankenhaus gebracht und seine Kosten wurden bezahlt. Er wird sich bei dir melden, wenn es ihm besser geht.",
+    "DESCRIPTION": "Bring Kakyoin ins Krankenhaus.",
+    "MONEY": "👨‍⚕️ **Krankenpfleger:** Es ist das Krankenhaus, das sich nicht um Wohltätigkeit kümmert... WO IST DEIN GELD ???"
   },
   "ANALYSE_HAIR": {
-    "SUCCESS": "📧 These hairs have been sent to the SPEEDWAGON FOUNDATION.",
-    "DESCRIPTION": "Send the hairs to the Speedwagon Foundation."
+    "SUCCESS": "📧 Dieses Haar wurde an die SPEEDWAGON FOUNDATION geschickt.",
+    "DESCRIPTION": "Schick die Haare an die Speedwagon Foundation."
   },
   "GO_TO_AIRPORT": {
-    "BASE": "{{npc.taxi_driver}} Hello sir, it'll cost you **{{slowPrice}}** {{emojis.jocoins}}. The journey will take 2 hours. If you want, I can go four times faster for triple the price. What is your choice?",
-    "MONEY": "{{npc.taxi_driver}} You fool, you don't have enough money. You can't go anywhere.",
-    "SLOW": "{{npc.taxi_driver}} You're going to the airport. You'll be there in 2 hours. You can come back anytime you want. Thank you for your business.",
-    "FAST": "{{npc.taxi_driver}} Alright, I'll get you to the Morioh Airport in only **30 minutes**. GET READY!",
-    "DESCRIPTION": "Go to the airport"
+    "BASE": "{{npc.taxi_driver}} Hallo Sir, es wird **{{slowPrice}}** {{emojis.jocoins}} kosten. Die Fahrt dauert 2 Stunden. Wenn du möchtest, kann ich viermal schneller fahren, aber für den dreifachen Preis. Was ist deine Wahl?",
+    "MONEY": "{{npc.taxi_driver}} Du Narr, du hast nicht genug Geld. Du kannst nirgendwo hinfahren.",
+    "SLOW": "{{npc.taxi_driver}} Du fährst zum Flughafen. Du wirst in 2 Stunden dort sein. Du kannst jederzeit zurückkommen, wenn du willst. Danke für dein Geschäft.",
+    "FAST": "{{npc.taxi_driver}} Alles klar, ich bringe dich in nur **30 Minuten** zum Morioh Flughafen. MACH DICH BEREIT!",
+    "DESCRIPTION": "Gehen Sie zum Flughafen"
   },
   "TYGAD": {
-    "SUCCESS": "📧 You've successfully sent an e-mail about the current situation to your Grandfather. Now, wait for him to answer. Use the {{command.chapter}} to see how long it will take.",
-    "DESCRIPTION": "Tell to your grandfather about Dio"
+    "SUCCESS": "📧 Du hast erfolgreich eine E-Mail über die aktuelle Situation an deinen Großvater gesendet. Jetzt warte auf seine Antwort. Benutze den {{command.chapter}}, um zu sehen, wie lange es dauern wird.",
+    "DESCRIPTION": "Erzähl deinem Großvater von Dio"
   },
   "REMOVE_FLESHBUD": {
-    "DESCRIPTION": "Remove the fleshbud from Kakyoin."
+    "DESCRIPTION": "Entfernen Sie die Fleischknospe von Kakyoin."
   },
   "DRIVE_AIRPLANE_TO_HONGKONG": {
-    "TITLE": "Drive the airplane",
-    "DESCRIPTION": "Drive the airplane immediately to Hong Kong"
+    "TITLE": "Steuern Sie das Flugzeug",
+    "DESCRIPTION": "Fahr das Flugzeug sofort nach Hongkong"
   },
   "DRIVE_BOAT_RESCUE": {
-    "TITLE": "Drive the boat",
-    "DESCRIPTION": "Drive the boat to the nearest rescue boat"
+    "TITLE": "Fahren Sie das Boot",
+    "DESCRIPTION": "Fahren Sie mit dem Boot zum nächsten Rettungsboot"
   },
   "REMOVE_FLESHBUD_POLNAREFF": {
-    "TITLE": "Remove the fleshbud",
-    "DESCRIPTION": "Remove the fleshbud from Polnareff"
+    "TITLE": "Entfernen Sie die Fleischknospe",
+    "DESCRIPTION": "Entfernen Sie die Fleisch-Knospe von Polnareff"
   },
   "DRIVE_BOAT_SINGAPORE": {
-    "TITLE": "Drive the boat",
-    "DESCRIPTION": "Drive the boat to Singapore"
+    "TITLE": "Das Boot fahren",
+    "DESCRIPTION": "Fahren Sie mit dem Boot nach Singapur"
   },
   "THROW_RUBBER_SOUL_BODY_OCEAN": {
-    "TITLE": "Throw Rubber Soul's body",
-    "DESCRIPTION": "Throw Rubber Soul's body in the ocean"
+    "TITLE": "Wirf Rubber Souls Körper",
+    "DESCRIPTION": "Wirf Rubber Souls Körper ins Meer"
   },
   "GET_TRAM_GO_INDIA": {
-    "TITLE": "Get in the tram",
-    "DESCRIPTION": "Get in the tram to go to India",
-    "SUCCESS": "You're now in the tram to India. You'll be there in 2-3 hours (-**10,000** {{emojis.jocoins}}).",
-    "NO_COINS": "You don't have enough {{emojis.jocoins}} to get in the tram. You need **10,000** {{emojis.jocoins}} to get in."
+    "TITLE": "Steig in die Straßenbahn ein",
+    "DESCRIPTION": "Steig in die Straßenbahn, um nach Indien zu fahren",
+    "SUCCESS": "Du bist jetzt in der Straßenbahn nach Indien. Du wirst in 2-3 Stunden dort sein (-**10.000** {{emojis.jocoins}}).",
+    "NO_COINS": "Du hast nicht genug {{emojis.jocoins}}, um in die Straßenbahn einzusteigen. Du benötigst **10.000** {{emojis.jocoins}}, um einzusteigen."
   },
   "DRIVE_TO_PAKISTAN": {
-    "TITLE": "Drive to Pakistan",
-    "DESCRIPTION": "Drive to Pakistan"
+    "TITLE": "Fahr nach Pakistan",
+    "DESCRIPTION": "Fahr nach Pakistan"
   }
 }
