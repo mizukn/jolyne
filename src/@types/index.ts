@@ -312,6 +312,7 @@ export interface RPGUserSettings {
         skill_points?: boolean;
         black_market?: boolean;
         daily_quests?: boolean;
+        reached_max_level?: boolean;
     };
     auto_heal?: {
         sort_by_strongest?: boolean;
@@ -330,6 +331,7 @@ export const defaultUserSettings: RPGUserSettings = {
         skill_points: true,
         black_market: true,
         daily_quests: true,
+        reached_max_level: true,
     },
     auto_heal: {
         sort_by_strongest: true,
