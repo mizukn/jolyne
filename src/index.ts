@@ -7,6 +7,7 @@ import type {
     NPC,
     FightableNPC,
     EvolutionStand,
+    Stand,
 } from "./@types";
 import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
 import { getInfo, ClusterClient, messageType } from "discord-hybrid-sharding";
@@ -20,7 +21,8 @@ import * as Items from "./rpg/Items";
 import * as Stands from "./rpg/Stands";
 import * as Emojis from "./emojis.json";
 import * as NPCs from "./rpg/NPCs/NPCs";
-import * as StandUsersNPCS from "../src/NPCs.json";
+import * as JSONNPC from "../src/NPCs.json";
+import * as PRESTIGEJSON from "../src/prestigeNPCs.json";
 import * as EquipableItems from "./rpg/Items/EquipableItems";
 import * as Sentry from "@sentry/node";
 import { exec } from "child_process";
@@ -29,6 +31,20 @@ import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
+const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
+const getPrestigeAdd = (x: Stand | Weapon) => {
+    return x.rarity === "C"
+        ? 5
+        : x.rarity === "B"
+        ? 10
+        : x.rarity === "A"
+        ? 25
+        : x.rarity === "S"
+        ? 75
+        : x.rarity === "SS"
+        ? 300
+        : 30;
+};
 const weapons = Object.values(EquipableItems).filter(
     (x) => (x as Weapon).abilities !== undefined
 ) as Weapon[];
@@ -279,7 +295,7 @@ for (const stand of [
 
     if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
         if (!formattedStandUsers[`${stand.name.replace(" ", "")}User`]) {
-            const minLevel =
+            let minLevel =
                 stand.rarity === "C"
                     ? 1
                     : stand.rarity === "B"
@@ -291,15 +307,19 @@ for (const stand of [
                     : stand.rarity === "SS"
                     ? 200
                     : 30;
-            const maxLevel = minLevel * 12;
+            let maxLevel = minLevel * 12;
+            if (process.env.ENABLE_PRESTIGE) {
+                minLevel = getPrestigeAdd(stand);
+                maxLevel = minLevel * 2;
+            }
             formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(
-                minLevel,
+                Math.round(minLevel * 1.5),
                 maxLevel
             );
         }
     }
 
-    let rewards: FightableNPC["rewards"] = { items: [] };
+    const rewards: FightableNPC["rewards"] = { items: [] };
 
     for (let i = 0; i < formattedStandUsers[`${stand.name.replace(" ", "")}User`]; i += 10) {
         rewards.items.push({
@@ -309,7 +329,7 @@ for (const stand of [
         });
     }
 
-    if (rewards.items.length === 0) rewards = undefined;
+    if (rewards.items.length === 0) rewards.items = undefined;
     // check if stand is an evolution
     const evolution = Object.values(Stands.EvolutionStands).find((x) => x.id === stand.id)
         ? Object.values(Stands.EvolutionStands)
@@ -377,8 +397,14 @@ for (const stand of [
                     ? 200
                     : 30;
             if (weapon.abilities) minLevel *= 2;
-            const maxLevel = minLevel * 12;
-            formattedStandUsers[ID] = Functions.randomNumber(minLevel, maxLevel);
+            let maxLevel = minLevel * 12;
+
+            if (process.env.ENABLE_PRESTIGE) {
+                minLevel = getPrestigeAdd(weapon);
+                minLevel += getPrestigeAdd(stand);
+                maxLevel = minLevel * 2;
+            }
+            formattedStandUsers[ID] = Functions.randomNumber(Math.round(minLevel * 1.5), maxLevel);
         }
         const npcData: FightableNPC = {
             // @ts-expect-error it exists
@@ -446,6 +472,9 @@ for (const NPC of [...Object.values(NPCs), ...Object.values(FightableNPCs)]) {
         NPC.avatarURL = `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(NPC.emoji)}.png`;
 }
 for (const NPC of Object.values(FightableNPCs)) {
+    if (process.env.ENABLE_PRESTIGE) {
+        if (NPC.level > 800) NPC.level = 800;
+    }
     client.log(`Generating ${NPC.name} rewards...`, "npc");
     /*if (!Functions.skillPointsIsOK(NPC)) {
         // check if it is not 0 skill point on everything
@@ -556,7 +585,12 @@ async function init() {
     // save standUsersNPCS.json
     delete formattedStandUsers["default"];
     fs.writeFileSync(
-        path.resolve(__dirname, "..", "src", "NPCs.json"),
+        path.resolve(
+            __dirname,
+            "..",
+            "src",
+            process.env.ENABLE_PRESTIGE ? "prestigeNPCs.json" : "NPCs.json"
+        ),
         JSON.stringify(formattedStandUsers, null, 4)
     );
     client.log("Saved standUsersNPCS.json", "file");
