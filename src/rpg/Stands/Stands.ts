@@ -594,7 +594,7 @@ export const SkeletalSpectre: Stand = {
     available: true,
     // grey
     color: 0x808080,
-    passives: [Passives.Resurrection],
+    //passives: [Passives.Resurrection],
 };
 
 /**
