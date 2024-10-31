@@ -609,7 +609,7 @@ const slashCommand: SlashCommandFile = {
 
             if (0 > amountX || amountX === 0 || amountX === Infinity) {
                 await ctx.makeMessage({
-                    content: "WARINING: Stop trying to find glitches.",
+                    content: "WARNING: Stop trying to find glitches.",
                     ephemeral: true,
                 });
                 ctx.client.users.fetch("239739781238620160").then((user) => {

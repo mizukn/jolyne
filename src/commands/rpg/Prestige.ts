@@ -61,7 +61,7 @@ const slashCommand: SlashCommandFile = {
         const totalXp = Functions.getTotalXp(ctx.userData);
         const newTotalXp = Math.round(totalXp * 0.85);
         const cobaye = cloneDeep(ctx.userData);
-        while (Functions.prestigeUser(cobaye)) {
+        while (Functions.prestigeUserMethod2(cobaye)) {
             continue;
         }
 

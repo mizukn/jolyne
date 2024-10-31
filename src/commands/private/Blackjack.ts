@@ -41,7 +41,7 @@ const formatter = {
 
 const slashCommand: SlashCommandFile = {
     data: {
-        name: "blackjack",
+        name: "blackjack-old",
         description: "Play a game of Blackjack.",
         options: [
             {
@@ -194,7 +194,6 @@ const slashCommand: SlashCommandFile = {
         });
 
         collector.on("collect", (interaction) => {
-             
             interaction.deferUpdate().catch(() => {});
             if (interaction.customId === hitID) {
                 const card = shuffledDeck.pop();
