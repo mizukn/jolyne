@@ -2,7 +2,7 @@ import * as Functions from "./Functions";
 import { Pumpkin } from "../rpg/Items/ConsumableItems";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
-import { get, method } from "lodash";
+import { cloneDeep, get, method } from "lodash";
 import { SideQuest, SlashCommand } from "../@types";
 import { it } from "node:test";
 import { halloweenClaimsWebhook } from "./Webhooks";
@@ -354,7 +354,9 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
         const formattedTrades = trades.map((trade) => ({
             item: Functions.findItem(trade.item),
             amount: trade.amount,
-            hasEnough: () => pumpkins() >= trade.amount,
+            hasEnough: () =>
+                pumpkins() >= trade.amount &&
+                Functions.addItem(cloneDeep(ctx.userData), trade.item, 1),
         }));
 
         const getSelectMenuTrades = () =>
@@ -391,9 +393,15 @@ export const eventCommandHandler: SlashCommand["execute"] = async (
                 .filter(
                     (i) =>
                         pumpkins() >=
-                        parseInt(i.value) *
-                            formattedTrades.find((trade) => trade.item.name === currentTrade.item)
-                                .amount
+                            parseInt(i.value) *
+                                formattedTrades.find(
+                                    (trade) => trade.item.name === currentTrade.item
+                                ).amount &&
+                        Functions.addItem(
+                            cloneDeep(ctx.userData),
+                            currentTrade.item,
+                            parseInt(i.value)
+                        )
                 );
         const selectAnAmountMenu = () =>
             new StringSelectMenuBuilder()

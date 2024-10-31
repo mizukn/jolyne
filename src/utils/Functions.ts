@@ -1166,8 +1166,8 @@ export const addItem = (
     if (!item) return false;
     if (!item.storable || item.private) return false;
     if (is2024HalloweenEvent() && item.id === "nix.$disc$") {
-        const nixDisc = userData.inventory["nix.$disc$"] || 0;
-        if (nixDisc >= 3) return false;
+        const nixDisc = (userData.inventory["nix.$disc$"] || 0) + (amount || 1);
+        if (nixDisc > 3) return false;
     }
     if (item.id.includes("$disc$") && ctx) {
         const totalItems = Object.keys(userData.inventory)
@@ -2549,7 +2549,7 @@ export const prestigeUser = (data: RPGUserDataJSON): boolean => {
 };
 
 export const prestigeUserMethod2 = (data: RPGUserDataJSON): boolean => {
-    if (!process.env.ENABLE_PRESTIGE) return false;
+    //if (!process.env.ENABLE_PRESTIGE) return false;
     if (data.level < getMaxPrestigeLevel(data.prestige ?? 0)) return false;
     data.level -= getMaxPrestigeLevel(data.prestige ?? 0);
     data.prestige = (data.prestige ?? 0) + 1;
