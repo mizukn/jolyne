@@ -711,7 +711,7 @@ export const standAbilitiesEmbed = (
 
         const dodgeScore = ability.dodgeScore ?? ability.trueDodgeScore;
         content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
-            dodgeScore ? "not dodgeable" : dodgeScore
+            dodgeScore ? dodgeScore : dodgeScore
         }\n\n*${ability.description.replace(/{standName}/gi, stand.name)}*\n`;
 
         if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
