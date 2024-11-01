@@ -364,7 +364,9 @@ const slashCommand: SlashCommandFile = {
                         );
                         if (!status) {
                             return void ctx.makeMessage({
-                                content: `An error occurred while storing your stand's disc. Perhaps this stand is limited and you exceeded the limit?\n\nIf the stand you are trying to store is a limited stand, you'll be able to store it once the event ends. If that's not the case, please [contact us](https://discord.gg/jolyne-support-923608916540145694)`,
+                                content: `An error occurred while storing your stand's disc. Perhaps this stand is limited and you exceeded the limit?\n\nIf the stand you are trying to store is a limited stand, you'll be able to store it once the event ends. If that's not the case, please [contact us](https://discord.gg/jolyne-support-923608916540145694)\nAlternatively, if you don't care about your current stand, consider using the ${ctx.client.getSlashCommandMention(
+                                    "stand delete"
+                                )} command instead.`,
                                 components: [],
                                 embeds: [],
                             });

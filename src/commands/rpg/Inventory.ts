@@ -819,7 +819,10 @@ const slashCommand: SlashCommandFile = {
 
             if (!itemData.price) {
                 await ctx.makeMessage({
-                    content: Functions.makeNPCString(NPCs.Pucci, ""),
+                    content: Functions.makeNPCString(
+                        NPCs.Pucci,
+                        `I'm sorry, but this item is not sellable.`
+                    ),
                 });
                 return;
             }

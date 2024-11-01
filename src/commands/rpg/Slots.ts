@@ -284,6 +284,16 @@ const slashCommand: SlashCommandFile = {
             });
         } else {
             const bet = ctx.options.getInteger("bet", true);
+
+            if (ctx.userData.coins < 0) {
+                return void ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Daniel_J_DArby,
+                        `You're in debt. Get out of here!`
+                    ),
+                });
+            }
+
             if (bet < 1) {
                 ctx.makeMessage({
                     content: Functions.makeNPCString(

@@ -50,6 +50,7 @@ const slashCommand: SlashCommandFile = {
             },
         ],
     },
+    checkRPGCooldown: "blackjack",
 
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         if (!ctx.client.user.username.includes("Beta")) {
@@ -64,15 +65,27 @@ const slashCommand: SlashCommandFile = {
         const userCoins = ctx.userData.coins;
         const standID = generateRandomId();
         const hitID = generateRandomId();
+        const counter =
+            parseInt(await ctx.client.database.getString(`tempCache_blackjack_${ctx.user.id}`)) ||
+            0;
 
+        console.log("counter", counter);
+        console.log(userCoins, bet);
+        if (userCoins < 0) {
+            return void ctx.makeMessage({
+                content: Functions.makeNPCString(
+                    NPCs.Daniel_J_DArby,
+                    `You're in debt. Get out of here!`
+                ),
+            });
+        }
         if (bet < 1 || bet > userCoins) {
-            ctx.makeMessage({
+            return void ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.Daniel_J_DArby,
                     `Are you trying to scam me? You don’t have enough money!`
                 ),
             });
-            return;
         }
 
         let betMultiplier = 1.03;
@@ -135,15 +148,16 @@ const slashCommand: SlashCommandFile = {
         playerCards.push(shuffledDeck.pop()!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
         playerCards.push(shuffledDeck.pop()!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
         botCards.push(shuffledDeck.pop()!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
-        ctx.followUpQueue.push({
-            content: `DEBUG:\n\n- \`riggedPercent:\` **${
-                riggedPercent * 100
-            }%**\n- \`betMultiplier:\` **x${betMultiplier}**\n- \`bjWonToday:\` ${bjWonToday.toLocaleString(
-                "en-US"
-            )}\n- \`initalMoneyToday:\` ${initalMoneyToday.toLocaleString(
-                "en-US"
-            )}\n- \`isRigged?\` **${systemIsRigged}**`,
-        });
+        if (ctx.client.user.username.includes("Beta"))
+            ctx.followUpQueue.push({
+                content: `DEBUG:\n\n- \`riggedPercent:\` **${
+                    riggedPercent * 100
+                }%**\n- \`betMultiplier:\` **x${betMultiplier}**\n- \`bjWonToday:\` ${bjWonToday.toLocaleString(
+                    "en-US"
+                )}\n- \`initalMoneyToday:\` ${initalMoneyToday.toLocaleString(
+                    "en-US"
+                )}\n- \`isRigged?\` **${systemIsRigged}**`,
+            });
 
         const makeGameMessage = async (showBotSecondCard = false) =>
             ctx.makeMessage({
@@ -224,6 +238,19 @@ const slashCommand: SlashCommandFile = {
         collector.on("collect", async (interaction) => {
             await interaction.deferUpdate();
 
+            ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+
+            if (ctx.userData.coins < bet) {
+                ctx.followUp({
+                    content: Functions.makeNPCString(
+                        NPCs.Daniel_J_DArby,
+                        `You tried to scam me, now you're in debt! HAHA`
+                    ),
+                });
+                collector.stop("player_bust");
+                return;
+            }
+
             if (interaction.customId === hitID) {
                 /*const card = shuffledDeck.pop()!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
                 playerCards.push(card);
@@ -288,6 +315,8 @@ const slashCommand: SlashCommandFile = {
             const botTotal = calculateHandTotal(botCards);
             const playerTotal = calculateHandTotal(playerCards);
 
+            ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+
             if (reason === "player_bust" || reason == "time") {
                 resultMessage = `SYSTEM: You busted! You lost **${bet.toLocaleString(
                     "en-US"
@@ -309,6 +338,16 @@ const slashCommand: SlashCommandFile = {
 
             ctx.client.database.saveUserData(ctx.userData);
             await makeGameMessage(true);
+            const newCounter = counter + 1;
+            if (newCounter >= 6) {
+                ctx.client.database.setRPGCooldown(ctx.user.id, "blackjack", 1000 * 60 * 1);
+                ctx.client.database.redis.del(`tempCache_blackjack_${ctx.user.id}`);
+            } else {
+                ctx.client.database.setString(
+                    `tempCache_blackjack_${ctx.user.id}`,
+                    newCounter.toString()
+                );
+            }
             ctx.followUp({ content: resultMessage });
         });
     },

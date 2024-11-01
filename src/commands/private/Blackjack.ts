@@ -193,8 +193,15 @@ const slashCommand: SlashCommandFile = {
             time: 60000,
         });
 
-        collector.on("collect", (interaction) => {
+        collector.on("collect", async (interaction) => {
             interaction.deferUpdate().catch(() => {});
+            ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+
+            if (ctx.userData.coins < bet) {
+                content = `SYSTEM: You don't have enough money to bet.`;
+                status = "lost";
+                collector.stop();
+            }
             if (interaction.customId === hitID) {
                 const card = shuffledDeck.pop();
                 playerCards.push(card);
