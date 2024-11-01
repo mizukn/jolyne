@@ -1461,8 +1461,7 @@ export const CapsuleShot: Ability = {
 
 export const LightManifestation: Ability = {
     name: "Light Manifestation",
-    description:
-        "Become light and slash your opponent for heavy, giving you 2 extra turns. Not dodgeable",
+    description: "Become light and slash your opponent for heavy, giving you 2 extra turns.",
     cooldown: 3,
     damage: 35,
     stamina: 15,
