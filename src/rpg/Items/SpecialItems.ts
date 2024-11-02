@@ -1022,8 +1022,8 @@ export const XPBox: Special = {
                     {
                         percent: 100,
                         xp: Functions.randomNumber(
-                            Functions.getMaxXp(ctx.userData.level ?? 1) * 0.2,
-                            Functions.getMaxXp(ctx.userData.level ?? 1) * 0.4
+                            Functions.getMaxXp(ctx.userData.level ?? 1) * 0.1,
+                            Functions.getMaxXp(ctx.userData.level ?? 1) * 0.3
                         ),
                     },
                 ],
