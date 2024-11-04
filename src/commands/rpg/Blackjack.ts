@@ -192,7 +192,9 @@ const slashCommand: SlashCommandFile = {
                                 ).toLocaleString("en-US")}%`,
                                 value: playerCards
                                     .map(
-                                        (w) => formatter[w as keyof typeof formatter] + ` [${w[0]}]`
+                                        (w) =>
+                                            formatter[w as keyof typeof formatter] +
+                                            ` [${!isNaN(parseInt(w[0])) ? w : w[0]}]`
                                     )
                                     .join(" "),
                             },
@@ -208,7 +210,8 @@ const slashCommand: SlashCommandFile = {
                                     .map((w, i) =>
                                         i == 0 && !showBotSecondCard
                                             ? `<:unkcard:1301222170982088744> [?]`
-                                            : formatter[w as keyof typeof formatter] + ` [${w[0]}]`
+                                            : formatter[w as keyof typeof formatter] +
+                                              ` [${!isNaN(parseInt(w[0])) ? w : w[0]}]`
                                     )
                                     .join(" "),
                             }

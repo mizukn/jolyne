@@ -81,9 +81,16 @@ const __sxvay21975y0o8xlj9bp = () =>
 export const endOf2024HalloweenEvent = 1730700000000;
 export const is2024HalloweenEvent = (): boolean => Date.now() < endOf2024HalloweenEvent;
 export const is2024HalloweenEventEndingSoon = (): boolean => // 3 days before the end
-    Date.now() > endOf2024HalloweenEvent - 1000 * 60 * 60 * 24 * 3;
+    Date.now() > endOf2024HalloweenEvent - 1000 * 60 * 60 * 24 * 3 && is2024HalloweenEvent();
 
 export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Promise<boolean> => {
+    if (Functions.userIsCommunityBanned(ctx.userData)) {
+        return false;
+    }
+    if (!is2024HalloweenEvent()) {
+        return false;
+    }
+
     const pumpkinsLeft = ctx.userData.inventory[Pumpkin.id] || 0;
     if (is2024HalloweenEventEndingSoon() && pumpkinsLeft > 150 && Functions.percent(30)) {
         ctx.interaction.followUp({
@@ -94,12 +101,6 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
             )} them with Polpo before the event ends.`,
             ephemeral: true,
         });
-    }
-    if (Functions.userIsCommunityBanned(ctx.userData)) {
-        return false;
-    }
-    if (!is2024HalloweenEvent()) {
-        return false;
     }
 
     const cooldownId =
