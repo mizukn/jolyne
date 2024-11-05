@@ -180,6 +180,18 @@ const Multiplier = {
     T: 1.35,
 };
 
+const getInitials = (name: string): string => {
+    return name
+        .split(" ")
+        .map((x) => x[0])
+        .join("");
+};
+
+const comasAnd = (arr: string[]): string => {
+    if (arr.length === 1) return arr[0];
+    return arr.slice(0, -1).join(", ") + " and " + arr.slice(-1);
+};
+
 for (const stand of [
     ...Object.values(Stands.Stands),
     ...Object.values(Stands.EvolutionStands).map((x) => {
@@ -191,10 +203,19 @@ for (const stand of [
 ]) {
     if (!stand.available) continue;
     console.log(`Adding ${stand.name} Stand Disc`);
+    const evolutions = Object.values(Stands.EvolutionStands).find((x) => x.id === stand.id);
     const standDisc: Special = {
         id: stand.id + ".$disc$",
-        name: stand.name + " Stand Disc",
-        description: "A disc that contains the power of " + stand.name,
+        name:
+            stand.name +
+            " Stand Disc" +
+            (evolutions
+                ? ` [${evolutions.evolutions.map((x) => getInitials(x.name)).join(", ")}]`
+                : ""),
+
+        description:
+            "A disc that contains the power of " +
+            (evolutions ? comasAnd(evolutions.evolutions.map((x) => x.name)) : stand.name),
         rarity: stand.rarity,
         price: standPrices[stand.rarity],
         tradable: true,
@@ -210,10 +231,18 @@ for (const stand of [
                 return 0;
             }
             ctx.userData.stand = stand.id;
+            const newStand = Functions.findStand(
+                ctx.userData.stand,
+                ctx.userData.standsEvolved[ctx.userData.stand]
+            );
             ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.Pucci,
-                    "You have successfully equipped " + stand.name + " " + stand.emoji + " !"
+                    "You have successfully equipped **" +
+                        newStand.name +
+                        "** " +
+                        newStand.emoji +
+                        " !"
                 ),
             });
             return 1;
