@@ -101,6 +101,7 @@ const slashCommand: SlashCommandFile = {
             const rewardsButtonID = Functions.generateRandomId();
             const redoQuestID = Functions.generateRandomId();
             const reloadQuestsButtonID = Functions.generateRandomId();
+            const firstStatus = Functions.getSideQuestRequirements(SideQuest, ctx);
             const rewardsButton = new ButtonBuilder()
                 .setCustomId(rewardsButtonID)
                 .setLabel("Claim Rewards")
@@ -114,6 +115,7 @@ const slashCommand: SlashCommandFile = {
             const redoQuestButton = new ButtonBuilder()
                 .setCustomId(redoQuestID)
                 .setLabel("Redo Quest")
+                .setDisabled(firstStatus.status ? false : true)
                 .setStyle(ButtonStyle.Primary);
             const reloadQuestsButton = new ButtonBuilder()
                 .setCustomId(reloadQuestsButtonID)
@@ -121,6 +123,13 @@ const slashCommand: SlashCommandFile = {
                 .setEmoji("🔁")
                 .setDisabled(reloaded ? true : false)
                 .setStyle(ButtonStyle.Primary);
+            const deleteId = Functions.generateRandomId();
+            const deleteButton = new ButtonBuilder()
+                .setCustomId(deleteId)
+                .setLabel("Erase Side Quest")
+                .setEmoji("🗑️")
+                .setDisabled(firstStatus.status ? true : false)
+                .setStyle(ButtonStyle.Danger);
 
             if (status.percent >= 100) {
                 if (
@@ -135,6 +144,9 @@ const slashCommand: SlashCommandFile = {
                 else {
                     components.push(rewardsButton);
                 }
+            }
+            if (status.percent !== 100 && !firstStatus.status) {
+                components.push(deleteButton);
             }
 
             if (status.percent !== 100 && SideQuest.canReloadQuests) {
@@ -172,6 +184,7 @@ const slashCommand: SlashCommandFile = {
                     filter: (i) =>
                         (i.user.id === ctx.user.id && i.customId === rewardsButtonID) ||
                         (i.user.id === ctx.user.id && i.customId === redoQuestID) ||
+                        (i.user.id === ctx.user.id && i.customId === deleteId) ||
                         (i.user.id === ctx.user.id && i.customId === reloadQuestsButtonID),
                     time: 60000,
                 });
@@ -231,6 +244,17 @@ const slashCommand: SlashCommandFile = {
                             ctx.client.commands.get("side")?.execute(ctx, true);
                             break;
                         }
+                    }
+
+                    if (i.customId === deleteId) {
+                        ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
+                            (x) => x.id !== sideQuest
+                        );
+                        ctx.client.database.saveUserData(ctx.userData);
+                        collector.stop();
+                        ctx.followUp({
+                            content: `You've deleted the quest!`,
+                        });
                     }
                 });
             }
