@@ -24,6 +24,7 @@ import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { t } from "i18next";
 import { cloneDeep, max } from "lodash";
+import { NPCs } from "../../rpg/NPCs";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -198,6 +199,16 @@ const slashCommand: SlashCommandFile = {
 
             const constMaxLoop = 500;
             let maximumLoop = constMaxLoop;
+            if (formattedInventory.length === 0) {
+                return ctx.makeMessage({
+                    content: Functions.makeNPCString(
+                        NPCs.Jolyne,
+                        `You don't have any items that can heal you. Consider buying some from the ${ctx.client.getSlashCommandMention(
+                            "shop"
+                        )}.`
+                    ),
+                });
+            }
             await ctx.makeMessage({
                 content: `${ctx.client.localEmojis.loading} | Using items...`,
             });
