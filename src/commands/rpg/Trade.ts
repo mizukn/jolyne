@@ -12,6 +12,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import * as Functions from "../../utils/Functions";
 import { tradeWebhook } from "../../utils/Webhooks";
 import { createCanvas, loadImage } from "canvas";
+import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -329,20 +330,45 @@ const slashCommand: SlashCommandFile = {
                                 );
 
                                 const results: boolean[] = [];
+                                const oldTargetData = cloneDeep(targetData);
+                                const oldUserData = cloneDeep(userData);
+
+                                // handle delete item first
                                 for (const [item, amount] of Object.entries(userOffer)) {
                                     results.push(Functions.removeItem(userData, item, amount));
+                                }
+                                for (const [item, amount] of Object.entries(targetOffer)) {
+                                    results.push(Functions.removeItem(targetData, item, amount));
+                                }
+
+                                // and then add item
+                                for (const [item, amount] of Object.entries(userOffer)) {
                                     results.push(
                                         Functions.addItem(targetData, item, amount, true, ctx)
                                     );
                                 }
                                 for (const [item, amount] of Object.entries(targetOffer)) {
-                                    results.push(Functions.removeItem(targetData, item, amount));
                                     results.push(
                                         Functions.addItem(userData, item, amount, true, ctx)
                                     );
                                 }
 
-                                if (results.includes(false)) {
+                                const transaction = await ctx.client.database.handleTransaction(
+                                    [
+                                        {
+                                            oldData: oldUserData,
+                                            newData: userData,
+                                        },
+                                        {
+                                            oldData: oldTargetData,
+                                            newData: targetData,
+                                        },
+                                    ],
+                                    `From trade #${tradeID}`,
+                                    results
+                                );
+
+                                if (!transaction) {
                                     await ctx.makeMessage({
                                         content: `:x: TRANSACTION REJECTED:: Please check if one of you has enough stand disc space, or if one of the items is limited and a user has reached the limit. If you believe this is an error, please [contact us](https://discord.gg/jolyne-support-923608916540145694).`,
                                         embeds: [],
@@ -350,8 +376,8 @@ const slashCommand: SlashCommandFile = {
                                     Functions.disableRows(ctx.interaction);
                                     return;
                                 }
-                                await ctx.client.database.saveUserData(userData);
-                                await ctx.client.database.saveUserData(targetData);
+                                //await ctx.client.database.saveUserData(userData);
+                                //await ctx.client.database.saveUserData(targetData);
                                 ctx.client.database.deleteCooldown(target.id);
                                 ctx.client.database.deleteCooldown(ctx.user.id);
 

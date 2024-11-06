@@ -284,7 +284,18 @@ const slashCommand: SlashCommandFile = {
                         },
                     ];
                 }
-                ctx.client.database.saveUserData(ctx.userData);
+                //ctx.client.database.saveUserData(ctx.userData);
+                ctx.client.database.getRPGUserData(ctx.user.id).then((rpgUserData) => {
+                    ctx.client.database.handleTransaction(
+                        [
+                            {
+                                oldData: rpgUserData,
+                                newData: ctx.userData,
+                            },
+                        ],
+                        `Read email: ${emailData.id}`
+                    );
+                });
             }
             ctx.makeMessage({
                 embeds: [emailEmbed],

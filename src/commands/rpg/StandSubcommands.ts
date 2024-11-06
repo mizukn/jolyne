@@ -16,6 +16,7 @@ import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
 
 import { fixFields, isEvolvableStand } from "../../utils/Functions";
 import { parse } from "dotenv";
+import { cloneDeep } from "lodash";
 
 const regularStandList = Object.values(Stands);
 const evolvableStandList = Object.values(EvolvableStands);
@@ -345,6 +346,7 @@ const slashCommand: SlashCommandFile = {
                         collector.stop();
                         return;
                     }
+                    const oldData = cloneDeep(ctx.userData);
                     if (i.customId === confirmID) {
                         collector.stop("DONT_DISABLE_COMPONENTS");
                         if (ctx.userData.coins < Functions.standPrices[stand.rarity]) {
@@ -362,7 +364,17 @@ const slashCommand: SlashCommandFile = {
                             true,
                             ctx
                         );
-                        if (!status) {
+                        const transaction = await ctx.client.database.handleTransaction(
+                            [
+                                {
+                                    oldData,
+                                    newData: ctx.userData,
+                                },
+                            ],
+                            `Stored stand: ${stand.name}`,
+                            [status]
+                        );
+                        if (!transaction) {
                             return void ctx.makeMessage({
                                 content: `An error occurred while storing your stand's disc. Perhaps this stand is limited and you exceeded the limit?\n\nIf the stand you are trying to store is a limited stand, you'll be able to store it once the event ends. If that's not the case, please [contact us](https://discord.gg/jolyne-support-923608916540145694)\nAlternatively, if you don't care about your current stand, consider using the ${ctx.client.getSlashCommandMention(
                                     "stand delete"
@@ -371,7 +383,7 @@ const slashCommand: SlashCommandFile = {
                                 embeds: [],
                             });
                         }
-                        ctx.client.database.saveUserData(ctx.userData);
+                        //ctx.client.database.saveUserData(ctx.userData);
                         ctx.sendTranslated("base:YOUR_STAND_DISC_HAS_BEEN_STORED", {
                             components: [],
                             stand: stand,

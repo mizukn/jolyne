@@ -4,6 +4,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import * as Functions from "../../utils/Functions";
 import * as SideQuests from "../../rpg/SideQuests";
 import { NPCs } from "../../rpg/NPCs";
+import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -107,6 +108,7 @@ const slashCommand: SlashCommandFile = {
                             )} to rest.`,
                         });
                     } else {
+                        const oldData = cloneDeep(ctx.userData);
                         ctx.userData.restingAtCampfire = 0;
                         ctx.userData.health += stats.health;
                         ctx.userData.stamina += stats.stamina;
@@ -131,7 +133,16 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )} :zap:]`,
                         });
-                        await ctx.client.database.saveUserData(ctx.userData);
+                        // await ctx.client.database.saveUserData(ctx.userData);
+                        const transaction = await ctx.client.database.handleTransaction(
+                            [
+                                {
+                                    oldData,
+                                    newData: ctx.userData,
+                                },
+                            ],
+                            `Left the campfire`
+                        );
                     }
                 });
             }

@@ -28,6 +28,7 @@ import { getSideQuestRequirements } from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as SideQuests from "../../rpg/SideQuests";
 import { getQuestsStats } from "./Chapter";
+import { cloneDeep } from "lodash";
 
 const sideQuestsArr = Object.values(SideQuests);
 
@@ -191,6 +192,7 @@ const slashCommand: SlashCommandFile = {
                 collector.on("collect", async (i) => {
                     i.deferUpdate().catch(() => {});
                     if (await ctx.antiCheat(true)) return;
+                    const oldData = cloneDeep(ctx.userData);
                     switch (i.customId) {
                         case rewardsButtonID: {
                             const alreadyClaimed = ctx.userData.sideQuests.find(
@@ -208,9 +210,25 @@ const slashCommand: SlashCommandFile = {
                                 ctx.userData.sideQuests.find(
                                     (x) => x.id === sideQuest
                                 ).claimedPrize = true;
-                                ctx.client.database.saveUserData(ctx.userData);
+                                //ctx.client.database.saveUserData(ctx.userData);
+                                const transaction = await ctx.client.database.handleTransaction(
+                                    [
+                                        {
+                                            oldData,
+                                            newData: ctx.userData,
+                                        },
+                                    ],
+                                    `Claimed side quest rewards: ${sideQuest}`
+                                );
+                                if (!transaction) {
+                                    ctx.followUp({
+                                        content: `An error occurred while claiming the rewards.`,
+                                    });
+                                    collector.stop();
+                                    return;
+                                }
                             }
-                            if (SideQuest.canRedoSideQuest) {
+                            if (SideQuest.canRedoSideQuest && status) {
                                 ctx.followUp({
                                     content: `You've claimed the rewards! BTW this quest can be redone as much as you want, so use this command again if you want to re do it.`,
                                 });
@@ -223,7 +241,23 @@ const slashCommand: SlashCommandFile = {
                                 SideQuest.quests(ctx).map((x) => Functions.pushQuest(x));
                             ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize =
                                 false;
-                            ctx.client.database.saveUserData(ctx.userData);
+                            const transaction = await ctx.client.database.handleTransaction(
+                                [
+                                    {
+                                        oldData,
+                                        newData: ctx.userData,
+                                    },
+                                ],
+                                `Redone side quest: ${sideQuest}`
+                            );
+                            if (!transaction) {
+                                ctx.followUp({
+                                    content: `An error occurred while redoing the quest.`,
+                                });
+                                collector.stop();
+                                return;
+                            }
+                            //ctx.client.database.saveUserData(ctx.userData);
                             collector.stop();
                             ctx.followUp({
                                 content: `You've redone the quest! Use this command again to see your progress.`,
@@ -232,12 +266,30 @@ const slashCommand: SlashCommandFile = {
                         }
 
                         case reloadQuestsButtonID: {
+                            const oldData = cloneDeep(ctx.userData);
                             ctx.userData.sideQuests.find((x) => x.id === sideQuest).quests =
                                 SideQuest.quests(ctx).map((x) => Functions.pushQuest(x));
                             ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize =
                                 false;
-                            ctx.client.database.saveUserData(ctx.userData);
+                            const transaction = await ctx.client.database.handleTransaction(
+                                [
+                                    {
+                                        oldData,
+                                        newData: ctx.userData,
+                                    },
+                                ],
+                                `Reloaded side quest: ${sideQuest}`
+                            );
+                            if (!transaction) {
+                                ctx.followUp({
+                                    content: `An error occurred while reloading the quest.`,
+                                });
+                                collector.stop();
+                                return;
+                            }
+                            //ctx.client.database.saveUserData(ctx.userData);
                             collector.stop();
+
                             /*ctx.followUp({
                                 content: `You've reloaded the quests! Use this command again to see your progress.`,
                             });*/
@@ -250,7 +302,23 @@ const slashCommand: SlashCommandFile = {
                         ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
                             (x) => x.id !== sideQuest
                         );
-                        ctx.client.database.saveUserData(ctx.userData);
+                        //ctx.client.database.saveUserData(ctx.userData);
+                        const transaction = await ctx.client.database.handleTransaction(
+                            [
+                                {
+                                    oldData,
+                                    newData: ctx.userData,
+                                },
+                            ],
+                            `Erased side quest: ${sideQuest}`
+                        );
+                        if (!transaction) {
+                            ctx.followUp({
+                                content: `An error occurred while deleting the quest.`,
+                            });
+                            collector.stop();
+                            return;
+                        }
                         collector.stop();
                         ctx.followUp({
                             content: `You've deleted the quest!`,

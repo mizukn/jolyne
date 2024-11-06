@@ -5,6 +5,7 @@ import * as Functions from "../../utils/Functions";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import Items from "../../rpg/Items";
+import { cloneDeep } from "lodash";
 
 interface Loot {
     pr: string;
@@ -310,6 +311,7 @@ const slashCommand: SlashCommandFile = {
             await Functions.sleep(timeout);
 
             ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+            const oldData = cloneDeep(ctx.userData);
 
             const luck = Functions.randomNumber(1, 10000);
             const loot = choosedLoot.loots
@@ -339,8 +341,17 @@ const slashCommand: SlashCommandFile = {
                     prize: String(coins),
                 };
             }
-            ctx.client.database.saveUserData(ctx.userData);
+            //ctx.client.database.saveUserData(ctx.userData);
             ctx.client.database.deleteCooldown(ctx.userData.id);
+            ctx.client.database.handleTransaction(
+                [
+                    {
+                        oldData,
+                        newData: ctx.userData,
+                    },
+                ],
+                `Looted ${infos.prize} from ${choosedLoot.pr} ${choosedLoot.name}`
+            );
 
             ctx.makeMessage({
                 components: [],

@@ -4,6 +4,7 @@ import { SlashCommandFile } from "../../@types";
 import { shuffleArray, generateRandomId } from "../../utils/Functions";
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
+import { cloneDeep } from "lodash";
 
 const deck = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"];
 const values = {
@@ -319,6 +320,7 @@ const slashCommand: SlashCommandFile = {
             const playerTotal = calculateHandTotal(playerCards);
 
             ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+            const oldData = cloneDeep(ctx.userData);
 
             if (reason === "player_bust" || reason == "time") {
                 resultMessage = `SYSTEM: You busted! You lost **${bet.toLocaleString(
@@ -339,7 +341,22 @@ const slashCommand: SlashCommandFile = {
                 )}** coins back.`;
             }
 
-            ctx.client.database.saveUserData(ctx.userData);
+            //ctx.client.database.saveUserData(ctx.userData);
+            const transaction = await ctx.client.database.handleTransaction(
+                [
+                    {
+                        oldData,
+                        newData: ctx.userData,
+                    },
+                ],
+                `Blackjack: ${resultMessage} (initalMoneyToday: ${initalMoneyToday}, bjWonToday: ${bjWonToday}, riggedPercent: ${riggedPercent}, betMultiplier: ${betMultiplier}, systemIsRigged: ${systemIsRigged})`
+            );
+            if (!transaction) {
+                ctx.followUp({
+                    content: `SYSTEM: An error occurred while processing the transaction. No coins were lost or gained.`,
+                });
+                return;
+            }
             await makeGameMessage(true);
             const newCounter = counter + 1;
             if (newCounter >= 6) {

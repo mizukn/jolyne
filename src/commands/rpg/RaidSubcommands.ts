@@ -381,6 +381,10 @@ const slashCommand: SlashCommandFile = {
                     ],
                 });
                 if (winners?.find((r) => r.id === joinedUsers[0].id)) {
+                    const fixedWinners: {
+                        oldData: RPGUserDataJSON;
+                        newData: RPGUserDataJSON;
+                    }[] = [];
                     for (const winner of winners) {
                         const itemDidntDrop: {
                             percentage: number;
@@ -389,6 +393,7 @@ const slashCommand: SlashCommandFile = {
                         if (!joinedUsers.find((r) => r.id === winner.id)) continue;
                         const winnerData = await ctx.client.database.getRPGUserData(winner.id);
                         if (!winnerData) continue;
+                        const oldWinnerData = cloneDeep(winnerData);
 
                         const winContent: string[] = [];
                         if (raid.baseRewards?.coins) {
@@ -487,7 +492,20 @@ const slashCommand: SlashCommandFile = {
                             */ ""
                             }`,
                         });
-                        ctx.client.database.saveUserData(winnerData);
+                        //ctx.client.database.saveUserData(winnerData);
+                        fixedWinners.push({
+                            oldData: oldWinnerData,
+                            newData: winnerData,
+                        });
+                    }
+                    const transaction = await ctx.client.database.handleTransaction(
+                        fixedWinners,
+                        `Raided ${enhancedBoss.name}`
+                    );
+                    if (!transaction) {
+                        ctx.followUp({
+                            content: `IGNORE THE MESSAGES ABOVE::: An error occurred while saving the data and no changes were made. Is somebody community banned? Is someone trying to cheat...?`,
+                        });
                     }
                 } else {
                     for (const team of losers) {

@@ -548,7 +548,6 @@ const slashCommand: SlashCommandFile = {
                 Functions.useConsumableItem(itemData, ctx.userData, amountX);
                 Functions.removeItem(ctx.userData, itemString, amountX);
             } else if (Functions.isSpecial(itemData)) {
-                const oldData = cloneDeep(ctx.userData);
                 await ctx.client.database.setCooldown(
                     ctx.user.id,
                     "You're currently using an item."
@@ -563,8 +562,18 @@ const slashCommand: SlashCommandFile = {
                             ctx.interaction.followUp({
                                 content: `An error occured while using this item. Your data has been rolled back.`,
                             });
+                            ctx.client.database.saveUserData(ctx.userData);
                         }
-                        ctx.client.database.saveUserData(ctx.userData);
+                        await ctx.client.database.handleTransaction(
+                            [
+                                {
+                                    oldData,
+                                    newData: ctx.userData,
+                                },
+                            ],
+                            `Used ${itemData.name}`,
+                            [statusX]
+                        );
                     }
                 } catch (e) {
                     ctx.client.database.deleteCooldown(ctx.user.id);
@@ -586,7 +595,16 @@ const slashCommand: SlashCommandFile = {
                     content: `You can't use this item..?`,
                 });
             }
-            ctx.client.database.saveUserData(ctx.userData);
+            //ctx.client.database.saveUserData(ctx.userData);
+            ctx.client.database.handleTransaction(
+                [
+                    {
+                        oldData,
+                        newData: ctx.userData,
+                    },
+                ],
+                `Used ${itemData.name}`
+            );
             ctx.makeMessage({
                 content:
                     winContent +
@@ -650,6 +668,7 @@ const slashCommand: SlashCommandFile = {
             }
 
             const itemId = Functions.generateRandomId();
+            const oldData = cloneDeep(ctx.userData);
             const itemDataJSON = {
                 item: itemData.id,
                 amount: amountX,
@@ -660,8 +679,25 @@ const slashCommand: SlashCommandFile = {
                 "thrownItem_" + itemId,
                 JSON.stringify(itemDataJSON)
             );
-            Functions.removeItem(ctx.userData, itemString, amountX);
-            await ctx.client.database.saveUserData(ctx.userData);
+            const status = Functions.removeItem(ctx.userData, itemString, amountX);
+            const transaction = await ctx.client.database.handleTransaction(
+                [
+                    {
+                        oldData,
+                        newData: ctx.userData,
+                    },
+                ],
+                `Thrown x${amountX} ${itemData.name} [ID: ${itemId}]`,
+                [status]
+            );
+            if (!transaction) {
+                await ctx.makeMessage({
+                    content: "An error occured while throwing this item.",
+                });
+                return;
+            }
+
+            //await ctx.client.database.saveUserData(ctx.userData);
             await thrownItemsWebhook.send({
                 embeds: [
                     {
@@ -731,21 +767,32 @@ const slashCommand: SlashCommandFile = {
             }
             // TODO: count stand discsc in inventory, anti bypass
 
+            const oldData = cloneDeep(ctx.userData);
+
             const result = Functions.addItem(
                 ctx.userData,
                 itemDataJSON.item,
                 itemDataJSON.amount,
                 true
             );
-            if (!result) {
+            const transaction = await ctx.client.database.handleTransaction(
+                [
+                    {
+                        oldData,
+                        newData: ctx.userData,
+                    },
+                ],
+                `Claimed x${itemDataJSON.amount} ${item.name} [ID: ${itemId}]`,
+                [result]
+            );
+            if (!transaction) {
                 await ctx.makeMessage({
-                    content: "Looks like you can't claim this item.",
+                    content: "Transaction failed. An error occured while claiming this item.",
                 });
                 return;
             }
             await ctx.client.database.redis.del("thrownItem_" + itemId);
 
-            await ctx.client.database.saveUserData(ctx.userData);
             await claimedItemsWebhook.send({
                 embeds: [
                     {
@@ -861,13 +908,30 @@ const slashCommand: SlashCommandFile = {
                     collector.stop("cheat");
                     return;
                 }
+                const oldData = cloneDeep(ctx.userData);
                 i.deferUpdate().catch(() => {});
                 Functions.addCoins(
                     ctx.userData,
                     Math.round(itemData.price * itemTaxes[itemData.rarity] * amountX)
                 );
-                Functions.removeItem(ctx.userData, itemString, amountX);
-                ctx.client.database.saveUserData(ctx.userData);
+                const result = Functions.removeItem(ctx.userData, itemString, amountX);
+                //ctx.client.database.saveUserData(ctx.userData)
+                const transaction = await ctx.client.database.handleTransaction(
+                    [
+                        {
+                            oldData,
+                            newData: ctx.userData,
+                        },
+                    ],
+                    `Sold x${amountX} ${itemData.name}`,
+                    [result]
+                );
+                if (!transaction) {
+                    await ctx.makeMessage({
+                        content: "An error occured while selling this item.",
+                    });
+                    return;
+                }
                 ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Pucci,

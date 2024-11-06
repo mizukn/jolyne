@@ -11,6 +11,7 @@ import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
 import { SlashCommandFile } from "../../@types";
 import * as Emojis from "../../emojis.json";
+import { cloneDeep } from "lodash";
 
 const slotsChart = {
     [Emojis.diamond_gif]: {
@@ -461,6 +462,7 @@ async function runMachine(
 
     if (left === 0) {
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+        const oldData = cloneDeep(ctx.userData);
 
         if (
             slotMachineFruits[3] === slotMachineFruits[4] &&
@@ -510,7 +512,24 @@ async function runMachine(
             );
         }
 
-        ctx.client.database.saveUserData(ctx.RPGUserData);
+        //ctx.client.database.saveUserData(ctx.RPGUserData);
+        const transaction = await ctx.client.database.handleTransaction(
+            [
+                {
+                    oldData,
+                    newData: ctx.userData,
+                },
+            ],
+            `Slots: ${followUpMsg}`
+        );
+        if (!transaction) {
+            ctx.makeMessage({
+                content: "Transaction failed.",
+                components: [],
+                embeds: [],
+            });
+            return;
+        }
         ctx.client.database.deleteCooldown(ctx.user.id);
         ctx.makeMessage({
             content: msg,

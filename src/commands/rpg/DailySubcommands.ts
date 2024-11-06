@@ -72,6 +72,7 @@ const slashCommand: SlashCommandFile = {
         const nextDate = dateAtMidnight + 86400000;
         switch (ctx.interaction.options.getSubcommand()) {
             case "claim": {
+                const oldData = cloneDeep(ctx.userData);
                 if (
                     ctx.userData.daily.lastClaimed &&
                     ctx.userData.daily.lastClaimed >= dateAtMidnight &&
@@ -274,7 +275,16 @@ const slashCommand: SlashCommandFile = {
                     });
                 }
 
-                await ctx.client.database.saveUserData(ctx.userData);
+                //await ctx.client.database.saveUserData(ctx.userData);
+                const transaction = await ctx.client.database.handleTransaction(
+                    [
+                        {
+                            oldData,
+                            newData: ctx.userData,
+                        },
+                    ],
+                    "Daily claim"
+                );
 
                 await ctx.makeMessage({
                     embeds: [embed],
@@ -408,6 +418,7 @@ const slashCommand: SlashCommandFile = {
                             collector.stop("cheater");
                             return;
                         }
+                        const oldData = cloneDeep(ctx.userData);
 
                         if (i.customId === ctx.interaction.id + "daily-quests-reset") {
                             const price =
@@ -433,7 +444,17 @@ const slashCommand: SlashCommandFile = {
                                 ctx.userData.daily.dailyQuestsReset = 0;
                             }
                             ctx.userData.daily.dailyQuestsReset++;
-                            await ctx.client.database.saveUserData(ctx.userData);
+                            //await ctx.client.database.saveUserData(ctx.userData);
+                            const transaction = await ctx.client.database.handleTransaction(
+                                [
+                                    {
+                                        oldData,
+                                        newData: ctx.userData,
+                                    },
+                                ],
+                                "Daily Quest Reset"
+                            );
+                            if (!transaction) return i.reply("An error occurred.");
                             i.reply({
                                 content: ctx.translate("daily:RESET_SUCCESS", {
                                     price: price.toLocaleString("en-US"),
@@ -447,7 +468,17 @@ const slashCommand: SlashCommandFile = {
                         Functions.addItem(ctx.userData, Functions.findItem("Stand Arrow"));
                         Functions.addItem(ctx.userData, Functions.findItem("Dungeon"));
 
-                        await ctx.client.database.saveUserData(ctx.userData);
+                        //await ctx.client.database.saveUserData(ctx.userData);
+                        const transaction = await ctx.client.database.handleTransaction(
+                            [
+                                {
+                                    oldData,
+                                    newData: ctx.userData,
+                                },
+                            ],
+                            "Daily Quest Claim"
+                        );
+                        if (!transaction) return i.reply("An error occurred.");
                         await ctx.client.database.redis.set(
                             `daily-quests-${ctx.userData.id}`,
                             "true"

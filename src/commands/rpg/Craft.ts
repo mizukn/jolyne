@@ -5,6 +5,7 @@ import * as Functions from "../../utils/Functions";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import * as Items from "../../rpg/Items";
+import { cloneDeep } from "lodash";
 
 const craftableItems = Object.values(Items.default).filter((r) => r.craft);
 const rarityValue = {
@@ -155,17 +156,30 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
                 // remove items from inventory
+                const oldData = cloneDeep(ctx.userData);
+                const results: boolean[] = [];
                 for (const item of craftItems) {
-                    Functions.removeItem(ctx.userData, item.id, item.amount);
+                    results.push(Functions.removeItem(ctx.userData, item.id, item.amount));
                 }
 
                 // add item to inventory
-                Functions.addItem(ctx.userData, item.id, 1);
+                results.push(Functions.addItem(ctx.userData, item.id, 1));
+                const transaction = await ctx.client.database.handleTransaction(
+                    [
+                        {
+                            oldData,
+                            newData: ctx.userData,
+                        },
+                    ],
+                    `Crafted ${item.name}`,
+                    results
+                );
+                if (!transaction) return ctx.interaction.followUp("An error occurred.");
 
                 ctx.interaction.followUp({
                     content: `You have successfully crafted ${item.emoji} \`${item.name}\`!`,
                 });
-                ctx.client.database.saveUserData(ctx.userData);
+                //ctx.client.database.saveUserData(ctx.userData);
             });
         }
     },

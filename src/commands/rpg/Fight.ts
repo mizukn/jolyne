@@ -461,7 +461,17 @@ const slashCommand: SlashCommandFile = {
                     });
                 }
 
-                await ctx.client.database.saveUserData(ctx.userData);
+                const oldData = await ctx.client.database.getRPGUserData(ctx.userData.id);
+                //await ctx.client.database.saveUserData(ctx.userData);
+                const transaction = await ctx.client.database.handleTransaction(
+                    [
+                        {
+                            oldData,
+                            newData: ctx.userData,
+                        },
+                    ],
+                    `Fight: ${npc.name} [${questId}]`
+                );
 
                 const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
                     (r) => Functions.isFightNPCQuest(r) && !r.completed

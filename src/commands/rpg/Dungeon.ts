@@ -25,7 +25,7 @@ import { makeChapterTitle } from "./Chapter";
 import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import DungeonHandler from "../../structures/DungeonHandler";
-import { cloneDeep } from "lodash";
+import { clone, cloneDeep } from "lodash";
 import { dungeonLogsWebhook } from "../../utils/Webhooks";
 import { Image, createCanvas, loadImage } from "canvas";
 import { StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
@@ -136,7 +136,12 @@ async function giveRewards(
     }
     const totalDamage = Object.values(dungeon.damageDealt).reduce((a, b) => a + b, 0);
 
+    const fixedPlayers: {
+        oldData: RPGUserDataJSON;
+        newData: RPGUserDataJSON;
+    }[] = [];
     for (const player of newPlayers) {
+        const oldPlayer = cloneDeep(player);
         for (
             let i = 0;
             i < Math.round(dungeon.stage / 3) * getTotalDropIncrease(selectedModifiers);
@@ -233,7 +238,25 @@ async function giveRewards(
             Functions.removeItem(player, "dungeon_key", 1);
         }
 
-        ctx.client.database.saveUserData(player);
+        //ctx.client.database.saveUserData(player);
+        fixedPlayers.push({
+            oldData: oldPlayer,
+            newData: player,
+        });
+    }
+    const Transaction = await ctx.client.database.handleTransaction(
+        fixedPlayers,
+        `Started a dungeon:: total of ${dungeon.stage} waves and beaten ${dungeon.beatenEnemies.length} enemies.`
+    );
+    if (!Transaction) {
+        dungeon.message
+            .edit({
+                content: "<:kars:1057261454421676092> **Kars:** An error occurred.",
+                embeds: [],
+                components: [],
+            })
+            .catch(() => {});
+        return;
     }
     dungeon.message.edit({
         content: `<:kars:1057261454421676092> **Kars:** well done, you've survived **${dungeon.getRoom()}** waves and beaten **${
@@ -286,8 +309,7 @@ async function giveRewards(
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
         name: "dungeon.png",
     });
-
-    dungeonLogsWebhook.send({
+    const transaction = dungeonLogsWebhook.send({
         embeds: [
             {
                 title: `Dungeon`,

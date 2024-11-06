@@ -82,7 +82,7 @@ const slashCommand: SlashCommandFile = {
             });
         } catch (error) {
             ctx.makeMessage({
-                content: `Invalid streak code.`,
+                content: `Invalid streak code. [${(error as Error).message}]`,
             });
         }
     },
