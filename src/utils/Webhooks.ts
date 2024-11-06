@@ -69,3 +69,10 @@ export const halloweenClaimsWebhook = new WebhookClient({
         ? process.env.BETA_FALLBACK_WEBHOOK_URL
         : process.env.HALLOWEEN_CLAIMS_WEBHOOK_URL,
 });
+
+//TRANSACTION_LOGS_WEBHOOK_URL
+export const transactionLogsWebhook = new WebhookClient({
+    url: process.env.BETA
+        ? process.env.BETA_FALLBACK_WEBHOOK_URL
+        : process.env.TRANSACTION_LOGS_WEBHOOK_URL,
+});

@@ -3,6 +3,7 @@ import JolyneClient from "../structures/JolyneClient";
 import { voteWebhook } from "./Webhooks";
 import express from "express";
 import { addItem, getMaxHealth, getMaxStamina, TopGGVoteRewards } from "./Functions";
+import { cloneDeep } from "lodash";
 
 export default (client: JolyneClient): void => {
     const app = express();
@@ -27,6 +28,7 @@ export default (client: JolyneClient): void => {
 
             if (user) {
                 const rewards = TopGGVoteRewards(user);
+                const oldData = cloneDeep(user);
                 user.coins += rewards.coins;
                 user.xp += rewards.xp;
 
@@ -54,7 +56,16 @@ export default (client: JolyneClient): void => {
                     client.database.deleteRPGCooldown(user.id, key);
                 }
 
-                await client.database.saveUserData(user);
+                //await client.database.saveUserData(user);
+                await client.database.handleTransaction(
+                    [
+                        {
+                            oldData,
+                            newData: user,
+                        },
+                    ],
+                    `Voted for Jolyne`
+                );
             }
         })
     );
