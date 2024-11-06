@@ -260,9 +260,8 @@ const bleedDamagePromise = (
         executeOnlyOnce: false,
         callerId: user.id,
         promise: (fight) => {
-            fight.turns[ctx.turns.length - 1].logs.push(
-                `-# 🩸 **${target.name}** took **${damage}** bleed damage`
-            );
+            user = fight.fighters.find((x) => x.id === user.id) || user;
+            target = fight.fighters.find((x) => x.id === target.id) || target;
             if (target.health > 0) {
                 const oldHealth = target.health;
                 target.health -= damage;
@@ -271,6 +270,12 @@ const bleedDamagePromise = (
                     target.health = 0;
                     fight.turns[ctx.turns.length - 1].logs.push(
                         `-# 🩸 **${target.name}** died from bleed damage`
+                    );
+                } else {
+                    fight.turns[ctx.turns.length - 1].logs.push(
+                        `-# 🩸 **${target.name}** took **${
+                            oldHealth - target.health
+                        }** bleed damage`
                     );
                 }
             }
