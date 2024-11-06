@@ -1169,3 +1169,38 @@ export type SkillPointsBuildArr = {
     level: number;
     skillPoints: SkillPoints;
 }[];
+
+export type TransactionData = {
+    oldData: RPGUserDataJSON;
+    newData: RPGUserDataJSON;
+}[];
+
+export interface Transaction {
+    id: string;
+    data: TransactionData;
+    date: Date;
+    message: string;
+}
+
+export const TransactionTableQuery = `
+    CREATE TABLE IF NOT EXISTS transactions
+    (
+        id   TEXT PRIMARY KEY,
+        data jsonb[] NOT NULL,
+        date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+`;
+
+// we want an array of functions with arguments
+// for example [ { method: "add", args: arguments of add }]
+// must be auto detected using T or something
+
+export interface params<T> {
+    method: string;
+    args: T;
+}
+
+const test: params<number> = {
+    method: "add",
+    args: 1,
+};
