@@ -2591,18 +2591,21 @@ export function getRPGUserDataChanges(
         changes.push({ name, before, after });
     }
     function handleQuestsChange(oldQuest: RPGUserQuest, newQuest: RPGUserQuest, prefix: string) {
-        if (oldQuest)
+        if (oldQuest && newQuest)
             for (const key of Object.keys(oldQuest) as (keyof RPGUserQuest)[]) {
                 if (oldQuest[key] !== newQuest[key]) {
                     addChange(`${prefix}.${key}`, String(oldQuest[key]), String(newQuest[key]));
                 }
             }
-        else if (newQuest)
-            for (const key of Object.keys(newQuest) as (keyof RPGUserQuest)[]) {
-                if (oldQuest[key] !== newQuest[key]) {
-                    addChange(`${prefix}.${key}`, String(oldQuest[key]), String(newQuest[key]));
-                }
+        else if (oldQuest && !newQuest) {
+            for (const key of Object.keys(oldQuest) as (keyof RPGUserQuest)[]) {
+                addChange(`${prefix}.${key}`, String(oldQuest[key]), "undefined");
             }
+        } else if (!oldQuest && newQuest) {
+            for (const key of Object.keys(newQuest) as (keyof RPGUserQuest)[]) {
+                addChange(`${prefix}.${key}`, "undefined", String(newQuest[key]));
+            }
+        }
     }
 
     // Helper to deep check objects or arrays for changes
