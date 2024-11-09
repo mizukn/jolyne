@@ -1187,7 +1187,8 @@ export const TransactionTableQuery = `
     (
         id   TEXT PRIMARY KEY,
         data jsonb[] NOT NULL,
-        date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        message TEXT NOT NULL
     );
 `;
 
