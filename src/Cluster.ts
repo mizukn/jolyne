@@ -81,7 +81,7 @@ exec(`lsof -i:${port}`, async (error, stdout) => {
             }, 5000);*/
         });
         manager.spawn({ timeout: -1 }).catch((e) => {
-            console.log(process.env);
+            console.log(e);
             //const response = JSON.parse(e.message);
             console.log(
                 "DISCORD API LIMIT: ERROR, YOU HAVE BEEN RATELIMITED. PLEASE TRY AGAIN IN " +
