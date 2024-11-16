@@ -347,3 +347,18 @@ export const Pumpkin: Consumable = {
         stamina: 69,
     },
 };
+
+export const Banana: Consumable = {
+    id: "banana",
+    name: "Banana",
+    description: "A banana",
+    emoji: "🍌",
+    price: 50,
+    rarity: "C",
+    tradable: true,
+    storable: true,
+    effects: {
+        health: 100,
+        stamina: 5,
+    },
+};
