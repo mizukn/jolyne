@@ -2139,8 +2139,8 @@ export function fixNpcRewards(npc: FightableNPC): void {
     if (!npc.rewards) npc.rewards = {};
     const baseXp = 5000 + npc.level * 750 + getMaxXp(npc.level) * 0.005;
     let multiplier = 1;
-    if (findStand(npc.stand)) {
-        multiplier = Multiplier[findStand(npc.stand).rarity];
+    if (findStand(npc.stand, npc.standsEvolved[npc.stand])) {
+        multiplier = Multiplier[findStand(npc.stand, npc.standsEvolved[npc.stand]).rarity];
     }
     // weapons are stored on equippedItems.X = 6
     for (const type of Object.values(npc.equippedItems)) {
