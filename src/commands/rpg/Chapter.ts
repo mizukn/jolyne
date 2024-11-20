@@ -370,8 +370,8 @@ export const getQuestsStats = (
 
             if ((quest as StartDungeonQuest).stage) {
                 messageString += `and reach Wave **#${
-                    ((quest as StartDungeonQuest).stage % 6) + 1
-                }** Room **#${Math.floor((quest as StartDungeonQuest).stage / 6 + 1)}** `;
+                    Math.floor((quest as StartDungeonQuest).stage / 6) + 1
+                }** Room **#${Math.floor(((quest as StartDungeonQuest).stage % 6) + 1)}** `;
             }
 
             const questPercent =
