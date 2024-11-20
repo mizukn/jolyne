@@ -244,7 +244,7 @@ const slashCommand: SlashCommandFile = {
 
         const collector = ctx.channel.createMessageComponentCollector({
             filter: (interaction) => interaction.user.id === ctx.user.id,
-            time: 60000,
+            time: 360000,
         });
 
         collector.on("collect", async (interaction) => {
@@ -330,7 +330,7 @@ const slashCommand: SlashCommandFile = {
             ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
             const oldData = cloneDeep(ctx.userData);
 
-            if (reason === "player_bust" || reason == "time") {
+            if (reason === "player_bust") {
                 resultMessage = `SYSTEM: You busted! You lost **${bet.toLocaleString(
                     "en-US"
                 )}** coins.`;
