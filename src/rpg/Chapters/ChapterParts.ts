@@ -440,7 +440,7 @@ export const C2_P11: ChapterPart = {
         Functions.generateClaimXQuest("xp", 250000),
         Functions.generateClaimXQuest("coin", 80000),
         Functions.generateClaimXQuest("daily", 1),
-        Functions.generateStartDungeonQuest(2, 6, ["no_breaks"]),
+        Functions.generateStartDungeonQuest(4, 5),
     ],
     parent: Chapters.C2,
     private: false,
