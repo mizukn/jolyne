@@ -54,7 +54,15 @@ const slashCommand: SlashCommandFile = {
     checkRPGCooldown: "blackjack",
 
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
-        if (!ctx.client.user.username.includes("Beta")) {
+        /*if (!ctx.client.user.username.includes("Beta")) {
+            return void ctx.makeMessage({
+                content: Functions.makeNPCString(
+                    NPCs.Daniel_J_DArby,
+                    `This command is disabled for now.`
+                ),
+            });
+        }*/
+        if (ctx.client.otherCache.get("disableBlackjack")) {
             return void ctx.makeMessage({
                 content: Functions.makeNPCString(
                     NPCs.Daniel_J_DArby,
