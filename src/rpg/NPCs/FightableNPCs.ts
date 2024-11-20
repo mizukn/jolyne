@@ -481,3 +481,12 @@ export const PaleDark: FightableNPC = {
     },
     standsEvolved: {},
 };
+
+export const Enya: FightableNPC = {
+    ...NPCs.Enya,
+    level: 80,
+    skillPoints: baseSP,
+    equippedItems: {},
+    stand: "justice",
+    standsEvolved: {},
+};

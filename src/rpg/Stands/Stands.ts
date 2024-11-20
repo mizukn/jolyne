@@ -956,33 +956,23 @@ export const Nix: Stand = {
     image: "https://media.jolyne.moe/mOxWVp/direct",
 };
 
-/*
-export const KillerQueenWinterCustom: Stand = {
-    id: "winterhalloween:mommy_queen",
-    name: "Mommy QUEEN",
-    rarity: "T",
-    description: "Custom stand made for @winterhalloween.",
-    abilities: [
-        { ...Abilities.CoinBomb, name: "Thigh Job" },
-        {
-            ...Abilities.StandBarrage,
-            name: "Titty Fuck",
-            description: "Killer Queen punches the enemy with its **huge** bombs",
-            damage: Abilities.StandBarrage.damage + 15
-        },
-        { ...Abilities.SheerHeartAttackBTD, name: "Armpit Job" },
-        { ...Abilities.BitesTheDust, name: "Face Sitting Sex" }
-    ],
-    emoji: "<:kqfm:1227725844257050749>",
+export const Justice: Stand = {
+    id: "justice",
+    name: "Justice",
+    rarity: "A",
+    description:
+        "Justice is a Stand bound to a fog. In the JJBA series, Justice's owner was [Enya the Hag](https://jojo.fandom.com/wiki/Enya_the_Hag)",
+    abilities: [Abilities.Fog, Abilities.FogStringPuppetry],
+    emoji: "<:justice:1308886400598278256>",
     skillPoints: {
-        perception: 15,
-        strength: 15,
-        speed: 15,
-        stamina: 15,
-        defense: 15
+        perception: 25,
+        strength: 0,
+        speed: 10,
+        stamina: 0,
+        defense: 0,
     },
-    color: 0xffc0cb,
+    color: 0x9a6d73,
     available: true,
-    image: "https://media.jolyne.moe/ZTAetm/direct"
+    obtainableBy: "arrow",
+    image: "https://media.jolyne.moe/eX0Nrg/direct",
 };
-*/

@@ -3183,3 +3183,61 @@ export const SwordOfPromisedVictory: Ability = {
     dodgeScore: 0,
     target: "enemy",
 };
+
+export const FogStringPuppetry: Ability = {
+    name: "Fog String Puppetry",
+    description:
+        "Justice's foremost power allows it to control the bodies of others through an open wound",
+    cooldown: 8,
+    damage: 60,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const baseTarget = cloneDeep(target);
+        let unmanipulated = false;
+
+        const unmanipulate = (fight: {
+            turns: {
+                logs: string[];
+            }[];
+        }) => {
+            if (unmanipulated) return;
+            target.name = baseTarget.name;
+            target.manipulatedBy = undefined;
+            fight.turns[ctx.turns.length - 1].logs.push(
+                `${user.stand?.emoji} (target: ${target.name}) has been released from manipulation.`
+            );
+            unmanipulated = true;
+        };
+
+        if (user.manipulatedBy) {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `**${user.manipulatedBy.name}:** [ERROR: cannot control if already controlled/manipulated]`
+            );
+            return;
+        } else if (target.manipulatedBy) {
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `**${user.name}:** [ERROR: cannot control ${target.name} because they are already controller/manipulated by ${target.manipulatedBy.name}]`
+            );
+            return;
+        } else {
+            target.name += " (Controlled)";
+            target.manipulatedBy = user;
+            ctx.nextRoundPromises.push({
+                cooldown: 4,
+                callerId: user.id,
+                executeOnlyOnce: true,
+                promise: (fight) => {
+                    unmanipulate(fight);
+                },
+                id: "" + Date.now() + Math.random() + "",
+            });
+
+            ctx.turns[ctx.turns.length - 1].logs.push(
+                `${user.stand?.emoji} **${user.name}** is now controlling ${target.name}`
+            );
+        }
+    },
+};

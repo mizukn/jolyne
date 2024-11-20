@@ -262,3 +262,11 @@ export const PaleDarkElite: NPC = {
     emoji: "<:paledark:1296559815426052116>",
     avatarURL: "https://media.jolyne.moe/KlipBm/direct",
 };
+
+export const Enya: NPC = {
+    id: "enya",
+    name: "Enya",
+    emoji: "<:enya:1308887200976605244>",
+    avatarURL:
+        "https://static.wikia.nocookie.net/villains/images/6/6b/Enyaba.png/revision/latest?cb=20231230155039",
+};
