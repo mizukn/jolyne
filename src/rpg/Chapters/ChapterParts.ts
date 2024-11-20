@@ -447,8 +447,8 @@ export const C2_P11: ChapterPart = {
     rewardsWhenComplete: {
         items: [
             {
-                item: "stand_arrow",
-                amount: 1,
+                item: "rare_stand_arrow",
+                amount: 6,
             },
         ],
     },
