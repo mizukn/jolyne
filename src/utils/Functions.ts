@@ -2676,7 +2676,6 @@ export function getRPGUserDataChanges(
     }
     for (const [index, quest] of newData.daily.quests.entries()) {
         const oldQuest = oldData.daily.quests[index];
-        console.log(oldQuest, quest);
         if (JSON.stringify(oldQuest) !== JSON.stringify(quest)) {
             //addChange(`daily.quests[${index}]`, JSON.stringify(oldQuest), JSON.stringify(quest));
             handleQuestsChange(oldQuest, quest, `daily.quests[${index}]`);
