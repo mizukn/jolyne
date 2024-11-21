@@ -168,79 +168,76 @@ const slashCommand: SlashCommandFile = {
                 )}\n- \`isRigged?\` **${systemIsRigged}**`,
             });
 
-        const makeGameMessage = async (showBotSecondCard = false) =>
-            ctx.makeMessage({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor(0x70926c)
-                        .setAuthor({
-                            name: NPCs.Daniel_J_DArby.name,
-                            iconURL:
-                                "https://static.wikia.nocookie.net/vsbattles/images/6/61/Unit_Daniel_J._D%27Arby_%28Love_of_cheater%27s_cat%29.png/revision/latest?cb=20190218012340",
-                        })
-                        .setDescription(
-                            `- Your bet: **${bet.toLocaleString("en-US")}** coins\n- Pot: **${(
-                                bet * 2
-                            ).toLocaleString("en-US")}** coins\n- Potentials: **${(
-                                bet * betMultiplier
-                            ).toLocaleString(
-                                "en-US"
-                            )}** coins\n-# - Your probability of winning: **${(
-                                probabilityToWin(playerCards, playerCards, shuffledDeck) * 100
-                            ).toLocaleString("en-US")}**%\n-# - Bot's probability of winning: **${(
-                                probabilityToWin(botCards, playerCards, shuffledDeck) * 100
-                            ).toLocaleString("en-US")}**%`
-                        )
-                        /*.setFooter({
+        const getGameOptions = (showBotSecondCard = false) => ({
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(0x70926c)
+                    .setAuthor({
+                        name: NPCs.Daniel_J_DArby.name,
+                        iconURL:
+                            "https://static.wikia.nocookie.net/vsbattles/images/6/61/Unit_Daniel_J._D%27Arby_%28Love_of_cheater%27s_cat%29.png/revision/latest?cb=20190218012340",
+                    })
+                    .setDescription(
+                        `- Your bet: **${bet.toLocaleString("en-US")}** coins\n- Pot: **${(
+                            bet * 2
+                        ).toLocaleString("en-US")}** coins\n- Potentials: **${(
+                            bet * betMultiplier
+                        ).toLocaleString("en-US")}** coins\n-# - Your probability of winning: **${(
+                            probabilityToWin(playerCards, playerCards, shuffledDeck) * 100
+                        ).toLocaleString("en-US")}**%\n-# - Bot's probability of winning: **${(
+                            probabilityToWin(botCards, playerCards, shuffledDeck) * 100
+                        ).toLocaleString("en-US")}**%`
+                    )
+                    /*.setFooter({
                             text: getHint(playerCards, botCards, shuffledDeck),
                         })*/
-                        .addFields(
-                            {
-                                name: `Your Hand (${calculateHandTotal(playerCards)}) ${(
-                                    probabilityToWin(playerCards, playerCards, shuffledDeck) * 100
-                                ).toLocaleString("en-US")}%`,
-                                value: playerCards
-                                    .map(
-                                        (w) =>
-                                            formatter[w as keyof typeof formatter] +
-                                            ` [${!isNaN(parseInt(w[0])) ? w : w[0]}]`
-                                    )
-                                    .join(" "),
-                            },
-                            {
-                                name: `Bot's Hand (${
-                                    showBotSecondCard
-                                        ? calculateHandTotal(botCards)
-                                        : values[botCards[0] as keyof typeof values] + " + ?"
-                                }) ${(
-                                    probabilityToWin(botCards, playerCards, shuffledDeck) * 100
-                                ).toLocaleString("en-US")}%`,
-                                value: botCards
-                                    .map((w, i) =>
-                                        i == 0 && !showBotSecondCard
-                                            ? `<:unkcard:1301222170982088744> [?]`
-                                            : formatter[w as keyof typeof formatter] +
-                                              ` [${!isNaN(parseInt(w[0])) ? w : w[0]}]`
-                                    )
-                                    .join(" "),
-                            }
-                        ),
-                ],
-                components: [
-                    Functions.actionRow([
-                        new ButtonBuilder()
-                            .setCustomId(hitID)
-                            .setLabel("Hit")
-                            .setStyle(ButtonStyle.Primary),
-                        new ButtonBuilder()
-                            .setCustomId(standID)
-                            .setLabel("Stand")
-                            .setStyle(ButtonStyle.Danger),
-                    ]),
-                ],
-            });
+                    .addFields(
+                        {
+                            name: `Your Hand (${calculateHandTotal(playerCards)}) ${(
+                                probabilityToWin(playerCards, playerCards, shuffledDeck) * 100
+                            ).toLocaleString("en-US")}%`,
+                            value: playerCards
+                                .map(
+                                    (w) =>
+                                        formatter[w as keyof typeof formatter] +
+                                        ` [${!isNaN(parseInt(w[0])) ? w : w[0]}]`
+                                )
+                                .join(" "),
+                        },
+                        {
+                            name: `Bot's Hand (${
+                                showBotSecondCard
+                                    ? calculateHandTotal(botCards)
+                                    : values[botCards[0] as keyof typeof values] + " + ?"
+                            }) ${(
+                                probabilityToWin(botCards, playerCards, shuffledDeck) * 100
+                            ).toLocaleString("en-US")}%`,
+                            value: botCards
+                                .map((w, i) =>
+                                    i == 0 && !showBotSecondCard
+                                        ? `<:unkcard:1301222170982088744> [?]`
+                                        : formatter[w as keyof typeof formatter] +
+                                          ` [${!isNaN(parseInt(w[0])) ? w : w[0]}]`
+                                )
+                                .join(" "),
+                        }
+                    ),
+            ],
+            components: [
+                Functions.actionRow([
+                    new ButtonBuilder()
+                        .setCustomId(hitID)
+                        .setLabel("Hit")
+                        .setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder()
+                        .setCustomId(standID)
+                        .setLabel("Stand")
+                        .setStyle(ButtonStyle.Danger),
+                ]),
+            ],
+        });
 
-        await makeGameMessage();
+        await ctx.makeMessage(getGameOptions());
 
         const collector = ctx.channel.createMessageComponentCollector({
             filter: (interaction) => interaction.user.id === ctx.user.id,
@@ -248,12 +245,10 @@ const slashCommand: SlashCommandFile = {
         });
 
         collector.on("collect", async (interaction) => {
-            await interaction.deferUpdate();
-
             ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
 
             if (ctx.userData.coins < bet) {
-                ctx.followUp({
+                interaction.update({
                     content: Functions.makeNPCString(
                         NPCs.Daniel_J_DArby,
                         `You tried to scam me, now you're in debt! HAHA`
@@ -287,15 +282,18 @@ const slashCommand: SlashCommandFile = {
                 const playerTotal = calculateHandTotal(playerCards);
 
                 if (playerTotal > 21) {
+                    interaction.deferUpdate().catch(() => {});
                     collector.stop("player_bust");
                 } else if (playerTotal === 21) {
+                    interaction.deferUpdate().catch(() => {});
                     collector.stop("player_blackjack");
                 } else {
-                    await makeGameMessage();
+                    await interaction.update(getGameOptions());
                 }
             } else if (interaction.customId === standID) {
                 let botTotal = calculateHandTotal(botCards);
                 while (botTotal < 17) {
+                    console.log("botTotal", botTotal);
                     /*const card = shuffledDeck.pop()!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
                     botCards.push(card);*/
                     if (systemIsRigged) {
@@ -318,6 +316,7 @@ const slashCommand: SlashCommandFile = {
 
                     botTotal = calculateHandTotal(botCards);
                 }
+                interaction.deferUpdate().catch(() => {});
                 collector.stop("stand");
             }
         });
@@ -365,7 +364,7 @@ const slashCommand: SlashCommandFile = {
                 });
                 return;
             }
-            await makeGameMessage(true);
+            await ctx.makeMessage(getGameOptions(true));
             const newCounter = counter + 1;
             if (newCounter >= 6) {
                 ctx.client.database.setRPGCooldown(ctx.user.id, "blackjack", 1000 * 60 * 1);
