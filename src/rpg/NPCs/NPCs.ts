@@ -270,3 +270,10 @@ export const Enya: NPC = {
     avatarURL:
         "https://static.wikia.nocookie.net/villains/images/6/6b/Enyaba.png/revision/latest?cb=20231230155039",
 };
+
+export const Krampus: NPC = {
+    id: "krampus",
+    name: "Krampus",
+    emoji: "<:krampus:1311443188845645914>",
+    avatarURL: "https://media.jolyne.moe/yNUWBY/direct",
+};

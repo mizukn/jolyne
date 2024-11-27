@@ -490,3 +490,14 @@ export const Enya: FightableNPC = {
     stand: "justice",
     standsEvolved: {},
 };
+
+export const Krampus: FightableNPC = {
+    ...NPCs.Krampus,
+    level: 425,
+    skillPoints: baseSP,
+    equippedItems: {
+        //krampus_sack: equipableItemTypes.CHEST,
+        krampus_staff: equipableItemTypes.WEAPON,
+    },
+    standsEvolved: {},
+};

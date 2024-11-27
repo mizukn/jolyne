@@ -247,3 +247,14 @@ export const DungeonKey: Item = {
     tradable: true,
     storable: true,
 };
+
+export const Ornament: Item = {
+    id: "ornament",
+    name: "Ornament",
+    description: "An ornament. Was available during the Christmas Event 2024.",
+    rarity: "T",
+    emoji: "<:ornament:1311072010696396840>",
+    price: 69,
+    tradable: true,
+    storable: true,
+};

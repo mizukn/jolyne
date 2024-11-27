@@ -701,3 +701,58 @@ export const ExcaliburAlter: Weapon = {
     },
     private: true,
 };
+
+export const KrampusHorns: EquipableItem = {
+    id: "krampus_horns",
+    name: "Krampus Horns",
+    emoji: "<:krampus_horns:1311443755139727511>",
+    description: "Horns that belonged to Krampus.",
+    type: equipableItemTypes.HEAD,
+    effects: {
+        skillPoints: {
+            strength: 15,
+            perception: 15,
+            defense: 15,
+            speed: 15,
+            stamina: 15,
+        },
+    },
+    rarity: "T",
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 100,
+    },
+};
+
+export const KrampusStaff: Weapon = {
+    id: "krampus_staff",
+    name: "Krampus' Staff",
+    emoji: "<:krampus_staff:1311446274540830720>",
+    description: "A staff that belonged to Krampus.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "hit",
+    useMessageAttack: "hits",
+    staminaCost: 5,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 25,
+            perception: 0,
+            defense: 0,
+            speed: 10,
+            stamina: 10,
+        },
+    },
+    rarity: "T",
+    abilities: [],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 100,
+    },
+    craft: {
+        ancient_scroll: 100,
+        krampus_horns: 15,
+    },
+};
