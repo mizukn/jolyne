@@ -65,6 +65,7 @@ import { is2024HalloweenEvent } from "./2024HalloweenEvent";
 import { level } from "winston";
 import e from "express";
 import seedrandom from "seedrandom";
+import { is2024ChristmasEventActive } from "./2024ChristmasEvent";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -1254,7 +1255,7 @@ export const addXp = function addXp(
     if (calcEquipableItemsBonus(userData).xpBoost > 0) {
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
-    if (Date.now() < 1707606000000) amount = Math.round(amount * 1.25);
+    if (is2024ChristmasEventActive()) amount = Math.round(amount * 1.25);
     let multiplier = 1;
 
     const patreonTier = client.patreons.find((v) => v.id === userData.id)?.level;
@@ -1821,9 +1822,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
                 "en-US"
-            )}** XP ${Emojis.xp} ${
-                Date.now() < 1707606000000 ? "(+25% due to the 2-yr event)" : ""
-            }`
+            )}** XP ${Emojis.xp} ${is2024ChristmasEventActive() ? "(christmas event: +25%)" : ""}`
         );
     if (data1.coins !== data2.coins)
         rewards.push(
