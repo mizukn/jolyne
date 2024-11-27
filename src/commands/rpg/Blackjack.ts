@@ -288,7 +288,9 @@ const slashCommand: SlashCommandFile = {
                     interaction.deferUpdate().catch(() => {});
                     collector.stop("player_blackjack");
                 } else {
-                    await interaction.update(getGameOptions());
+                    //await interaction.update(getGameOptions());
+                    await ctx.makeMessage(getGameOptions());
+                    interaction.deferUpdate().catch(() => {});
                 }
             } else if (interaction.customId === standID) {
                 let botTotal = calculateHandTotal(botCards);
