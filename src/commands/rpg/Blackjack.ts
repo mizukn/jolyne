@@ -157,7 +157,7 @@ const slashCommand: SlashCommandFile = {
         playerCards.push(shuffledDeck.pop()!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
         playerCards.push(shuffledDeck.pop()!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
         botCards.push(shuffledDeck.pop()!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
-        if (ctx.client.user.username.includes("Beta"))
+        if (ctx.client.user.username.includes("Beta") || ctx.client.user.username.includes("Alpha"))
             ctx.followUpQueue.push({
                 content: `DEBUG:\n\n- \`riggedPercent:\` **${
                     riggedPercent * 100

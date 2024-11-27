@@ -26,6 +26,7 @@ import { raidWebhook } from "../../utils/Webhooks";
 import { cloneDeep } from "lodash";
 import { FightableNPCS } from "../../rpg/NPCs";
 import { is2024HalloweenEvent } from "../../utils/2024HalloweenEvent";
+import { is2024ChristmasEventActive } from "../../utils/2024ChristmasEvent";
 
 const eventRaid: RaidBoss = {
     boss: FightableNPCS.ConfettiGolem,
@@ -130,6 +131,67 @@ const Halloween2024EventRaids: RaidBoss = {
     cooldown: 60000 * 10,
 };
 
+const Christmas2024EventRaid: RaidBoss = {
+    boss: FightableNPCS.Krampus,
+    minions: [],
+    level: 0,
+    baseRewards: {
+        coins: 10000,
+        xp: Functions.getMaxXp(FightableNPCS.Krampus.level) * 2,
+        items: [
+            {
+                item: Functions.findItem("Ornament").id,
+                amount: 4,
+                chance: 100,
+            },
+            {
+                item: Functions.findItem("Ornament").id,
+                amount: 7,
+                chance: 55,
+            },
+            {
+                item: Functions.findItem("krampus_horns").id,
+                amount: 1,
+                chance: 5,
+            },
+            {
+                item: Functions.findItem("krampus_staff").id,
+                amount: 1,
+                chance: 1,
+            },
+        ],
+    },
+    allies: [FightableNPCS.Jolyne],
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    cooldown: 60000 * 5,
+};
+
+const getFixedBosses = () => {
+    const fixedBosses = cloneDeep(Object.values(Bosses));
+    if (is2024HalloweenEvent()) {
+        fixedBosses.push(Halloween2024EventRaid);
+        fixedBosses.push(Halloween2024EventRaids);
+    }
+
+    if (is2024ChristmasEventActive()) {
+        if (Christmas2024EventRaid.minions.length === 0) {
+            Christmas2024EventRaid.minions = Object.values(FightableNPCS)
+                .filter(
+                    (x) =>
+                        x.id !== "Krampus" &&
+                        x.id.includes("Goon") &&
+                        x.private &&
+                        x.level % 100 == 0
+                )
+                .sort((a, b) => b.level - a.level)
+                .slice(0, 3);
+        }
+        fixedBosses.push(Christmas2024EventRaid);
+    }
+    return fixedBosses;
+};
+
 const slashCommand: SlashCommandFile = {
     data: {
         name: "raid",
@@ -157,11 +219,7 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
-        const fixedBosses = cloneDeep(Object.values(Bosses));
-        if (is2024HalloweenEvent()) {
-            fixedBosses.push(Halloween2024EventRaid);
-            fixedBosses.push(Halloween2024EventRaids);
-        }
+        const fixedBosses = getFixedBosses();
 
         if (Date.now() < 1707606000000) {
             if (Functions.isTimeNext15(new Date(Date.now()))) {
@@ -207,7 +265,8 @@ const slashCommand: SlashCommandFile = {
         if (
             (bossChosen === "confetti_golem" ||
                 (bossChosen === "pale_dark" && ctx.userData.level < 150) ||
-                bossChosen === "pale_dark_elite") &&
+                bossChosen === "pale_dark_elite" ||
+                (bossChosen === "krampus" && ctx.userData.level < 400)) &&
             ctx.guild.id !== "923608916540145694"
         ) {
             ctx.followUpQueue.push({
@@ -769,6 +828,14 @@ const slashCommand: SlashCommandFile = {
                         .map((r) => `- ${r.emoji} ${r.name} (LEVEL: ${r.level})`)
                         .join("\n")}`,
                 });
+            if (raid.minions.length !== 0) {
+                embed.fields.push({
+                    name: `Minions [${raid.minions.length}]:`,
+                    value: `\n${raid.minions
+                        .map((r) => `- ${r.emoji} ${r.name} (LEVEL: ${r.level})`)
+                        .join("\n")}`,
+                });
+            }
 
             if (bannedUsers.length !== 0) {
                 embed.fields.push({
@@ -784,15 +851,7 @@ const slashCommand: SlashCommandFile = {
         makeMenuMessage();
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
-        const fixedBosses = cloneDeep(Object.values(Bosses));
-        if (Date.now() < 1707606000000) {
-            fixedBosses.push(eventRaid);
-        }
-
-        if (is2024HalloweenEvent()) {
-            fixedBosses.push(Halloween2024EventRaid);
-            fixedBosses.push(Halloween2024EventRaids);
-        }
+        const fixedBosses = getFixedBosses();
 
         const availableBosses = fixedBosses; //.filter((r) => r.level <= userData.level);
 

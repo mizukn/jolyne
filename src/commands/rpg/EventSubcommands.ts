@@ -22,7 +22,10 @@ import { FightableNPCS, NPCs } from "../../rpg/NPCs";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import Items from "../../rpg/Items";
 import { cloneDeep } from "lodash";
-import { eventCommandData, eventCommandHandler } from "../../utils/2024HalloweenEvent";
+import {
+    Christmas2024EventCommandData,
+    Christmas2024EventCommandHandler,
+} from "../../utils/2024ChristmasEvent";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -443,6 +446,6 @@ function setCooldown(ctx: CommandInteractionContext, userId: string): void {
 }
 
 export default {
-    data: eventCommandData,
-    execute: eventCommandHandler,
+    data: Christmas2024EventCommandData,
+    execute: Christmas2024EventCommandHandler,
 };
