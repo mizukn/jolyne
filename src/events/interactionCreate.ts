@@ -56,7 +56,10 @@ const Event: EventFile = {
                 !process.env.ADMIN_IDS.split(",").includes(interaction.user.id)
             ) {
                 // if not process.env.BETA then tell no perms
-                if (!interaction.client.user.username.includes("Beta"))
+                if (
+                    !interaction.client.user.username.includes("Beta") ||
+                    !interaction.client.user.username.includes("Alpha")
+                )
                     return interaction.reply({
                         content: "You don't have permission to use this command.",
                         ephemeral: true,
