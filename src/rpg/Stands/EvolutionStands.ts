@@ -372,7 +372,7 @@ export const Echoes: EvolutionStand = {
         },
         {
             name: "Echoes Act 3",
-            description: "Echoes Act 3, This seems to be thr peak of the power you can extract.",
+            description: "Echoes Act 3, This seems to be the peak of the power you can extract.",
             rarity: "S",
             image: "https://static.jojowiki.com/images/8/8e/latest/20210422175130/Echoes_ACT3_DU_Infobox_Anime.png",
             abilities: [
