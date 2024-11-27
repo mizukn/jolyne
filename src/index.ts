@@ -30,6 +30,7 @@ import { count } from "console";
 import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import { is2024ChristmasEventActive } from "./utils/2024ChristmasEvent";
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
@@ -80,6 +81,57 @@ Sentry.init({
     profilesSampleRate: 1.0,
     integrations: [nodeProfilingIntegration()],
 });
+
+if (is2024ChristmasEventActive() || true) {
+    for (let i = 1; i < 300; i += 3) {
+        const krampusGoonNPC: NPC = {
+            name: `Krampus' Goon [LVL ${i}]`,
+            id: `KrampusGoon_${i}`,
+            emoji: "<:krampus_goon:1311458615173054604>",
+        };
+        const krampusGoonFightableNPC: FightableNPC = {
+            ...krampusGoonNPC,
+            level: i,
+            skillPoints: {
+                speed: 1,
+                strength: 1,
+                defense: 1,
+                perception: 1,
+                stamina: 0,
+            },
+            equippedItems: FightableNPCs.Krampus.equippedItems,
+            rewards: {
+                items: [
+                    {
+                        item: Functions.findItem("ornament").id,
+                        amount: 1,
+                        chance: 100,
+                    },
+                    {
+                        item: Functions.findItem("ornament").id,
+                        amount: 2,
+                        chance: 25,
+                    },
+                    {
+                        item: Functions.findItem("ornament").id,
+                        amount: 3,
+                        chance: 15,
+                    },
+                    {
+                        item: Functions.findItem("ornament").id,
+                        amount: 4,
+                        chance: 5,
+                    },
+                ],
+            },
+            private: true,
+            standsEvolved: {},
+        };
+
+        // @ts-expect-error because it's a dynamic property
+        FightableNPCs[krampusGoonFightableNPC.id] = krampusGoonFightableNPC;
+    }
+}
 /*
 for (let i = 1; i < 500; i += 3) {
     const SpookySkeletonNPC: NPC = {
