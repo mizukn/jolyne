@@ -242,7 +242,7 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
     return true;
 };
 
-export const eventCommandData: SlashCommand["data"] = {
+export const Halloween2024EventCommandData: SlashCommand["data"] = {
     name: "event",
     description: "Check the current event.",
     type: 1,
@@ -325,7 +325,7 @@ The enemies you have defeated until now are coming back on Halloween, wanting re
     )} (${Functions.generateDiscordTimestamp(endOf2024HalloweenEvent, "FROM_NOW")})`;
 };
 
-export const eventCommandHandler: SlashCommand["execute"] = async (
+export const Halloween2024EventCommandHandler: SlashCommand["execute"] = async (
     ctx: CommandInteractionContext
 ): Promise<void> => {
     if (!is2024HalloweenEvent()) {

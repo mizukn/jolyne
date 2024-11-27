@@ -1255,7 +1255,7 @@ export const addXp = function addXp(
     if (calcEquipableItemsBonus(userData).xpBoost > 0) {
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
-    if (is2024ChristmasEventActive()) amount = Math.round(amount * 1.25);
+    if (is2024ChristmasEventActive() && isWeekend()) amount = Math.round(amount * 1.25);
     let multiplier = 1;
 
     const patreonTier = client.patreons.find((v) => v.id === userData.id)?.level;
@@ -1822,7 +1822,11 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
                 "en-US"
-            )}** XP ${Emojis.xp} ${is2024ChristmasEventActive() ? "(christmas event: +25%)" : ""}`
+            )}** XP ${Emojis.xp} ${
+                is2024ChristmasEventActive() && isWeekend()
+                    ? "(christmas event [Week-End]: +25%)"
+                    : ""
+            }`
         );
     if (data1.coins !== data2.coins)
         rewards.push(
@@ -2699,3 +2703,8 @@ export function getRPGUserDataChanges(
 
     return changes;
 }
+
+export const isWeekend = (): boolean => {
+    const date = new Date();
+    return date.getDay() === 0 || date.getDay() === 6;
+};
