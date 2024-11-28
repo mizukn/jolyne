@@ -30,7 +30,7 @@ import { count } from "console";
 import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
-import { is2024ChristmasEventActive } from "./utils/2024ChristmasEvent";
+import { endOf2024ChristmasEvent, is2024ChristmasEventActive } from "./utils/2024ChristmasEvent";
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
@@ -82,7 +82,7 @@ Sentry.init({
     integrations: [nodeProfilingIntegration()],
 });
 
-if (is2024ChristmasEventActive() || true) {
+if (Date.now() < endOf2024ChristmasEvent) {
     for (let i = 1; i < 300; i += 3) {
         const krampusGoonNPC: NPC = {
             name: `Krampus' Goon [LVL ${i}]`,
