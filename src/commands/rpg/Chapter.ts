@@ -189,7 +189,14 @@ export const getQuestsStats = (
         if (Functions.isFightNPCQuest(quest)) {
             const npc = Object.values(FightableNPCS).find((v) => v.id === quest.npc);
             if (!npc) {
-                message.push(`??? Unknown NPC (${quest.npc}) ???::: ${JSON.stringify(quest)}`);
+                const toBeatLeft = quests.filter(
+                    (r) => Functions.isFightNPCQuest(r) && r.npc === quest.npc
+                ).length;
+                //message.push(`??? Unknown NPC (${quest.npc}) ???::: ${JSON.stringify(quest)}`);
+                if (!message.find((x) => x.includes(quest.npc)))
+                    message.push(
+                        `:question: unknown/expired NPC (\`${quest.npc}\`) ||(${toBeatLeft}/${toBeatLeft}) **100%**||`
+                    );
                 totalPercent += 100;
                 continue;
             }
