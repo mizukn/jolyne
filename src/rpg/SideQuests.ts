@@ -5,7 +5,7 @@ import * as FightableNPCs from "./NPCs/FightableNPCs";
 import * as Raids from "./Raids";
 import Emojis from "../emojis.json";
 import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "../utils/2024HalloweenEvent";
-import { endOf2024ChristmasEvent } from "../utils/2024ChristmasEvent";
+import { endOf2024ChristmasEvent, startOf2024ChristmasEvent } from "../utils/2024ChristmasEvent";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
@@ -320,6 +320,7 @@ export const ChristmasEvent2023: SideQuest = {
         for (let i = 0; i < tflv; i++) {
             if (Functions.percent(80) || i < 5) {
                 const NPC = Functions.randomArray(NPCs);
+                if (!NPC) continue;
                 quests.push(Functions.generateFightQuest(NPC));
             }
         }
@@ -747,35 +748,32 @@ export const ChristmasEvent2024: SideQuest = {
     title: "Christmas Event 2024",
     description:
         "Krampus has been abducting children, leaving chaos in his wake! Defeat him to free the children and earn rewards.",
-    emoji: "🎁",
+    emoji: FightableNPCs.Krampus.emoji,
+    color: 0xd8304a,
     rewards: async (ctx) => {
         Functions.addItem(ctx.userData, Functions.findItem("christmas_gift"), 1);
-        Functions.addItem(ctx.userData, Functions.findItem("corrupted_soul"), 5);
-        Functions.addItem(ctx.userData, Functions.findItem("candy_cane"), 2);
         ctx.followUp({
             content: Functions.makeNPCString(
                 NPCs.SantasElf,
-                `You have been given a Christmas Present. You can open it by using the ${ctx.client.getSlashCommandMention(
+                `Thank you! You have been given a Christmas Present. You can open it by using the ${ctx.client.getSlashCommandMention(
                     "inventory use"
-                )} command.\n\nDon't forget to feed my reindeers! I'll pay you a lot (${ctx.client.getSlashCommandMention(
-                    "event feed"
-                )})`
+                )} command.`
             ),
         });
         return true;
     },
     quests: (ctx) => {
         const quests: QuestArray = [
-            Functions.generateUseXCommandQuest("loot", 15),
-            Functions.generateUseXCommandQuest("assault", 15),
+            Functions.generateUseXCommandQuest("loot", 5),
+            Functions.generateUseXCommandQuest("assault", 5),
         ];
         const NPCs = Functions.shuffle(
             Object.values(FightableNPCs).filter(
-                (npc) => npc.level <= ctx.userData.level && !npc.private
+                (x) => x.id !== "Krampus" && x.id.includes("Goon") && x.private
             )
         )
             .slice(0, 15)
-            .sort((a, b) => b.level - a.level);
+            .sort((a, b) => a.level - b.level);
 
         // fight npcs
         let tflv = ctx.userData.level / 5;
@@ -784,20 +782,28 @@ export const ChristmasEvent2024: SideQuest = {
         for (let i = 0; i < tflv; i++) {
             if (Functions.percent(80) || i < 5) {
                 const NPC = Functions.randomArray(NPCs);
+                if (!NPC) continue;
                 quests.push(Functions.generateFightQuest(NPC));
             }
         }
+        quests.push(Functions.generataRaidQuest(FightableNPCs.Krampus));
 
         return quests;
     },
     cancelQuestIfRequirementsNotMetAnymore: true,
     requirements: (ctx) => [
         {
-            requirement: `Time must be before ${Functions.generateDiscordTimestamp(
+            /*requirement: `Time must be before ${Functions.generateDiscordTimestamp(
                 endOf2024ChristmasEvent,
                 "FULL_DATE"
             )}`,
-            status: Date.now() < endOf2024ChristmasEvent,
+            status: Date.now() < endOf2024ChristmasEvent,*/
+            requirement: `Time must be between ${Functions.generateDiscordTimestamp(
+                startOf2024ChristmasEvent,
+                "FULL_DATE"
+            )} and ${Functions.generateDiscordTimestamp(endOf2024ChristmasEvent, "FULL_DATE")}`,
+            status:
+                Date.now() >= startOf2024ChristmasEvent && Date.now() <= endOf2024ChristmasEvent,
         },
         {
             requirement: "SIDE QUEST MUST BE COMPLETED::: ERROR",

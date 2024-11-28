@@ -9,6 +9,7 @@ import * as Items from "./Items";
 import { EvolutionStands } from "../Stands";
 import { cloneDeep } from "lodash";
 import { standLogsWebhook } from "../../utils/Webhooks";
+import { is2024ChristmasEventActive } from "../../utils/2024ChristmasEvent";
 
 const totalStands = [
     ...Object.values(Stands),
@@ -817,7 +818,7 @@ export const SkillPointsResetPotion: Special = {
 export const ChristmasGift: Special = {
     id: "christmas_gift",
     name: "Christmas Gift",
-    description: "A gift that was available during Christmas (2023 & 2024).",
+    description: "A gift that is available during Christmas. Prize varies depending on the event.",
     rarity: "T",
     emoji: Emojis["xmasgift"],
     price: 5000,
@@ -864,6 +865,13 @@ export const ChristmasGift: Special = {
                     }*/,
                 ],
             ];
+            if (is2024ChristmasEventActive()) {
+                finalLoot[1].push({
+                    percent: 100,
+                    loot: "ornament",
+                    mult: Functions.randomNumber(1, 5),
+                });
+            }
 
             for (let i = 0; i < 2; i++) {
                 if (!realLoot[i] && !finalLoot[i]) continue;
