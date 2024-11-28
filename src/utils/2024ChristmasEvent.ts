@@ -17,40 +17,36 @@ export const is2024ChristmasEventEndingSoon = (): boolean => {
 
 export const trades = [
     {
-        amount: 3,
+        amount: 9999999999999,
         item: "box",
     },
     {
-        amount: 10,
+        amount: 9999999999999,
         item: "xp_box",
     },
     {
-        amount: 3,
+        amount: 9999999999999,
         item: "stand_arrow",
     },
     {
-        amount: 3,
+        amount: 9999999999999,
         item: "skill_points_reset_potion",
     },
     {
-        amount: 9,
+        amount: 9999999999999,
         item: "rare_stand_arrow",
     },
     {
-        amount: 500,
+        amount: 9999999999999,
         item: "requiem_arrow",
     },
     {
-        amount: 50,
+        amount: 9999999999999,
         item: "bloody_knife",
     },
 
     {
-        amount: 150,
-        item: "nix.$disc$",
-    },
-    {
-        amount: 450 * 10,
+        amount: 9999999999999,
         item: "excalibur",
     },
 ].sort((a, b) => a.amount - b.amount);
@@ -67,7 +63,8 @@ export const eventMessage = (ctx: CommandInteractionContext): string => {
     )} command
 - You can ${ctx.client.getSlashCommandMention(
         "raid"
-    )} **Pale Dark**, the event boss to get more <:ornament:1311072010696396840> **Ornaments** and other rewards
+    )} **Krampus**, the event boss to get more <:ornament:1311072010696396840> **Ornaments** and other rewards
+- Use the ${ctx.client.getSlashCommandMention("craft")} command to craft the **EVENT_WEAPON**
 -# - The event ends on ${Functions.generateDiscordTimestamp(
         endOf2024ChristmasEvent,
         "FULL_DATE"
@@ -77,10 +74,23 @@ export const eventMessage = (ctx: CommandInteractionContext): string => {
 export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
     ctx: CommandInteractionContext
 ): Promise<void> => {
-    if (!is2024ChristmasEventActive() && false) {
-        await ctx.makeMessage({
-            content: "There is no event currently running.",
-        });
+    if (!is2024ChristmasEventActive()) {
+        const eventStartsIn = startOf2024ChristmasEvent - Date.now();
+        if (eventStartsIn > 0) {
+            await ctx.makeMessage({
+                content: `The event will start in ${Functions.generateDiscordTimestamp(
+                    startOf2024ChristmasEvent,
+                    "FROM_NOW"
+                )} (${Functions.generateDiscordTimestamp(
+                    startOf2024ChristmasEvent,
+                    "FULL_DATE"
+                )}).`,
+            });
+            return;
+        } else
+            await ctx.makeMessage({
+                content: "There is no event currently running.",
+            });
         return;
     }
     const subcommand = ctx.interaction.options.getSubcommand();
