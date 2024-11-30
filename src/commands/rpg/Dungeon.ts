@@ -140,6 +140,7 @@ async function giveRewards(
         oldData: RPGUserDataJSON;
         newData: RPGUserDataJSON;
     }[] = [];
+    const results: boolean[] = [];
     for (const player of newPlayers) {
         const oldPlayer = cloneDeep(player);
         for (
@@ -235,7 +236,7 @@ async function giveRewards(
             player.id === ctx.userData.id &&
             (!ctx.client.maintenanceReason || !endedUnexpectedly)
         ) {
-            Functions.removeItem(player, "dungeon_key", 1);
+            results.push(Functions.removeItem(player, "dungeon_key", 1));
         }
 
         //ctx.client.database.saveUserData(player);
@@ -246,7 +247,8 @@ async function giveRewards(
     }
     const Transaction = await ctx.client.database.handleTransaction(
         fixedPlayers,
-        `Started a dungeon:: total of ${dungeon.stage} waves and beaten ${dungeon.beatenEnemies.length} enemies.`
+        `Started a dungeon:: total of ${dungeon.stage} waves and beaten ${dungeon.beatenEnemies.length} enemies.`,
+        results
     );
     if (!Transaction) {
         dungeon.message

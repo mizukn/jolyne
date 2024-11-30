@@ -250,18 +250,41 @@ const slashCommand: SlashCommandFile = {
                     const rewards = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
                         Functions.getCurrentDate()
                     ];
+                    const nextReward = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
+                        Functions.getCurrentDate(
+                            new Date(Date.now() + 86400000) // next day
+                        )
+                    ];
 
                     const coins = rewards.coins;
                     const xp = rewards.xp;
                     const items = rewards.items;
 
-                    const oldData = cloneDeep(ctx.userData);
                     if (coins) Functions.addCoins(ctx.userData, coins);
                     if (xp) Functions.addXp(ctx.userData, xp, ctx.client);
                     if (items) {
                         for (const item of Object.keys(items)) {
                             Functions.addItem(ctx.userData, Functions.findItem(item), items[item]);
                         }
+                    }
+
+                    let nextRewards = "";
+                    if (nextReward) {
+                        const nextData = cloneDeep(oldData);
+                        if (nextReward.coins) Functions.addCoins(nextData, nextReward.coins);
+                        if (nextReward.xp) Functions.addXp(nextData, nextReward.xp, ctx.client);
+                        if (nextReward.items) {
+                            for (const item of Object.keys(nextReward.items)) {
+                                Functions.addItem(
+                                    nextData,
+                                    Functions.findItem(item),
+                                    nextReward.items[item]
+                                );
+                            }
+                        }
+                        nextRewards = Functions.getRewardsCompareData(oldData, nextData)
+                            .map((x) => `-# - ${x}`)
+                            .join("\n");
                     }
 
                     embed.fields.push({
@@ -271,7 +294,14 @@ const slashCommand: SlashCommandFile = {
                             ctx.userData
                         )
                             .map((x) => `- ${x}`)
-                            .join("\n")} `,
+                            .join("\n")} ${
+                            nextReward
+                                ? `\n\nExpected rewards if you claim tomorrow (${Functions.generateDiscordTimestamp(
+                                      new Date(Date.now() + 86400000).setUTCHours(0, 0, 0, 0),
+                                      "FROM_NOW"
+                                  )}):\n${nextRewards}`
+                                : ""
+                        }`,
                     });
                 }
 

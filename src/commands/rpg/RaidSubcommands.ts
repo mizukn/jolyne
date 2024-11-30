@@ -141,8 +141,8 @@ const Christmas2024EventRaid: RaidBoss = {
         items: [
             {
                 item: Functions.findItem("Ornament").id,
-                amount: 4,
-                chance: 100,
+                amount: 15,
+                chance: 1000,
             },
             {
                 item: Functions.findItem("Ornament").id,
@@ -152,7 +152,7 @@ const Christmas2024EventRaid: RaidBoss = {
             {
                 item: Functions.findItem("krampus_horns").id,
                 amount: 1,
-                chance: 5,
+                chance: 8,
             },
             {
                 item: Functions.findItem("krampus_staff").id,
@@ -174,7 +174,7 @@ const getFixedBosses = () => {
         fixedBosses.push(Halloween2024EventRaids);
     }
 
-    if (is2024ChristmasEventActive()) {
+    if (is2024ChristmasEventActive() || process.env.BETA) {
         if (Christmas2024EventRaid.minions.length === 0) {
             Christmas2024EventRaid.minions = Object.values(FightableNPCS)
                 .filter(
