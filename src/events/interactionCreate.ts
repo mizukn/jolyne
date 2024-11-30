@@ -13,6 +13,7 @@ import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 import { handlePumpkinAppeared, is2024HalloweenEvent } from "../utils/2024HalloweenEvent";
+import { is2024ChristmasEventActive } from "../utils/2024ChristmasEvent";
 
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
@@ -53,17 +54,14 @@ const Event: EventFile = {
                 });
             if (
                 command.adminOnly &&
-                !process.env.ADMIN_IDS.split(",").includes(interaction.user.id)
+                !process.env.ADMIN_IDS.split(",").includes(interaction.user.id) &&
+                !process.env.BETA
             ) {
                 // if not process.env.BETA then tell no perms
-                if (
-                    !interaction.client.user.username.includes("Beta") ||
-                    !interaction.client.user.username.includes("Alpha")
-                )
-                    return interaction.reply({
-                        content: "You don't have permission to use this command.",
-                        ephemeral: true,
-                    });
+                return interaction.reply({
+                    content: "You don't have permission to use this command.",
+                    ephemeral: true,
+                });
             }
             if (!interaction.channel)
                 return interaction.reply(
@@ -300,6 +298,25 @@ const Event: EventFile = {
                             content: `:jack_o_lantern: | **${ctx.user.username}**, Happy Halloween! You received a special email & quest for the 2024 Halloween event.`,
                         });
                         Functions.addEmail(ctx.userData, "halloween_2024");
+                    }
+                }
+                if (
+                    is2024ChristmasEventActive() &&
+                    !ctx.userData.emails.find((r) => r.id === "christmas_2024")
+                ) {
+                    const hasAlreadyAdded = await ctx.client.database.getString(
+                        `setChristmas2024:${ctx.user.id}`
+                    );
+                    if (!hasAlreadyAdded) {
+                        await ctx.client.database.setString(
+                            `setChristmas2024:${ctx.user.id}`,
+                            "true"
+                        );
+
+                        ctx.followUpQueue.push({
+                            content: `:christmas_tree: | **${ctx.user.username}**, You received a special email & quest for the 2024 Christmas event.`,
+                        });
+                        Functions.addEmail(ctx.userData, "christmas_2024");
                     }
                 }
 
