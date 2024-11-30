@@ -759,7 +759,9 @@ export const ChristmasEvent2024: SideQuest = {
                 NPCs.SantasElf,
                 `Thank you! You have been given a Christmas Present. You can open it by using the ${ctx.client.getSlashCommandMention(
                     "inventory use"
-                )} command.`
+                )} command.\n\n-# Re-use the ${ctx.client.getSlashCommandMention(
+                    "side quest view"
+                )} command to reload the quests & beat Krampus and his goons again to earn more ornaments.`
             ),
         });
         return true;
