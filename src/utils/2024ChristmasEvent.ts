@@ -4,10 +4,9 @@ import { Ornament } from "../rpg/Items/Items";
 import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
 import { cloneDeep } from "lodash";
 import { i18n_key, SlashCommand } from "../@types";
-import { is2024HalloweenEvent } from "./2024HalloweenEvent";
 
 export const endOf2024ChristmasEvent = 1735772399000;
-export const startOf2024ChristmasEvent = new Date(2024, 11, 1).getTime();
+export const startOf2024ChristmasEvent = 1732996800000; //new Date(2024, 11, 1).getTime();
 export const is2024ChristmasEventActive = (): boolean =>
     Date.now() > startOf2024ChristmasEvent && Date.now() < endOf2024ChristmasEvent;
 export const is2024ChristmasEventEndingSoon = (): boolean => {
@@ -79,6 +78,7 @@ Record<i18n_key, string> => ({
 - - Alternatively, you can get it by ${ctx.client.getSlashCommandMention(
         "event trade"
     )} with <:jollypolpo:1311452026428723240> **Jolly Polpo**
+- Everyone has a **+25% ${ctx.client.localEmojis.xp} Boost** during the weekend
 - Make sure to ${ctx.client.getSlashCommandMention("daily claim")} to get special rewards every day!
 - - If you claim your daily on <t:1735084800:F> (<t:1735084800:R>), you will get a T-tier weapon that is only obtainable that day
 - The event ends on ${Functions.generateDiscordTimestamp(
@@ -408,17 +408,17 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
                 });
                 return;
             }
+        } else {
+            await ctx.makeMessage({
+                content: "There is no event currently running.",
+            });
+            return;
         }
-    } else {
-        await ctx.makeMessage({
-            content: "There is no event currently running.",
-        });
-        return;
     }
     const subcommand = ctx.interaction.options.getSubcommand();
     if (subcommand === "info") {
         const embed: APIEmbed = {
-            title: "<:ornament:1311072010696396840> **__2024 Halloween Event__**",
+            title: "<:ornament:1311072010696396840> **__2024 Christmas Event__**",
             description: Chritmas2024eventMessage(ctx),
             color: 0xd8304a,
         };
@@ -671,7 +671,7 @@ export const Christmas2024EventCommandData: SlashCommand["data"] = {
 
 export const handleInteraction = async (ctx: CommandInteractionContext): Promise<void> => {
     const ornamentsLeft = () => ctx.userData.inventory[Ornament.id] || 0;
-    if (is2024HalloweenEvent() && ornamentsLeft() > 150 && Functions.percent(30)) {
+    if (is2024ChristmasEventActive() && ornamentsLeft() > 150 && Functions.percent(30)) {
         ctx.interaction.followUp({
             content: `<:ornament:1311072010696396840> | The christmas event is ending soon! You have ${ornamentsLeft()} ornaments left. Trade them with Jolly Polpo before the event ends`,
         });
