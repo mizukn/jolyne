@@ -97,6 +97,7 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
+        const initialMoney = ctx.userData.coins;
         let betMultiplier = 1.03;
         let riggedPercent = 0;
         // if bet is equal or greater than 50% of the user's coins, then the bet multiplier is 2.25. if 25% then 1.75. If it is 100% then 3. otherwise 1.15
@@ -150,7 +151,8 @@ const slashCommand: SlashCommandFile = {
         console.log("wonToday", bjWonToday, "initalMoneyToday", initalMoneyToday);
         const playerCards: string[] = [];
         const botCards: string[] = [];
-        const systemIsRigged = Functions.percent(riggedPercent * 100);
+        const isblacklisted = await ctx.client.database.getString(`bjblacklist_${ctx.user.id}`);
+        const systemIsRigged = isblacklisted ? true : Functions.percent(riggedPercent * 100);
         console.log(systemIsRigged, riggedPercent * 100);
         // Initialize deck and deal starting hands
         const shuffledDeck = shuffleArray([...deck]);
@@ -246,6 +248,14 @@ const slashCommand: SlashCommandFile = {
 
         collector.on("collect", async (interaction) => {
             ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+            if (ctx.userData.coins !== initialMoney) {
+                ctx.followUp({
+                    content: `SYSTEM: Your coins have changed since the game started. This is considering cheating; therefore you lost your thrice your bet. This can be appealed by [contacting the bot owner](https://discord.gg/jolyne-support-923608916540145694).\n\n-# Please only start one game of blackjack at a time. Don't use other commands while playing.`,
+                });
+                ctx.userData.coins -= bet * 2;
+                collector.stop("player_bust");
+                return;
+            }
 
             if (ctx.userData.coins < bet) {
                 interaction.update({

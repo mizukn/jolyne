@@ -175,7 +175,7 @@ const getFixedBosses = () => {
     }
 
     if (is2024ChristmasEventActive() || process.env.BETA) {
-        if (Christmas2024EventRaid.minions.length === 0) {
+        /*if (Christmas2024EventRaid.minions.length === 0) {
             Christmas2024EventRaid.minions = Object.values(FightableNPCS)
                 .filter(
                     (x) =>
@@ -186,7 +186,7 @@ const getFixedBosses = () => {
                 )
                 .sort((a, b) => b.level - a.level)
                 .slice(0, 3);
-        }
+        }*/
         fixedBosses.push(Christmas2024EventRaid);
     }
     return fixedBosses;
