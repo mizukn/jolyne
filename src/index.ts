@@ -99,7 +99,7 @@ if (Date.now() < endOf2024ChristmasEvent) {
                 perception: 1,
                 stamina: 0,
             },
-            equippedItems: FightableNPCs.Krampus.equippedItems,
+            equippedItems: i < 150 ? {} : FightableNPCs.Krampus.equippedItems,
             rewards: {
                 items: [
                     {
