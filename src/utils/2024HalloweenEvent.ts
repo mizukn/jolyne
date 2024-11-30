@@ -302,7 +302,7 @@ export const trades = [
     },
 ].sort((a, b) => a.amount - b.amount);
 
-export const eventMessage = (ctx: CommandInteractionContext): string => {
+export const halloween2024EventMessage = (ctx: CommandInteractionContext): string => {
     return `\`\`\`
 The enemies you have defeated until now are coming back on Halloween, wanting revenge. Blame Justice (Enya Geil) for all of it!
 \`\`\`
@@ -338,7 +338,7 @@ export const Halloween2024EventCommandHandler: SlashCommand["execute"] = async (
     if (subcommand === "info") {
         const embed: APIEmbed = {
             title: ":jack_o_lantern: **__2024 Halloween Event__**",
-            description: eventMessage(ctx),
+            description: halloween2024EventMessage(ctx),
             color: 0xffa500,
         };
 

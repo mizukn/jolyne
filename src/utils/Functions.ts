@@ -65,7 +65,7 @@ import { is2024HalloweenEvent } from "./2024HalloweenEvent";
 import { level } from "winston";
 import e from "express";
 import seedrandom from "seedrandom";
-import { is2024ChristmasEventActive } from "./2024ChristmasEvent";
+import { endOf2024ChristmasEvent, is2024ChristmasEventActive } from "./2024ChristmasEvent";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -1154,6 +1154,7 @@ export const getRewards = (
     return rewards;
 };
 
+const Christmas2024LimitedItems = ["elf_hat", "santa_hat", "krampus_staff"];
 export const addItem = (
     userData: RPGUserDataJSON,
     item: Item | string,
@@ -1169,6 +1170,14 @@ export const addItem = (
     if (is2024HalloweenEvent() && item.id === "nix.$disc$") {
         const nixDisc = (userData.inventory["nix.$disc$"] || 0) + (amount || 1);
         if (nixDisc > 3) return false;
+    }
+    if (Date.now() < endOf2024ChristmasEvent && Christmas2024LimitedItems.includes(item.id)) {
+        let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
+        for (const xitem of Object.keys(userData.equippedItems)) {
+            if (xitem === item.id) itemLeft++;
+        }
+        const max = item.id === "krampus_staff" ? 3 : 5;
+        if (itemLeft > max) return false;
     }
     if (item.id.includes("$disc$") && ctx) {
         const totalItems = Object.keys(userData.inventory)
@@ -1981,19 +1990,278 @@ export const dailyClaimRewardsChristmas = (
             },
         },
         "2024-12-01": {
-            coins: 10000,
+            coins: 100000,
             xp: getMaxXp(level) * 2,
             items: {
                 box: 5,
                 christmas_gift: 1,
-                rare_stand_arrow: 25,
+                ornament: 30,
             },
         },
+        "2024-12-02": {
+            coins: 10000,
+            xp: getMaxXp(level),
+            items: {
+                box: 5,
+                christmas_gift: 1,
+                ornament: 20,
+            },
+        },
+        "2024-12-03": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                box: 5,
+                christmas_gift: 1,
+                ornament: 15,
+            },
+        },
+        "2024-12-04": {
+            coins: 10000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                rare_stand_arrow: 5,
+                christmas_gift: 1,
+                ornament: 20,
+            },
+        },
+        "2024-12-05": {
+            coins: 10000,
+            xp: getMaxXp(level) / 4,
+            items: {
+                ornament: 15,
+            },
+        },
+        "2024-12-06": {
+            coins: 10000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                ornament: 10,
+                krampus_horns: 1,
+            },
+        },
+        "2024-12-07": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 5,
+                christmas_gift: 1,
+            },
+        },
+
+        // chatpgt begin
+        "2024-12-08": {
+            coins: 10000,
+            xp: getMaxXp(level) / 4,
+            items: {
+                ornament: 10,
+            },
+        },
+        "2024-12-09": {
+            coins: 10000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                ornament: 15,
+                box: 3,
+            },
+        },
+        "2024-12-10": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 20,
+                christmas_gift: 1,
+            },
+        },
+        "2024-12-11": {
+            coins: 15000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 25,
+                rare_stand_arrow: 3,
+            },
+        },
+        "2024-12-12": {
+            coins: 20000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 30,
+                krampus_horns: 1,
+            },
+        },
+        "2024-12-13": {
+            coins: 15000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 15,
+                christmas_gift: 2,
+            },
+        },
+        "2024-12-14": {
+            coins: 10000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                ornament: 10,
+            },
+        },
+        "2024-12-15": {
+            coins: 20000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 20,
+                rare_stand_arrow: 5,
+                christmas_gift: 2,
+            },
+        },
+        "2024-12-16": {
+            coins: 10000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                ornament: 15,
+            },
+        },
+        "2024-12-17": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 20,
+                box: 3,
+            },
+        },
+        "2024-12-18": {
+            coins: 15000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 25,
+                christmas_gift: 3,
+            },
+        },
+        "2024-12-19": {
+            coins: 20000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 30,
+                rare_stand_arrow: 5,
+            },
+        },
+        "2024-12-20": {
+            coins: 15000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 20,
+                krampus_horns: 1,
+            },
+        },
+        "2024-12-21": {
+            coins: 10000,
+            xp: getMaxXp(level) / 4,
+            items: {
+                ornament: 15,
+            },
+        },
+        "2024-12-22": {
+            coins: 15000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 25,
+                christmas_gift: 2,
+            },
+        },
+        "2024-12-23": {
+            coins: 20000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 30,
+            },
+        },
+        "2024-12-24": {
+            coins: 25000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 40,
+                christmas_gift: 5,
+                rare_stand_arrow: 10,
+            },
+        },
+        "2024-12-25": {
+            coins: 50000,
+            xp: getMaxXp(level) * 3,
+            items: {
+                box: 10,
+                christmas_gift: 10,
+                candy_cane: 300,
+                rare_stand_arrow: 50,
+                krampus_horns: 3,
+                ancient_scroll: 15,
+
+                // todo: add the new event weapon
+            },
+        },
+        "2024-12-26": {
+            coins: 30000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 50,
+            },
+        },
+        "2024-12-27": {
+            coins: 20000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 20,
+                rare_stand_arrow: 5,
+            },
+        },
+        "2024-12-28": {
+            coins: 15000,
+            xp: getMaxXp(level) / 3,
+            items: {
+                ornament: 15,
+            },
+        },
+        "2024-12-29": {
+            coins: 20000,
+            xp: getMaxXp(level),
+            items: {
+                ornament: 25,
+                christmas_gift: 2,
+            },
+        },
+        "2024-12-30": {
+            coins: 10000,
+            xp: getMaxXp(level) / 2,
+            items: {
+                ornament: 20,
+                box: 5,
+            },
+        },
+        "2024-12-31": {
+            coins: 50000,
+            xp: getMaxXp(level) * 2,
+            items: {
+                ornament: 30,
+                christmas_gift: 2,
+                rare_stand_arrow: 20,
+                krampus_horns: 2,
+                ancient_scroll: 10,
+            },
+        },
+        "2025-01-01": {
+            coins: 100000,
+            xp: getMaxXp(level) * 3,
+            items: {
+                box: 10,
+                christmas_gift: 3,
+                rare_stand_arrow: 25,
+                //todo: add new year item
+            },
+        },
+        // chatpgt end
     };
 };
 
-export function getCurrentDate(): `${number}-${number}-${number}` {
-    const currentDate = new Date();
+export function getCurrentDate(date?: Date): `${number}-${number}-${number}` {
+    const currentDate = date ? new Date(date) : new Date();
     const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
         .toString()
         .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
