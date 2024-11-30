@@ -493,7 +493,7 @@ export const Enya: FightableNPC = {
 
 export const Krampus: FightableNPC = {
     ...NPCs.Krampus,
-    level: 425,
+    level: 400,
     skillPoints: baseSP,
     equippedItems: {
         //krampus_sack: equipableItemTypes.CHEST,
