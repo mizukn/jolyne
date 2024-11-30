@@ -837,7 +837,7 @@ export const ChristmasGift: Special = {
         for (let i = 0; i < amount; i++) {
             const finalLoot: boxLoot[][] = [
                 [
-                    {
+                    /*{
                         percent: 100,
                         loot: Functions.findItem(Functions.randomArray(standArray).id).id,
                         mult: 1,
@@ -851,6 +851,11 @@ export const ChristmasGift: Special = {
                         percent: 25,
                         loot: Functions.findItem(Functions.randomArray(rareStandArray).id).id,
                         mult: 1,
+                    },*/
+                    {
+                        percent: 100,
+                        loot: Functions.findItem("stand_arrow").id,
+                        mult: Functions.randomNumber(2, 5),
                     },
                 ],
                 [
@@ -865,12 +870,22 @@ export const ChristmasGift: Special = {
                     }*/,
                 ],
             ];
-            if (is2024ChristmasEventActive()) {
-                finalLoot[1].push({
-                    percent: 100,
-                    loot: "ornament",
-                    mult: Functions.randomNumber(1, 5),
-                });
+            if (is2024ChristmasEventActive() || process.env.BETA) {
+                finalLoot[1].push(
+                    {
+                        percent: 100,
+                        loot: "ornament",
+                        mult: Functions.randomNumber(3, 10),
+                    },
+                    {
+                        percent: 0.1,
+                        loot: "krampus_staff",
+                    },
+                    {
+                        percent: 10,
+                        loot: "krampus_horns",
+                    }
+                );
             }
 
             for (let i = 0; i < 2; i++) {

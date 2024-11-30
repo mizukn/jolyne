@@ -3241,3 +3241,79 @@ export const FogStringPuppetry: Ability = {
         }
     },
 };
+
+export const SinHarvest: Ability = {
+    name: "Sin Harvest",
+    description: "Krampus' Staff drains health and stamina from the target, replenishing the user.",
+    cooldown: 7,
+    damage: 30,
+    stamina: 0,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const healthStolen = damage; //Math.round(target.maxHealth * 0.15); // 15% of enemy max health
+        const staminaStolen = 10; // Flat stamina drain
+
+        //const healthStatus = target.removeHealth(healthStolen, user, 0);
+        user.incrHealth(healthStolen * 0.5); // Heal user by 50% of stolen health
+        user.stamina = Math.min(user.maxStamina, user.stamina + staminaStolen); // Add stolen stamina
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.weapon?.emoji} **${
+                user.name
+            }** uses Sin Harvest, stealing **${healthStolen.toLocaleString()}** health and **${staminaStolen}** stamina from **${
+                target.name
+            }**!`
+        );
+    },
+};
+
+export const KrampusCurse: Ability = {
+    name: "Krampus' Curse",
+    description:
+        "Krampus' Staff curses the target, causing them to take 50% more damage for 3 turns.",
+    cooldown: 5,
+    damage: 15,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const curseId = `krampus_curse_${target.id}_${ctx.id}`;
+        const oldMultiplier = Number(ctx.cache.get(curseId)) || 1;
+        ctx.cache.set(curseId, oldMultiplier * 1.1);
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.weapon?.emoji} **${user.name}** curses **${target.name}**`
+        );
+
+        //const curseCacheId = `krampus_curse_${target.id}_${ctx.id}`;
+        let oldHealth = target.health;
+        ctx.nextTurnPromises.push({
+            cooldown: 3,
+            executeOnlyOnce: false,
+            callerId: user.id,
+            id: Functions.generateRandomId(),
+            promise: (fight) => {
+                const newTarget = fight.fighters.find((x) => x.id === target.id);
+                if (!newTarget) return;
+                if (newTarget.health <= 0) return;
+
+                if (newTarget.health >= oldHealth) {
+                    oldHealth = newTarget.health;
+                    return;
+                }
+
+                const damagesTaken = oldHealth - newTarget.health;
+                newTarget.health -= damagesTaken * 0.5;
+                oldHealth = newTarget.health;
+                fight.turns[fight.turns.length - 1].logs.push(
+                    `-# ${user.weapon?.emoji} **${user.name}**'s curse deals **${(
+                        damagesTaken * 0.5
+                    ).toLocaleString("en-US")}** damage to **${newTarget.name}**`
+                );
+            },
+        });
+    },
+};

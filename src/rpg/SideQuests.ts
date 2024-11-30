@@ -750,6 +750,8 @@ export const ChristmasEvent2024: SideQuest = {
         "Krampus has been abducting children, leaving chaos in his wake! Defeat him to free the children and earn rewards.",
     emoji: FightableNPCs.Krampus.emoji,
     color: 0xd8304a,
+    canReloadQuests: true,
+    canRedoSideQuest: true,
     rewards: async (ctx) => {
         Functions.addItem(ctx.userData, Functions.findItem("christmas_gift"), 1);
         ctx.followUp({
@@ -769,24 +771,37 @@ export const ChristmasEvent2024: SideQuest = {
         ];
         const NPCs = Functions.shuffle(
             Object.values(FightableNPCs).filter(
-                (x) => x.id !== "Krampus" && x.id.includes("Goon") && x.private
+                (x) =>
+                    x.id !== "Krampus" &&
+                    x.id.includes("Goon") &&
+                    x.private &&
+                    x.level <= Math.max(15, ctx.userData.level)
             )
         )
-            .slice(0, 15)
-            .sort((a, b) => a.level - b.level);
-
+            .sort((a, b) => b.level - a.level)
+            .slice(0, 15);
         // fight npcs
         let tflv = ctx.userData.level / 5;
         if (tflv > 15) tflv = 15;
+        if (ctx.userData.level <= 200) tflv *= 2;
+        const NPCsQuests = [];
 
-        for (let i = 0; i < tflv; i++) {
-            if (Functions.percent(80) || i < 5) {
-                const NPC = Functions.randomArray(NPCs);
-                if (!NPC) continue;
-                quests.push(Functions.generateFightQuest(NPC));
+        //for (let i = 0; i < tflv; i++) {
+        let noFoundCount = 0;
+        while (NPCsQuests.length < tflv) {
+            if (noFoundCount > 100) break;
+            //if (Functions.percent(80) || i < 5) {
+            const NPC = Functions.randomArray(NPCs);
+            if (!NPC) {
+                noFoundCount++;
+                continue;
             }
+            NPCsQuests.push(Functions.generateFightQuest(NPC));
+            //}
         }
-        quests.push(Functions.generataRaidQuest(FightableNPCs.Krampus));
+        quests.push(...NPCsQuests);
+        if (ctx.userData.level > 200)
+            quests.push(Functions.generataRaidQuest(FightableNPCs.Krampus));
 
         return quests;
     },
@@ -803,11 +818,8 @@ export const ChristmasEvent2024: SideQuest = {
                 "FULL_DATE"
             )} and ${Functions.generateDiscordTimestamp(endOf2024ChristmasEvent, "FULL_DATE")}`,
             status:
-                Date.now() >= startOf2024ChristmasEvent && Date.now() <= endOf2024ChristmasEvent,
-        },
-        {
-            requirement: "SIDE QUEST MUST BE COMPLETED::: ERROR",
-            status: false,
+                !!process.env.BETA ||
+                (Date.now() >= startOf2024ChristmasEvent && Date.now() <= endOf2024ChristmasEvent),
         },
     ],
 };

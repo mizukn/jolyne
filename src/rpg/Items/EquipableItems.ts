@@ -734,7 +734,7 @@ export const KrampusStaff: Weapon = {
     attackName: "hit",
     useMessageAttack: "hits",
     staminaCost: 5,
-    color: 0xff0000,
+    color: 0x964b00,
     effects: {
         skillPoints: {
             strength: 25,
@@ -745,14 +745,66 @@ export const KrampusStaff: Weapon = {
         },
     },
     rarity: "T",
-    abilities: [],
+    abilities: [Abilities.KrampusCurse, Abilities.SinHarvest],
     tradable: true,
     storable: true,
     requirements: {
-        level: 100,
+        level: 50,
     },
     craft: {
-        ancient_scroll: 100,
-        krampus_horns: 15,
+        ancient_scroll: 25,
+        krampus_horns: 8,
     },
+};
+
+export const SantaHat: EquipableItem = {
+    id: "santa_hat",
+    name: "Santa's Hat",
+    emoji: "<:santa_hat:1312181146062422186>",
+    description: "A hat that belonged to Santa Claus.",
+    type: equipableItemTypes.HEAD,
+    effects: {
+        skillPoints: {
+            strength: 8,
+            perception: 8,
+            defense: 8,
+            speed: 8,
+            stamina: 8,
+        },
+    },
+    rarity: "T",
+    tradable: true,
+    storable: true,
+};
+
+export const ElfHat: EquipableItem = {
+    id: "elf_hat",
+    name: "Elf Hat",
+    emoji: "<:elf_hat:1312181075174363197>",
+    description: "A hat that belonged to an elf.",
+    type: equipableItemTypes.HEAD,
+    effects: {
+        skillPoints: {
+            strength: 5,
+            perception: 5,
+            defense: 5,
+            speed: 5,
+            stamina: 5,
+        },
+    },
+    rarity: "T",
+    tradable: true,
+    storable: true,
+};
+
+export const JohansNewYorkYankeesHat: EquipableItem = {
+    id: "johans_new_york_yankees_hat", // all item IDs must follow this format
+    name: "Jôhan's New York Yankees Hat",
+    emoji: "<:johanhat:1287836078442807406>",
+    description: "A hat that belonged to Jôhan Everdeen.",
+    type: equipableItemTypes.HEAD,
+    effects: MeguminsHat.effects,
+    rarity: "T",
+    tradable: true,
+    storable: true,
 };

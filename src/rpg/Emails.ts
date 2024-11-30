@@ -4,7 +4,8 @@ import * as fNPCs from "./NPCs/FightableNPCs";
 import * as ActionQuests from "./Quests/ActionQuests";
 import { Quest, FightNPCQuest, NPC } from "../@types";
 import Items from "./Items";
-import { eventMessage } from "../utils/2024HalloweenEvent";
+import { halloween2024EventMessage } from "../utils/2024HalloweenEvent";
+import { Chritmas2024eventMessage } from "../utils/2024ChristmasEvent";
 
 /**
  * CIRCULAR DEPENDENCIES FIX
@@ -302,7 +303,7 @@ export const Halloween2024: Email = {
     id: "halloween_2024",
     author: NPCs.JolyneTeam,
     subject: "Halloween 2024 [Event]",
-    content: (ctx) => `${eventMessage(ctx)}`,
+    content: (ctx) => `${halloween2024EventMessage(ctx)}`,
     footer: "Have fun!",
     emoji: "🎃",
     rewards: {
@@ -318,6 +319,31 @@ export const Halloween2024: Email = {
             {
                 item: "pumpkin",
                 amount: 5,
+            },
+        ],
+    },
+};
+
+export const Christmas2024: Email = {
+    id: "christmas_2024",
+    author: NPCs.JolyneTeam,
+    subject: "Christmas 2024 [Event]",
+    content: (ctx) => Chritmas2024eventMessage(ctx),
+    footer: `Have fun!`,
+    emoji: "🎄",
+    rewards: {
+        items: [
+            {
+                item: "ornament",
+                amount: 15,
+            },
+            {
+                item: "xp_box",
+                amount: 2,
+            },
+            {
+                item: "christmas_gift",
+                amount: 1,
             },
         ],
     },
