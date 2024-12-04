@@ -224,11 +224,21 @@ export const Whitesnake: EvolutionStand = {
                     const punchName = attacks % 2 === 0 ? "punches" : "crushes";
                     if (status.type === FighterRemoveHealthTypes.Normal) {
                         ctx.turns[ctx.turns.length - 1].logs.push(
-                            `${emoji} \`${ctx.whosTurn.name}\` ${punchName} **${target.name}** and deals **${status.amount}** damages`
+                            `${emoji} \`${ctx.whosTurn.name}\` ${punchName} **${
+                                target.name
+                            }** and deals **${
+                                status.amount
+                            }** damages [:heart:${target.health.toLocaleString()}/${target.maxHealth.toLocaleString()}]`
                         );
                     } else if (status.type === FighterRemoveHealthTypes.Defended) {
                         ctx.turns[ctx.turns.length - 1].logs.push(
-                            `${emoji}:shield: \`${ctx.whosTurn.name}\` ${punchName} **${target.name}** but they defended themselves and deals **${status.amount}** damages instead of **${damages}** (defense: -${status.defense})`
+                            `${emoji}:shield: \`${ctx.whosTurn.name}\` ${punchName} **${
+                                target.name
+                            }** but they defended themselves and deals **${
+                                status.amount
+                            }** damages instead of **${damages}** (defense: -${
+                                status.defense
+                            })[:heart:${target.health.toLocaleString()}/${target.maxHealth.toLocaleString()}]`
                         );
                     } else if (status.type === FighterRemoveHealthTypes.Dodged) {
                         ctx.turns[ctx.turns.length - 1].logs.push(
@@ -236,7 +246,11 @@ export const Whitesnake: EvolutionStand = {
                         );
                     } else if (status.type === FighterRemoveHealthTypes.BrokeGuard) {
                         ctx.turns[ctx.turns.length - 1].logs.push(
-                            `${emoji}:shield: \`${ctx.whosTurn.name}\` ${punchName} **${target.name}**' and broke their guard; -**${status.amount}** HP :heart: instead of **${damages}**`
+                            `${emoji}:shield: \`${ctx.whosTurn.name}\` ${punchName} **${
+                                target.name
+                            }**' and broke their guard; -**${
+                                status.amount
+                            }** HP :heart: instead of **${damages}** [:heart:${target.health.toLocaleString()}/${target.maxHealth.toLocaleString()}]`
                         );
                     }
 
