@@ -1,11 +1,12 @@
-import { SlashCommandFile } from "../../@types";
-import { Message } from "discord.js";
+import { Item, RPGUserDataJSON, SlashCommandFile } from "../../@types";
+import { Message, StringSelectMenuBuilder } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import * as Items from "../../rpg/Items";
 import { cloneDeep } from "lodash";
+import { parse } from "node:path";
 
 const craftableItems = Object.values(Items.default).filter((r) => r.craft);
 const rarityValue = {
@@ -15,6 +16,18 @@ const rarityValue = {
     A: 25,
     B: 15,
     C: 0,
+};
+const meetReq = (nb: number, iTem: Item, userData: RPGUserDataJSON) => {
+    return Object.keys(iTem.craft).every((v) => {
+        const xitem = Functions.findItem(v);
+        if (!xitem) return false;
+        if (iTem.craft[v] === 0) return true;
+        return (
+            userData.inventory[v] &&
+            userData.inventory[v] >= iTem.craft[v] * nb &&
+            userData.inventory[v] >= 0
+        );
+    });
 };
 
 const slashCommand: SlashCommandFile = {
@@ -100,6 +113,44 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.inventory[v] >= 0
                 );
             });
+        let pas = 1;
+        const canCraftAmount = Array.from({ length: 1000 })
+            .map((v, i) => i + 1)
+            .filter((v) => meetReq(v, item, ctx.userData))
+            .sort((a, b) => b - a)[0];
+        /*if (canCraftAmount % 15 == 0) pas = 15;
+        else if (canCraftAmount % 10 == 0) pas = 10;
+        else if (canCraftAmount % 5 == 0) pas = 5;
+        else if (canCraftAmount % 3 == 0) pas = 3;
+        else if (canCraftAmount % 2 == 0) pas = 2;*/
+        for (let i = 200; i > 0; i--) {
+            if (canCraftAmount % i == 0) {
+                pas = i;
+                break;
+            }
+        }
+
+        const getOptions = () =>
+            Array.from({ length: canCraftAmount }, (_, i) => i * pas)
+                .map((v) => {
+                    if (v === 0) v = 1;
+                    return {
+                        value: v.toString(),
+                        label: `x${v} ${item.name}`,
+                    };
+                })
+                .filter((v) => meetReq(parseInt(v.value), item, ctx.userData))
+                .slice(0, 24);
+        const selectAnAmountMenu = () =>
+            new StringSelectMenuBuilder()
+                .setCustomId(ctx.interaction.id + "amount")
+                .setPlaceholder("Select an amount")
+                .setDisabled(getOptions().length === 0)
+                .addOptions(
+                    getOptions().length === 0
+                        ? [{ label: "No options", value: "no" }]
+                        : getOptions()
+                );
 
         ctx.makeMessage({
             embeds: [
@@ -114,29 +165,28 @@ const slashCommand: SlashCommandFile = {
                         )}.png`,
                     },
                     fields: [
-                        {
+                        /*{
                             name: "Craft value",
                             value: `${craftValuePrice.toLocaleString("en-US")} ${
                                 ctx.client.localEmojis.jocoins
                             }`,
-                        },
+                        },*/
                         {
                             name: "Requirements met?",
-                            value: meetRequirements
-                                ? "✅, click the button below if you wish to craft this item"
-                                : "❌",
+                            value: meetRequirements ? "✅, select an amount to craft" : "❌",
                         },
                     ],
                 },
             ],
             components: meetRequirements
                 ? [
-                      Functions.actionRow([
+                      /*Functions.actionRow([
                           new ButtonBuilder()
                               .setCustomId(`craft_${ctx.interaction.id}`)
                               .setEmoji(item.emoji)
                               .setStyle(ButtonStyle.Secondary),
-                      ]),
+                      ]),*/
+                      Functions.actionRow([selectAnAmountMenu()]),
                   ]
                 : [],
         });
@@ -144,26 +194,49 @@ const slashCommand: SlashCommandFile = {
         if (meetRequirements) {
             const collector = ctx.channel.createMessageComponentCollector({
                 filter: (i) =>
-                    i.customId === `craft_${ctx.interaction.id}` && i.user.id === ctx.userData.id,
+                    i.customId === ctx.interaction.id + "amount" && i.user.id === ctx.userData.id,
                 time: 60000,
                 max: 1,
+            });
+            collector.on("end", () => {
+                Functions.disableRows(ctx.interaction);
             });
 
             collector.on("collect", async (i) => {
                 i.deferUpdate().catch(() => {});
                 if (await ctx.antiCheat(true)) {
+                    console.log("Anti cheat triggered at craft");
+                    ctx.followUp({
+                        content: `Your data has been changed. Please don't use other commands and try again.`,
+                    });
                     collector.stop();
                     return;
                 }
+                if (!i.isStringSelectMenu()) return;
                 // remove items from inventory
                 const oldData = cloneDeep(ctx.userData);
                 const results: boolean[] = [];
-                for (const item of craftItems) {
-                    results.push(Functions.removeItem(ctx.userData, item.id, item.amount));
+                const amount = parseInt(i.values[0]);
+                if (!amount || isNaN(amount)) {
+                    ctx.followUp({
+                        content: `This message should not appear. How did you manage to get an invalid amount???`,
+                    });
+                    return;
                 }
+                if (!meetReq(amount, item, ctx.userData)) {
+                    ctx.followUp({
+                        content:
+                            "I don't know how that's possible, but you don't meet the requirements anymore... ????",
+                    });
+                    return;
+                }
+                for (let i = 0; i < amount; i++)
+                    for (const item of craftItems) {
+                        results.push(Functions.removeItem(ctx.userData, item.id, item.amount));
+                    }
 
                 // add item to inventory
-                results.push(Functions.addItem(ctx.userData, item.id, 1));
+                results.push(Functions.addItem(ctx.userData, item.id, amount));
                 const transaction = await ctx.client.database.handleTransaction(
                     [
                         {
@@ -171,30 +244,36 @@ const slashCommand: SlashCommandFile = {
                             newData: ctx.userData,
                         },
                     ],
-                    `Crafted ${item.name}`,
+                    `Crafted x${amount} ${item.name}`,
                     results
                 );
                 if (!transaction) return ctx.interaction.followUp("An error occurred.");
 
                 ctx.interaction.followUp({
-                    content: `You have successfully crafted ${item.emoji} \`${item.name}\`!`,
+                    content: `You have successfully crafted x${amount} ${item.emoji} \`${item.name}\`!`,
                 });
                 //ctx.client.database.saveUserData(ctx.userData);
             });
         }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
-        const items = craftableItems.filter(
-            (r) =>
-                r.name.toLowerCase().startsWith(currentInput.toLowerCase()) ||
-                r.id.toLowerCase().startsWith(currentInput.toLowerCase()) ||
-                r.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                r.id.toLowerCase().includes(currentInput.toLowerCase())
-        );
+        const items = craftableItems
+            .filter(
+                (r) =>
+                    r.name.toLowerCase().startsWith(currentInput.toLowerCase()) ||
+                    r.id.toLowerCase().startsWith(currentInput.toLowerCase()) ||
+                    r.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                    r.id.toLowerCase().includes(currentInput.toLowerCase())
+            )
+            .sort((b, a) => (meetReq(1, a, userData) ? 1 : 0 - (meetReq(1, b, userData) ? 1 : 0)));
 
         const realItems = items.map((x) => {
             return {
-                name: x.name,
+                name:
+                    x.name +
+                    (meetReq(1, x, userData) // white_check_mark : x
+                        ? " ✅"
+                        : " ❌"),
                 value: x.id,
             };
         });
