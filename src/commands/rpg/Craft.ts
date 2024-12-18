@@ -123,24 +123,40 @@ const slashCommand: SlashCommandFile = {
         else if (canCraftAmount % 5 == 0) pas = 5;
         else if (canCraftAmount % 3 == 0) pas = 3;
         else if (canCraftAmount % 2 == 0) pas = 2;*/
-        for (let i = 200; i > 0; i--) {
+        for (let i = canCraftAmount - 1; i > 0; i--) {
             if (canCraftAmount % i == 0) {
                 pas = i;
                 break;
             }
         }
 
-        const getOptions = () =>
-            Array.from({ length: canCraftAmount }, (_, i) => i * pas)
-                .map((v) => {
-                    if (v === 0) v = 1;
-                    return {
-                        value: v.toString(),
-                        label: `x${v} ${item.name}`,
-                    };
-                })
-                .filter((v) => meetReq(parseInt(v.value), item, ctx.userData))
-                .slice(0, 24);
+        const getOptions = () => {
+            if (canCraftAmount < 25) {
+                return Array.from({ length: canCraftAmount }, (_, i) => i + 1)
+                    .map((v) => {
+                        if (v === 0) return;
+                        return {
+                            value: v.toString(),
+                            label: `x${v} ${item.name}`,
+                        };
+                    })
+                    .filter((x) => x !== undefined)
+                    .filter((v) => meetReq(parseInt(v.value), item, ctx.userData));
+            } else {
+                const pas2 = canCraftAmount / 25;
+                const arr: { value: string; label: string }[] = [];
+                arr.push({ value: "1", label: `x1 ${item.name}` });
+                arr.push({
+                    value: canCraftAmount.toString(),
+                    label: `x${canCraftAmount} ${item.name}`,
+                });
+                while (arr.length < 25) {
+                    const num = String(Math.round(arr.length * pas2));
+                    arr.push({ value: num, label: `x${num} ${item.name}` });
+                }
+                return arr.sort((a, b) => parseInt(a.value) - parseInt(b.value));
+            }
+        };
         const selectAnAmountMenu = () =>
             new StringSelectMenuBuilder()
                 .setCustomId(ctx.interaction.id + "amount")
