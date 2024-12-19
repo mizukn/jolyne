@@ -328,6 +328,12 @@ const slashCommand: SlashCommandFile = {
                             .quests.find((r) => r.id === questId);
                     }
 
+                    if (quest.completed) {
+                        return void fight.message.reply({
+                            content: `This quest has already been completed...?`,
+                        });
+                    }
+
                     quest.completed = true;
 
                     const winContent: string[] = [];
