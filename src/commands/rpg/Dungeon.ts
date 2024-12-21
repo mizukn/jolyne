@@ -97,19 +97,27 @@ async function giveRewards(
 ): Promise<void> {
     let xpRewards = 60000;
     let coinRewards = 0;
+    let counter1 = 0;
+    let counter2 = 0;
 
     for (const enemy of dungeon.beatenEnemies) {
-        xpRewards += enemy.level * 1000;
-        coinRewards += enemy.level * 100;
+        counter1++;
+        if (counter1 > 5) {
+            counter1 = 0;
+            counter2++;
+        }
+        xpRewards += (enemy.level * 1000) / (counter2 + (6 - counter1));
+        coinRewards += (enemy.level * 100) / (counter2 + (6 - counter1));
         if (enemy.rewards) {
-            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp / 2;
-            if (enemy.rewards.coins) coinRewards += enemy.rewards.coins / 4;
+            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp / 2 / (counter2 + (6 - counter1));
+            if (enemy.rewards.coins)
+                coinRewards += enemy.rewards.coins / 4 / (counter2 + (6 - counter1));
         }
     }
 
     xpRewards += dungeon.stage * 1000;
     coinRewards += dungeon.stage * 100;
-    xpRewards = Math.round(xpRewards / 3.5);
+    xpRewards = Math.round(xpRewards / 3.75);
 
     const players: RPGUserDataJSON[] = [];
     for (const player of dungeon.players) {
