@@ -97,14 +97,14 @@ async function giveRewards(
 ): Promise<void> {
     let xpRewards = 60000;
     let coinRewards = 0;
-    let counter1 = 0;
-    let counter2 = 0;
+    let counter1 = 1;
+    let counter2 = 1;
 
     for (const enemy of dungeon.beatenEnemies) {
         counter1++;
         if (counter1 > 5) {
-            counter1 = 0;
-            counter2++;
+            counter1 = 1;
+            counter2 += 0.5;
         }
         xpRewards += (enemy.level * 1000) / counter2;
         coinRewards += (enemy.level * 100) / counter2;
