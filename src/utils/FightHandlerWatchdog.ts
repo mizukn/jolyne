@@ -43,6 +43,11 @@ export function watchFightHandler(client: Jolyne): void {
                     // no humans alive
                     winnerTeam = fight.teams[Math.floor(Math.random() * fight.teams.length)]; // random team
                 }
+                for (const fighter of fight.fighters) {
+                    if (!winnerTeam.find((x) => x.id === fighter.id)) {
+                        fighter.health = 0;
+                    }
+                }
                 const loserTeams = fight.teams.filter((x) => x !== winnerTeam);
                 const message = `:warning: \`FightHandlerWatchdog\` exception occured in fight \`${fight.id}\`! The fight has been forcibly ended.\n\n--> The winner team is the team with the most humans alive. If there are no humans alive, a random team will be picked.`;
                 if (fight.turns) {
