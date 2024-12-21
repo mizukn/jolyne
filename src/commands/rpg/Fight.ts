@@ -479,6 +479,12 @@ const slashCommand: SlashCommandFile = {
                     `Fight: ${npc.name} [${questId}]`
                 );
 
+                if (!transaction) {
+                    return void fight.message.reply({
+                        content: "An error occured while saving your data. No changes were made.",
+                    });
+                }
+
                 const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
                     (r) => Functions.isFightNPCQuest(r) && !r.completed
                 );

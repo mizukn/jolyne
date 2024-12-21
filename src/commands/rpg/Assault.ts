@@ -29,7 +29,7 @@ function generateHighNPC(userData: RPGUserDataJSON): FightableNPC {
         generatedNPC.standsEvolved[generatedStand.stand.id] = generatedStand.evolution;
     }
 
-    Functions.generateSkillPoints(generatedNPC);
+    Functions.generateSkillPoints(generatedNPC, true);
     Functions.fixNpcRewards(generatedNPC);
 
     return Functions.randomArray([highNPC, generatedNPC]);
