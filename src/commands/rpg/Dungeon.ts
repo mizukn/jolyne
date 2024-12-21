@@ -106,12 +106,11 @@ async function giveRewards(
             counter1 = 0;
             counter2++;
         }
-        xpRewards += (enemy.level * 1000) / (counter2 + (6 - counter1));
-        coinRewards += (enemy.level * 100) / (counter2 + (6 - counter1));
+        xpRewards += (enemy.level * 1000) / counter2;
+        coinRewards += (enemy.level * 100) / counter2;
         if (enemy.rewards) {
-            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp / 2 / (counter2 + (6 - counter1));
-            if (enemy.rewards.coins)
-                coinRewards += enemy.rewards.coins / 4 / (counter2 + (6 - counter1));
+            if (enemy.rewards.xp) xpRewards += enemy.rewards.xp / 2 / counter2;
+            if (enemy.rewards.coins) coinRewards += enemy.rewards.coins / 4 / counter2;
         }
     }
 
