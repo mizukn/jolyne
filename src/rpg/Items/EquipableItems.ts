@@ -808,3 +808,31 @@ export const JohansNewYorkYankeesHat: EquipableItem = {
     tradable: true,
     storable: true,
 };
+
+export const SantasBell: Weapon = {
+    id: "santas_bell",
+    name: "Santa's Bell",
+    emoji: "🔔",
+    description: "A bell that belonged to Santa Claus.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "ring",
+    useMessageAttack: "rings",
+    staminaCost: 2,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 15,
+            perception: 0,
+            defense: 15,
+            speed: 0,
+            stamina: 0,
+        },
+    },
+    rarity: "T",
+    abilities: [Abilities.JingleBellRock, Abilities.JingleStun, Abilities.JingleStun],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+};

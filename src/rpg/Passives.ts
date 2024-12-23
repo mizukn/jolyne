@@ -430,3 +430,42 @@ export const Resurrection: Passive = {
         }
     },
 };
+
+// passive for santa's bell
+export const Jingle: Passive = {
+    name: "Jingle",
+    description:
+        "At the end of each 'round', the user regenerates 1% of their max health and stamina (capped at 10%).",
+    type: "round",
+    getId: (user: Fighter, context: FightHandler) => `jingle_${user.id}_${context.id}`,
+    promise: (user: Fighter, fight: FightHandler) => {
+        const totalHealingDoneId = `jingle_${user.id}_${fight.id}.totalhealingdone`;
+        if (!fight.cache.has(totalHealingDoneId)) {
+            fight.cache.set(totalHealingDoneId, 0);
+        }
+
+        const totalHealingDone = Number(fight.cache.get(totalHealingDoneId));
+        const baseHealthId = `jingle_${user.id}_${fight.id}.basehealth`;
+        if (!fight.cache.has(baseHealthId)) {
+            fight.cache.set(baseHealthId, user.maxHealth);
+        }
+
+        const baseStaminaId = `jingle_${user.id}_${fight.id}.basestamina`;
+        if (!fight.cache.has(baseStaminaId)) {
+            fight.cache.set(baseStaminaId, user.maxStamina);
+        }
+
+        const baseHealth = Number(fight.cache.get(baseHealthId));
+
+        if (totalHealingDone >= baseHealth * 0.1) return;
+
+        const status = user.incrHealth(Math.round(user.maxHealth * 0.02)) * -1;
+
+        const statusStamina = user.incrStamina(Math.round(user.maxStamina * 0.02)) * -1;
+        user.totalHealingDone += status;
+        if (statusStamina !== 0 || status !== 0)
+            fight.turns[fight.turns.length - 1].logs.push(
+                `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health and **${statusStamina}** stamina.`
+            );
+    },
+};

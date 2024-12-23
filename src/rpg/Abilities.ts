@@ -3317,3 +3317,56 @@ export const KrampusCurse: Ability = {
         });
     },
 };
+
+// abilities for santa's bell
+export const JingleBellRock: Ability = {
+    name: "Jingle Bell Rock",
+    description: "Rock the opponent with the power of the jingle bell.",
+    cooldown: 4,
+    damage: 30,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const HealingJingle: Ability = {
+    name: "Healing Jingle",
+    description: "Heals the user and all allies by 15% of the user's max health.",
+    cooldown: 5,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        const toAdd = user.maxHealth * 0.15;
+        for (const fighter of ctx.fighters) {
+            if (ctx.getTeamIdx(user) === ctx.getTeamIdx(fighter)) {
+                fighter.incrHealth(toAdd);
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.weapon?.emoji} **${
+                        fighter.name
+                    }** has been healed by **${toAdd.toLocaleString("en-US")}** health.`
+                );
+            }
+        }
+    },
+};
+
+export const JingleStun: Ability = {
+    name: "Jingle Stun",
+    description: "Stuns the opponent with the power of the jingle bell.",
+    cooldown: 6,
+    damage: 15,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        target.frozenFor = 2;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.weapon?.emoji} **${target.name}** has been stunned...`
+        );
+    },
+};
