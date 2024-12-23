@@ -2193,6 +2193,7 @@ export const dailyClaimRewardsChristmas = (
                 rare_stand_arrow: 50,
                 krampus_horns: 3,
                 ancient_scroll: 15,
+                santas_bell: 1,
 
                 // todo: add the new event weapon
             },
