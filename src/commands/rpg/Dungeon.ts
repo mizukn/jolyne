@@ -104,7 +104,7 @@ async function giveRewards(
         counter1++;
         if (counter1 > 5) {
             counter1 = 1;
-            counter2 += 0.5;
+            counter2 += 0.25;
         }
         xpRewards += (enemy.level * 1000) / counter2;
         coinRewards += (enemy.level * 100) / counter2;
