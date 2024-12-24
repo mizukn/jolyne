@@ -812,8 +812,8 @@ export const JohansNewYorkYankeesHat: EquipableItem = {
 export const SantasBell: Weapon = {
     id: "santas_bell",
     name: "Santa's Bell",
-    emoji: "🔔",
-    description: "A bell that belonged to Santa Claus.",
+    emoji: "<:santas_bell:1321226637978898523>",
+    description: "A bell that belonged to Santa Claus. ",
     type: equipableItemTypes.WEAPON,
     attackName: "ring",
     useMessageAttack: "rings",
@@ -821,15 +821,35 @@ export const SantasBell: Weapon = {
     color: 0xff0000,
     effects: {
         skillPoints: {
-            strength: 15,
+            strength: 0,
             perception: 0,
-            defense: 15,
+            defense: 0,
             speed: 0,
             stamina: 0,
         },
     },
     rarity: "T",
-    abilities: [Abilities.JingleBellRock, Abilities.JingleStun, Abilities.JingleStun],
+    abilities: [Abilities.JingleBellRock, Abilities.JingleStun, Abilities.HealingJingle],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 99999999999999,
+    },
+};
+
+export const Frostblade: Weapon = {
+    id: "frostblade",
+    name: "Frostblade",
+    emoji: "<:frostblade:1321224860411629662>",
+    description: "An unknown blade that is said to be made of ice.",
+    type: equipableItemTypes.WEAPON,
+    attackName: "slash",
+    useMessageAttack: "slashes",
+    staminaCost: 2,
+    color: 0x00ccff,
+    effects: SantasBell.effects,
+    rarity: "T",
+    abilities: [Abilities.Frostbite, Abilities.FrostSlash, Abilities.Lunge],
     tradable: true,
     storable: true,
     requirements: {

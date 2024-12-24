@@ -3322,8 +3322,8 @@ export const KrampusCurse: Ability = {
 export const JingleBellRock: Ability = {
     name: "Jingle Bell Rock",
     description: "Rock the opponent with the power of the jingle bell.",
-    cooldown: 4,
-    damage: 30,
+    cooldown: 5,
+    damage: 26,
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,
@@ -3358,7 +3358,7 @@ export const JingleStun: Ability = {
     name: "Jingle Stun",
     description: "Stuns the opponent with the power of the jingle bell.",
     cooldown: 6,
-    damage: 15,
+    damage: 0,
     stamina: 20,
     extraTurns: 0,
     dodgeScore: 0,
@@ -3369,4 +3369,44 @@ export const JingleStun: Ability = {
             `- ${user.weapon?.emoji} **${target.name}** has been stunned...`
         );
     },
+};
+
+// frostblade abilities
+export const Frostbite: Ability = {
+    name: "Frostbite",
+    description: "Freeze the opponent with the power of the frostblade.",
+    cooldown: 6,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        target.frozenFor = 3;
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.weapon?.emoji} **${target.name}** has been frozen...`
+        );
+    },
+};
+
+export const FrostSlash: Ability = {
+    name: "Frost Slash",
+    description: "Slash the opponent with the power of the frostblade.",
+    cooldown: 4,
+    damage: 25,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const Lunge: Ability = {
+    name: "Lunge",
+    description: "Lunge at the opponent.",
+    cooldown: 5,
+    damage: 30,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
 };
