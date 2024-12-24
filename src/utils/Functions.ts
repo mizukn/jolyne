@@ -2189,7 +2189,6 @@ export const dailyClaimRewardsChristmas = (
             items: {
                 box: 10,
                 christmas_gift: 10,
-                candy_cane: 300,
                 rare_stand_arrow: 50,
                 krampus_horns: 3,
                 ancient_scroll: 15,
@@ -2254,7 +2253,7 @@ export const dailyClaimRewardsChristmas = (
                 box: 10,
                 christmas_gift: 3,
                 rare_stand_arrow: 25,
-                //todo: add new year item
+                frostblade: 1,
             },
         },
         // chatpgt end
