@@ -21,7 +21,7 @@ export const Spaghetti_Bowl: Consumable = {
     name: "Spaghetti",
     description: "A bowl of spaghetti",
     emoji: "🍝",
-    price: 2000,
+    price: 1300,
     rarity: "C",
     tradable: false,
     storable: false,
@@ -60,12 +60,13 @@ export const Cola: Consumable = {
     },
 };
 
+// Wtf this is inflation? 4 Pizzas (which add upto more than 100% stamina and health) cost 3000 while an equilienf item costs 75000 ?????????
 export const ToniosSpecialRecipe: Consumable = {
     id: "tonios_special_recipe",
     name: "Tonio's Special Recipe",
     description: "A special recipe made by Tonio Trussardi himself.",
     emoji: "🥣",
-    price: 75000,
+    price: 5000,
     rarity: "A",
     tradable: true,
     storable: false,
@@ -80,7 +81,7 @@ export const Ramen_Bowl: Consumable = {
     name: "Ramen Bowl",
     description: "A bowl of ramen.",
     emoji: "🍜",
-    price: 1500,
+    price: 750,
     rarity: "C",
     tradable: false,
     storable: false,
@@ -96,27 +97,28 @@ export const Meat: Consumable = {
     name: "Meat",
     description: "A medium rare piece of meat.",
     emoji: "🍖",
-    price: 500,
+    price: 900,
     rarity: "C",
     tradable: true,
     storable: true,
     effects: {
         health: 750,
-        stamina: 25,
+        stamina: 35,
     },
 };
 
 export const Energy_Drink: Consumable = {
     id: "energy_drink",
     name: "Energy Drink",
-    description: "A drink that give you a boost of energy",
+    description: "A drink that gives you a boost of energy and a caffine RUSH.",
     emoji: Emojis.energydrink,
-    price: 700,
+    price: 200,
     rarity: "C",
     tradable: true,
     storable: true,
     effects: {
-        stamina: 75,
+        health: "-3%", // why not?
+        stamina: "80%",
     },
 };
 
@@ -125,13 +127,13 @@ export const Squid_Ink_Spaghetti: Consumable = {
     name: "Squid Ink Spaghetti",
     description: "A delicious plate of pasta that turns your mouth black for a while.",
     emoji: "🍝",
-    price: 1000,
+    price: 1100,
     rarity: "C",
     tradable: true,
     storable: true,
     effects: {
-        health: 2500,
-        stamina: 10,
+        health: 2100,
+        stamina: 15,
     },
 };
 
@@ -150,12 +152,13 @@ export const Garlic_Bread: Consumable = {
     },
 };
 
+// 
 export const Shrimp_Fried_Rice: Consumable = {
     id: "shrimp_fried_rice",
     name: "Shrimp Fried Rice",
     description: "For the last time, Yes a shrimp did in fact fry this rice.",
     emoji: "🍚",
-    price: 15000,
+    price: 1000,
     rarity: "C",
     tradable: true,
     storable: true,
@@ -165,18 +168,19 @@ export const Shrimp_Fried_Rice: Consumable = {
     },
 };
 
+// it matches the salad in stats but not in price
 export const Bento_Box: Consumable = {
     id: "Bento_Box",
     name: "Bento Box",
-    description: "A delicious boxed lunch.",
+    description: "A delicious and extremely filling boxed lunch.",
     emoji: "🍱",
-    price: 950,
+    price: 1700,
     rarity: "C",
     tradable: true,
     storable: true,
     effects: {
-        health: "75%",
-        stamina: "65%",
+        health: "80%",
+        stamina: "60%",
     },
 };
 // end of zero's work
@@ -186,13 +190,13 @@ export const Salad_Bowl: Consumable = {
     name: "Salad Bowl",
     description: "A bowl of salad.",
     emoji: "🥗",
-    price: 50000,
+    price: 2000,
     rarity: "A",
     tradable: true,
     storable: true,
     effects: {
-        health: "75%",
-        stamina: "100%",
+        health: "70%",
+        stamina: "80%",
     },
 };
 
@@ -274,6 +278,9 @@ export const Burger: Consumable = {
 // haydar was here! incroyable ça
 // c sex :3 l'item overpowered jme susoi tormpé jvoulais faire ca a la cany cane
 // mdrr
+
+// ukriu was also here!! 
+// bis er nicht mehr da war
 export const ChocolateBar: Consumable = {
     id: "chocolate_bar",
     name: "Chocolate Bar",
@@ -362,3 +369,7 @@ export const Banana: Consumable = {
         stamina: 5,
     },
 };
+
+// for over-leveled players, this is too cheap, hence, you could just abolish all percentages and replace it with static values, to make it the same for everyone
+// then it would make sense to bring back those extreme prices
+// thats just my opinion though
