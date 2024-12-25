@@ -500,7 +500,7 @@ export const TheWorld: EvolutionStand = {
                 "The World Over Heaven is the Stand of [Dio Brando](https://jojo.fandom.com/wiki/Dio_Brando), featured in Eyes of Heaven. It is a close-range Stand that has the ability to overwrite reality.",
             rarity: "SS",
             image: "https://media.jolyne.moe/xV0VDW/direct",
-            emoji: "<:twoh:1284851298080002081>",
+            emoji: Emojis.theWorldOverHeaven,
             abilities: [
                 addGif(Abilities.StandBarrage, "https://media.jolyne.moe/9z7j4v/direct"),
                 Abilities.KickBarrage,

@@ -447,7 +447,7 @@ export const SecondAnniversaryBag: EquipableItem = {
 export const DiavolosSuit: EquipableItem = {
     id: "diavolos_suit",
     name: "Diavolo's Suit",
-    emoji: "<:diavolos_suit:1275099602894196738>",
+    emoji: Emojis.diavolosSuit,
     description: "A suit that belonged to Diavolo.",
     type: equipableItemTypes.CHEST,
     effects: {
@@ -471,7 +471,7 @@ export const DiavolosSuit: EquipableItem = {
 export const DiavolosPants: EquipableItem = {
     id: "diavolos_pants",
     name: "Diavolo's Pants",
-    emoji: "<:diavolos_pant:1275099620489433159>",
+    emoji: Emojis.diavolosPants,
     description: "Pants that belonged to Diavolo.",
     type: equipableItemTypes.LEGS,
     effects: {
@@ -496,7 +496,7 @@ export const DiavolosPants: EquipableItem = {
 export const MikusMicrophone: Weapon = {
     id: "mikus_microphone",
     name: "Miku's Microphone",
-    emoji: "<:mikus_microphone:1275437637380997162>",
+    emoji: Emojis.mikuMic,
     description:
         "Miku, Miku, you can call me Miku.\nBlue hair, blue tie, hiding in your WiFi.\nOpen secrets anyone can find me.\nHear your music running THROUGH MY MIND!!!",
     type: equipableItemTypes.WEAPON,
@@ -526,7 +526,7 @@ export const MikusMicrophone: Weapon = {
 export const MikusVest: EquipableItem = {
     id: "mikus_vest",
     name: "Miku's Vest",
-    emoji: "<:mikus_vest:1275434192225833041>",
+    emoji: Emojis.mikuVest,
     description: "A vest that belonged to Miku.",
     type: equipableItemTypes.CHEST,
     effects: {
@@ -551,7 +551,7 @@ export const MikusVest: EquipableItem = {
 export const MikusPants: EquipableItem = {
     id: "mikus_pants",
     name: "Miku's Pants",
-    emoji: "<:miku_pants:1275436318175924254>",
+    emoji: Emojis.mikuPants,
     description: "Pants that belonged to Miku.",
     type: equipableItemTypes.LEGS,
     effects: {
@@ -576,7 +576,7 @@ export const MikusPants: EquipableItem = {
 export const MikusHedset: EquipableItem = {
     id: "mikus_headset",
     name: "Miku's Headset",
-    emoji: "<:mikus_headset:1275434154321772604>",
+    emoji: Emojis.mikuHeadset,
     description: "A headset that belonged to Miku.",
     type: equipableItemTypes.HEAD,
     effects: {
@@ -626,7 +626,7 @@ export const StoneFreeGlasses: EquipableItem = {
 export const Excalibur: Weapon = {
     id: "excalibur",
     name: "Excalibur",
-    emoji: "<:excalibur:1295831271368425548>",
+    emoji: Emojis.excalibur,
     description: "The legendary sword of King Arthur.",
     type: equipableItemTypes.WEAPON,
     attackName: "slash",
@@ -667,7 +667,7 @@ if (is2024HalloweenEvent()) {
 export const ExcaliburAlter: Weapon = {
     id: "excalibur_alter",
     name: "Excalibur Alter",
-    emoji: "<:excalibur_alter:1295831475278839871>",
+    emoji: Emojis.excaliburAlter,
     description:
         "The corrupted version of the legendary sword of King Arthur.\nUpon transformation, the user's stats are increased by 30% (so please, ignore the stats below).",
     type: equipableItemTypes.WEAPON,
@@ -705,7 +705,7 @@ export const ExcaliburAlter: Weapon = {
 export const KrampusHorns: EquipableItem = {
     id: "krampus_horns",
     name: "Krampus Horns",
-    emoji: "<:krampus_horns:1311443755139727511>",
+    emoji: Emojis.krampusHorns,
     description: "Horns that belonged to Krampus.",
     type: equipableItemTypes.HEAD,
     effects: {
@@ -728,7 +728,7 @@ export const KrampusHorns: EquipableItem = {
 export const KrampusStaff: Weapon = {
     id: "krampus_staff",
     name: "Krampus' Staff",
-    emoji: "<:krampus_staff:1311446274540830720>",
+    emoji: Emojis.krampusStaff,
     description: "A staff that belonged to Krampus.",
     type: equipableItemTypes.WEAPON,
     attackName: "hit",
@@ -760,7 +760,7 @@ export const KrampusStaff: Weapon = {
 export const SantaHat: EquipableItem = {
     id: "santa_hat",
     name: "Santa's Hat",
-    emoji: "<:santa_hat:1312181146062422186>",
+    emoji: Emojis.santaHat,
     description: "A hat that belonged to Santa Claus.",
     type: equipableItemTypes.HEAD,
     effects: {
@@ -780,7 +780,7 @@ export const SantaHat: EquipableItem = {
 export const ElfHat: EquipableItem = {
     id: "elf_hat",
     name: "Elf Hat",
-    emoji: "<:elf_hat:1312181075174363197>",
+    emoji: Emojis.elfHat,
     description: "A hat that belonged to an elf.",
     type: equipableItemTypes.HEAD,
     effects: {
@@ -800,7 +800,7 @@ export const ElfHat: EquipableItem = {
 export const JohansNewYorkYankeesHat: EquipableItem = {
     id: "johans_new_york_yankees_hat", // all item IDs must follow this format
     name: "Jôhan's New York Yankees Hat",
-    emoji: "<:johanhat:1287836078442807406>",
+    emoji: Emojis.johanHat,
     description: "A hat that belonged to Jôhan Everdeen.",
     type: equipableItemTypes.HEAD,
     effects: MeguminsHat.effects,
@@ -812,7 +812,7 @@ export const JohansNewYorkYankeesHat: EquipableItem = {
 export const SantasBell: Weapon = {
     id: "santas_bell",
     name: "Santa's Bell",
-    emoji: "<:santas_bell:1321226637978898523>",
+    emoji: Emojis.santaBell,
     description: "A bell that belonged to Santa Claus. ",
     type: equipableItemTypes.WEAPON,
     attackName: "ring",
@@ -840,7 +840,7 @@ export const SantasBell: Weapon = {
 export const Frostblade: Weapon = {
     id: "frostblade",
     name: "Frostblade",
-    emoji: "<:frostblade:1321224860411629662>",
+    emoji: Emojis.frostBlade,
     description: "An unknown blade that is said to be made of ice.",
     type: equipableItemTypes.WEAPON,
     attackName: "slash",

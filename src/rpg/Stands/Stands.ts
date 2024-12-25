@@ -916,7 +916,7 @@ export const KingCrimson: Stand = {
         Abilities.Epitaph,
         Abilities.TimeErase,
     ],
-    emoji: "<:kingCrimson:1216114860241453057>",
+    emoji: Emojis.kingCrimson,
     skillPoints: {
         strength: 15,
         defense: 5,
@@ -942,7 +942,7 @@ export const Nix: Stand = {
         Abilities.FearsGrasp,
         Abilities.DarkFinisher,
     ],
-    emoji: "<:nix:1294949386547101737>",
+    emoji: Emojis.nix,
     skillPoints: {
         strength: 0,
         defense: 0,
@@ -963,7 +963,7 @@ export const Justice: Stand = {
     description:
         "Justice is a Stand bound to a fog. In the JJBA series, Justice's owner was [Enya the Hag](https://jojo.fandom.com/wiki/Enya_the_Hag)",
     abilities: [Abilities.Fog, Abilities.FogStringPuppetry],
-    emoji: "<:justice:1308886400598278256>",
+    emoji: Emojis.justice,
     skillPoints: {
         perception: 25,
         strength: 0,

@@ -300,7 +300,7 @@ export const CandyCane: Consumable = {
     id: "candy_cane",
     name: "Mini Consumable Candy Cane",
     description: "A delicious candy cane... was obtainable during the Christmas 2022 & 2023 event.",
-    emoji: "<:candy_cane:1055876219251466330>",
+    emoji: Emojis.SantaCane,
     price: 10000,
     rarity: "T",
     tradable: true,
