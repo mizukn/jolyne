@@ -57,6 +57,7 @@ async function useBox(
         const newLoot: boxLoot[] = [];
         for (const lootItem of Loot) {
             if (lootItem.loot) {
+                if (lootItem.percent && !Functions.percent(lootItem.percent)) continue;
                 const existing = newLoot.find(
                     (r) => r.loot === lootItem.loot && r.percent === lootItem.percent
                 );
@@ -115,9 +116,15 @@ async function useBox(
             }
             for await (const reward of lootBox) {
                 await Functions.sleep(1000);
-                if (reward.percent) {
-                    if (!Functions.percent(reward.percent)) continue;
-                }
+                /*if (reward.percent) {
+                    const k = reward.mult ?? 1;
+                    //if (!Functions.percent(reward.percent)) continue;
+                    for (let i = 0; i < k; i++) {
+                        if (!Functions.percent(reward.percent)) {
+                            reward.mult--;
+                        }
+                    }
+                }*/
                 if (reward.xp) {
                     const xp = Functions.addXp(ctx.userData, reward.xp, ctx.client);
                     winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
