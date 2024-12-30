@@ -833,7 +833,7 @@ export const SantasBell: Weapon = {
     tradable: true,
     storable: true,
     requirements: {
-        level: 99999999999999,
+        level: 0,
     },
 };
 
