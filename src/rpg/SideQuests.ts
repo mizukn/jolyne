@@ -6,6 +6,11 @@ import * as Raids from "./Raids";
 import Emojis from "../emojis.json";
 import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "../utils/2024HalloweenEvent";
 import { endOf2024ChristmasEvent, startOf2024ChristmasEvent } from "../utils/2024ChristmasEvent";
+import {
+    endOf2025WinterEvent,
+    Winter2025EventMessage,
+    startOf2025WinterEvent,
+} from "../utils/2025WinterEvent";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
@@ -824,4 +829,79 @@ export const ChristmasEvent2024: SideQuest = {
                 (Date.now() >= startOf2024ChristmasEvent && Date.now() <= endOf2024ChristmasEvent),
         },
     ],
+};
+
+export const WinterEvent2025: SideQuest = {
+    id: "WinterEvent2025",
+    title: "2025 Winter Event",
+    description: `Krampus wasn't done yet. After leaving this world, he spawned some Ice Bandits that took over the city and are causing chaos.\nDefeat them to earn some Ice Shards and summon the Ice Golem using the /raid command.`,
+    emoji: "❄️",
+    color: 0x00bfff,
+    canReloadQuests: true,
+    canRedoSideQuest: true,
+    rewards: async (ctx) => {
+        Functions.addItem(ctx.userData, Functions.findItem("ice_shard"), 50);
+        ctx.followUp({
+            content: `You have been given 50 Ice Shards. Summon the Ice Golem using the ${ctx.client.getSlashCommandMention(
+                "raid"
+            )} command.`,
+        });
+        return true;
+    },
+    requirements: (ctx) => [
+        {
+            requirement: `Time must be between ${Functions.generateDiscordTimestamp(
+                startOf2025WinterEvent.getTime(),
+                "FULL_DATE"
+            )} and ${Functions.generateDiscordTimestamp(
+                endOf2025WinterEvent.getTime(),
+                "FULL_DATE"
+            )}`,
+            status:
+                !!process.env.BETA ||
+                (Date.now() >= startOf2025WinterEvent.getTime() &&
+                    Date.now() <= endOf2025WinterEvent.getTime()),
+        },
+    ],
+    quests: (ctx) => {
+        const quests: QuestArray = [
+            Functions.generateUseXCommandQuest("loot", 2),
+            Functions.generateUseXCommandQuest("assault", 2),
+        ];
+        const NPCs = Functions.shuffle(
+            Object.values(FightableNPCs).filter(
+                (x) =>
+                    x.id.toLocaleLowerCase().includes("ice") &&
+                    !x.id.toLocaleLowerCase().includes("golem") &&
+                    x.private &&
+                    x.level <= Math.max(15, ctx.userData.level)
+            )
+        )
+            .sort((a, b) => b.level - a.level)
+            .slice(0, 15);
+        // fight npcs
+        let tflv = ctx.userData.level / 5;
+        if (tflv > 15) tflv = 15;
+        if (ctx.userData.level <= 200) tflv *= 2;
+        const NPCsQuests = [];
+
+        //for (let i = 0; i < tflv; i++) {
+        let noFoundCount = 0;
+        while (NPCsQuests.length < tflv) {
+            if (noFoundCount > 100) break;
+            //if (Functions.percent(80) || i < 5) {
+            const NPC = Functions.randomArray(NPCs);
+            if (!NPC) {
+                noFoundCount++;
+                continue;
+            }
+            NPCsQuests.push(Functions.generateFightQuest(NPC));
+            //}
+        }
+        quests.push(...NPCsQuests);
+        if (ctx.userData.level > 200)
+            quests.push(Functions.generataRaidQuest(FightableNPCs.IceGolem));
+
+        return quests;
+    },
 };

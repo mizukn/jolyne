@@ -501,3 +501,19 @@ export const Krampus: FightableNPC = {
     },
     standsEvolved: {},
 };
+
+export const IceGolem: FightableNPC = {
+    ...NPCs.IceGolem,
+    level: 1000,
+    skillPoints: {
+        defense: 1000,
+        strength: 1000,
+        speed: 1000,
+        perception: 1000,
+        stamina: 1000,
+    },
+    equippedItems: {
+        frostblade: equipableItemTypes.WEAPON,
+    },
+    standsEvolved: {},
+};

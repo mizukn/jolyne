@@ -258,3 +258,14 @@ export const Ornament: Item = {
     tradable: true,
     storable: true,
 };
+
+export const IceShard: Item = {
+    id: "ice_shard",
+    name: "Ice Shard",
+    description: "An ice shard. Was available during the 2024-2025 New Year Event.",
+    rarity: "T",
+    emoji: "<:ice_shard:1323363296719536158>",
+    price: 69,
+    tradable: true,
+    storable: true,
+};

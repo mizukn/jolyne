@@ -277,3 +277,10 @@ export const Krampus: NPC = {
     emoji: "<:krampus:1311443188845645914>",
     avatarURL: "https://media.jolyne.moe/yNUWBY/direct",
 };
+
+export const IceGolem: NPC = {
+    avatarURL: "https://i.pinimg.com/736x/8b/fd/87/8bfd871095e8ebedd30af9de7665726e.jpg",
+    emoji: "<:ice_golem:1323367276103340072>",
+    id: "ice_golem",
+    name: "Ice Golem",
+};
