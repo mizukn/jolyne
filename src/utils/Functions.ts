@@ -2253,7 +2253,7 @@ export const dailyClaimRewardsChristmas = (
                 box: 10,
                 christmas_gift: 3,
                 rare_stand_arrow: 25,
-                frostblade: 1,
+                ice_shard: 50,
             },
         },
         // chatpgt end

@@ -4,6 +4,7 @@ import { Ornament } from "../rpg/Items/Items";
 import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
 import { cloneDeep } from "lodash";
 import { i18n_key, SlashCommand } from "../@types";
+import { is2025WinterEvent, Winter2025EventMessage } from "./2025WinterEvent";
 
 export const endOf2024ChristmasEvent = 1735772399000;
 export const startOf2024ChristmasEvent = 1732996800000; //new Date(2024, 11, 1).getTime();
@@ -393,7 +394,7 @@ export const Chritmas2024eventMessage = (ctx: CommandInteractionContext): string
 export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
     ctx: CommandInteractionContext
 ): Promise<void> => {
-    if (!is2024ChristmasEventActive()) {
+    if (!is2024ChristmasEventActive() && !is2025WinterEvent()) {
         const eventStartsIn = startOf2024ChristmasEvent - Date.now();
         if (eventStartsIn > 0) {
             if (!process.env.BETA) {
@@ -417,14 +418,26 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
     }
     const subcommand = ctx.interaction.options.getSubcommand();
     if (subcommand === "info") {
-        const embed: APIEmbed = {
-            title: "<:ornament:1311072010696396840> **__2024 Christmas Event__**",
-            description: Chritmas2024eventMessage(ctx),
-            color: 0xd8304a,
-        };
+        const embeds: APIEmbed[] = [];
+        if (is2024ChristmasEventActive()) {
+            embeds.push({
+                title: "<:ornament:1311072010696396840> **__2024 Christmas Event__**",
+                description: Chritmas2024eventMessage(ctx),
+                color: 0xd8304a,
+            });
+        }
+        if (is2025WinterEvent() || process.env.BETA) {
+            embeds.push({
+                title: ":snowflake: **__2025 Winter Event__**",
+                description: Winter2025EventMessage(ctx),
+                color: 0x7289da,
+            });
+        }
 
-        await ctx.makeMessage({ embeds: [embed] });
+        await ctx.makeMessage({ embeds });
     } else if (subcommand === "trade") {
+        if (!is2024ChristmasEventActive())
+            return void (await ctx.makeMessage({ content: "The event has ended." }));
         if (!ctx.userData) {
             return;
         }
