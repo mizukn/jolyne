@@ -3379,7 +3379,7 @@ export const Frostbite: Ability = {
     damage: 0,
     stamina: 20,
     extraTurns: 0,
-    dodgeScore: 0,
+    dodgeScore: 3,
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
         target.frozenFor = 3;
@@ -3396,7 +3396,7 @@ export const FrostSlash: Ability = {
     damage: 25,
     stamina: 20,
     extraTurns: 0,
-    dodgeScore: 0,
+    dodgeScore: 2,
     target: "enemy",
 };
 
@@ -3404,9 +3404,9 @@ export const Lunge: Ability = {
     name: "Lunge",
     description: "Lunge at the opponent.",
     cooldown: 5,
-    damage: 30,
+    damage: 25,
     stamina: 20,
     extraTurns: 0,
-    dodgeScore: 0,
+    dodgeScore: 3,
     target: "enemy",
 };

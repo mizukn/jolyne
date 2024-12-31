@@ -855,4 +855,7 @@ export const Frostblade: Weapon = {
     requirements: {
         level: 50,
     },
+    craft: {
+        ice_shard: 1000,
+    },
 };
