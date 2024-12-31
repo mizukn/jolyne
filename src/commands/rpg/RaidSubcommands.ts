@@ -27,6 +27,11 @@ import { cloneDeep } from "lodash";
 import { FightableNPCS } from "../../rpg/NPCs";
 import { is2024HalloweenEvent } from "../../utils/2024HalloweenEvent";
 import { is2024ChristmasEventActive } from "../../utils/2024ChristmasEvent";
+import { is2025WinterEvent } from "../../utils/2025WinterEvent";
+
+const getIceShard = (data: RPGUserDataJSON): number => {
+    return data.inventory["ice_shard"] ?? 0;
+};
 
 const eventRaid: RaidBoss = {
     boss: FightableNPCS.ConfettiGolem,
@@ -167,6 +172,41 @@ const Christmas2024EventRaid: RaidBoss = {
     cooldown: 60000 * 5,
 };
 
+export const Winter2025EventRaid: RaidBoss = {
+    boss: FightableNPCS.IceGolem,
+    minions: [],
+    level: 0,
+    baseRewards: {
+        coins: 10000,
+        xp: Functions.getMaxXp(FightableNPCS.IceGolem.level),
+        items: [
+            {
+                item: Functions.findItem("Ice Shard").id,
+                amount: 15,
+                chance: 100,
+            },
+            {
+                item: Functions.findItem("Ice Shard").id,
+                amount: 15,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("Ice Shard").id,
+                amount: 50,
+                chance: 5,
+            },
+            {
+                item: Functions.findItem("Frostblade").id,
+                amount: 1,
+                chance: 5,
+            },
+        ],
+    },
+    maxLevel: Infinity,
+    maxPlayers: 5,
+    cooldown: 60000 * 5,
+};
+
 const getFixedBosses = () => {
     const fixedBosses = cloneDeep(Object.values(Bosses));
     if (is2024HalloweenEvent()) {
@@ -188,6 +228,10 @@ const getFixedBosses = () => {
                 .slice(0, 3);
         }*/
         fixedBosses.push(Christmas2024EventRaid);
+    }
+
+    if (is2025WinterEvent() || process.env.BETA) {
+        fixedBosses.push(Winter2025EventRaid);
     }
     return fixedBosses;
 };
@@ -297,6 +341,11 @@ const slashCommand: SlashCommandFile = {
             });
             return;
         }
+        if (bossChosen === "ice_golem" && getIceShard(ctx.userData) < 50) {
+            return void ctx.makeMessage({
+                content: `You need 50 <:ice_shard:1323363296719536158> Ice Shards to raid this boss.`,
+            });
+        }
         const joinRaidID = Functions.generateRandomId();
         const leaveRaidID = Functions.generateRandomId();
         const banUserFromRaidID = Functions.generateRandomId();
@@ -317,8 +366,14 @@ const slashCommand: SlashCommandFile = {
         const joinRaidButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Primary)
             .setCustomId(joinRaidID)
-            .setLabel(`Join Raid (${raidCost.toLocaleString("en-US")} coins required)`)
-            .setEmoji("927974784187392061");
+            .setLabel(
+                bossChosen === "ice_golem"
+                    ? `Join Raid (${raidCost.toLocaleString(
+                          "en-US"
+                      )} coins and 50 Ice Shards required)`
+                    : `Join Raid (${raidCost.toLocaleString("en-US")} coins required)`
+            )
+            .setEmoji(bossChosen === "ice_golem" ? "1323363296719536158" : "927974784187392061");
         const leaveRaidButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Danger)
             .setCustomId(leaveRaidID)
@@ -552,10 +607,20 @@ const slashCommand: SlashCommandFile = {
                             }`,
                         });
                         //ctx.client.database.saveUserData(winnerData);
+                        const status = getIceShard(winnerData) >= 50;
+                        if (status) {
+                            winnerData.inventory["ice_shard"] -= 50;
+                        }
+
                         fixedWinners.push({
                             oldData: oldWinnerData,
-                            newData: winnerData,
+                            newData: status ? winnerData : oldWinnerData,
                         });
+                        if (!status) {
+                            ctx.followUp({
+                                content: `<@${winner.id}> didn't have enough Ice Shards to raid the Ice Golem, so they didn't get the rewards.`,
+                            });
+                        }
                     }
                     const transaction = await ctx.client.database.handleTransaction(
                         fixedWinners,
@@ -563,7 +628,7 @@ const slashCommand: SlashCommandFile = {
                     );
                     if (!transaction) {
                         ctx.followUp({
-                            content: `IGNORE THE MESSAGES ABOVE::: An error occurred while saving the data and no changes were made. Is somebody community banned? Is someone trying to cheat...?`,
+                            content: `IGNORE THE MESSAGES ABOVE::: An error occurred while saving the data and no changes were made. Is somebody community banned? Is someone trying to cheat/dupe items...?`,
                         });
                     }
                 } else {
@@ -665,6 +730,15 @@ const slashCommand: SlashCommandFile = {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                             ctx.followUp({
                                 content: `<@${interaction.user.id}> tried to join the raid but they don't have enough coins.`,
+                            });
+                            cooldownedUsers.push(interaction.user.id);
+                        }
+                        return;
+                    }
+                    if (bossChosen === "ice_golem" && getIceShard(usrData) < 50) {
+                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                            ctx.followUp({
+                                content: `<@${interaction.user.id}> tried to join the raid but they don't have enough Ice Shards.`,
                             });
                             cooldownedUsers.push(interaction.user.id);
                         }
