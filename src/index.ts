@@ -31,6 +31,11 @@ import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { endOf2024ChristmasEvent, is2024ChristmasEventActive } from "./utils/2024ChristmasEvent";
+import {
+    endOf2025WinterEvent,
+    is2025WinterEvent,
+    startOf2025WinterEvent,
+} from "./utils/2025WinterEvent";
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
@@ -132,6 +137,69 @@ if (Date.now() < endOf2024ChristmasEvent) {
         FightableNPCs[krampusGoonFightableNPC.id] = krampusGoonFightableNPC;
     }
 }
+
+function generateIceBandits(): void {
+    for (let i = 1; i < 300; i += 3) {
+        const iceBanditNPC: NPC = {
+            name: `Ice Bandit [LVL ${i}]`,
+            id: `IceBandit_${i}`,
+            emoji: "<:ice_bandit:1323367718673453127>",
+        };
+        const iceBanditFightableNPC: FightableNPC = {
+            ...iceBanditNPC,
+            level: i,
+            skillPoints: {
+                speed: 1,
+                strength: 1,
+                defense: 1,
+                perception: 1,
+                stamina: 0,
+            },
+            equippedItems: i < 150 ? {} : FightableNPCs.Krampus.equippedItems,
+            rewards: {
+                items: [
+                    {
+                        item: "ice_shard",
+                        amount: 2,
+                        chance: 100,
+                    },
+                    {
+                        item: "ice_shard",
+                        amount: 3,
+                        chance: 25,
+                    },
+                    {
+                        item: "ice_shard",
+                        amount: 4,
+                        chance: 15,
+                    },
+                    {
+                        item: "ice_shard",
+                        amount: 5,
+                        chance: 5,
+                    },
+                ],
+            },
+            private: true,
+            standsEvolved: {},
+        };
+
+        // @ts-expect-error because it's a dynamic property
+        FightableNPCs[iceBanditFightableNPC.id] = iceBanditFightableNPC;
+    }
+}
+
+if (is2025WinterEvent() || process.env.BETA) {
+    generateIceBandits();
+    console.log("Generated Ice Bandits");
+} else if (Date.now() < endOf2025WinterEvent.getTime()) {
+    // then it means that it didnt end yet
+    setTimeout(() => {
+        generateIceBandits();
+    }, startOf2025WinterEvent.getTime() - Date.now());
+    console.log(`Generating Ice Bandits in ${startOf2025WinterEvent.getTime() - Date.now()}ms`);
+}
+
 /*
 for (let i = 1; i < 500; i += 3) {
     const SpookySkeletonNPC: NPC = {
@@ -254,7 +322,7 @@ for (const stand of [
     }),
 ]) {
     if (!stand.available) continue;
-    console.log(`Adding ${stand.name} Stand Disc`);
+    //console.log(`Adding ${stand.name} Stand Disc`);
     const evolutions = Object.values(Stands.EvolutionStands).find((x) => x.id === stand.id);
     const standDisc: Special = {
         id: stand.id + ".$disc$",
@@ -556,7 +624,6 @@ for (const NPC of Object.values(FightableNPCs)) {
     if (process.env.ENABLE_PRESTIGE) {
         if (NPC.level > 800) NPC.level = 800;
     }
-    client.log(`Generating ${NPC.name} rewards...`, "npc");
     /*if (!Functions.skillPointsIsOK(NPC)) {
         // check if it is not 0 skill point on everything
         if (!Object.values(NPC.skillPoints).every((x) => x === 0)) {
