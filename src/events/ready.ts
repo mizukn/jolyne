@@ -333,7 +333,7 @@ const Event: EventFile = {
         const build = await client.database.updateSkillPointsBuilds();
 
         for (const NPC of Object.values(FightableNPCs)) {
-            client.log(`Generating ${NPC.name} skill points...`, "npc");
+            //client.log(`Generating ${NPC.name} skill points...`, "npc");
 
             if (!Functions.skillPointsIsOK(NPC)) {
                 const stand = Functions.findStand(NPC.stand, NPC.standsEvolved[NPC.stand]);
@@ -362,6 +362,16 @@ const Event: EventFile = {
                 }
             } else {
                 //console.log(`Skill points are OK for ${NPC.name} (${NPC.level})`, NPC.skillPoints);
+            }
+
+            if (NPC.id === "ice_golem") {
+                Functions.generateSkillPointsByBuild(NPC, {
+                    strength: 4,
+                    speed: 1,
+                    defense: 89,
+                    stamina: 1,
+                    perception: 5,
+                });
             }
         }
 
