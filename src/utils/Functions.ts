@@ -66,6 +66,7 @@ import { level } from "winston";
 import e from "express";
 import seedrandom from "seedrandom";
 import { endOf2024ChristmasEvent, is2024ChristmasEventActive } from "./2024ChristmasEvent";
+import { is2025WinterEvent } from "./2025WinterEvent";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -1170,6 +1171,14 @@ export const addItem = (
     if (is2024HalloweenEvent() && item.id === "nix.$disc$") {
         const nixDisc = (userData.inventory["nix.$disc$"] || 0) + (amount || 1);
         if (nixDisc > 3) return false;
+    }
+
+    if (is2025WinterEvent() && item.id === "frostblade") {
+        let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
+        for (const xitem of Object.keys(userData.equippedItems)) {
+            if (xitem === item.id) itemLeft++;
+        }
+        if (itemLeft > 3) return false;
     }
     if (Date.now() < endOf2024ChristmasEvent && Christmas2024LimitedItems.includes(item.id)) {
         let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
