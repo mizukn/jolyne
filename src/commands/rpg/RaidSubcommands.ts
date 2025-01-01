@@ -607,16 +607,18 @@ const slashCommand: SlashCommandFile = {
                             }`,
                         });
                         //ctx.client.database.saveUserData(winnerData);
-                        const status = getIceShard(winnerData) >= 50;
-                        if (status) {
+                        const status =
+                            bossChosen !== "ice_golem" ? null : getIceShard(winnerData) >= 50;
+                        if (status === true) {
                             winnerData.inventory["ice_shard"] -= 50;
                         }
+                        console.log(status, bossChosen);
 
                         fixedWinners.push({
                             oldData: oldWinnerData,
-                            newData: status ? winnerData : oldWinnerData,
+                            newData: status !== false ? winnerData : oldWinnerData,
                         });
-                        if (!status) {
+                        if (status === false) {
                             ctx.followUp({
                                 content: `<@${winner.id}> didn't have enough Ice Shards to raid the Ice Golem, so they didn't get the rewards.`,
                             });
