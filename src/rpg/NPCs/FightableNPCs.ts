@@ -504,7 +504,7 @@ export const Krampus: FightableNPC = {
 
 export const IceGolem: FightableNPC = {
     ...NPCs.IceGolem,
-    level: 1000,
+    level: 800,
     skillPoints: {
         defense: 1000,
         strength: 1000,
