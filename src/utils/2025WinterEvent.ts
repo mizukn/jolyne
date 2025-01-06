@@ -3,7 +3,7 @@ import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "./Functions";
 
 export const startOf2025WinterEvent = new Date("2024-12-31");
-export const endOf2025WinterEvent = new Date("2025-01-07");
+export const endOf2025WinterEvent = new Date("2025-01-20");
 export const is2025WinterEvent = (): boolean =>
     new Date() >= startOf2025WinterEvent && new Date() <= endOf2025WinterEvent;
 export const is2025WinterEventEndingSoon = (): boolean => {
