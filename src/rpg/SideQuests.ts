@@ -4,13 +4,13 @@ import { NPCs } from "./NPCs";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
 import * as Raids from "./Raids";
 import Emojis from "../emojis.json";
-import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "../utils/2024HalloweenEvent";
-import { endOf2024ChristmasEvent, startOf2024ChristmasEvent } from "../utils/2024ChristmasEvent";
+import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "./Events/2024HalloweenEvent";
+import { endOf2024ChristmasEvent, startOf2024ChristmasEvent } from "./Events/2024ChristmasEvent";
 import {
     endOf2025WinterEvent,
     Winter2025EventMessage,
     startOf2025WinterEvent,
-} from "../utils/2025WinterEvent";
+} from "./Events/2025WinterEvent";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),

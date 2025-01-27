@@ -2,7 +2,7 @@ import { EquipableItem, equipableItemTypes, Weapon } from "../../@types";
 import * as Abilities from "../Abilities";
 import * as Passives from "../Passives";
 import * as Emojis from "../../emojis.json";
-import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "../../utils/2024HalloweenEvent";
+import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "../Events/2024HalloweenEvent";
 
 export const JotarosHat: EquipableItem = {
     id: "jotaros_hat",

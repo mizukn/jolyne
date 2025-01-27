@@ -4,8 +4,8 @@ import * as fNPCs from "./NPCs/FightableNPCs";
 import * as ActionQuests from "./Quests/ActionQuests";
 import { Quest, FightNPCQuest, NPC } from "../@types";
 import Items from "./Items";
-import { halloween2024EventMessage } from "../utils/2024HalloweenEvent";
-import { Chritmas2024eventMessage } from "../utils/2024ChristmasEvent";
+import { halloween2024EventMessage } from "./Events/2024HalloweenEvent";
+import { Chritmas2024eventMessage } from "./Events/2024ChristmasEvent";
 
 /**
  * CIRCULAR DEPENDENCIES FIX

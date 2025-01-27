@@ -269,3 +269,14 @@ export const IceShard: Item = {
     tradable: true,
     storable: true,
 };
+
+export const Hangbao: Item = {
+    id: "hangbao",
+    name: "Hangbao",
+    description: "A red envelope, available during the Chinese New Year (every year).",
+    rarity: "T",
+    emoji: "🧧",
+    price: 69,
+    tradable: true,
+    storable: true,
+};

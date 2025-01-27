@@ -9,7 +9,7 @@ import * as Items from "./Items";
 import { EvolutionStands } from "../Stands";
 import { cloneDeep } from "lodash";
 import { standLogsWebhook } from "../../utils/Webhooks";
-import { is2024ChristmasEventActive } from "../../utils/2024ChristmasEvent";
+import { is2024ChristmasEventActive } from "../Events/2024ChristmasEvent";
 
 const totalStands = [
     ...Object.values(Stands),
