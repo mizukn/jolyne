@@ -30,12 +30,15 @@ import { count } from "console";
 import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
-import { endOf2024ChristmasEvent, is2024ChristmasEventActive } from "./utils/2024ChristmasEvent";
+import {
+    endOf2024ChristmasEvent,
+    is2024ChristmasEventActive,
+} from "./rpg/Events/2024ChristmasEvent";
 import {
     endOf2025WinterEvent,
     is2025WinterEvent,
     startOf2025WinterEvent,
-} from "./utils/2025WinterEvent";
+} from "./rpg/Events/2025WinterEvent";
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
