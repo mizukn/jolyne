@@ -25,9 +25,9 @@ import * as Bosses from "../../rpg/Raids";
 import { raidWebhook } from "../../utils/Webhooks";
 import { cloneDeep } from "lodash";
 import { FightableNPCS } from "../../rpg/NPCs";
-import { is2024HalloweenEvent } from "../../utils/2024HalloweenEvent";
-import { is2024ChristmasEventActive } from "../../utils/2024ChristmasEvent";
-import { is2025WinterEvent } from "../../utils/2025WinterEvent";
+import { is2024HalloweenEvent } from "../../rpg/Events/2024HalloweenEvent";
+import { is2024ChristmasEventActive } from "../../rpg/Events/2024ChristmasEvent";
+import { is2025WinterEvent } from "../../rpg/Events/2025WinterEvent";
 
 const getIceShard = (data: RPGUserDataJSON): number => {
     return data.inventory["ice_shard"] ?? 0;

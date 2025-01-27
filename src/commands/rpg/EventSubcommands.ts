@@ -25,7 +25,11 @@ import { cloneDeep } from "lodash";
 import {
     Christmas2024EventCommandData,
     Christmas2024EventCommandHandler,
-} from "../../utils/2024ChristmasEvent";
+} from "../../rpg/Events/2024ChristmasEvent";
+import {
+    ChineseNewYear2025EventCommand,
+    ChineseNewYear2025EventSlashCommandData,
+} from "../../rpg/Events/2025ChineseNewYear";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -446,6 +450,6 @@ function setCooldown(ctx: CommandInteractionContext, userId: string): void {
 }
 
 export default {
-    data: Christmas2024EventCommandData,
-    execute: Christmas2024EventCommandHandler,
+    data: ChineseNewYear2025EventSlashCommandData,
+    execute: ChineseNewYear2025EventCommand,
 };
