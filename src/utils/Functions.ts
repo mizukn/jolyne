@@ -61,12 +61,15 @@ import * as Emojis from "../emojis.json";
 import { get, random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
 import color from "get-image-colors";
-import { is2024HalloweenEvent } from "./2024HalloweenEvent";
+import { is2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
 import { level } from "winston";
 import e from "express";
 import seedrandom from "seedrandom";
-import { endOf2024ChristmasEvent, is2024ChristmasEventActive } from "./2024ChristmasEvent";
-import { is2025WinterEvent } from "./2025WinterEvent";
+import {
+    endOf2024ChristmasEvent,
+    is2024ChristmasEventActive,
+} from "../rpg/Events/2024ChristmasEvent";
+import { is2025WinterEvent } from "../rpg/Events/2025WinterEvent";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
