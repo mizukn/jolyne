@@ -12,8 +12,8 @@ import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
-import { handlePumpkinAppeared, is2024HalloweenEvent } from "../utils/2024HalloweenEvent";
-import { is2024ChristmasEventActive } from "../utils/2024ChristmasEvent";
+import { handlePumpkinAppeared, is2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
+import { is2024ChristmasEventActive } from "../rpg/Events/2024ChristmasEvent";
 
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
