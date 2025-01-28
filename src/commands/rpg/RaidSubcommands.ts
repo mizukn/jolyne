@@ -28,6 +28,7 @@ import { FightableNPCS } from "../../rpg/NPCs";
 import { is2024HalloweenEvent } from "../../rpg/Events/2024HalloweenEvent";
 import { is2024ChristmasEventActive } from "../../rpg/Events/2024ChristmasEvent";
 import { is2025WinterEvent } from "../../rpg/Events/2025WinterEvent";
+import { is2025ChineseNewYear } from "../../rpg/Events/2025ChineseNewYear";
 
 const getIceShard = (data: RPGUserDataJSON): number => {
     return data.inventory["ice_shard"] ?? 0;
@@ -207,6 +208,71 @@ export const Winter2025EventRaid: RaidBoss = {
     cooldown: 60000 * 5,
 };
 
+export const ChineseNewYearEvent2025Raid: RaidBoss = {
+    boss: FightableNPCS.BeastNian,
+    minions: [],
+    level: 0,
+    baseRewards: {
+        coins: 10000,
+        xp: Functions.getMaxXp(FightableNPCS.BeastNian.level),
+        items: [
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 100,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+            {
+                item: Functions.findItem("hangbao").id,
+                amount: 1,
+                chance: 50,
+            },
+        ],
+    },
+    maxLevel: Infinity,
+    maxPlayers: 5,
+    cooldown: 60000 * 5,
+};
+
 const getFixedBosses = () => {
     const fixedBosses = cloneDeep(Object.values(Bosses));
     if (is2024HalloweenEvent()) {
@@ -232,6 +298,10 @@ const getFixedBosses = () => {
 
     if (is2025WinterEvent() || process.env.BETA) {
         fixedBosses.push(Winter2025EventRaid);
+    }
+
+    if (is2025ChineseNewYear || process.env.BETA) {
+        fixedBosses.push(ChineseNewYearEvent2025Raid);
     }
     return fixedBosses;
 };

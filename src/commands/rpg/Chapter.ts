@@ -166,6 +166,7 @@ export const getQuestsStats = (
                     daily: "📆",
                     coin: ctx.client.localEmojis.jocoins,
                     xp: ctx.client.localEmojis.xp,
+                    social_credit: ctx.client.localEmojis.social_credit,
                 }[quest.x];
 
                 questMessage =
@@ -173,7 +174,7 @@ export const getQuestsStats = (
                         cc: quest.goal.toLocaleString("en-US"),
                         s: Functions.s(quest.goal),
                         emoji,
-                        name: quest.x,
+                        name: quest.x.replace(/_/g, " "),
                     }) +
                     (quest.x === "daily"
                         ? ` (${ctx.client.getSlashCommandMention("daily claim")})`
@@ -394,6 +395,22 @@ export const getQuestsStats = (
             }) **${questPercent}%**`;
 
             message.push(messageString);
+            totalPercent += questPercent;
+            continue;
+        }
+
+        if (Functions.isAnswerChineseNewYearQuizQuest(quest)) {
+            const goal = quest.goal;
+            const amount = quest.amount;
+            const questPercent = Math.min((amount / goal) * 100, 100);
+            if (amount >= goal) {
+                completed = true;
+            }
+            const msg = `Answer **${goal}** ${ctx.client.getSlashCommandMention(
+                "event quiz"
+            )} correctly ||(${amount}/${goal}) **${questPercent}%**||`;
+            message.push(msg);
+
             totalPercent += questPercent;
             continue;
         }
