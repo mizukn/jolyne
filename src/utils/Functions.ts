@@ -10,6 +10,7 @@ import {
     StartDungeonQuest,
     ClaimItemQuest,
     UseXCommandQuest,
+    AnswerChineseNewYearQuizQuest,
     Quests,
     Item,
     Garment,
@@ -96,6 +97,12 @@ export const isGarment = (item: Item): item is Garment => {
     return (item as Garment).skillPoints !== undefined;
 };
 
+export const isAnswerChineseNewYearQuizQuest = (
+    quest: RPGUserQuest | Quests
+): quest is AnswerChineseNewYearQuizQuest => {
+    return quest.type === "answerChineseNewYearQuiz";
+};
+
 export const isSpecial = (item: Item): item is Special => {
     return (item as Special)["use"] !== undefined;
 };
@@ -109,7 +116,7 @@ export const isFightNPCQuest = (quest: Quests | RPGUserQuest): quest is FightNPC
 };
 
 export const isStartDungeonQuest = (quest: Quests | RPGUserQuest): quest is StartDungeonQuest => {
-    return (quest as StartDungeonQuest).type === "startDungeon";
+    return quest.type === "startDungeon";
 };
 
 export const isRaidNPCQuest = (quest: Quests | RPGUserQuest): quest is RaidNPCQuest => {
@@ -378,6 +385,23 @@ export const generateUseXCommandQuest = (
         amount: 0,
         command,
         goal,
+        pushEmailWhenCompleted,
+        pushQuestWhenCompleted,
+    };
+
+    return quest;
+};
+
+export const generateAnswerChineseNewYearQuizQuest = (
+    goal: AnswerChineseNewYearQuizQuest["goal"],
+    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
+    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"]
+): AnswerChineseNewYearQuizQuest => {
+    const quest: AnswerChineseNewYearQuizQuest = {
+        type: "answerChineseNewYearQuiz",
+        id: generateRandomId(),
+        goal,
+        amount: 0,
         pushEmailWhenCompleted,
         pushQuestWhenCompleted,
     };
@@ -1261,6 +1285,34 @@ export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: num
         ...userData.sideQuests.map((v) => v.quests),
     ]) {
         for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "coin")) {
+            (quest as ClaimXQuest).amount += amount;
+        }
+    }
+    return amount;
+};
+
+export const addSocialCredits = function addSocialCredits(
+    userData: RPGUserDataJSON,
+    amount: number
+): number {
+    if (!userData.social_credits_2025) {
+        if (
+            userData.social_credits_2025 !== 0 ||
+            typeof userData.social_credits_2025 !== "number"
+        ) {
+            userData.social_credits_2025 = 1000;
+        }
+    }
+    userData.social_credits_2025 += Math.round(amount);
+    if (amount < 0) return;
+
+    amount = Math.round(amount);
+    for (const quests of [
+        userData.daily.quests,
+        userData.chapter.quests,
+        ...userData.sideQuests.map((v) => v.quests),
+    ]) {
+        for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "social_credit")) {
             (quest as ClaimXQuest).amount += amount;
         }
     }
