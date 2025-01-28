@@ -300,6 +300,7 @@ export interface RPGUserDataJSON {
     lastSeen: Date;
     settings: RPGUserSettings;
     prestige: number;
+    social_credits_2025?: number;
 }
 
 export interface RPGUserSettings {
@@ -818,7 +819,7 @@ export interface RaidNPCQuest
 
 export interface ClaimXQuest
     extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
-    x: "coin" | "xp" | "daily";
+    x: "coin" | "xp" | "daily" | "social_credit";
     amount: number;
     goal: number;
     type: "claimX";
@@ -843,6 +844,13 @@ export interface WaitQuest extends Omit<Quest, "completed" | "emoji" | "hintComm
     type: "wait";
 }
 
+export interface AnswerChineseNewYearQuizQuest
+    extends Omit<Quest, "completed" | "emoji" | "hintCommand" | "type"> {
+    type: "answerChineseNewYearQuiz";
+    amount: number;
+    goal: number;
+}
+
 export interface Action {
     id: string;
     execute: (ctx: CommandInteractionContext) => Promise<boolean>;
@@ -858,7 +866,8 @@ export type Quests =
     | WaitQuest
     | RaidNPCQuest
     | UseXCommandQuest
-    | StartDungeonQuest;
+    | StartDungeonQuest
+    | AnswerChineseNewYearQuizQuest;
 export type QuestArray = Quests[];
 
 export type RPGUserQuest = Omit<
@@ -871,7 +880,8 @@ export type RPGUserQuest = Omit<
     | WaitQuest
     | RaidNPCQuest
     | UseXCommandQuest
-    | StartDungeonQuest,
+    | StartDungeonQuest
+    | AnswerChineseNewYearQuizQuest,
     "i18n_key"
 > & {
     completed?: boolean;
