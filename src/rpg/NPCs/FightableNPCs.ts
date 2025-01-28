@@ -517,3 +517,11 @@ export const IceGolem: FightableNPC = {
     },
     standsEvolved: {},
 };
+
+export const BeastNian: FightableNPC = {
+    ...NPCs.BeastNian,
+    level: 250,
+    skillPoints: baseSP,
+    standsEvolved: {},
+    equippedItems: {},
+};

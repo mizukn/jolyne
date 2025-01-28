@@ -11,6 +11,7 @@ import {
     Winter2025EventMessage,
     startOf2025WinterEvent,
 } from "./Events/2025WinterEvent";
+import { endOf2025ChineseNewYear, startOf2025ChineseNewYear } from "./Events/2025ChineseNewYear";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
@@ -904,4 +905,49 @@ export const WinterEvent2025: SideQuest = {
 
         return quests;
     },
+};
+
+export const ChineseNewYearEvent2025: SideQuest = {
+    id: "ChineseNewYearEvent2025",
+    title: "2025 Chinese New Year Event",
+    description: `The Chinese New Year is here! The beast Nian has come to the city and is causing chaos.\nDefeat it to earn some Social Credits. `,
+    emoji: "🧧",
+    color: 0xff0000,
+    canRedoSideQuest: true,
+    rewards: async (ctx) => {
+        if (!ctx.userData.social_credits_2025 && ctx.userData.social_credits_2025 !== 0)
+            ctx.userData.social_credits_2025 = 1000;
+
+        Functions.addSocialCredits(ctx.userData, 500);
+        ctx.followUp({
+            content: `${ctx.client.localEmojis.social_credit} | You have been given 500 Social Credits!`,
+        });
+
+        return true;
+    },
+    quests: (ctx) => {
+        const baseQuests: QuestArray = [
+            Functions.generateAnswerChineseNewYearQuizQuest(5),
+            Functions.generateClaimXQuest("social_credit", 150 * 5),
+            Functions.generateClaimItemQuest("hangbao", 5),
+            Functions.generataRaidQuest(FightableNPCs.BeastNian),
+        ];
+
+        return baseQuests;
+    },
+    requirements: (ctx) => [
+        {
+            requirement: `Time must be between ${Functions.generateDiscordTimestamp(
+                startOf2025ChineseNewYear.getTime(),
+                "FULL_DATE"
+            )} and ${Functions.generateDiscordTimestamp(
+                endOf2025ChineseNewYear.getTime(),
+                "FULL_DATE"
+            )}`,
+            status:
+                !!process.env.BETA ||
+                (Date.now() >= startOf2025ChineseNewYear.getTime() &&
+                    Date.now() <= endOf2025ChineseNewYear.getTime()),
+        },
+    ],
 };

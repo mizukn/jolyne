@@ -284,3 +284,9 @@ export const IceGolem: NPC = {
     id: "ice_golem",
     name: "Ice Golem",
 };
+
+export const BeastNian: NPC = {
+    id: "beast_nian",
+    name: "Beast Nian",
+    emoji: "<:beast_nian:1330804423316464642>",
+};

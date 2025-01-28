@@ -1,7 +1,15 @@
-import { StringSelectMenuBuilder } from "discord.js";
-import { SlashCommand } from "../../@types";
+import {
+    APIEmbed,
+    ButtonBuilder,
+    ButtonStyle,
+    enableValidators,
+    StringSelectMenuBuilder,
+} from "discord.js";
+import { AnswerChineseNewYearQuizQuest, SlashCommand } from "../../@types";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import { cloneDeep } from "lodash";
+import { Hangbao } from "../Items/Items";
 
 export const startOf2025ChineseNewYear = new Date(1738080000000);
 // endOf = after 1 week
@@ -16,9 +24,51 @@ export const ChineseNewYear2025EventMessage = (ctx: CommandInteractionContext): 
     return `\`\`\`
 The Chinese New Year is here! The beast Nian has come to the city and is causing chaos.
 Defeat it to earn some Social Credits.
-You can also earn Social Credits by using the ${ctx.client.getSlashCommandMention("event quiz")}. 
-    \`\`\``;
+\`\`\`
+- Use the ${ctx.client.getSlashCommandMention(
+        "side quest view"
+    )} \`[side_quest: ChineseNewYearEvent2025]\` command to view your progress about the side quest
+- Use the ${ctx.client.getSlashCommandMention(
+        "event quiz"
+    )} command to answer a quiz and earn Social Credits
+- ${ctx.client.getSlashCommandMention(
+        "raid"
+    )} the event boss, **Beast Nian** to earn 🧧 **Hangbaos**
+- Every **250** social credits you earn, you gain 🧧 **12 Hangbaos**
+- Every **750** social credits you lose, you lose **2%** of your coins ${
+        ctx.client.localEmojis.jocoins
+    }
+-# You can use the ${ctx.client.getSlashCommandMention(
+        "event progress"
+    )} command to view your social credits progress`;
 };
+export const trades = [
+    {
+        amount: 30,
+        item: "skill_points_reset_potion",
+    },
+    {
+        amount: 30,
+        item: "rare_stand_arrow",
+    },
+    {
+        amount: 350,
+        item: "requiem_arrow",
+    },
+    {
+        amount: 100,
+        item: "gauntlets_of_the_berserker",
+    },
+    {
+        amount: 900,
+        item: "krampus_staff",
+    },
+
+    {
+        amount: 15000,
+        item: "excalibur",
+    },
+].sort((a, b) => a.amount - b.amount);
 
 export const ChineseNewYear2025Eventquiz: {
     question: string;
@@ -1282,6 +1332,13 @@ export const ChineseNewYear2025EventSlashCommandData: SlashCommand["data"] = {
             options: [],
         },
         {
+            name: "trade",
+            description: "Trade your hangbaos for items.",
+            type: 1,
+            options: [],
+        },
+
+        {
             name: "progress",
             description: "Unlock items and rewards with your social credits!",
             type: 1,
@@ -1298,6 +1355,20 @@ export const ChineseNewYear2025EventSlashCommandData: SlashCommand["data"] = {
 
 export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ctx) => {
     if (ctx.interaction.options.getSubcommand() === "quiz") {
+        const isOnCooldown = await ctx.client.database.redis.get(
+            `chineseNewYear2025:cooldown_${ctx.user.id}`
+        );
+        if (isOnCooldown) {
+            const noLongerCooldown = parseInt(isOnCooldown) + 15 * 60 * 1000;
+            if (noLongerCooldown > Date.now()) {
+                return ctx.makeMessage({
+                    content: `Hey! Take a break. You can answer another quiz in ${Functions.generateDiscordTimestamp(
+                        noLongerCooldown,
+                        "FROM_NOW"
+                    )}.`,
+                });
+            }
+        }
         const quiz =
             ChineseNewYear2025Eventquiz[
                 Math.floor(Math.random() * ChineseNewYear2025Eventquiz.length)
@@ -1341,6 +1412,8 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
 
         collector.on("collect", async (interaction) => {
             if (!interaction.isStringSelectMenu()) return;
+            ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.interaction.user.id);
+
             const answers = interaction.values.map((v) => quiz.answers[parseInt(v)]);
             const correct =
                 answers.every((a) => a.correct) &&
@@ -1377,21 +1450,397 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                 ],
                 components: [],
             });
+
+            if (correct) {
+                Functions.addSocialCredits(ctx.userData, 150);
+                ctx.client.database.redis.del(`chineseNewYear2025:loseStreak_${ctx.user.id}`);
+                ctx.client.database.redis.incr(`chineseNewYear2025:winStreak_${ctx.user.id}`);
+            } else {
+                Functions.addSocialCredits(ctx.userData, -150);
+                ctx.client.database.redis.del(`chineseNewYear2025:winStreak_${ctx.user.id}`);
+                ctx.client.database.redis.incr(`chineseNewYear2025:loseStreak_${ctx.user.id}`);
+            }
+
+            const loseStreak = parseInt(
+                (await ctx.client.database.redis.get(
+                    `chineseNewYear2025:loseStreak_${ctx.user.id}`
+                )) || "0"
+            );
+            const winStreak = parseInt(
+                (await ctx.client.database.redis.get(
+                    `chineseNewYear2025:winStreak_${ctx.user.id}`
+                )) || "0"
+            );
+
+            if (loseStreak >= 5 || winStreak >= 10) {
+                ctx.client.database.redis.set(
+                    `chineseNewYear2025:cooldown_${ctx.user.id}`,
+                    String(Date.now())
+                );
+            }
             if (almost) {
                 await interaction.reply({
-                    content:
-                        "Almost! You got some answers right, but not all of them. You lost 15 social credits.",
+                    content: `${ctx.client.localEmojis.bad_social_credit} | Almost! You got some answers right, but not all of them. You lost 150 social credits.`,
                 });
             } else if (correct) {
+                for (const quests of [
+                    ctx.userData.daily.quests,
+                    ctx.userData.chapter.quests,
+                    ...ctx.userData.sideQuests.map((v) => v.quests),
+                ]) {
+                    for (const quest of quests.filter((r) =>
+                        Functions.isAnswerChineseNewYearQuizQuest(r)
+                    )) {
+                        (quest as AnswerChineseNewYearQuizQuest).amount++;
+                    }
+                }
                 await interaction.reply({
-                    content: "Correct! You earned 15 social credits.",
+                    content: `${ctx.client.localEmojis.social_credit} | Correct! You earned 150 social credits.`,
                 });
             } else {
                 await interaction.reply({
-                    content: "Incorrect! You lost 15 social credits.",
+                    content: `${ctx.client.localEmojis.bad_social_credit} | Incorrect! You lost 150 social credits.`,
                 });
             }
+            ctx.client.database.saveUserData(ctx.userData);
             collector.emit("end");
         });
+    } else if (ctx.interaction.options.getSubcommand() === "trade") {
+        if (!is2025ChineseNewYear() && !process.env.BETA)
+            return void (await ctx.makeMessage({ content: "The event has ended." }));
+        if (!ctx.userData) {
+            return;
+        }
+        const hangbaos = () => ctx.userData.inventory[Hangbao.id] || 0;
+        if (hangbaos() === 0) {
+            await ctx.makeMessage({ content: "You don't have any hangbaos." });
+            return;
+        }
+        const formattedTrades = trades.map((trade) => ({
+            item: Functions.findItem(trade.item),
+            amount: trade.amount,
+            hasEnough: () =>
+                hangbaos() >= trade.amount &&
+                Functions.addItem(cloneDeep(ctx.userData), trade.item, 1),
+        }));
+
+        const getSelectMenuTrades = () =>
+            formattedTrades
+                .filter((trade) => trade.hasEnough())
+                .map((trade) => ({
+                    label: `${trade.item.name}`,
+                    value: trade.item.name,
+                    description: `${trade.amount.toLocaleString("en-US")} Hangbaos`,
+                    emoji: trade.item.emoji,
+                }));
+
+        const selectMenu = () =>
+            new StringSelectMenuBuilder()
+                .setCustomId(ctx.interaction.id + "trade")
+                .setPlaceholder("Select a trade")
+                .addOptions(
+                    getSelectMenuTrades().length === 0
+                        ? [{ label: "No options", value: "no" }]
+                        : getSelectMenuTrades()
+                )
+                .setDisabled(formattedTrades.filter((trade) => trade.hasEnough()).length === 0);
+
+        const getOptions = () =>
+            Array.from({ length: 25 }, (_, i) => i + 1)
+                .map((i) => ({
+                    label: `x${i} (${
+                        i *
+                        formattedTrades.find((trade) => trade.item.name === currentTrade.item)
+                            .amount
+                    } Hangbaos)`,
+                    value: i.toString(),
+                }))
+                .filter(
+                    (i) =>
+                        hangbaos() >=
+                            parseInt(i.value) *
+                                formattedTrades.find(
+                                    (trade) => trade.item.name === currentTrade.item
+                                ).amount &&
+                        Functions.addItem(
+                            cloneDeep(ctx.userData),
+                            currentTrade.item,
+                            parseInt(i.value)
+                        )
+                );
+        const selectAnAmountMenu = () =>
+            new StringSelectMenuBuilder()
+                .setCustomId(ctx.interaction.id + "amount")
+                .setPlaceholder("Select an amount")
+                .setDisabled(getOptions().length === 0)
+                .addOptions(
+                    getOptions().length === 0
+                        ? [{ label: "No options", value: "no" }]
+                        : getOptions()
+                );
+        let currentTrade: { item: string; amount: number } | null = null;
+
+        const embed = (): APIEmbed => {
+            return {
+                author: {
+                    name: `Chinese New Year Trades 🐍🧧`,
+                },
+                color: 0xff0000,
+                description: `${
+                    ctx.client.localEmojis.replyEnd
+                } You have \`${hangbaos().toLocaleString("en-US")}\` hangbaos 🧧`,
+                fields: [
+                    ...formattedTrades.map((trade) => ({
+                        name: `${trade.item.emoji} ${trade.item.name}`,
+                        value: `${ctx.client.localEmojis.replyEnd} \`x${trade.amount.toLocaleString(
+                            "en-US"
+                        )}\` 🧧`,
+                        inline: true,
+                    })),
+                    {
+                        // blank
+                        name: "\u200b",
+                        value: `-# PLACEHOLDER`,
+                    },
+                ],
+                /*thumbnail: {
+                        url: "https://cdn.discordapp.com/emojis/1294731380017856715.webp?size=512",
+                    },*/
+            };
+        };
+
+        const goBackButton = new ButtonBuilder()
+            .setCustomId(ctx.interaction.id + "goBack")
+            .setLabel("Go back")
+            .setEmoji("🔙")
+            .setStyle(ButtonStyle.Secondary);
+
+        const components = () => Functions.actionRow([selectMenu()]);
+        await ctx.makeMessage({ embeds: [embed()], components: [components()] });
+
+        const collector = ctx.interaction.channel.createMessageComponentCollector({
+            filter: (interaction) =>
+                (interaction.customId === ctx.interaction.id + "trade" ||
+                    interaction.customId === ctx.interaction.id + "amount" ||
+                    interaction.customId === ctx.interaction.id + "goBack") &&
+                ctx.interaction.user.id === interaction.user.id,
+        });
+
+        const Timeouter = () =>
+            setTimeout(() => {
+                collector.stop();
+            }, 60000);
+        let timeouter: NodeJS.Timeout = Timeouter();
+
+        collector.on("collect", async (interaction) => {
+            clearTimeout(timeouter);
+            timeouter = Timeouter();
+
+            if (await ctx.antiCheat(true)) return;
+
+            switch (interaction.customId) {
+                case ctx.interaction.id + "trade": {
+                    if (!interaction.isStringSelectMenu()) return;
+
+                    const selectedItem = formattedTrades.find(
+                        (trade) => trade.item.name === interaction.values[0]
+                    );
+                    if (!selectedItem) {
+                        return;
+                    }
+                    currentTrade = {
+                        item: interaction.values[0],
+                        amount: null,
+                    };
+                    const selectAnAmountComponents = Functions.actionRow([selectAnAmountMenu()]);
+                    const goBack = Functions.actionRow([goBackButton]);
+                    ctx.makeMessage({
+                        content: `${selectedItem.item.emoji} | You selected **${selectedItem.item.name}**.`,
+                        components: [selectAnAmountComponents, goBack],
+                    });
+                    interaction.deferUpdate().catch(() => {});
+                    break;
+                }
+
+                case ctx.interaction.id + "amount": {
+                    if (!interaction.isStringSelectMenu()) return;
+                    if (!currentTrade) {
+                        return;
+                    }
+                    const selectedAmount = parseInt(interaction.values[0]); //currentTrade.amount = parseInt(interaction.values[0]);
+                    const amountBought =
+                        selectedAmount *
+                        formattedTrades.find((trade) => trade.item.name === currentTrade.item)
+                            .amount;
+
+                    if (hangbaos() < selectedAmount) {
+                        ctx.interaction.followUp({
+                            content: "You don't have enough hangbaos.",
+                            ephemeral: true,
+                        });
+                        interaction.deferUpdate().catch(() => {});
+                        return;
+                    }
+                    const status: boolean[] = [
+                        Functions.addItem(ctx.userData, currentTrade.item, selectedAmount),
+                        Functions.removeItem(ctx.userData, Hangbao.id, amountBought),
+                    ];
+                    if (!status.every((s) => s)) {
+                        ctx.interaction
+                            .followUp({
+                                content:
+                                    "An error occurred. Please note that you can only have 5 copies of the event hats and 3 copies of the event weapon.",
+                                ephemeral: true,
+                            })
+                            .catch(() => {});
+                        return;
+                    }
+                    ctx.client.database.saveUserData(ctx.userData);
+
+                    ctx.interaction
+                        .followUp({
+                            content: `You traded ${amountBought} hangbaos for ${selectedAmount}x ${currentTrade.item}.`,
+                            ephemeral: true,
+                        })
+                        .catch(() => {});
+                    ctx.makeMessage({
+                        content: null,
+                        embeds: [embed()],
+                        components: [components()],
+                    }).catch(() => {});
+                    break;
+                }
+
+                case ctx.interaction.id + "goBack": {
+                    ctx.makeMessage({
+                        content: null,
+                        components: [components()],
+                        embeds: [embed()],
+                    });
+                    interaction.deferUpdate().catch(() => {});
+                    return;
+                }
+            }
+        });
+
+        collector.on("end", () => {
+            Functions.disableRows(ctx.interaction);
+        });
+    } else if (ctx.interaction.options.getSubcommand() === "info") {
+        const description = ChineseNewYear2025EventMessage(ctx);
+
+        ctx.makeMessage({
+            embeds: [
+                {
+                    color: 0xff0000,
+                    title: "Chinese New Year 2025 Event 🐍🧧",
+                    description,
+                },
+            ],
+        });
+    } else if (ctx.interaction.options.getSubcommand() === "progress") {
+        const data = await ctx.client.database.redis.get(
+            `chineseNewYear2025:highestSocialCredits_${ctx.user.id}`
+        );
+        const highestSocialCredits = parseInt((data !== "NaN" ? data : "1000") || "1000");
+        const nextWins = [];
+        for (
+            let i = ctx.userData.social_credits_2025 + 1;
+            i <= ctx.userData.social_credits_2025 + 250 * 10;
+            i++
+        ) {
+            if (nextWins.length >= 3) break;
+            if (i % 250 === 0) {
+                nextWins.push(i);
+            }
+        }
+        const nextLosses = [];
+        for (let i = ctx.userData.social_credits_2025 - 1; i !== 0.69; i--) {
+            if (nextLosses.length >= 3) break;
+            if (i % 750 === 0) {
+                nextLosses.push(i);
+            }
+        }
+
+        const message = `# ${
+            ctx.client.localEmojis.social_credit
+        } Social Credit Progress\n${nextLosses
+            .sort((a, b) => a - b)
+            .map(
+                (v) =>
+                    `- ${
+                        ctx.client.localEmojis.doubleArrowLeft
+                    } \`${v.toLocaleString()}\` social credits: Lose 2% of your ${
+                        ctx.client.localEmojis.jocoins
+                    } coins.`
+            )
+            .join(
+                "\n"
+            )}\n-# - 📍 You currently have **${ctx.userData.social_credits_2025.toLocaleString()}** social credits and **${
+            ctx.userData.inventory.hangbao ?? 0
+        }** 🧧 hangbaos\n${nextWins
+            .map(
+                (v) =>
+                    `- ${
+                        ctx.client.localEmojis.doubleArrowRight
+                    } **${v.toLocaleString()}** social credits: Gain x12 🧧 hangbaos.`
+            )
+            .join("\n")}`;
+        ctx.makeMessage({
+            content: message,
+        });
+    }
+};
+
+export const handleInteraction = async (ctx: CommandInteractionContext): Promise<void> => {
+    console.log("checking", !is2025ChineseNewYear(), !process.env.BETA);
+    if (!is2025ChineseNewYear() && !process.env.BETA) return;
+    console.log("2025 Chinese New Year Event");
+
+    const currentSocialCredits = ctx.userData.social_credits_2025;
+
+    // every 250 social credits, we give to the user 20 hangbao
+    const data = await ctx.client.database.redis.get(
+        `chineseNewYear2025:highestSocialCredits_${ctx.user.id}`
+    );
+    const highestSocialCredits = parseInt((data !== "NaN" ? data : "1000") || "1000");
+
+    const oldData = cloneDeep(ctx.userData);
+    let newHigh = highestSocialCredits;
+    if (highestSocialCredits < currentSocialCredits) {
+        for (let i = highestSocialCredits + 1; i <= currentSocialCredits; i++) {
+            if (i % 250 === 0) {
+                Functions.addItem(ctx.userData, "hangbao", 12);
+                newHigh = i;
+                console.log("gave 12 hangbao");
+            }
+        }
+    } else {
+        for (let i = highestSocialCredits - 1; i >= currentSocialCredits; i--) {
+            if (i % 750 === 0) {
+                const twoPercentOfCoins = Math.max(5000, Math.floor(ctx.userData.coins * 0.02));
+                Functions.addCoins(ctx.userData, -twoPercentOfCoins);
+                newHigh = i;
+                console.log("lost 3% of coins");
+            }
+        }
+    }
+    if (newHigh !== highestSocialCredits) {
+        console.log(newHigh, highestSocialCredits);
+        await ctx.client.database.redis.set(
+            `chineseNewYear2025:highestSocialCredits_${ctx.user.id}`,
+            String(newHigh)
+        );
+        const compared = Functions.getRewardsCompareData(oldData, ctx.userData);
+        ctx.followUpQueue.push({
+            content: `${
+                oldData.coins > ctx.userData.coins
+                    ? ctx.client.localEmojis.social_credit
+                    : ctx.client.localEmojis.bad_social_credit
+            } | Due to your attitude towards the Chinese Government (/joke), you have been rewarded with ${compared.join(
+                ", "
+            )}`,
+        });
+        ctx.client.database.saveUserData(ctx.userData);
     }
 };
