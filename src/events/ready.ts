@@ -45,6 +45,13 @@ async function fetchSupportMembers(client: Jolyne): Promise<void> {
         client.database.redis.set(`jolyneRole_huge_contributor_${member.id}`, "true");
     }
 
+    const hasReloaded = await client.database.redis.get("hasReloaded");
+    if (!hasReloaded) {
+        await client.database.reloadRPGUsers();
+        await client.database.redis.set("hasReloaded", "true");
+        console.log("Reloaded RPG users");
+    }
+
     // remove jolyne_beta_tester_ jolyne_contributor_ jolyne_staff_ from people that are not in the server anymore or dont have the role anymore
     const keys = await client.database.redis.keys("jolyneRole_*");
     for (const key of keys) {

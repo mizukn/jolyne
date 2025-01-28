@@ -14,7 +14,7 @@ import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 import { handlePumpkinAppeared, is2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
 import { is2024ChristmasEventActive } from "../rpg/Events/2024ChristmasEvent";
-
+import { handleInteraction } from "../rpg/Events/2025ChineseNewYear";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
     for (const quest of quests) {
@@ -128,6 +128,8 @@ const Event: EventFile = {
             } else ctx = new CommandInteractionContext(interaction);
 
             if (command.category === "rpg" && ctx.userData) {
+                handleInteraction(ctx);
+
                 if (ctx.userData.inventory.candy_cane && ctx.userData.inventory.candy_cane < 0) {
                     return void ctx.makeMessage({
                         content: `:x: | **${ctx.user.username}**, You are banned. Please contact us at https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694 to appeal (@mizukn).`,
