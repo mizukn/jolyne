@@ -221,7 +221,7 @@ export const ChineseNewYear2025Eventquiz: {
         ],
     },
     {
-        question: "What is the most popular sport in China?",
+        question: "What is the national sport in China?",
         answers: [
             {
                 answer: "Soccer",
