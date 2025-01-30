@@ -334,6 +334,13 @@ const slashCommand: SlashCommandFile = {
                         });
                     }
 
+                    if (npc.id.includes("celestialSnake")) {
+                        Functions.addSocialCredits(ctx.userData, 30);
+                        fight.message.reply({
+                            content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 30 social credits.`,
+                        });
+                    }
+
                     quest.completed = true;
 
                     const winContent: string[] = [];

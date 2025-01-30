@@ -246,27 +246,6 @@ export const ChineseNewYearEvent2025Raid: RaidBoss = {
                 amount: 1,
                 chance: 15,
             },
-
-            {
-                item: "snake_skin",
-                amount: 2,
-                chance: 25,
-            },
-            {
-                item: "snake_skin",
-                amount: 2,
-                chance: 25,
-            },
-            {
-                item: "snake_skin",
-                amount: 2,
-                chance: 25,
-            },
-            {
-                item: "snake_skin",
-                amount: 2,
-                chance: 25,
-            },
             {
                 item: Functions.findItem("hangbao").id,
                 amount: 1,
@@ -688,6 +667,12 @@ const slashCommand: SlashCommandFile = {
                         winnerData.health = winner.health;
                         if (winnerData.stamina > winner.stamina)
                             winnerData.stamina = winner.stamina;
+                        if (raid.boss.id.includes("nian")) {
+                            Functions.addSocialCredits(winnerData, 50);
+                            fight.message.reply({
+                                content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 50 social credits.`,
+                            });
+                        }
 
                         for (const quests of [
                             winnerData.daily.quests,
@@ -967,7 +952,7 @@ const slashCommand: SlashCommandFile = {
                 )}\n> \`Cooldown:\` ${Functions.msToString(
                     raid.cooldown
                 )}\n> \`Auto Starts\` ${Functions.generateDiscordTimestamp(startRaid, "FROM_NOW")}`,
-                fields: [
+                fields: Functions.fixFields([
                     {
                         name: "Rewards:",
 
@@ -1012,7 +997,7 @@ const slashCommand: SlashCommandFile = {
                             "FROM_NOW"
                         )}`,
                     },*/
-                ],
+                ]),
                 thumbnail: {
                     url: enhancedBoss.avatarURL,
                 },
@@ -1041,7 +1026,7 @@ const slashCommand: SlashCommandFile = {
                 });
             }
             ctx.makeMessage({
-                embeds: [embed],
+                embeds: Functions.fixEmbeds([embed]),
                 components,
             });
         }
