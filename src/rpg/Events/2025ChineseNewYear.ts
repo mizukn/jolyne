@@ -1812,7 +1812,11 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
             if (i >= highestSocialCredits) continue;
             if (nextLosses.length >= 3) break;
             if (i % 750 === 0) {
-                if (await ctx.client.database.redis.get(`chineseNewYear2025:${i}_${ctx.user.id}`))
+                if (
+                    await ctx.client.database.redis.get(
+                        `chineseNewYear2025:lost_${i}_${ctx.user.id}`
+                    )
+                )
                     continue;
                 nextLosses.push(i);
             }
@@ -1878,7 +1882,11 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
     } else {
         for (let i = highestSocialCredits - 1; i >= currentSocialCredits; i--) {
             if (i % 750 === 0) {
-                if (await ctx.client.database.redis.get(`chineseNewYear2025:${i}_${ctx.user.id}`)) {
+                if (
+                    await ctx.client.database.redis.get(
+                        `chineseNewYear2025:lost_${i}_${ctx.user.id}`
+                    )
+                ) {
                     continue;
                 }
                 const twoPercentOfCoins = Math.max(5000, Math.floor(ctx.userData.coins * 0.02));
