@@ -670,7 +670,7 @@ const slashCommand: SlashCommandFile = {
                         if (raid.boss.id.includes("nian")) {
                             Functions.addSocialCredits(winnerData, 50);
                             fight.message.reply({
-                                content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 50 social credits.`,
+                                content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 50 social credits <@${winner.id}>!`,
                             });
                         }
 
