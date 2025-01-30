@@ -71,6 +71,7 @@ import {
     is2024ChristmasEventActive,
 } from "../rpg/Events/2024ChristmasEvent";
 import { is2025WinterEvent } from "../rpg/Events/2025WinterEvent";
+import { is2025ChineseNewYear } from "../rpg/Events/2025ChineseNewYear";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -1214,6 +1215,14 @@ export const addItem = (
         }
         const max = item.id === "krampus_staff" ? 3 : 5;
         if (itemLeft > max) return false;
+    }
+
+    if (is2025ChineseNewYear() && item.id === "snake_jian") {
+        let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
+        for (const xitem of Object.keys(userData.equippedItems)) {
+            if (xitem === item.id) itemLeft++;
+        }
+        if (itemLeft > 3) return false;
     }
     if (item.id.includes("$disc$") && ctx) {
         const totalItems = Object.keys(userData.inventory)
