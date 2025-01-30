@@ -1386,14 +1386,12 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                 });
             }
         }
-        ChineseNewYear2025Eventquiz.forEach((quiz) => {
+        const deepQuiz = cloneDeep(ChineseNewYear2025Eventquiz);
+        deepQuiz.forEach((quiz) => {
             quiz.answers = Functions.shuffleArray(quiz.answers);
         });
 
-        const quiz =
-            ChineseNewYear2025Eventquiz[
-                Math.floor(Math.random() * ChineseNewYear2025Eventquiz.length)
-            ];
+        const quiz = deepQuiz[Math.floor(Math.random() * deepQuiz.length)];
         const cpmnt = new StringSelectMenuBuilder()
             .setCustomId(ctx.interaction.id + "quiz")
             .setMinValues(1)
