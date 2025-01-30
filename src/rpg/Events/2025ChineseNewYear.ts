@@ -1496,6 +1496,8 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                     `chineseNewYear2025:cooldown_${ctx.user.id}`,
                     String(Date.now())
                 );
+                ctx.client.database.redis.del(`chineseNewYear2025:winStreak_${ctx.user.id}`);
+                ctx.client.database.redis.del(`chineseNewYear2025:loseStreak_${ctx.user.id}`);
             }
             if (almost) {
                 await interaction.reply({
