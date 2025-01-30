@@ -14,7 +14,7 @@ import { Hangbao } from "../Items/Items";
 export const startOf2025ChineseNewYear = new Date(1738080000000);
 // endOf = after 1 week
 export const endOf2025ChineseNewYear = new Date(
-    startOf2025ChineseNewYear.getTime() + 7 * 24 * 60 * 60 * 1000
+    startOf2025ChineseNewYear.getTime() + 14 * 24 * 60 * 60 * 1000
 );
 export const is2025ChineseNewYear = (): boolean =>
     new Date() >= startOf2025ChineseNewYear && new Date() <= endOf2025ChineseNewYear;
