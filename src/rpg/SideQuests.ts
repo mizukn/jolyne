@@ -929,8 +929,8 @@ export const ChineseNewYearEvent2025: SideQuest = {
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateAnswerChineseNewYearQuizQuest(5),
-            Functions.generateClaimXQuest("social_credit", 150 * 5),
-            Functions.generateClaimItemQuest("hangbao", 5),
+            Functions.generateClaimXQuest("social_credit", 500),
+            Functions.generateClaimItemQuest("hangbao", 50),
             Functions.generataRaidQuest(FightableNPCs.BeastNian),
         ];
 

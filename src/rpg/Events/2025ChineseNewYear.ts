@@ -38,9 +38,21 @@ Defeat it to earn some Social Credits.
 - Every **750** social credits you lose, you lose **2%** of your coins ${
         ctx.client.localEmojis.jocoins
     }
--# You can use the ${ctx.client.getSlashCommandMention(
+- This event features the limited weapon ${ctx.client.localEmojis.snake_jian} **Snake Jian**
+- - You can craft this weapon by using the ${ctx.client.getSlashCommandMention("craft")} command
+- - You can get some **Snake Skins** by defeating the Celestial Snakes from your ${ctx.client.getSlashCommandMention(
+        "side quest view"
+    )} or from the ${ctx.client.getSlashCommandMention("event trade")}
+- - You can get some **Beast Nian's Horn** by defeating **Beast Nian** from ${ctx.client.getSlashCommandMention(
+        "raid"
+    )} or from the ${ctx.client.getSlashCommandMention("event trade")}\n
+-# - You can only have x3 copies of ${
+        ctx.client.localEmojis.snake_jian
+    } **Snake Jian** until the end of the event.
+-# - You can use the ${ctx.client.getSlashCommandMention(
         "event progress"
-    )} command to view your social credits progress`;
+    )} command to view your social credits progress
+`;
 };
 export const trades = [
     {
@@ -67,11 +79,6 @@ export const trades = [
     {
         amount: 1050,
         item: "snake_jian",
-    },
-
-    {
-        amount: 15000,
-        item: "excalibur",
     },
 ].sort((a, b) => a.amount - b.amount);
 
@@ -1294,11 +1301,11 @@ export const ChineseNewYear2025Eventquiz: {
             },
             {
                 answer: "Yes, but it could be better.",
-                correct: true,
+                correct: false,
             },
             {
                 answer: "No, it's terrible.",
-                correct: true,
+                correct: false,
             },
         ],
     },
@@ -1379,6 +1386,10 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                 });
             }
         }
+        ChineseNewYear2025Eventquiz.forEach((quiz) => {
+            quiz.answers = Functions.shuffleArray(quiz.answers);
+        });
+
         const quiz =
             ChineseNewYear2025Eventquiz[
                 Math.floor(Math.random() * ChineseNewYear2025Eventquiz.length)
@@ -1505,15 +1516,44 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                     }
                 }
                 await interaction.reply({
-                    content: `${ctx.client.localEmojis.social_credit} | Correct! You earned 150 social credits.`,
+                    content: `${ctx.client.localEmojis.social_credit} | 正确的！You earned 150 social credits.`,
                 });
             } else {
                 await interaction.reply({
-                    content: `${ctx.client.localEmojis.bad_social_credit} | Incorrect! You lost 150 social credits.`,
+                    content: `${ctx.client.localEmojis.bad_social_credit} | 不正确！You lost 150 social credits.`,
                 });
             }
             ctx.client.database.saveUserData(ctx.userData);
             collector.emit("end");
+        });
+        collector.on("end", async (interaction, reason) => {
+            if (reason === "time") {
+                ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.interaction.user.id);
+                Functions.addSocialCredits(ctx.userData, -150);
+                ctx.client.database.redis.del(`chineseNewYear2025:winStreak_${ctx.user.id}`);
+                ctx.client.database.redis.incr(`chineseNewYear2025:loseStreak_${ctx.user.id}`);
+                ctx.client.database.saveUserData(ctx.userData);
+                ctx.makeMessage({
+                    embeds: [
+                        {
+                            image: {
+                                url: "https://en.stgrm.com/uploads/images/social-credit-china/social-credit-china-0.webp",
+                            },
+                            color: 0xff0000,
+                            author: {
+                                name: quiz.question,
+                            },
+                            description: quiz.answers
+                                .map((answer, i) => `${i + 1}. ${answer.answer}`)
+                                .join("\n"),
+                        },
+                    ],
+                    components: [],
+                });
+                await ctx.interaction.followUp({
+                    content: `${ctx.client.localEmojis.social_credit} | 时间到了！(Time's Up!) You lost 150 social credits.`,
+                });
+            }
         });
     } else if (ctx.interaction.options.getSubcommand() === "trade") {
         if (!is2025ChineseNewYear() && !process.env.BETA)
@@ -1592,9 +1632,11 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
 
         const embed = (): APIEmbed => {
             return {
-                author: {
-                    name: `Chinese New Year Trades 🐍🧧`,
+                title: `Chinese New Year Trades 🐍🧧`,
+                thumbnail: {
+                    url: "https://media.jolyne.moe/mq6zpH/direct",
                 },
+
                 color: 0xff0000,
                 description: `${
                     ctx.client.localEmojis.replyEnd
@@ -1610,7 +1652,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                     {
                         // blank
                         name: "\u200b",
-                        value: `-# PLACEHOLDER`,
+                        value: `-# You can only have x3 copies of ${ctx.client.localEmojis.snake_jian} **Snake Jian** until the end of the event.`,
                     },
                 ],
                 /*thumbnail: {
@@ -1759,15 +1801,21 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
             i <= ctx.userData.social_credits_2025 + 250 * 10;
             i++
         ) {
+            if (i <= highestSocialCredits) continue;
             if (nextWins.length >= 3) break;
             if (i % 250 === 0) {
+                if (await ctx.client.database.redis.get(`chineseNewYear2025:${i}_${ctx.user.id}`))
+                    continue;
                 nextWins.push(i);
             }
         }
         const nextLosses = [];
         for (let i = ctx.userData.social_credits_2025 - 1; i !== 0.69; i--) {
+            if (i >= highestSocialCredits) continue;
             if (nextLosses.length >= 3) break;
             if (i % 750 === 0) {
+                if (await ctx.client.database.redis.get(`chineseNewYear2025:${i}_${ctx.user.id}`))
+                    continue;
                 nextLosses.push(i);
             }
         }
@@ -1817,9 +1865,13 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
 
     const oldData = cloneDeep(ctx.userData);
     let newHigh = highestSocialCredits;
+
     if (highestSocialCredits < currentSocialCredits) {
         for (let i = highestSocialCredits + 1; i <= currentSocialCredits; i++) {
             if (i % 250 === 0) {
+                if (await ctx.client.database.redis.get(`chineseNewYear2025:${i}_${ctx.user.id}`)) {
+                    continue;
+                }
                 Functions.addItem(ctx.userData, "hangbao", 12);
                 newHigh = i;
                 console.log("gave 12 hangbao");
@@ -1828,6 +1880,9 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
     } else {
         for (let i = highestSocialCredits - 1; i >= currentSocialCredits; i--) {
             if (i % 750 === 0) {
+                if (await ctx.client.database.redis.get(`chineseNewYear2025:${i}_${ctx.user.id}`)) {
+                    continue;
+                }
                 const twoPercentOfCoins = Math.max(5000, Math.floor(ctx.userData.coins * 0.02));
                 Functions.addCoins(ctx.userData, -twoPercentOfCoins);
                 newHigh = i;
@@ -1837,19 +1892,21 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
     }
     if (newHigh !== highestSocialCredits) {
         console.log(newHigh, highestSocialCredits);
+        await ctx.client.database.redis.set(`chineseNewYear2025:${newHigh}_${ctx.user.id}`, "true");
         await ctx.client.database.redis.set(
             `chineseNewYear2025:highestSocialCredits_${ctx.user.id}`,
             String(newHigh)
         );
+        const won = newHigh > highestSocialCredits;
         const compared = Functions.getRewardsCompareData(oldData, ctx.userData);
         ctx.followUpQueue.push({
             content: `${
-                oldData.coins > ctx.userData.coins
+                won
                     ? ctx.client.localEmojis.social_credit
                     : ctx.client.localEmojis.bad_social_credit
-            } | Due to your attitude towards the Chinese Government (/joke), you have been rewarded with ${compared.join(
-                ", "
-            )}`,
+            } | Due to the change in your social credits, you have been ${
+                won ? "rewarded with" : "penalized by"
+            } ${compared.join(", ")}`,
         });
         ctx.client.database.saveUserData(ctx.userData);
     }
