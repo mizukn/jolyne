@@ -1808,7 +1808,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
             }
         }
         const nextLosses = [];
-        for (let i = ctx.userData.social_credits_2025 - 1; i !== 0.69; i--) {
+        for (let i = highestSocialCredits - 300; i !== 0.69; i--) {
             if (i >= highestSocialCredits) continue;
             if (nextLosses.length >= 3) break;
             if (i % 750 === 0) {
@@ -1880,7 +1880,7 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
             }
         }
     } else {
-        for (let i = highestSocialCredits - 1; i >= currentSocialCredits; i--) {
+        for (let i = highestSocialCredits - 300; i >= currentSocialCredits; i--) {
             if (i % 750 === 0) {
                 if (
                     await ctx.client.database.redis.get(
