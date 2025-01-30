@@ -280,3 +280,25 @@ export const Hangbao: Item = {
     tradable: true,
     storable: true,
 };
+
+export const SnakeSkin: Item = {
+    id: "snake_skin",
+    name: "Snake Skin",
+    description: "A snake skin.",
+    rarity: "T",
+    emoji: "<:snake_skin:1334497788838547490>",
+    price: 5000,
+    tradable: true,
+    storable: true,
+};
+
+export const BeastNiansHorn: Item = {
+    id: "beast_nians_horn",
+    name: "Beast Nian's Horn",
+    description: "A horn from the Beast Nian.",
+    rarity: "T",
+    emoji: "<:beast_nian_horn:1334497803694768201>",
+    price: 5000,
+    tradable: true,
+    storable: true,
+};

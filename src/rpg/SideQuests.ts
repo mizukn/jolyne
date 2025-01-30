@@ -925,6 +925,7 @@ export const ChineseNewYearEvent2025: SideQuest = {
 
         return true;
     },
+    canReloadQuests: true,
     quests: (ctx) => {
         const baseQuests: QuestArray = [
             Functions.generateAnswerChineseNewYearQuizQuest(5),
@@ -932,6 +933,37 @@ export const ChineseNewYearEvent2025: SideQuest = {
             Functions.generateClaimItemQuest("hangbao", 5),
             Functions.generataRaidQuest(FightableNPCs.BeastNian),
         ];
+
+        const NPCs = Functions.shuffle(
+            Object.values(FightableNPCs).filter(
+                (x) =>
+                    x.id.includes("celestialSnake") &&
+                    x.private &&
+                    x.level <= Math.max(15, ctx.userData.level)
+            )
+        )
+            .sort((a, b) => b.level - a.level)
+            .slice(0, 15);
+        // fight npcs
+        let tflv = ctx.userData.level / 5;
+        if (tflv > 15) tflv = 15;
+        if (ctx.userData.level <= 200) tflv *= 2;
+        const NPCsQuests = [];
+
+        //for (let i = 0; i < tflv; i++) {
+        let noFoundCount = 0;
+        while (NPCsQuests.length < tflv) {
+            if (noFoundCount > 100) break;
+            //if (Functions.percent(80) || i < 5) {
+            const NPC = Functions.randomArray(NPCs);
+            if (!NPC) {
+                noFoundCount++;
+                continue;
+            }
+            NPCsQuests.push(Functions.generateFightQuest(NPC));
+            //}
+        }
+        baseQuests.push(...NPCsQuests);
 
         return baseQuests;
     },

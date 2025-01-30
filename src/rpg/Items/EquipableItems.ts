@@ -859,3 +859,35 @@ export const Frostblade: Weapon = {
         ice_shard: 1000,
     },
 };
+
+export const SnakeJian: Weapon = {
+    id: "snake_jian",
+    name: "Snake Jian",
+    emoji: Emojis.snake_jian,
+    description: "A snake jian, was available during the 2025 Chinese New Year",
+    type: equipableItemTypes.WEAPON,
+    attackName: "slash",
+    useMessageAttack: "slashes",
+    staminaCost: 3,
+    color: 0x00ccff,
+    effects: {
+        skillPoints: {
+            strength: 20,
+            perception: 0,
+            defense: 0,
+            speed: 20,
+            stamina: 0,
+        },
+    },
+    rarity: "A",
+    abilities: [Abilities.SerpentStrike, Abilities.CelestialFang],
+    tradable: true,
+    storable: true,
+    requirements: {
+        level: 50,
+    },
+    craft: {
+        snake_skin: 100,
+        beast_nians_horn: 10,
+    },
+};

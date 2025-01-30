@@ -3410,3 +3410,36 @@ export const Lunge: Ability = {
     dodgeScore: 3,
     target: "enemy",
 };
+
+export const SerpentStrike: Ability = {
+    name: "Serpent's Strike",
+    description: "A swift and precise thrust that mimics a snake's lunge, dealing poison damage.",
+    cooldown: 4,
+    damage: 30,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const bleedDamageCalc = Math.round(damage / 10);
+        poisonDamagePromise(ctx, target, bleedDamageCalc, user, 2);
+    },
+};
+
+export const CelestialFang: Ability = {
+    // bleed dmg too
+    name: "Celestial Fang",
+    description:
+        "A powerful strike imbued with the blessings of the Lunar New Year, dealing massive damage and causes the enemy to bleed.",
+    cooldown: 10,
+    damage: 47,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const bleedDamageCalc = Math.round(damage / 3);
+        poisonDamagePromise(ctx, target, bleedDamageCalc, user, 2);
+        bleedDamagePromise(ctx, target, bleedDamageCalc, user, 2);
+    },
+};

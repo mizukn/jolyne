@@ -44,6 +44,15 @@ Defeat it to earn some Social Credits.
 };
 export const trades = [
     {
+        amount: 5,
+        item: "snake_skin",
+    },
+    {
+        amount: 50,
+        item: "beast_nians_horn",
+    },
+
+    {
         amount: 30,
         item: "skill_points_reset_potion",
     },
@@ -56,12 +65,8 @@ export const trades = [
         item: "requiem_arrow",
     },
     {
-        amount: 100,
-        item: "gauntlets_of_the_berserker",
-    },
-    {
-        amount: 900,
-        item: "krampus_staff",
+        amount: 1050,
+        item: "snake_jian",
     },
 
     {
@@ -106,6 +111,11 @@ export const ChineseNewYear2025Eventquiz: {
                 correct: false,
             },
             {
+                answer: "Tea",
+                correct: false,
+            },
+
+            {
                 answer: "Gunpowder",
                 correct: false,
             },
@@ -114,7 +124,7 @@ export const ChineseNewYear2025Eventquiz: {
                 correct: false,
             },
             {
-                answer: "Tea",
+                answer: "Telescope ",
                 correct: true,
             },
         ],
@@ -1745,7 +1755,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
         const highestSocialCredits = parseInt((data !== "NaN" ? data : "1000") || "1000");
         const nextWins = [];
         for (
-            let i = ctx.userData.social_credits_2025 + 1;
+            let i = highestSocialCredits + 1;
             i <= ctx.userData.social_credits_2025 + 250 * 10;
             i++
         ) {
