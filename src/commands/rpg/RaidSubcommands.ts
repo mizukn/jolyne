@@ -217,6 +217,57 @@ export const ChineseNewYearEvent2025Raid: RaidBoss = {
         xp: Functions.getMaxXp(FightableNPCS.BeastNian.level),
         items: [
             {
+                item: "beast_nians_horn",
+                amount: 1,
+                chance: 15,
+            },
+            {
+                item: "beast_nians_horn",
+                amount: 1,
+                chance: 15,
+            },
+            {
+                item: "beast_nians_horn",
+                amount: 1,
+                chance: 15,
+            },
+            {
+                item: "beast_nians_horn",
+                amount: 1,
+                chance: 15,
+            },
+            {
+                item: "beast_nians_horn",
+                amount: 1,
+                chance: 15,
+            },
+            {
+                item: "beast_nians_horn",
+                amount: 1,
+                chance: 15,
+            },
+
+            {
+                item: "snake_skin",
+                amount: 2,
+                chance: 25,
+            },
+            {
+                item: "snake_skin",
+                amount: 2,
+                chance: 25,
+            },
+            {
+                item: "snake_skin",
+                amount: 2,
+                chance: 25,
+            },
+            {
+                item: "snake_skin",
+                amount: 2,
+                chance: 25,
+            },
+            {
                 item: Functions.findItem("hangbao").id,
                 amount: 1,
                 chance: 100,
