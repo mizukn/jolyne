@@ -931,7 +931,6 @@ export const ChineseNewYearEvent2025: SideQuest = {
             Functions.generateAnswerChineseNewYearQuizQuest(5),
             Functions.generateClaimXQuest("social_credit", 500),
             Functions.generateClaimItemQuest("hangbao", 50),
-            Functions.generataRaidQuest(FightableNPCs.BeastNian),
         ];
 
         const NPCs = Functions.shuffle(
@@ -964,6 +963,8 @@ export const ChineseNewYearEvent2025: SideQuest = {
             //}
         }
         baseQuests.push(...NPCsQuests);
+        if (ctx.userData.level > 200)
+            baseQuests.push(Functions.generataRaidQuest(FightableNPCs.BeastNian));
 
         return baseQuests;
     },
