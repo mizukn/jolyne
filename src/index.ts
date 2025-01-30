@@ -39,6 +39,7 @@ import {
     is2025WinterEvent,
     startOf2025WinterEvent,
 } from "./rpg/Events/2025WinterEvent";
+import { endOf2025ChineseNewYear } from "./rpg/Events/2025ChineseNewYear";
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
@@ -89,6 +90,73 @@ Sentry.init({
     profilesSampleRate: 1.0,
     integrations: [nodeProfilingIntegration()],
 });
+
+if (Date.now() < endOf2025ChineseNewYear.getTime()) {
+    for (let i = 1; i < 300; i += 3) {
+        const krampusGoonNPC: NPC = {
+            name: `Celestial Snake [LVL ${i}]`,
+            id: `celestialSnake_${i}`,
+            emoji: "<:snake_jian:1334492555680808962>",
+        };
+        const krampusGoonFightableNPC: FightableNPC = {
+            ...krampusGoonNPC,
+            level: i,
+            skillPoints: {
+                speed: 1,
+                strength: 1,
+                defense: 1,
+                perception: 1,
+                stamina: 0,
+            },
+            equippedItems:
+                i < 150
+                    ? {}
+                    : {
+                          snake_jian: 6,
+                      },
+            rewards: {
+                items: [
+                    {
+                        item: Functions.findItem("snake_skin").id,
+                        amount: 1,
+                        chance: 100,
+                    },
+                    {
+                        item: Functions.findItem("snake_skin").id,
+                        amount: 1,
+                        chance: 35,
+                    },
+
+                    {
+                        item: Functions.findItem("hangbao").id,
+                        amount: 3,
+                        chance: 100,
+                    },
+                    {
+                        item: Functions.findItem("hangbao").id,
+                        amount: 2,
+                        chance: 25,
+                    },
+                    {
+                        item: Functions.findItem("hangbao").id,
+                        amount: 3,
+                        chance: 15,
+                    },
+                    {
+                        item: Functions.findItem("hangbao").id,
+                        amount: 4,
+                        chance: 5,
+                    },
+                ],
+            },
+            private: true,
+            standsEvolved: {},
+        };
+
+        // @ts-expect-error because it's a dynamic property
+        FightableNPCs[krampusGoonFightableNPC.id] = krampusGoonFightableNPC;
+    }
+}
 
 if (Date.now() < endOf2024ChristmasEvent) {
     for (let i = 1; i < 300; i += 3) {
