@@ -1500,9 +1500,11 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                 ctx.client.database.redis.del(`chineseNewYear2025:loseStreak_${ctx.user.id}`);
             }
             if (almost) {
-                await interaction.reply({
-                    content: `${ctx.client.localEmojis.bad_social_credit} | Almost! You got some answers right, but not all of them. You lost 150 social credits.`,
-                });
+                ctx.interaction
+                    .followUp({
+                        content: `${ctx.client.localEmojis.bad_social_credit} | Almost! You got some answers right, but not all of them. You lost 150 social credits.`,
+                    })
+                    .catch(() => {});
             } else if (correct) {
                 for (const quests of [
                     ctx.userData.daily.quests,
@@ -1515,15 +1517,21 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                         (quest as AnswerChineseNewYearQuizQuest).amount++;
                     }
                 }
-                await interaction.reply({
-                    content: `${ctx.client.localEmojis.social_credit} | 正确的！You earned 150 social credits.`,
-                });
+                ctx.interaction
+                    .followUp({
+                        content: `${ctx.client.localEmojis.social_credit} | 正确的！You earned 150 social credits.`,
+                    })
+                    .catch(() => {});
             } else {
-                await interaction.reply({
-                    content: `${ctx.client.localEmojis.bad_social_credit} | 不正确！You lost 150 social credits.`,
-                });
+                ctx.interaction
+                    .followUp({
+                        content: `${ctx.client.localEmojis.bad_social_credit} | 不正确！You lost 150 social credits.`,
+                    })
+                    .catch(() => {});
             }
             ctx.client.database.saveUserData(ctx.userData);
+            interaction.deferUpdate().catch(() => {});
+
             collector.emit("end");
         });
         collector.on("end", async (interaction, reason) => {
