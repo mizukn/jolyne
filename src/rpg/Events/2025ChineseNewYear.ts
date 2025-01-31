@@ -1741,6 +1741,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                         interaction.deferUpdate().catch(() => {});
                         return;
                     }
+                    const oldData = cloneDeep(ctx.userData);
                     const status: boolean[] = [
                         Functions.addItem(ctx.userData, currentTrade.item, selectedAmount),
                         Functions.removeItem(ctx.userData, Hangbao.id, amountBought),
@@ -1755,11 +1756,21 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                             .catch(() => {});
                         return;
                     }
-                    ctx.client.database.saveUserData(ctx.userData);
+                    //ctx.client.database.saveUserData(ctx.userData);
+                    const transaction = await ctx.client.database.handleTransaction(
+                        [
+                            {
+                                oldData,
+                                newData: ctx.userData,
+                            },
+                        ],
+                        `Traded ${amountBought} hangbaos for ${selectedAmount}x ${currentTrade.item}.`,
+                        status
+                    );
 
                     ctx.interaction
                         .followUp({
-                            content: `You traded ${amountBought} hangbaos for ${selectedAmount}x ${currentTrade.item}.`,
+                            content: `You traded ${amountBought} hangbaos for ${selectedAmount}x ${currentTrade.item} [${transaction}]`,
                             ephemeral: true,
                         })
                         .catch(() => {});
