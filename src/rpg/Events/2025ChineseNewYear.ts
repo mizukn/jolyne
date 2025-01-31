@@ -73,7 +73,7 @@ export const trades = [
         item: "rare_stand_arrow",
     },
     {
-        amount: 350,
+        amount: 1000,
         item: "requiem_arrow",
     },
     {
