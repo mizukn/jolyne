@@ -914,6 +914,7 @@ export const ChineseNewYearEvent2025: SideQuest = {
     emoji: "🧧",
     color: 0xff0000,
     canRedoSideQuest: true,
+    cancelQuestIfRequirementsNotMetAnymore: true,
     rewards: async (ctx) => {
         if (!ctx.userData.social_credits_2025 && ctx.userData.social_credits_2025 !== 0)
             ctx.userData.social_credits_2025 = 1000;

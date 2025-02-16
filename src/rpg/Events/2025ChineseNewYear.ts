@@ -1371,6 +1371,11 @@ export const ChineseNewYear2025EventSlashCommandData: SlashCommand["data"] = {
 };
 
 export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ctx) => {
+    if (!is2025ChineseNewYear()) {
+        return ctx.makeMessage({
+            content: "The event has ended.",
+        });
+    }
     if (ctx.interaction.options.getSubcommand() === "quiz") {
         const isOnCooldown = await ctx.client.database.redis.get(
             `chineseNewYear2025:cooldown_${ctx.user.id}`
