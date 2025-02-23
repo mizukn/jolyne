@@ -146,7 +146,10 @@ const slashCommand: SlashCommandFile = {
                     components.push(rewardsButton);
                 }
             }
-            if (status.percent !== 100 && !firstStatus.status) {
+            if (
+                (status.percent !== 100 && !firstStatus.status) ||
+                ctx.userData.sideQuests.find((x) => x.id === sideQuest).claimedPrize
+            ) {
                 components.push(deleteButton);
             }
 
