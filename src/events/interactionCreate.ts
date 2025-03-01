@@ -15,6 +15,7 @@ import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 import { handlePumpkinAppeared, is2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
 import { is2024ChristmasEventActive } from "../rpg/Events/2024ChristmasEvent";
 import { handleInteraction } from "../rpg/Events/2025ChineseNewYear";
+import { is3rdAnnivesaryEvent } from "../rpg/Events/3rdYearAnniversaryEvent";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
     for (const quest of quests) {
@@ -281,6 +282,16 @@ const Event: EventFile = {
                         content: `:tada: | **${ctx.user.username}**, thank you for playing Jolyne's RPG! You received a special email & quest for the 2nd anniversary of the bot!`,
                     });
                     Functions.addEmail(ctx.userData, "second_anniversary");
+                }
+
+                if (
+                    is3rdAnnivesaryEvent() &&
+                    !ctx.userData.emails.find((r) => r.id === "third_anniversary")
+                ) {
+                    ctx.followUpQueue.push({
+                        content: `:tada: | **${ctx.user.username}**, thank you for playing Jolyne's RPG! You received a special email & quest for the 3rd anniversary of the bot!`,
+                    });
+                    Functions.addEmail(ctx.userData, "third_anniversary");
                 }
 
                 if (
