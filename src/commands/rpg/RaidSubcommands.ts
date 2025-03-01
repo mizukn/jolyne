@@ -313,7 +313,7 @@ const PinataTitan: RaidBoss = {
     level: 125,
     baseRewards: {
         coins: 50000,
-        xp: Functions.getMaxXp(FightableNPCS.PinataTitan.level),
+        xp: Functions.getMaxXp(900),
         items: [
             {
                 item: "pinata_hat",
