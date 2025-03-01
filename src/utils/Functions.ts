@@ -72,6 +72,7 @@ import {
 } from "../rpg/Events/2024ChristmasEvent";
 import { is2025WinterEvent } from "../rpg/Events/2025WinterEvent";
 import { is2025ChineseNewYear } from "../rpg/Events/2025ChineseNewYear";
+import { is3rdAnnivesaryEvent } from "../rpg/Events/3rdYearAnniversaryEvent";
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -1201,6 +1202,17 @@ export const addItem = (
         if (nixDisc > 3) return false;
     }
 
+    if (is3rdAnnivesaryEvent()) {
+        if (item.id === "pinata_hat" || item.id === "pinata_hammer") {
+            let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
+            for (const xitem of Object.keys(userData.equippedItems)) {
+                if (xitem === item.id) itemLeft++;
+            }
+            const max = item.id === "pinata_hat" ? 7 : 3;
+            if (itemLeft > max) return false;
+        }
+    }
+
     if (is2025WinterEvent() && item.id === "frostblade") {
         let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
         for (const xitem of Object.keys(userData.equippedItems)) {
@@ -1338,6 +1350,7 @@ export const addXp = function addXp(
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
     if (is2024ChristmasEventActive() && isWeekend()) amount = Math.round(amount * 1.25);
+    if (is3rdAnnivesaryEvent()) amount = Math.round(amount * 1.5);
     let multiplier = 1;
 
     const patreonTier = client.patreons.find((v) => v.id === userData.id)?.level;
@@ -1908,7 +1921,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
                 is2024ChristmasEventActive() && isWeekend()
                     ? "(christmas event [Week-End]: +25%)"
                     : ""
-            }`
+            }${is3rdAnnivesaryEvent() ? "(3rd anniversary event: +50%)" : ""}`
         );
     if (data1.coins !== data2.coins)
         rewards.push(
