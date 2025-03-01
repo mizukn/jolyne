@@ -917,7 +917,7 @@ export const PinataHat: EquipableItem = {
 export const PinataHammer: Weapon = {
     id: "pinata_hammer",
     name: "Piñata Hammer",
-    emoji: "<:pinata_hammer:1345192118267936859>",
+    emoji: "<:pinata_hammer:1345192028790849667>",
     description:
         "A hammer that belonged to Piñata Titan. Was available during the 3rd anniversary event",
     type: equipableItemTypes.WEAPON,
