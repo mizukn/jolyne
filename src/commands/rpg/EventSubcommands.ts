@@ -30,6 +30,10 @@ import {
     ChineseNewYear2025EventCommand,
     ChineseNewYear2025EventSlashCommandData,
 } from "../../rpg/Events/2025ChineseNewYear";
+import {
+    thirdYearAnniversaryEventCommand,
+    thirdYearAnniversaryEventSlashCommandData,
+} from "../../rpg/Events/3rdYearAnniversaryEvent";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -450,6 +454,6 @@ function setCooldown(ctx: CommandInteractionContext, userId: string): void {
 }
 
 export default {
-    data: ChineseNewYear2025EventSlashCommandData,
-    execute: ChineseNewYear2025EventCommand,
+    data: thirdYearAnniversaryEventSlashCommandData,
+    execute: thirdYearAnniversaryEventCommand,
 };

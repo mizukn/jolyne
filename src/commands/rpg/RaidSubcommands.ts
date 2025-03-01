@@ -29,6 +29,10 @@ import { is2024HalloweenEvent } from "../../rpg/Events/2024HalloweenEvent";
 import { is2024ChristmasEventActive } from "../../rpg/Events/2024ChristmasEvent";
 import { is2025WinterEvent } from "../../rpg/Events/2025WinterEvent";
 import { is2025ChineseNewYear } from "../../rpg/Events/2025ChineseNewYear";
+import {
+    endOf3rdAnnivesaryEvent,
+    is3rdAnnivesaryEvent,
+} from "../../rpg/Events/3rdYearAnniversaryEvent";
 
 const getIceShard = (data: RPGUserDataJSON): number => {
     return data.inventory["ice_shard"] ?? 0;
@@ -303,6 +307,32 @@ export const ChineseNewYearEvent2025Raid: RaidBoss = {
     cooldown: 60000 * 5,
 };
 
+const PinataTitan: RaidBoss = {
+    boss: FightableNPCS.PinataTitan,
+    minions: [],
+    level: 125,
+    baseRewards: {
+        coins: 50000,
+        xp: Functions.getMaxXp(FightableNPCS.PinataTitan.level),
+        items: [
+            {
+                item: "pinata_hat",
+                amount: 1, // 15%
+                chance: 15,
+            },
+            {
+                item: "pinata_hammer",
+                amount: 1, // 5%
+                chance: 5,
+            },
+        ],
+    },
+    allies: [FightableNPCS.Jolyne],
+    maxLevel: Infinity,
+    maxPlayers: Infinity,
+    cooldown: 60000 * 5,
+};
+
 const getFixedBosses = () => {
     const fixedBosses = cloneDeep(Object.values(Bosses));
     if (is2024HalloweenEvent()) {
@@ -332,6 +362,10 @@ const getFixedBosses = () => {
 
     if (is2025ChineseNewYear || process.env.BETA) {
         fixedBosses.push(ChineseNewYearEvent2025Raid);
+    }
+
+    if (is3rdAnnivesaryEvent()) {
+        fixedBosses.push(PinataTitan);
     }
     return fixedBosses;
 };
@@ -376,7 +410,7 @@ const slashCommand: SlashCommandFile = {
                         } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
                             Functions.roundToNext15Minutes(new Date()),
                             "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
                     });
                 } else {
                     ctx.followUpQueue.push({
@@ -385,7 +419,29 @@ const slashCommand: SlashCommandFile = {
                         } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
                             Functions.roundToNext15Minutes(new Date()),
                             "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694`,
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
+                    });
+                }
+            }
+        }
+
+        if (Date.now() < endOf3rdAnnivesaryEvent.getTime()) {
+            if (Functions.isTimeNext15(new Date(Date.now()))) {
+                fixedBosses.push(PinataTitan);
+            } else {
+                if (ctx.options.getString("npc", true) === "pinata_titan") {
+                    return void ctx.makeMessage({
+                        content: `<:pinata_hammer:1345192028790849667><:pinata_hat:1345192118267936859> | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
+                            Functions.roundToNext15Minutes(new Date()),
+                            "FROM_NOW"
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
+                    });
+                } else {
+                    ctx.followUpQueue.push({
+                        content: `<:pinata_hammer:1345192028790849667><:pinata_hat:1345192118267936859> | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
+                            Functions.roundToNext15Minutes(new Date()),
+                            "FROM_NOW"
+                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
                     });
                 }
             }
@@ -408,6 +464,7 @@ const slashCommand: SlashCommandFile = {
 
         if (
             (bossChosen === "confetti_golem" ||
+                bossChosen === "pinata_titan" ||
                 (bossChosen === "pale_dark" && ctx.userData.level < 150) ||
                 bossChosen === "pale_dark_elite" ||
                 (bossChosen === "krampus" && ctx.userData.level < 400)) &&
