@@ -290,3 +290,9 @@ export const BeastNian: NPC = {
     name: "Beast Nian",
     emoji: Emojis.beast_nian,
 };
+
+export const PinataTitan: NPC = {
+    id: "pinata_titan",
+    name: "Piñata Titan",
+    emoji: "<:pinata_titan:1345192124001288323>",
+};

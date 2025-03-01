@@ -525,3 +525,15 @@ export const BeastNian: FightableNPC = {
     standsEvolved: {},
     equippedItems: {},
 };
+
+export const PinataTitan: FightableNPC = {
+    ...NPCs.PinataTitan,
+    level: 150,
+    skillPoints: baseSP,
+    standsEvolved: {},
+    equippedItems: {
+        pinata_hammer: equipableItemTypes.WEAPON,
+        pinata_hat: equipableItemTypes.HEAD,
+        second_anniversary_bag: equipableItemTypes.BACK,
+    },
+};

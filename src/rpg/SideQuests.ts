@@ -12,6 +12,7 @@ import {
     startOf2025WinterEvent,
 } from "./Events/2025WinterEvent";
 import { endOf2025ChineseNewYear, startOf2025ChineseNewYear } from "./Events/2025ChineseNewYear";
+import { endOf3rdAnnivesaryEvent } from "./Events/3rdYearAnniversaryEvent";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
@@ -984,4 +985,51 @@ export const ChineseNewYearEvent2025: SideQuest = {
                     Date.now() <= endOf2025ChineseNewYear.getTime()),
         },
     ],
+};
+
+export const ThirdYearAnniversaryEvent: SideQuest = {
+    id: "ThirdYearAnniversaryEvent",
+    title: "Third Year Anniversary Event",
+    description:
+        "Happy 3rd anniversary! This past year has been amazing and challenging, as the developer has been busy and working solo in real life. Despite that, there have been many updates and new features. Completing this quest will level you up, and you can also obtain the Piñata Hammer & Piñata Hat from the event boss. Good luck, and thank you so much for playing!!!!! ❤️",
+    emoji: "🎉",
+    rewards: async (ctx) => {
+        ctx.userData.level += 1;
+        ctx.followUp({
+            content: Functions.makeNPCString(
+                NPCs.Jolyne,
+                `Thank you for playing the game! You're now level **${ctx.userData.level}**. Please reload the quests by using the same command again!`
+            ),
+        });
+        return true;
+    },
+    quests: (ctx) => [
+        Functions.generateStartDungeonQuest(1, 10, ["the_elite"]),
+        Functions.generateUseXCommandQuest("loot", 5),
+        Functions.generateUseXCommandQuest("assault", 5),
+        Functions.generataRaidQuest(FightableNPCs.PinataTitan),
+        Functions.generataRaidQuest(FightableNPCs.PinataTitan),
+        Functions.generataRaidQuest(FightableNPCs.PinataTitan),
+        Functions.generataRaidQuest(FightableNPCs.PinataTitan),
+    ],
+    requirements: (ctx) => {
+        return [
+            {
+                requirement: `Time must be before ${Functions.generateDiscordTimestamp(
+                    endOf3rdAnnivesaryEvent.getTime(),
+                    "FULL_DATE"
+                )}`,
+                status: Date.now() < endOf3rdAnnivesaryEvent.getTime(),
+            },
+            {
+                requirement: "hee hee >:3",
+                status: Date.now() < endOf3rdAnnivesaryEvent.getTime(),
+            },
+        ];
+    },
+    cancelQuestIfRequirementsNotMetAnymore: true,
+    canReloadQuests: false,
+    canRedoSideQuest: true,
+    // pink
+    color: 0xffc0cb,
 };

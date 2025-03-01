@@ -891,3 +891,51 @@ export const SnakeJian: Weapon = {
         beast_nians_horn: 10,
     },
 };
+
+export const PinataHat: EquipableItem = {
+    id: "pinata_hat",
+    name: "Piñata Hat",
+    emoji: "<:pinata_hat:1345192118267936859>",
+    description:
+        "A hat that belonged to Piñata Titan. Was available during the 3rd anniversary event",
+    type: equipableItemTypes.HEAD,
+    effects: {
+        skillPoints: {
+            strength: 10,
+            perception: 10,
+            defense: 10,
+            speed: 10,
+            stamina: 10,
+        },
+        xpBoost: 2.5,
+    },
+    rarity: "T",
+    tradable: true,
+    storable: true,
+};
+
+export const PinataHammer: Weapon = {
+    id: "pinata_hammer",
+    name: "Piñata Hammer",
+    emoji: "<:pinata_hammer:1345192118267936859>",
+    description:
+        "A hammer that belonged to Piñata Titan. Was available during the 3rd anniversary event",
+    type: equipableItemTypes.WEAPON,
+    attackName: "hit",
+    useMessageAttack: "hits",
+    staminaCost: 4,
+    color: 0xff0000,
+    effects: {
+        skillPoints: {
+            strength: 40,
+            perception: 0,
+            defense: 0,
+            speed: 10,
+            stamina: 10,
+        },
+    },
+    rarity: "T",
+    abilities: [Abilities.PinataSmash, Abilities.PinataBash, Abilities.CandyRain],
+    tradable: true,
+    storable: true,
+};

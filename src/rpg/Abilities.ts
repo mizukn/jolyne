@@ -3443,3 +3443,66 @@ export const CelestialFang: Ability = {
         bleedDamagePromise(ctx, target, bleedDamageCalc, user, 2);
     },
 };
+
+export const PinataSmash: Ability = {
+    name: "Pinata Smash",
+    description: "Smash the opponent.",
+    cooldown: 4,
+    damage: 30,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const PinataBash: Ability = {
+    name: "Pinata Bash",
+    description: "Bash the opponent.",
+    cooldown: 5,
+    damage: 25,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+};
+
+export const CandyRain: Ability = {
+    name: "Candy Rain",
+    description:
+        "[RNG] Rain candy down on everyone. If it hits the opponent, it deals damage. If it hits an ally, it heals them.",
+    cooldown: 6,
+    damage: 0,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        const toHeal = Math.round(user.maxHealth * 0.03);
+        const toDamage = Math.round(Functions.getAttackDamages(user) * 1.2);
+
+        for (let i = 0; i < Functions.randomNumber(2, 5); i++)
+            ctx.availableFighters.forEach((x) => {
+                if (ctx.getTeamIdx(user) === ctx.getTeamIdx(x)) {
+                    x.incrHealth(toHeal);
+                    ctx.turns[ctx.turns.length - 1].logs.push(
+                        `- ${user.weapon?.emoji} **${
+                            x.name
+                        }** has been healed by **${toHeal.toLocaleString("en-US")}** health.`
+                    );
+                } else {
+                    const status = x.removeHealth(toDamage, user, 1);
+                    if (status.type !== FighterRemoveHealthTypes.Dodged) {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `- ${user.weapon?.emoji} **${
+                                x.name
+                            }** has been hit by candy... (-${toDamage.toLocaleString()} :heart:)`
+                        );
+                    } else {
+                        ctx.turns[ctx.turns.length - 1].logs.push(
+                            `- ${user.weapon?.emoji} **${x.name}** dodged the candy.`
+                        );
+                    }
+                }
+            });
+    },
+};
