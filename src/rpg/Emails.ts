@@ -348,3 +348,25 @@ export const Christmas2024: Email = {
         ],
     },
 };
+
+export const ThirdYearAnniversary: Email = {
+    id: "third_anniversary",
+    author: NPCs.JolyneTeam,
+    subject: "3rd Anniversary",
+    content: (ctx) =>
+        `Happy 3rd anniversary! This past year has been amazing and challenging, as the developer has been busy and working solo in real life. Despite that, there have been many updates and new features. You can also obtain the Piñata Hammer & Piñata Hat from the event boss.`,
+    footer: "Good luck, and thank you so much for playing!!!!! ❤️",
+    emoji: "🎉",
+    rewards: {
+        items: [
+            {
+                item: "pinata_hat",
+                amount: 1,
+            },
+            {
+                item: "xp_box",
+                amount: 5,
+            },
+        ],
+    },
+};

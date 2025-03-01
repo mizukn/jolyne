@@ -991,10 +991,10 @@ export const ThirdYearAnniversaryEvent: SideQuest = {
     id: "ThirdYearAnniversaryEvent",
     title: "Third Year Anniversary Event",
     description:
-        "Happy 3rd anniversary! This past year has been amazing and challenging, as the developer has been busy and working solo in real life. Despite that, there have been many updates and new features. Completing this quest will level you up, and you can also obtain the Piñata Hammer & Piñata Hat from the event boss. Good luck, and thank you so much for playing!!!!! ❤️",
+        "Happy 3rd anniversary! This past year has been amazing and challenging, as the developer has been busy and working solo in real life. Despite that, there have been many updates and new features. Completing this quest will level you up (+2), and you can also obtain the Piñata Hammer & Piñata Hat from the event boss. Good luck, and thank you so much for playing!!!!! ❤️",
     emoji: "🎉",
     rewards: async (ctx) => {
-        ctx.userData.level += 1;
+        ctx.userData.level += 2;
         ctx.followUp({
             content: Functions.makeNPCString(
                 NPCs.Jolyne,
@@ -1004,11 +1004,9 @@ export const ThirdYearAnniversaryEvent: SideQuest = {
         return true;
     },
     quests: (ctx) => [
-        Functions.generateStartDungeonQuest(1, 10, ["the_elite"]),
-        Functions.generateUseXCommandQuest("loot", 5),
-        Functions.generateUseXCommandQuest("assault", 5),
-        Functions.generataRaidQuest(FightableNPCs.PinataTitan),
-        Functions.generataRaidQuest(FightableNPCs.PinataTitan),
+        Functions.generateStartDungeonQuest(1, 5),
+        Functions.generateUseXCommandQuest("loot", 4),
+        Functions.generateUseXCommandQuest("assault", 4),
         Functions.generataRaidQuest(FightableNPCs.PinataTitan),
         Functions.generataRaidQuest(FightableNPCs.PinataTitan),
     ],

@@ -3,7 +3,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import * as Functions from "../../utils/Functions";
 
 export const startOf3rdAnnivesaryEvent = new Date("2025-03-01");
-export const endOf3rdAnnivesaryEvent = new Date("2025-03-10");
+export const endOf3rdAnnivesaryEvent = new Date("2025-03-21");
 export const is3rdAnnivesaryEvent = (): boolean =>
     new Date() >= startOf3rdAnnivesaryEvent && new Date() <= endOf3rdAnnivesaryEvent;
 export const is3rdAnnivesaryEventEndingSoon = (): boolean => {
@@ -29,7 +29,13 @@ Happy 3rd anniversary! This past year has been amazing and challenging, as the d
 - - You can drop **Pinata Hammer** <:pinata_hammer:1345192028790849667> (5%)
 - - Use the ${ctx.client.getSlashCommandMention(
         "raid"
-    )} [\`pinata_titan\`] command to raid the Pinata Titan (Base LVL: 125)`;
+    )} [\`pinata_titan\`] command to raid the Pinata Titan (Base LVL: 125)
+-# - You can only have **x7** copies of the Pinata Hat <:pinata_hat:1345192118267936859>
+-# - You can only have **x3** copies of the Pinata Hammer <:pinata_hammer:1345192028790849667>
+-# - The event ends ${Functions.generateDiscordTimestamp(
+        endOf3rdAnnivesaryEvent,
+        "FROM_NOW"
+    )} (${Functions.generateDiscordTimestamp(endOf3rdAnnivesaryEvent, "FULL_DATE")})`;
 };
 
 export const thirdYearAnniversaryEventSlashCommandData: SlashCommand["data"] = {
