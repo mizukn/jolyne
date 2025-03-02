@@ -425,7 +425,7 @@ const slashCommand: SlashCommandFile = {
             }
         }
 
-        if (Date.now() < endOf3rdAnnivesaryEvent.getTime()) {
+        /*if (Date.now() < endOf3rdAnnivesaryEvent.getTime()) {
             if (Functions.isTimeNext15(new Date(Date.now()))) {
                 fixedBosses.push(PinataTitan);
             } else {
@@ -445,7 +445,7 @@ const slashCommand: SlashCommandFile = {
                     });
                 }
             }
-        }
+        }*/
 
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
             ctx.makeMessage({
