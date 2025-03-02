@@ -330,7 +330,7 @@ const PinataTitan: RaidBoss = {
     allies: [FightableNPCS.Jolyne],
     maxLevel: Infinity,
     maxPlayers: Infinity,
-    cooldown: 60000 * 5,
+    cooldown: 60000 * 9,
 };
 
 const getFixedBosses = () => {
