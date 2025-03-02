@@ -11,7 +11,10 @@ export const is3rdAnnivesaryEventEndingSoon = (): boolean => {
 
     return endOf3rdAnnivesaryEvent.getTime() - new Date().getTime() < 2 * 24 * 60 * 60 * 1000;
 };
-
+/* - The Pinata Titan spawns every :00 :15 :30 :45 ; Pinata Titan will spawn ${Functions.generateDiscordTimestamp(
+        Functions.roundToNext15Minutes(new Date()),
+        "FROM_NOW"
+    )} at **this exact time** */
 export const thirdYearAnniversaryEventMessage = (ctx: CommandInteractionContext): string => {
     return `\`\`\`
 Happy 3rd anniversary! This past year has been amazing and challenging, as the developer has been busy and working solo in real life. Despite that, there have been many updates and new features. Completing this quest will level you up, and you can also obtain the Piñata Hammer & Piñata Hat from the event boss. Good luck, and thank you so much for playing!!!!! ❤️
@@ -21,10 +24,6 @@ Happy 3rd anniversary! This past year has been amazing and challenging, as the d
         "side quest view"
     )} [\`ThirdYearAnniversaryEvent\`] command to check your progression
 - Everyone has a **+50% XP Boost**
-- The Pinata Titan spawns every :00 :15 :30 :45 ; Pinata Titan will spawn ${Functions.generateDiscordTimestamp(
-        Functions.roundToNext15Minutes(new Date()),
-        "FROM_NOW"
-    )} at **this exact time**
 - - You can drop **Pinata Hat** <:pinata_hat:1345192118267936859> (15%)
 - - You can drop **Pinata Hammer** <:pinata_hammer:1345192028790849667> (5%)
 - - Use the ${ctx.client.getSlashCommandMention(
