@@ -415,14 +415,22 @@ export const PatreonBox: Special = {
                     },
                     {
                         percent: 100,
-                        xp:
-                            Functions.getMaxXp(ctx.userData.level ?? 1) * 2 +
-                            Functions.getMaxXp((ctx.userData.level ?? 1) + 1) +
-                            Functions.getMaxXp((ctx.userData.level ?? 1) + 2) +
-                            Functions.getMaxXp((ctx.userData.level ?? 1) + 3),
+                        xp: Math.round(
+                            (Functions.getMaxXp(ctx.userData.level ?? 1) * 2 +
+                                Functions.getMaxXp((ctx.userData.level ?? 1) + 1) +
+                                Functions.getMaxXp((ctx.userData.level ?? 1) + 2) +
+                                Functions.getMaxXp((ctx.userData.level ?? 1) + 3)) *
+                                1.5
+                        ),
                     },
                 ],
                 [
+                    {
+                        percent: 100,
+                        loot:
+                            rareStandArray[Math.floor(Math.random() * rareStandArray.length)].id +
+                            ".$disc$",
+                    },
                     {
                         percent: 100,
                         loot:
