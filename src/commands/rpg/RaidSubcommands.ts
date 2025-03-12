@@ -310,7 +310,7 @@ export const ChineseNewYearEvent2025Raid: RaidBoss = {
 const PinataTitan: RaidBoss = {
     boss: FightableNPCS.PinataTitan,
     minions: [],
-    level: 125,
+    level: 0,
     baseRewards: {
         coins: 50000,
         xp: Functions.getMaxXp(900),
