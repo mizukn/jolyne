@@ -1350,7 +1350,7 @@ export const addXp = function addXp(
         amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
     }
     if (is2024ChristmasEventActive() && isWeekend()) amount = Math.round(amount * 1.25);
-    if (is3rdAnnivesaryEvent()) amount = Math.round(amount * 1.5);
+    if (is3rdAnnivesaryEvent()) amount = Math.round(amount * 1.15);
     let multiplier = 1;
 
     const patreonTier = client.patreons.find((v) => v.id === userData.id)?.level;
@@ -1921,7 +1921,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
                 is2024ChristmasEventActive() && isWeekend()
                     ? "(christmas event [Week-End]: +25%)"
                     : ""
-            }${is3rdAnnivesaryEvent() ? "(3rd anniversary event: +50%)" : ""}`
+            }${is3rdAnnivesaryEvent() ? "(3rd anniversary event: +15%)" : ""}`
         );
     if (data1.coins !== data2.coins)
         rewards.push(
