@@ -360,7 +360,7 @@ const getFixedBosses = () => {
         fixedBosses.push(Winter2025EventRaid);
     }
 
-    if (is2025ChineseNewYear || process.env.BETA) {
+    if (is2025ChineseNewYear() || process.env.BETA) {
         fixedBosses.push(ChineseNewYearEvent2025Raid);
     }
 
