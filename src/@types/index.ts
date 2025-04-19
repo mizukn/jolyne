@@ -301,6 +301,7 @@ export interface RPGUserDataJSON {
     settings: RPGUserSettings;
     prestige: number;
     social_credits_2025?: number;
+    prestige_shards: number;
 }
 
 export interface RPGUserSettings {
@@ -538,6 +539,7 @@ export interface EquipableItem extends Item {
     requirements?: {
         level?: number;
         skillPoints?: SkillPoints;
+        prestige?: number;
     };
 }
 
@@ -1030,6 +1032,7 @@ export interface RaidBoss {
     maxLevel: number;
     maxPlayers: number;
     cooldown: number;
+    prestige?: number;
     allies?: FightableNPC[];
 }
 
