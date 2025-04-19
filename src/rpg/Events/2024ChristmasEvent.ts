@@ -426,7 +426,7 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
                 color: 0xd8304a,
             });
         }
-        if (is2025WinterEvent() || process.env.BETA) {
+        if (is2025WinterEvent()) {
             embeds.push({
                 title: ":snowflake: **__2025 Winter Event__**",
                 description: Winter2025EventMessage(ctx),

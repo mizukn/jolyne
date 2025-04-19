@@ -1569,7 +1569,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
             }
         });
     } else if (ctx.interaction.options.getSubcommand() === "trade") {
-        if (!is2025ChineseNewYear() && !process.env.BETA)
+        if (!is2025ChineseNewYear())
             return void (await ctx.makeMessage({ content: "The event has ended." }));
         if (!ctx.userData) {
             return;
@@ -1879,8 +1879,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
 };
 
 export const handleInteraction = async (ctx: CommandInteractionContext): Promise<void> => {
-    console.log("checking", !is2025ChineseNewYear(), !process.env.BETA);
-    if (!is2025ChineseNewYear() && !process.env.BETA) return;
+    if (!is2025ChineseNewYear()) return;
     console.log("2025 Chinese New Year Event");
 
     const currentSocialCredits = ctx.userData.social_credits_2025;

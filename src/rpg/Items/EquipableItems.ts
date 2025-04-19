@@ -939,3 +939,22 @@ export const PinataHammer: Weapon = {
     tradable: true,
     storable: true,
 };
+export const AdminSpec: EquipableItem = {
+    id: "admin_spec",
+    name: "Admin Spec",
+    emoji: "🔨",
+    description: "A special item for admins.",
+    type: equipableItemTypes.ACCESSORY,
+    effects: {
+        skillPoints: {
+            strength: 9999,
+            perception: 9999,
+            defense: 9999,
+            speed: 9999,
+            stamina: 9999,
+        },
+    },
+    rarity: "T",
+    tradable: false,
+    storable: false,
+};

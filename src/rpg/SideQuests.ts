@@ -827,8 +827,7 @@ export const ChristmasEvent2024: SideQuest = {
                 "FULL_DATE"
             )} and ${Functions.generateDiscordTimestamp(endOf2024ChristmasEvent, "FULL_DATE")}`,
             status:
-                !!process.env.BETA ||
-                (Date.now() >= startOf2024ChristmasEvent && Date.now() <= endOf2024ChristmasEvent),
+                Date.now() >= startOf2024ChristmasEvent && Date.now() <= endOf2024ChristmasEvent,
         },
     ],
 };
@@ -860,9 +859,8 @@ export const WinterEvent2025: SideQuest = {
                 "FULL_DATE"
             )}`,
             status:
-                !!process.env.BETA ||
-                (Date.now() >= startOf2025WinterEvent.getTime() &&
-                    Date.now() <= endOf2025WinterEvent.getTime()),
+                Date.now() >= startOf2025WinterEvent.getTime() &&
+                Date.now() <= endOf2025WinterEvent.getTime(),
         },
     ],
     quests: (ctx) => {
@@ -980,9 +978,8 @@ export const ChineseNewYearEvent2025: SideQuest = {
                 "FULL_DATE"
             )}`,
             status:
-                !!process.env.BETA ||
-                (Date.now() >= startOf2025ChineseNewYear.getTime() &&
-                    Date.now() <= endOf2025ChineseNewYear.getTime()),
+                Date.now() >= startOf2025ChineseNewYear.getTime() &&
+                Date.now() <= endOf2025ChineseNewYear.getTime(),
         },
     ],
 };

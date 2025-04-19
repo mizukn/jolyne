@@ -885,7 +885,7 @@ export const ChristmasGift: Special = {
                     }*/,
                 ],
             ];
-            if (is2024ChristmasEventActive() || process.env.BETA) {
+            if (is2024ChristmasEventActive()) {
                 finalLoot[1].push(
                     {
                         percent: 100,

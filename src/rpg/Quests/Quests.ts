@@ -21,11 +21,10 @@ export const InvestSkillPoints: Quest = {
     i18n_key: "INVEST_SKILL_POINTS",
     emoji: "➕",
     completed: (user) => {
-        return Functions.getSkillPointsLeft(user) / user.level * 3;
+        return (Functions.getRawSkillPointsLeft(user) / user.level) * 3;
     },
     hintCommand: "skill points invest",
 };
-
 
 export const CompleteBeginnerSideQuest: Quest = {
     type: "baseQuest",
