@@ -260,7 +260,7 @@ function generateIceBandits(): void {
     }
 }
 
-if (is2025WinterEvent() || process.env.BETA) {
+if (is2025WinterEvent()) {
     generateIceBandits();
     console.log("Generated Ice Bandits");
 } else if (Date.now() < endOf2025WinterEvent.getTime()) {
