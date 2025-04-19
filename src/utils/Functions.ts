@@ -74,6 +74,8 @@ import { is2025WinterEvent } from "../rpg/Events/2025WinterEvent";
 import { is2025ChineseNewYear } from "../rpg/Events/2025ChineseNewYear";
 import { is3rdAnnivesaryEvent } from "../rpg/Events/3rdYearAnniversaryEvent";
 
+export const PrestigeShardReward = 50;
+
 const totalStands = [
     ...Object.values(Stands.Stands),
     ...Object.values(Stands.EvolutionStands).map((x) => {
@@ -493,6 +495,46 @@ export const getSkillPointsBonus = (
     return skillPoints;
 };
 
+export const getSkillPointsFromPrestige = (prestige: number): number => {
+    /*
+    from prestige 1 to 4: you get +10 skill points, which means at prestige 4 you will have 40 points to assign
+
+from prestige 4 to 10: +5 
+
+and from 10 to 20: +2
+
+from 20 to infinity: +1*/
+
+    let total = 0;
+
+    while (prestige > 0) {
+        if (prestige >= 20) {
+            total += 1;
+            prestige -= 1;
+        } else if (prestige >= 10) {
+            total += 2;
+            prestige -= 1;
+        } else if (prestige >= 4) {
+            total += 5;
+            prestige -= 1;
+        } else if (prestige >= 1) {
+            total += 10;
+            prestige -= 1;
+        }
+    }
+
+    /**
+     *  better version
+     *     if (prestige < 5) return prestige * 10;
+    if (prestige < 11) return 40 + (prestige - 4) * 5;
+    if (prestige < 21) return 70 + (prestige - 10) * 2;
+    return 110 + (prestige - 20);
+
+     */
+
+    return total;
+};
+
 export const getBaseHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     return 100 + Math.trunc(rpgData.level / 2);
 };
@@ -509,13 +551,7 @@ export const getMaxHealthNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fig
     const skillPoints = getSkillPointsBonus(rpgData);
     const baseHealth = getBaseHealth(rpgData);
 
-    return (
-        baseHealth +
-        Math.round(
-            (skillPoints.defense / 4 + skillPoints.defense / 2) * 10 +
-                (((skillPoints.defense / 4 + skillPoints.defense / 2) * 6) / 100) * 90
-        )
-    );
+    return baseHealth + Math.round(skillPoints.defense * 11.55);
 };
 
 export const getMaxStaminaNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
@@ -575,7 +611,7 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
     const NPCs = shuffle(
         Object.values(FightableNPCS).filter(
             (npc) =>
-                npc.level <= level &&
+                getTrueLevel(npc) <= level &&
                 !npc.private && // dont show npcs with admin stands
                 (npc.stand
                     ? findStand(npc.stand, npc.standsEvolved[npc.stand])
@@ -876,9 +912,13 @@ export const weaponAbilitiesEmbed = (
     return embed;
 };
 
-export const getSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): number => {
+export const getRawSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): number => {
     const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
-    return getTotalSkillPoints(user) - totalSkillPoints;
+    return (
+        getTotalSkillPoints(user) -
+        totalSkillPoints +
+        (!isRPGUserDataJSON(user) ? 0 : getSkillPointsFromPrestige(user.prestige))
+    );
 };
 
 export const skillPointsIsOK = (user: RPGUserDataJSON | FightableNPC): boolean => {
@@ -898,7 +938,7 @@ export const generateSkillPoints = (
             defense: 0,
             perception: 0,
         };
-    const skillPointsLeft = getSkillPointsLeft(user);
+    const skillPointsLeft = getRawSkillPointsLeft(user);
 
     for (let i = 0; i < skillPointsLeft; i++) {
         const skill = randomArray(
@@ -940,7 +980,7 @@ export const generateSkillPointsByBuild = (
         defense: 0,
         perception: 0,
     };
-    const toSpend = getSkillPointsLeft(user);
+    const toSpend = getRawSkillPointsLeft(user);
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -949,11 +989,11 @@ export const generateSkillPointsByBuild = (
 
         user.skillPoints[spx as keyof SkillPoints] = Math.min(
             Math.round((sp[spx as keyof SkillPoints] / 100) * toSpend),
-            getSkillPointsLeft(user)
+            getRawSkillPointsLeft(user)
         );
     }
 
-    while (getSkillPointsLeft(user) > 0) {
+    while (getRawSkillPointsLeft(user) > 0) {
         const skill = randomArray(
             (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter((x) =>
                 user.skillPoints.stamina >= 100 ? x !== "stamina" : true
@@ -1502,13 +1542,6 @@ export const makeNPCString = function makeNPCString(
     emoji?: string
 ): string {
     return `${emoji ?? npc.emoji} **${npc.name}**: ${message}`;
-};
-
-export const calculeSkillPointsLeft = function calculeSkillPointsLeft(
-    userData: RPGUserDataJSON
-): number {
-    const usedSkillPoints = Object.values(userData.skillPoints).reduce((a, b) => a + b, 0);
-    return getTotalSkillPoints(userData) - usedSkillPoints;
 };
 
 export const userIsCommunityBanned = function userIsCommunityBanned(
@@ -2845,11 +2878,8 @@ export const getTotalXp = (
 };
 
 export const getMaxPrestigeLevel = (prestigeLevel: number): number => {
-    const base = 50;
-    // every 1 lvl, add +50
-    let lvl = base + (prestigeLevel ?? 0) * 150;
-    if (lvl > 500) lvl = 500;
-    return lvl;
+    if (prestigeLevel + 1 < 6) return (prestigeLevel + 1) * 100;
+    return 500;
 };
 
 export const prestigeUser = (data: RPGUserDataJSON): boolean => {
@@ -2926,6 +2956,8 @@ export const prestigeUserMethod2 = (data: RPGUserDataJSON): boolean => {
         perception: 0,
         speed: 0,
     };
+
+    data.prestige_shards += PrestigeShardReward;
 
     return true;
 };
@@ -3061,4 +3093,76 @@ export function getRPGUserDataChanges(
 export const isWeekend = (): boolean => {
     const date = new Date();
     return date.getDay() === 0 || date.getDay() === 6;
+};
+
+export const userMeetsRequirementsForItem = (
+    data: RPGUserDataJSON,
+    item: EquipableItem
+): boolean => {
+    if (!item.requirements) return true;
+
+    if (item.requirements.level) {
+        if (data.level < item.requirements.level) {
+            return false;
+        }
+    }
+
+    if (item.requirements.prestige) {
+        if (data.prestige < item.requirements.prestige) {
+            return false;
+        }
+    }
+
+    if (item.requirements.skillPoints) {
+        for (const key of Object.keys(item.requirements.skillPoints)) {
+            if (
+                data.skillPoints[key as keyof typeof data.skillPoints] <
+                item.requirements.skillPoints[key as keyof typeof item.requirements.skillPoints]
+            ) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+export const getTrueLevel = (data: RPGUserDataJSON | FightableNPC): number => {
+    // basically, they just count all their total skill points including bonuses
+    const bonusSkillPoints =
+        Object.values(getSkillPointsBonus(data)).reduce((acc, val) => acc + val, 0) +
+        getRawSkillPointsLeft(data);
+    const extraHealth = calcEquipableItemsBonus(data).health;
+    const extraStamina = calcEquipableItemsBonus(data).stamina;
+
+    return Math.round((bonusSkillPoints + extraHealth / 11.55 + extraStamina / 1.98) / 4);
+};
+
+export const calculateUserPower = (data: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    const trueLevel = isFighter(data) ? data.trueLevel : getTrueLevel(data);
+    let totalAbilitiesDamage = 0;
+
+    if (data.stand) {
+        const stand = isFighter(data)
+            ? data.stand
+            : findStand(data.stand, data.standsEvolved[data.stand]);
+        if (stand) {
+            for (const ability of stand.abilities) {
+                if (ability.damage) {
+                    totalAbilitiesDamage += getAbilityDamage(data, ability);
+                }
+            }
+        }
+    }
+
+    const weapon = isFighter(data) ? data.weapon : getWeapon(data);
+    if (weapon) {
+        for (const ability of weapon.abilities) {
+            if (ability.damage) {
+                totalAbilitiesDamage += getAbilityDamage(data, ability);
+            }
+        }
+    }
+
+    return Math.round(trueLevel + (totalAbilitiesDamage / 100) * 1.75);
 };
