@@ -51,9 +51,7 @@ const slashCommand: SlashCommandFile = {
                 "en-US"
             )}\`, if they prestiged, they would now be level **${
                 data.level
-            }** with **${data.xp.toLocaleString("en-US")}** xp (total prestige: **${
-                data.prestige
-            }**)`,
+            }** with **${data.xp.toLocaleString()}** xp (total prestige: **${data.prestige}**)`,
         });
     },
 };

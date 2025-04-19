@@ -216,17 +216,17 @@ const slashCommand: SlashCommandFile = {
 
                 {
                     name: "Guilds",
-                    value: guilds.toLocaleString("en-US"),
+                    value: guilds.toLocaleString(),
                     inline: true,
                 },
                 {
                     name: "Members",
-                    value: members.toLocaleString("en-US"),
+                    value: members.toLocaleString(),
                     inline: true,
                 },
                 {
                     name: "Memory",
-                    value: `${memory.toLocaleString("en-US")} / ${maxMemory.toLocaleString(
+                    value: `${memory.toLocaleString()} / ${maxMemory.toLocaleString(
                         "en-US"
                     )} MB (${Math.round(usageInPercentage)}%)`,
                     inline: true,
@@ -238,7 +238,7 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: ctx.translate("infos:PLAYERS") + " (RPG)",
-                    value: users.length.toLocaleString("en-US"),
+                    value: users.length.toLocaleString(),
                     inline: true,
                 },
                 {

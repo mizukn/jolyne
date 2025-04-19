@@ -90,22 +90,22 @@ const slashCommand: SlashCommandFile = {
                     fields: [
                         {
                             name: "Level",
-                            value: fighter.level.toLocaleString("en-US"),
+                            value: fighter.level.toLocaleString(),
                             inline: true,
                         },
                         {
                             name: "Attack DMG",
-                            value: Functions["getAttackDamages"](fighter).toLocaleString("en-US"),
+                            value: Functions["getAttackDamages"](fighter).toLocaleString(),
                             inline: true,
                         },
                         {
                             name: "Health",
-                            value: fighter.maxHealth.toLocaleString("en-US"),
+                            value: fighter.maxHealth.toLocaleString(),
                             inline: true,
                         },
                         {
                             name: "Stamina",
-                            value: fighter.maxStamina.toLocaleString("en-US"),
+                            value: fighter.maxStamina.toLocaleString(),
                             inline: true,
                         },
                         {

@@ -270,13 +270,13 @@ async function giveRewards(
     dungeon.message.edit({
         content: `<:kars:1057261454421676092> **Kars:** well done, you've survived **${dungeon.getRoom()}** waves and beaten **${
             dungeon.beatenEnemies.length
-        }** enemies (total damage: ${totalDamage.toLocaleString("en-US")}).\n\n${Object.keys(
+        }** enemies (total damage: ${totalDamage.toLocaleString()}).\n\n${Object.keys(
             dungeon.damageDealt
         )
             .map((x) => {
                 return `- **${dungeon.players.find((f) => f.id === x).tag}**: ${(
                     dungeon.damageDealt[x] ?? 0
-                ).toLocaleString("en-US")} damages dealt\n- - ${Functions.getRewardsCompareData(
+                ).toLocaleString()} damages dealt\n- - ${Functions.getRewardsCompareData(
                     players.find((f) => f.id === x),
                     newPlayers.find((f) => f.id === x)
                 ).join("\n- - ")}`;
@@ -355,7 +355,7 @@ async function giveRewards(
                                 (r) =>
                                     `- ${
                                         dungeon.players.find((f) => f.id === r).tag
-                                    } (${r}): **${dungeon.damageDealt[r].toLocaleString("en-US")}**`
+                                    } (${r}): **${dungeon.damageDealt[r].toLocaleString()}**`
                             )
                             .join("\n"),
                     },

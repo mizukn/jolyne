@@ -183,7 +183,7 @@ const slashCommand: SlashCommandFile = {
                     fields: [
                         /*{
                             name: "Craft value",
-                            value: `${craftValuePrice.toLocaleString("en-US")} ${
+                            value: `${craftValuePrice.toLocaleString()} ${
                                 ctx.client.localEmojis.jocoins
                             }`,
                         },*/

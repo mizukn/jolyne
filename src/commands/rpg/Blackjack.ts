@@ -180,15 +180,15 @@ const slashCommand: SlashCommandFile = {
                             "https://static.wikia.nocookie.net/vsbattles/images/6/61/Unit_Daniel_J._D%27Arby_%28Love_of_cheater%27s_cat%29.png/revision/latest?cb=20190218012340",
                     })
                     .setDescription(
-                        `- Your bet: **${bet.toLocaleString("en-US")}** coins\n- Pot: **${(
+                        `- Your bet: **${bet.toLocaleString()}** coins\n- Pot: **${(
                             bet * 2
-                        ).toLocaleString("en-US")}** coins\n- Potentials: **${(
+                        ).toLocaleString()}** coins\n- Potentials: **${(
                             bet * betMultiplier
-                        ).toLocaleString("en-US")}** coins\n-# - Your probability of winning: **${(
+                        ).toLocaleString()}** coins\n-# - Your probability of winning: **${(
                             probabilityToWin(playerCards, playerCards, shuffledDeck) * 100
-                        ).toLocaleString("en-US")}**%\n-# - Bot's probability of winning: **${(
+                        ).toLocaleString()}**%\n-# - Bot's probability of winning: **${(
                             probabilityToWin(botCards, playerCards, shuffledDeck) * 100
-                        ).toLocaleString("en-US")}**%`
+                        ).toLocaleString()}**%`
                     )
                     /*.setFooter({
                             text: getHint(playerCards, botCards, shuffledDeck),
@@ -197,7 +197,7 @@ const slashCommand: SlashCommandFile = {
                         {
                             name: `Your Hand (${calculateHandTotal(playerCards)}) ${(
                                 probabilityToWin(playerCards, playerCards, shuffledDeck) * 100
-                            ).toLocaleString("en-US")}%`,
+                            ).toLocaleString()}%`,
                             value: playerCards
                                 .map(
                                     (w) =>
@@ -213,7 +213,7 @@ const slashCommand: SlashCommandFile = {
                                     : values[botCards[0] as keyof typeof values] + " + ?"
                             }) ${(
                                 probabilityToWin(botCards, playerCards, shuffledDeck) * 100
-                            ).toLocaleString("en-US")}%`,
+                            ).toLocaleString()}%`,
                             value: botCards
                                 .map((w, i) =>
                                     i == 0 && !showBotSecondCard
@@ -348,11 +348,11 @@ const slashCommand: SlashCommandFile = {
                 Functions.addCoins(ctx.userData, -bet);
             } else if (reason === "player_blackjack" || botTotal > 21 || playerTotal > botTotal) {
                 const winnings = Math.round(bet * betMultiplier);
-                resultMessage = `SYSTEM: You win **${winnings.toLocaleString("en-US")}** coins!`;
+                resultMessage = `SYSTEM: You win **${winnings.toLocaleString()}** coins!`;
                 Functions.addCoins(ctx.userData, winnings);
                 ctx.client.database.setString(bjWonId, (bjWonToday + winnings).toString());
             } else if (botTotal > playerTotal) {
-                resultMessage = `SYSTEM: You lost **${bet.toLocaleString("en-US")}** coins.`;
+                resultMessage = `SYSTEM: You lost **${bet.toLocaleString()}** coins.`;
                 Functions.addCoins(ctx.userData, -bet);
             } else {
                 resultMessage = `SYSTEM: It's a tie! You get your **${bet.toLocaleString(

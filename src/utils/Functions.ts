@@ -591,7 +591,7 @@ export const generateDiscordTimestamp = (
 };
 
 export const localeNumber = (num: number): string => {
-    return num?.toLocaleString("en-US");
+    return num?.toLocaleString();
 };
 
 export const RNG = (min: number, max: number): number => {
@@ -762,11 +762,11 @@ export const standAbilitiesEmbed = (
 
         let content = `\`Damages:\` ${
             getAbilityDamage(user, ability)
-                ? getAbilityDamage(user, ability).toLocaleString("en-US")
+                ? getAbilityDamage(user, ability).toLocaleString()
                 : ability.trueDamage
                 ? Math.round(
                       getAttackDamages(user) * (1 + ability.trueDamage / 100)
-                  ).toLocaleString("en-US")
+                  ).toLocaleString()
                 : "???"
         }\n\`Stamina cost:\` ${ability.stamina}`;
 
@@ -867,11 +867,11 @@ export const weaponAbilitiesEmbed = (
         const isLast = index === weapon.abilities.length - 1;
         let content = `\`Damages:\` ${
             getAbilityDamage(user, ability)
-                ? getAbilityDamage(user, ability).toLocaleString("en-US")
+                ? getAbilityDamage(user, ability).toLocaleString()
                 : ability.trueDamage
                 ? Math.round(
                       getAttackDamages(user) * (1 + ability.trueDamage / 100)
-                  ).toLocaleString("en-US")
+                  ).toLocaleString()
                 : "???"
         }\n\`Stamina cost:\` ${ability.stamina}`;
 
@@ -1960,7 +1960,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(
                 data1.coins - data2.coins
-            ).toLocaleString("en-US")}** ${Emojis.jocoins}`
+            ).toLocaleString()}** ${Emojis.jocoins}`
         );
 
     if (JSON.stringify(data1.inventory) !== JSON.stringify(data2.inventory)) {
@@ -1978,7 +1978,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
                         data2.inventory[item] || 0
                     )}${Math.abs(
                         (data1.inventory[item] || 0) - (data2.inventory[item] || 0)
-                    ).toLocaleString("en-US")}** ${findItem(item).emoji} ${findItem(item).name}`
+                    ).toLocaleString()}** ${findItem(item).emoji} ${findItem(item).name}`
                 );
         }
     }
@@ -1987,17 +1987,17 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.health, data2.health)}${Math.abs(
                 data1.health - data2.health
-            ).toLocaleString("en-US")}** health :heart: (${data2.health.toLocaleString(
+            ).toLocaleString()}** health :heart: (${data2.health.toLocaleString(
                 "en-US"
-            )}/${getMaxHealth(data2).toLocaleString("en-US")})`
+            )}/${getMaxHealth(data2).toLocaleString()})`
         );
     if (data1.stamina !== data2.stamina)
         rewards.push(
             `**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(
                 data1.stamina - data2.stamina
-            ).toLocaleString("en-US")}** :zap: (${data2.stamina.toLocaleString(
-                "en-US"
-            )}/${getMaxStamina(data2).toLocaleString("en-US")})`
+            ).toLocaleString()}** :zap: (${data2.stamina.toLocaleString("en-US")}/${getMaxStamina(
+                data2
+            ).toLocaleString()})`
         );
 
     return rewards;

@@ -254,16 +254,14 @@ const slashCommand: SlashCommandFile = {
                     if (emailData.rewards.coins) {
                         Functions.addCoins(ctx.userData, emailData.rewards.coins);
                         winContent.push(
-                            `+${emailData.rewards.coins.toLocaleString("en-US")} ${
+                            `+${emailData.rewards.coins.toLocaleString()} ${
                                 ctx.client.localEmojis.jocoins
                             }`
                         );
                     }
                     if (emailData.rewards.xp) {
                         const xp = Functions.addXp(ctx.userData, emailData.rewards.xp, ctx.client);
-                        winContent.push(
-                            `+${xp.toLocaleString("en-US")} ${ctx.client.localEmojis.xp}`
-                        );
+                        winContent.push(`+${xp.toLocaleString()} ${ctx.client.localEmojis.xp}`);
                     }
                     if (emailData.rewards.items) {
                         for (const item of emailData.rewards.items) {

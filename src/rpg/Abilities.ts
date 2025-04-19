@@ -485,7 +485,7 @@ export const LifeTransference: Ability = {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `${user.stand?.emoji} LIFE TRANSFERENCE: ${target.name} has been healed for **${(
                     target.health - oldHealth
-                ).toLocaleString("en-US")}** health.`
+                ).toLocaleString()}** health.`
             );
         } else {
             // Drain the life force of the enemy
@@ -496,7 +496,7 @@ export const LifeTransference: Ability = {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `${user.stand?.emoji} LIFE TRANSFERENCE: ${target.name} has lost **${(
                     oldHealth - target.health
-                ).toLocaleString("en-US")}** health due to life force drain.`
+                ).toLocaleString()}** health due to life force drain.`
             );
         }
     },
@@ -657,7 +657,7 @@ export const Heal: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} HEAL: **${user.name}** has healed **${
                 target.name
-            }** by **${status.toLocaleString("en-US")}** health... ${
+            }** by **${status.toLocaleString()}** health... ${
                 ctx.getTeamIdx(user) === ctx.getTeamIdx(target) ? "" : "[You just Healed An Ememy!]"
             }`
         );
@@ -1011,9 +1011,7 @@ export const BerserkersRampage: Ability = {
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${emoji(status.type)}${user.weapon.emoji} RAMPAGE: **${
                             user.name
-                        }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
-                            x.name
-                        }**.`
+                        }** has dealt **${damages.toLocaleString()}** damages to **${x.name}**.`
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
@@ -1053,7 +1051,7 @@ export const KnivesThrow: Ability = {
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${emoji(status.type)}${user.weapon.emoji} KNIVES THROW: **${
                         user.name
-                    }** has dealt **${status.amount.toLocaleString("en-US")}** damages to **${
+                    }** has dealt **${status.amount.toLocaleString()}** damages to **${
                         target.name
                     }** and reduced their stamina by **${stamina}**.`
                 );
@@ -1083,9 +1081,7 @@ export const GasolineBullets: Ability = {
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${emoji(status.type)}${user.stand?.emoji} GASOLINE BULLETS: **${
                             user.name
-                        }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
-                            x.name
-                        }**.`
+                        }** has dealt **${damages.toLocaleString()}** damages to **${x.name}**.`
                     );
                 } else {
                     ctx.turns[ctx.turns.length - 1].logs.push(
@@ -1222,7 +1218,7 @@ export const PoisonGas: Ability = {
                             ctx.turns[ctx.turns.length - 1].logs.push(
                                 `- ${emoji(status.type)}${user.stand?.emoji} POISON GAS: **${
                                     user.name
-                                }** has dealt **${damages.toLocaleString("en-US")}** damages to **${
+                                }** has dealt **${damages.toLocaleString()}** damages to **${
                                     x.name
                                 }**.`
                             );
@@ -1287,7 +1283,7 @@ export const HealBarrage: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `> ${user.stand?.emoji} HEAL BARRAGE: **${
                 user.name
-            }** has dealt **${damages.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${damages.toLocaleString()}** damages to **${target.name}**.`
         );
 
         ctx.availableFighters
@@ -1373,7 +1369,7 @@ export const HealPunch: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `> ${user.stand?.emoji} HEAL PUNCH: **${
                 user.name
-            }** has dealt **${damages.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${damages.toLocaleString()}** damages to **${target.name}**.`
         );
 
         ctx.availableFighters
@@ -1450,9 +1446,7 @@ export const CapsuleShot: Ability = {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `- ${emoji(status.type)}${user.stand?.emoji} CAPSULE SHOT: **${
                     user.name
-                }** has dealt **${status.amount.toLocaleString("en-US")}** damages to **${
-                    target.name
-                }**.`
+                }** has dealt **${status.amount.toLocaleString()}** damages to **${target.name}**.`
             );
             ctx.infos.lastHit = {
                 user: user.id,
@@ -1625,9 +1619,7 @@ export const ArmSplitter: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} ARM SPLITTER: **${
                 user.name
-            }** has dealt **${armsplitterdmg.toLocaleString("en-US")}** damages to **${
-                target.name
-            }**.`
+            }** has dealt **${armsplitterdmg.toLocaleString()}** damages to **${target.name}**.`
         );
     },
     target: "enemy",
@@ -1668,9 +1660,7 @@ export const HeartBreaker: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} HEART BREAKER: **${
                 user.name
-            }** has dealt **${heartbreakerdmg.toLocaleString("en-US")}** damages to **${
-                target.name
-            }**.`
+            }** has dealt **${heartbreakerdmg.toLocaleString()}** damages to **${target.name}**.`
         );
     },
     target: "enemy",
@@ -1919,7 +1909,7 @@ export const LifePunch: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} LIFE PUNCH: **${
                 user.name
-            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${xdamage.toLocaleString()}** damages to **${target.name}**.`
         );
     },
 };
@@ -1940,7 +1930,7 @@ export const LifePunchGER: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} LIFE PUNCH: **${
                 user.name
-            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${xdamage.toLocaleString()}** damages to **${target.name}**.`
         );
     },
 };
@@ -1966,7 +1956,7 @@ export const InfiniteDeathLoop: Ability = {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `- ${user.stand?.emoji} INFINITE DEATH LOOP: **${
                     user.name
-                }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+                }** has dealt **${xdamage.toLocaleString()}** damages to **${target.name}**.`
             );
         }
     },
@@ -2041,7 +2031,7 @@ export const FrogRain: Ability = {
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${user.stand?.emoji} FROG RAIN: **${
                         user.name
-                    }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${x.name}**.`
+                    }** has dealt **${xdamage.toLocaleString()}** damages to **${x.name}**.`
                 );
                 const burnDamageCalc = Math.round(
                     Functions.getAbilityDamage(user, CrossfireHurricane) / 10
@@ -2090,7 +2080,7 @@ export const TotalCombustion: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} TOTAL COMBUSTION: **${
                 user.name
-            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${xdamage.toLocaleString()}** damages to **${target.name}**.`
         );
         const burnDamageCalc = Math.round(
             Functions.getAbilityDamage(user, CrossfireHurricane) / 10
@@ -2123,7 +2113,7 @@ export const Mach1Tornado: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} MACH 1 TORNADO: **${
                 user.name
-            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${xdamage.toLocaleString()}** damages to **${target.name}**.`
         );
     },
 };
@@ -2340,7 +2330,7 @@ export const AcidicTouch: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} ACIDIC TOUCH: **${
                 user.name
-            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${xdamage.toLocaleString()}** damages to **${target.name}**.`
         );
 
         const burnDamageCalc = Math.round(
@@ -2406,7 +2396,7 @@ export const TeaseBarrage: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} TEASE BARRAGE: **${
                 user.name
-            }** has dealt **${xdamage.toLocaleString("en-US")}** damages to **${target.name}**.`
+            }** has dealt **${xdamage.toLocaleString()}** damages to **${target.name}**.`
         );
 
         const burnDamageCalc = Math.round(
@@ -2833,9 +2823,7 @@ export const PiercingStrike: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} PIERCING STRIKE: **${
                 user.name
-            }** has dealt **${status.amount.toLocaleString("en-US")}** damages to **${
-                target.name
-            }**.`
+            }** has dealt **${status.amount.toLocaleString()}** damages to **${target.name}**.`
         );
 
         const burnDamageCalc = Math.round(
@@ -3006,7 +2994,7 @@ export const RealityRevert: Ability = {
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} REALITY REVERT: **${user.name}** has healed **${
                 target.name
-            }** by **${(status * -1).toLocaleString("en-US")}** health.`
+            }** by **${(status * -1).toLocaleString()}** health.`
         );
     },
 };
@@ -3070,7 +3058,7 @@ export const DarkWave: Ability = {
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.stand?.emoji} DARK WAVE: **${
                             x.name
-                        }** has been hit... (-${status.amount.toLocaleString("en-US")} :heart:)`
+                        }** has been hit... (-${status.amount.toLocaleString()} :heart:)`
                     );
                     ctx.infos.lastHit = {
                         user: user.id,
@@ -3311,7 +3299,7 @@ export const KrampusCurse: Ability = {
                 fight.turns[fight.turns.length - 1].logs.push(
                     `-# ${user.weapon?.emoji} **${user.name}**'s curse deals **${(
                         damagesTaken * 0.5
-                    ).toLocaleString("en-US")}** damage to **${newTarget.name}**`
+                    ).toLocaleString()}** damage to **${newTarget.name}**`
                 );
             },
         });
@@ -3347,7 +3335,7 @@ export const HealingJingle: Ability = {
                 ctx.turns[ctx.turns.length - 1].logs.push(
                     `- ${user.weapon?.emoji} **${
                         fighter.name
-                    }** has been healed by **${toAdd.toLocaleString("en-US")}** health.`
+                    }** has been healed by **${toAdd.toLocaleString()}** health.`
                 );
             }
         }
@@ -3487,7 +3475,7 @@ export const CandyRain: Ability = {
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `- ${user.weapon?.emoji} **${
                             x.name
-                        }** has been healed by **${toHeal.toLocaleString("en-US")}** health.`
+                        }** has been healed by **${toHeal.toLocaleString()}** health.`
                     );
                 } else {
                     const status = x.removeHealth(toDamage, user, 1);

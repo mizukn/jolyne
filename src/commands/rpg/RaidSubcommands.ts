@@ -499,7 +499,7 @@ const slashCommand: SlashCommandFile = {
         }
         if (raidCost > ctx.userData.coins) {
             ctx.makeMessage({
-                content: `You need ${raidCost.toLocaleString("en-US")} ${
+                content: `You need ${raidCost.toLocaleString()} ${
                     ctx.client.localEmojis.jocoins
                 } to raid this boss.`,
             });
@@ -535,7 +535,7 @@ const slashCommand: SlashCommandFile = {
                     ? `Join Raid (${raidCost.toLocaleString(
                           "en-US"
                       )} coins and 50 Ice Shards required)`
-                    : `Join Raid (${raidCost.toLocaleString("en-US")} coins required)`
+                    : `Join Raid (${raidCost.toLocaleString()} coins required)`
             )
             .setEmoji(bossChosen === "ice_golem" ? "1323363296719536158" : "927974784187392061");
         const leaveRaidButton = new ButtonBuilder()
@@ -682,9 +682,7 @@ const slashCommand: SlashCommandFile = {
                             );
                             Functions.addCoins(winnerData, coins);
                             winContent.push(
-                                `+**${coins.toLocaleString("en-US")}** ${
-                                    ctx.client.localEmojis.jocoins
-                                }`
+                                `+**${coins.toLocaleString()}** ${ctx.client.localEmojis.jocoins}`
                             );
                         }
                         if (raid.baseRewards?.xp) {
@@ -698,7 +696,7 @@ const slashCommand: SlashCommandFile = {
 
                             xp = Functions.addXp(winnerData, xp, ctx.client);
                             winContent.push(
-                                `+**${xp.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}`
+                                `+**${xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`
                             );
                         }
                         if (raid.baseRewards && raid.baseRewards?.items.length > 0) {
@@ -1019,7 +1017,7 @@ const slashCommand: SlashCommandFile = {
                 title: `${enhancedBoss.emoji} ${enhancedBoss.name} RAID`,
                 description: `> \`Boss Level:\` ${enhancedBoss.level}\n> \`Coins required:\` ${
                     ctx.client.localEmojis.jocoins
-                } ${raidCost.toLocaleString("en-US")}\n${
+                } ${raidCost.toLocaleString()}\n${
                     raid.prestige ? `> \`Prestige Requirement:\` ${raid.prestige}\n` : ""
                 }> \`Min Level Requirement:\` ${
                     raid.level
@@ -1032,17 +1030,17 @@ const slashCommand: SlashCommandFile = {
                     {
                         name: "Rewards:",
 
-                        value: `> - **${(raid.baseRewards?.coins ?? 0).toLocaleString("en-US")}**${
+                        value: `> - **${(raid.baseRewards?.coins ?? 0).toLocaleString()}**${
                             ctx.client.localEmojis.jocoins
-                        }\n> - **${(raid.baseRewards?.xp ?? 0).toLocaleString("en-US")}**${
+                        }\n> - **${(raid.baseRewards?.xp ?? 0).toLocaleString()}**${
                             ctx.client.localEmojis.xp
                         }\n${raid.baseRewards?.items
                             .map((i) => {
                                 const itemData = Functions.findItem(i.item);
                                 if (!itemData) return null;
-                                return `> • **${i.amount.toLocaleString("en-US")}x** ${
-                                    itemData.name
-                                } ${itemData.emoji}${i.chance ? ` (** ${i.chance}% **)` : ""}`;
+                                return `> • **${i.amount.toLocaleString()}x** ${itemData.name} ${
+                                    itemData.emoji
+                                }${i.chance ? ` (** ${i.chance}% **)` : ""}`;
                             })
                             .filter((r) => r)
                             .join("\n")}${

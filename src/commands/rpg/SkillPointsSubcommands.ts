@@ -154,11 +154,11 @@ const slashCommand: SlashCommandFile = {
 
         await ctx.sendTranslated("skill-points:BASE_MESSAGE", {
             userData: ctx.userData,
-            atkDMG: Functions.getAttackDamages(ctx.userData).toLocaleString("en-US"),
-            dodgeScore: Functions.getDodgeScore(ctx.userData).toLocaleString("en-US"),
-            speedScore: Functions.getSpeedScore(ctx.userData).toLocaleString("en-US"),
-            maxHealth: Functions.getMaxHealth(ctx.userData).toLocaleString("en-US"),
-            maxStamina: Functions.getMaxStamina(ctx.userData).toLocaleString("en-US"),
+            atkDMG: Functions.getAttackDamages(ctx.userData).toLocaleString(),
+            dodgeScore: Functions.getDodgeScore(ctx.userData).toLocaleString(),
+            speedScore: Functions.getSpeedScore(ctx.userData).toLocaleString(),
+            maxHealth: Functions.getMaxHealth(ctx.userData).toLocaleString(),
+            maxStamina: Functions.getMaxStamina(ctx.userData).toLocaleString(),
             components: [
                 Functions.actionRow([
                     new ButtonBuilder()

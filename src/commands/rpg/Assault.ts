@@ -79,17 +79,17 @@ const slashCommand: SlashCommandFile = {
 
         const normalNPCButton = new ButtonBuilder()
             .setCustomId("normal" + ctx.interaction.id)
-            .setLabel(`[LVL ${normalNPC.level.toLocaleString("en-US")}] ` + normalNPC.name)
+            .setLabel(`[LVL ${normalNPC.level.toLocaleString()}] ` + normalNPC.name)
             .setEmoji(normalNPC.emoji)
             .setStyle(ButtonStyle.Primary);
         const highNPCButton = new ButtonBuilder()
             .setCustomId("high" + ctx.interaction.id)
-            .setLabel(`[LVL ${highNPC.level.toLocaleString("en-US")}] ` + highNPC.name)
+            .setLabel(`[LVL ${highNPC.level.toLocaleString()}] ` + highNPC.name)
             .setEmoji(highNPC.emoji)
             .setStyle(highNPC.level < trueLvl ? ButtonStyle.Secondary : ButtonStyle.Danger);
         const randomNPCButton = new ButtonBuilder()
             .setCustomId("random" + ctx.interaction.id)
-            .setLabel(`[LVL ${randomNPC.level.toLocaleString("en-US")}] ` + randomNPC.name)
+            .setLabel(`[LVL ${randomNPC.level.toLocaleString()}] ` + randomNPC.name)
             .setEmoji(randomNPC.emoji)
             .setStyle(randomNPC.level < trueLvl ? ButtonStyle.Secondary : ButtonStyle.Danger);
 
@@ -163,11 +163,9 @@ const slashCommand: SlashCommandFile = {
                     await ctx.followUp({
                         content: `${npc.emoji} | You assaulted \`${
                             npc.name
-                        }\` and won! You got **${xp.toLocaleString("en-US")}** ${
+                        }\` and won! You got **${xp.toLocaleString()}** ${
                             ctx.client.localEmojis.xp
-                        } and **${coins.toLocaleString("en-US")} ${
-                            ctx.client.localEmojis.jocoins
-                        }**.`,
+                        } and **${coins.toLocaleString()} ${ctx.client.localEmojis.jocoins}**.`,
                     });
                 } else {
                     ctx.userData.health = 0;

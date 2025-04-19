@@ -127,12 +127,10 @@ async function useBox(
                 }*/
                 if (reward.xp) {
                     const xp = Functions.addXp(ctx.userData, reward.xp, ctx.client);
-                    winContent.push(`- **${xp.toLocaleString("en-US")}** ${Emojis.xp} XP`);
+                    winContent.push(`- **${xp.toLocaleString()}** ${Emojis.xp} XP`);
                 } else if (reward.coins) {
                     const coins = Functions.addCoins(ctx.userData, reward.coins);
-                    winContent.push(
-                        `- **${coins.toLocaleString("en-US")}** ${Emojis.jocoins} coins`
-                    );
+                    winContent.push(`- **${coins.toLocaleString()}** ${Emojis.jocoins} coins`);
                 } else {
                     const item = Functions.findItem(reward.loot);
                     if (!item) continue;

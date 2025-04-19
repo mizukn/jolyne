@@ -307,8 +307,7 @@ const slashCommand: SlashCommandFile = {
                     {
                         name: "Price",
                         value: `${ctx.client.localEmojis.jocoins} ${
-                            itemData.price?.toLocaleString("en-US") ??
-                            "N/A (unbuyable/not sellable)"
+                            itemData.price?.toLocaleString() ?? "N/A (unbuyable/not sellable)"
                         }`,
                         inline: true,
                     },
@@ -869,9 +868,7 @@ const slashCommand: SlashCommandFile = {
                         itemTaxes[itemData.rarity] * 100
                     }% of the original price, which means you'll get ${Math.round(
                         itemData.price * itemTaxes[itemData.rarity] * amountX
-                    ).toLocaleString("en-US")} coins. (x${amountX} ${itemData.emoji} ${
-                        itemData.name
-                    })`
+                    ).toLocaleString()} coins. (x${amountX} ${itemData.emoji} ${itemData.name})`
                 ),
                 components: [
                     Functions.actionRow([
@@ -927,7 +924,7 @@ const slashCommand: SlashCommandFile = {
                             itemData.name
                         }\`! (+${Math.round(
                             itemData.price * itemTaxes[itemData.rarity] * amountX
-                        ).toLocaleString("en-US")} ${ctx.client.localEmojis.jocoins})`
+                        ).toLocaleString()} ${ctx.client.localEmojis.jocoins})`
                     ),
                     components: [],
                 });

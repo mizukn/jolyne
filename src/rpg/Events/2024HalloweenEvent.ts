@@ -366,7 +366,7 @@ export const Halloween2024EventCommandHandler: SlashCommand["execute"] = async (
                 .map((trade) => ({
                     label: `${trade.item.name}`,
                     value: trade.item.name,
-                    description: `${trade.amount.toLocaleString("en-US")} Pumpkins`,
+                    description: `${trade.amount.toLocaleString()} Pumpkins`,
                     emoji: trade.item.emoji,
                 }));
 
@@ -425,7 +425,7 @@ export const Halloween2024EventCommandHandler: SlashCommand["execute"] = async (
                 color: 0x800080,
                 description: `${
                     ctx.client.localEmojis.replyEnd
-                } You have \`${pumpkins().toLocaleString("en-US")}\` pumpkins 🎃`,
+                } You have \`${pumpkins().toLocaleString()}\` pumpkins 🎃`,
                 fields: [
                     ...formattedTrades.map((trade) => ({
                         name: `${trade.item.emoji} ${trade.item.name}`,

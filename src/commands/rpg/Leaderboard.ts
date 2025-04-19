@@ -195,9 +195,7 @@ const slashCommand: SlashCommandFile = {
                                 ctx.client.localEmojis.a_
                             } Level **${user.level.toLocaleString(
                                 "en-US"
-                            )}** with **${user.xp.toLocaleString("en-US")}** ${
-                                ctx.client.localEmojis.xp
-                            }`,
+                            )}** with **${user.xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`,
                             inline: false,
                         }));
 
@@ -278,7 +276,7 @@ const slashCommand: SlashCommandFile = {
                             } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
                             value: `${ctx.client.localEmojis.a_} **${Functions.getTotalXp(
                                 user
-                            ).toLocaleString("en-US")}** total ${ctx.client.localEmojis.xp}`,
+                            ).toLocaleString()}** total ${ctx.client.localEmojis.xp}`,
                             inline: false,
                         }));
                     break;

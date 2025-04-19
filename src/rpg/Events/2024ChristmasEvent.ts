@@ -460,7 +460,7 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
                 .map((trade) => ({
                     label: `${trade.item.name}`,
                     value: trade.item.name,
-                    description: `${trade.amount.toLocaleString("en-US")} Ornaments`,
+                    description: `${trade.amount.toLocaleString()} Ornaments`,
                     emoji: trade.item.emoji,
                 }));
 

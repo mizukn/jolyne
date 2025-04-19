@@ -135,13 +135,13 @@ const slashCommand: SlashCommandFile = {
                         NPC
                     ).toLocaleString()}\n✊ ATK Damage: [${Math.round(
                         Functions.getAttackDamages(NPC) * 0.5
-                    ).toLocaleString("en-US")} - ${Math.round(
+                    ).toLocaleString()} - ${Math.round(
                         Functions.getAttackDamages(NPC) * 1.1
-                    ).toLocaleString("en-US")}]\n:leaves: Dodge score: ${Functions.getDodgeScore(
+                    ).toLocaleString()}]\n:leaves: Dodge score: ${Functions.getDodgeScore(
                         NPC
-                    ).toLocaleString("en-US")}\n🔄 Speed score: ${Functions.getSpeedScore(
+                    ).toLocaleString()}\n🔄 Speed score: ${Functions.getSpeedScore(
                         NPC
-                    ).toLocaleString("en-US")}`,
+                    ).toLocaleString()}`,
                     inline: true,
                 },
                 {

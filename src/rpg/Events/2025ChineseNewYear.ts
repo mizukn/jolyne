@@ -1593,7 +1593,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                 .map((trade) => ({
                     label: `${trade.item.name}`,
                     value: trade.item.name,
-                    description: `${trade.amount.toLocaleString("en-US")} Hangbaos`,
+                    description: `${trade.amount.toLocaleString()} Hangbaos`,
                     emoji: trade.item.emoji,
                 }));
 
@@ -1653,7 +1653,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                 color: 0xff0000,
                 description: `${
                     ctx.client.localEmojis.replyEnd
-                } You have \`${hangbaos().toLocaleString("en-US")}\` hangbaos 🧧`,
+                } You have \`${hangbaos().toLocaleString()}\` hangbaos 🧧`,
                 fields: [
                     ...formattedTrades.map((trade) => ({
                         name: `${trade.item.emoji} ${trade.item.name}`,

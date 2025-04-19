@@ -72,9 +72,9 @@ const slashCommand: SlashCommandFile = {
                           ) +
                           ")"
                         : ""
-                }.\nBy voting, you can earn **${voteRewards.coins.toLocaleString("en-US")}** ${
+                }.\nBy voting, you can earn **${voteRewards.coins.toLocaleString()}** ${
                     ctx.client.localEmojis.jocoins
-                }, **${xpRewards.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}, x2 ${
+                }, **${xpRewards.toLocaleString()}** ${ctx.client.localEmojis.xp}, x2 ${
                     ctx.client.localEmojis.mysterious_arrow
                 } **Stand Arrows** and x2 ${
                     ctx.client.localEmojis.mysterious_arrow
@@ -100,9 +100,9 @@ const slashCommand: SlashCommandFile = {
                 // fields: [
                 // {
                 name: "Thank you for voting!",
-                value: `You have been given **${voteRewards.coins.toLocaleString("en-US")}** ${
+                value: `You have been given **${voteRewards.coins.toLocaleString()}** ${
                     ctx.client.localEmojis.jocoins
-                }, **${rewardXP.toLocaleString("en-US")}** ${ctx.client.localEmojis.xp}, x2 ${
+                }, **${rewardXP.toLocaleString()}** ${ctx.client.localEmojis.xp}, x2 ${
                     ctx.client.localEmojis.mysterious_arrow
                 } **Stand Arrows** for voting ${generateDiscordTimestamp(lastVote, "FROM_NOW")}. ${
                     ctx.userData.totalVotes % 2 === 0

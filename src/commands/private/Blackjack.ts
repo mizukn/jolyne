@@ -277,7 +277,7 @@ const slashCommand: SlashCommandFile = {
                     case "won":
                         Functions.addCoins(ctx.userData, moneyGive);
                         ctx.followUp({
-                            content: `SYSTEM: You won ${moneyGive.toLocaleString("en-US")} ${
+                            content: `SYSTEM: You won ${moneyGive.toLocaleString()} ${
                                 ctx.client.localEmojis.jocoins
                             }!`,
                         });
@@ -288,7 +288,7 @@ const slashCommand: SlashCommandFile = {
                     case "lost":
                         Functions.addCoins(ctx.userData, -bet);
                         ctx.followUp({
-                            content: `SYSTEM: You lost ${bet.toLocaleString("en-US")} ${
+                            content: `SYSTEM: You lost ${bet.toLocaleString()} ${
                                 ctx.client.localEmojis.jocoins
                             }`,
                         });

@@ -359,9 +359,7 @@ const slashCommand: SlashCommandFile = {
                                 : npc.rewards.xp,
                             ctx.client
                         );
-                        winContent.push(
-                            `+${xp.toLocaleString("en-US")} ${ctx.client.localEmojis.xp}`
-                        );
+                        winContent.push(`+${xp.toLocaleString()} ${ctx.client.localEmojis.xp}`);
                     }
 
                     if (npc.rewards.coins) {
@@ -372,7 +370,7 @@ const slashCommand: SlashCommandFile = {
                                 : npc.rewards.coins
                         );
                         winContent.push(
-                            `+${coins.toLocaleString("en-US")} ${ctx.client.localEmojis.jocoins}`
+                            `+${coins.toLocaleString()} ${ctx.client.localEmojis.jocoins}`
                         );
                     }
 

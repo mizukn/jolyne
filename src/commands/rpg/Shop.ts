@@ -211,7 +211,7 @@ const slashCommand: SlashCommandFile = {
                 fields: [],
                 color: 0x70926c,
                 footer: {
-                    text: `You have ${ctx.userData.coins.toLocaleString("en-US")} 🪙 left.`,
+                    text: `You have ${ctx.userData.coins.toLocaleString()} 🪙 left.`,
                 },
             };
 
@@ -252,7 +252,7 @@ const slashCommand: SlashCommandFile = {
 
                             str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                                 xitem.name
-                            }** - ${(item.price ?? xitem.price).toLocaleString("en-US")} ${
+                            }** - ${(item.price ?? xitem.price).toLocaleString()} ${
                                 ctx.client.localEmojis.jocoins
                             }`;
                             if (Functions.isConsumable(xitem))
@@ -261,7 +261,7 @@ const slashCommand: SlashCommandFile = {
                                         (x) =>
                                             `+**${xitem.effects[
                                                 x as keyof typeof xitem.effects
-                                            ].toLocaleString("en-US")}** ${x}`
+                                            ].toLocaleString()}** ${x}`
                                     )
                                     .join(`, `)}`;
                             str += "\n";
@@ -290,7 +290,7 @@ const slashCommand: SlashCommandFile = {
 
                     str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                         xitem.name
-                    }** - ${(item.price ?? xitem.price).toLocaleString("en-US")} ${
+                    }** - ${(item.price ?? xitem.price).toLocaleString()} ${
                         ctx.client.localEmojis.jocoins
                     }`;
                     if (Functions.isConsumable(xitem))
@@ -299,7 +299,7 @@ const slashCommand: SlashCommandFile = {
                                 (x) =>
                                     `+**${xitem.effects[
                                         x as keyof typeof xitem.effects
-                                    ].toLocaleString("en-US")}** ${x}`
+                                    ].toLocaleString()}** ${x}`
                             )
                             .join(`, `)}`;
                     str += "\n";
@@ -438,7 +438,7 @@ const slashCommand: SlashCommandFile = {
                                     currentShop.name
                                 }**: You bought x${amount} ${selectedItem.emoji} **${
                                     selectedItem.name
-                                }** for **${price.toLocaleString("en-US")}** ${
+                                }** for **${price.toLocaleString()}** ${
                                     ctx.client.localEmojis.jocoins
                                 }`,
                             });
@@ -451,7 +451,7 @@ const slashCommand: SlashCommandFile = {
                                 currentShop.name
                             }**: You bought x${amount} ${selectedItem.emoji} **${
                                 selectedItem.name
-                            }** for **${price.toLocaleString("en-US")}** ${
+                            }** for **${price.toLocaleString()}** ${
                                 ctx.client.localEmojis.jocoins
                             }`,
                         });

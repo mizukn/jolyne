@@ -98,8 +98,8 @@ const slashCommand: SlashCommandFile = {
                 const added = Functions.addXp(ctx.userData, rewards.xp, ctx.client);
 
                 let embed_description = ctx.translate<string>("daily:CLAIMED_EMBED_DESCRIPTION", {
-                    coins: rewards.coins.toLocaleString("en-US"),
-                    xp: added.toLocaleString("en-US"),
+                    coins: rewards.coins.toLocaleString(),
+                    xp: added.toLocaleString(),
                 });
 
                 if (ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000) {
@@ -149,8 +149,8 @@ const slashCommand: SlashCommandFile = {
                     embed_description +=
                         "\n" +
                         ctx.translate("daily:CLAIMED_EMBED_DESCRIPTION_PREMIUM", {
-                            coins: moneyRewards.toLocaleString("en-US"),
-                            xp: addedXP.toLocaleString("en-US"),
+                            coins: moneyRewards.toLocaleString(),
+                            xp: addedXP.toLocaleString(),
                             tier: ctx.client.patreons.find((r) => r.id === ctx.userData.id).level,
                         });
                     Functions.addCoins(ctx.userData, moneyRewards);
@@ -165,8 +165,8 @@ const slashCommand: SlashCommandFile = {
                     embed_description +=
                         "\n" +
                         ctx.translate("daily:CLAIMED_EMBED_DESCRIPTION_BOOSTER", {
-                            coins: moneyRewards.toLocaleString("en-US"),
-                            xp: xpRewards.toLocaleString("en-US"),
+                            coins: moneyRewards.toLocaleString(),
+                            xp: xpRewards.toLocaleString(),
                         });
                 }
 
@@ -384,7 +384,7 @@ const slashCommand: SlashCommandFile = {
                                     `Reset for ${dailyQuestResetPrice[
                                         ctx.userData.daily
                                             .dailyQuestsReset as keyof typeof dailyQuestResetPrice
-                                    ]?.toLocaleString("en-US")} coins`
+                                    ]?.toLocaleString()} coins`
                                 )
                         );
                     }
@@ -399,8 +399,8 @@ const slashCommand: SlashCommandFile = {
                             description: `${status.message}\n\n${ctx.translate(
                                 "daily:REWARDS_MESSAGE",
                                 {
-                                    coins: coinReward.toLocaleString("en-US"),
-                                    xp: toBeAdded.toLocaleString("en-US"),
+                                    coins: coinReward.toLocaleString(),
+                                    xp: toBeAdded.toLocaleString(),
                                     discordUnix: Functions.generateDiscordTimestamp(
                                         dateAtMidnight + 86400000,
                                         "FROM_NOW"
@@ -487,7 +487,7 @@ const slashCommand: SlashCommandFile = {
                             if (!transaction) return i.reply("An error occurred.");
                             i.reply({
                                 content: ctx.translate("daily:RESET_SUCCESS", {
-                                    price: price.toLocaleString("en-US"),
+                                    price: price.toLocaleString(),
                                 }),
                             });
                             return;
@@ -520,8 +520,8 @@ const slashCommand: SlashCommandFile = {
 
                         await ctx.followUp({
                             content: ctx.translate("daily:REWARDS_CLAIM_MESSAGE", {
-                                coins: coinReward.toLocaleString("en-US"),
-                                xp: xpReward.toLocaleString("en-US"),
+                                coins: coinReward.toLocaleString(),
+                                xp: xpReward.toLocaleString(),
                                 dungeon_key: Functions.findItem("Dungeon").emoji,
                             }),
                         });

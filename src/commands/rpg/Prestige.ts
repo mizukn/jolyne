@@ -110,7 +110,7 @@ Prestige therefore allows you to continue progressing while resetting your level
                               cobaye.level
                           }/${Functions.getMaxPrestigeLevel(
                               cobaye.prestige
-                          )}** with **${cobaye.xp.toLocaleString("en-US")}** ${
+                          )}** with **${cobaye.xp.toLocaleString()}** ${
                               ctx.client.localEmojis.xp
                           } and **${cobaye.prestige_shards.toLocaleString()}** ${
                               ctx.client.localEmojis.prestige_shard
@@ -171,7 +171,7 @@ async function handlePrestige(
     ctx.followUp({
         content: `:star: | You have prestiged! You are now level **${
             ctx.userData.level
-        }** with **${ctx.userData.xp.toLocaleString("en-US")}** xp (total prestige: **${
+        }** with **${ctx.userData.xp.toLocaleString()}** xp (total prestige: **${
             ctx.userData.prestige
         }**).`,
     });

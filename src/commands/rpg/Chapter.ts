@@ -136,12 +136,12 @@ export const getQuestsStats = (
 
             let questMessage = `Claim **${quest.goal.toLocaleString(
                 "en-US"
-            )}** {{name}} ||(${quest.amount.toLocaleString("en-US")}/${quest.goal.toLocaleString(
+            )}** {{name}} ||(${quest.amount.toLocaleString()}/${quest.goal.toLocaleString(
                 "en-US"
             )}) **${questPercent}%**||`;
             const questEnd = ` ||(${quest.amount.toLocaleString(
                 "en-US"
-            )}/${quest.goal.toLocaleString("en-US")}) **${questPercent}%**||`;
+            )}/${quest.goal.toLocaleString()}) **${questPercent}%**||`;
 
             if (Functions.isClaimItemQuest(quest)) {
                 questMessage = questMessage.replace(
@@ -149,7 +149,7 @@ export const getQuestsStats = (
                     Functions.findItem(quest.item).name
                 );
                 questMessage = ctx.translate("quest:CLAIMX", {
-                    cc: quest.goal.toLocaleString("en-US"),
+                    cc: quest.goal.toLocaleString(),
                     s: Functions.s(quest.goal),
                     name: Functions.findItem(quest.item).name,
                     emoji: Functions.findItem(quest.item).emoji,
@@ -158,7 +158,7 @@ export const getQuestsStats = (
                 const cmd = ctx.client.getSlashCommandMention(quest.command);
                 questMessage = ctx.translate("quest:USE_COMMAND", {
                     cmd,
-                    cc: quest.goal.toLocaleString("en-US"),
+                    cc: quest.goal.toLocaleString(),
                     s: Functions.s(quest.goal),
                 });
             } else {
@@ -171,7 +171,7 @@ export const getQuestsStats = (
 
                 questMessage =
                     ctx.translate("quest:CLAIMX", {
-                        cc: quest.goal.toLocaleString("en-US"),
+                        cc: quest.goal.toLocaleString(),
                         s: Functions.s(quest.goal),
                         emoji,
                         name: quest.x.replace(/_/g, " "),
