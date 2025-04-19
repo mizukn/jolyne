@@ -138,13 +138,13 @@ const Event: EventFile = {
                 }
                 if (
                     ctx.userData.level === 1 &&
-                    Functions.calculeSkillPointsLeft(ctx.userData) === 4 &&
+                    Functions.getRawSkillPointsLeft(ctx.userData) === 4 &&
                     command.data.name === "fight"
                 ) {
                     await ctx.makeMessage({
                         content: `:arrow_up: | **${
                             ctx.user.username
-                        }**, you have **${Functions.calculeSkillPointsLeft(
+                        }**, you have **${Functions.getRawSkillPointsLeft(
                             ctx.userData
                         )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
                             "skill points invest"
@@ -226,6 +226,7 @@ const Event: EventFile = {
                     )}`,
                     "command"
                 );
+                const notifications: string[] = [];
                 // check if ctx.userData.health is lower than 10% of their Functions.getMaxHealth(ctx.userData) and/or for stamina
                 if (
                     (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1 ||
@@ -235,15 +236,15 @@ const Event: EventFile = {
                     command.data.name !== "campfire"
                 ) {
                     if (ctx.userData.settings.notifications.low_health_or_stamina)
-                        ctx.followUpQueue.push({
-                            content: `🩸 | You're low in health/stamina. You should  ${ctx.client.getSlashCommandMention(
+                        notifications.push(
+                            `🩸 | You're low in health/stamina. You should  ${ctx.client.getSlashCommandMention(
                                 "heal"
                             )} yourself. You can use the ${ctx.client.getSlashCommandMention(
                                 "shop"
                             )} command to use consumables. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
                                 "campfire rest"
-                            )} (1% of your max health every 2 minutes)`,
-                        });
+                            )} (1% of your max health every 2 minutes)`
+                        );
                 }
 
                 const oldDataJSON = JSON.stringify(ctx.userData);
@@ -258,13 +259,13 @@ const Event: EventFile = {
                     command.data.name !== "emails" &&
                     ctx.userData.settings.notifications.email
                 ) {
-                    ctx.followUpQueue.push({
-                        content: `📧 | You have **${unreadEmails.length}** unread email${
+                    notifications.push(
+                        `📧 | You have **${unreadEmails.length}** unread email${
                             unreadEmails.length > 1 ? "s" : ""
                         }. Use the ${ctx.client.getSlashCommandMention(
                             "emails view"
-                        )} command to read them.`,
-                    });
+                        )} command to read them.`
+                    );
                 }
                 ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
                     (x) => x && x.quests?.length > 0
@@ -333,12 +334,6 @@ const Event: EventFile = {
                     }
                 }
 
-                // temp: halloween 2024
-                if (command.category == "rpg")
-                    setTimeout(async () => {
-                        handlePumpkinAppeared(ctx);
-                    }, 2000);
-
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
                     if (
                         ctx.userData.lastPatreonReward !==
@@ -349,14 +344,12 @@ const Event: EventFile = {
                             ctx.userData,
                             ctx.client.patreons.find((r) => r.id === ctx.user.id).level
                         );
-                        ctx.followUpQueue.push({
-                            content: `:heart: <:patronbox:1056324158524502036> | **${
-                                ctx.user.username
-                            }**, you received your monthly Patreon rewards! You got these items:\n${Functions.getRewardsCompareData(
+                        notifications.push(
+                            `:heart: <:patronbox:1056324158524502036> | You received your monthly Patreon rewards! You got these items:\n${Functions.getRewardsCompareData(
                                 oldDataPatreon,
                                 ctx.userData
-                            ).join(", ")}`,
-                        });
+                            ).join(", ")}`
+                        );
                         ctx.userData.lastPatreonReward = ctx.client.patreons.find(
                             (r) => r.id === ctx.user.id
                         ).lastPatreonCharge;
@@ -373,15 +366,13 @@ const Event: EventFile = {
                                 id: SideQuest.id,
                                 quests: fixedQuests,
                             });
-                            ctx.followUpQueue.push({
-                                content: `${SideQuest.emoji} | **${
-                                    ctx.user.username
-                                }**, you now have the **${
+                            notifications.push(
+                                `${SideQuest.emoji} | You now have the **${
                                     SideQuest.title
                                 }** SideQuest! (${ctx.client.getSlashCommandMention(
                                     "side quest view"
-                                )})`,
-                            });
+                                )})`
+                            );
                         }
                     } else {
                         if (
@@ -398,9 +389,9 @@ const Event: EventFile = {
                                 ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
                                     (r) => r.id !== SideQuest.id
                                 );
-                                ctx.followUpQueue.push({
-                                    content: `:x: | **${ctx.user.username}**, you no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.\n\n${status.notMeet}`,
-                                });
+                                notifications.push(
+                                    `:x: | You no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.\n\n${status.notMeet}`
+                                );
                             }
                         }
                     }
@@ -460,15 +451,15 @@ const Event: EventFile = {
                                     if (Functions.percent(item.chance)) {
                                         // wtf is this
                                         Functions.addItem(ctx.userData, item.item, item.amount);
-                                        ctx.followUpQueue.push({
-                                            content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`,
-                                        });
+                                        notifications.push(
+                                            `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`
+                                        );
                                     }
                                 } else {
                                     Functions.addItem(ctx.userData, item.item, item.amount);
-                                    ctx.followUpQueue.push({
-                                        content: `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest.`,
-                                    });
+                                    notifications.push(
+                                        `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`
+                                    );
                                 }
                             }
                             quest.pushItemWhenCompleted = null;
@@ -516,7 +507,7 @@ const Event: EventFile = {
                     }
                 }
                 // while checker if userData xp greater than maxXp
-                const queue: (MessagePayload | InteractionReplyOptions)[] = [];
+                const queue: string[] = [];
                 const oldLevel = ctx.userData.level;
                 while (
                     ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level) &&
@@ -526,25 +517,25 @@ const Event: EventFile = {
                 ) {
                     ctx.userData.xp -= Functions.getMaxXp(ctx.userData.level);
                     ctx.userData.level++;
-                    queue.push({
-                        content: `:up: | **${ctx.user.username}** leveled up to level **${
+                    queue.push(
+                        `:up: | You just leveled up to level **${
                             ctx.userData.level
                         }**!\n\nUse the ${ctx.client.getSlashCommandMention(
                             "skill points invest"
-                        )} command to invest your skill points!`,
-                    });
+                        )} command to invest your skill points!`
+                    );
                 }
                 if (queue.length > 5) {
-                    ctx.followUpQueue.push({
-                        content: `:up: | **${ctx.user.username}** leveled up: **${oldLevel}** ${
+                    notifications.push(
+                        `:up: | You leveled up: **${oldLevel}** ${
                             ctx.client.localEmojis.arrowRight
                         } **${ctx.userData.level}**!\n\nUse the ${ctx.client.getSlashCommandMention(
                             "skill points invest"
-                        )} command to invest your skill points!`,
-                    });
+                        )} command to invest your skill points!`
+                    );
                 } else {
                     for (const item of queue) {
-                        ctx.followUpQueue.push(item);
+                        notifications.push(item);
                     }
                 }
                 if (new Date().getDay() === 0 && command.data.name !== "shop") {
@@ -556,33 +547,31 @@ const Event: EventFile = {
 
                         if (!data) {
                             if (ctx.userData.settings.notifications.black_market)
-                                ctx.followUpQueue.push({
-                                    content: `🃏 | **${
-                                        ctx.user.username
-                                    }**, the black market is open! Use the ${ctx.client.getSlashCommandMention(
+                                notifications.push(
+                                    `🃏 | The black market is open! Use the ${ctx.client.getSlashCommandMention(
                                         "shop"
-                                    )} command to see what's available! [$$]\n\nYou can disable this notification with the ${ctx.client.getSlashCommandMention(
+                                    )} command to see what's available!\n\nYou can disable this notification with the ${ctx.client.getSlashCommandMention(
                                         "settings notifications"
-                                    )} command.`,
-                                });
+                                    )} command.`
+                                );
                         }
                     }
                 }
 
                 if (
-                    Functions.calculeSkillPointsLeft(ctx.userData) > 0 &&
+                    Functions.getRawSkillPointsLeft(ctx.userData) > 0 &&
                     command.data.name !== "skill" &&
                     ctx.userData.settings.notifications.skill_points
                 ) {
-                    ctx.followUpQueue.push({
-                        content: `:arrow_up: | **${
+                    notifications.push(
+                        `:arrow_up: | **${
                             ctx.user.username
-                        }**, you have **${Functions.calculeSkillPointsLeft(
+                        }**, you have **${Functions.getRawSkillPointsLeft(
                             ctx.userData
                         )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
                             "skill points invest"
-                        )} command to invest them!`,
-                    });
+                        )} command to invest them!`
+                    );
                 }
 
                 // if user datA STAMINA is lower than 50% of their Functions.getMaxStamina(ctx.userData), and they used the fight command, follow up telling them that they just started a fight with low stamina, which affects their atk damage since it is based on their stam
@@ -593,9 +582,9 @@ const Event: EventFile = {
                         command.data.name === "assault") &&
                     ctx.userData.settings.notifications.low_health_or_stamina
                 ) {
-                    ctx.followUpQueue.push({
-                        content: `:warning: | <@${ctx.user.id}>, you're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`,
-                    });
+                    notifications.push(
+                        `:warning: | You're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`
+                    );
                 }
 
                 if (
@@ -604,13 +593,11 @@ const Event: EventFile = {
                     ctx.userData.settings.notifications.reached_max_level &&
                     command.data.name !== "prestige"
                 ) {
-                    ctx.followUpQueue.push({
-                        content: `:star: | **${
-                            ctx.user.username
-                        }**, you reached the maximum level for your prestige level! Use the ${ctx.client.getSlashCommandMention(
+                    notifications.push(
+                        `:star: | You reached the maximum level for your prestige level! Use the ${ctx.client.getSlashCommandMention(
                             "prestige"
-                        )} command to prestige and start over...`,
-                    });
+                        )} command to prestige and start over...`
+                    );
                 }
 
                 if (
@@ -624,16 +611,39 @@ const Event: EventFile = {
                             : false
                     ) */
                 ) {
-                    ctx.userData.daily.quests = Functions.generateDailyQuests(ctx.userData.level);
+                    ctx.userData.daily.quests = Functions.generateDailyQuests(
+                        Functions.getTrueLevel(ctx.userData)
+                    );
                     ctx.userData.daily.lastDailyQuestsReset = new Date().setUTCHours(0, 0, 0, 0);
                     ctx.userData.daily.dailyQuestsReset = 0;
                     ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
-                    ctx.followUpQueue.push({
-                        content: `:scroll:${ctx.client.localEmojis.timerIcon} | **${
+                    notifications.push(
+                        `:scroll:${ctx.client.localEmojis.timerIcon} | **${
                             ctx.user.username
                         }**, you have new daily quests! Use the ${ctx.client.getSlashCommandMention(
                             "daily quests"
-                        )} command to see them!`,
+                        )} command to see them!`
+                    );
+                }
+
+                for (const [key, value] of Object.entries(ctx.userData.equippedItems)) {
+                    const itemData = Functions.findItem(key);
+                    if (!Functions.isEquipableItem(itemData)) continue;
+
+                    if (!Functions.userMeetsRequirementsForItem(ctx.userData, itemData)) {
+                        delete ctx.userData.equippedItems[key];
+                        Functions.addItem(ctx.userData, key, 1, true);
+                        notifications.push(
+                            `:x: | **${ctx.user.username}**, you no longer meet the requirements for the ${itemData.emoji} \`${itemData.name}\` item, so it has been unequipped and put back in your inventory.`
+                        );
+                    }
+                }
+
+                if (notifications.length > 0) {
+                    ctx.followUpQueue.push({
+                        content: `${notifications.map((x) => `- ${x}`).join("\n")}\n-# <@${
+                            ctx.user.id
+                        }>`,
                     });
                 }
 
