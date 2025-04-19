@@ -462,27 +462,15 @@ const slashCommand: SlashCommandFile = {
                 });
             }
 
-            if (itemData.requirements) {
-                let meetReqs = true;
-                if (itemData.requirements.level && itemData.requirements.level > ctx.userData.level)
-                    meetReqs = false;
-                if (itemData.requirements.skillPoints)
-                    for (const skill in itemData.requirements.skillPoints) {
-                        if (
-                            ctx.userData.skillPoints[skill as keyof SkillPoints] <
-                            itemData.requirements.skillPoints[skill as keyof SkillPoints]
-                        )
-                            meetReqs = false;
-                    }
-                if (!meetReqs) {
-                    ctx.makeMessage({
-                        content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
-                            "inventory info"
-                        )} command to get more informations.`,
-                    });
-                    return;
-                }
+            if (!Functions.userMeetsRequirementsForItem(ctx.userData, itemData)) {
+                ctx.makeMessage({
+                    content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
+                        "inventory info"
+                    )} command to get more informations.`,
+                });
+                return;
             }
+
             ctx.userData.equippedItems[itemData.id] = itemData.type;
             ctx.userData.inventory[itemData.id] -= amountX;
             await ctx.makeMessage({

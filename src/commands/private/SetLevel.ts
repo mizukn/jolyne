@@ -56,7 +56,7 @@ const slashCommand: SlashCommandFile = {
         ctx.userData.level = level;
         ctx.userData.xp = 0;
 
-        if (Functions.getSkillPointsLeft(ctx.userData) < 0) {
+        if (Functions.getRawSkillPointsLeft(ctx.userData) < 0) {
             for (const key in ctx.userData.skillPoints) {
                 ctx.userData.skillPoints[key as keyof typeof ctx.userData.skillPoints] = 0;
             }

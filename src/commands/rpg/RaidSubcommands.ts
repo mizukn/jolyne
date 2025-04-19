@@ -340,7 +340,7 @@ const getFixedBosses = () => {
         fixedBosses.push(Halloween2024EventRaids);
     }
 
-    if (is2024ChristmasEventActive() || process.env.BETA) {
+    if (is2024ChristmasEventActive()) {
         /*if (Christmas2024EventRaid.minions.length === 0) {
             Christmas2024EventRaid.minions = Object.values(FightableNPCS)
                 .filter(
@@ -356,11 +356,11 @@ const getFixedBosses = () => {
         fixedBosses.push(Christmas2024EventRaid);
     }
 
-    if (is2025WinterEvent() || process.env.BETA) {
+    if (is2025WinterEvent()) {
         fixedBosses.push(Winter2025EventRaid);
     }
 
-    if (is2025ChineseNewYear() || process.env.BETA) {
+    if (is2025ChineseNewYear()) {
         fixedBosses.push(ChineseNewYearEvent2025Raid);
     }
 
@@ -486,7 +486,14 @@ const slashCommand: SlashCommandFile = {
         const raidCost = (raid.baseRewards?.coins ?? 25000) * 3;
         if (raid.level > ctx.userData.level) {
             ctx.makeMessage({
-                content: `You need to be at least level **${raid.level}** to raid this boss.`,
+                content: `You must to be at least level **${raid.level}** to raid this boss.`,
+            });
+            return;
+        }
+
+        if (raid.prestige && ctx.userData.prestige < raid.prestige) {
+            ctx.makeMessage({
+                content: `You must to be at least prestige **${raid.prestige}** to raid this boss.`,
             });
             return;
         }
@@ -891,6 +898,16 @@ const slashCommand: SlashCommandFile = {
 
                         return;
                     }
+
+                    if (usrData.prestige < raid.prestige) {
+                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
+                            ctx.followUp({
+                                content: `<@${interaction.user.id}> tried to join the raid but they are too low prestige.`,
+                            });
+                            cooldownedUsers.push(interaction.user.id);
+                        }
+                        return;
+                    }
                     if (usrData.coins < raidCost) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
                             ctx.followUp({
@@ -1002,7 +1019,9 @@ const slashCommand: SlashCommandFile = {
                 title: `${enhancedBoss.emoji} ${enhancedBoss.name} RAID`,
                 description: `> \`Boss Level:\` ${enhancedBoss.level}\n> \`Coins required:\` ${
                     ctx.client.localEmojis.jocoins
-                } ${raidCost.toLocaleString("en-US")}\n> \`Min Level Requirement:\` ${
+                } ${raidCost.toLocaleString("en-US")}\n${
+                    raid.prestige ? `> \`Prestige Requirement:\` ${raid.prestige}\n` : ""
+                }> \`Min Level Requirement:\` ${
                     raid.level
                 }\n> \`Maximum Level Requirement:\` ${raid.maxLevel.toLocaleString(
                     "en-US"

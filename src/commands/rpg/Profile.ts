@@ -241,7 +241,9 @@ const slashCommand: SlashCommandFile = {
             fields: [
                 {
                     name: "Player Infos",
-                    value: `:heart: HP: ${Functions.localeNumber(
+                    value: `:crossed_swords: True Level*: ${Functions.getTrueLevel(
+                        rpgData
+                    ).toLocaleString()}\n:heart: HP: ${Functions.localeNumber(
                         rpgData.health
                     )}/${Functions.localeNumber(
                         Functions.getMaxHealth(rpgData)
@@ -254,34 +256,28 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Ranking",
-                    value: `:globe_with_meridians: \`${levelLbPos.toLocaleString(
-                        "en-US"
-                    )}\`/\`${levelLb.data.length.toLocaleString("en-US")}\`\n${
+                    value: `:globe_with_meridians: \`${levelLbPos.toLocaleString()}\`/\`${levelLb.data.length.toLocaleString()}\`\n${
                         ctx.client.localEmojis.jocoins
-                    } \`${coinsLbPos.toLocaleString(
-                        "en-US"
-                    )}\`/\`${coinsLb.data.length.toLocaleString("en-US")}\``,
+                    } \`${coinsLbPos.toLocaleString()}\`/\`${coinsLb.data.length.toLocaleString()}\``,
                     inline: true,
                 },
                 {
                     name: "Player Stats",
-                    value: process.env.ENABLE_PRESTIGE
-                        ? `${ctx.client.localEmojis.a_} Level: ${rpgData.level.toLocaleString(
-                              "en-US"
-                          )}/${Functions.getMaxPrestigeLevel(rpgData.prestige ?? 0)} (prestige: **${
-                              rpgData.prestige ?? 0
-                          }**)\n${ctx.client.localEmojis.xp} XP: ${rpgData.xp.toLocaleString(
-                              "en-US"
-                          )}/${Functions.getMaxXp(rpgData.level).toLocaleString("en-US")}\n${
-                              ctx.client.localEmojis.jocoins
-                          } Coins: ${rpgData.coins.toLocaleString()}`
-                        : `${ctx.client.localEmojis.a_} Level: ${rpgData.level.toLocaleString(
-                              "en-US"
-                          )}\n${ctx.client.localEmojis.xp} XP: ${rpgData.xp.toLocaleString(
-                              "en-US"
-                          )}/${Functions.getMaxXp(rpgData.level).toLocaleString("en-US")}\n${
-                              ctx.client.localEmojis.jocoins
-                          } Coins: ${rpgData.coins.toLocaleString()}`,
+                    value: `${
+                        ctx.client.localEmojis.a_
+                    } RPG Level: ${rpgData.level.toLocaleString()}\n${
+                        ctx.client.localEmojis.xp
+                    } XP: ${rpgData.xp.toLocaleString()}/${Functions.getMaxXp(
+                        rpgData.level
+                    ).toLocaleString()}${
+                        process.env.ENABLE_PRESTIGE
+                            ? `\n<:restart:1362152085625241691> Prestige: ${rpgData.prestige}`
+                            : ""
+                    }\n${
+                        ctx.client.localEmojis.jocoins
+                    } Coins: ${rpgData.coins.toLocaleString()}\n${
+                        ctx.client.localEmojis.prestige_shard
+                    } Prestige shards: ${rpgData.prestige_shards.toLocaleString()}`,
                     inline: true,
                 },
                 {
@@ -320,7 +316,7 @@ const slashCommand: SlashCommandFile = {
                     name: "Player Bonuses (from items)",
                     value: `\`[+]\` Health: **${Math.round(
                         Functions.calcEquipableItemsBonus(rpgData).health
-                    ).toLocaleString("en-US")}**\n\`[+]\` Stamina: **${
+                    ).toLocaleString()}**\n\`[+]\` Stamina: **${
                         Functions.calcEquipableItemsBonus(rpgData).stamina
                     }**\n${
                         ctx.client.localEmojis.xp
@@ -355,26 +351,31 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Combat Infos",
-                    value: `✊ ATK Damage: [${Math.round(
+                    value: `:crossed_swords: Power Level: ${Functions.calculateUserPower(
+                        rpgData
+                    ).toLocaleString()}\n✊ ATK Damage: [${Math.round(
                         Functions.getAttackDamages(rpgData) * 0.5
-                    ).toLocaleString("en-US")} - ${Math.round(
+                    ).toLocaleString()} - ${Math.round(
                         Functions.getAttackDamages(rpgData) * 1.1
-                    ).toLocaleString("en-US")}]\n:leaves: Dodge score: ${Functions.getDodgeScore(
+                    ).toLocaleString()}]\n:leaves: Dodge score: ${Functions.getDodgeScore(
                         rpgData
-                    ).toLocaleString("en-US")}\n🔄 Speed score: ${Functions.getSpeedScore(
+                    ).toLocaleString()}\n🔄 Speed score: ${Functions.getSpeedScore(
                         rpgData
-                    ).toLocaleString("en-US")}`,
+                    ).toLocaleString()}`,
                     inline: true,
                 },
                 {
                     name: "Stand Disc Capacity",
-                    value: `- Limit: ${Functions.calcStandDiscLimit(ctx, rpgData).toLocaleString(
-                        "en-US"
-                    )} ${ctx.client.localEmojis.disk}\n- Used: ${discCount.toLocaleString(
-                        "en-US"
-                    )} ${ctx.client.localEmojis.disk}\n- Available: ${(
+                    value: `- Limit: ${Functions.calcStandDiscLimit(
+                        ctx,
+                        rpgData
+                    ).toLocaleString()} ${
+                        ctx.client.localEmojis.disk
+                    }\n- Used: ${discCount.toLocaleString()} ${
+                        ctx.client.localEmojis.disk
+                    }\n- Available: ${(
                         Functions.calcStandDiscLimit(ctx, rpgData) - discCount
-                    ).toLocaleString("en-US")} ${ctx.client.localEmojis.disk}`,
+                    ).toLocaleString()} ${ctx.client.localEmojis.disk}`,
                     inline: true,
                 },
                 {
@@ -412,6 +413,10 @@ const slashCommand: SlashCommandFile = {
                     inline: true,
                 },
             ],
+            // The true level is determined by invested skill points plus bonuses (extra skill points from items/stands, extra health/stamina from items/stands etc...)
+            footer: {
+                text: `* Your true level is determined by invested skill points plus bonuses (extra skill points from items/stands, extra health/stamina from items/stands etc...)`,
+            },
         };
 
         ctx.makeMessage({

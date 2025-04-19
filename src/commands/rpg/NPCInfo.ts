@@ -50,7 +50,9 @@ const slashCommand: SlashCommandFile = {
             fields: [
                 {
                     name: "Infos",
-                    value: `${ctx.client.localEmojis.a_} Level: ${
+                    value: `:crossed_swords: True Level*: ${Functions.getTrueLevel(
+                        NPC
+                    ).toLocaleString()}\n${ctx.client.localEmojis.a_} Level: ${
                         NPC.level
                     }\n:heart: HP: ${Functions.localeNumber(
                         Functions.getMaxHealth(NPC)
@@ -90,7 +92,7 @@ const slashCommand: SlashCommandFile = {
                     inline: true,
                 },
                 {
-                    name: "Player Bonuses (from items)",
+                    name: "NPC Bonuses (from items)",
                     value: `\`[+]\` Health: **${
                         Functions.calcEquipableItemsBonus(NPC).health
                     }**\n\`[+]\` Stamina: **${Functions.calcEquipableItemsBonus(NPC).stamina}**\n${
@@ -129,7 +131,9 @@ const slashCommand: SlashCommandFile = {
                 },
                 {
                     name: "Combat Infos",
-                    value: `✊ ATK Damage: [${Math.round(
+                    value: `:crossed_swords: Power Level: ${Functions.calculateUserPower(
+                        NPC
+                    ).toLocaleString()}\n✊ ATK Damage: [${Math.round(
                         Functions.getAttackDamages(NPC) * 0.5
                     ).toLocaleString("en-US")} - ${Math.round(
                         Functions.getAttackDamages(NPC) * 1.1

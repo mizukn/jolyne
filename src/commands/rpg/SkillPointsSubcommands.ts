@@ -110,13 +110,13 @@ const slashCommand: SlashCommandFile = {
                     ),
                 });
 
-            if (totalAmount > Functions.calculeSkillPointsLeft(ctx.userData))
+            if (totalAmount > Functions.getRawSkillPointsLeft(ctx.userData))
                 return await ctx.makeMessage({
                     content: Functions.makeNPCString(
                         NPCs.Dio,
                         `Maths don't work like that, ${
                             ctx.user.username
-                        }... You can only invest **${Functions.calculeSkillPointsLeft(
+                        }... You can only invest **${Functions.getRawSkillPointsLeft(
                             ctx.userData
                         )}** points... WRYY`,
                         ctx.client.localEmojis.dioangry
@@ -163,7 +163,7 @@ const slashCommand: SlashCommandFile = {
                 Functions.actionRow([
                     new ButtonBuilder()
                         .setCustomId("ff" + Date.now())
-                        .setLabel(`${Functions.calculeSkillPointsLeft(ctx.userData)} points left`)
+                        .setLabel(`${Functions.getRawSkillPointsLeft(ctx.userData)} points left`)
                         .setEmoji("925416226547707924")
                         .setDisabled(true)
                         .setStyle(ButtonStyle.Secondary),

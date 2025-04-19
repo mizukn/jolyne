@@ -13,6 +13,7 @@ import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { FightableNPCS } from "../../rpg/NPCs";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
+import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -246,7 +247,8 @@ const slashCommand: SlashCommandFile = {
         function startFight(
             questId: string,
             npcId: string,
-            type: FightTypes.DailyQuest | FightTypes.ChapterQuest | FightTypes.SideQuest
+            type: FightTypes.DailyQuest | FightTypes.ChapterQuest | FightTypes.SideQuest,
+            customLevel?: number
         ) {
             if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
                 return ctx.makeMessage({
@@ -274,8 +276,11 @@ const slashCommand: SlashCommandFile = {
                     console.log("NO MESSAGE FOUND, ATTEMTPING TO DELETE");
                 }
             }
-            const npc = Functions.findNPC<FightableNPC>(npcId, true);
-
+            const npc = cloneDeep(Functions.findNPC<FightableNPC>(npcId, true));
+            if (customLevel) {
+                npc.level = customLevel;
+                Functions.fixNpcRewards(npc);
+            }
             // ctx.interaction.deleteReply();
 
             const fight = new FightHandler(ctx, [[ctx.userData], [npc]], type, message);
@@ -715,12 +720,15 @@ const slashCommand: SlashCommandFile = {
                                 }
 
                                 collector.stop();
-                                if (quest) await startFight(quest.id, quest.npc, type);
+
+                                if (quest && Functions.isFightNPCQuest(quest))
+                                    await startFight(quest.id, quest.npc, type, quest.customLevel);
                             }
                         });
                     }
 
-                    if (quest) await startFight(quest.id, quest.npc, type);
+                    if (quest && Functions.isFightNPCQuest(quest))
+                        await startFight(quest.id, quest.npc, type, quest.customLevel);
                 } else {
                     const NPC = ctx.interaction.options.getString("npc");
                     let type:
@@ -745,7 +753,7 @@ const slashCommand: SlashCommandFile = {
                             .quests.find((v) => v.id === NPC);
                     }
 
-                    if (!realNPC) {
+                    if (!realNPC || !Functions.isFightNPCQuest(realNPC)) {
                         await ctx.makeMessage({
                             content:
                                 "Could not find questId `" +
@@ -755,7 +763,7 @@ const slashCommand: SlashCommandFile = {
                         return;
                     }
 
-                    await startFight(NPC, realNPC.npc, type);
+                    await startFight(NPC, realNPC.npc, type, realNPC.customLevel);
                 }
 
                 break;

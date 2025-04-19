@@ -67,7 +67,7 @@ const slashCommand: SlashCommandFile = {
 
         const embed: APIEmbed = {
             title: `${ctx.client.localEmojis.a_} Prestige`,
-            description: `- Your level will drop by a certain amount\n- - \`Level → Level - (50 + 200 + 350 + 500 + ... + 500 + n)\`, with a max level cap of 500 \`∀P>2\`\n- The extra ${ctx.client.localEmojis.xp} you have allows you to level up within the limits of your new prestige level.
+            description: `- You will get ${ctx.client.localEmojis.prestige_shard} **x${Functions.PrestigeShardReward} Prestige Shards** each time you prestige\n- Your level will drop by a certain amount\n- - \`Level → Level - (50 + 200 + 350 + 500 + ... + 500 + n)\`, with a max level cap of 500 \`∀P>2\`\n- The extra ${ctx.client.localEmojis.xp} you have allows you to level up within the limits of your new prestige level.
 
 Prestige therefore allows you to continue progressing while resetting your level in exchange for rewards`,
             fields: [
@@ -88,7 +88,18 @@ Prestige therefore allows you to continue progressing while resetting your level
                         ctx.userData.level
                     }/${Functions.getMaxPrestigeLevel(ctx.userData.prestige)}**\n- Prestige: **${
                         ctx.userData.prestige
-                    }**\n- Chapter progress: **${status.percent}%**`,
+                    }**\n- Current chapter progress: **${
+                        status.percent
+                    }%** (do not go to the next chapter! stay in the current one)`,
+                    inline: true,
+                },
+                {
+                    name: "Skill Points Bonus",
+                    value: `- \`P1–4:\` +10/prestige (40 total at P4)  
+- \`P4–10:\` +5/prestige  
+- \`P10–20:\` +2/prestige  
+- \`P20+:\` +1/prestige
+`,
                     inline: true,
                 },
                 {
@@ -101,6 +112,8 @@ Prestige therefore allows you to continue progressing while resetting your level
                               cobaye.prestige
                           )}** with **${cobaye.xp.toLocaleString("en-US")}** ${
                               ctx.client.localEmojis.xp
+                          } and **${cobaye.prestige_shards.toLocaleString()}** ${
+                              ctx.client.localEmojis.prestige_shard
                           } (total prestige: **${cobaye.prestige}**)`,
                 },
             ],
@@ -152,12 +165,15 @@ async function handlePrestige(
     await ctx.client.database.saveUserData(ctx.userData);
 
     await ctx.makeMessage({
-        content: `You have prestiged! You are now level **${
+        content: null,
+        components: [],
+    });
+    ctx.followUp({
+        content: `:star: | You have prestiged! You are now level **${
             ctx.userData.level
         }** with **${ctx.userData.xp.toLocaleString("en-US")}** xp (total prestige: **${
             ctx.userData.prestige
         }**).`,
-        components: [],
     });
 }
 

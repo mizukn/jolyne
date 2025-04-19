@@ -467,7 +467,7 @@ const slashCommand: SlashCommandFile = {
 
                             ctx.userData.coins -= price;
                             ctx.userData.daily.quests = Functions.generateDailyQuests(
-                                ctx.userData.level
+                                Functions.getTrueLevel(ctx.userData)
                             );
                             await ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
                             if (!ctx.userData.daily.dailyQuestsReset) {

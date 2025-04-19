@@ -53,7 +53,7 @@ const slashCommand: SlashCommandFile = {
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
         ctx.userData.prestige = prestige;
 
-        if (Functions.getSkillPointsLeft(ctx.userData) < 0) {
+        if (Functions.getRawSkillPointsLeft(ctx.userData) < 0) {
             for (const key in ctx.userData.skillPoints) {
                 ctx.userData.skillPoints[key as keyof typeof ctx.userData.skillPoints] = 0;
             }

@@ -212,7 +212,7 @@ export const getQuestsStats = (
                 quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length === 1
             ) {
                 const messageString = `Defeat ${npc.name} ${npc.emoji} (LVL ${
-                    npc.level
+                    quest.customLevel ?? npc.level
                 }) (${ctx.client.getSlashCommandMention("fight npc")}) ||(${
                     questPercent === 1 ? ":white_check_mark:" : ":x:"
                 })||`;
@@ -222,7 +222,7 @@ export const getQuestsStats = (
                     quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
                 } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
                     "fight npc"
-                )}) (LVL ${npc.level}) ||(${
+                )}) (LVL ${quest.customLevel ?? npc.level}) ||(${
                     quests.filter(
                         (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
                     ).length
@@ -541,6 +541,12 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 ctx.userData.chapter.quests = newChap.quests.map((x) => Functions.pushQuest(x));
+                for (const quest of ctx.userData.chapter.quests) {
+                    if (Functions.isFightNPCQuest(quest)) {
+                        const trueLevel = Functions.getTrueLevel(ctx.userData);
+                        quest.customLevel = Math.max(trueLevel + 5, trueLevel * 1.05);
+                    }
+                }
                 ctx.userData.chapter.id = newChap.id;
 
                 status = getQuestsStats(ctx.userData.chapter.quests, ctx);

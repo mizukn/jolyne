@@ -55,11 +55,13 @@ const slashCommand: SlashCommandFile = {
             });
             return;
         }
+        const trueLvl = Functions.getTrueLevel(ctx.userData);
+        console.log("True level: ", trueLvl);
 
         const normalNPC = Functions.randomArray(
             Object.values(FightableNPCS).filter(
                 (r) =>
-                    r.level <= ctx.userData.level &&
+                    r.level <= trueLvl &&
                     r.stand !== "admin_stand" &&
                     (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
             )
@@ -68,7 +70,7 @@ const slashCommand: SlashCommandFile = {
             Functions.randomArray(
                 Object.values(FightableNPCS).filter(
                     (r) =>
-                        r.level > ctx.userData.level &&
+                        r.level > trueLvl &&
                         r.stand !== "admin_stand" &&
                         (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
                 )
@@ -84,16 +86,12 @@ const slashCommand: SlashCommandFile = {
             .setCustomId("high" + ctx.interaction.id)
             .setLabel(`[LVL ${highNPC.level.toLocaleString("en-US")}] ` + highNPC.name)
             .setEmoji(highNPC.emoji)
-            .setStyle(
-                highNPC.level < ctx.userData.level ? ButtonStyle.Secondary : ButtonStyle.Danger
-            );
+            .setStyle(highNPC.level < trueLvl ? ButtonStyle.Secondary : ButtonStyle.Danger);
         const randomNPCButton = new ButtonBuilder()
             .setCustomId("random" + ctx.interaction.id)
             .setLabel(`[LVL ${randomNPC.level.toLocaleString("en-US")}] ` + randomNPC.name)
             .setEmoji(randomNPC.emoji)
-            .setStyle(
-                randomNPC.level < ctx.userData.level ? ButtonStyle.Secondary : ButtonStyle.Danger
-            );
+            .setStyle(randomNPC.level < trueLvl ? ButtonStyle.Secondary : ButtonStyle.Danger);
 
         await ctx.makeMessage({
             embeds: [
@@ -153,12 +151,12 @@ const slashCommand: SlashCommandFile = {
                 if (winners.find((r) => r.id === ctx.userData.id)) {
                     const xp = Functions.addXp(
                         ctx.userData,
-                        npc.rewards?.xp ?? 0 ?? npc.level * 1000,
+                        npc.rewards?.xp + npc.level * 1000,
                         ctx.client
                     );
                     const coins = Functions.addCoins(
                         ctx.userData,
-                        npc.rewards?.coins ?? 0 / 5 ?? npc.level * 250
+                        npc.rewards?.coins + npc.level * 250
                     );
                     ctx.userData.health = winners[0].health;
                     ctx.userData.stamina = winners[0].stamina;
