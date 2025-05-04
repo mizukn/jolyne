@@ -15,7 +15,6 @@ import * as Stands from "../../rpg/Stands/Stands";
 import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
 
 import { fixFields, isEvolvableStand } from "../../utils/Functions";
-import { parse } from "dotenv";
 import { cloneDeep } from "lodash";
 
 const regularStandList = Object.values(Stands);

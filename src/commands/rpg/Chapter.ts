@@ -541,10 +541,12 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 ctx.userData.chapter.quests = newChap.quests.map((x) => Functions.pushQuest(x));
-                for (const quest of ctx.userData.chapter.quests) {
-                    if (Functions.isFightNPCQuest(quest)) {
-                        const trueLevel = Functions.getTrueLevel(ctx.userData);
-                        quest.customLevel = Math.max(trueLevel + 5, trueLevel * 1.05);
+                if (process.env.ENABLE_PRESTIGE) {
+                    for (const quest of ctx.userData.chapter.quests) {
+                        if (Functions.isFightNPCQuest(quest)) {
+                            const trueLevel = Functions.getTrueLevel(ctx.userData);
+                            quest.customLevel = Math.max(trueLevel + 5, trueLevel * 1.05);
+                        }
                     }
                 }
                 ctx.userData.chapter.id = newChap.id;
