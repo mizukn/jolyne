@@ -517,21 +517,11 @@ const Event: EventFile = {
                 ) {
                     ctx.userData.xp -= Functions.getMaxXp(ctx.userData.level);
                     ctx.userData.level++;
-                    queue.push(
-                        `:up: | You just leveled up to level **${
-                            ctx.userData.level
-                        }**!\n\nUse the ${ctx.client.getSlashCommandMention(
-                            "skill points invest"
-                        )} command to invest your skill points!`
-                    );
+                    queue.push(`:up: | You just leveled up to level **${ctx.userData.level}**!`);
                 }
-                if (queue.length > 5) {
+                if (queue.length > 1) {
                     notifications.push(
-                        `:up: | You leveled up: **${oldLevel}** ${
-                            ctx.client.localEmojis.arrowRight
-                        } **${ctx.userData.level}**!\n\nUse the ${ctx.client.getSlashCommandMention(
-                            "skill points invest"
-                        )} command to invest your skill points!`
+                        `:up: | You leveled up: **${oldLevel}** ${ctx.client.localEmojis.arrowRight} **${ctx.userData.level}**!`
                     );
                 } else {
                     for (const item of queue) {
