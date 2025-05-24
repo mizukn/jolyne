@@ -102,17 +102,7 @@ const slashCommand: SlashCommandFile = {
                     xp: added.toLocaleString(),
                 });
 
-                console.log(
-                    ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000,
-                    Functions.getCurrentDate() !== `2025-05-04` ||
-                        Functions.getCurrentDate() !== `2025-05-05`
-                );
-
-                if (
-                    ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000 &&
-                    (Functions.getCurrentDate() !== `2025-05-04` ||
-                        Functions.getCurrentDate() !== `2025-05-05`)
-                ) {
+                if (ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000) {
                     const oldStreak = ctx.userData.daily.claimStreak;
                     ctx.userData.daily.claimStreak = 0;
 
