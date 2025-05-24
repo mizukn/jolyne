@@ -102,13 +102,6 @@ const slashCommand: SlashCommandFile = {
                     xp: added.toLocaleString(),
                 });
 
-                if (
-                    Functions.getCurrentDate() !== `2025-05-04` ||
-                    Functions.getCurrentDate() !== `2025-05-05`
-                )
-                    ctx.followUpQueue.push({
-                        content: `MAINTENANCE BONUS: Due to the maintenance, nobody will lose their streak for the next 2 days.`,
-                    });
                 console.log(
                     ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000,
                     Functions.getCurrentDate() !== `2025-05-04` ||
