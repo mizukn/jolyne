@@ -242,7 +242,7 @@ export const SecondAnniversary: Email = {
     content: (ctx) =>
         `It's been 2 years since the bot was created.\nInitially, the bot was created to be a fun private bot for a small group of friends, but it has grown to be a bot with over 15k registered players.\nJolyne wouldn't be where it is today without the support of the community, and our patreons.\n\nWe would like to thank everyone who has supported us, and we hope to continue to provide a fun and enjoyable experience for everyone.`,
     footer: "Thank you for being part of the Jolyne community!",
-    emoji: "🎉",
+    emoji: "🎉", 
     rewards: {
         coins: 100000,
         xp: 500000,

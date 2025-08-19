@@ -77,7 +77,7 @@ export const RequiemArrowEvolve: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **50** or over presige 0",
+            requirement: "You need to be level **50** or over prestige 0",
             status: ctx.userData.level >= 50 || !!ctx.userData.prestige,
         });
 
@@ -270,7 +270,7 @@ export const KillerQueenDitesTheDust: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **75** or over presige 0",
+            requirement: "You need to be level **75** or over prestige 0",
             status: ctx.userData.level >= 75 || !!ctx.userData.prestige,
         });
 
@@ -406,7 +406,7 @@ export const Echoes2: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **10** or over presige 0",
+            requirement: "You need to be level **10** or over prestige 0",
             status: ctx.userData.level >= 10 || !!ctx.userData.prestige,
         });
 
@@ -481,7 +481,7 @@ export const Echoes3: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **15** or over presige 0",
+            requirement: "You need to be level **15** or over prestige 0",
             status: ctx.userData.level >= 15 || !!ctx.userData.prestige,
         });
 
@@ -635,7 +635,7 @@ export const CMoon: SideQuest = {
         });
 
         statuses.push({
-            requirement: "You need to be level **100** or over presige 0",
+            requirement: "You need to be level **100** or over prestige 0",
             status: ctx.userData.level >= 100 || !!ctx.userData.prestige,
         });
 

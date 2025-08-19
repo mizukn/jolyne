@@ -453,3 +453,63 @@ export const C2_P11: ChapterPart = {
         ],
     },
 };
+
+/**
+ * After Defeating Enya, she now reveals a hidden card up her sleeve, as you and your group become surrounded by corpses, being controlled like zombies. Now, you must confront the horde with all your might.
+
+
+📜 Quests: (0.00%)
+:reply: Defeat 1 Corpse Horde Dungeon (0/1) 0%
+:reply: Claim 175,000 coins  (0/175,000) 0.00%
+:reply: Claim your daily reward 2 times (using the /daily claim command)  (0/2) 0.00%
+:reply: Use the /loot command 10 times  (0/10) 0.00%
+:replyEnd: Use the /assault command 10 times  (0/10) 0.00% 
+@
+
+export const C2_P12: ChapterPart = {
+    id: 5,
+    description: {
+        "en-US":
+            "After defeating Enya, she reveals a hidden card up her sleeve, as you and your group become surrounded by corpses, being controlled like zombies. Now, you must confront the horde with all your might.",
+        "fr-FR":
+            "Après avoir vaincu Enya, elle révèle une carte cachée dans sa manche, alors que vous et votre groupe êtes entourés de cadavres, contrôlés comme des zombies. Maintenant, vous devez affronter la horde de toutes vos forces.",
+        "es-ES":
+            "Después de derrotar a Enya, ella revela una carta oculta bajo su manga, ya que tú y tu grupo quedan rodeados por cadáveres, controlados como zombis. Ahora debes enfrentarte a la horda con todas tus fuerzas.",
+        "de-DE":
+            "Nach dem Sieg über Enya enthüllt sie eine versteckte Karte in ihrem Ärmel, während du und deine Gruppe von Leichen umgeben werdet, die wie Zombies kontrolliert werden. Jetzt musst du der Horde mit all deiner Kraft gegenübertreten.",
+        "pt-BR":
+            "Após derrotar Enya, ela revela uma carta escondida na manga, enquanto você e seu grupo são cercados por cadáveres, controlados como zumbis. Agora, você deve enfrentar a horda com todas as suas forças.",
+        "ru-RU":
+            "После победы над Эньей она раскрывает скрытую карту в рукаве, и вы с группой оказываетесь окружены трупами, управляемыми как зомби. Теперь вам предстоит противостоять орде изо всех сил.",
+        "ja-JP":
+            "エンヤを倒した後、彼女は袖の中に隠されたカードを明らかにし、あなたとあなたのグループはゾンビのように操られる死体に囲まれます。今、あなたは全力でその群れに立ち向かわなければなりません。",
+    },
+    quests: [
+        Functions.generateFightQuest(
+            NPCs.CorpseHorde,
+            Functions.pushQuest(ActionQuests.DefeatCorpseHorde),
+            null,
+            [
+                {
+                    item: Functions.findItem("xp_box").name,
+                    amount: 10,
+                },
+            ]
+        ),
+        Functions.generateClaimXQuest("coin", 175000),
+        Functions.generateClaimXQuest("daily", 2),
+        Functions.generateUseXCommandQuest("loot", 10), // Use the /loot command 10 times
+        Functions.generateUseXCommandQuest("assault", 10), // Use the /assault command 10 times
+    ],
+    parent: Chapters.C2,
+    private: true,
+    rewardsWhenComplete: {
+        items: [
+            {
+                item: Functions.findItem("rare_stand_arrow").id,
+                amount: 6,
+            },
+        ],
+    },
+};
+ */
