@@ -728,7 +728,7 @@ export const WonderOfU: Stand = {
     description:
         "Wonder Of U is a stand from JoJo Part 8, its user is known as [Toru](https://jojowiki.com/Toru). It has a robotic body and can summoncalimaties at will.",
     rarity: "SS",
-    image: "https://media.jolyne.moe/WIMRqL/direct",
+    image: "https://media.jolyne.moe/54xhTK/direct",
     color: 0x5c212d,
     abilities: [
         Abilities.CalamityManipulation,

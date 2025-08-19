@@ -45,7 +45,7 @@ export const SilverChariot: EvolutionStand = {
                 Abilities.LifeTransference,
                 Abilities.EternalSleep,
             ],
-            image: "https://media.jolyne.moe/tPaPh4/direct",
+            image: "https://media.jolyne.moe/Zj6Moq/direct",
             color: 0x000000,
             emoji: Emojis.SCR,
             skillPoints: {
@@ -76,7 +76,7 @@ export const GoldExperience: EvolutionStand = {
                 Abilities.LifeShot,
                 Abilities.LifePunch,
             ],
-            image: "https://media.jolyne.moe/VyLoCg/direct",
+            image: "https://media.jolyne.moe/Xl8RIS/direct",
             // yellow color
             color: 0xffff00,
             emoji: Emojis.gold_experience,
@@ -333,7 +333,7 @@ export const Echoes: EvolutionStand = {
             description:
                 "Echoes, You feel something echoing deep in your heart. It seems like this stand is more powerful than it may seem.",
             rarity: "B",
-            image: "https://media.jolyne.moe/GGwtZP/direct",
+            image: "https://media.jolyne.moe/S5NP8Q/direct",
             abilities: [
                 {
                     ...Abilities.StandBarrage,
@@ -358,7 +358,7 @@ export const Echoes: EvolutionStand = {
             description:
                 "Echoes Act 2, You seem to be discovering more mysteries about your stand. Maybe you can dig deeper?",
             rarity: "A",
-            image: "https://media.jolyne.moe/glEgta/direct",
+            image: "https://media.jolyne.moe/owx00P/direct",
             abilities: [
                 {
                     ...Abilities.StandBarrage,
