@@ -45,7 +45,7 @@ export const SilverChariot: EvolutionStand = {
                 Abilities.LifeTransference,
                 Abilities.EternalSleep,
             ],
-            image: "https://static.jojowiki.com/images/1/12/latest/20211210020712/Chariot_Requiem_Infobox_Anime.png",
+            image: "https://media.jolyne.moe/tPaPh4/direct",
             color: 0x000000,
             emoji: Emojis.SCR,
             skillPoints: {
@@ -76,7 +76,7 @@ export const GoldExperience: EvolutionStand = {
                 Abilities.LifeShot,
                 Abilities.LifePunch,
             ],
-            image: "https://static.jojowiki.com/images/8/81/latest/20210707053105/Gold_Experience_Infobox_Anime.png",
+            image: "https://media.jolyne.moe/VyLoCg/direct",
             // yellow color
             color: 0xffff00,
             emoji: Emojis.gold_experience,
@@ -102,7 +102,7 @@ export const GoldExperience: EvolutionStand = {
                 Abilities.RequiemArrowBlast,
                 Abilities.InfiniteDeathLoop,
             ],
-            image: "https://static.jojowiki.com/images/thumb/1/13/latest/20210525092302/GER_Infobox_Manga.png/400px-GER_Infobox_Manga.png",
+            image: "https://media.jolyne.moe/V6jeHP/direct",
             color: 0x8b8000,
             emoji: Emojis.GER,
             skillPoints: {
@@ -271,7 +271,7 @@ export const KillerQueen: EvolutionStand = {
             description:
                 "Killer Queen is a humanoid Stand of average height and build. Its face is hidden apart from the mouth by a helmet-like covering adorned with a mohawk-like row of short spikes. It has a cat-like mouth and ears, and its eyes are inverted, producing a negative effect with pure-white irises and black sclera.",
             rarity: "S",
-            image: "https://static.jojowiki.com/images/thumb/f/fb/latest/20210420222949/Killer_Queen_Infobox_Manga.png/400px-Killer_Queen_Infobox_Manga.png",
+            image: "https://media.jolyne.moe/jcbUsG/direct",
             abilities: [
                 Abilities.CoinBomb,
                 {
@@ -297,7 +297,7 @@ export const KillerQueen: EvolutionStand = {
             description:
                 "Killer Queen Bites the Dust is the Stand of [Yoshikage Kira](https://jojo.fandom.com/wiki/Yoshikage_Kira), featured in Diamond is Unbreakable. It is a sub-Stand that takes the form of a light purple cat-like entity, and is the evolved form of Killer Queen.",
             rarity: "SS",
-            image: "https://static.jojowiki.com/images/thumb/f/fb/latest/20210420222949/Killer_Queen_Infobox_Manga.png/400px-Killer_Queen_Infobox_Manga.png",
+            image: "https://media.jolyne.moe/jcbUsG/direct",
             abilities: [
                 Abilities.CoinBomb,
                 {
@@ -333,7 +333,7 @@ export const Echoes: EvolutionStand = {
             description:
                 "Echoes, You feel something echoing deep in your heart. It seems like this stand is more powerful than it may seem.",
             rarity: "B",
-            image: "https://static.jojowiki.com/images/d/dc/latest/20210424210829/Echoes_ACT1_DU_Infobox_Anime.png",
+            image: "https://media.jolyne.moe/GGwtZP/direct",
             abilities: [
                 {
                     ...Abilities.StandBarrage,
@@ -358,7 +358,7 @@ export const Echoes: EvolutionStand = {
             description:
                 "Echoes Act 2, You seem to be discovering more mysteries about your stand. Maybe you can dig deeper?",
             rarity: "A",
-            image: "https://static.jojowiki.com/images/thumb/6/69/latest/20231215131846/Echoes_ACT2_DU_Infobox_Anime.png/800px-Echoes_ACT2_DU_Infobox_Anime.png",
+            image: "https://media.jolyne.moe/glEgta/direct",
             abilities: [
                 {
                     ...Abilities.StandBarrage,
@@ -388,7 +388,7 @@ export const Echoes: EvolutionStand = {
             name: "Echoes Act 3",
             description: "Echoes Act 3, This seems to be the peak of the power you can extract.",
             rarity: "S",
-            image: "https://static.jojowiki.com/images/8/8e/latest/20210422175130/Echoes_ACT3_DU_Infobox_Anime.png",
+            image: "https://media.jolyne.moe/gBRSon/direct",
             abilities: [
                 {
                     ...Abilities.StandBarrage,
