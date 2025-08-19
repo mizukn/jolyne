@@ -465,6 +465,7 @@ export const C2_P11: ChapterPart = {
 :reply: Use the /loot command 10 times  (0/10) 0.00%
 :replyEnd: Use the /assault command 10 times  (0/10) 0.00% 
 @
+**/
 
 export const C2_P12: ChapterPart = {
     id: 5,
@@ -485,9 +486,9 @@ export const C2_P12: ChapterPart = {
             "エンヤを倒した後、彼女は袖の中に隠されたカードを明らかにし、あなたとあなたのグループはゾンビのように操られる死体に囲まれます。今、あなたは全力でその群れに立ち向かわなければなりません。",
     },
     quests: [
-        Functions.generateFightQuest(
+        /*Functions.generateFightQuest(
             NPCs.CorpseHorde,
-            Functions.pushQuest(ActionQuests.DefeatCorpseHorde),
+           Functions.pushQuest(ActionQuests.DefeatCorpseHorde),
             null,
             [
                 {
@@ -495,7 +496,7 @@ export const C2_P12: ChapterPart = {
                     amount: 10,
                 },
             ]
-        ),
+        ),*/
         Functions.generateClaimXQuest("coin", 175000),
         Functions.generateClaimXQuest("daily", 2),
         Functions.generateUseXCommandQuest("loot", 10), // Use the /loot command 10 times
@@ -512,4 +513,3 @@ export const C2_P12: ChapterPart = {
         ],
     },
 };
- */
