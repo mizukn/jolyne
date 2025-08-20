@@ -521,7 +521,7 @@ export const TheWorld: EvolutionStand = {
                 stamina: 25,
             },
             color: 0xffff00,
-            available: false,
+            available: false, // e
         },
     ],
 };
