@@ -20,7 +20,7 @@ export const SilverChariot: EvolutionStand = {
                 "Silver Chariot appears as a thin, robotic humanoid clad in silver, medieval armor, armed with a basket-hilted foil. It is the Stand of [Jean Pierre Polnareff](https://jojo.fandom.com/wiki/Jean_Pierre_Polnareff), primarily featured in Stardust Crusaders",
             rarity: "B",
             abilities: [Abilities.FencingBarrage, Abilities.Finisher],
-            image: "https://static.wikia.nocookie.net/jjba/images/7/7c/SilverChariot.png/revision/latest?cb=20180609123743",
+            image: "https://media.jolyne.moe/mdRh7z/direct",
             color: 0x808080,
             emoji: Emojis.Silverchariot,
             skillPoints: {
@@ -133,7 +133,7 @@ export const Whitesnake: EvolutionStand = {
                 Abilities.Hallucinogen,
                 Abilities.StandDisc,
             ],
-            image: "https://static.wikia.nocookie.net/jjba/images/e/ea/WhitesnakeAnime1.png/revision/latest?cb=20211202052847&path-prefix=pt-br",
+            image: "https://media.jolyne.moe/ed2BAS/direct",
             // white color hex code
             color: 0xffffff,
             emoji: Emojis.whitesnake,
@@ -446,7 +446,7 @@ export const StarPlatinum: EvolutionStand = {
             description:
                 "Star Platinum is a very strong humanoid Stand. It was designed to look like a guardian spirit. It was used by [Jotaro Kujo](https://jojo.fandom.com/wiki/Jotaro_Kujo)",
             rarity: "S",
-            image: "https://i.pinimg.com/originals/c8/a7/ed/c8a7edf03bcce4b74a24345bb1a109b7.jpg",
+            image: "https://media.jolyne.moe/Gip3xt/direct",
             emoji: Emojis["star_platinum"],
             abilities: [
                 addGif(
