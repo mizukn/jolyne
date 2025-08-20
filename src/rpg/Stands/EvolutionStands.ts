@@ -326,7 +326,6 @@ export const KillerQueen: EvolutionStand = {
 export const Echoes: EvolutionStand = {
     id: "echoes",
     obtainableBy: "arrow",
-
     evolutions: [
         {
             name: "Echoes Act 1",
@@ -439,7 +438,6 @@ export const Echoes: EvolutionStand = {
 export const StarPlatinum: EvolutionStand = {
     id: "star_platinum",
     obtainableBy: "arrow",
-
     evolutions: [
         {
             name: "Star Platinum",
@@ -521,7 +519,7 @@ export const TheWorld: EvolutionStand = {
                 stamina: 25,
             },
             color: 0xffff00,
-            available: false, // e
+            available: false,
         },
     ],
 };

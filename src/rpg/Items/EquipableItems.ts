@@ -199,7 +199,7 @@ export const Katana: Weapon = {
     type: equipableItemTypes.WEAPON,
     attackName: "slash",
     useMessageAttack: "slashes",
-    staminaCost: 3,
+    staminaCost: 2,
     color: 0xffcc00,
     effects: {
         skillPoints: {
