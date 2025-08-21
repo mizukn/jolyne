@@ -362,7 +362,7 @@ export const PatreonBox: Special = {
     rarity: "S",
     emoji: Emojis.patronbox,
     price: 200000,
-    tradable: false,
+    tradable: true,
     storable: true,
     use: async (ctx: CommandInteractionContext) => {
         const standList = Object.values(Stands).filter((r) => r.available && r.rarity === "S");
