@@ -233,7 +233,8 @@ const Event: EventFile = {
                         ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.1) &&
                     command.data.name !== "shop" &&
                     command.data.name !== "inventory" &&
-                    command.data.name !== "campfire"
+                    command.data.name !== "campfire" &&
+                    command.data.name !== "heal"
                 ) {
                     if (ctx.userData.settings.notifications.low_health_or_stamina)
                         notifications.push(
