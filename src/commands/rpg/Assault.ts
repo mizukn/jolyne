@@ -113,6 +113,11 @@ const slashCommand: SlashCommandFile = {
             cooldown = 45000;
         }
 
+        if (await ctx.client.database.getRPGCooldown(ctx.user.id, "assault")) {
+            return void ctx.makeMessage({
+                content: `You're currently on cooldown for assaulting an NPC. Please wait a moment before trying again.`,
+            });
+        }
         await ctx.client.database.setRPGCooldown(ctx.user.id, "assault", cooldown);
         await ctx.client.database.setCooldown(
             ctx.userData.id,
