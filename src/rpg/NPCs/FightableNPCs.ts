@@ -537,3 +537,11 @@ export const PinataTitan: FightableNPC = {
         second_anniversary_bag: equipableItemTypes.BACK,
     },
 };
+
+export const Zombie: FightableNPC = {
+    ...NPCs.Zombie,
+    level: 30,
+    skillPoints: baseSP,
+    equippedItems: {},
+    standsEvolved: {},
+};

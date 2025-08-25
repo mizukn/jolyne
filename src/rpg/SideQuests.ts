@@ -611,7 +611,8 @@ export const CMoon: SideQuest = {
         }
 
         for (let i = 0; i < 6; i++)
-            for (let j = 0; j < 6; j++) baseQuests.push(Functions.generateFightQuest(NPCs[i]));
+            for (let j = 0; j < 6; j++)
+                if (NPCs[i]) baseQuests.push(Functions.generateFightQuest(NPCs[i]));
 
         return baseQuests;
     } /*
@@ -637,6 +638,10 @@ export const CMoon: SideQuest = {
         statuses.push({
             requirement: "You need to be level **100** or over prestige 0",
             status: ctx.userData.level >= 100 || !!ctx.userData.prestige,
+        });
+        statuses.push({
+            requirement: "You must not have evolved Whitesnake",
+            status: !ctx.userData.standsEvolved["whitesnake"],
         });
 
         return statuses;

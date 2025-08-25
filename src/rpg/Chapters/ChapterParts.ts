@@ -486,24 +486,20 @@ export const C2_P12: ChapterPart = {
             "エンヤを倒した後、彼女は袖の中に隠されたカードを明らかにし、あなたとあなたのグループはゾンビのように操られる死体に囲まれます。今、あなたは全力でその群れに立ち向かわなければなりません。",
     },
     quests: [
-        /*Functions.generateFightQuest(
-            NPCs.CorpseHorde,
-           Functions.pushQuest(ActionQuests.DefeatCorpseHorde),
-            null,
-            [
-                {
-                    item: Functions.findItem("xp_box").name,
-                    amount: 10,
-                },
-            ]
-        ),*/
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
+        Functions.generateFightQuest(NPCs.Zombie, null, null, null),
         Functions.generateClaimXQuest("coin", 175000),
         Functions.generateClaimXQuest("daily", 2),
         Functions.generateUseXCommandQuest("loot", 10), // Use the /loot command 10 times
         Functions.generateUseXCommandQuest("assault", 10), // Use the /assault command 10 times
     ],
     parent: Chapters.C2,
-    private: true,
     rewardsWhenComplete: {
         items: [
             {

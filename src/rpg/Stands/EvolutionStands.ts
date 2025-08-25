@@ -258,6 +258,25 @@ export const Whitesnake: EvolutionStand = {
                 },
             },
         },
+        {
+            name: "Made in Heaven",
+            description:
+                "Made in Heaven is the Stand of Enrico Pucci, featured in Stone Ocean. It is a powerful Stand that accelerates time.",
+            rarity: "SS",
+            image: "https://media.jolyne.moe/J4Ix8u/direct",
+            abilities: [],
+            emoji: "<:mih:1409263288751227041>",
+            skillPoints: {
+                perception: 100,
+                strength: 100,
+                speed: 999,
+                stamina: 100,
+                defense: 100,
+            },
+            available: false,
+            color: 0x000000,
+            adminOnly: true,
+        },
     ],
 };
 
