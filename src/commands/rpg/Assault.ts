@@ -63,6 +63,7 @@ const slashCommand: SlashCommandFile = {
                 (r) =>
                     r.level <= trueLvl &&
                     r.stand !== "admin_stand" &&
+                    !r.private &&
                     (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
             )
         ) as FightableNPC;
@@ -72,6 +73,7 @@ const slashCommand: SlashCommandFile = {
                     (r) =>
                         r.level > trueLvl &&
                         r.stand !== "admin_stand" &&
+                        !r.private &&
                         (r.stand ? Functions.findStand(r.stand).rarity !== "T" : true)
                 )
             ) || generateHighNPC(ctx.userData);
