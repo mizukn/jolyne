@@ -430,23 +430,23 @@ const msInMessage =
 const rewards = [
     {
         id: "stand_arrow",
-        percent: 70,
+        percent: 15,
     },
     {
         id: "energy_drink",
-        percent: 15,
+        percent: 9,
     },
     {
         id: "health_potion",
-        percent: 15,
+        percent: 5,
     },
     {
         id: "rare_stand_arrow",
-        percent: 35,
+        percent: 5,
     },
     {
         id: "broken_arrow",
-        percent: 100,
+        percent: 30,
     },
     {
         id: "bloody_knife",
