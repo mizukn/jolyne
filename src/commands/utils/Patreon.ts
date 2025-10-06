@@ -119,7 +119,8 @@ const slashCommand: SlashCommandFile = {
                     5,
                     ctx.client
                 );
-                const url = `https://patreon.com${tier.attributes.url}`;
+                const url = `${tier.attributes.url}`;
+                console.log(url);
                 buttons.push(
                     new ButtonBuilder()
                         .setURL(url)
