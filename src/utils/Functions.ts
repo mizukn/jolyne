@@ -1413,7 +1413,7 @@ export const addXp = function addXp(
 
     if (client.boosters.find((x) => x === userData.id)) multiplier += 0.03;
 
-    amount = Math.round(amount);
+    amount = Math.round(amount * (1+multiplier));
     if (userIsCommunityBanned(userData)) amount = Math.round(amount / 2);
     if (process.env.ENABLE_PRESTIGE && userData.level >= getMaxPrestigeLevel(userData.prestige)) {
         console.log("Prestige level reached");
