@@ -495,8 +495,8 @@ const slashCommand: SlashCommandFile = {
                             return;
                         }
 
-                        Functions.addCoins(ctx.userData, coinReward);
-                        Functions.addXp(ctx.userData, xpReward, ctx.client);
+                        const coins = Functions.addCoins(ctx.userData, coinReward);
+                        const xp = Functions.addXp(ctx.userData, xpReward, ctx.client);
                         Functions.addItem(ctx.userData, Functions.findItem("Stand Arrow"));
                         Functions.addItem(ctx.userData, Functions.findItem("Dungeon"));
 
@@ -522,8 +522,8 @@ const slashCommand: SlashCommandFile = {
 
                         await ctx.followUp({
                             content: ctx.translate("daily:REWARDS_CLAIM_MESSAGE", {
-                                coins: coinReward.toLocaleString(),
-                                xp: xpReward.toLocaleString(),
+                                coins: coins.toLocaleString(),
+                                xp: xp.toLocaleString(),
                                 dungeon_key: Functions.findItem("Dungeon").emoji,
                             }),
                         });
