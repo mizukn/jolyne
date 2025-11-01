@@ -40,6 +40,12 @@ import {
     startOf2025WinterEvent,
 } from "./rpg/Events/2025WinterEvent";
 import { endOf2025ChineseNewYear } from "./rpg/Events/2025ChineseNewYear";
+import { endOf2024HalloweenEvent } from "./rpg/Events/2024HalloweenEvent";
+import {
+    endOf2025HalloweenEvent,
+    is2025HalloweenEventActive,
+    startOf2025HalloweenEvent,
+} from "./rpg/Events/2025HalloweenEvent";
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
@@ -209,6 +215,48 @@ if (Date.now() < endOf2024ChristmasEvent) {
     }
 }
 
+function generateZombies(): void {
+    // drops: spooky_zombie_brain
+    for (let i = 1; i < 300; i += 3) {
+        const spookyZombieNPC: NPC = {
+            name: `Spooky Zombie [LVL ${i}]`,
+            id: `SpookyZombie_${i}`,
+            emoji: "🧟",
+        };
+        const spookyZombieFightableNPC: FightableNPC = {
+            ...spookyZombieNPC,
+            level: i,
+            skillPoints: {
+                speed: 1,
+                strength: 1,
+                defense: 1,
+                perception: 1,
+                stamina: 0,
+            },
+            equippedItems: i < 150 ? {} : FightableNPCs.Krampus.equippedItems,
+            rewards: {
+                items: [
+                    {
+                        item: Functions.findItem("spooky_zombie_brain").id,
+                        amount: 1,
+                        chance: 100,
+                    },
+                    {
+                        item: Functions.findItem("spooky_zombie_brain").id,
+                        amount: 5,
+                        chance: 50,
+                    },
+                ],
+            },
+            private: true,
+            standsEvolved: {},
+        };
+
+        // @ts-expect-error because it's a dynamic property
+        FightableNPCs[spookyZombieFightableNPC.id] = spookyZombieFightableNPC;
+    }
+}
+
 function generateIceBandits(): void {
     for (let i = 1; i < 300; i += 3) {
         const iceBanditNPC: NPC = {
@@ -269,6 +317,15 @@ if (is2025WinterEvent()) {
         generateIceBandits();
     }, startOf2025WinterEvent.getTime() - Date.now());
     console.log(`Generating Ice Bandits in ${startOf2025WinterEvent.getTime() - Date.now()}ms`);
+}
+
+if (is2025HalloweenEventActive()) {
+    generateZombies();
+} else if (Date.now() < endOf2025HalloweenEvent.getTime()) {
+    // then it means that it didnt end yet
+    setTimeout(() => {
+        generateZombies();
+    }, startOf2025HalloweenEvent.getTime() - Date.now());
 }
 
 /*
