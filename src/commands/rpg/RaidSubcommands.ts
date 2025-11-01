@@ -187,7 +187,7 @@ export const Halloween2025EventRaidElite: RaidBoss = {
                 chance: 10,
             },
             {
-                item: Functions.findItem("rotten_crown").id,
+                item: Functions.findItem("rotten_hat").id,
                 amount: 1,
                 chance: 20,
             },
