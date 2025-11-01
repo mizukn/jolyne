@@ -34,6 +34,10 @@ import {
     thirdYearAnniversaryEventCommand,
     thirdYearAnniversaryEventSlashCommandData,
 } from "../../rpg/Events/3rdYearAnniversaryEvent";
+import {
+    Halloween2025EventCommandData,
+    Halloween2025EventCommandHandler,
+} from "../../rpg/Events/2025HalloweenEvent";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -454,6 +458,6 @@ function setCooldown(ctx: CommandInteractionContext, userId: string): void {
 }
 
 export default {
-    data: thirdYearAnniversaryEventSlashCommandData,
-    execute: thirdYearAnniversaryEventCommand,
+    data: Halloween2025EventCommandData,
+    execute: Halloween2025EventCommandHandler,
 };

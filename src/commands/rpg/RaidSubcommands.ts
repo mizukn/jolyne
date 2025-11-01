@@ -33,6 +33,7 @@ import {
     endOf3rdAnnivesaryEvent,
     is3rdAnnivesaryEvent,
 } from "../../rpg/Events/3rdYearAnniversaryEvent";
+import { is2025HalloweenEventActive } from "../../rpg/Events/2025HalloweenEvent";
 
 const getIceShard = (data: RPGUserDataJSON): number => {
     return data.inventory["ice_shard"] ?? 0;
@@ -139,6 +140,68 @@ const Halloween2024EventRaids: RaidBoss = {
     maxLevel: Infinity,
     maxPlayers: 10,
     cooldown: 60000 * 10,
+};
+
+export const Halloween2025EventRaid: RaidBoss = {
+    boss: FightableNPCS.RottenKing,
+    minions: [],
+    level: 0,
+    baseRewards: {
+        coins: 20000,
+        xp: Functions.getMaxXp(FightableNPCS.RottenKing.level) * 2,
+        items: [
+            {
+                item: Functions.findItem("rotten_crown").id,
+                amount: 1,
+                chance: 5,
+            },
+            {
+                item: Functions.findItem("rotten_hat").id,
+                amount: 1,
+                chance: 10,
+            },
+            {
+                item: Functions.findItem("dead_revival").id,
+                amount: 1,
+                chance: 2,
+            },
+        ],
+    },
+    allies: [],
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    cooldown: 60000 * 10,
+};
+
+export const Halloween2025EventRaidElite: RaidBoss = {
+    boss: FightableNPCS.RottenKingElite,
+    minions: [],
+    level: 300,
+    baseRewards: {
+        coins: 50000,
+        xp: Functions.getMaxXp(FightableNPCS.RottenKingElite.level) * 2,
+        items: [
+            {
+                item: Functions.findItem("rotten_crown").id,
+                amount: 1,
+                chance: 10,
+            },
+            {
+                item: Functions.findItem("rotten_crown").id,
+                amount: 1,
+                chance: 20,
+            },
+            {
+                item: Functions.findItem("dead_revival").id,
+                amount: 1,
+                chance: 5,
+            },
+        ],
+    },
+    allies: [],
+    maxLevel: Infinity,
+    maxPlayers: 10,
+    cooldown: 60000 * 15,
 };
 
 const Christmas2024EventRaid: RaidBoss = {
@@ -367,6 +430,12 @@ const getFixedBosses = () => {
     if (is3rdAnnivesaryEvent()) {
         fixedBosses.push(PinataTitan);
     }
+
+    if (is2025HalloweenEventActive()) {
+        fixedBosses.push(Halloween2025EventRaidElite);
+        fixedBosses.push(Halloween2025EventRaid);
+    }
+
     return fixedBosses;
 };
 
