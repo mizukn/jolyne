@@ -16,6 +16,7 @@ import { handlePumpkinAppeared, is2024HalloweenEvent } from "../rpg/Events/2024H
 import { is2024ChristmasEventActive } from "../rpg/Events/2024ChristmasEvent";
 import { handleInteraction } from "../rpg/Events/2025ChineseNewYear";
 import { is3rdAnnivesaryEvent } from "../rpg/Events/3rdYearAnniversaryEvent";
+import { is2025HalloweenEventActive } from "../rpg/Events/2025HalloweenEvent";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
     for (const quest of quests) {
@@ -332,6 +333,25 @@ const Event: EventFile = {
                             content: `:christmas_tree: | **${ctx.user.username}**, You received a special email & quest for the 2024 Christmas event.`,
                         });
                         Functions.addEmail(ctx.userData, "christmas_2024");
+                    }
+                }
+
+                if (
+                    is2025HalloweenEventActive() &&
+                    !ctx.userData.emails.find((r) => r.id === "halloween_2025")
+                ) {
+                    const hasAlreadyAdded = await ctx.client.database.getString(
+                        `setHalloween2025:${ctx.user.id}`
+                    );
+                    if (!hasAlreadyAdded) {
+                        await ctx.client.database.setString(
+                            `setHalloween2025:${ctx.user.id}`,
+                            "true"
+                        );
+                        ctx.followUpQueue.push({
+                            content: `:jack_o_lantern: | **${ctx.user.username}**, Happy Halloween! You received a special email & quest for the 2025 Halloween event.`,
+                        });
+                        Functions.addEmail(ctx.userData, "halloween_2025");
                     }
                 }
 
