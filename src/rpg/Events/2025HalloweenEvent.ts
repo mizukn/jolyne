@@ -17,7 +17,7 @@ export function is2025HalloweenEventActive(currentDate: Date = new Date()): bool
 }
 // zombie apocalypse event message
 export const halloween2025EventMessage = (ctx: CommandInteractionContext): string => {
-    return `\`\`\`\nA zombie apocalypse has begun in Morioh City...\nKill zombies and collect their brains\n\`\`\`
+    return `\`\`\`\nThe dead are rising again!\nDefeat the zombies and their master, 「Rotten King」, to earn rewards.\`\`\`
   
 - Use the ${ctx.client.getSlashCommandMention(
         "side quest view"
