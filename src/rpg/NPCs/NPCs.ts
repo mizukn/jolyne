@@ -302,3 +302,15 @@ export const Zombie: NPC = {
     name: "Zombie",
     emoji: "🧟",
 };
+
+export const RottenKing: NPC = {
+    id: "rotten_king",
+    name: "Rotten King",
+    emoji: "<:rottenking:1433840112294297694>",
+};
+
+export const RottenKingElite: NPC = {
+    id: "rotten_king_elite",
+    name: "Rotten King [Elite]",
+    emoji: "<:rottenking:1433840112294297694>",
+};

@@ -958,3 +958,46 @@ export const AdminSpec: EquipableItem = {
     tradable: false,
     storable: false,
 };
+
+export const RottenHat: EquipableItem = {
+    id: "rotten_hat",
+    name: "Rotten Hat",
+    emoji: "<:rottenhat:1433843014446350486>",
+    description: "A hat that belonged to the Rotten King.",
+    type: equipableItemTypes.HEAD,
+    effects: {
+        skillPoints: {
+            strength: 20,
+            perception: 20,
+            defense: 20,
+            speed: 20,
+            stamina: 20,
+        },
+    },
+    rarity: "T",
+    tradable: true,
+    storable: true,
+};
+
+export const RottenCrown: EquipableItem = {
+    id: "rotten_crown",
+    name: "Rotten Crown",
+    emoji: "<:rottencrown:1433843011732770846>",
+    description: "A rotted crown",
+    type: equipableItemTypes.HEAD,
+    effects: {
+        skillPoints: {
+            strength: 30,
+            perception: 30,
+            defense: 30,
+            speed: 30,
+            stamina: 30,
+        },
+    },
+    rarity: "T",
+    tradable: false,
+    storable: true,
+    requirements: {
+        level: 200,
+    },
+};

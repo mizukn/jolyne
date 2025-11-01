@@ -13,6 +13,7 @@ import {
 } from "./Events/2025WinterEvent";
 import { endOf2025ChineseNewYear, startOf2025ChineseNewYear } from "./Events/2025ChineseNewYear";
 import { endOf3rdAnnivesaryEvent } from "./Events/3rdYearAnniversaryEvent";
+import { endOf2025HalloweenEvent } from "./Events/2025HalloweenEvent";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
@@ -1032,4 +1033,96 @@ export const ThirdYearAnniversaryEvent: SideQuest = {
     canRedoSideQuest: true,
     // pink
     color: 0xffc0cb,
+};
+
+// happy halloween! zombie apocalypse,  Our research points to a Stand known as 「Dead Revival」. It’s bringing the dead back — and they’re attacking anything that moves.
+// boss = RottenKing
+// event stand = Dead Revival
+export const Halloween2025EventSideQuest: SideQuest = {
+    description:
+        "The dead are rising again! Defeat the zombies and their master, 「Rotten King」, to earn rewards.\n\nAll of the enemies have 15% chance to drop a 🧟 Zombie Brain.\nFinishing this side quest will give you 10x 🧟 Zombie Brains. ",
+    title: "Halloween 2025 Event (Zombie Apocalypse)",
+    id: "HalloweenEvent2025",
+    emoji: "🧟",
+    rewards: async (ctx) => {
+        Functions.addItem(ctx.userData, Functions.findItem("spooky_zombie_brain"), 10);
+        ctx.followUp({
+            content: `You have been given 10 Spooky Zombie Brains. You can trade them by using the ${ctx.client.getSlashCommandMention(
+                "event trade"
+            )} command.`,
+        });
+        return true;
+    },
+    quests: (ctx) => {
+        // id: SpookyZombie_<level>
+        const quests: QuestArray = [Functions.generateClaimItemQuest("spooky_zombie_brain", 5)];
+        const MAX_NPCS = 8;
+        if (ctx.userData.level < 700) {
+            for (let i = 0; i < ctx.userData.level / 400; i++)
+                quests.push(
+                    Functions.generataRaidQuest(FightableNPCs.RottenKing, null, null, [
+                        {
+                            item: Functions.findItem("spooky_zombie_brain").id,
+                            chance: 50,
+                            amount: 1,
+                        },
+                    ])
+                );
+        } else {
+            for (let i = 0; i < 1; i++)
+                quests.push(
+                    Functions.generataRaidQuest(FightableNPCs.RottenKingElite, null, null, [
+                        {
+                            item: Functions.findItem("spooky_zombie_brain").id,
+                            chance: 50,
+                            amount: 2,
+                        },
+                    ])
+                );
+        }
+
+        const EventNPCs = Object.values(FightableNPCs).filter((w) => {
+            return (
+                w.level <= (ctx.userData.level > 12 ? ctx.userData.level : 12) &&
+                w.id.includes("SpookyZombie_")
+            );
+        });
+        if (EventNPCs.length !== 0) {
+            let loop = 0;
+            while (quests.length < MAX_NPCS) {
+                if (loop > 100) break;
+                for (
+                    let i = 0;
+                    i < (ctx.userData.level < MAX_NPCS ? ctx.userData.level : MAX_NPCS);
+                    i++
+                ) {
+                    quests.push(
+                        Functions.generateFightQuest(Functions.randomArray(EventNPCs), null, null, [
+                            {
+                                item: Functions.findItem("spooky_zombie_brain").id,
+                                chance: 15,
+                                amount: 1,
+                            },
+                        ])
+                    );
+                }
+                loop++;
+            }
+        }
+
+        return quests;
+    },
+    requirements: (ctx) => [
+        {
+            requirement: `Time must be before ${Functions.generateDiscordTimestamp(
+                endOf2025HalloweenEvent,
+                "FULL_DATE"
+            )}`,
+            status: Date.now() < endOf2025HalloweenEvent.getTime(),
+        },
+    ],
+    // orange
+    color: 0xffa500,
+    canReloadQuests: true,
+    canRedoSideQuest: true,
 };

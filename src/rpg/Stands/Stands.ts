@@ -976,3 +976,24 @@ export const Justice: Stand = {
     obtainableBy: "arrow",
     image: "https://media.jolyne.moe/eX0Nrg/direct",
 };
+
+export const DeadRevival: Stand = {
+    id: "dead_revival",
+    name: "Dead Revival",
+    rarity: "T",
+    description: "Dead Revival is a limited stand, was available during the 2025 Halloween event.",
+    image: "https://media.jolyne.moe/gsQzbG/direct",
+    passives: [Passives.Resurrection],
+    abilities: [Abilities.Revive, Abilities.Impale, Abilities.LifeDrain],
+    emoji: "<:deadrevival:1433841164280139867>",
+    skillPoints: {
+        strength: 12,
+        defense: 12,
+        perception: 12,
+        speed: 12,
+        stamina: 12,
+    },
+    available: true,
+    // dark grey
+    color: 0x2f2f2f,
+};

@@ -2595,7 +2595,7 @@ export const ConfettiBarrage: Ability = {
 
 export const Chop: Ability = {
     name: "Chop",
-    description: "A high precision slice with King Crimson's Hand",
+    description: "A high precision slice with {standName}'s Hand",
     cooldown: 4,
     damage: 41,
     stamina: 20,
@@ -2607,7 +2607,7 @@ export const Chop: Ability = {
 
 export const Impale: Ability = {
     name: "Impale",
-    description: "Impale the opponent with King Crimson's Hand, dealing bleed damage.",
+    description: "Impale the opponent with {standName}'s Hand, dealing bleed damage.",
     cooldown: 5,
     damage: 0,
     stamina: 50,
@@ -3492,5 +3492,84 @@ export const CandyRain: Ability = {
                     }
                 }
             });
+    },
+};
+
+// ability that revives every teammates! same team only
+export const Revive: Ability = {
+    name: "Revive",
+    description: "Revives all fallen allies with 30% health.",
+    cooldown: 10,
+    damage: 0,
+    stamina: 50,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "self",
+    useMessage: (user, target, damage, ctx) => {
+        ctx.fighters
+            .filter(
+                (x) =>
+                    ctx.getTeamIdx(user) === ctx.getTeamIdx(x) && x.health <= 0 && x.id !== user.id
+            )
+            .forEach((x) => {
+                x.health = Math.round(x.maxHealth * 0.3);
+                ctx.turns[ctx.turns.length - 1].logs.push(
+                    `- ${user.stand?.emoji} REVIVE: **${
+                        x.name
+                    }** has been revived with **${x.health.toLocaleString()}** health.`
+                );
+            });
+    },
+};
+
+export const LifeDrain: Ability = {
+    name: "Life Drain",
+    description:
+        "Drain the life force from your opponent, dealing damage and healing yourself for a portion of the damage dealt.",
+    cooldown: 6,
+    damage: 35,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const oldHealth = cloneDeep(target.health);
+        const status = target.removeHealth(damage, user, 0);
+        const actualDamageDealt = status.amount;
+
+        const healAmount = Math.round(actualDamageDealt * 0.5);
+        user.incrHealth(healAmount);
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} LIFE DRAIN: **${
+                user.name
+            }** has dealt **${actualDamageDealt.toLocaleString()}** damages to **${
+                target.name
+            }** and healed for **${healAmount.toLocaleString()}** health.`
+        );
+    },
+};
+
+export const RottenThrow: Ability = {
+    name: "Rotten Throw",
+    description:
+        "Hurl a glob of toxic rotten liquid at your opponent, dealing damage and poisoning them over time.",
+    cooldown: 4,
+    damage: 28,
+    stamina: 20,
+    extraTurns: 0,
+    dodgeScore: 0,
+    target: "enemy",
+    useMessage: (user, target, damage, ctx) => {
+        const status = target.removeHealth(damage, user, 0);
+
+        ctx.turns[ctx.turns.length - 1].logs.push(
+            `- ${user.stand?.emoji} ROTTEN THROW: **${
+                user.name
+            }** has dealt **${status.amount.toLocaleString()}** damages to **${target.name}**.`
+        );
+
+        const poisonDamageCalc = Math.round(Functions.getAbilityDamage(user, RottenThrow) / 8);
+        poisonDamagePromise(ctx, target, poisonDamageCalc, user, 3);
     },
 };

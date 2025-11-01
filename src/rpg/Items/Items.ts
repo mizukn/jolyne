@@ -302,3 +302,14 @@ export const BeastNiansHorn: Item = {
     tradable: true,
     storable: true,
 };
+
+export const SpookyZombieBrain: Item = {
+    id: "spooky_zombie_brain",
+    name: "Spooky Zombie Brain",
+    description: "The brain of a Spooky Zombie.",
+    rarity: "T",
+    emoji: "🧠",
+    price: 7500,
+    tradable: true,
+    storable: true,
+};

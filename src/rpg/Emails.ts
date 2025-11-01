@@ -242,7 +242,7 @@ export const SecondAnniversary: Email = {
     content: (ctx) =>
         `It's been 2 years since the bot was created.\nInitially, the bot was created to be a fun private bot for a small group of friends, but it has grown to be a bot with over 15k registered players.\nJolyne wouldn't be where it is today without the support of the community, and our patreons.\n\nWe would like to thank everyone who has supported us, and we hope to continue to provide a fun and enjoyable experience for everyone.`,
     footer: "Thank you for being part of the Jolyne community!",
-    emoji: "🎉", 
+    emoji: "🎉",
     rewards: {
         coins: 100000,
         xp: 500000,
@@ -365,6 +365,32 @@ export const ThirdYearAnniversary: Email = {
             },
             {
                 item: "xp_box",
+                amount: 5,
+            },
+        ],
+    },
+};
+
+export const Halloween2025: Email = {
+    id: "halloween_2025",
+    author: NPCs.SPEEDWAGON_FOUNDATION,
+    subject: "Halloween 2025 [Event]",
+    content: (ctx) =>
+        `We've been facing some unsettling developments lately.\nBeing the reliable Stand user we know you to be, we decided to reach out to you, {{userName}}.\n\nReports have been pouring in about corpses getting back on their feet — not by natural means.\nThe air around Morioh reeks of decay, and entire graveyards have gone silent... too silent.\n\nOur research points to a Stand known as 「Dead Revival」.\nIt’s bringing the dead back — and they’re attacking anything that moves.\n\nWe tried sending in a few of our own, but these things hit like seasoned Stand users.\nWe need your help, {{userName}}.\n\nTake down any infected you find and collect whatever remains of their brains 🧠 — they might help us trace the source of this Stand’s power.`,
+    footer: "Stay safe out there!",
+    emoji: "🎃",
+    rewards: {
+        items: [
+            {
+                item: "stand_arrow",
+                amount: 5,
+            },
+            {
+                item: "xp_box",
+                amount: 5,
+            },
+            {
+                item: "spooky_zombie_brain",
                 amount: 5,
             },
         ],

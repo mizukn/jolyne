@@ -545,3 +545,35 @@ export const Zombie: FightableNPC = {
     equippedItems: {},
     standsEvolved: {},
 };
+
+export const RottenKing: FightableNPC = {
+    ...NPCs.RottenKing,
+    level: 110,
+    skillPoints: {
+        defense: 800,
+        strength: 600,
+        speed: 400,
+        perception: 200,
+        stamina: 500,
+    },
+    equippedItems: {
+        rotten_hat: equipableItemTypes.HEAD,
+    },
+    standsEvolved: {},
+};
+
+export const RottenKingElite: FightableNPC = {
+    ...NPCs.RottenKingElite,
+    level: 400,
+    skillPoints: {
+        defense: 1800,
+        strength: 1500,
+        speed: 900,
+        perception: 400,
+        stamina: 1000,
+    },
+    equippedItems: {
+        rotten_hat: equipableItemTypes.HEAD,
+    },
+    standsEvolved: {},
+};
