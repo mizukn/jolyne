@@ -70,7 +70,7 @@ export const trades = [
         item: "dead_revival.$disc$",
     },
     {
-        amount: 1000 * 10,
+        amount: 2000 * 10,
         item: "excalibur",
     },
 ].sort((a, b) => a.amount - b.amount);
