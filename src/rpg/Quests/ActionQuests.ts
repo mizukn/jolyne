@@ -125,7 +125,7 @@ export const RemoveFleshbudToKakyoin: ActionQuest = {
         ctx.interaction.fetchReply().then((r) => {
             ctx.client.database.setCooldown(
                 ctx.user.id,
-                `You're currently removing Kakyoin's fleshbud. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+                `You're currently removing Kakyoin's fleshbud. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`,
             );
         });
         const filter = async (i: MessageComponentInteraction) => {
@@ -196,7 +196,7 @@ export const AnalyseHair: ActionQuest = {
             "p1c2:speedwagon_diohair",
             null,
             null,
-            true
+            true,
         );
 
         pushQuest(ctx, quest, "analyse_hair");
@@ -220,7 +220,7 @@ export const TakeKakyoinToHospital: ActionQuest = {
             Functions.findEmail("p1c2:kakyoin_back").id,
             null,
             null,
-            true
+            true,
         );
 
         pushQuest(ctx, quest, "take_kakyoin_to_hospital");
@@ -242,7 +242,7 @@ export const AlertYourGrandFatherAboutDioAndYourStand: ActionQuest = {
             Functions.findEmail("c2p1:grandfadioalertstand").id,
             null,
             null,
-            true
+            true,
         );
         pushQuest(ctx, quest, "alert_your_grandfather_about_dio_and_your_stand");
         validateQuest(ctx, "alert_your_grandfather_about_dio_and_your_stand");
@@ -282,7 +282,7 @@ export const GoToAirport: ActionQuest = {
         ctx.interaction.fetchReply().then((m) => {
             ctx.client.database.setCooldown(
                 ctx.userData.id,
-                `Please finish your selection ---> ${Functions.generateMessageLink(m)}`
+                `Please finish your selection ---> ${Functions.generateMessageLink(m)}`,
             );
         });
 
@@ -307,7 +307,7 @@ export const GoToAirport: ActionQuest = {
                 i.customId === slowPriceID ? slowPriceTime : fastPriceTime,
                 null,
                 null,
-                "GO_TO_AIRPORT"
+                "GO_TO_AIRPORT",
             );
             const price = i.customId === slowPriceID ? slowPrice : fastPrice;
 
@@ -324,7 +324,7 @@ export const GoToAirport: ActionQuest = {
                 `action:GO_TO_AIRPORT.${i.customId === slowPriceID ? "SLOW" : "FAST"}`,
                 {
                     components: [],
-                }
+                },
             );
             Functions.addCoins(ctx.userData, -price);
             pushQuest(ctx, quest, "go_to_airport");
@@ -429,7 +429,7 @@ export const RemoveFleshbudToPolnareff: ActionQuest = {
         ctx.interaction.fetchReply().then((r) => {
             ctx.client.database.setCooldown(
                 ctx.user.id,
-                `You're currently removing Polnareff's fleshbud. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+                `You're currently removing Polnareff's fleshbud. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`,
             );
         });
         const filter = async (i: MessageComponentInteraction) => {
@@ -493,7 +493,7 @@ export const Drive_Airplane_To_Hongkong: ActionQuest = {
         ctx.interaction.fetchReply().then((r) => {
             ctx.client.database.setCooldown(
                 ctx.user.id,
-                `You're currently driving the airplaaane! Woohoo, can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+                `You're currently driving the airplaaane! Woohoo, can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`,
             );
         });
 
@@ -705,7 +705,7 @@ export const DriveBoatToRescue: ActionQuest = {
         ctx.interaction.fetchReply().then((r) => {
             ctx.client.database.setCooldown(
                 ctx.user.id,
-                `You're currently navigating the boat. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+                `You're currently navigating the boat. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`,
             );
         });
         const filter = async (i: MessageComponentInteraction) => {
@@ -750,8 +750,8 @@ export const DriveBoatToRescue: ActionQuest = {
                 for (let i = 0; i < 5; i++)
                     ctx.userData.chapter.quests.push(
                         Functions.pushQuest(
-                            Functions.generateFightQuest(NPCs.Bandit, null, null, null)
-                        )
+                            Functions.generateFightQuest(NPCs.Bandit, null, null, null),
+                        ),
                     );
                 ctx.client.database.saveUserData(ctx.userData);
             }
@@ -870,7 +870,7 @@ export const DriveBoatToSingapore: ActionQuest = {
         ctx.interaction.fetchReply().then((r) => {
             ctx.client.database.setCooldown(
                 ctx.user.id,
-                `You're currently navigating the boat. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`
+                `You're currently navigating the boat. Can't find it? Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`,
             );
         });
         const filter = async (i: MessageComponentInteraction) => {
@@ -915,8 +915,8 @@ export const DriveBoatToSingapore: ActionQuest = {
                 for (let i = 0; i < 5; i++)
                     ctx.userData.chapter.quests.push(
                         Functions.pushQuest(
-                            Functions.generateFightQuest(NPCs.Bandit, null, null, null)
-                        )
+                            Functions.generateFightQuest(NPCs.Bandit, null, null, null),
+                        ),
                     );
                 ctx.client.database.saveUserData(ctx.userData);
             }
@@ -1092,6 +1092,192 @@ export const DriveToPakistan: ActionQuest = {
 
         collector.on("end", () => {
             ctx.client.database.deleteCooldown(ctx.userData.id);
+        });
+    },
+};
+
+export const DeliverInvitations: ActionQuest = {
+    type: "action",
+    id: "deliver_invitations_mista",
+    completed: false,
+    i18n_key: "DELIVER_INVITATIONS",
+    emoji: "✉️",
+    use: async (ctx) => {
+        const finishEmoji = "📬";
+        const playerEmoji = "✉️";
+        const map = ["🔲", "🔲", "🔲", "🔲", finishEmoji, "🔲", "🔲", "🔲", "🔲", "🔲"];
+
+        const crashEmoji = "💥";
+
+        // Génération de la map (15 rangées)
+        for (let i = 0; i < 15; i++) {
+            const howMuch = Functions.randomNumber(1, 4); // Jamais plus de 4 obstacles par ligne ;)
+            const map2 = ["🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲", "🔲"];
+            for (let j = 0; j < howMuch; j++) {
+                map2[j] = crashEmoji;
+            }
+            Functions.shuffleArray(map2);
+            for (const item of map2) map.push(item);
+        }
+
+        function splitEvery10Array(arr: string[]) {
+            const result: string[][] = [];
+            for (let i = 0; i < arr.length; i += 10) {
+                result.push(arr.slice(i, i + 10));
+            }
+            return result.map((v) => v.join(""));
+        }
+
+        // Position de départ (en bas)
+        let playerPosition = map.length - 5;
+        map[playerPosition - 10] = "🔲"; // S'assurer qu'on ne spawn pas sur un mur
+        let oldEmoji = "🔲";
+
+        const backId = ctx.interaction.id + "backId_invite";
+        const centerId = ctx.interaction.id + "centerId_invite";
+        const forwardId = ctx.interaction.id + "forwardId_invite";
+        const bottomId = ctx.interaction.id + "bottomId_invite";
+
+        // Boutons de navigation
+        const backBTN = new ButtonBuilder()
+            .setCustomId(backId)
+            .setEmoji("⬅️")
+            .setStyle(ButtonStyle.Secondary);
+        const centerBTN = new ButtonBuilder()
+            .setCustomId(centerId)
+            .setEmoji("⬆️")
+            .setStyle(ButtonStyle.Secondary);
+        const forwardBTN = new ButtonBuilder()
+            .setCustomId(forwardId)
+            .setEmoji("➡️")
+            .setStyle(ButtonStyle.Secondary);
+        const bottomBTN = new ButtonBuilder()
+            .setCustomId(bottomId)
+            .setEmoji("🔽")
+            .setStyle(ButtonStyle.Secondary);
+
+        function generateInvisibleBTN() {
+            const invisibleBTN2 = new ButtonBuilder()
+                .setCustomId("invisibleId" + Functions.generateRandomId())
+                .setLabel("ㅤ")
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(true);
+            return invisibleBTN2;
+        }
+
+        async function makeMessage(): Promise<void> {
+            map[playerPosition] = playerEmoji;
+            await ctx.makeMessage({
+                components: [
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        centerBTN,
+                        generateInvisibleBTN(),
+                    ]),
+                    Functions.actionRow([backBTN, generateInvisibleBTN(), forwardBTN]),
+                    Functions.actionRow([
+                        generateInvisibleBTN(),
+                        bottomBTN,
+                        generateInvisibleBTN(),
+                    ]),
+                ],
+                embeds: [
+                    {
+                        title: "✉️ Mista's Invitation Delivery",
+                        description: splitEvery10Array(map).join("\n"),
+                        footer: {
+                            text: "Avoid the bad luck (💥) and reach the mailbox!",
+                        },
+                        // Orange Mista (ou Bleu Sex Pistols)
+                        color: 0xffa500,
+                    },
+                ],
+            });
+        }
+
+        await makeMessage();
+
+        ctx.interaction.fetchReply().then((r) => {
+            ctx.client.database.setCooldown(
+                ctx.user.id,
+                `You're currently delivering invitations for Mista. Focus! Click here ---> https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`,
+            );
+        });
+
+        const filter = async (i: MessageComponentInteraction) => {
+            i.deferUpdate().catch(() => {});
+            return (
+                (i.customId === backId ||
+                    i.customId === centerId ||
+                    i.customId === forwardId ||
+                    i.customId === bottomId) &&
+                i.user.id === ctx.user.id
+            );
+        };
+
+        const collector = ctx.interaction.channel.createMessageComponentCollector({
+            filter,
+            time: 150000, // 2.5 minutes
+        });
+
+        collector.on("collect", async (i: MessageComponentInteraction) => {
+            // Remettre l'ancien emoji là où était le joueur
+            map[playerPosition] = oldEmoji;
+
+            if (i.customId === backId) {
+                // Empêcher de sortir à gauche (wrap ou blocage, ici simple déplacement)
+                if (playerPosition % 10 !== 0) playerPosition -= 1;
+            } else if (i.customId === forwardId) {
+                // Empêcher de sortir à droite
+                if ((playerPosition + 1) % 10 !== 0) playerPosition += 1;
+            } else if (i.customId === centerId) {
+                // Monter
+                if (playerPosition >= 10) playerPosition -= 10;
+            } else if (i.customId === bottomId) {
+                // Descendre
+                if (playerPosition < map.length - 10) playerPosition += 10;
+            }
+
+            if (map[playerPosition] === crashEmoji) {
+                collector.stop("crashed");
+                ctx.makeMessage({
+                    content:
+                        "💥 BAD LUCK! You hit an obstacle. Mista is screaming in the distance. Try again.",
+                    components: [],
+                });
+            } else if (map[playerPosition] === finishEmoji) {
+                collector.stop("finished");
+                ctx.makeMessage({
+                    content:
+                        "📬 **Delivery Success!** You safely delivered the invitations without triggering any bad luck.",
+                    components: [],
+                });
+
+                validateQuest(ctx, "deliver_invitations_mista");
+
+                ctx.client.database.saveUserData(ctx.userData);
+            }
+
+            if (map[playerPosition] !== finishEmoji && map[playerPosition] !== crashEmoji) {
+                oldEmoji = map[playerPosition];
+            } else {
+                oldEmoji = "🔲";
+            }
+
+            // Si le jeu n'est pas fini, on re-render
+            if (!collector.ended) {
+                makeMessage();
+            }
+        });
+
+        collector.on("end", (collected, reason) => {
+            ctx.client.database.deleteCooldown(ctx.userData.id);
+            if (reason === "time") {
+                ctx.makeMessage({
+                    content: "⏰ Time's up! Mista did it himself...",
+                    components: [],
+                });
+            }
         });
     },
 };

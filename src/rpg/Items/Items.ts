@@ -313,3 +313,15 @@ export const SpookyZombieBrain: Item = {
     tradable: true,
     storable: true,
 };
+
+export const LuckyClover: Item = {
+    id: "lucky_clover",
+    name: "Lucky Clover",
+    description:
+        "A lucky four-leaf clover. Collect these during the 4th Anniversary Event to trade for items!",
+    rarity: "T",
+    emoji: "🍀",
+    price: 1000,
+    tradable: true,
+    storable: true,
+};
