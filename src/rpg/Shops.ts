@@ -23,6 +23,7 @@ export const TonioTrussardisRestaurant: Shop = {
             item: Items.default.Salad_Bowl.id,
         },
     ],
+    currency: "coins",
 };
 
 export const GroceryStore: Shop = {
@@ -36,6 +37,7 @@ export const GroceryStore: Shop = {
             item: Items.default["Energy_Drink"].id,
         }, // to be continued
     ],
+    currency: "coins",
 };
 
 export const ClothStore: Shop = {
@@ -68,4 +70,17 @@ export const ClothStore: Shop = {
             item: Items.default.BrownCloth.id,
         },
     ],
+    currency: "coins",
+};
+
+export const PrestigeShop: Shop = {
+    name: "Prestige Shop",
+    emoji: Emojis.prestige_shard,
+    items: [
+        {
+            item: Items.default.RequiemArrow.id,
+            price: 5,
+        },
+    ],
+    currency: "prestige_shards",
 };
