@@ -49,7 +49,7 @@ export const nextChapter = (chapterId: number): Chapter | ChapterPart => {
 
 export const makeChapterTitle = (
     chapter: Chapter | ChapterPart,
-    userData: CommandInteractionContext["RPGUserData"]
+    userData: CommandInteractionContext["RPGUserData"],
 ): string => {
     const chapters = Object.values(Chapters).sort((a, b) => a.id - b.id);
     const parts = Object.values(ChapterParts).sort((a, b) => a.id - b.id);
@@ -75,7 +75,7 @@ export const makeChapterTitle = (
             }`;
     } else {
         return `🔱 Chapter \`${Functions.romanize(
-            getChapterNumber(chapter.parent)
+            getChapterNumber(chapter.parent),
         )}\` - Part \`${Functions.romanize(getPartNumber(chapter))}\`: ${
             chapter.parent.title[userData.language]
         }`;
@@ -84,7 +84,7 @@ export const makeChapterTitle = (
 
 export const getQuestsStats = (
     quests: RPGUserQuest[],
-    ctx: CommandInteractionContext
+    ctx: CommandInteractionContext,
 ): { message: string; percent: number } => {
     const message: string[] = [];
     let totalPercent = 0;
@@ -129,24 +129,24 @@ export const getQuestsStats = (
             Functions.isClaimItemQuest(quest) ||
             Functions.isUseXCommandQuest(quest)
         ) {
-            if (quest.goal <= quest.amount) {
+            if (quest.goal <= quest.amount || Functions.hasReachedMaxLevel(ctx.userData)) {
                 completed = true;
                 questPercent = 100;
             } else questPercent = Math.round((quest.amount / quest.goal) * 100);
 
             let questMessage = `Claim **${quest.goal.toLocaleString(
-                "en-US"
+                "en-US",
             )}** {{name}} ||(${quest.amount.toLocaleString()}/${quest.goal.toLocaleString(
-                "en-US"
+                "en-US",
             )}) **${questPercent}%**||`;
             const questEnd = ` ||(${quest.amount.toLocaleString(
-                "en-US"
-            )}/${quest.goal.toLocaleString()}) **${questPercent}%**||`;
+                "en-US",
+            )}/${quest.goal.toLocaleString()}) **${questPercent}%**||${Functions.hasReachedMaxLevel(ctx.userData) ? " (Max level reached)" : ""}`;
 
             if (Functions.isClaimItemQuest(quest)) {
                 questMessage = questMessage.replace(
                     "{{name}}",
-                    Functions.findItem(quest.item).name
+                    Functions.findItem(quest.item).name,
                 );
                 questMessage = ctx.translate("quest:CLAIMX", {
                     cc: quest.goal.toLocaleString(),
@@ -191,19 +191,19 @@ export const getQuestsStats = (
             const npc = Object.values(FightableNPCS).find((v) => v.id === quest.npc);
             if (!npc) {
                 const toBeatLeft = quests.filter(
-                    (r) => Functions.isFightNPCQuest(r) && r.npc === quest.npc
+                    (r) => Functions.isFightNPCQuest(r) && r.npc === quest.npc,
                 ).length;
                 //message.push(`??? Unknown NPC (${quest.npc}) ???::: ${JSON.stringify(quest)}`);
                 if (!message.find((x) => x.includes(quest.npc)))
                     message.push(
-                        `:question: unknown/expired NPC (\`${quest.npc}\`) ||(${toBeatLeft}/${toBeatLeft}) **100%**||`
+                        `:question: unknown/expired NPC (\`${quest.npc}\`) ||(${toBeatLeft}/${toBeatLeft}) **100%**||`,
                     );
                 totalPercent += 100;
                 continue;
             }
             questPercent =
                 quests.filter(
-                    (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
+                    (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed,
                 ).length /
                 quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length;
             if (questPercent === 1) completed = true;
@@ -221,10 +221,10 @@ export const getQuestsStats = (
                 const messageString = `Defeat ${
                     quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
                 } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
-                    "fight npc"
+                    "fight npc",
                 )}) (LVL ${quest.customLevel ?? npc.level}) ||(${
                     quests.filter(
-                        (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed
+                        (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed,
                     ).length
                 }/${
                     quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
@@ -239,7 +239,7 @@ export const getQuestsStats = (
             const originalQuest = Object.values(QuestsL).find((v) => v.id === quest.id);
             if (!originalQuest) {
                 message.push(
-                    `??? Unknown Base Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`
+                    `??? Unknown Base Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`,
                 );
                 totalPercent += 100;
                 continue;
@@ -260,7 +260,7 @@ export const getQuestsStats = (
             const originalQuest = Object.values(ActionQuestsL).find((v) => v.id === quest.id);
             if (!originalQuest) {
                 message.push(
-                    `??? Unknown Action Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`
+                    `??? Unknown Action Quest (${quest.id}) ???::: ${JSON.stringify(quest)}`,
                 );
                 totalPercent += 100;
                 continue;
@@ -291,7 +291,7 @@ export const getQuestsStats = (
                         emailData.subject
                     }) (${ctx.client.getSlashCommandMention("emails view")}) ||(${
                         quest.completed ? ":white_check_mark:" : ":x:"
-                    })||`
+                    })||`,
                 );
             }
             continue;
@@ -304,7 +304,7 @@ export const getQuestsStats = (
             if (raid) {
                 questPercent =
                     quests.filter(
-                        (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
+                        (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed,
                     ).length /
                     quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
                         .length;
@@ -312,7 +312,7 @@ export const getQuestsStats = (
 
                 const completedSlashTotal =
                     quests.filter(
-                        (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed
+                        (r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss && r.completed,
                     ).length +
                     "/" +
                     quests.filter((r) => Functions.isRaidNPCQuest(r) && r.boss === quest.boss)
@@ -332,8 +332,8 @@ export const getQuestsStats = (
                         .length !== 1
                         ? completedSlashTotal
                         : quest.completed
-                        ? ":white_check_mark:"
-                        : ":x:"
+                          ? ":white_check_mark:"
+                          : ":x:"
                 }) **${(questPercent * 100).toFixed(2)}%**||`;
                 const found = message.find((messageX) => messageX === sMessage);
 
@@ -370,7 +370,7 @@ export const getQuestsStats = (
                                     .split("_")
                                     .map((x) => capitalize(x))
                                     .join(" ") +
-                                "`"
+                                "`",
                         )
                         .join(", ")} `;
                 }
@@ -388,7 +388,7 @@ export const getQuestsStats = (
                     : Math.round(
                           ((quest as StartDungeonQuest).completed /
                               (quest as StartDungeonQuest).total) *
-                              100
+                              100,
                       );
             messageString += `(${(quest as StartDungeonQuest).completed}/${
                 (quest as StartDungeonQuest).total
@@ -407,7 +407,7 @@ export const getQuestsStats = (
                 completed = true;
             }
             const msg = `Answer **${goal}** ${ctx.client.getSlashCommandMention(
-                "event quiz"
+                "event quiz",
             )} correctly ||(${amount}/${goal}) **${questPercent}%**||`;
             message.push(msg);
 
@@ -448,7 +448,7 @@ const slashCommand: SlashCommandFile = {
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (ctx.userData.chapter.quests.length === 0) {
             ctx.userData.chapter.quests = getChapterOrChapterPartInfos(
-                ctx.userData.chapter.id
+                ctx.userData.chapter.id,
             ).quests.map((x) => Functions.pushQuest(x));
             if (ctx.userData.chapter.quests.length !== 0)
                 await ctx.client.database.saveUserData(ctx.userData);
@@ -467,7 +467,7 @@ const slashCommand: SlashCommandFile = {
                     .setCustomId("next")
                     .setLabel("Next")
                     .setEmoji(ctx.client.localEmojis.arrowRight)
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Primary),
             );
             const filter = (i: MessageComponentInteraction) => {
                 i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
@@ -500,12 +500,21 @@ const slashCommand: SlashCommandFile = {
                     return;
                 }
 
+                if (Functions.hasReachedMaxLevel(ctx.userData)) {
+                    collector.stop();
+                    ctx.followUp({
+                        content: `You have reached the maximum level. Please prestige to continue progressing through the chapters.`,
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
                 if (newChap.rewardsWhenComplete) {
                     const winContent: string[] = [];
 
                     if (newChap.rewardsWhenComplete.coins) {
                         winContent.push(
-                            `+**${newChap.rewardsWhenComplete.coins}** ${ctx.client.localEmojis.jocoins}`
+                            `+**${newChap.rewardsWhenComplete.coins}** ${ctx.client.localEmojis.jocoins}`,
                         );
                         Functions.addCoins(ctx.userData, newChap.rewardsWhenComplete.coins);
                     }
@@ -515,7 +524,7 @@ const slashCommand: SlashCommandFile = {
                         if (emailData) {
                             Functions.addEmail(ctx.userData, newChap.rewardsWhenComplete.email);
                             winContent.push(
-                                `+**${emailData.author.name}**:${emailData.subject} :envelope:`
+                                `+**${emailData.author.name}**:${emailData.subject} :envelope:`,
                             );
                         }
                     }
@@ -525,17 +534,17 @@ const slashCommand: SlashCommandFile = {
                             Functions.addItem(
                                 ctx.userData,
                                 Functions.findItem(item.item),
-                                item.amount
+                                item.amount,
                             );
                             winContent.push(
                                 `+${item.amount} ${Functions.findItem(item.item).name} ${
                                     Functions.findItem(item.item).emoji
-                                }`
+                                }`,
                             );
                         }
                     ctx.followUp({
                         content: `You have completed the chapter and received the following rewards:\n${winContent.join(
-                            ", "
+                            ", ",
                         )}`,
                     });
                 }
@@ -562,7 +571,7 @@ const slashCommand: SlashCommandFile = {
                             newData: ctx.userData,
                         },
                     ],
-                    `Chapter ${newChap.id}`
+                    `Chapter ${newChap.id}`,
                 );
 
                 ctx.followUp({

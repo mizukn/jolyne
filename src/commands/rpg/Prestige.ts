@@ -76,7 +76,7 @@ Prestige therefore allows you to continue progressing while resetting your level
                     value: [0, 1, 2, 3, Infinity]
                         .map((n) => {
                             return `- \`P${n == Infinity ? "→" : "="}${n.toLocaleString(
-                                "en-US"
+                                "en-US",
                             )}:\` ${Functions.getMaxPrestigeLevel(n)}`;
                         })
                         .join("\n"),
@@ -88,9 +88,9 @@ Prestige therefore allows you to continue progressing while resetting your level
                         ctx.userData.level
                     }/${Functions.getMaxPrestigeLevel(ctx.userData.prestige)}**\n- Prestige: **${
                         ctx.userData.prestige
-                    }**\n- Current chapter progress: **${
-                        status.percent
-                    }%** (do not go to the next chapter! stay in the current one)`,
+                    }**\n- Current chapter progress: **${status.percent.toFixed(
+                        2,
+                    )}%** (do not go to the next chapter! stay in the current one)`,
                     inline: true,
                 },
                 {
@@ -109,7 +109,7 @@ Prestige therefore allows you to continue progressing while resetting your level
                         : `${ctx.client.localEmojis.arrowRight} You will be level **${
                               cobaye.level
                           }/${Functions.getMaxPrestigeLevel(
-                              cobaye.prestige
+                              cobaye.prestige,
                           )}** with **${cobaye.xp.toLocaleString()}** ${
                               ctx.client.localEmojis.xp
                           } and **${cobaye.prestige_shards.toLocaleString()}** ${
@@ -138,7 +138,7 @@ Prestige therefore allows you to continue progressing while resetting your level
 
 async function handlePrestige(
     ctx: CommandInteractionContext,
-    i: MessageComponentInteraction
+    i: MessageComponentInteraction,
 ): Promise<void> {
     if (!process.env.ENABLE_PRESTIGE) {
         const reply = await ctx.interaction.fetchReply();

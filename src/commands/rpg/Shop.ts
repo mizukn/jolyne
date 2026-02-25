@@ -32,6 +32,7 @@ type cShop = {
     data: StringSelectMenuBuilder;
     items: Shop["items"];
     emoji: string;
+    currency: "coins" | "prestige_shards";
 };
 
 const choices: {
@@ -57,7 +58,7 @@ const slashCommand: SlashCommandFile = {
         options: [],
     },
     execute: async (
-        ctx: CommandInteractionContext
+        ctx: CommandInteractionContext,
     ): Promise<Message | void | InteractionResponse> => {
         let shops: cShop[] = [];
         let currentShop: cShop | undefined;
@@ -89,6 +90,7 @@ const slashCommand: SlashCommandFile = {
                         price: Functions.findItem("dungeon_key").price ?? 10000,
                     },
                 ],
+                currency: "coins",
             };
 
             BM.items.forEach((x) => {
@@ -96,7 +98,7 @@ const slashCommand: SlashCommandFile = {
                 x.price = cloneDeep(x.price);
             });
             const hasAlreadyBlackMarket = (await ctx.client.database.getJSONData(
-                Functions.getBlackMarketString(ctx.user.id)
+                Functions.getBlackMarketString(ctx.user.id),
             )) as Shop["items"];
             if (!hasAlreadyBlackMarket) {
                 BM.items = Functions.shuffle(BM.items);
@@ -180,7 +182,7 @@ const slashCommand: SlashCommandFile = {
                 }
                 await ctx.client.database.setJSONData(
                     Functions.getBlackMarketString(ctx.user.id),
-                    BM.items
+                    BM.items,
                 );
             } else {
                 BM.items = hasAlreadyBlackMarket;
@@ -211,11 +213,14 @@ const slashCommand: SlashCommandFile = {
                 fields: [],
                 color: 0x70926c,
                 footer: {
-                    text: `You have ${ctx.userData.coins.toLocaleString()} 🪙 left.`,
+                    text: `You have ${ctx.userData.coins.toLocaleString()} 🪙 left | You have ${ctx.userData.prestige_shards.toLocaleString()} prestige shards.`,
                 },
             };
 
             function handleShop(Shop: Shop): void {
+                if (Shop.name.toLocaleLowerCase().includes("prestige")) {
+                    if (ctx.userData.prestige_shards <= 0 || !process.env.ENABLE_PRESTIGE) return;
+                }
                 const shopSelect = new StringSelectMenuBuilder()
                     .setCustomId(`shop_${ctx.interaction.id}_${Shop.name}`)
                     .setPlaceholder("Select an item")
@@ -253,7 +258,9 @@ const slashCommand: SlashCommandFile = {
                             str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                                 xitem.name
                             }** - ${(item.price ?? xitem.price).toLocaleString()} ${
-                                ctx.client.localEmojis.jocoins
+                                Shop.currency === "prestige_shards"
+                                    ? ctx.client.localEmojis.prestige_shard
+                                    : ctx.client.localEmojis.jocoins
                             }`;
                             if (Functions.isConsumable(xitem))
                                 str += ` | ${Object.keys(xitem.effects)
@@ -261,7 +268,7 @@ const slashCommand: SlashCommandFile = {
                                         (x) =>
                                             `+**${xitem.effects[
                                                 x as keyof typeof xitem.effects
-                                            ].toLocaleString()}** ${x}`
+                                            ].toLocaleString()}** ${x}`,
                                     )
                                     .join(`, `)}`;
                             str += "\n";
@@ -271,6 +278,7 @@ const slashCommand: SlashCommandFile = {
                             data: shopSelect,
                             emoji: Shop.emoji ?? Shop.owner?.emoji ?? "",
                             items: Shop.items,
+                            currency: Shop.currency ?? "coins",
                         });
                         return str;
                     })(),
@@ -291,7 +299,9 @@ const slashCommand: SlashCommandFile = {
                     str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
                         xitem.name
                     }** - ${(item.price ?? xitem.price).toLocaleString()} ${
-                        ctx.client.localEmojis.jocoins
+                        Shop.currency === "prestige_shards"
+                            ? ctx.client.localEmojis.prestige_shard
+                            : ctx.client.localEmojis.jocoins
                     }`;
                     if (Functions.isConsumable(xitem))
                         str += ` | ${Object.keys(xitem.effects)
@@ -299,7 +309,7 @@ const slashCommand: SlashCommandFile = {
                                 (x) =>
                                     `+**${xitem.effects[
                                         x as keyof typeof xitem.effects
-                                    ].toLocaleString()}** ${x}`
+                                    ].toLocaleString()}** ${x}`,
                             )
                             .join(`, `)}`;
                     str += "\n";
@@ -323,7 +333,7 @@ const slashCommand: SlashCommandFile = {
                         label: x.name,
                         value: x.name,
                         emoji: x.emoji,
-                    }))
+                    })),
                 );
 
             embed.fields = Functions.fixFields(embed.fields);
@@ -346,9 +356,7 @@ const slashCommand: SlashCommandFile = {
                             description: createShopString(shop),
                             color: 0x70926c,
                             footer: {
-                                text: `You have ${ctx.userData.coins.toLocaleString(
-                                    "en-US"
-                                )} 🪙 left.`,
+                                text: `You have ${shop.currency === "prestige_shards" ? ctx.userData.prestige_shards.toLocaleString() : ctx.userData.coins.toLocaleString()} ${shop.currency === "prestige_shards" ? ctx.client.localEmojis.prestige_shard : ctx.client.localEmojis.jocoins} left.`,
                             },
                         },
                     ],
@@ -369,7 +377,7 @@ const slashCommand: SlashCommandFile = {
                     i.customId.replace(ctx.interaction.id, "") === `shop_${ctx.interaction.id}`
                 ) {
                     const shop = shops.find(
-                        (x) => x.name === (i as StringSelectMenuInteraction).values[0]
+                        (x) => x.name === (i as StringSelectMenuInteraction).values[0],
                     );
                     if (!shop) return;
                     currentShop = shop;
@@ -377,7 +385,7 @@ const slashCommand: SlashCommandFile = {
                 } else if (i.customId.includes(`shop_${ctx.interaction.id}`)) {
                     // selected item
                     const item = currentShop?.items.find(
-                        (x) => x.item === (i as StringSelectMenuInteraction).values[0]
+                        (x) => x.item === (i as StringSelectMenuInteraction).values[0],
                     );
                     if (!item) return;
                     const xitem = Functions.findItem(item.item);
@@ -404,17 +412,37 @@ const slashCommand: SlashCommandFile = {
                         selectedItem.id === "box"
                             ? boxPrice * amount
                             : (selectedItem.price ?? 10000) * amount;
+                    const currency = {
+                        name:
+                            currentShop?.currency === "prestige_shards"
+                                ? "prestige shards"
+                                : "coins",
+                        emoji:
+                            currentShop?.currency === "prestige_shards"
+                                ? ctx.client.localEmojis.prestige_shard
+                                : ctx.client.localEmojis.jocoins,
+                        amount:
+                            currentShop?.currency === "prestige_shards"
+                                ? ctx.userData.prestige_shards
+                                : ctx.userData.coins,
+                    };
 
-                    if (ctx.userData.coins < price) {
+                    if (currency.amount < price) {
                         sendMenuEmbed().then(() => {
                             ctx.followUp({
-                                content: `You don't have enough ${ctx.client.localEmojis.jocoins} to buy this item!`,
+                                content: `You don't have enough ${currency.emoji} to buy this item!`,
                                 ephemeral: true,
                             });
                         });
                         return;
                     }
-                    Functions.addCoins(ctx.userData, -price);
+
+                    if (currency.name === "coins") {
+                        Functions.addCoins(ctx.userData, -price);
+                    } else {
+                        Functions.addPrestigeShards(ctx.userData, -price);
+                    }
+
                     const oldData = cloneDeep(ctx.userData);
                     if (!selectedItem.storable) {
                         if (Functions.isConsumable(selectedItem)) {
@@ -427,7 +455,7 @@ const slashCommand: SlashCommandFile = {
                                     selectedItem.name
                                 }** and got: ${Functions.getRewardsCompareData(
                                     oldData,
-                                    ctx.userData
+                                    ctx.userData,
                                 ).join(", ")}`.slice(0, 500),
                             });
                         } else {
@@ -438,9 +466,7 @@ const slashCommand: SlashCommandFile = {
                                     currentShop.name
                                 }**: You bought x${amount} ${selectedItem.emoji} **${
                                     selectedItem.name
-                                }** for **${price.toLocaleString()}** ${
-                                    ctx.client.localEmojis.jocoins
-                                }`,
+                                }** for **${price.toLocaleString()}** ${currency.emoji}`,
                             });
                         }
                     } else {
@@ -451,9 +477,7 @@ const slashCommand: SlashCommandFile = {
                                 currentShop.name
                             }**: You bought x${amount} ${selectedItem.emoji} **${
                                 selectedItem.name
-                            }** for **${price.toLocaleString()}** ${
-                                ctx.client.localEmojis.jocoins
-                            }`,
+                            }** for **${price.toLocaleString()}** ${currency.emoji}`,
                         });
                     }
                     await ctx.client.database.saveUserData(ctx.userData);
