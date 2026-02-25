@@ -34,7 +34,7 @@ const Event: EventFile = {
                 !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
             ) {
                 console.log(
-                    `${interaction.user.username} tried to use a command while in maintenance.`
+                    `${interaction.user.username} tried to use a command while in maintenance.`,
                 );
                 return interaction.reply({
                     content: `The bot is currently in maintenance mode. Reason: \`${interaction.client.maintenanceReason}\``,
@@ -67,38 +67,38 @@ const Event: EventFile = {
             }
             if (!interaction.channel)
                 return interaction.reply(
-                    "This command is not available here. If you're on a thread, please make sure that I have the permissions to send/read messages in this thread."
+                    "This command is not available here. If you're on a thread, please make sure that I have the permissions to send/read messages in this thread.",
                 );
 
             // cooldown
             if (command.cooldown && !isNaN(command.cooldown)) {
                 const cd = interaction.client.cooldowns.get(
-                    `${interaction.user.id}:${command.data.name}`
+                    `${interaction.user.id}:${command.data.name}`,
                 );
                 if (cd) {
                     const timeLeft = cd - Date.now();
                     if (timeLeft > 0) {
                         return interaction.reply({
                             content: `You can use this command again in ${(timeLeft / 1000).toFixed(
-                                2
+                                2,
                             )} seconds.`,
                             ephemeral: true,
                         });
                     } else
                         interaction.client.cooldowns.delete(
-                            `${interaction.user.id}:${command.data.name}`
+                            `${interaction.user.id}:${command.data.name}`,
                         );
                 } else
                     interaction.client.cooldowns.set(
                         `${interaction.user.id}:${command.data.name}`,
-                        Date.now() + command.cooldown * 1000
+                        Date.now() + command.cooldown * 1000,
                     );
             }
             let ctx: CommandInteractionContext;
 
             if (command.category === "rpg") {
                 const userData = await interaction.client.database.getRPGUserData(
-                    interaction.user.id
+                    interaction.user.id,
                 );
                 ctx = new CommandInteractionContext(interaction, userData);
                 if (!ctx.userData) {
@@ -111,7 +111,7 @@ const Event: EventFile = {
                 if (command.checkRPGCooldown) {
                     const cooldown = await interaction.client.database.getRPGCooldown(
                         ctx.user.id,
-                        command.checkRPGCooldown
+                        command.checkRPGCooldown,
                     );
                     if (
                         cooldown &&
@@ -122,7 +122,7 @@ const Event: EventFile = {
                         return ctx.makeMessage({
                             content: `You can use this RPG command again ${Functions.generateDiscordTimestamp(
                                 cooldown,
-                                "FROM_NOW"
+                                "FROM_NOW",
                             )}`,
                         });
                     }
@@ -146,9 +146,9 @@ const Event: EventFile = {
                         content: `:arrow_up: | **${
                             ctx.user.username
                         }**, you have **${Functions.getRawSkillPointsLeft(
-                            ctx.userData
+                            ctx.userData,
                         )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
-                            "skill points invest"
+                            "skill points invest",
                         )} command to invest them! It is crucial to invest your skill points to progress in the game, so please do it.`,
                     });
                     return;
@@ -166,7 +166,7 @@ const Event: EventFile = {
                         });
                         if (
                             !(await ctx.client.database.redis.get(
-                                `tempCache_cooldown:${ctx.user.id}_toldWarning`
+                                `tempCache_cooldown:${ctx.user.id}_toldWarning`,
                             ))
                         ) {
                             ctx.followUp({
@@ -175,7 +175,7 @@ const Event: EventFile = {
                             });
                             await ctx.client.database.redis.set(
                                 `tempCache_cooldown:${ctx.user.id}_toldWarning`,
-                                "true"
+                                "true",
                             );
                         }
                         return;
@@ -211,7 +211,7 @@ const Event: EventFile = {
                 if (Number(ctx.userData.restingAtCampfire) && command.data.name !== "campfire") {
                     ctx.makeMessage({
                         content: `🔥🪵 You're currently resting at the campfire. Use the ${ctx.client.getSlashCommandMention(
-                            "campfire leave"
+                            "campfire leave",
                         )} command to leave.`,
                     });
                     return;
@@ -223,9 +223,9 @@ const Event: EventFile = {
 
                 interaction.client.log(
                     `${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
-                        interaction.options["data"]
+                        interaction.options["data"],
                     )}`,
-                    "command"
+                    "command",
                 );
                 const notifications: string[] = [];
                 // check if ctx.userData.health is lower than 10% of their Functions.getMaxHealth(ctx.userData) and/or for stamina
@@ -240,12 +240,12 @@ const Event: EventFile = {
                     if (ctx.userData.settings.notifications.low_health_or_stamina)
                         notifications.push(
                             `🩸 | You're low in health/stamina. You should  ${ctx.client.getSlashCommandMention(
-                                "heal"
+                                "heal",
                             )} yourself. You can use the ${ctx.client.getSlashCommandMention(
-                                "shop"
+                                "shop",
                             )} command to use consumables. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
-                                "campfire rest"
-                            )} (1% of your max health every 2 minutes)`
+                                "campfire rest",
+                            )} (1% of your max health every 2 minutes)`,
                         );
                 }
 
@@ -265,12 +265,12 @@ const Event: EventFile = {
                         `📧 | You have **${unreadEmails.length}** unread email${
                             unreadEmails.length > 1 ? "s" : ""
                         }. Use the ${ctx.client.getSlashCommandMention(
-                            "emails view"
-                        )} command to read them.`
+                            "emails view",
+                        )} command to read them.`,
                     );
                 }
                 ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
-                    (x) => x && x.quests?.length > 0
+                    (x) => x && x.quests?.length > 0,
                 );
 
                 for (const sideQuest of ctx.userData.sideQuests) {
@@ -302,12 +302,12 @@ const Event: EventFile = {
                     !ctx.userData.emails.find((r) => r.id === "halloween_2024")
                 ) {
                     const hasAlreadyAdded = await ctx.client.database.getString(
-                        `setHalloween2024:${ctx.user.id}`
+                        `setHalloween2024:${ctx.user.id}`,
                     );
                     if (!hasAlreadyAdded) {
                         await ctx.client.database.setString(
                             `setHalloween2024:${ctx.user.id}`,
-                            "true"
+                            "true",
                         );
 
                         ctx.followUpQueue.push({
@@ -321,12 +321,12 @@ const Event: EventFile = {
                     !ctx.userData.emails.find((r) => r.id === "christmas_2024")
                 ) {
                     const hasAlreadyAdded = await ctx.client.database.getString(
-                        `setChristmas2024:${ctx.user.id}`
+                        `setChristmas2024:${ctx.user.id}`,
                     );
                     if (!hasAlreadyAdded) {
                         await ctx.client.database.setString(
                             `setChristmas2024:${ctx.user.id}`,
-                            "true"
+                            "true",
                         );
 
                         ctx.followUpQueue.push({
@@ -341,12 +341,12 @@ const Event: EventFile = {
                     !ctx.userData.emails.find((r) => r.id === "halloween_2025")
                 ) {
                     const hasAlreadyAdded = await ctx.client.database.getString(
-                        `setHalloween2025:${ctx.user.id}`
+                        `setHalloween2025:${ctx.user.id}`,
                     );
                     if (!hasAlreadyAdded) {
                         await ctx.client.database.setString(
                             `setHalloween2025:${ctx.user.id}`,
-                            "true"
+                            "true",
                         );
                         ctx.followUpQueue.push({
                             content: `:jack_o_lantern: | **${ctx.user.username}**, Happy Halloween! You received a special email & quest for the 2025 Halloween event.`,
@@ -363,16 +363,16 @@ const Event: EventFile = {
                         const oldDataPatreon = cloneDeep(ctx.userData);
                         Functions.givePatreonRewards(
                             ctx.userData,
-                            ctx.client.patreons.find((r) => r.id === ctx.user.id).level
+                            ctx.client.patreons.find((r) => r.id === ctx.user.id).level,
                         );
                         notifications.push(
-                            `:heart: <:patronbox:1056324158524502036> | You received your monthly Patreon rewards! You got these items:\n${Functions.getRewardsCompareData(
+                            `:heart: <:patronbox:1056324158524502036> | You received your monthly Patreon rewards! You got these items: ${Functions.getRewardsCompareData(
                                 oldDataPatreon,
-                                ctx.userData
-                            ).join(", ")}`
+                                ctx.userData,
+                            ).join(", ")}`,
                         );
                         ctx.userData.lastPatreonReward = ctx.client.patreons.find(
-                            (r) => r.id === ctx.user.id
+                            (r) => r.id === ctx.user.id,
                         ).lastPatreonCharge;
                     }
                 }
@@ -381,7 +381,7 @@ const Event: EventFile = {
                     if (status.status) {
                         if (!ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)) {
                             const fixedQuests = SideQuest.quests(ctx).map((v) =>
-                                Functions.pushQuest(v)
+                                Functions.pushQuest(v),
                             );
                             ctx.userData.sideQuests.push({
                                 id: SideQuest.id,
@@ -391,8 +391,8 @@ const Event: EventFile = {
                                 `${SideQuest.emoji} | You now have the **${
                                     SideQuest.title
                                 }** SideQuest! (${ctx.client.getSlashCommandMention(
-                                    "side quest view"
-                                )})`
+                                    "side quest view",
+                                )})`,
                             );
                         }
                     } else {
@@ -408,10 +408,10 @@ const Event: EventFile = {
                                     .claimedPrize
                             ) {
                                 ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
-                                    (r) => r.id !== SideQuest.id
+                                    (r) => r.id !== SideQuest.id,
                                 );
                                 notifications.push(
-                                    `:x: | You no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.\n\n${status.notMeet}`
+                                    `:x: | You no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.\n\n${status.notMeet}`,
                                 );
                             }
                         }
@@ -434,7 +434,7 @@ const Event: EventFile = {
                     for (const quest of quests) {
                         if (quest.pushEmailWhenCompleted && quest.completed) {
                             const mailData = Functions.findEmail(
-                                quest.pushEmailWhenCompleted.email
+                                quest.pushEmailWhenCompleted.email,
                             );
                             if (quest.pushEmailWhenCompleted.timeout) {
                                 quests.push(
@@ -443,13 +443,13 @@ const Event: EventFile = {
                                         mailData.id,
                                         null,
                                         null,
-                                        quest.pushEmailWhenCompleted.mustRead
-                                    )
+                                        quest.pushEmailWhenCompleted.mustRead,
+                                    ),
                                 );
                             } else {
                                 Functions.addEmail(
                                     ctx.userData,
-                                    quest.pushEmailWhenCompleted.email
+                                    quest.pushEmailWhenCompleted.email,
                                 );
                                 if (quest.pushEmailWhenCompleted.mustRead) {
                                     quests.push(Functions.generateMustReadEmailQuest(mailData));
@@ -473,13 +473,13 @@ const Event: EventFile = {
                                         // wtf is this
                                         Functions.addItem(ctx.userData, item.item, item.amount);
                                         notifications.push(
-                                            `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`
+                                            `-# You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`,
                                         );
                                     }
                                 } else {
                                     Functions.addItem(ctx.userData, item.item, item.amount);
                                     notifications.push(
-                                        `You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`
+                                        `-# You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`,
                                     );
                                 }
                             }
@@ -505,19 +505,19 @@ const Event: EventFile = {
                                     if (questData) {
                                         if (quests.find((r) => r.id === quest.id))
                                             ctx.userData.chapter.quests.push(
-                                                Functions.pushQuest(questData)
+                                                Functions.pushQuest(questData),
                                             );
                                         else if (
                                             ctx.userData.daily.quests.find((r) => r.id === quest.id)
                                         )
                                             ctx.userData.daily.quests.push(
-                                                Functions.pushQuest(questData)
+                                                Functions.pushQuest(questData),
                                             );
                                         else {
                                             for (const sideQuest of ctx.userData.sideQuests) {
                                                 if (sideQuest.quests.find((r) => r.id === quest.id))
                                                     sideQuest.quests.push(
-                                                        Functions.pushQuest(questData)
+                                                        Functions.pushQuest(questData),
                                                     );
                                             }
                                         }
@@ -542,7 +542,7 @@ const Event: EventFile = {
                 }
                 if (queue.length > 1) {
                     notifications.push(
-                        `:up: | You leveled up: **${oldLevel}** ${ctx.client.localEmojis.arrowRight} **${ctx.userData.level}**!`
+                        `:up: | You leveled up: **${oldLevel}** ${ctx.client.localEmojis.arrowRight} **${ctx.userData.level}**!`,
                     );
                 } else {
                     for (const item of queue) {
@@ -552,7 +552,7 @@ const Event: EventFile = {
                 if (new Date().getDay() === 0 && command.data.name !== "shop") {
                     if (!ctx.client.otherCache.get(`black_market:${ctx.user.id}`)) {
                         const data = await ctx.client.database.getJSONData(
-                            Functions.getBlackMarketString(ctx.user.id)
+                            Functions.getBlackMarketString(ctx.user.id),
                         );
                         ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
 
@@ -560,10 +560,10 @@ const Event: EventFile = {
                             if (ctx.userData.settings.notifications.black_market)
                                 notifications.push(
                                     `🃏 | The black market is open! Use the ${ctx.client.getSlashCommandMention(
-                                        "shop"
-                                    )} command to see what's available!\n\nYou can disable this notification with the ${ctx.client.getSlashCommandMention(
-                                        "settings notifications"
-                                    )} command.`
+                                        "shop",
+                                    )} command to see what's available!\n-# You can disable this notification with the ${ctx.client.getSlashCommandMention(
+                                        "settings notifications",
+                                    )} command.`,
                                 );
                         }
                     }
@@ -578,10 +578,10 @@ const Event: EventFile = {
                         `:arrow_up: | **${
                             ctx.user.username
                         }**, you have **${Functions.getRawSkillPointsLeft(
-                            ctx.userData
+                            ctx.userData,
                         )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
-                            "skill points invest"
-                        )} command to invest them!`
+                            "skill points invest",
+                        )} command to invest them!`,
                     );
                 }
 
@@ -594,7 +594,7 @@ const Event: EventFile = {
                     ctx.userData.settings.notifications.low_health_or_stamina
                 ) {
                     notifications.push(
-                        `:warning: | You're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`
+                        `:warning: | You're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`,
                     );
                 }
 
@@ -606,8 +606,8 @@ const Event: EventFile = {
                 ) {
                     notifications.push(
                         `:star: | You reached the maximum level for your prestige level! Use the ${ctx.client.getSlashCommandMention(
-                            "prestige"
-                        )} command to prestige and start over...`
+                            "prestige",
+                        )} command to prestige and start over...`,
                     );
                 }
 
@@ -623,7 +623,7 @@ const Event: EventFile = {
                     ) */
                 ) {
                     ctx.userData.daily.quests = Functions.generateDailyQuests(
-                        Functions.getTrueLevel(ctx.userData)
+                        Functions.getTrueLevel(ctx.userData),
                     );
                     ctx.userData.daily.lastDailyQuestsReset = new Date().setUTCHours(0, 0, 0, 0);
                     ctx.userData.daily.dailyQuestsReset = 0;
@@ -632,8 +632,8 @@ const Event: EventFile = {
                         `:scroll:${ctx.client.localEmojis.timerIcon} | **${
                             ctx.user.username
                         }**, you have new daily quests! Use the ${ctx.client.getSlashCommandMention(
-                            "daily quests"
-                        )} command to see them!`
+                            "daily quests",
+                        )} command to see them!`,
                     );
                 }
 
@@ -645,16 +645,14 @@ const Event: EventFile = {
                         delete ctx.userData.equippedItems[key];
                         Functions.addItem(ctx.userData, key, 1, true);
                         notifications.push(
-                            `:x: | **${ctx.user.username}**, you no longer meet the requirements for the ${itemData.emoji} \`${itemData.name}\` item, so it has been unequipped and put back in your inventory.`
+                            `:x: | **${ctx.user.username}**, you no longer meet the requirements for the ${itemData.emoji} \`${itemData.name}\` item, so it has been unequipped and put back in your inventory.`,
                         );
                     }
                 }
 
                 if (notifications.length > 0) {
                     ctx.followUpQueue.push({
-                        content: `${notifications.map((x) => `- ${x}`).join("\n")}\n-# <@${
-                            ctx.user.id
-                        }>`,
+                        content: `${notifications.join("\n\n")}\n-# <@${ctx.user.id}>`,
                     });
                 }
 
@@ -681,7 +679,7 @@ const Event: EventFile = {
                     interaction.commandName
                 }\` in guild ${interaction.guild.name} \`(${
                     interaction.guild.id
-                })\` with options: \`\`\`${JSON.stringify(interaction.options["data"])}\`\`\` _ _`
+                })\` with options: \`\`\`${JSON.stringify(interaction.options["data"])}\`\`\` _ _`,
             );
 
             if (command.category === "private") {
@@ -691,8 +689,8 @@ const Event: EventFile = {
                     })\` used \`/${interaction.commandName}\` in guild ${
                         interaction.guild.name
                     } \`(${interaction.guild.id})\` with options: \`\`\`${JSON.stringify(
-                        interaction.options["data"]
-                    )}\`\`\` _ _`
+                        interaction.options["data"],
+                    )}\`\`\` _ _`,
                 );
             }
         } else if (interaction.isAutocomplete()) {
@@ -720,7 +718,7 @@ const Event: EventFile = {
             command.autoComplete(
                 interaction,
                 userData,
-                interaction.options.getFocused().toString()
+                interaction.options.getFocused().toString(),
             );
             /*
             commandLogsWebhook.send(

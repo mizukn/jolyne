@@ -19,7 +19,7 @@ async function fetchSupportMembers(client: Jolyne): Promise<void> {
     const staff = members.filter((v) => v.roles.cache.has("926829641518424064"));
     const boosters = members.filter((v) => v.roles.cache.has("938432687386005585"));
     const betaTournamentParticipants = members.filter((v) =>
-        v.roles.cache.has("1129091839023120415")
+        v.roles.cache.has("1129091839023120415"),
     );
     const hugeContributors = members.filter((v) => v.roles.cache.has("926829876990844989"));
 
@@ -92,9 +92,12 @@ const Event: EventFile = {
         if (client.guilds.cache.get("923608916540145694")) {
             // Jolyne Support Server
             fetchSupportMembers(client);
-            setInterval(async () => {
-                fetchSupportMembers(client);
-            }, 1000 * 60 * 5);
+            setInterval(
+                async () => {
+                    fetchSupportMembers(client);
+                },
+                1000 * 60 * 5,
+            );
             client.log("Successfully fetched support members.", "ready");
         }
 
@@ -182,7 +185,7 @@ const Event: EventFile = {
             for (const patron of patrons) {
                 const data = await client.database.redis.get(patron);
                 const patreonData = await client.database.redis.get(
-                    `patronData:${patron.split(":")[1]}`
+                    `patronData:${patron.split(":")[1]}`,
                 );
                 client.patreons.push({
                     id: patron.split(":")[1],
@@ -255,7 +258,7 @@ const Event: EventFile = {
                 fetchPatreons,
                 null,
                 true,
-                "Europe/Paris"
+                "Europe/Paris",
             );
             fetchPatreonsJob.start();
             fetchPatreons();
@@ -288,7 +291,7 @@ const Event: EventFile = {
                         cooldown: v.cooldown,
                         category: v.category,
                         options: v.data?.options?.filter(
-                            (r) => r.type === 3 || r.type === 6 || r.type === 4 || r.type === 5
+                            (r) => r.type === 3 || r.type === 6 || r.type === 4 || r.type === 5,
                         ),
                         name: v.data.name,
                         description: removeEmoji(v.data.description),
@@ -387,16 +390,19 @@ const Event: EventFile = {
 
         // client.database.migrateData();
 
-        setInterval(() => {
-            client.database.redis.keys("*tempCache_*").then(async (keys) => {
-                for (const key of keys) {
-                    const value = await client.database.redis.get(key);
-                    if (value.includes("trading")) continue;
-                    client.database.redis.del(key);
-                }
-                console.log(`Cleared ${keys.length} temp cache keys.`);
-            });
-        }, 1000 * 60 * 2);
+        setInterval(
+            () => {
+                client.database.redis.keys("*tempCache_*").then(async (keys) => {
+                    for (const key of keys) {
+                        const value = await client.database.redis.get(key);
+                        if (value.includes("trading")) continue;
+                        client.database.redis.del(key);
+                    }
+                    console.log(`Cleared ${keys.length} temp cache keys.`);
+                });
+            },
+            1000 * 60 * 2,
+        );
 
         while (client.patreonTiers.length === 0) {
             const result = await client.fetchRewards();
@@ -418,12 +424,12 @@ function removeEmoji(string: string) {
     return string
         .replace(
             /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
-            ""
+            "",
         )
         .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, "")
         .replace(
             /[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g,
-            ""
+            "",
         )
         .replace(/🪙/gi, "")
         .replace(/🔎/gi, "")
