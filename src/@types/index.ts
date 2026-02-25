@@ -671,6 +671,7 @@ export interface Stand {
     adminOnly?: boolean;
     passives?: Passive[];
     obtainableBy?: "arrow" | "rare_stand_arrow";
+    prestige?: number;
 }
 
 /**
@@ -695,7 +696,7 @@ export interface Ability {
         user: Fighter,
         target: Fighter,
         damage: number,
-        ctx: FightHandler
+        ctx: FightHandler,
     ) => string | void;
 
     /**
@@ -733,11 +734,10 @@ export interface RequiemStand extends Stand {
     base_stand: Stand;
 }
 
-export interface Evolutions
-    extends Omit<
-        Stand,
-        "image" | "emoji" | "customAttack" | "color" | "available" | "id" | "description"
-    > {
+export interface Evolutions extends Omit<
+    Stand,
+    "image" | "emoji" | "customAttack" | "color" | "available" | "id" | "description"
+> {
     tier: number;
 }
 
@@ -781,15 +781,19 @@ export interface Quest {
  * @description A quest that must be completed by reading an email.
  * @note Not initialized in /src/database/rpg/Quests, but automatically when a user completes a quest that has the pushEmailWhenCompleted?.mustRead property.
  */
-export interface MustReadEmailQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+export interface MustReadEmailQuest extends Omit<
+    Quest,
+    "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"
+> {
     completed: boolean;
     email: string; // Email["id"];
     type: "mustRead";
 }
 
-export interface StartDungeonQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+export interface StartDungeonQuest extends Omit<
+    Quest,
+    "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"
+> {
     total: number;
     type: "startDungeon";
     completed: number;
@@ -803,8 +807,10 @@ export interface ActionQuest extends Omit<Quest, "completed" | "hintCommand" | "
     use: (ctx: CommandInteractionContext) => Promise<void>;
 }
 
-export interface FightNPCQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+export interface FightNPCQuest extends Omit<
+    Quest,
+    "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"
+> {
     completed: boolean;
     npc: NPC["id"];
     allies?: NPC["id"][];
@@ -812,15 +818,19 @@ export interface FightNPCQuest
     customLevel?: number;
 }
 
-export interface RaidNPCQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+export interface RaidNPCQuest extends Omit<
+    Quest,
+    "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"
+> {
     completed: boolean;
     boss: NPC["id"];
     type: "raid";
 }
 
-export interface ClaimXQuest
-    extends Omit<Quest, "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"> {
+export interface ClaimXQuest extends Omit<
+    Quest,
+    "completed" | "i18n_key" | "emoji" | "hintCommand" | "type"
+> {
     x: "coin" | "xp" | "daily" | "social_credit";
     amount: number;
     goal: number;
@@ -846,8 +856,10 @@ export interface WaitQuest extends Omit<Quest, "completed" | "emoji" | "hintComm
     type: "wait";
 }
 
-export interface AnswerChineseNewYearQuizQuest
-    extends Omit<Quest, "completed" | "emoji" | "hintCommand" | "type"> {
+export interface AnswerChineseNewYearQuizQuest extends Omit<
+    Quest,
+    "completed" | "emoji" | "hintCommand" | "type"
+> {
     type: "answerChineseNewYearQuiz";
     amount: number;
     goal: number;
@@ -1017,6 +1029,7 @@ export interface Shop {
         item: Item["id"];
         price?: number; // If not specified, the item's price will be used.
     }[];
+    currency: "coins" | "prestige_shards";
 }
 export interface Rewards {
     coins?: number;
