@@ -66,7 +66,7 @@ const slashCommand: SlashCommandFile = {
         ],
     },
     execute: async (
-        ctx: CommandInteractionContext
+        ctx: CommandInteractionContext,
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
         const dateAtMidnight = new Date().setUTCHours(0, 0, 0, 0);
         const nextDate = dateAtMidnight + 86400000;
@@ -81,7 +81,7 @@ const slashCommand: SlashCommandFile = {
                     return ctx.sendTranslated("daily:ALREADY_CLAIMED", {
                         time: Functions.generateDiscordTimestamp(
                             Date.now() + (nextDate - Date.now()),
-                            "FROM_NOW"
+                            "FROM_NOW",
                         ),
                     });
                 }
@@ -102,7 +102,14 @@ const slashCommand: SlashCommandFile = {
                     xp: added.toLocaleString(),
                 });
 
-                if (ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000) {
+                if (
+                    ctx.userData.daily.lastClaimed !== dateAtMidnight - 86400000 &&
+                    // check if date is not 7 March 2026 or 8 march 2026 because jolyne was down!
+                    !(
+                        dateAtMidnight === new Date("2026-03-07").setUTCHours(0, 0, 0, 0) ||
+                        dateAtMidnight === new Date("2026-03-08").setUTCHours(0, 0, 0, 0)
+                    )
+                ) {
                     const oldStreak = ctx.userData.daily.claimStreak;
                     ctx.userData.daily.claimStreak = 0;
 
@@ -112,14 +119,14 @@ const slashCommand: SlashCommandFile = {
                                 oldStreak: oldStreak,
                                 date: Date.now(),
                                 user_id: ctx.userData.id,
-                            })
+                            }),
                         );
 
                         ctx.followUpQueue.push({
                             content: Functions.makeNPCString(
                                 NPCs.Jolyne,
                                 `You lost your **${oldStreak}-day streak**. You can try your luck by requesting a streak restore by [joining the support server](https://discord.gg/jolyne-support-923608916540145694) and providing the following code:\n\n\`${data}\`\n\n*Note that your streak may not be fully restored or restored at all.*`,
-                                ctx.client.localEmojis.JolyneAhhhhh
+                                ctx.client.localEmojis.JolyneAhhhhh,
                             ),
                         });
                     }
@@ -137,12 +144,12 @@ const slashCommand: SlashCommandFile = {
                     const xpRewards = Math.round(
                         rewards.xp *
                             (ctx.client.patreons.find((r) => r.id === ctx.userData.id).level / 7 +
-                                0.25)
+                                0.25),
                     );
                     const moneyRewards = Math.round(
                         rewards.coins *
                             (ctx.client.patreons.find((r) => r.id === ctx.userData.id).level / 7 +
-                                0.25)
+                                0.25),
                     );
 
                     const addedXP = Functions.addXp(ctx.userData, xpRewards, ctx.client);
@@ -195,19 +202,19 @@ const slashCommand: SlashCommandFile = {
                     ctx.client.boosters.find((r) => r === ctx.userData.id)
                 ) {
                     embed.fields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER"
+                        "daily:WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER",
                     );
                 } else if (ctx.client.patreons.find((r) => r.id === ctx.userData.id)) {
                     embed.fields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER"
+                        "daily:WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER",
                     );
                 } else if (ctx.client.boosters.find((r) => r === ctx.userData.id)) {
                     embed.fields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER"
+                        "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER",
                     );
                 } else {
                     embed.fields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_NON_BOOSTER"
+                        "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_NON_BOOSTER",
                     );
                 }
 
@@ -236,7 +243,7 @@ const slashCommand: SlashCommandFile = {
                     ...ctx.userData.sideQuests.map((v) => v.quests),
                 ]) {
                     for (const quest of quests.filter(
-                        (r) => Functions.isClaimXQuest(r) && r.x === "daily"
+                        (r) => Functions.isClaimXQuest(r) && r.x === "daily",
                     )) {
                         (quest as ClaimXQuest).amount++;
                     }
@@ -252,7 +259,7 @@ const slashCommand: SlashCommandFile = {
                     ];
                     const nextReward = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
                         Functions.getCurrentDate(
-                            new Date(Date.now() + 86400000) // next day
+                            new Date(Date.now() + 86400000), // next day
                         )
                     ];
 
@@ -278,7 +285,7 @@ const slashCommand: SlashCommandFile = {
                                 Functions.addItem(
                                     nextData,
                                     Functions.findItem(item),
-                                    nextReward.items[item]
+                                    nextReward.items[item],
                                 );
                             }
                         }
@@ -291,14 +298,14 @@ const slashCommand: SlashCommandFile = {
                         name: "Merry Christmas!",
                         value: `You got the following rewards for claiming today:\n${Functions.getRewardsCompareData(
                             oldData,
-                            ctx.userData
+                            ctx.userData,
                         )
                             .map((x) => `- ${x}`)
                             .join("\n")} ${
                             nextReward
                                 ? `\n\nExpected rewards if you claim tomorrow (${Functions.generateDiscordTimestamp(
                                       new Date(Date.now() + 86400000).setUTCHours(0, 0, 0, 0),
-                                      "FROM_NOW"
+                                      "FROM_NOW",
                                   )}):\n${nextRewards}`
                                 : ""
                         }`,
@@ -313,7 +320,7 @@ const slashCommand: SlashCommandFile = {
                             newData: ctx.userData,
                         },
                     ],
-                    "Daily claim"
+                    "Daily claim",
                 );
 
                 await ctx.makeMessage({
@@ -362,7 +369,7 @@ const slashCommand: SlashCommandFile = {
 
                 if (Number(status.percent) === 100) {
                     const alreadyClaimed = await ctx.client.database.redis.get(
-                        `daily-quests-${ctx.userData.id}`
+                        `daily-quests-${ctx.userData.id}`,
                     );
 
                     components.push(
@@ -370,7 +377,7 @@ const slashCommand: SlashCommandFile = {
                             .setStyle(ButtonStyle.Success)
                             .setEmoji("⭐")
                             .setCustomId(ctx.interaction.id + "daily-quests-claim")
-                            .setDisabled(alreadyClaimed === "true")
+                            .setDisabled(alreadyClaimed === "true"),
                     );
 
                     if (alreadyClaimed === "true") {
@@ -384,8 +391,8 @@ const slashCommand: SlashCommandFile = {
                                     `Reset for ${dailyQuestResetPrice[
                                         ctx.userData.daily
                                             .dailyQuestsReset as keyof typeof dailyQuestResetPrice
-                                    ]?.toLocaleString()} coins`
-                                )
+                                    ]?.toLocaleString()} coins`,
+                                ),
                         );
                     }
                 }
@@ -403,10 +410,10 @@ const slashCommand: SlashCommandFile = {
                                     xp: toBeAdded.toLocaleString(),
                                     discordUnix: Functions.generateDiscordTimestamp(
                                         dateAtMidnight + 86400000,
-                                        "FROM_NOW"
+                                        "FROM_NOW",
                                     ),
                                     dungeon_key: Functions.findItem("Dungeon").emoji,
-                                }
+                                },
                             )}`,
                             color: 0x70926c,
                             author: {
@@ -459,7 +466,7 @@ const slashCommand: SlashCommandFile = {
                             if (ctx.userData.coins < price) {
                                 await i.reply({
                                     content: `You don't have enough coins to reset your daily quests. You need ${price.toLocaleString(
-                                        "en-US"
+                                        "en-US",
                                     )} coins to reset your daily quests.`,
                                 });
                                 return;
@@ -469,7 +476,7 @@ const slashCommand: SlashCommandFile = {
                             ctx.userData.daily.quests = Functions.generateDailyQuests(
                                 process.env.ENABLE_PRESTIGE
                                     ? Functions.getTrueLevel(ctx.userData)
-                                    : ctx.userData.level
+                                    : ctx.userData.level,
                             );
                             await ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
                             if (!ctx.userData.daily.dailyQuestsReset) {
@@ -484,7 +491,7 @@ const slashCommand: SlashCommandFile = {
                                         newData: ctx.userData,
                                     },
                                 ],
-                                "Daily Quest Reset"
+                                "Daily Quest Reset",
                             );
                             if (!transaction) return i.reply("An error occurred.");
                             i.reply({
@@ -508,12 +515,12 @@ const slashCommand: SlashCommandFile = {
                                     newData: ctx.userData,
                                 },
                             ],
-                            "Daily Quest Claim"
+                            "Daily Quest Claim",
                         );
                         if (!transaction) return i.reply("An error occurred.");
                         await ctx.client.database.redis.set(
                             `daily-quests-${ctx.userData.id}`,
-                            "true"
+                            "true",
                         );
 
                         await ctx.makeMessage({
