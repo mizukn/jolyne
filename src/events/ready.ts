@@ -9,6 +9,74 @@ import { FightHandler } from "../structures/FightHandler";
 import { cli } from "winston/lib/winston/config";
 import * as FightableNPCs from "../rpg/NPCs/FightableNPCs";
 
+interface ClusterStatus {
+    id: number;
+    shards: number[]; // liste des shard IDs
+    status: "ok" | "partial" | "down";
+    guilds: number;
+    members: number;
+    memoryMB: number;
+    uptime: number; // ms
+    lastHeartbeat: number; // Date.now()
+    unavailableGuilds: number;
+}
+
+interface JolyneClustersData {
+    updatedAt: number;
+    totalGuilds: number;
+    totalMembers: number;
+    totalPlayers: number; // rpg users count
+    clustersCount: number;
+    shardsCount: number;
+    clusters: ClusterStatus[];
+}
+
+async function updateAggregatedStatus(redis: Jolyne["database"]["redis"]) {
+    const raw = await redis.hGetAll("jolyne:clusters");
+    const clusters: ClusterStatus[] = Object.values(raw).map((v) => JSON.parse(v));
+
+    // Optionnel: count RPG players
+    const playerKeys = await redis.keys(`${process.env.REDIS_PREFIX}:*`);
+
+    const aggregated: JolyneClustersData = {
+        updatedAt: Date.now(),
+        totalGuilds: clusters.reduce((a, c) => a + c.guilds, 0),
+        totalMembers: clusters.reduce((a, c) => a + c.members, 0),
+        totalPlayers: playerKeys.length,
+        clustersCount: clusters.length,
+        shardsCount: clusters.reduce((a, c) => a + c.shards.length, 0),
+        clusters: clusters.sort((a, b) => a.id - b.id),
+    };
+
+    await redis.set("jolyne:clusters:summary", JSON.stringify(aggregated));
+}
+
+async function updateClusterStatus(client: Jolyne) {
+    // Chaque cluster push ses propres données
+    const clusterData: ClusterStatus = {
+        id: Number(process.env.CLUSTER),
+        shards: [...client.ws.shards.keys()],
+        status: client.ws.shards.every((s) => s.status === 0)
+            ? "ok"
+            : client.ws.shards.some((s) => s.status === 0)
+              ? "partial"
+              : "down",
+        guilds: client.guilds.cache.size,
+        members: client.guilds.cache.reduce((acc, g) => acc + (g.memberCount || 0), 0),
+        memoryMB: Number((process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)),
+        uptime: client.uptime ?? 0,
+        lastHeartbeat: Date.now(),
+        unavailableGuilds: client.guilds.cache.filter((g) => !g.available).size,
+    };
+
+    // Push ce cluster dans un hash Redis (chaque cluster écrit sa propre clé)
+    await client.database.redis.hSet(
+        "jolyne:clusters",
+        String(clusterData.id),
+        JSON.stringify(clusterData),
+    );
+}
+
 async function fetchSupportMembers(client: Jolyne): Promise<void> {
     const members = await client.guilds.cache
         .get("923608916540145694")
@@ -415,6 +483,15 @@ const Event: EventFile = {
             await client.database.fixSettingsToEveryone();
             await client.database.redis.set("updateSettingsPrestige", "true");
             console.log("Updated settings to everyone");
+        }
+
+        setInterval(() => updateClusterStatus(client), 30_000);
+        updateClusterStatus(client);
+
+        // Seul le cluster 0 s'occupe de faire les tâches d'agrégation et de communication avec TopGG pour éviter les conflits et les surcharges
+        if (parseInt(process.env.CLUSTER) + 1 === parseInt(process.env.CLUSTER_COUNT)) {
+            setInterval(() => updateAggregatedStatus(client.database.redis), 30_000);
+            updateAggregatedStatus(client.database.redis);
         }
     },
 };
