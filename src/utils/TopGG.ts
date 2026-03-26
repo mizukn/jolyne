@@ -11,6 +11,17 @@ export default (client: JolyneClient): void => {
         res.send("Currently fetching votes from Top.gg");
     });
 
+    app.get("/status", async (req, res) => {
+        try {
+            const data = await client.database.redis.get("jolyne:clusters:summary");
+            if (!data) return res.status(503).json({ error: "No data yet" });
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            res.json(JSON.parse(data));
+        } catch {
+            res.status(500).json({ error: "Redis error" });
+        }
+    });
+
     const TopGGWebhook = new TopGG.Webhook(process.env.TOPGG_AUTH);
 
     app.post(
@@ -64,10 +75,10 @@ export default (client: JolyneClient): void => {
                             newData: user,
                         },
                     ],
-                    `Voted for Jolyne`
+                    `Voted for Jolyne`,
                 );
             }
-        })
+        }),
     );
 
     const port = process.env.CLIENT_TOKEN === process.env.ALPHA_TOKEN ? 6060 : 6969;
