@@ -323,12 +323,12 @@ const slashCommand: SlashCommandFile = {
 
             const patreonData = ctx.client.patreons.find((s) => s.id === ctx.user.id);
             if (patreonData) {
-                for (let i = 0; i < patreonData.level; i++) fruits.push("💎");
+                for (let i = 0; i < patreonData.level * 5; i++) fruits.push("💎");
                 ctx.followUpQueue.push({
                     ephemeral: true,
                     content: Functions.makeNPCString(
                         NPCs.Daniel_J_DArby,
-                        `Since you're a patreon, I'll add some diamonds (+${patreonData.level}) to the slots machine.`
+                        `Since you're a patreon, I'll add some diamonds (+${patreonData.level * 5}) to the slots machine.`
                     ),
                 });
             }
