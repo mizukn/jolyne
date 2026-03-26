@@ -509,12 +509,12 @@ const Event: EventFile = {
             console.log("Updated settings to everyone");
         }
 
-        setInterval(() => updateClusterStatus(client), 30_000);
+        setInterval(() => updateClusterStatus(client), 15_000);
         updateClusterStatus(client);
 
         // Seul le cluster 0 s'occupe de faire les tâches d'agrégation et de communication avec TopGG pour éviter les conflits et les surcharges
         if (parseInt(process.env.CLUSTER) + 1 === parseInt(process.env.CLUSTER_COUNT)) {
-            setInterval(() => updateAggregatedStatus(client.database.redis), 30_000);
+            setInterval(() => updateAggregatedStatus(client.database.redis), 15_000);
             updateAggregatedStatus(client.database.redis);
         }
     },
