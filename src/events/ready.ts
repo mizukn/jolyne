@@ -31,49 +31,73 @@ interface JolyneClustersData {
     clusters: ClusterStatus[];
 }
 
-async function updateAggregatedStatus(redis: Jolyne["database"]["redis"]) {
-    const raw = await redis.hGetAll("jolyne:clusters");
-    const clusters: ClusterStatus[] = Object.values(raw).map((v) => JSON.parse(v));
+interface ShardStatus {
+    id: number;
+    clusterId: number;
+    status: "ok" | "down";
+    ping: number;
+    guilds: number;
+    members: number;
+    lastHeartbeat: number;
+}
 
-    // Optionnel: count RPG players
+async function updateAggregatedStatus(redis: Jolyne["database"]["redis"]) {
+    const rawShards = await redis.hGetAll("jolyne:shards");
+    const rawClusters = await redis.hGetAll("jolyne:clusters");
     const playerKeys = await redis.keys(`${process.env.REDIS_PREFIX}:*`);
 
-    const aggregated: JolyneClustersData = {
-        updatedAt: Date.now(),
-        totalGuilds: clusters.reduce((a, c) => a + c.guilds, 0),
-        totalMembers: clusters.reduce((a, c) => a + c.members, 0),
-        totalPlayers: playerKeys.length,
-        clustersCount: clusters.length,
-        shardsCount: clusters.reduce((a, c) => a + c.shards.length, 0),
-        clusters: clusters.sort((a, b) => a.id - b.id),
-    };
+    const shards = Object.values(rawShards).map((v) => JSON.parse(v));
+    const clusters = Object.values(rawClusters).map((v) => JSON.parse(v));
 
-    await redis.set("jolyne:clusters:summary", JSON.stringify(aggregated));
+    await redis.set(
+        "jolyne:clusters:summary",
+        JSON.stringify({
+            updatedAt: Date.now(),
+            totalGuilds: shards.reduce((a, s) => a + s.guilds, 0),
+            totalMembers: shards.reduce((a, s) => a + s.members, 0),
+            totalPlayers: playerKeys.length,
+            clustersCount: clusters.length,
+            shardsCount: shards.length,
+            clusters: clusters.sort((a, b) => a.id - b.id),
+            shards: shards.sort((a, b) => a.id - b.id),
+        }),
+    );
 }
 
 async function updateClusterStatus(client: Jolyne) {
-    // Chaque cluster push ses propres données
-    const clusterData: ClusterStatus = {
-        id: Number(process.env.CLUSTER),
-        shards: [...client.ws.shards.keys()],
-        status: client.ws.shards.every((s) => s.status === 0)
-            ? "ok"
-            : client.ws.shards.some((s) => s.status === 0)
-              ? "partial"
-              : "down",
-        guilds: client.guilds.cache.size,
-        members: client.guilds.cache.reduce((acc, g) => acc + (g.memberCount || 0), 0),
-        memoryMB: Number((process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)),
-        uptime: client.uptime ?? 0,
-        lastHeartbeat: Date.now(),
-        unavailableGuilds: client.guilds.cache.filter((g) => !g.available).size,
-    };
+    const clusterId = Number(process.env.CLUSTER);
 
-    // Push ce cluster dans un hash Redis (chaque cluster écrit sa propre clé)
+    for (const [shardId, shard] of client.ws.shards) {
+        const shardGuilds = client.guilds.cache.filter((g) => g.shardId === shardId);
+
+        const shardData: ShardStatus = {
+            id: shardId,
+            clusterId,
+            status: shard.status === 0 ? "ok" : "down",
+            ping: shard.ping,
+            guilds: shardGuilds.size,
+            members: shardGuilds.reduce((a, g) => a + (g.memberCount || 0), 0),
+            lastHeartbeat: Date.now(),
+        };
+
+        await client.database.redis.hSet(
+            "jolyne:shards",
+            String(shardId),
+            JSON.stringify(shardData),
+        );
+    }
+
+    // Cluster-level (memory, uptime) — reste pareil
     await client.database.redis.hSet(
         "jolyne:clusters",
-        String(clusterData.id),
-        JSON.stringify(clusterData),
+        String(clusterId),
+        JSON.stringify({
+            id: clusterId,
+            shards: [...client.ws.shards.keys()],
+            memoryMB: Number((process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)),
+            uptime: client.uptime ?? 0,
+            lastHeartbeat: Date.now(),
+        }),
     );
 }
 
