@@ -4,6 +4,8 @@ import { voteWebhook } from "./Webhooks";
 import express from "express";
 import { addItem, getMaxHealth, getMaxStamina, TopGGVoteRewards } from "./Functions";
 import { cloneDeep } from "lodash";
+import * as Items from "../rpg/Items";
+import * as Stands from "../rpg/Stands";
 
 export default (client: JolyneClient): void => {
     const app = express();
@@ -20,6 +22,23 @@ export default (client: JolyneClient): void => {
         } catch {
             res.status(500).json({ error: "Redis error" });
         }
+    });
+
+    app.get("/infos", async (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        // renvoie le nombre total de stands, registered users, nombre total d'abilites, items
+        const users = await client.database.postgresql
+            .query("SELECT COUNT(*) FROM users")
+            .then((result) => parseInt(result.rows[0].count))
+            .catch(() => null);
+        res.json({
+            totalStands: Object.keys({ ...Stands.EvolutionStands, ...Stands.Stands }).length,
+            totalItems: Object.keys(Items.default).length,
+            totalRegisteredUsers: users,
+            totalGuilds: await client.cluster
+                .broadcastEval((c) => c.guilds.cache.size)
+                .then((results) => results.reduce((a, b) => a + b, 0)),
+        });
     });
 
     const TopGGWebhook = new TopGG.Webhook(process.env.TOPGG_AUTH);
