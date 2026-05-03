@@ -10,6 +10,7 @@ import {
     ActionRowBuilder,
     MessageActionRowComponentBuilder,
     MessageFlags,
+    ComponentType,
 } from "discord.js";
 import EMOJIS_JSON from "../emojis.json";
 
@@ -53,22 +54,22 @@ export interface ContainerOptions {
 }
 
 export interface V2Reply {
-    components: ContainerBuilder[];
+    components: any[];
     flags: number;
 }
 
-function build(opts: ContainerOptions): ContainerBuilder {
-    const c = new ContainerBuilder().setAccentColor(opts.color ?? COLORS.primary);
+function build(opts: ContainerOptions): any {
+    const components: any[] = [];
     let lastWasSeparator = false;
 
     function addSeparator(divider: boolean, spacing: SeparatorSpacingSize = SeparatorSpacingSize.Small) {
         if (lastWasSeparator) return;
-        c.addSeparatorComponents(new SeparatorBuilder().setDivider(divider).setSpacing(spacing));
+        components.push(new SeparatorBuilder().setDivider(divider).setSpacing(spacing).toJSON());
         lastWasSeparator = true;
     }
 
     function addText(content: string) {
-        c.addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+        components.push(new TextDisplayBuilder().setContent(content).toJSON());
         lastWasSeparator = false;
     }
 
@@ -112,7 +113,7 @@ function build(opts: ContainerOptions): ContainerBuilder {
                 } else {
                     section.setThumbnailAccessory(sec.accessory);
                 }
-                c.addSectionComponents(section);
+                components.push(section.toJSON());
                 lastWasSeparator = false;
             } else {
                 addText(sec.text);
@@ -122,9 +123,10 @@ function build(opts: ContainerOptions): ContainerBuilder {
 
     if (opts.selectMenus?.length) {
         for (const menu of opts.selectMenus) {
-            c.addActionRowComponents(
-                new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(menu),
-            );
+            components.push({
+                type: ComponentType.ActionRow,
+                components: [menu.toJSON()],
+            });
         }
         lastWasSeparator = false;
     }
@@ -136,7 +138,11 @@ function build(opts: ContainerOptions): ContainerBuilder {
         addText(`-# ${opts.footer}`);
     }
 
-    return c;
+    return {
+        type: ComponentType.Container,
+        accentColor: opts.color ?? COLORS.primary,
+        components: components,
+    };
 }
 
 export const containers = {
