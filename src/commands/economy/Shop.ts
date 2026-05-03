@@ -1,20 +1,23 @@
-import { SlashCommandFile, Shop, RPGUserDataJSON, numOrPerc, Item } from "../../@types";
+import { SlashCommandFile, Shop, Item } from "../../@types";
 import {
     Message,
-    APIEmbed,
     InteractionResponse,
-    StringSelectMenuBuilder,
-    StringSelectMenuInteraction,
     ButtonBuilder,
     ButtonStyle,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
+    ActionRowBuilder,
+    ButtonInteraction,
+    MessageActionRowComponentBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import * as Shops from "../../rpg/Shops";
 import * as Stands from "../../rpg/Stands/Stands";
-import * as Emojis from "../../emojis.json";
-import { clone, cloneDeep } from "lodash";
 import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
+import { cloneDeep } from "lodash";
+import { containers, SectionData, COLORS, EMOJIS } from "../../utils/containers";
 
 export const standPrice = {
     SS: 2000000000000000,
@@ -26,30 +29,14 @@ export const standPrice = {
 };
 
 const boxPrice = 450000;
+const ITEMS_PER_PAGE = 5;
 
 type cShop = {
     name: string;
-    data: StringSelectMenuBuilder;
     items: Shop["items"];
     emoji: string;
     currency: "coins" | "prestige_shards";
 };
-
-const choices: {
-    value: string;
-    label: string;
-}[] = [];
-for (let i = 0; i < 25; i++) {
-    choices.push({
-        value: (i + 1).toString(),
-        label: (i + 1).toString(),
-    });
-}
-
-const goBackButton = new ButtonBuilder()
-    .setStyle(ButtonStyle.Primary)
-    .setEmoji(Emojis.arrowLeft)
-    .setCustomId("goBack");
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -61,7 +48,8 @@ const slashCommand: SlashCommandFile = {
         ctx: CommandInteractionContext,
     ): Promise<Message | void | InteractionResponse> => {
         let shops: cShop[] = [];
-        let currentShop: cShop | undefined;
+        let currentCategoryIndex = 0;
+        let currentPage = 0;
 
         async function createUserBlackMarket(): Promise<Shop> {
             const BM: Shop = {
@@ -111,47 +99,30 @@ const slashCommand: SlashCommandFile = {
                         }),
                 ]).filter((x) => x.rarity !== "SS" && x.rarity !== "T" && x.available);
 
+                const patreonData = ctx.client.patreons.find((x) => x.id === ctx.user.id);
+
                 for (
                     let i = 0;
-                    i <
-                    (ctx.client.patreons.find((x) => x.id === ctx.user.id)
-                        ? (ctx.client.patreons.find((x) => x.id === ctx.user.id).level + 3) * 3
-                        : 5);
+                    i < (patreonData ? (patreonData.level + 3) * 3 : 5);
                     i++
                 ) {
                     const stand = shuffledStands[i];
                     BM.items.push({
                         item: Functions.findItem(stand.id).id,
-                        price: standPrice[stand.rarity],
+                        price: standPrice[stand.rarity as keyof typeof standPrice],
                     });
                 }
 
                 const otherItems = [
-                    {
-                        percent: 90,
-                        price: 100000,
-                        id: "Basic Katana",
-                    },
-                    {
-                        percent: 15,
-                        price: 1000000,
-                        id: "bloody_knife",
-                    },
+                    { percent: 90, price: 100000, id: "Basic Katana" },
+                    { percent: 15, price: 1000000, id: "bloody_knife" },
                     {
                         percent: 60,
                         price: Functions.findItem("tonio")?.price ?? 10000,
                         id: Functions.findItem("tonio")?.id ?? "pizza",
                     },
-                    {
-                        percent: 50,
-                        price: 100000,
-                        id: "box",
-                    },
-                    {
-                        percent: 50,
-                        price: 50000,
-                        id: "rare_stand_arrow",
-                    },
+                    { percent: 50, price: 100000, id: "box" },
+                    { percent: 50, price: 50000, id: "rare_stand_arrow" },
                 ];
 
                 for (const item of otherItems) {
@@ -162,22 +133,16 @@ const slashCommand: SlashCommandFile = {
                         });
                     }
                 }
-                /*
-                BM.items.length = ctx.client.patreons.find((x) => x.id === ctx.user.id)
-                    ? Functions.RNG(
-                          ctx.client.patreons.find((x) => x.id === ctx.user.id).level + 4,
-                          ctx.client.patreons.find((x) => x.id === ctx.user.id).level * 2 + 7
-                      )
-                    : Functions.RNG(5, 9);*/
-                if (ctx.client.patreons.find((x) => x.id === ctx.user.id)) {
+
+                if (patreonData) {
                     const priceMult = {
                         1: 0.85,
                         2: 0.75,
                         3: 0.5,
                         4: 0.25,
-                    }[ctx.client.patreons.find((x) => x.id === ctx.user.id).level];
+                    }[patreonData.level as 1 | 2 | 3 | 4];
                     for (const item of BM.items) {
-                        item.price = Math.round(item.price * priceMult);
+                        item.price = Math.round((item.price ?? 0) * (priceMult ?? 1));
                     }
                 }
                 await ctx.client.database.setJSONData(
@@ -188,7 +153,6 @@ const slashCommand: SlashCommandFile = {
                 BM.items = hasAlreadyBlackMarket;
             }
 
-            // check if items > 25, if so, remove the less valuable
             if (BM.items.length > 25) {
                 BM.items.sort((a, b) => {
                     return (
@@ -202,291 +166,253 @@ const slashCommand: SlashCommandFile = {
             return BM;
         }
 
-        let selectedItem: Item;
-
-        async function sendMenuEmbed(): Promise<void> {
-            shops = [];
-            const embed: APIEmbed = {
-                title: ":shopping_cart: Morioh City Shop",
-                description:
-                    "`[NS]` means that the item is not storable, so it'll be consumed/used when you buy it.",
-                fields: [],
-                color: 0x70926c,
-                footer: {
-                    text: `You have ${ctx.userData.coins.toLocaleString()} 🪙 left | You have ${ctx.userData.prestige_shards.toLocaleString()} prestige shards.`,
-                },
-            };
-
-            function handleShop(Shop: Shop): void {
-                if (Shop.name.toLocaleLowerCase().includes("prestige")) {
-                    if (ctx.userData.prestige_shards <= 0 || !process.env.ENABLE_PRESTIGE) return;
+        // Initialize shops
+        for (const shopKey in Shops) {
+            const Shop = Shops[shopKey as keyof typeof Shops];
+            if (Shop.name.toLocaleLowerCase().includes("prestige")) {
+                if (ctx.userData.prestige_shards <= 0 || !process.env.ENABLE_PRESTIGE) continue;
+            }
+            
+            // Clean up items that don't exist or have invalid prices
+            const validItems = [];
+            const seen = new Set();
+            for (const item of cloneDeep(Shop.items)) {
+                const xitem = Functions.findItem(item.item);
+                if (!xitem || seen.has(xitem.id)) continue;
+                if (xitem.id === "box") {
+                    xitem.price = boxPrice;
+                    item.price = boxPrice;
                 }
-                const shopSelect = new StringSelectMenuBuilder()
-                    .setCustomId(`shop_${ctx.interaction.id}_${Shop.name}`)
-                    .setPlaceholder("Select an item")
-                    .setMinValues(1)
-                    .setMaxValues(1);
-
-                embed.fields.push({
-                    name:
-                        (Shop.emoji ?? Shop.owner?.emoji ?? "") +
-                        (Shop.owner ? Shop.owner.name + "'s " : "") +
-                        Shop.name,
-                    value: (() => {
-                        let str = "";
-                        for (const item of Shop.items) {
-                            const xitem = cloneDeep(Functions.findItem(item.item));
-                            if (
-                                !xitem ||
-                                shopSelect.options.find((x) => x.data.label === xitem.name)
-                            )
-                                continue;
-                            if (xitem.id === "box") xitem.price = boxPrice;
-                            if (isNaN(xitem.price)) continue;
-
-                            shopSelect.addOptions([
-                                {
-                                    label: xitem.name,
-                                    value: xitem.id,
-                                    emoji:
-                                        xitem.emoji.split("<").length === 3
-                                            ? "<" + xitem.emoji.split("<")[1]
-                                            : xitem.emoji,
-                                },
-                            ]);
-
-                            str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
-                                xitem.name
-                            }** - ${(item.price ?? xitem.price).toLocaleString()} ${
-                                Shop.currency === "prestige_shards"
-                                    ? ctx.client.localEmojis.prestige_shard
-                                    : ctx.client.localEmojis.jocoins
-                            }`;
-                            if (Functions.isConsumable(xitem))
-                                str += ` | ${Object.keys(xitem.effects)
-                                    .map(
-                                        (x) =>
-                                            `+**${xitem.effects[
-                                                x as keyof typeof xitem.effects
-                                            ].toLocaleString()}** ${x}`,
-                                    )
-                                    .join(`, `)}`;
-                            str += "\n";
-                        }
-                        shops.push({
-                            name: (Shop.owner ? Shop.owner.name + "'s " : "") + Shop.name,
-                            data: shopSelect,
-                            emoji: Shop.emoji ?? Shop.owner?.emoji ?? "",
-                            items: Shop.items,
-                            currency: Shop.currency ?? "coins",
-                        });
-                        return str;
-                    })(),
-                });
+                if (isNaN(xitem.price)) continue;
+                seen.add(xitem.id);
+                validItems.push(item);
             }
 
-            function createShopString(Shop: Shop): string {
-                let str = "";
-                for (const item of cloneDeep(Shop.items)) {
-                    const xitem = cloneDeep(Functions.findItem(item.item));
-                    if (!xitem || (str.includes(xitem.emoji) && str.includes(xitem.name))) continue;
-                    if (xitem.id === "box") {
-                        xitem.price = boxPrice;
-                        item.price = boxPrice;
-                    }
-                    if (isNaN(xitem.price)) continue;
+            shops.push({
+                name: (Shop.owner ? Shop.owner.name + "'s " : "") + Shop.name,
+                emoji: Shop.emoji ?? Shop.owner?.emoji ?? "🏪",
+                items: validItems,
+                currency: Shop.currency ?? "coins",
+            });
+        }
 
-                    str += `${xitem.emoji} ${!xitem.storable ? "`[NS]`" : ""} **${
-                        xitem.name
-                    }** - ${(item.price ?? xitem.price).toLocaleString()} ${
-                        Shop.currency === "prestige_shards"
-                            ? ctx.client.localEmojis.prestige_shard
-                            : ctx.client.localEmojis.jocoins
-                    }`;
-                    if (Functions.isConsumable(xitem))
-                        str += ` | ${Object.keys(xitem.effects)
-                            .map(
-                                (x) =>
-                                    `+**${xitem.effects[
-                                        x as keyof typeof xitem.effects
-                                    ].toLocaleString()}** ${x}`,
-                            )
-                            .join(`, `)}`;
-                    str += "\n";
+        if (new Date().getDay() === 0 || new Date().getDay() === 1) {
+            const bm = await createUserBlackMarket();
+            const validItems = [];
+            const seen = new Set();
+            for (const item of cloneDeep(bm.items)) {
+                const xitem = Functions.findItem(item.item);
+                if (!xitem || seen.has(xitem.id)) continue;
+                if (xitem.id === "box") {
+                    xitem.price = boxPrice;
+                    item.price = boxPrice;
                 }
-                return str;
+                if (isNaN(item.price ?? xitem.price)) continue;
+                seen.add(xitem.id);
+                validItems.push(item);
             }
+            shops.push({
+                name: (bm.owner ? bm.owner.name + "'s " : "") + bm.name,
+                emoji: bm.emoji ?? bm.owner?.emoji ?? "🃏",
+                items: validItems,
+                currency: bm.currency ?? "coins",
+            });
+        }
 
-            for (const shop in Shops) {
-                const Shop = Shops[shop as keyof typeof Shops];
-                handleShop(Shop);
-            }
-            if (new Date().getDay() === 0 || new Date().getDay() === 1)
-                handleShop(await createUserBlackMarket());
-            const shopSelectMenu = new StringSelectMenuBuilder()
-                .setCustomId(`shop_${ctx.interaction.id}` + ctx.interaction.id)
-                .setPlaceholder("Select a shop")
-                .setMinValues(1)
-                .setMaxValues(1)
-                .addOptions(
-                    shops.map((x) => ({
-                        label: x.name,
-                        value: x.name,
-                        emoji: x.emoji,
-                    })),
+        if (shops.length === 0) {
+            return ctx.makeMessage(containers.error("No shops are currently available."));
+        }
+
+        function getShopMessageData() {
+            const shop = shops[currentCategoryIndex];
+            const totalPages = Math.max(1, Math.ceil(shop.items.length / ITEMS_PER_PAGE));
+            if (currentPage >= totalPages) currentPage = totalPages - 1;
+
+            const pageItems = shop.items.slice(
+                currentPage * ITEMS_PER_PAGE,
+                (currentPage + 1) * ITEMS_PER_PAGE
+            );
+
+            const sections: SectionData[] = pageItems.map((item) => {
+                const xitem = cloneDeep(Functions.findItem(item.item));
+                const price = item.price ?? xitem.price;
+                const currencyEmoji = shop.currency === "prestige_shards" ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
+                const currencyName = shop.currency === "prestige_shards" ? "prestige shards" : "jocoins";
+
+                let bonusesText = "";
+                if (Functions.isConsumable(xitem)) {
+                    bonusesText = `\n**Bonuses**\n> ${Object.entries(xitem.effects)
+                        .map(([stat, val]) => `**+${val.toLocaleString()}** ${stat}`)
+                        .join(", ")}`;
+                }
+
+                return {
+                    text: `### ${xitem.emoji} ${xitem.name}${!xitem.storable ? " \`[NS]\`" : ""}\n> ${currencyEmoji} Cost: **${price.toLocaleString()}** ${currencyName}${bonusesText}`,
+                    accessory: new ButtonBuilder()
+                        .setCustomId(`buy_${currentCategoryIndex}_${xitem.id}`)
+                        .setStyle(ButtonStyle.Secondary)
+                        .setLabel("Buy")
+                        .setEmoji("💰"),
+                };
+            });
+
+            const currencyAmount = shop.currency === "prestige_shards" ? ctx.userData.prestige_shards : ctx.userData.coins;
+            const footerText = `You have ${currencyAmount.toLocaleString()} ${shop.currency === "prestige_shards" ? "prestige shards" : "coins"}.`;
+
+            const replyData = containers.primary({
+                title: `${shop.emoji} ${shop.name}`,
+                sections: sections,
+                sectionDividers: true,
+                footer: footerText,
+            });
+
+            const actionRows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [];
+
+            // Row 1: Categories
+            const catRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                shops.slice(0, 5).map((s, idx) =>
+                    new ButtonBuilder()
+                        .setCustomId(`cat_${idx}`)
+                        .setStyle(idx === currentCategoryIndex ? ButtonStyle.Primary : ButtonStyle.Secondary)
+                        .setLabel(s.name.length > 25 ? s.name.substring(0, 22) + "..." : s.name)
+                        .setEmoji(s.emoji)
+                        .setDisabled(idx === currentCategoryIndex)
+                )
+            );
+            actionRows.push(catRow);
+
+            // Row 2: Pagination (if needed)
+            if (totalPages > 1) {
+                const pagRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId("page_prev")
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji("⬅️")
+                        .setDisabled(currentPage === 0),
+                    new ButtonBuilder()
+                        .setCustomId("page_noop")
+                        .setStyle(ButtonStyle.Secondary)
+                        .setLabel(`${currentPage + 1} / ${totalPages}`)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId("page_next")
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji("➡️")
+                        .setDisabled(currentPage === totalPages - 1)
                 );
-
-            embed.fields = Functions.fixFields(embed.fields);
-
-            ctx.makeMessage({
-                embeds: [embed],
-                components: [Functions.actionRow([shopSelectMenu])],
-            });
-
-            const collector = ctx.channel.createMessageComponentCollector({
-                filter: (i) => i.user.id === ctx.user.id,
-                time: 60000,
-            });
-
-            function makeShopEmbed(shop: cShop): void {
-                ctx.makeMessage({
-                    embeds: [
-                        {
-                            title: shop.emoji + " " + shop.name,
-                            description: createShopString(shop),
-                            color: 0x70926c,
-                            footer: {
-                                text: `You have ${shop.currency === "prestige_shards" ? ctx.userData.prestige_shards.toLocaleString() : ctx.userData.coins.toLocaleString()} ${shop.currency === "prestige_shards" ? ctx.client.localEmojis.prestige_shard : ctx.client.localEmojis.jocoins} left.`,
-                            },
-                        },
-                    ],
-                    components: [
-                        Functions.actionRow([shop.data]),
-                        Functions.actionRow([goBackButton]),
-                    ],
-                });
+                actionRows.push(pagRow);
             }
 
-            collector.on("collect", async (i) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                if (await ctx.client.database.getCooldown(ctx.user.id)) return;
-                ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
-                if (i.customId === "goBack") {
-                    sendMenuEmbed();
-                } else if (
-                    i.customId.replace(ctx.interaction.id, "") === `shop_${ctx.interaction.id}`
-                ) {
-                    const shop = shops.find(
-                        (x) => x.name === (i as StringSelectMenuInteraction).values[0],
-                    );
-                    if (!shop) return;
-                    currentShop = shop;
-                    makeShopEmbed(shop);
-                } else if (i.customId.includes(`shop_${ctx.interaction.id}`)) {
-                    // selected item
-                    const item = currentShop?.items.find(
-                        (x) => x.item === (i as StringSelectMenuInteraction).values[0],
-                    );
-                    if (!item) return;
-                    const xitem = Functions.findItem(item.item);
-                    if (!xitem) return;
-                    selectedItem = { ...cloneDeep(xitem), price: item.price ?? xitem.price };
+            return {
+                components: [...replyData.components, ...actionRows],
+                flags: replyData.flags,
+            };
+        }
 
-                    ctx.makeMessage({
-                        components: [
-                            Functions.actionRow([
-                                new StringSelectMenuBuilder()
-                                    .setCustomId(`amount_${ctx.interaction.id}`)
-                                    .setPlaceholder("Select an amount")
-                                    .setMinValues(1)
-                                    .setMaxValues(1)
-                                    .addOptions(choices),
-                            ]),
-                        ],
+        await ctx.makeMessage(getShopMessageData());
+
+        const collector = ctx.channel.createMessageComponentCollector({
+            filter: (i) => i.user.id === ctx.user.id,
+            time: 120000,
+        });
+
+        collector.on("collect", async (i) => {
+            if (i.isStringSelectMenu()) return;
+            const btn = i as ButtonInteraction;
+
+            if (btn.customId.startsWith("cat_")) {
+                currentCategoryIndex = parseInt(btn.customId.split("_")[1]);
+                currentPage = 0;
+                await btn.update(getShopMessageData()).catch(() => {});
+            } else if (btn.customId === "page_prev") {
+                currentPage--;
+                await btn.update(getShopMessageData()).catch(() => {});
+            } else if (btn.customId === "page_next") {
+                currentPage++;
+                await btn.update(getShopMessageData()).catch(() => {});
+            } else if (btn.customId.startsWith("buy_")) {
+                const [, catIdxStr, itemId] = btn.customId.split("_");
+                const catIdx = parseInt(catIdxStr);
+                const shop = shops[catIdx];
+                const itemEntry = shop.items.find((x) => x.item === itemId);
+                if (!itemEntry) return;
+
+                const xitem = Functions.findItem(itemEntry.item);
+                if (!xitem) return;
+
+                const modal = new ModalBuilder()
+                    .setCustomId(`modal_buy_${catIdx}_${itemId}`)
+                    .setTitle(`Buy ${xitem.name}`);
+
+                const amountInput = new TextInputBuilder()
+                    .setCustomId("amount")
+                    .setLabel("Amount (e.g. 1)")
+                    .setStyle(TextInputStyle.Short)
+                    .setValue("1")
+                    .setRequired(true);
+
+                modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(amountInput));
+                await btn.showModal(modal).catch(() => {});
+
+                try {
+                    const modalSubmit = await btn.awaitModalSubmit({
+                        filter: (mi) => mi.user.id === ctx.user.id && mi.customId === `modal_buy_${catIdx}_${itemId}`,
+                        time: 60000,
                     });
-                } else if (i.customId === `amount_${ctx.interaction.id}`) {
-                    let amount = parseInt((i as StringSelectMenuInteraction).values[0]) || 1;
-                    if (isNaN(amount)) amount = 1000000000000;
 
-                    const price =
-                        selectedItem.id === "box"
-                            ? boxPrice * amount
-                            : (selectedItem.price ?? 10000) * amount;
-                    const currency = {
-                        name:
-                            currentShop?.currency === "prestige_shards"
-                                ? "prestige shards"
-                                : "coins",
-                        emoji:
-                            currentShop?.currency === "prestige_shards"
-                                ? ctx.client.localEmojis.prestige_shard
-                                : ctx.client.localEmojis.jocoins,
-                        amount:
-                            currentShop?.currency === "prestige_shards"
-                                ? ctx.userData.prestige_shards
-                                : ctx.userData.coins,
-                    };
+                    ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
 
-                    if (currency.amount < price) {
-                        sendMenuEmbed().then(() => {
-                            ctx.followUp({
-                                content: `You don't have enough ${currency.emoji} to buy this item!`,
-                                ephemeral: true,
-                            });
+                    let amount = parseInt(modalSubmit.fields.getTextInputValue("amount"));
+                    if (isNaN(amount) || amount < 1) amount = 1;
+
+                    const price = (itemEntry.price ?? xitem.price) * amount;
+                    const isPrestige = shop.currency === "prestige_shards";
+                    const currencyEmoji = isPrestige ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
+                    const userMoney = isPrestige ? ctx.userData.prestige_shards : ctx.userData.coins;
+
+                    if (userMoney < price) {
+                        await modalSubmit.reply({
+                            ...containers.error(`You don't have enough ${isPrestige ? "prestige shards" : "coins"} to buy this item!`),
+                            ephemeral: true,
                         });
                         return;
                     }
 
-                    if (currency.name === "coins") {
-                        Functions.addCoins(ctx.userData, -price);
-                    } else {
-                        Functions.addPrestigeShards(ctx.userData, -price);
-                    }
+                    if (isPrestige) Functions.addPrestigeShards(ctx.userData, -price);
+                    else Functions.addCoins(ctx.userData, -price);
 
                     const oldData = cloneDeep(ctx.userData);
-                    if (!selectedItem.storable) {
-                        if (Functions.isConsumable(selectedItem)) {
-                            Functions.useConsumableItem(selectedItem, ctx.userData, amount);
+                    let successContent = "";
 
-                            ctx.followUp({
-                                content: `${currentShop.emoji} x${amount} **${
-                                    currentShop.name
-                                }**: You used ${selectedItem.emoji} **${
-                                    selectedItem.name
-                                }** and got: ${Functions.getRewardsCompareData(
-                                    oldData,
-                                    ctx.userData,
-                                ).join(", ")}`.slice(0, 500),
-                            });
+                    if (!xitem.storable) {
+                        if (Functions.isConsumable(xitem)) {
+                            Functions.useConsumableItem(xitem, ctx.userData, amount);
+                            const rewards = Functions.getRewardsCompareData(oldData, ctx.userData).join(", ");
+                            successContent = `You used ${xitem.emoji} **${xitem.name}** and got: ${rewards}`.slice(0, 500);
                         } else {
-                            Functions.addItem(ctx.userData, selectedItem, amount);
-
-                            ctx.followUp({
-                                content: `${currentShop.emoji} **${
-                                    currentShop.name
-                                }**: You bought x${amount} ${selectedItem.emoji} **${
-                                    selectedItem.name
-                                }** for **${price.toLocaleString()}** ${currency.emoji}`,
-                            });
+                            Functions.addItem(ctx.userData, xitem, amount);
+                            successContent = `You bought x${amount} ${xitem.emoji} **${xitem.name}** for **${price.toLocaleString()}** ${currencyEmoji}`;
                         }
                     } else {
-                        Functions.addItem(ctx.userData, selectedItem, amount);
-
-                        ctx.followUp({
-                            content: `${currentShop.emoji} **${
-                                currentShop.name
-                            }**: You bought x${amount} ${selectedItem.emoji} **${
-                                selectedItem.name
-                            }** for **${price.toLocaleString()}** ${currency.emoji}`,
-                        });
+                        Functions.addItem(ctx.userData, xitem, amount);
+                        successContent = `You bought x${amount} ${xitem.emoji} **${xitem.name}** for **${price.toLocaleString()}** ${currencyEmoji}`;
                     }
-                    await ctx.client.database.saveUserData(ctx.userData);
-                    makeShopEmbed(currentShop);
-                }
-            });
-        }
 
-        sendMenuEmbed();
+                    await ctx.client.database.saveUserData(ctx.userData);
+
+                    await modalSubmit.reply({
+                        ...containers.success(`**${shop.name}**\n${successContent}`),
+                        ephemeral: true,
+                    });
+
+                    // Update main view to reflect new balance
+                    await ctx.interaction.editReply(getShopMessageData()).catch(() => {});
+
+                } catch (err) {
+                    // Modal timeout or error, do nothing
+                }
+            }
+        });
     },
 };
 

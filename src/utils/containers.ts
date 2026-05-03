@@ -44,6 +44,7 @@ export interface ContainerOptions {
     thumbnail?: string;
     fields?: { name: string; value: string }[];
     sections?: SectionData[];
+    sectionDividers?: boolean;
 }
 
 export interface V2Reply {
@@ -84,7 +85,12 @@ function build(opts: ContainerOptions): ContainerBuilder {
     }
 
     if (opts.sections?.length) {
-        for (const sec of opts.sections) {
+        opts.sections.forEach((sec, index) => {
+            if (index > 0 && opts.sectionDividers) {
+                c.addSeparatorComponents(
+                    new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
+                );
+            }
             if (sec.accessory) {
                 const section = new SectionBuilder().addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(sec.text),
@@ -99,13 +105,20 @@ function build(opts: ContainerOptions): ContainerBuilder {
                 // If there's no accessory, just use a TextDisplay to avoid validation errors
                 c.addTextDisplayComponents(new TextDisplayBuilder().setContent(sec.text));
             }
-        }
+        });
     }
 
     if (opts.footer) {
-        c.addSeparatorComponents(
-            new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
-        );
+        if (opts.sections?.length || opts.fields?.length || opts.description) {
+            c.addSeparatorComponents(
+                new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
+            );
+        } else if (opts.title) {
+            // Already added a separator after title if there's content, but if only title and footer, add here
+            c.addSeparatorComponents(
+                new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
+            );
+        }
         c.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${opts.footer}`));
     }
 
