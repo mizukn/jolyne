@@ -345,7 +345,7 @@ const Event: EventFile = {
 
         if (process.env.IGNORE_PATREONS !== "true") {
             const fetchPatreonsJob = new CronJob(
-                "*/2 * * * *",
+                "*/15 * * * *",
                 fetchPatreons,
                 null,
                 true,
