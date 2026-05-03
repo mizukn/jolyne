@@ -331,7 +331,9 @@ const slashCommand: SlashCommandFile = {
                 currentPage++;
                 await btn.update(getShopMessageData()).catch(() => {});
             } else if (btn.customId.startsWith("buy_")) {
-                const [, catIdxStr, itemId] = btn.customId.split("_");
+                const parts = btn.customId.split("_");
+                const catIdxStr = parts[1];
+                const itemId = parts.slice(2).join("_");
                 const catIdx = parseInt(catIdxStr);
                 const shop = shops[catIdx];
                 const itemEntry = shop.items.find((x) => x.item === itemId);
@@ -342,7 +344,7 @@ const slashCommand: SlashCommandFile = {
 
                 const modal = new ModalBuilder()
                     .setCustomId(`modal_buy_${catIdx}_${itemId}`)
-                    .setTitle(`Buy ${xitem.name}`);
+                    .setTitle(`Buy ${xitem.name}`.substring(0, 45));
 
                 const amountInput = new TextInputBuilder()
                     .setCustomId("amount")
@@ -352,7 +354,9 @@ const slashCommand: SlashCommandFile = {
                     .setRequired(true);
 
                 modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(amountInput));
-                await btn.showModal(modal).catch(() => {});
+                await btn.showModal(modal).catch((err) => {
+                    console.error("showModal failed:", err);
+                });
 
                 try {
                     const modalSubmit = await btn.awaitModalSubmit({
