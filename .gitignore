@@ -18,3 +18,7 @@ logs
 
 # Bun
 bun.lockb
+
+# SENSTIVE MD FILES
+BRAINSTORM.md
+PLAN.md
