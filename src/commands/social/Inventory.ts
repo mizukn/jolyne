@@ -14,12 +14,18 @@ import {
     ButtonStyle,
     MessageComponentInteraction,
     InteractionResponse,
+    ContainerBuilder,
+    TextDisplayBuilder,
+    SeparatorBuilder,
+    SeparatorSpacingSize,
+    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
+import { COLORS } from "../../utils/containers";
 
 const itemTaxes = {
     T: 1,
@@ -37,23 +43,31 @@ function goToPage(
     nextPageButton: ButtonBuilder,
     content: string[][]
 ): Promise<Message<boolean> | InteractionResponse<boolean>> {
+    const sep = () =>
+        new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small);
+    const inventoryEmoji = ctx.client.localEmojis.inventory ?? "🎒";
+    const container = new ContainerBuilder()
+        .setAccentColor(COLORS.primary)
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## ${inventoryEmoji} Inventory`)
+        )
+        .addSeparatorComponents(sep())
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(content[page].join("\n"))
+        )
+        .addSeparatorComponents(sep())
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`-# Page ${page + 1}/${content.length}`)
+        );
     return ctx.makeMessage({
-        embeds: [
-            {
-                title: `${ctx.client.localEmojis.inventory} Inventory`,
-                description: content[page].join("\n"),
-                color: 0x2f3136,
-                footer: {
-                    text: `Page ${page + 1}/${content.length}`,
-                },
-            },
-        ],
         components: [
+            container,
             Functions.actionRow([
                 prevPageButton.setDisabled(page === 0),
                 nextPageButton.setDisabled(page === content.length - 1),
             ]),
         ],
+        flags: MessageFlags.IsComponentsV2,
     });
 }
 
