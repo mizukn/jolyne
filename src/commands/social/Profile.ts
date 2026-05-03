@@ -14,6 +14,7 @@ import { makeChapterTitle } from "../adventure/Chapter";
 import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { containers } from "../../utils/containers";
+import { emojiBar } from "../../utils/emojiBar";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -242,11 +243,11 @@ const slashCommand: SlashCommandFile = {
                         rpgData.health
                     )}/${Functions.localeNumber(
                         Functions.getMaxHealth(rpgData)
-                    )}\n:zap: Stamina: ${Functions.localeNumber(
+                    )}\n${emojiBar("hp", rpgData.health, Functions.getMaxHealth(rpgData))}\n:zap: Stamina: ${Functions.localeNumber(
                         rpgData.stamina
                     )}/${Functions.localeNumber(
                         Functions.getMaxStamina(rpgData)
-                    )}\n${makeChapterTitle(chapter, rpgData)}`,
+                    )}\n${emojiBar("sta", rpgData.stamina, Functions.getMaxStamina(rpgData))}\n${makeChapterTitle(chapter, rpgData)}`,
                 },
                 {
                     name: "Ranking",
@@ -262,7 +263,11 @@ const slashCommand: SlashCommandFile = {
                         ctx.client.localEmojis.xp
                     } XP: ${rpgData.xp.toLocaleString()}/${Functions.getMaxXp(
                         rpgData.level
-                    ).toLocaleString()}${
+                    ).toLocaleString()}\n${emojiBar(
+                        "xp",
+                        rpgData.xp,
+                        Functions.getMaxXp(rpgData.level)
+                    )}${
                         process.env.ENABLE_PRESTIGE
                             ? `\n<:restart:1362152085625241691> Prestige: ${rpgData.prestige}`
                             : ""
