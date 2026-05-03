@@ -292,13 +292,13 @@ const slashCommand: SlashCommandFile = {
                     sections: [{
                         text: `> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n`[Not Storable]` (Used on purchase)" : ""}`
                     }],
+                    selectMenus: [selectMenu],
                     footer: footerText,
                 });
 
                 return {
                     components: [
                         ...replyData.components,
-                        new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu),
                         new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(goBackButton)
                     ],
                     flags: replyData.flags

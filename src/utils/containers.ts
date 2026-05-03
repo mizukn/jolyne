@@ -6,6 +6,9 @@ import {
     SeparatorSpacingSize,
     ButtonBuilder,
     ThumbnailBuilder,
+    StringSelectMenuBuilder,
+    ActionRowBuilder,
+    MessageActionRowComponentBuilder,
     MessageFlags,
 } from "discord.js";
 import EMOJIS_JSON from "../emojis.json";
@@ -46,6 +49,7 @@ export interface ContainerOptions {
     sections?: SectionData[];
     sectionDividers?: boolean;
     descriptionDivider?: boolean;
+    selectMenus?: StringSelectMenuBuilder[];
 }
 
 export interface V2Reply {
@@ -116,8 +120,17 @@ function build(opts: ContainerOptions): ContainerBuilder {
         });
     }
 
+    if (opts.selectMenus?.length) {
+        for (const menu of opts.selectMenus) {
+            c.addActionRowComponents(
+                new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(menu),
+            );
+        }
+        lastWasSeparator = false;
+    }
+
     if (opts.footer) {
-        if (opts.sections?.length || opts.fields?.length || opts.description || opts.title) {
+        if (opts.sections?.length || opts.fields?.length || opts.description || opts.title || opts.selectMenus?.length) {
             addSeparator(true);
         }
         addText(`-# ${opts.footer}`);
