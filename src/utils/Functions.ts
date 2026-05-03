@@ -2704,13 +2704,14 @@ export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): numbe
 };
 
 export const disableComponents = (
-    components: ActionRow<MessageActionRowComponent>[],
-): ActionRow<MessageActionRowComponent>[] => {
+    components: any[],
+): any[] => {
     components.forEach((c) => {
-        c.components.forEach((c) => {
-            // @ts-expect-error DNC ABOUT THE READ ONLY
-            c.data.disabled = true;
-        });
+        if (c.components) {
+            c.components.forEach((innerC: any) => {
+                if (innerC.data) innerC.data.disabled = true;
+            });
+        }
     });
 
     return components;
