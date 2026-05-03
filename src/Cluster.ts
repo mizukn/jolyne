@@ -12,11 +12,12 @@ const port = process.env.CLIENT_TOKEN === process.env.ALPHA_TOKEN ? 6060 : 6969;
 const final = () =>
     exec(`lsof -i:${port}`, async (error, stdout) => {
         if (stdout.includes("LISTEN")) {
-            while (process.env.JIFOSADIOJFAIOJOJIF !== "jisdgijksigk") {
-                // always true
-                console.log(`Port ${port} is already in use.`);
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-            }
+            console.error(`Port ${port} is already in use. Waiting 60 seconds before exiting...`);
+            setTimeout(() => {
+                console.error(`Port ${port} still in use after 60 seconds. Exiting.`);
+                process.exit(1);
+            }, 60000);
+            return;
         } else {
             console.log(`Port ${port} is available.`);
             // await TempRedis.set("rpgGlobalFightMatchmaking", JSON.stringify([]));
@@ -106,9 +107,11 @@ const isRatelimited = async () => {
             const retryAfter = parseFloat((error as any).response.headers["retry-after"]) * 1000; // Convert to ms
             console.log(`Rate limited. Retry after ${retryAfter} ms.`);
             await new Promise((resolve) => setTimeout(resolve, retryAfter + 1000));
+            return true;
         } else {
-            console.error("An error occurred:", (error as any).message);
+            console.error("An error occurred during gateway check:", (error as any).message);
             await new Promise((resolve) => setTimeout(resolve, 5000));
+            return true;
         }
     }
 };
