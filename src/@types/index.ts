@@ -59,7 +59,7 @@ export interface SlashCommandFile {
 }
 
 export interface SlashCommand extends SlashCommandFile {
-    category: "private" | "rpg" | "utils";
+    category: "admin" | "adventure" | "casino" | "combat" | "economy" | "general" | "social"
     path: string;
 }
 

@@ -96,7 +96,7 @@ const Event: EventFile = {
             }
             let ctx: CommandInteractionContext;
 
-            if (command.category === "rpg") {
+            if (command.data.name !== "help") {
                 const userData = await interaction.client.database.getRPGUserData(
                     interaction.user.id,
                 );
@@ -129,7 +129,7 @@ const Event: EventFile = {
                 }
             } else ctx = new CommandInteractionContext(interaction);
 
-            if (command.category === "rpg" && ctx.userData) {
+            if (command.data.name !== "help" && ctx.userData) {
                 handleInteraction(ctx);
 
                 if (ctx.userData.inventory.candy_cane && ctx.userData.inventory.candy_cane < 0) {
@@ -682,7 +682,7 @@ const Event: EventFile = {
                 })\` with options: \`\`\`${JSON.stringify(interaction.options["data"])}\`\`\` _ _`,
             );
 
-            if (command.category === "private") {
+            if (command.category === "admin") {
                 specialLogsWebhook.send(
                     `:warning: | ${interaction.user.username} \`(${
                         interaction.user.id

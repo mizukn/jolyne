@@ -356,7 +356,7 @@ const Event: EventFile = {
         }
 
         const allCommandsV1 = client.commands
-            .filter((r) => r.category !== "private")
+            .filter((r) => r.category !== "admin")
             .map((v) => {
                 if (
                     v.data?.options?.length !== 0 &&

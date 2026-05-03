@@ -841,23 +841,28 @@ async function init() {
         client.log(`Loaded event ${event.name}`, "event");
     }
 
-    for (const category of categories as SlashCommand["category"][]) {
-        client.log(`Loading category ${category}`, "category");
-        const commands = fs
-            .readdirSync(path.resolve(__dirname, "commands", category))
-            .filter((file) => file.endsWith(".js"));
-        for (const commandFile of commands) {
-            const command: SlashCommandFile = await import(
-                path.resolve(__dirname, "commands", category, commandFile)
-            ).then((m) => m.default);
-            client.commands.set(command.data.name, {
-                ...command,
-                category,
-                path: `./commands/${category}/${commandFile}`,
-            });
-            client.log(`Loaded command ${command.data.name}`, "command");
+    const loadCommands = async (dir: string) => {
+        const files = fs.readdirSync(dir);
+        for (const file of files) {
+            const fullPath = path.resolve(dir, file);
+            if (fs.statSync(fullPath).isDirectory()) {
+                await loadCommands(fullPath);
+            } else if (file.endsWith(".js")) {
+                const command: SlashCommandFile = await import(fullPath).then((m) => m.default);
+                const category = path.basename(dir) as SlashCommand["category"];
+                
+                client.commands.set(command.data.name, {
+                    ...command,
+                    category,
+                    path: `./commands/${path.relative(path.resolve(__dirname, "commands"), fullPath)}`,
+                });
+                client.log(`Loaded command ${command.data.name}`, "command");
+            }
         }
-    }
+    };
+
+    await loadCommands(path.resolve(__dirname, "commands"));
+
     // save standUsersNPCS.json
     delete formattedStandUsers["default"];
     fs.writeFileSync(

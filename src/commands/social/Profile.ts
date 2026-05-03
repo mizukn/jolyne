@@ -10,7 +10,7 @@ import {
 import { Message, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { makeChapterTitle } from "./Chapter";
+import { makeChapterTitle } from "../adventure/Chapter";
 import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { containers } from "../../utils/containers";
