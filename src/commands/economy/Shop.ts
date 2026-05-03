@@ -287,8 +287,11 @@ const slashCommand: SlashCommandFile = {
 
                 const replyData = containers.primary({
                     title: `${xitem.emoji} ${xitem.name}`,
-                    description: `${bars}\n\n> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n`[Not Storable]` (Used on purchase)" : ""}`,
+                    description: bars,
                     descriptionDivider: true,
+                    sections: [{
+                        text: `> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n`[Not Storable]` (Used on purchase)" : ""}`
+                    }],
                     footer: footerText,
                 });
 

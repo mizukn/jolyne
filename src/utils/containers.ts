@@ -55,47 +55,49 @@ export interface V2Reply {
 
 function build(opts: ContainerOptions): ContainerBuilder {
     const c = new ContainerBuilder().setAccentColor(opts.color ?? COLORS.primary);
+    let lastWasSeparator = false;
+
+    function addSeparator(divider: boolean, spacing: SeparatorSpacingSize = SeparatorSpacingSize.Small) {
+        if (lastWasSeparator) return;
+        c.addSeparatorComponents(new SeparatorBuilder().setDivider(divider).setSpacing(spacing));
+        lastWasSeparator = true;
+    }
+
+    function addText(content: string) {
+        c.addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+        lastWasSeparator = false;
+    }
 
     if (opts.title) {
-        c.addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${opts.title}`));
+        addText(`## ${opts.title}`);
     }
 
     const hasContentAfterTitle =
         !!opts.description || !!opts.fields?.length || !!opts.sections?.length;
     if (opts.title && hasContentAfterTitle) {
-        c.addSeparatorComponents(
-            new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
-        );
+        addSeparator(true);
     }
 
     if (opts.description) {
-        c.addTextDisplayComponents(new TextDisplayBuilder().setContent(opts.description));
+        addText(opts.description);
         if (opts.descriptionDivider) {
-            c.addSeparatorComponents(
-                new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
-            );
+            addSeparator(true);
         }
     }
 
     if (opts.fields?.length) {
         if (opts.description && !opts.descriptionDivider) {
-            c.addSeparatorComponents(
-                new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small),
-            );
+            addSeparator(false);
         }
         for (const f of opts.fields) {
-            c.addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(`**${f.name}**\n${f.value}`),
-            );
+            addText(`**${f.name}**\n${f.value}`);
         }
     }
 
     if (opts.sections?.length) {
         opts.sections.forEach((sec, index) => {
             if (index > 0 && opts.sectionDividers) {
-                c.addSeparatorComponents(
-                    new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
-                );
+                addSeparator(true);
             }
             if (sec.accessory) {
                 const section = new SectionBuilder().addTextDisplayComponents(
@@ -107,25 +109,18 @@ function build(opts: ContainerOptions): ContainerBuilder {
                     section.setThumbnailAccessory(sec.accessory);
                 }
                 c.addSectionComponents(section);
+                lastWasSeparator = false;
             } else {
-                // If there's no accessory, just use a TextDisplay to avoid validation errors
-                c.addTextDisplayComponents(new TextDisplayBuilder().setContent(sec.text));
+                addText(sec.text);
             }
         });
     }
 
     if (opts.footer) {
-        if (opts.sections?.length || opts.fields?.length || opts.description) {
-            c.addSeparatorComponents(
-                new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
-            );
-        } else if (opts.title) {
-            // Already added a separator after title if there's content, but if only title and footer, add here
-            c.addSeparatorComponents(
-                new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
-            );
+        if (opts.sections?.length || opts.fields?.length || opts.description || opts.title) {
+            addSeparator(true);
         }
-        c.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${opts.footer}`));
+        addText(`-# ${opts.footer}`);
     }
 
     return c;
