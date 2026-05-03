@@ -1,30 +1,17 @@
-import { Message, ButtonBuilder, ButtonStyle } from "discord.js";
+import { Message } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
-import { shuffleArray, actionRow, generateRandomId } from "../../utils/Functions";
 import * as Functions from "../../utils/Functions";
-import * as NPCs from "../../rpg/NPCs/NPCs";
-import { Item, SlashCommandFile } from "../../@types";
-import { cloneDeep } from "lodash";
-import * as Stands from "../../rpg/Stands";
-
-const totalStands = [
-    ...Object.values(Stands.Stands),
-    ...Object.values(Stands.EvolutionStands).map((x) => {
-        return {
-            ...x.evolutions[0],
-            id: x.id,
-        };
-    }),
-];
+import { SlashCommandFile } from "../../@types";
+import { auditedAdminAction } from "../../utils/AdminAudit";
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "adminsetlevel",
-        description: "instant setlevel",
+        description: "Admin: Set user level",
         options: [
             {
                 name: "level",
-                description: "level to set",
+                description: "Level to set",
                 type: 4,
                 required: true,
             },
@@ -33,10 +20,6 @@ const slashCommand: SlashCommandFile = {
     adminOnly: true,
 
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
-        // return COMMAND disabled because too easy to win money
-        /* return void ctx.makeMessage({
-            content: `This command is disabled because it is too easy to win money. Please use the slot machine instead. This command may or may not be re-enabled in the future.`,
-        });*/
         const level = ctx.options.getInteger("level", true);
         if (level > 4000) {
             return void ctx.makeMessage({
@@ -50,9 +33,9 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
-        // 	-2147483648 to +2147483647
-
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+        const before = { level: ctx.userData.level, xp: ctx.userData.xp, skillPoints: { ...ctx.userData.skillPoints } };
+
         ctx.userData.level = level;
         ctx.userData.xp = 0;
 
@@ -62,9 +45,13 @@ const slashCommand: SlashCommandFile = {
             }
         }
 
-        await ctx.client.database.saveUserData(ctx.userData);
+        const after = { level: ctx.userData.level, xp: ctx.userData.xp, skillPoints: { ...ctx.userData.skillPoints } };
 
-        ctx.makeMessage({
+        await ctx.client.database.saveUserData(ctx.userData);
+        
+        await auditedAdminAction(ctx, ctx.user.id, before, after, "SET_LEVEL");
+
+        return void ctx.makeMessage({
             content: `Level set to ${level}`,
         });
     },

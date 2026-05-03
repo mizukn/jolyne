@@ -1,30 +1,17 @@
-import { Message, ButtonBuilder, ButtonStyle } from "discord.js";
+import { Message } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
-import { shuffleArray, actionRow, generateRandomId } from "../../utils/Functions";
 import * as Functions from "../../utils/Functions";
-import * as NPCs from "../../rpg/NPCs/NPCs";
-import { Item, SlashCommandFile } from "../../@types";
-import { cloneDeep } from "lodash";
-import * as Stands from "../../rpg/Stands";
-
-const totalStands = [
-    ...Object.values(Stands.Stands),
-    ...Object.values(Stands.EvolutionStands).map((x) => {
-        return {
-            ...x.evolutions[0],
-            id: x.id,
-        };
-    }),
-];
+import { SlashCommandFile } from "../../@types";
+import { auditedAdminAction } from "../../utils/AdminAudit";
 
 const slashCommand: SlashCommandFile = {
     data: {
         name: "adminsetprestige",
-        description: "instant prestige",
+        description: "Admin: Set user prestige",
         options: [
             {
                 name: "prestige",
-                description: "prestige to set",
+                description: "Prestige to set",
                 type: 4,
                 required: true,
             },
@@ -33,10 +20,6 @@ const slashCommand: SlashCommandFile = {
     adminOnly: true,
 
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
-        // return COMMAND disabled because too easy to win money
-        /* return void ctx.makeMessage({
-            content: `This command is disabled because it is too easy to win money. Please use the slot machine instead. This command may or may not be re-enabled in the future.`,
-        });*/
         const prestige = ctx.options.getInteger("prestige", true);
         if (prestige > 4000) {
             return void ctx.makeMessage({
@@ -44,13 +27,15 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
-        if (prestige < -1) {
+        if (prestige < 0) {
             return void ctx.makeMessage({
-                content: "prestige must be greater than -1",
+                content: "prestige must be greater than or equal to 0",
             });
         }
 
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+        const before = { prestige: ctx.userData.prestige, skillPoints: { ...ctx.userData.skillPoints } };
+
         ctx.userData.prestige = prestige;
 
         if (Functions.getRawSkillPointsLeft(ctx.userData) < 0) {
@@ -59,9 +44,13 @@ const slashCommand: SlashCommandFile = {
             }
         }
 
-        await ctx.client.database.saveUserData(ctx.userData);
+        const after = { prestige: ctx.userData.prestige, skillPoints: { ...ctx.userData.skillPoints } };
 
-        ctx.makeMessage({
+        await ctx.client.database.saveUserData(ctx.userData);
+        
+        await auditedAdminAction(ctx, ctx.user.id, before, after, "SET_PRESTIGE");
+
+        return void ctx.makeMessage({
             content: `prestige set to ${prestige}`,
         });
     },
