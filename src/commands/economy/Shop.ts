@@ -4,9 +4,8 @@ import {
     InteractionResponse,
     ButtonBuilder,
     ButtonStyle,
-    ModalBuilder,
-    TextInputBuilder,
-    TextInputStyle,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
     ActionRowBuilder,
     ButtonInteraction,
     MessageActionRowComponentBuilder,
@@ -317,7 +316,71 @@ const slashCommand: SlashCommandFile = {
         });
 
         collector.on("collect", async (i) => {
-            if (i.isStringSelectMenu()) return;
+            if (i.isStringSelectMenu()) {
+                const menu = i as StringSelectMenuInteraction;
+                if (!menu.customId.startsWith("amount_")) return;
+
+                const parts = menu.customId.split("_");
+                const catIdxStr = parts[1];
+                const itemId = parts.slice(2).join("_");
+                const catIdx = parseInt(catIdxStr);
+                const shop = shops[catIdx];
+                const itemEntry = shop.items.find((x) => x.item === itemId);
+                if (!itemEntry) return;
+
+                const xitem = Functions.findItem(itemEntry.item);
+                if (!xitem) return;
+
+                ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+
+                let amount = parseInt(menu.values[0]);
+                if (isNaN(amount) || amount < 1) amount = 1;
+
+                const price = (itemEntry.price ?? xitem.price) * amount;
+                const isPrestige = shop.currency === "prestige_shards";
+                const currencyEmoji = isPrestige ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
+                const userMoney = isPrestige ? ctx.userData.prestige_shards : ctx.userData.coins;
+
+                if (userMoney < price) {
+                    await menu.reply({
+                        ...containers.error(`You don't have enough ${isPrestige ? "prestige shards" : "coins"} to buy this item!`),
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                if (isPrestige) Functions.addPrestigeShards(ctx.userData, -price);
+                else Functions.addCoins(ctx.userData, -price);
+
+                const oldData = cloneDeep(ctx.userData);
+                let successContent = "";
+
+                if (!xitem.storable) {
+                    if (Functions.isConsumable(xitem)) {
+                        Functions.useConsumableItem(xitem, ctx.userData, amount);
+                        const rewards = Functions.getRewardsCompareData(oldData, ctx.userData).join(", ");
+                        successContent = `You used ${xitem.emoji} **${xitem.name}** and got: ${rewards}`.slice(0, 500);
+                    } else {
+                        Functions.addItem(ctx.userData, xitem, amount);
+                        successContent = `You bought x${amount} ${xitem.emoji} **${xitem.name}** for **${price.toLocaleString()}** ${currencyEmoji}`;
+                    }
+                } else {
+                    Functions.addItem(ctx.userData, xitem, amount);
+                    successContent = `You bought x${amount} ${xitem.emoji} **${xitem.name}** for **${price.toLocaleString()}** ${currencyEmoji}`;
+                }
+
+                await ctx.client.database.saveUserData(ctx.userData);
+
+                await menu.reply({
+                    ...containers.success(`**${shop.name}**\n${successContent}`),
+                    ephemeral: true,
+                });
+
+                // Update main view to reflect new balance and clear the select menu
+                await ctx.interaction.editReply(getShopMessageData()).catch(() => {});
+                return;
+            }
+
             const btn = i as ButtonInteraction;
 
             if (btn.customId.startsWith("cat_")) {
@@ -342,79 +405,37 @@ const slashCommand: SlashCommandFile = {
                 const xitem = Functions.findItem(itemEntry.item);
                 if (!xitem) return;
 
-                const modal = new ModalBuilder()
-                    .setCustomId(`modal_buy_${catIdx}_${itemId}`)
-                    .setTitle(`Buy ${xitem.name}`.substring(0, 45));
+                const isPrestige = shop.currency === "prestige_shards";
+                const currencyName = isPrestige ? "prestige shards" : "jocoins";
+                const userMoney = isPrestige ? ctx.userData.prestige_shards : ctx.userData.coins;
+                const unitPrice = itemEntry.price ?? xitem.price;
 
-                const amountInput = new TextInputBuilder()
-                    .setCustomId("amount")
-                    .setLabel("Amount (e.g. 1)")
-                    .setStyle(TextInputStyle.Short)
-                    .setValue("1")
-                    .setRequired(true);
+                const getOptions = () =>
+                    Array.from({ length: 25 }, (_, idx) => idx + 1)
+                        .map((qty) => ({
+                            label: `x${qty} (${(qty * unitPrice).toLocaleString()} ${currencyName})`,
+                            value: qty.toString(),
+                        }))
+                        .filter((opt) => userMoney >= parseInt(opt.value) * unitPrice);
 
-                modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(amountInput));
-                await btn.showModal(modal).catch((err) => {
-                    console.error("showModal failed:", err);
-                });
+                const options = getOptions();
 
-                try {
-                    const modalSubmit = await btn.awaitModalSubmit({
-                        filter: (mi) => mi.user.id === ctx.user.id && mi.customId === `modal_buy_${catIdx}_${itemId}`,
-                        time: 60000,
-                    });
+                const selectMenu = new StringSelectMenuBuilder()
+                    .setCustomId(`amount_${catIdx}_${itemId}`)
+                    .setPlaceholder("Select an amount")
+                    .setDisabled(options.length === 0)
+                    .addOptions(
+                        options.length === 0
+                            ? [{ label: "You cannot afford any", value: "no" }]
+                            : options
+                    );
 
-                    ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+                const currentMessageData = getShopMessageData();
+                currentMessageData.components.push(
+                    new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu)
+                );
 
-                    let amount = parseInt(modalSubmit.fields.getTextInputValue("amount"));
-                    if (isNaN(amount) || amount < 1) amount = 1;
-
-                    const price = (itemEntry.price ?? xitem.price) * amount;
-                    const isPrestige = shop.currency === "prestige_shards";
-                    const currencyEmoji = isPrestige ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
-                    const userMoney = isPrestige ? ctx.userData.prestige_shards : ctx.userData.coins;
-
-                    if (userMoney < price) {
-                        await modalSubmit.reply({
-                            ...containers.error(`You don't have enough ${isPrestige ? "prestige shards" : "coins"} to buy this item!`),
-                            ephemeral: true,
-                        });
-                        return;
-                    }
-
-                    if (isPrestige) Functions.addPrestigeShards(ctx.userData, -price);
-                    else Functions.addCoins(ctx.userData, -price);
-
-                    const oldData = cloneDeep(ctx.userData);
-                    let successContent = "";
-
-                    if (!xitem.storable) {
-                        if (Functions.isConsumable(xitem)) {
-                            Functions.useConsumableItem(xitem, ctx.userData, amount);
-                            const rewards = Functions.getRewardsCompareData(oldData, ctx.userData).join(", ");
-                            successContent = `You used ${xitem.emoji} **${xitem.name}** and got: ${rewards}`.slice(0, 500);
-                        } else {
-                            Functions.addItem(ctx.userData, xitem, amount);
-                            successContent = `You bought x${amount} ${xitem.emoji} **${xitem.name}** for **${price.toLocaleString()}** ${currencyEmoji}`;
-                        }
-                    } else {
-                        Functions.addItem(ctx.userData, xitem, amount);
-                        successContent = `You bought x${amount} ${xitem.emoji} **${xitem.name}** for **${price.toLocaleString()}** ${currencyEmoji}`;
-                    }
-
-                    await ctx.client.database.saveUserData(ctx.userData);
-
-                    await modalSubmit.reply({
-                        ...containers.success(`**${shop.name}**\n${successContent}`),
-                        ephemeral: true,
-                    });
-
-                    // Update main view to reflect new balance
-                    await ctx.interaction.editReply(getShopMessageData()).catch(() => {});
-
-                } catch (err) {
-                    // Modal timeout or error, do nothing
-                }
+                await btn.update(currentMessageData).catch(() => {});
             }
         });
     },
