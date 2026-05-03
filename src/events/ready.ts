@@ -193,8 +193,7 @@ const Event: EventFile = {
             client.log("Successfully fetched support members.", "ready");
         }
 
-        // prettier-ignore
-        if (parseInt(process.env.CLUSTER + 1) === parseInt(process.env.CLUSTER_COUNT)) {
+        if (parseInt(process.env.CLUSTER) + 1 === parseInt(process.env.CLUSTER_COUNT)) {
             if (!process.env.IGNORE_TOPGG) TopGG(client);
             //Matchmaking(client);
 
