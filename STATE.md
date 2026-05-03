@@ -31,11 +31,17 @@ All landed on `rework`. Each is its own commit. Highlights:
 - `perf(ready): poll patreon every 15min instead of every 2min`
 - `security: replace hardcoded dev id with OWNER_IDS env`
 
-### V2 components migration (started)
+### V2 components migration (in progress)
 
-- `src/utils/containers.ts` exists — Jolyne-themed V2 helpers (`containers.primary/success/error/warning`, palette in `COLORS`).
-- `src/commands/social/Profile.ts` rewritten to V2.
-- `src/commands/general/HelpSubcommands.ts` rewritten to V2 with category + per-command browser (multi-select pagination at >25 commands).
+Done:
+- `src/utils/containers.ts` — Jolyne-themed V2 helpers (`containers.primary/success/error/warning`, palette in `COLORS`).
+- `src/utils/emojiBar.ts` — discrete progress bar from custom emojis. Falls back to Unicode `▱` for missing palettes.
+- `src/commands/social/Profile.ts` — V2 + emoji HP/stamina bars.
+- `src/commands/general/HelpSubcommands.ts` — V2 with category + per-command browser (multi-select pagination at >25 commands).
+- `src/commands/social/Inventory.ts` — `view` + `info` subcommands migrated to V2 (other subcommands still use `content: "..."` for short success/error messages — left alone for now).
+- `src/commands/adventure/DailySubcommands.ts` — `claim` + `quests` migrated.
+
+Bar emoji palette mapping in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = blue (`blue*`), `bar_empty_*` = black/basic (`b*`). XP palette (purple) is not yet uploaded — `bar_xp_*` keys are not defined; `emojiBar("xp", ...)` will render Unicode placeholders until the user adds them.
 
 ### Restructure (one big commit, intentional)
 
@@ -45,28 +51,24 @@ All landed on `rework`. Each is its own commit. Highlights:
 
 ### V2 migration backlog (next work)
 
-Profile + Help are V2; everything else still uses classic embeds. Natural next targets, in suggested order:
-1. **Inventory** (subcommands: view/use/equip/unequip/throw/claim) — biggest UX win.
-2. **DailySubcommands** (claim/quests view).
-3. **EmailsSubcommands** (list/view/archive).
-4. **Shop** + **Trade** (interactive flows).
+Done so far: Profile, Help, Inventory (view+info), Daily (claim+quests). Next targets, suggested order:
+1. **Inventory** remaining: `equip` / `use` / `unequip` / `throw` / `claim` / `sell` — these are mostly content-only success/error replies; consider whether to wrap in `containers.success/error` or leave as plain text.
+2. **EmailsSubcommands** (list/view/archive) — list view is a good V2 fit.
+3. **Shop** — items + buy interaction.
+4. **Trade** — interactive two-phase flow; gnarlier, may want a service-layer rewrite first (PLAN P2.3).
 5. **Settings**.
-6. Fight UI (last — needs the FightHandler split first; see PLAN §5 P3.2).
+6. **Chapter** / **SideQuests** views.
+7. Fight UI (last — needs the FightHandler split first; see PLAN §5 P3.2).
 
-### Emoji progress bars (queued)
+### XP emoji bar (purple) — pending user upload
 
-User has new emoji-bar assets ready:
-- HP: `<:rbegp:1499892865457848390>`, `<:rmdp:1499892463228420229>`, `<:rendp:1499892039012323540>`
-- Stamina/yellow: `<:bbegp:1499893513154723920>`, `<:bmdp:1499893491461918811>`, `<:bendp:1499893459195265024>`
-- Blue/XP: `<:bluebegp:1499894030840889384>`, `<:bluemdp:1499894069562966076>`, `<:blueendp:1499894088756105328>`
-
-Not yet wired in. Reference helper signature from another bot:
-
-```ts
-emojiBar(kind: "hp" | "stamina", current: number, max: number, segments = 6): string
+The user said purple XP bar emojis will be added later. When they arrive, add to [emojis.json](src/emojis.json):
 ```
-
-When integrating: add `bar_hp_begin/_mid/_end`, `bar_sta_*`, `bar_xp_*`, `bar_empty_*` keys to `emojis.json`, then port the helper to `src/utils/`. Use it in Profile and (eventually) the fight UI.
+"bar_xp_begin": "<:purplebegp:..>",
+"bar_xp_mid":   "<:purplemdp:..>",
+"bar_xp_end":   "<:purpleendp:..>"
+```
+At that point, re-add the XP bar in Profile (a previous version had it; was removed because no XP palette existed yet).
 
 ### Phase 1 foundations (untouched — see PLAN §3)
 
