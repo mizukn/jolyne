@@ -235,7 +235,7 @@ const slashCommand: SlashCommandFile = {
             const maxSta = Functions.getMaxStamina(ctx.userData);
             const hpBar = emojiBar("hp", ctx.userData.health, maxHP);
             const staBar = emojiBar("sta", ctx.userData.stamina, maxSta);
-            const bars = `${hpBar} **${ctx.userData.health.toLocaleString()}** / ${maxHP.toLocaleString()} HP\n${staBar} **${ctx.userData.stamina.toLocaleString()}** / ${maxSta.toLocaleString()} STA`;
+            const bars = `:heart: • **${ctx.userData.health.toLocaleString()} / ${maxHP.toLocaleString()}** HP\n${hpBar}\n:zap: • **${ctx.userData.stamina.toLocaleString()} / ${maxSta.toLocaleString()}** STA\n${staBar}`;
 
             if (viewingItemId) {
                 const itemEntry = shop.items.find((x) => x.item === viewingItemId);
@@ -288,6 +288,7 @@ const slashCommand: SlashCommandFile = {
                 const replyData = containers.primary({
                     title: `${xitem.emoji} ${xitem.name}`,
                     description: `${bars}\n\n> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n`[Not Storable]` (Used on purchase)" : ""}`,
+                    descriptionDivider: true,
                     footer: footerText,
                 });
 
@@ -332,6 +333,7 @@ const slashCommand: SlashCommandFile = {
             const replyData = containers.primary({
                 title: `${shop.emoji} ${shop.name}`,
                 description: bars,
+                descriptionDivider: true,
                 sections: sections,
                 sectionDividers: true,
                 footer: footerText,

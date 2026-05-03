@@ -45,6 +45,7 @@ export interface ContainerOptions {
     fields?: { name: string; value: string }[];
     sections?: SectionData[];
     sectionDividers?: boolean;
+    descriptionDivider?: boolean;
 }
 
 export interface V2Reply {
@@ -69,10 +70,15 @@ function build(opts: ContainerOptions): ContainerBuilder {
 
     if (opts.description) {
         c.addTextDisplayComponents(new TextDisplayBuilder().setContent(opts.description));
+        if (opts.descriptionDivider) {
+            c.addSeparatorComponents(
+                new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small),
+            );
+        }
     }
 
     if (opts.fields?.length) {
-        if (opts.description) {
+        if (opts.description && !opts.descriptionDivider) {
             c.addSeparatorComponents(
                 new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small),
             );
