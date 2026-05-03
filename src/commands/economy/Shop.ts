@@ -49,6 +49,7 @@ const slashCommand: SlashCommandFile = {
         let shops: cShop[] = [];
         let currentCategoryIndex = 0;
         let currentPage = 0;
+        let viewingItemId: string | null = null;
 
         async function createUserBlackMarket(): Promise<Shop> {
             const BM: Shop = {
@@ -224,6 +225,75 @@ const slashCommand: SlashCommandFile = {
 
         function getShopMessageData() {
             const shop = shops[currentCategoryIndex];
+            const currencyAmount = shop.currency === "prestige_shards" ? ctx.userData.prestige_shards : ctx.userData.coins;
+            const currencyEmoji = shop.currency === "prestige_shards" ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
+            const currencyName = shop.currency === "prestige_shards" ? "prestige shards" : "jocoins";
+            const footerText = `You have ${currencyAmount.toLocaleString()} ${currencyName}.`;
+
+            if (viewingItemId) {
+                const itemEntry = shop.items.find((x) => x.item === viewingItemId);
+                if (!itemEntry) {
+                    viewingItemId = null;
+                    return getShopMessageData();
+                }
+
+                const xitem = Functions.findItem(viewingItemId);
+                if (!xitem) {
+                    viewingItemId = null;
+                    return getShopMessageData();
+                }
+
+                const unitPrice = itemEntry.price ?? xitem.price;
+
+                let bonusesText = "";
+                if (Functions.isConsumable(xitem)) {
+                    bonusesText = `\n**Bonuses**\n> ${Object.entries(xitem.effects)
+                        .map(([stat, val]) => `**+${val.toLocaleString()}** ${stat}`)
+                        .join(", ")}`;
+                }
+
+                const getOptions = () =>
+                    Array.from({ length: 25 }, (_, idx) => idx + 1)
+                        .map((qty) => ({
+                            label: `x${qty} (${(qty * unitPrice).toLocaleString()} ${currencyName})`,
+                            value: qty.toString(),
+                        }))
+                        .filter((opt) => currencyAmount >= parseInt(opt.value) * unitPrice);
+
+                const options = getOptions();
+
+                const selectMenu = new StringSelectMenuBuilder()
+                    .setCustomId(`amount_${currentCategoryIndex}_${viewingItemId}`)
+                    .setPlaceholder("Select an amount")
+                    .setDisabled(options.length === 0)
+                    .addOptions(
+                        options.length === 0
+                            ? [{ label: "You cannot afford any", value: "no" }]
+                            : options
+                    );
+
+                const goBackButton = new ButtonBuilder()
+                    .setCustomId("go_back_shop")
+                    .setStyle(ButtonStyle.Primary)
+                    .setLabel("Go Back")
+                    .setEmoji("⬅️");
+
+                const replyData = containers.primary({
+                    title: `${xitem.emoji} ${xitem.name}`,
+                    description: `> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n\`[Not Storable]\` (Used on purchase)" : ""}`,
+                    footer: footerText,
+                });
+
+                return {
+                    components: [
+                        ...replyData.components,
+                        new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu),
+                        new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(goBackButton)
+                    ],
+                    flags: replyData.flags
+                };
+            }
+
             const totalPages = Math.max(1, Math.ceil(shop.items.length / ITEMS_PER_PAGE));
             if (currentPage >= totalPages) currentPage = totalPages - 1;
 
@@ -235,8 +305,6 @@ const slashCommand: SlashCommandFile = {
             const sections: SectionData[] = pageItems.map((item) => {
                 const xitem = cloneDeep(Functions.findItem(item.item));
                 const price = item.price ?? xitem.price;
-                const currencyEmoji = shop.currency === "prestige_shards" ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
-                const currencyName = shop.currency === "prestige_shards" ? "prestige shards" : "jocoins";
 
                 let bonusesText = "";
                 if (Functions.isConsumable(xitem)) {
@@ -248,15 +316,11 @@ const slashCommand: SlashCommandFile = {
                 return {
                     text: `### ${xitem.emoji} ${xitem.name}${!xitem.storable ? " \`[NS]\`" : ""}\n> ${currencyEmoji} Cost: **${price.toLocaleString()}** ${currencyName}${bonusesText}`,
                     accessory: new ButtonBuilder()
-                        .setCustomId(`buy_${currentCategoryIndex}_${xitem.id}`)
+                        .setCustomId(`view_item_${xitem.id}`)
                         .setStyle(ButtonStyle.Secondary)
-                        .setLabel("Buy")
-                        .setEmoji("💰"),
+                        .setLabel("Select")
                 };
             });
-
-            const currencyAmount = shop.currency === "prestige_shards" ? ctx.userData.prestige_shards : ctx.userData.coins;
-            const footerText = `You have ${currencyAmount.toLocaleString()} ${shop.currency === "prestige_shards" ? "prestige shards" : "coins"}.`;
 
             const replyData = containers.primary({
                 title: `${shop.emoji} ${shop.name}`,
@@ -268,17 +332,18 @@ const slashCommand: SlashCommandFile = {
             const actionRows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [];
 
             // Row 1: Categories
-            const catRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-                shops.slice(0, 5).map((s, idx) =>
-                    new ButtonBuilder()
-                        .setCustomId(`cat_${idx}`)
-                        .setStyle(idx === currentCategoryIndex ? ButtonStyle.Primary : ButtonStyle.Secondary)
-                        .setLabel(s.name.length > 25 ? s.name.substring(0, 22) + "..." : s.name)
-                        .setEmoji(s.emoji)
-                        .setDisabled(idx === currentCategoryIndex)
-                )
-            );
-            actionRows.push(catRow);
+            const shopSelectMenu = new StringSelectMenuBuilder()
+                .setCustomId("select_shop")
+                .setPlaceholder("Select a shop")
+                .addOptions(
+                    shops.map((s, idx) => ({
+                        label: s.name.length > 25 ? s.name.substring(0, 22) + "..." : s.name,
+                        value: idx.toString(),
+                        emoji: s.emoji,
+                        default: idx === currentCategoryIndex
+                    }))
+                );
+            actionRows.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(shopSelectMenu));
 
             // Row 2: Pagination (if needed)
             if (totalPages > 1) {
@@ -318,6 +383,15 @@ const slashCommand: SlashCommandFile = {
         collector.on("collect", async (i) => {
             if (i.isStringSelectMenu()) {
                 const menu = i as StringSelectMenuInteraction;
+                
+                if (menu.customId === "select_shop") {
+                    currentCategoryIndex = parseInt(menu.values[0]);
+                    currentPage = 0;
+                    viewingItemId = null;
+                    await menu.update(getShopMessageData()).catch(() => {});
+                    return;
+                }
+
                 if (!menu.customId.startsWith("amount_")) return;
 
                 const parts = menu.customId.split("_");
@@ -376,66 +450,29 @@ const slashCommand: SlashCommandFile = {
                     ephemeral: true,
                 });
 
-                // Update main view to reflect new balance and clear the select menu
+                // Re-fetch to reflect new balance on the item screen
                 await ctx.interaction.editReply(getShopMessageData()).catch(() => {});
                 return;
             }
 
             const btn = i as ButtonInteraction;
 
-            if (btn.customId.startsWith("cat_")) {
-                currentCategoryIndex = parseInt(btn.customId.split("_")[1]);
-                currentPage = 0;
+            if (btn.customId === "go_back_shop") {
+                viewingItemId = null;
                 await btn.update(getShopMessageData()).catch(() => {});
-            } else if (btn.customId === "page_prev") {
+                return;
+            }
+
+            if (btn.customId === "page_prev") {
                 currentPage--;
                 await btn.update(getShopMessageData()).catch(() => {});
             } else if (btn.customId === "page_next") {
                 currentPage++;
                 await btn.update(getShopMessageData()).catch(() => {});
-            } else if (btn.customId.startsWith("buy_")) {
-                const parts = btn.customId.split("_");
-                const catIdxStr = parts[1];
-                const itemId = parts.slice(2).join("_");
-                const catIdx = parseInt(catIdxStr);
-                const shop = shops[catIdx];
-                const itemEntry = shop.items.find((x) => x.item === itemId);
-                if (!itemEntry) return;
-
-                const xitem = Functions.findItem(itemEntry.item);
-                if (!xitem) return;
-
-                const isPrestige = shop.currency === "prestige_shards";
-                const currencyName = isPrestige ? "prestige shards" : "jocoins";
-                const userMoney = isPrestige ? ctx.userData.prestige_shards : ctx.userData.coins;
-                const unitPrice = itemEntry.price ?? xitem.price;
-
-                const getOptions = () =>
-                    Array.from({ length: 25 }, (_, idx) => idx + 1)
-                        .map((qty) => ({
-                            label: `x${qty} (${(qty * unitPrice).toLocaleString()} ${currencyName})`,
-                            value: qty.toString(),
-                        }))
-                        .filter((opt) => userMoney >= parseInt(opt.value) * unitPrice);
-
-                const options = getOptions();
-
-                const selectMenu = new StringSelectMenuBuilder()
-                    .setCustomId(`amount_${catIdx}_${itemId}`)
-                    .setPlaceholder("Select an amount")
-                    .setDisabled(options.length === 0)
-                    .addOptions(
-                        options.length === 0
-                            ? [{ label: "You cannot afford any", value: "no" }]
-                            : options
-                    );
-
-                const currentMessageData = getShopMessageData();
-                currentMessageData.components.push(
-                    new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu)
-                );
-
-                await btn.update(currentMessageData).catch(() => {});
+            } else if (btn.customId.startsWith("view_item_")) {
+                const itemId = btn.customId.split("_").slice(2).join("_");
+                viewingItemId = itemId;
+                await btn.update(getShopMessageData()).catch(() => {});
             }
         });
     },
