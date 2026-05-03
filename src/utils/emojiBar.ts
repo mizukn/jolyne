@@ -11,8 +11,8 @@ type BarKind = "hp" | "sta" | "xp";
  * - The begin cap colors as soon as there's any progress, so a tiny sliver still shows.
  * - Mid pips use ceil so high-but-not-full looks "almost full" rather than rounded down.
  *
- * Empty positions fall back to a Unicode placeholder (`▱`) until empty-pip emojis
- * are uploaded; swap `bar_empty_*` in `emojis.json` once available.
+ * Falls back to Unicode `▱` for any emoji key that's missing from `emojis.json`,
+ * so referring to a not-yet-uploaded palette (e.g. `xp` purple) renders cleanly.
  */
 export function emojiBar(
     kind: BarKind,
@@ -27,10 +27,12 @@ export function emojiBar(
     const endFilled = ratio >= 1;
 
     const e = emojis as Record<string, string>;
-    const out: string[] = [e[`bar_${beginFilled ? kind : "empty"}_begin`]];
+    const pick = (palette: string, slot: "begin" | "mid" | "end") =>
+        e[`bar_${palette}_${slot}`] ?? "▱";
+    const out: string[] = [pick(beginFilled ? kind : "empty", "begin")];
     for (let i = 0; i < inner; i++) {
-        out.push(e[`bar_${i < innerFilled ? kind : "empty"}_mid`]);
+        out.push(pick(i < innerFilled ? kind : "empty", "mid"));
     }
-    out.push(e[`bar_${endFilled ? kind : "empty"}_end`]);
+    out.push(pick(endFilled ? kind : "empty", "end"));
     return out.join("");
 }

@@ -189,13 +189,10 @@
     "bar_hp_begin": "<:rbegp:1499892865457848390>",
     "bar_hp_mid": "<:rmdp:1499892463228420229>",
     "bar_hp_end": "<:rendp:1499892039012323540>",
-    "bar_sta_begin": "<:bbegp:1499893513154723920>",
-    "bar_sta_mid": "<:bmdp:1499893491461918811>",
-    "bar_sta_end": "<:bendp:1499893459195265024>",
-    "bar_xp_begin": "<:bluebegp:1499894030840889384>",
-    "bar_xp_mid": "<:bluemdp:1499894069562966076>",
-    "bar_xp_end": "<:blueendp:1499894088756105328>",
-    "bar_empty_begin": "▱",
-    "bar_empty_mid": "▱",
-    "bar_empty_end": "▱"
+    "bar_sta_begin": "<:bluebegp:1499894030840889384>",
+    "bar_sta_mid": "<:bluemdp:1499894069562966076>",
+    "bar_sta_end": "<:blueendp:1499894088756105328>",
+    "bar_empty_begin": "<:bbegp:1499893513154723920>",
+    "bar_empty_mid": "<:bmdp:1499893491461918811>",
+    "bar_empty_end": "<:bendp:1499893459195265024>"
 }
