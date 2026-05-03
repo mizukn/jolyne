@@ -7,12 +7,13 @@ import {
     SkillPoints,
     Weapon,
 } from "../../@types";
-import { Message, APIEmbed, InteractionResponse } from "discord.js";
+import { Message, InteractionResponse } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { makeChapterTitle } from "./Chapter";
 import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
+import { containers } from "../../utils/containers";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -206,38 +207,32 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
-        const embed: APIEmbed = {
-            author: {
-                name: userOption.username,
-                icon_url: userOption.displayAvatarURL({ extension: "png" }),
-            },
-            description:
-                ctx.translate("profile:ADVENTUREAT", {
-                    rUnix: Functions.generateDiscordTimestamp(
-                        Number(rpgData.adventureStartedAt),
-                        "FROM_NOW"
-                    ), //`<t:${(userData.adventureat/1000).toFixed(0)}:R>`,
-                    dUnix: Functions.generateDiscordTimestamp(
-                        Number(rpgData.adventureStartedAt),
-                        "DATE"
-                    ),
-                    lastSeenRUnix: Functions.generateDiscordTimestamp(rpgData.lastSeen, "FROM_NOW"),
-                    lastSeenDUnix: Functions.generateDiscordTimestamp(rpgData.lastSeen, "DATE"),
-                }) +
-                (badges.find((x) => x.toLowerCase().includes("staff"))
-                    ? "\n🛠️ This player is part of the staff team."
-                    : "") +
-                (userIsCommunityBanned
-                    ? "\n:poop: This player is community banned. They get 50% less XP and they can't interact with other players."
-                    : ""),
-            color, //: 0x70926c,
-            thumbnail: {
-                url: rpgData.stand
-                    ? Functions.getCurrentStand(rpgData)
-                        ? Functions.getCurrentStand(rpgData).image
-                        : undefined
-                    : undefined,
-            },
+        const currentStand = rpgData.stand ? Functions.getCurrentStand(rpgData) : null;
+
+        const description = 
+            ctx.translate("profile:ADVENTUREAT", {
+                rUnix: Functions.generateDiscordTimestamp(
+                    Number(rpgData.adventureStartedAt),
+                    "FROM_NOW"
+                ),
+                dUnix: Functions.generateDiscordTimestamp(
+                    Number(rpgData.adventureStartedAt),
+                    "DATE"
+                ),
+                lastSeenRUnix: Functions.generateDiscordTimestamp(rpgData.lastSeen, "FROM_NOW"),
+                lastSeenDUnix: Functions.generateDiscordTimestamp(rpgData.lastSeen, "DATE"),
+            }) +
+            (badges.find((x) => x.toLowerCase().includes("staff"))
+                ? "\n🛠️ This player is part of the staff team."
+                : "") +
+            (userIsCommunityBanned
+                ? "\n:poop: This player is community banned. They get 50% less XP and they can't interact with other players."
+                : "");
+
+        const reply = containers.primary({
+            title: `${userOption.username}'s Profile`,
+            description,
+            color,
             fields: [
                 {
                     name: "Player Infos",
@@ -252,14 +247,12 @@ const slashCommand: SlashCommandFile = {
                     )}/${Functions.localeNumber(
                         Functions.getMaxStamina(rpgData)
                     )}\n${makeChapterTitle(chapter, rpgData)}`,
-                    inline: true,
                 },
                 {
                     name: "Ranking",
                     value: `:globe_with_meridians: \`${levelLbPos.toLocaleString()}\`/\`${levelLb.data.length.toLocaleString()}\`\n${
                         ctx.client.localEmojis.jocoins
                     } \`${coinsLbPos.toLocaleString()}\`/\`${coinsLb.data.length.toLocaleString()}\``,
-                    inline: true,
                 },
                 {
                     name: "Player Stats",
@@ -278,7 +271,6 @@ const slashCommand: SlashCommandFile = {
                     } Coins: ${rpgData.coins.toLocaleString()}\n${
                         ctx.client.localEmojis.prestige_shard
                     } Prestige shards: ${rpgData.prestige_shards.toLocaleString()}`,
-                    inline: true,
                 },
                 {
                     name: "Equipped Items",
@@ -310,7 +302,6 @@ const slashCommand: SlashCommandFile = {
                                 }`
                         )
                         .join("\n")}`,
-                    inline: true,
                 },
                 {
                     name: "Player Bonuses (from items)",
@@ -335,19 +326,14 @@ const slashCommand: SlashCommandFile = {
                         .join("\n")}\n\`[+]\` Stand Disc: **${
                         Functions.calcEquipableItemsBonus(rpgData).standDisc
                     }**`,
-                    inline: true,
                 },
                 {
                     name: "Stand",
-                    value: rpgData.stand
-                        ? (() => {
-                              const stand = Functions.getCurrentStand(rpgData);
-                              return `${stand.emoji} **${stand.name}** (${stand.rarity}):\n[${
-                                  stand.abilities.length
-                              }] Abilities: ${stand.abilities.map((a) => a.name).join(", ")}`;
-                          })()
+                    value: currentStand
+                        ? `${currentStand.emoji} **${currentStand.name}** (${currentStand.rarity}):\n[${
+                              currentStand.abilities.length
+                          }] Abilities: ${currentStand.abilities.map((a) => a.name).join(", ")}`
                         : "Stand-less",
-                    inline: true,
                 },
                 {
                     name: "Combat Infos",
@@ -362,7 +348,6 @@ const slashCommand: SlashCommandFile = {
                     ).toLocaleString()}\n🔄 Speed score: ${Functions.getSpeedScore(
                         rpgData
                     ).toLocaleString()}`,
-                    inline: true,
                 },
                 {
                     name: "Stand Disc Capacity",
@@ -376,7 +361,6 @@ const slashCommand: SlashCommandFile = {
                     }\n- Available: ${(
                         Functions.calcStandDiscLimit(ctx, rpgData) - discCount
                     ).toLocaleString()} ${ctx.client.localEmojis.disk}`,
-                    inline: true,
                 },
                 {
                     name: "Weapon",
@@ -394,12 +378,10 @@ const slashCommand: SlashCommandFile = {
                               }\nAbilities: ${weapon.abilities.map((a) => a.name).join(", ")}`;
                           })()
                         : "None",
-                    inline: true,
                 },
                 {
                     name: "Badges [" + badges.length + "]",
                     value: badges.length > 0 ? badges.join("\n") : "None",
-                    inline: true,
                 },
                 {
                     name: "Extra Bonuses",
@@ -410,17 +392,14 @@ const slashCommand: SlashCommandFile = {
                     }\n<:BoosterStatus:1282050059898458153> [Booster Bonus:](https://discord.gg/jolyne-support-923608916540145694) +**${
                         boosterMult * 100
                     }%** ${ctx.client.localEmojis.xp}`,
-                    inline: true,
                 },
             ],
-            // The true level is determined by invested skill points plus bonuses (extra skill points from items/stands, extra health/stamina from items/stands etc...)
-            footer: {
-                text: `* Your true level is determined by invested skill points plus bonuses (extra skill points from items/stands, extra health/stamina from items/stands etc...)`,
-            },
-        };
+            footer: "* Your true level is determined by invested skill points plus bonuses",
+        });
 
-        ctx.makeMessage({
-            embeds: [embed],
+        return ctx.makeMessage({
+            components: reply.components,
+            flags: reply.flags,
         });
     },
 };
