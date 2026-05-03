@@ -1,7 +1,6 @@
 import { SlashCommandFile, ClaimXQuest } from "../../@types";
 import {
     Message,
-    APIEmbed,
     ButtonBuilder,
     ButtonStyle,
     InteractionResponse,
@@ -15,6 +14,7 @@ import { StandArrow } from "../../rpg/Items/SpecialItems";
 import { getQuestsStats } from "./Chapter";
 import { cloneDeep } from "lodash";
 import Aes from "../../utils/Aes";
+import { COLORS, containers } from "../../utils/containers";
 
 const dailyQuestResetPrice = {
     undefined: 1000,
@@ -177,43 +177,33 @@ const slashCommand: SlashCommandFile = {
                         });
                 }
 
-                const embed: APIEmbed = {
-                    author: {
-                        name: ctx.user.username,
-                        icon_url: ctx.user.displayAvatarURL(),
+                const dailyFields: { name: string; value: string }[] = [
+                    {
+                        name: ctx.translate("daily:WANT_MORE_HEADER"),
+                        value: "[..]",
                     },
-                    description: embed_description,
-                    color: 0x70926c,
-                    footer: {
-                        text:
-                            ctx.translate("daily:CLAIMED_EMBED_FOOTER") +
-                            ` ${ctx.userData.daily.claimStreak}/${nextGoal}`,
-                    },
-                    fields: [
-                        {
-                            name: ctx.translate("daily:WANT_MORE_HEADER"),
-                            value: "[..]",
-                        },
-                    ],
-                };
+                ];
+                const dailyFooter =
+                    ctx.translate<string>("daily:CLAIMED_EMBED_FOOTER") +
+                    ` ${ctx.userData.daily.claimStreak}/${nextGoal}`;
 
                 if (
                     ctx.client.patreons.find((r) => r.id === ctx.userData.id) &&
                     ctx.client.boosters.find((r) => r === ctx.userData.id)
                 ) {
-                    embed.fields[0].value = ctx.translate(
+                    dailyFields[0].value = ctx.translate(
                         "daily:WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER",
                     );
                 } else if (ctx.client.patreons.find((r) => r.id === ctx.userData.id)) {
-                    embed.fields[0].value = ctx.translate(
+                    dailyFields[0].value = ctx.translate(
                         "daily:WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER",
                     );
                 } else if (ctx.client.boosters.find((r) => r === ctx.userData.id)) {
-                    embed.fields[0].value = ctx.translate(
+                    dailyFields[0].value = ctx.translate(
                         "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER",
                     );
                 } else {
-                    embed.fields[0].value = ctx.translate(
+                    dailyFields[0].value = ctx.translate(
                         "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_NON_BOOSTER",
                     );
                 }
@@ -231,7 +221,7 @@ const slashCommand: SlashCommandFile = {
                     for (let i = 0; i < arrows; i++) {
                         Functions.addItem(ctx.userData, StandArrow);
                     }
-                    embed.fields.push({
+                    dailyFields.push({
                         name: "Streak Bonus",
                         value: `\`x${arrows} ${StandArrow.name}\` ${StandArrow.emoji}`,
                     });
@@ -294,7 +284,7 @@ const slashCommand: SlashCommandFile = {
                             .join("\n");
                     }
 
-                    embed.fields.push({
+                    dailyFields.push({
                         name: "Merry Christmas!",
                         value: `You got the following rewards for claiming today:\n${Functions.getRewardsCompareData(
                             oldData,
@@ -323,8 +313,16 @@ const slashCommand: SlashCommandFile = {
                     "Daily claim",
                 );
 
+                const dailyReply = containers.primary({
+                    title: `${ctx.user.username} — Daily Reward`,
+                    description: embed_description,
+                    color: COLORS.primary,
+                    fields: dailyFields,
+                    footer: dailyFooter,
+                });
                 await ctx.makeMessage({
-                    embeds: [embed],
+                    components: dailyReply.components,
+                    flags: dailyReply.flags,
                 });
 
                 break;
@@ -399,32 +397,28 @@ const slashCommand: SlashCommandFile = {
 
                 const toBeAdded = Functions.addXp(ctx.userData, xpReward, ctx.client, true);
 
-                await ctx.makeMessage({
-                    embeds: [
+                const questsReply = containers.primary({
+                    title: `📜 ${ctx.user.username}'s Daily Quests (${status.percent.toFixed(2)}%)`,
+                    description: `${status.message}\n\n${ctx.translate(
+                        "daily:REWARDS_MESSAGE",
                         {
-                            // 📜 **__Daily Quests:__** (${status.percent.toFixed(2)}%)\n
-                            description: `${status.message}\n\n${ctx.translate(
-                                "daily:REWARDS_MESSAGE",
-                                {
-                                    coins: coinReward.toLocaleString(),
-                                    xp: toBeAdded.toLocaleString(),
-                                    discordUnix: Functions.generateDiscordTimestamp(
-                                        dateAtMidnight + 86400000,
-                                        "FROM_NOW",
-                                    ),
-                                    dungeon_key: Functions.findItem("Dungeon").emoji,
-                                },
-                            )}`,
-                            color: 0x70926c,
-                            author: {
-                                icon_url: ctx.user.displayAvatarURL(),
-                                name: `📜 ${
-                                    ctx.user.username
-                                }'s Daily Quests (${status.percent.toFixed(2)}%)`,
-                            },
+                            coins: coinReward.toLocaleString(),
+                            xp: toBeAdded.toLocaleString(),
+                            discordUnix: Functions.generateDiscordTimestamp(
+                                dateAtMidnight + 86400000,
+                                "FROM_NOW",
+                            ),
+                            dungeon_key: Functions.findItem("Dungeon").emoji,
                         },
+                    )}`,
+                    color: COLORS.primary,
+                });
+                await ctx.makeMessage({
+                    components: [
+                        ...questsReply.components,
+                        ...(components.length !== 0 ? [Functions.actionRow(components)] : []),
                     ],
-                    components: components.length !== 0 ? [Functions.actionRow(components)] : [],
+                    flags: questsReply.flags,
                 });
 
                 if (components.length > 0) {
