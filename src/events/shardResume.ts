@@ -3,7 +3,7 @@ import { Events } from "discord.js";
 import { shardLogsWebhook } from "../utils/Webhooks";
 
 const Event: EventFile = {
-    name: Events.ShardReconnecting,
+    name: Events.ShardResume,
     once: false,
     execute: async (shardId: number, replayedEvents: number): Promise<void> => {
         shardLogsWebhook.send(
