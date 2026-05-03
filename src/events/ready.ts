@@ -209,15 +209,15 @@ const Event: EventFile = {
             const privateCommandsData = client.commands
                 .filter((v) => v.ownerOnly || v.adminOnly)
                 .map((v) => v.data);
-            //if (JSON.stringify(commandsData) !== lastCommands) {
-            client.log("Updating slash commands...", "command");
-            await client.postSlashCommands(commandsData);
-            await client.database.setString(
-                `jolyne_${client.user.id}:commands`,
-                JSON.stringify(commandsData)
-            );
-            client.log("Updated slash commands", "command");
-            //} else client.log("Slash commands are up to date");
+            if (JSON.stringify(commandsData) !== lastCommands) {
+                client.log("Updating slash commands...", "command");
+                await client.postSlashCommands(commandsData);
+                await client.database.setString(
+                    `jolyne_${client.user.id}:commands`,
+                    JSON.stringify(commandsData)
+                );
+                client.log("Updated slash commands", "command");
+            } else client.log("Slash commands are up to date", "command");
 
             if (JSON.stringify(privateCommandsData) !== lastPrivateCommands) {
                 await client.postSlashCommands(
