@@ -1,10 +1,18 @@
-import { cloneDeep, set } from "lodash";
 import Jolyne from "../structures/JolyneClient";
 import { Fighter, FightTypes } from "../structures/FightHandler";
 
 const twentyMinutes = 1200000; // 1200000 milliseconds = 20 minutes
+
+interface FightStateData {
+    id: string;
+    currentState: string;
+}
+
 export function watchFightHandler(client: Jolyne): void {
-    let previousState = cloneDeep(client.fightHandlers);
+    let previousState: FightStateData[] = client.fightHandlers.map((fight) => ({
+        id: fight.id,
+        currentState: fight.currentState,
+    }));
 
     setInterval(() => {
         for (const fight of client.fightHandlers.map((x) => x)) {
@@ -70,6 +78,9 @@ export function watchFightHandler(client: Jolyne): void {
             }
         }
 
-        previousState = cloneDeep(client.fightHandlers);
+        previousState = client.fightHandlers.map((fight) => ({
+            id: fight.id,
+            currentState: fight.currentState,
+        }));
     }, 60000); // 60000 milliseconds = 1 minute
 }
