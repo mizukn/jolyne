@@ -108,7 +108,7 @@ const slashCommand: SlashCommandFile = {
             if (item.includes("$disc$")) discCount += rpgData.inventory[item];
         }
         const badges: string[] = [];
-        if (userOption.id === "239739781238620160") {
+        if (process.env.OWNER_IDS?.split(",").includes(userOption.id)) {
             badges.push(`:crown: Jolyne's Developer`);
         }
         // staff

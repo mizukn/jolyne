@@ -1777,7 +1777,8 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
         limit += Math.floor(realUserData.level / 50);
         limit += Math.floor(realUserData.level / 100);
     }
-    if (userData?.id === "239739781238620160") limit = Infinity;
+    if (userData?.id && process.env.OWNER_IDS?.split(",").includes(userData.id))
+        limit = Infinity;
 
     const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
     if (patronTier) {

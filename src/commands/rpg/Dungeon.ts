@@ -127,13 +127,15 @@ async function giveRewards(
     const newPlayers = cloneDeep(players);
     const userData = players.find((f) => f.id === ctx.userData.id);
     if ((userData.inventory["dungeon_key"] ?? 0) < 1) {
-        ctx.client.users.fetch("239739781238620160").then((c) => {
-            c.send(
-                `**${ctx.userData.tag}** (${ctx.userData.id}) with players (${newPlayers
-                    .map((x) => x.id)
-                    .join(", ")}) has tried to scam the dungeon system.`
-            );
-        });
+        const ownerId = process.env.OWNER_IDS?.split(",")[0];
+        if (ownerId)
+            ctx.client.users.fetch(ownerId).then((c) => {
+                c.send(
+                    `**${ctx.userData.tag}** (${ctx.userData.id}) with players (${newPlayers
+                        .map((x) => x.id)
+                        .join(", ")}) has tried to scam the dungeon system.`
+                );
+            });
         return void ctx.makeMessage({
             content:
                 "<:kars:1057261454421676092> **Kars:** Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]",

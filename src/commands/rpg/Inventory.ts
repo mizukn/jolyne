@@ -617,11 +617,13 @@ const slashCommand: SlashCommandFile = {
                     content: "WARNING: Stop trying to find glitches.",
                     ephemeral: true,
                 });
-                ctx.client.users.fetch("239739781238620160").then((user) => {
-                    user.send(
-                        `Someone tried to duplicate items. User: ${ctx.user.tag} (${ctx.user.id})`
-                    );
-                });
+                const ownerId = process.env.OWNER_IDS?.split(",")[0];
+                if (ownerId)
+                    ctx.client.users.fetch(ownerId).then((user) => {
+                        user.send(
+                            `Someone tried to duplicate items. User: ${ctx.user.tag} (${ctx.user.id})`
+                        );
+                    });
                 return;
             }
 
