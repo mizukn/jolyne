@@ -256,9 +256,25 @@ const slashCommand: SlashCommandFile = {
 
                 let bonusesText = "";
                 if (Functions.isConsumable(xitem)) {
-                    bonusesText = `\n> ${Object.entries(xitem.effects)
-                        .map(([stat, val]) => `**+${val.toLocaleString()}** ${stat}`)
-                        .join(", ")}`;
+                    const bonusLines = Object.entries(xitem.effects).map(([stat, val]) => {
+                        let fillRatio = 0;
+                        let displayVal = `+${val}`;
+                        if (typeof val === "string" && val.endsWith("%")) {
+                            const num = parseInt(val.slice(0, -1));
+                            if (!isNaN(num) && num > 0) fillRatio = Math.min(100, num) / 100;
+                        } else {
+                            const num = Number(val);
+                            displayVal = num >= 0 ? `+${num.toLocaleString()}` : num.toLocaleString();
+                            if (!isNaN(num) && num > 0) {
+                                const maxStat = stat === "health" ? maxHP : (stat === "stamina" ? maxSta : 100);
+                                fillRatio = Math.min(maxStat, num) / maxStat;
+                            }
+                        }
+                        const barKind = stat === "health" ? "hp" : (stat === "stamina" ? "sta" : "xp");
+                        const bar = emojiBar(barKind, Math.round(fillRatio * 100), 100);
+                        return `\n> **${displayVal}** ${stat}\n> ${bar}`;
+                    });
+                    bonusesText = bonusLines.join("");
                 }
 
                 const getOptions = () =>
@@ -321,9 +337,25 @@ const slashCommand: SlashCommandFile = {
 
                 let bonusesText = "";
                 if (Functions.isConsumable(xitem)) {
-                    bonusesText = `\n> ${Object.entries(xitem.effects)
-                        .map(([stat, val]) => `**+${val.toLocaleString()}** ${stat}`)
-                        .join(", ")}`;
+                    const bonusLines = Object.entries(xitem.effects).map(([stat, val]) => {
+                        let fillRatio = 0;
+                        let displayVal = `+${val}`;
+                        if (typeof val === "string" && val.endsWith("%")) {
+                            const num = parseInt(val.slice(0, -1));
+                            if (!isNaN(num) && num > 0) fillRatio = Math.min(100, num) / 100;
+                        } else {
+                            const num = Number(val);
+                            displayVal = num >= 0 ? `+${num.toLocaleString()}` : num.toLocaleString();
+                            if (!isNaN(num) && num > 0) {
+                                const maxStat = stat === "health" ? maxHP : (stat === "stamina" ? maxSta : 100);
+                                fillRatio = Math.min(maxStat, num) / maxStat;
+                            }
+                        }
+                        const barKind = stat === "health" ? "hp" : (stat === "stamina" ? "sta" : "xp");
+                        const bar = emojiBar(barKind, Math.round(fillRatio * 100), 100);
+                        return `\n> **${displayVal}** ${stat}\n> ${bar}`;
+                    });
+                    bonusesText = bonusLines.join("");
                 }
 
                 return {
