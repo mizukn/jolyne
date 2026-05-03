@@ -17,6 +17,7 @@ import * as Stands from "../../rpg/Stands/Stands";
 import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
 import { cloneDeep } from "lodash";
 import { containers, SectionData, COLORS, EMOJIS } from "../../utils/containers";
+import { emojiBar } from "../../utils/emojiBar";
 
 export const standPrice = {
     SS: 2000000000000000,
@@ -228,7 +229,13 @@ const slashCommand: SlashCommandFile = {
             const currencyAmount = shop.currency === "prestige_shards" ? ctx.userData.prestige_shards : ctx.userData.coins;
             const currencyEmoji = shop.currency === "prestige_shards" ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
             const currencyName = shop.currency === "prestige_shards" ? "prestige shards" : "jocoins";
-            const footerText = `You have ${currencyAmount.toLocaleString()} ${currencyName}.`;
+            const footerText = `You have ${currencyAmount.toLocaleString()} ${currencyEmoji}.`;
+
+            const maxHP = Functions.getMaxHealth(ctx.userData);
+            const maxSta = Functions.getMaxStamina(ctx.userData);
+            const hpBar = emojiBar("hp", ctx.userData.health, maxHP);
+            const staBar = emojiBar("sta", ctx.userData.stamina, maxSta);
+            const bars = `${hpBar} **${ctx.userData.health.toLocaleString()}** / ${maxHP.toLocaleString()} HP\n${staBar} **${ctx.userData.stamina.toLocaleString()}** / ${maxSta.toLocaleString()} STA`;
 
             if (viewingItemId) {
                 const itemEntry = shop.items.find((x) => x.item === viewingItemId);
@@ -247,7 +254,7 @@ const slashCommand: SlashCommandFile = {
 
                 let bonusesText = "";
                 if (Functions.isConsumable(xitem)) {
-                    bonusesText = `\n**Bonuses**\n> ${Object.entries(xitem.effects)
+                    bonusesText = `\n> ${Object.entries(xitem.effects)
                         .map(([stat, val]) => `**+${val.toLocaleString()}** ${stat}`)
                         .join(", ")}`;
                 }
@@ -280,7 +287,7 @@ const slashCommand: SlashCommandFile = {
 
                 const replyData = containers.primary({
                     title: `${xitem.emoji} ${xitem.name}`,
-                    description: `> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n\`[Not Storable]\` (Used on purchase)" : ""}`,
+                    description: `${bars}\n\n> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n`[Not Storable]` (Used on purchase)" : ""}`,
                     footer: footerText,
                 });
 
@@ -308,13 +315,13 @@ const slashCommand: SlashCommandFile = {
 
                 let bonusesText = "";
                 if (Functions.isConsumable(xitem)) {
-                    bonusesText = `\n**Bonuses**\n> ${Object.entries(xitem.effects)
+                    bonusesText = `\n> ${Object.entries(xitem.effects)
                         .map(([stat, val]) => `**+${val.toLocaleString()}** ${stat}`)
                         .join(", ")}`;
                 }
 
                 return {
-                    text: `### ${xitem.emoji} ${xitem.name}${!xitem.storable ? " \`[NS]\`" : ""}\n> ${currencyEmoji} Cost: **${price.toLocaleString()}** ${currencyName}${bonusesText}`,
+                    text: `### ${xitem.emoji} ${xitem.name}${!xitem.storable ? " \`[NS]\`" : ""}\n\n> ${currencyEmoji} Cost: **${price.toLocaleString()}** ${currencyName}${bonusesText}`,
                     accessory: new ButtonBuilder()
                         .setCustomId(`view_item_${xitem.id}`)
                         .setStyle(ButtonStyle.Secondary)
@@ -324,6 +331,7 @@ const slashCommand: SlashCommandFile = {
 
             const replyData = containers.primary({
                 title: `${shop.emoji} ${shop.name}`,
+                description: bars,
                 sections: sections,
                 sectionDividers: true,
                 footer: footerText,
