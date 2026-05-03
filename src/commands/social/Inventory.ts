@@ -25,7 +25,7 @@ import * as Functions from "../../utils/Functions";
 import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
-import { COLORS } from "../../utils/containers";
+import { COLORS, containers } from "../../utils/containers";
 
 const itemTaxes = {
     T: 1,
@@ -308,33 +308,19 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
-            const embed: APIEmbed = {
-                title: itemData.emoji + " " + itemData.name,
-                description: itemData.description,
-                color: (itemData as Weapon).color,
-                fields: [
-                    {
-                        name: "Rarity",
-                        value: itemData.rarity,
-                        inline: true,
-                    },
-                    {
-                        name: "Price",
-                        value: `${ctx.client.localEmojis.jocoins} ${
-                            itemData.price?.toLocaleString() ?? "N/A (unbuyable/not sellable)"
-                        }`,
-                        inline: true,
-                    },
-                    {
-                        name: "Tradable?",
-                        value: itemData.tradable ? "Yes" : "No",
-                        inline: true,
-                    },
-                ],
-            };
+            const fields: { name: string; value: string }[] = [
+                { name: "Rarity", value: itemData.rarity },
+                {
+                    name: "Price",
+                    value: `${ctx.client.localEmojis.jocoins} ${
+                        itemData.price?.toLocaleString() ?? "N/A (unbuyable/not sellable)"
+                    }`,
+                },
+                { name: "Tradable?", value: itemData.tradable ? "Yes" : "No" },
+            ];
 
             if (Functions.isEquipableItem(itemData)) {
-                embed.fields.push({
+                fields.push({
                     name: "Bonus if equipped",
                     value: `${ctx.client.localEmojis.xp} XP Boost: **${
                         itemData.effects.xpBoost ?? 0
@@ -343,11 +329,12 @@ const slashCommand: SlashCommandFile = {
                     }**\n${
                         itemData.effects.skillPoints
                             ? Object.keys(itemData.effects.skillPoints)
-                                  .map((x) => {
-                                      return `\`[SP]\` ${Functions.capitalize(x)}: **${
-                                          itemData.effects.skillPoints[x as keyof SkillPoints]
-                                      }**`;
-                                  })
+                                  .map(
+                                      (x) =>
+                                          `\`[SP]\` ${Functions.capitalize(x)}: **${
+                                              itemData.effects.skillPoints[x as keyof SkillPoints]
+                                          }**`
+                                  )
                                   .join("\n")
                             : ""
                     }${
@@ -355,28 +342,27 @@ const slashCommand: SlashCommandFile = {
                             ? `\n\`[+]\` Stand Discs: **${itemData.effects.standDiscIncrease}**`
                             : ""
                     }`,
-                    inline: true,
                 });
                 if (itemData.requirements)
-                    embed.fields.push({
+                    fields.push({
                         name: "Requirements to equip",
                         value: `Level: ${itemData.requirements.level ?? 0}\n${
                             itemData.requirements.skillPoints
                                 ? Object.keys(itemData.requirements.skillPoints)
-                                      .map((x) => {
-                                          return `[SP] ${Functions.capitalize(x)}: ${
-                                              itemData.requirements.skillPoints[
-                                                  x as keyof SkillPoints
-                                              ]
-                                          }`;
-                                      })
+                                      .map(
+                                          (x) =>
+                                              `[SP] ${Functions.capitalize(x)}: ${
+                                                  itemData.requirements.skillPoints[
+                                                      x as keyof SkillPoints
+                                                  ]
+                                              }`
+                                      )
                                       .join("\n")
                                 : ""
                         }`,
-                        inline: true,
                     });
             } else if (Functions.isConsumable(itemData)) {
-                embed.fields.push({
+                fields.push({
                     name: "Effects",
                     value: `${
                         itemData.effects.health
@@ -390,8 +376,16 @@ const slashCommand: SlashCommandFile = {
                 });
             }
 
+            const reply = containers.primary({
+                title: `${itemData.emoji} ${itemData.name}`,
+                description: itemData.description,
+                color: (itemData as Weapon).color ?? COLORS.primary,
+                fields,
+            });
+
             await ctx.makeMessage({
-                embeds: [embed],
+                components: reply.components,
+                flags: reply.flags,
             });
         } else if (ctx.interaction.options.getSubcommand() === "unequip") {
             const itemString = fixItemString(ctx.interaction.options.getString("item", true));
