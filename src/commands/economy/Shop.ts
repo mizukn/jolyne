@@ -9,6 +9,11 @@ import {
     ActionRowBuilder,
     ButtonInteraction,
     MessageActionRowComponentBuilder,
+    ComponentType,
+    TextDisplayBuilder,
+    SeparatorBuilder,
+    SeparatorSpacingSize,
+    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -237,7 +242,7 @@ const slashCommand: SlashCommandFile = {
             const maxSta = Functions.getMaxStamina(ctx.userData);
             const hpBar = emojiBar("hp", ctx.userData.health, maxHP);
             const staBar = emojiBar("sta", ctx.userData.stamina, maxSta);
-            const bars = `:heart: • **${ctx.userData.health.toLocaleString()} / ${maxHP.toLocaleString()}** HP\n${hpBar}\n:zap: • **${ctx.userData.stamina.toLocaleString()} / ${maxSta.toLocaleString()}** STA\n${staBar}`;
+            const bars = `**Your stats:**\n> :heart: • **${ctx.userData.health.toLocaleString()} / ${maxHP.toLocaleString()}** HP\n>  ${hpBar}\n> :zap: • **${ctx.userData.stamina.toLocaleString()} / ${maxSta.toLocaleString()}** STA\n> ${staBar}`;
 
             if (viewingItemId) {
                 const itemEntry = shop.items.find((x) => x.item === viewingItemId);
@@ -256,6 +261,7 @@ const slashCommand: SlashCommandFile = {
 
                 let bonusesText = "";
                 if (Functions.isConsumable(xitem)) {
+                    // TODO: handle xitem.effects.items
                     const bonusLines = Object.entries(xitem.effects).map(([stat, val]) => {
                         let fillRatio = 0;
                         let displayVal = `+${val}`;
@@ -271,8 +277,10 @@ const slashCommand: SlashCommandFile = {
                             }
                         }
                         const barKind = stat === "health" ? "hp" : (stat === "stamina" ? "sta" : "xp");
+                        const shortStat = stat === "health" ? "HP" : (stat === "stamina" ? "STA" : stat.toUpperCase());
+                        const emojiStat = stat === "health" ? "❤️" : (stat === "stamina" ? "⚡" : "");
                         const bar = emojiBar(barKind, Math.round(fillRatio * 100), 100);
-                        return `\n> **${displayVal}** ${stat}\n> ${bar}`;
+                        return `\n> ${emojiStat} • **${displayVal}** ${shortStat}\n> ${bar}`;
                     });
                     bonusesText = bonusLines.join("");
                 }
@@ -303,23 +311,36 @@ const slashCommand: SlashCommandFile = {
                     .setLabel("Go Back")
                     .setEmoji("⬅️");
 
-                const replyData = containers.primary({
-                    title: `${xitem.emoji} ${xitem.name}`,
-                    description: bars,
-                    descriptionDivider: true,
-                    sections: [{
-                        text: `> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "\n`[Not Storable]` (Used on purchase)" : ""}`
-                    }],
-                    selectMenus: [selectMenu],
-                    footer: footerText,
+                const containerComponents: any[] = [];
+                
+                containerComponents.push(new TextDisplayBuilder().setContent(`## ${xitem.emoji} ${xitem.name}`).toJSON());
+                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+
+                const itemDesc = `> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "`[Not Storable]` (Used on purchase)" : ""}`.trim();
+                containerComponents.push(new TextDisplayBuilder().setContent(itemDesc).toJSON());
+                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+                
+                containerComponents.push({
+                    type: ComponentType.ActionRow,
+                    components: [selectMenu.toJSON()]
                 });
+                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+
+                containerComponents.push(new TextDisplayBuilder().setContent(bars).toJSON());
+                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+
+                containerComponents.push(new TextDisplayBuilder().setContent(`-# ${footerText}`).toJSON());
 
                 return {
                     components: [
-                        ...replyData.components,
+                        {
+                            type: ComponentType.Container,
+                            accentColor: COLORS.primary,
+                            components: containerComponents
+                        },
                         new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(goBackButton)
                     ],
-                    flags: replyData.flags
+                    flags: MessageFlags.IsComponentsV2
                 };
             }
 
@@ -359,7 +380,7 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 return {
-                    text: `### ${xitem.emoji} ${xitem.name}${!xitem.storable ? " \`[NS]\`" : ""}\n\n> ${currencyEmoji} Cost: **${price.toLocaleString()}** ${currencyName}${bonusesText}`,
+                    text: `### ${xitem.emoji} ${xitem.name}${!xitem.storable ? " \`[NS]\`" : ""}\n\n${currencyEmoji} Cost: **${price.toLocaleString()}** ${currencyName}${bonusesText}`,
                     accessory: new ButtonBuilder()
                         .setCustomId(`view_item_${xitem.id}`)
                         .setStyle(ButtonStyle.Secondary)
@@ -369,7 +390,7 @@ const slashCommand: SlashCommandFile = {
 
             const replyData = containers.primary({
                 title: `${shop.emoji} ${shop.name}`,
-                description: bars,
+                //description: bars,
                 descriptionDivider: true,
                 sections: sections,
                 sectionDividers: true,
