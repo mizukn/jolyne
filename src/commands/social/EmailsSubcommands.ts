@@ -1,7 +1,6 @@
 import { SlashCommandFile, Shop, FightNPCQuest } from "../../@types";
 import {
     Message,
-    APIEmbed,
     InteractionResponse,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
@@ -11,6 +10,7 @@ import {
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import * as Emojis from "../../emojis.json";
+import { containers } from "../../utils/containers";
 
 const standPercent = {
     SS: 2,
@@ -64,11 +64,7 @@ const slashCommand: SlashCommandFile = {
                 ? ctx.userData.emails.filter((email) => !email.archived)
                 : ctx.userData.emails.filter((email) => email.archived);
         if (!emails().length) {
-            ctx.makeMessage({
-                content: "You don't have any emails..",
-                components: [],
-                embeds: [],
-            });
+            ctx.makeMessage(containers.warning("You don't have any emails.."));
             return;
         }
         const emoji = type === "view" ? "📬" : "📥";
@@ -99,11 +95,7 @@ const slashCommand: SlashCommandFile = {
 
         function menuEmbed(): void {
             if (!emails().length) {
-                ctx.makeMessage({
-                    content: "You don't have any emails..",
-                    components: [],
-                    embeds: [],
-                });
+                ctx.makeMessage(containers.warning("You don't have any emails.."));
                 return;
             }
 
@@ -112,15 +104,7 @@ const slashCommand: SlashCommandFile = {
                 .setCustomId(EmailsSelectionID)
                 .setPlaceholder("Select an email to view");
 
-            const menuEmbed: APIEmbed = {
-                author: {
-                    name: "Inbox",
-                    icon_url: ctx.user.displayAvatarURL(),
-                },
-                description: `${emoji} You have ${emails().length} ${name} e-mails.`,
-                fields: [],
-                color: 0x70926c,
-            };
+            const menuFields: { name: string; value: string }[] = [];
 
             for (const email of emails()) {
                 const emailData = Functions.findEmail(email.id);
@@ -133,7 +117,7 @@ const slashCommand: SlashCommandFile = {
                         emoji: emailData.emoji ?? emailData.author.emoji,
                     },
                 ]);
-                menuEmbed.fields.push({
+                menuFields.push({
                     name:
                         (emailData.emoji ?? emailData.author.emoji) +
                         " | " +
@@ -150,15 +134,20 @@ const slashCommand: SlashCommandFile = {
                 });
             }
 
-            const components = [];
+            const menuReply = containers.primary({
+                title: `${emoji} Inbox`,
+                description: `You have ${emails().length} ${name} e-mails.`,
+                fields: menuFields,
+            });
+
             if (EmailsSelection.options.length <= 25) {
-                components.push(Functions.actionRow([EmailsSelection]));
+                menuReply.components.push(Functions.actionRow([EmailsSelection]));
             } else {
                 let left = EmailsSelection.options.length;
                 let i = 0;
                 while (left > 0) {
                     const options = EmailsSelection.options.slice(i, i + 25);
-                    components.push(
+                    menuReply.components.push(
                         Functions.actionRow([
                             new StringSelectMenuBuilder()
                                 .setCustomId(EmailsSelectionID + i)
@@ -170,10 +159,8 @@ const slashCommand: SlashCommandFile = {
                     i += 25;
                 }
             }
-            ctx.makeMessage({
-                embeds: [menuEmbed],
-                components,
-            });
+
+            ctx.makeMessage(menuReply);
         }
 
         function makeEmailEmbed(email: string): void {
@@ -183,25 +170,7 @@ const slashCommand: SlashCommandFile = {
             if (!emailData) return;
             currentEmail = email;
 
-            const emailEmbed: APIEmbed = {
-                title: (emailData.emoji ?? emailData.author.emoji) + " | " + emailData.subject,
-                description: `${ctx.client.localEmojis.reply} From: \`${emailData.author.name} (${
-                    emailData.author.email ?? emailData.author.name
-                })\`\n${ctx.client.localEmojis.replyEnd} Date: ${Functions.generateDiscordTimestamp(
-                    emailBrut.date,
-                    "FULL_DATE"
-                )} (${Functions.generateDiscordTimestamp(
-                    emailBrut.date,
-                    "FROM_NOW"
-                )})\n\n${emailData.content(ctx).replace(/{{userName}}/gi, ctx.user.username)}`,
-                footer: {
-                    text: emailData.footer,
-                },
-                color: 0x70926c,
-                image: {
-                    url: emailData.image,
-                },
-            };
+            const emailFields: { name: string; value: string }[] = [];
 
             if (!emailBrut.read) {
                 emailBrut.read = Date.now();
@@ -275,14 +244,11 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 if (winContent.length) {
-                    emailEmbed.fields = [
-                        {
-                            name: ":gift: You got:",
-                            value: winContent.join("\n"),
-                        },
-                    ];
+                    emailFields.push({
+                        name: ":gift: You got:",
+                        value: winContent.join("\n"),
+                    });
                 }
-                //ctx.client.database.saveUserData(ctx.userData);
                 ctx.client.database.getRPGUserData(ctx.user.id).then((rpgUserData) => {
                     ctx.client.database.handleTransaction(
                         [
@@ -295,14 +261,29 @@ const slashCommand: SlashCommandFile = {
                     );
                 });
             }
-            ctx.makeMessage({
-                embeds: [emailEmbed],
-                components: [
-                    Functions.actionRow([deleteEmailBtn, actionBtn]),
-                    Functions.actionRow([EmailsSelection]),
-                    Functions.actionRow([goBackButton]),
-                ],
+
+            const emailReply = containers.primary({
+                title: `${emailData.emoji ?? emailData.author.emoji} | ${emailData.subject}`,
+                description: `${ctx.client.localEmojis.reply} From: \`${emailData.author.name} (${
+                    emailData.author.email ?? emailData.author.name
+                })\`\n${
+                    ctx.client.localEmojis.replyEnd
+                } Date: ${Functions.generateDiscordTimestamp(
+                    emailBrut.date,
+                    "FULL_DATE"
+                )} (${Functions.generateDiscordTimestamp(
+                    emailBrut.date,
+                    "FROM_NOW"
+                )})\n\n${emailData.content(ctx).replace(/{{userName}}/gi, ctx.user.username)}`,
+                footer: emailData.footer,
+                fields: emailFields,
             });
+
+            emailReply.components.push(Functions.actionRow([deleteEmailBtn, actionBtn]));
+            emailReply.components.push(Functions.actionRow([EmailsSelection]));
+            emailReply.components.push(Functions.actionRow([goBackButton]));
+
+            ctx.makeMessage(emailReply);
         }
 
         menuEmbed();
@@ -324,11 +305,7 @@ const slashCommand: SlashCommandFile = {
             }
 
             if (!emails().length) {
-                ctx.makeMessage({
-                    content: "You don't have any emails..",
-                    components: [],
-                    embeds: [],
-                });
+                ctx.makeMessage(containers.warning("You don't have any emails.."));
                 return;
             }
 
