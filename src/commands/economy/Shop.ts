@@ -56,7 +56,6 @@ const slashCommand: SlashCommandFile = {
         let currentCategoryIndex = 0;
         let currentPage = 0;
         let viewingItemId: string | null = null;
-        console.log('Executing shop command for user', ctx.user.id);
 
         async function createUserBlackMarket(): Promise<Shop> {
             const BM: Shop = {
@@ -231,7 +230,6 @@ const slashCommand: SlashCommandFile = {
         }
 
         function getShopMessageData() {
-            console.log('ok')
             const shop = shops[currentCategoryIndex];
             const currencyAmount = shop.currency === "prestige_shards" ? ctx.userData.prestige_shards : ctx.userData.coins;
             const currencyEmoji = shop.currency === "prestige_shards" ? ctx.client.localEmojis.prestige_shard : EMOJIS.jocoins;
@@ -316,7 +314,7 @@ const slashCommand: SlashCommandFile = {
                 containerComponents.push(new TextDisplayBuilder().setContent(`## ${xitem.emoji} ${xitem.name}`).toJSON());
                 containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
 
-                const itemDesc = `> ${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "`[Not Storable]` (Used on purchase)" : ""}`.trim();
+                const itemDesc = `${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "`[Not Storable]` (Used on purchase)" : ""}`.trim();
                 containerComponents.push(new TextDisplayBuilder().setContent(itemDesc).toJSON());
                 containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
                 
@@ -326,8 +324,10 @@ const slashCommand: SlashCommandFile = {
                 });
                 containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
 
-                containerComponents.push(new TextDisplayBuilder().setContent(bars).toJSON());
-                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+                if (Functions.isConsumable(xitem)) {
+                    containerComponents.push(new TextDisplayBuilder().setContent(bars).toJSON());
+                    containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+                }
 
                 containerComponents.push(new TextDisplayBuilder().setContent(`-# ${footerText}`).toJSON());
 
