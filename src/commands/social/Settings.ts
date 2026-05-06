@@ -6,11 +6,12 @@ import {
     RPGUserSettings,
     Consumable,
 } from "../../@types";
-import { Message, APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
+import { Message, StringSelectMenuBuilder } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as Emojis from "../../emojis.json";
+import { containers } from "../../utils/containers";
 
 function booleanToEmoji(bool: boolean | unknown): string {
     return bool ? Emojis.yes : Emojis.no;
@@ -44,7 +45,7 @@ function getExcludedItems(str: RPGUserSettings["auto_heal"]["excluded_items"]): 
         .filter((item) => Functions.isConsumable(item));
 }
 
-function generateFightField(user: RPGUserDataJSON, commands?: string[]): APIEmbed["fields"][0] {
+function generateFightField(user: RPGUserDataJSON, commands?: string[]): { name: string; value: string } {
     return {
         //"Fight",
         name: `🗡️ Fight`,
@@ -155,7 +156,7 @@ const descriptions: SettingDescriptions<RPGUserSettings> = {
 function generateNotificationsField(
     user: RPGUserDataJSON,
     commands?: string[]
-): APIEmbed["fields"][0] {
+): { name: string; value: string } {
     return {
         name: `🔔 Notifications`,
         value:
@@ -175,7 +176,7 @@ function generateNotificationsField(
     };
 }
 
-function generateAutoHealField(user: RPGUserDataJSON, commands?: string[]): APIEmbed["fields"][0] {
+function generateAutoHealField(user: RPGUserDataJSON, commands?: string[]): { name: string; value: string } {
     return {
         //"❤️‍🩹 Auto-Heal",
         name: `❤️‍🩹 Auto-Heal`,
@@ -268,34 +269,26 @@ const slashCommand: SlashCommandFile = {
 
         if (subcommand === "view") {
             const user = ctx.userData;
-            const embed: APIEmbed = {
-                /*description: `- To change your notifications settings, use the ${ctx.client.getSlashCommandMention(
-                    "settings notifications"
-                )} command\n- To change your auto-heal settings, use the ${ctx.client.getSlashCommandMention(
-                    "settings auto-heal sort-by-strongest"
-                )} or ${ctx.client.getSlashCommandMention("settings auto-heal exclude-items")} 
-                } command\n- To change your fight settings, use the ${ctx.client.getSlashCommandMention(
-                    "settings fight"
-                )} command`,*/
-                fields: [
-                    generateNotificationsField(user, [
-                        ctx.client.getSlashCommandMention("settings notifications"),
-                    ]),
-                    generateAutoHealField(user, [
-                        ctx.client.getSlashCommandMention("settings auto-heal sort-by-strongest"),
-                        ctx.client.getSlashCommandMention("settings auto-heal exclude-items"),
-                        ctx.client.getSlashCommandMention("heal"),
-                    ]),
-                    generateFightField(user, [ctx.client.getSlashCommandMention("settings fight")]),
-                ],
-                color: 0x70926c,
-                author: {
-                    name: "Settings",
-                    icon_url: ctx.user.displayAvatarURL(),
-                },
-            };
-
-            return void ctx.makeMessage({ embeds: [embed] });
+            return void ctx.makeMessage(
+                containers.primary({
+                    title: "⚙️ Settings",
+                    fields: [
+                        generateNotificationsField(user, [
+                            ctx.client.getSlashCommandMention("settings notifications"),
+                        ]),
+                        generateAutoHealField(user, [
+                            ctx.client.getSlashCommandMention(
+                                "settings auto-heal sort-by-strongest"
+                            ),
+                            ctx.client.getSlashCommandMention("settings auto-heal exclude-items"),
+                            ctx.client.getSlashCommandMention("heal"),
+                        ]),
+                        generateFightField(user, [
+                            ctx.client.getSlashCommandMention("settings fight"),
+                        ]),
+                    ],
+                })
+            );
         } else if (subcommand === "notifications" || subcommand === "fight") {
             const type = (subcommand === "notifications" ? "notifications" : "fight") as
                 | "notifications"
@@ -341,21 +334,17 @@ const slashCommand: SlashCommandFile = {
                         })
                     );
 
-            ctx.makeMessage({
-                embeds: [
-                    {
-                        description: "Select an option to toggle",
-                        color: 0x70926c,
-                        fields: [
-                            type === "notifications"
-                                ? generateNotificationsField(ctx.userData)
-                                : generateFightField(ctx.userData),
-                        ],
-                    },
-                ],
-
-                components: [Functions.actionRow([strigSelectMenu()])],
-            });
+            ctx.makeMessage(
+                containers.primary({
+                    description: "Select an option to toggle",
+                    fields: [
+                        type === "notifications"
+                            ? generateNotificationsField(ctx.userData)
+                            : generateFightField(ctx.userData),
+                    ],
+                    selectMenus: [strigSelectMenu()],
+                })
+            );
 
             const collector = ctx.channel.createMessageComponentCollector({
                 filter: (i) =>
@@ -378,40 +367,35 @@ const slashCommand: SlashCommandFile = {
                 if (i.values.length > 0) {
                     ctx.client.database.saveUserData(ctx.userData);
 
-                    ctx.makeMessage({
-                        embeds: [
-                            {
-                                description: `Set the notification${
-                                    i.values.length > 1 ? "s" : ""
-                                } to: ${i.values
-                                    .map((x) => {
-                                        const key = x as keyof RPGUserSettings[
-                                            | "notifications"
-                                            | "fight"];
-                                        return (
-                                            `\`${x}:\` ` +
-                                            booleanToEmoji(ctx.userData.settings[type][key])
-                                        );
-                                    })
-                                    .join(", ")}`,
-                                color: 0x70926c,
-                                fields: [
-                                    type === "notifications"
-                                        ? generateNotificationsField(ctx.userData)
-                                        : generateFightField(ctx.userData),
-                                ],
-                            },
-                        ],
-                        components: [Functions.actionRow([strigSelectMenu()])],
-                    });
+                    ctx.makeMessage(
+                        containers.primary({
+                            description: `Set the setting${
+                                i.values.length > 1 ? "s" : ""
+                            } to: ${i.values
+                                .map((x) => {
+                                    const key = x as keyof RPGUserSettings[
+                                        | "notifications"
+                                        | "fight"];
+                                    return (
+                                        `\`${x}:\` ` +
+                                        booleanToEmoji(ctx.userData.settings[type][key])
+                                    );
+                                })
+                                .join(", ")}`,
+                            fields: [
+                                type === "notifications"
+                                    ? generateNotificationsField(ctx.userData)
+                                    : generateFightField(ctx.userData),
+                            ],
+                            selectMenus: [strigSelectMenu()],
+                        })
+                    );
 
                     i.deferUpdate();
                 }
             });
 
-            collector.on("end", () => {
-                Functions.disableRows(ctx.interaction);
-            });
+            collector.on("end", () => {});
         } else if (subcommand === "exclude-items") {
             /*const subcommandGroup = ctx.options.getSubcommand();
             if (subcommandGroup === "add") {
