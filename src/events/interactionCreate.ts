@@ -265,7 +265,7 @@ const Event: EventFile = {
                         `📧 | You have **${unreadEmails.length}** unread email${
                             unreadEmails.length > 1 ? "s" : ""
                         }. Use the ${ctx.client.getSlashCommandMention(
-                            "emails view",
+                            "mail inbox",
                         )} command to read them.`,
                     );
                 }

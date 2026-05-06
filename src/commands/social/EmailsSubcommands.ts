@@ -37,6 +37,12 @@ type cShop = {
     emoji: string;
 };
 
+type MailboxType = "inbox" | "archived";
+
+function getMailboxType(subcommand: string): MailboxType {
+    return subcommand === "archived" ? "archived" : "inbox";
+}
+
 const slashCommand: SlashCommandFile = {
     data: {
         name: "emails",
@@ -58,17 +64,17 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
-        const type = ctx.interaction.options.getSubcommand() as "view" | "archived";
+        const type = getMailboxType(ctx.interaction.options.getSubcommand());
         const emails = () =>
-            type === "view"
+            type === "inbox"
                 ? ctx.userData.emails.filter((email) => !email.archived)
                 : ctx.userData.emails.filter((email) => email.archived);
         if (!emails().length) {
             ctx.makeMessage(containers.warning("You don't have any emails.."));
             return;
         }
-        const emoji = type === "view" ? "📬" : "📥";
-        const name = type === "view" ? "non-archived" : "archived";
+        const emoji = type === "inbox" ? "📬" : "📥";
+        const name = type === "inbox" ? "inbox" : "archived";
 
         const goBackID = Functions.generateRandomId();
         const deleteEmailID = Functions.generateRandomId();
@@ -90,7 +96,7 @@ const slashCommand: SlashCommandFile = {
         const actionBtn = new ButtonBuilder()
             .setStyle(ButtonStyle.Primary)
             .setEmoji(emoji)
-            .setLabel(type === "view" ? "Archive" : "Unarchive")
+            .setLabel(type === "inbox" ? "Archive" : "Unarchive")
             .setCustomId(actionID);
 
         function menuEmbed(): void {
@@ -135,7 +141,7 @@ const slashCommand: SlashCommandFile = {
             }
 
             const menuReply = containers.primary({
-                title: `${emoji} Inbox`,
+                title: `${emoji} ${Functions.capitalize(name)}`,
                 description: `You have ${emails().length} ${name} e-mails.`,
                 fields: menuFields,
             });

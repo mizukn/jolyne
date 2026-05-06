@@ -290,7 +290,7 @@ export const getQuestsStats = (
                 message.push(
                     `:envelope: Read the e-mail from **${emailData.author.name}** (subject: ${
                         emailData.subject
-                    }) (${ctx.client.getSlashCommandMention("emails view")}) ||(${
+                    }) (${ctx.client.getSlashCommandMention("mail inbox")}) ||(${
                         quest.completed ? ":white_check_mark:" : ":x:"
                     })||`,
                 );

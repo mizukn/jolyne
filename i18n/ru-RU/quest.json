@@ -77,6 +77,6 @@
         "DESCRIPTION": "Дождитесь приезда в Индию"
     },
     "MUST_READ_EMAIL": {
-        "DESCRIPTION": "Прочтите письмо от `{{email.author}}` ({{email.subject}}: {{command.emails view}})"
+        "DESCRIPTION": "Прочтите письмо от `{{email.author}}` ({{email.subject}}: {{command.mail inbox}})"
     }
 }

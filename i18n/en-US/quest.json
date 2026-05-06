@@ -77,6 +77,6 @@
         "DESCRIPTION": "Wait for the tram to arrive in India"
     },
     "MUST_READ_EMAIL": {
-        "DESCRIPTION": "Read the e-mail from `{{email.author}}` ({{email.subject}}: {{command.emails view}})"
+        "DESCRIPTION": "Read the e-mail from `{{email.author}}` ({{email.subject}}: {{command.mail inbox}})"
     }
 }

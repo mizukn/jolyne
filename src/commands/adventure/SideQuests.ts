@@ -59,8 +59,22 @@ const slashCommand: SlashCommandFile = {
                         ],
                     },
                     {
+                        name: "info",
+                        description: "Shows information about a specific side quest",
+                        type: 1,
+                        options: [
+                            {
+                                name: "side_quest",
+                                description: "The side quest you want to view",
+                                type: 3,
+                                required: true,
+                                autocomplete: true,
+                            },
+                        ],
+                    },
+                    {
                         name: "requirements",
-                        description: "Shows the requirements of a specific side quest",
+                        description: "Deprecated. Use /side quest info instead.",
                         type: 1,
                         options: [
                             {
@@ -408,7 +422,7 @@ const slashCommand: SlashCommandFile = {
                     }
                 });
             }
-        } else if (ctx.options.getSubcommand() === "requirements") {
+        } else if (["info", "requirements"].includes(ctx.options.getSubcommand())) {
             if (!sideQuestsArr.find((r) => r.id === sideQuest)) {
                 ctx.makeMessage({
                     content: `${ctx.client.localEmojis.jolyne} Invalid side quest.`,

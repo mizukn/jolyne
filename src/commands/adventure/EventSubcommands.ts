@@ -104,7 +104,7 @@ const slashCommand: SlashCommandFile = {
                 title: "2 Year Anniversary Event",
                 color: 0x70926c,
                 description: `- Everyone has a **+25% XP Boost**\n- Make sure to check your e-mails for a special gift (${ctx.client.getSlashCommandMention(
-                    "email view"
+                    "mail inbox"
                 )}\n- Make sure to view your side quests with ${ctx.client.getSlashCommandMention(
                     "side quest view"
                 )} to complete the event side quest.\n- The Confetti Golem spawns every :00 :15 :30 :45 ; the golem will spawn ${Functions.generateDiscordTimestamp(
