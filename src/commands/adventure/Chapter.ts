@@ -16,6 +16,7 @@ import {
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import { containers } from "../../utils/containers";
 import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { FightableNPCS } from "../../rpg/NPCs";
@@ -600,16 +601,14 @@ const slashCommand: SlashCommandFile = {
                 : ""
         }`;
 
-        ctx.makeMessage({
-            embeds: [
-                {
-                    color: 0x70926c,
-                    description: finalContent,
-                    title: makeChapterTitle(chapter, ctx.userData),
-                },
-            ],
-            components: components.length === 0 ? [] : [Functions.actionRow(components)],
+        const chapterReply = containers.primary({
+            title: makeChapterTitle(chapter, ctx.userData),
+            description: finalContent,
         });
+        if (components.length > 0) {
+            chapterReply.components.push(Functions.actionRow(components));
+        }
+        ctx.makeMessage(chapterReply);
     },
 };
 
