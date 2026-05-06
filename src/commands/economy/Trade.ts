@@ -13,6 +13,7 @@ import * as Functions from "../../utils/Functions";
 import { tradeWebhook } from "../../utils/Webhooks";
 import { createCanvas, loadImage } from "canvas";
 import { cloneDeep } from "lodash";
+import { containers } from "../../utils/containers";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -134,48 +135,45 @@ const slashCommand: SlashCommandFile = {
             let stage = 0; // 1 = trade started
 
             function makeMessage(): void {
-                ctx.makeMessage({
-                    content: "Trade in progress...",
-                    components: [Functions.actionRow([acceptBTN, cancelBTN])],
-                    embeds: [
+                const tradeReply = containers.primary({
+                    title: `Trade | ${tradeID}`,
+                    description: `- If you want to add an item to the trade, use the ${ctx.client.getSlashCommandMention(
+                        "trade add"
+                    )} command. (arguments: \`item\`, \`amount\`)\n- If you want to remove an item from the trade, use the ${ctx.client.getSlashCommandMention(
+                        "trade remove"
+                    )} command. (arguments: \`item\`, \`amount\`)\n- Trade ends automatically ${Functions.generateDiscordTimestamp(
+                        time,
+                        "FROM_NOW"
+                    )}`,
+                    fields: [
                         {
-                            title: `Trade | ${tradeID}`,
-                            color: 0x70926c,
-                            description: `- If you want to add an item to the trade, use the ${ctx.client.getSlashCommandMention(
-                                "trade add"
-                            )} command. (arguments: \`item\`, \`amount\`)\n- If you want to remove an item from the trade, use the ${ctx.client.getSlashCommandMention(
-                                "trade remove"
-                            )} command. (arguments: \`item\`, \`amount\`)\n- Trade ends automatically ${Functions.generateDiscordTimestamp(
-                                time,
-                                "FROM_NOW"
-                            )}`,
-                            fields: [
-                                {
-                                    name: `${ctx.user.tag}'s offers`,
-                                    value: Object.entries(userOffer)
-                                        .map(
-                                            ([item, amount]) =>
-                                                `${Functions.findItem(item).emoji} ${amount}x ${
-                                                    Functions.findItem(item).name
-                                                }`
-                                        )
-                                        .join("\n"),
-                                },
-                                {
-                                    name: `${target.tag}'s offers`,
-                                    value: Object.entries(targetOffer)
-                                        .map(
-                                            ([item, amount]) =>
-                                                `${Functions.findItem(item).emoji} ${amount}x ${
-                                                    Functions.findItem(item).name
-                                                }`
-                                        )
-                                        .join("\n"),
-                                },
-                            ],
+                            name: `${ctx.user.tag}'s offers`,
+                            value:
+                                Object.entries(userOffer)
+                                    .map(
+                                        ([item, amount]) =>
+                                            `${Functions.findItem(item).emoji} ${amount}x ${
+                                                Functions.findItem(item).name
+                                            }`
+                                    )
+                                    .join("\n") || "*(nothing yet)*",
+                        },
+                        {
+                            name: `${target.tag}'s offers`,
+                            value:
+                                Object.entries(targetOffer)
+                                    .map(
+                                        ([item, amount]) =>
+                                            `${Functions.findItem(item).emoji} ${amount}x ${
+                                                Functions.findItem(item).name
+                                            }`
+                                    )
+                                    .join("\n") || "*(nothing yet)*",
                         },
                     ],
                 });
+                tradeReply.components.push(Functions.actionRow([acceptBTN, cancelBTN]));
+                ctx.makeMessage(tradeReply);
             }
 
             const acceptID = Functions.generateRandomId();
@@ -573,43 +571,41 @@ const slashCommand: SlashCommandFile = {
                 id: trade.target_id,
             };
 
-            ctx.makeMessage({
-                embeds: [
-                    {
-                        title: `Trade #${trade.id}`,
-                        description: `Trade completed ${Functions.generateDiscordTimestamp(
-                            Number(trade.date),
-                            "FULL_DATE"
-                        )} in server ${
-                            ctx.client.guilds.cache.get(trade.server_id)?.name ?? trade.server_id
-                        }`,
-                        fields: [
-                            {
-                                name: `${userData.tag}'s offers`,
-                                value: Object.entries(trade.user_offers)
-                                    .map(
-                                        ([item, amount]) =>
-                                            `${Functions.findItem(item).emoji} ${amount}x ${
-                                                Functions.findItem(item).name
-                                            }`
-                                    )
-                                    .join("\n"),
-                            },
-                            {
-                                name: `${targetData.tag}'s offers`,
-                                value: Object.entries(trade.target_offers)
-                                    .map(
-                                        ([item, amount]) =>
-                                            `${Functions.findItem(item).emoji} ${amount}x ${
-                                                Functions.findItem(item).name
-                                            }`
-                                    )
-                                    .join("\n"),
-                            },
-                        ],
-                    },
-                ],
-            });
+            ctx.makeMessage(
+                containers.primary({
+                    title: `Trade #${trade.id}`,
+                    description: `Trade completed ${Functions.generateDiscordTimestamp(
+                        Number(trade.date),
+                        "FULL_DATE"
+                    )} in server ${
+                        ctx.client.guilds.cache.get(trade.server_id)?.name ?? trade.server_id
+                    }`,
+                    fields: [
+                        {
+                            name: `${userData.tag}'s offers`,
+                            value: Object.entries(trade.user_offers)
+                                .map(
+                                    ([item, amount]) =>
+                                        `${Functions.findItem(item).emoji} ${amount}x ${
+                                            Functions.findItem(item).name
+                                        }`
+                                )
+                                .join("\n"),
+                        },
+                        {
+                            name: `${targetData.tag}'s offers`,
+                            value: Object.entries(trade.target_offers)
+                                .map(
+                                    ([item, amount]) =>
+                                        `${Functions.findItem(item).emoji} ${amount}x ${
+                                            Functions.findItem(item).name
+                                        }`
+                                )
+                                .join("\n"),
+                        },
+                    ],
+                })
+            );
         }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
