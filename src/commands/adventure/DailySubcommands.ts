@@ -14,7 +14,7 @@ import { StandArrow } from "../../rpg/Items/SpecialItems";
 import { getQuestsStats } from "./Chapter";
 import { cloneDeep } from "lodash";
 import Aes from "../../utils/Aes";
-import { COLORS, containers } from "../../utils/containers";
+import { COLORS, containers, V2Reply } from "../../utils/containers";
 
 const dailyQuestResetPrice = {
     undefined: 1000,
@@ -46,7 +46,6 @@ const dailyQuestResetPrice = {
     24: 5000000000000000,
     25: 9000000000000000,
 };
-
 const slashCommand: SlashCommandFile = {
     data: {
         name: "daily",
@@ -78,12 +77,18 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.daily.lastClaimed >= dateAtMidnight &&
                     ctx.userData.daily.lastClaimed < nextDate
                 ) {
-                    return ctx.sendTranslated("daily:ALREADY_CLAIMED", {
-                        time: Functions.generateDiscordTimestamp(
-                            Date.now() + (nextDate - Date.now()),
-                            "FROM_NOW",
-                        ),
-                    });
+                    return ctx.makeMessage(
+                        containers.primary({
+                            title: "📆 Daily Reward",
+                            description: ctx.translate("daily:ALREADY_CLAIMED", {
+                                time: Functions.generateDiscordTimestamp(
+                                    Date.now() + (nextDate - Date.now()),
+                                    "FROM_NOW",
+                                ),
+                            }),
+                            color: COLORS.warning,
+                        }),
+                    );
                 }
                 const rewards = Functions.getRewards(ctx.userData.level);
 
@@ -122,13 +127,14 @@ const slashCommand: SlashCommandFile = {
                             }),
                         );
 
-                        ctx.followUpQueue.push({
-                            content: Functions.makeNPCString(
-                                NPCs.Jolyne,
-                                `You lost your **${oldStreak}-day streak**. You can try your luck by requesting a streak restore by [joining the support server](https://discord.gg/jolyne-support-923608916540145694) and providing the following code:\n\n\`${data}\`\n\n*Note that your streak may not be fully restored or restored at all.*`,
-                                ctx.client.localEmojis.JolyneAhhhhh,
+                        ctx.followUpQueue.push(
+                            containers.warning(
+                                Functions.makeNPCLine(
+                                    NPCs.Jolyne,
+                                    `You lost your **${oldStreak}-day streak**. You can try your luck by requesting a streak restore by [joining the support server](https://discord.gg/jolyne-support-923608916540145694) and providing the following code:\n\n\`${data}\`\n\n*Note that your streak may not be fully restored or restored at all.*`,
+                                ),
                             ),
-                        });
+                        );
                     }
                 }
 
@@ -313,11 +319,17 @@ const slashCommand: SlashCommandFile = {
                     "Daily claim",
                 );
 
+                if (!transaction) {
+                    return ctx.makeMessage(containers.error("Daily claim failed. Your rewards were not saved."));
+                }
+
                 const dailyReply = containers.primary({
-                    title: `${ctx.user.username} — Daily Reward`,
+                    title: `📆 Daily Reward`,
                     description: embed_description,
                     color: COLORS.primary,
-                    fields: dailyFields,
+                    descriptionDivider: true,
+                    sections: Functions.fieldSections(dailyFields),
+                    sectionDividers: true,
                     footer: dailyFooter,
                 });
                 await ctx.makeMessage({
@@ -374,6 +386,7 @@ const slashCommand: SlashCommandFile = {
                         new ButtonBuilder()
                             .setStyle(ButtonStyle.Success)
                             .setEmoji("⭐")
+                            .setLabel(alreadyClaimed === "true" ? "Claimed" : "Claim")
                             .setCustomId(ctx.interaction.id + "daily-quests-claim")
                             .setDisabled(alreadyClaimed === "true"),
                     );
@@ -395,44 +408,87 @@ const slashCommand: SlashCommandFile = {
                     }
                 }
 
-                const toBeAdded = Functions.addXp(ctx.userData, xpReward, ctx.client, true);
+                const resetUnix = Math.round((dateAtMidnight + 86400000) / 1000);
+                const questLines = status.message
+                    .split("\n")
+                    .filter(Boolean)
+                    .map((line) => line.trim());
+                let currentPage = 0;
+                const totalPages = Math.max(1, Math.ceil(questLines.length / Functions.QUEST_LIST_ITEMS_PER_PAGE));
+                const questRows = Functions.buildQuestListRows(
+                    ctx,
+                    ctx.userData.daily.quests,
+                    status.message,
+                    undefined,
+                    (quest) => {
+                        const rewards = Functions.getDailyQuestRowRewards(quest, ctx);
+                        return `**x${rewards.coins.toLocaleString()}** ${ctx.client.localEmojis.jocoins}, **x${rewards.xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`;
+                    },
+                );
 
-                const questsReply = containers.primary({
-                    title: `📜 ${ctx.user.username}'s Daily Quests (${status.percent.toFixed(2)}%)`,
-                    description: `${status.message}\n\n${ctx.translate(
-                        "daily:REWARDS_MESSAGE",
-                        {
-                            coins: coinReward.toLocaleString(),
-                            xp: toBeAdded.toLocaleString(),
-                            discordUnix: Functions.generateDiscordTimestamp(
-                                dateAtMidnight + 86400000,
-                                "FROM_NOW",
-                            ),
-                            dungeon_key: Functions.findItem("Dungeon").emoji,
-                        },
-                    )}`,
-                    color: COLORS.primary,
-                });
-                await ctx.makeMessage({
-                    components: [
-                        ...questsReply.components,
-                        ...(components.length !== 0 ? [Functions.actionRow(components)] : []),
-                    ],
-                    flags: questsReply.flags,
-                });
+                function buildQuestsReply(): V2Reply {
+                    const firstQuest = currentPage * Functions.QUEST_LIST_ITEMS_PER_PAGE;
+                    const pageSections = questRows.slice(
+                        firstQuest,
+                        firstQuest + Functions.QUEST_LIST_ITEMS_PER_PAGE,
+                    );
 
-                if (components.length > 0) {
+                    const questsReply = containers.primary({
+                        title: `📜 Daily Quests`,
+                        sections: pageSections,
+                        sectionDividers: true,
+                        color: Functions.QUEST_LIST_ACCENT_COLOR,
+                        footer: `Quests reset at <t:${resetUnix}:t> (<t:${resetUnix}:R>). Page ${currentPage + 1}/${totalPages}.`,
+                    });
+
+                    const actionRows = [];
+                    if (totalPages > 1) {
+                        actionRows.push(
+                            Functions.actionRow([
+                                new ButtonBuilder()
+                                    .setCustomId(ctx.interaction.id + "daily-quests-prev")
+                                    .setStyle(ButtonStyle.Secondary)
+                                    .setEmoji("⬅️")
+                                    .setDisabled(currentPage === 0),
+                                new ButtonBuilder()
+                                    .setCustomId(ctx.interaction.id + "daily-quests-page")
+                                    .setStyle(ButtonStyle.Secondary)
+                                    .setLabel(`${currentPage + 1} / ${totalPages}`)
+                                    .setDisabled(true),
+                                new ButtonBuilder()
+                                    .setCustomId(ctx.interaction.id + "daily-quests-next")
+                                    .setStyle(ButtonStyle.Secondary)
+                                    .setEmoji("➡️")
+                                    .setDisabled(currentPage === totalPages - 1),
+                            ]),
+                        );
+                    }
+                    if (components.length !== 0) {
+                        actionRows.push(Functions.actionRow(components));
+                    }
+
+                    return {
+                        components: [...questsReply.components, ...actionRows],
+                        flags: questsReply.flags,
+                    };
+                }
+
+                await ctx.makeMessage(buildQuestsReply());
+
+                if (questLines.length > 0 || components.length > 0) {
                     const filter = (i: MessageComponentInteraction) => {
                         return (
                             i.user.id === ctx.user.id &&
                             (i.customId === ctx.interaction.id + "daily-quests-claim" ||
-                                i.customId === ctx.interaction.id + "daily-quests-reset")
+                                i.customId === ctx.interaction.id + "daily-quests-reset" ||
+                                i.customId === ctx.interaction.id + "daily-quests-prev" ||
+                                i.customId === ctx.interaction.id + "daily-quests-next")
                         );
                     };
 
                     const collector = ctx.channel.createMessageComponentCollector({
                         filter,
-                        time: 30000,
+                        time: 60000,
                     });
 
                     collector.on("collect", async (i) => {
@@ -445,6 +501,16 @@ const slashCommand: SlashCommandFile = {
                         const currentRPGJson = JSON.stringify(ctx.userData);
                         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
 
+                        if (i.customId === ctx.interaction.id + "daily-quests-prev") {
+                            currentPage = Math.max(0, currentPage - 1);
+                            return i.update(buildQuestsReply());
+                        }
+
+                        if (i.customId === ctx.interaction.id + "daily-quests-next") {
+                            currentPage = Math.min(totalPages - 1, currentPage + 1);
+                            return i.update(buildQuestsReply());
+                        }
+
                         if (currentRPGJson !== JSON.stringify(ctx.userData)) {
                             collector.stop("cheater");
                             return;
@@ -456,12 +522,15 @@ const slashCommand: SlashCommandFile = {
                                 dailyQuestResetPrice[
                                     ctx.userData.daily
                                         .dailyQuestsReset as keyof typeof dailyQuestResetPrice
-                                ];
+                            ];
                             if (ctx.userData.coins < price) {
                                 await i.reply({
-                                    content: `You don't have enough coins to reset your daily quests. You need ${price.toLocaleString(
-                                        "en-US",
-                                    )} coins to reset your daily quests.`,
+                                    ...containers.error(
+                                        `You need **${price.toLocaleString(
+                                            "en-US",
+                                        )}** ${ctx.client.localEmojis.jocoins} to reset your daily quests.`,
+                                    ),
+                                    ephemeral: true,
                                 });
                                 return;
                             }
@@ -487,11 +556,17 @@ const slashCommand: SlashCommandFile = {
                                 ],
                                 "Daily Quest Reset",
                             );
-                            if (!transaction) return i.reply("An error occurred.");
-                            i.reply({
-                                content: ctx.translate("daily:RESET_SUCCESS", {
-                                    price: price.toLocaleString(),
-                                }),
+                            if (!transaction) {
+                                return i.reply({
+                                    ...containers.error("Daily quest reset failed. Your coins were not moved."),
+                                    ephemeral: true,
+                                });
+                            }
+                            await i.reply({
+                                ...containers.success(
+                                    `Daily quests reset for **${price.toLocaleString()}** ${ctx.client.localEmojis.jocoins}.`,
+                                ),
+                                ephemeral: true,
                             });
                             return;
                         }
@@ -511,22 +586,25 @@ const slashCommand: SlashCommandFile = {
                             ],
                             "Daily Quest Claim",
                         );
-                        if (!transaction) return i.reply("An error occurred.");
+                        if (!transaction) {
+                            return i.reply({
+                                ...containers.error("Daily quest claim failed. Your rewards were not saved."),
+                                ephemeral: true,
+                            });
+                        }
                         await ctx.client.database.redis.set(
                             `daily-quests-${ctx.userData.id}`,
                             "true",
                         );
 
-                        await ctx.makeMessage({
-                            components: [Functions.actionRow([components[0].setDisabled(true)])],
-                        });
-
-                        await ctx.followUp({
-                            content: ctx.translate("daily:REWARDS_CLAIM_MESSAGE", {
-                                coins: coins.toLocaleString(),
-                                xp: xp.toLocaleString(),
-                                dungeon_key: Functions.findItem("Dungeon").emoji,
-                            }),
+                        await i.update({
+                            ...containers.success(
+                                ctx.translate("daily:REWARDS_CLAIM_MESSAGE", {
+                                    coins: coins.toLocaleString(),
+                                    xp: xp.toLocaleString(),
+                                    dungeon_key: Functions.findItem("Dungeon").emoji,
+                                }),
+                            ),
                         });
                     });
                 }

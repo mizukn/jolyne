@@ -16,7 +16,7 @@ import {
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { containers } from "../../utils/containers";
+import { containers, V2Reply } from "../../utils/containers";
 import * as Chapters from "../../rpg/Chapters/Chapters";
 import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import { FightableNPCS } from "../../rpg/NPCs";
@@ -470,15 +470,106 @@ const slashCommand: SlashCommandFile = {
                     .setEmoji(ctx.client.localEmojis.arrowRight)
                     .setStyle(ButtonStyle.Primary),
             );
+        }
+
+        const questLines = status.message
+            .split("\n")
+            .filter(Boolean)
+            .map((line) => line.trim());
+        let currentPage = 0;
+        const totalPages = Math.max(1, Math.ceil(questLines.length / Functions.QUEST_LIST_ITEMS_PER_PAGE));
+        const questRows = Functions.buildQuestListRows(
+            ctx,
+            ctx.userData.chapter.quests,
+            status.message,
+            undefined,
+        );
+
+        function buildChapterReply(currentStatus = status): V2Reply {
+            const firstQuest = currentPage * Functions.QUEST_LIST_ITEMS_PER_PAGE;
+            const pageSections = questRows.slice(
+                firstQuest,
+                firstQuest + Functions.QUEST_LIST_ITEMS_PER_PAGE,
+            );
+
+            if (chapter.hints) {
+                pageSections.push({
+                    text: chapter
+                        .hints(ctx)
+                        .map((x) => `:exclamation: HINT: ${x}`)
+                        .join("\n"),
+                });
+            }
+
+            const chapterReply = containers.primary({
+                title: makeChapterTitle(chapter, ctx.userData),
+                description: `\`\`\`\n${chapter.description[ctx.userData.language]}\n\`\`\`\nProgress: **${currentStatus.percent.toFixed(2)}%**`,
+                descriptionDivider: true,
+                sections: pageSections,
+                sectionDividers: true,
+                color: Functions.QUEST_LIST_ACCENT_COLOR,
+                footer: `Page ${currentPage + 1}/${totalPages}.`,
+            });
+
+            const rows = [];
+            if (totalPages > 1) {
+                rows.push(
+                    Functions.actionRow([
+                        new ButtonBuilder()
+                            .setCustomId(ctx.interaction.id + "chapter-quests-prev")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji("⬅️")
+                            .setDisabled(currentPage === 0),
+                        new ButtonBuilder()
+                            .setCustomId(ctx.interaction.id + "chapter-quests-page")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setLabel(`${currentPage + 1} / ${totalPages}`)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId(ctx.interaction.id + "chapter-quests-next")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji("➡️")
+                            .setDisabled(currentPage === totalPages - 1),
+                    ]),
+                );
+            }
+            if (components.length > 0) {
+                rows.push(Functions.actionRow(components));
+            }
+
+            return {
+                components: [...chapterReply.components, ...rows],
+                flags: chapterReply.flags,
+            };
+        }
+
+        await ctx.makeMessage(buildChapterReply());
+
+        if (questLines.length > 0 || components.length > 0) {
             const filter = (i: MessageComponentInteraction) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                return i.customId === "next" && i.user.id === ctx.user.id;
+                return (
+                    i.user.id === ctx.user.id &&
+                    (i.customId === "next" ||
+                        i.customId === ctx.interaction.id + "chapter-quests-prev" ||
+                        i.customId === ctx.interaction.id + "chapter-quests-next")
+                );
             };
             const collector = ctx.interaction.channel.createMessageComponentCollector({
                 filter,
                 time: 30000,
             });
             collector.on("collect", async (i) => {
+                if (i.customId === ctx.interaction.id + "chapter-quests-prev") {
+                    currentPage = Math.max(0, currentPage - 1);
+                    return i.update(buildChapterReply());
+                }
+
+                if (i.customId === ctx.interaction.id + "chapter-quests-next") {
+                    currentPage = Math.min(totalPages - 1, currentPage + 1);
+                    return i.update(buildChapterReply());
+                }
+
+                await i.deferUpdate().catch(() => {});
                 if (await ctx.antiCheat(true)) {
                     collector.stop();
                     return;
@@ -588,27 +679,6 @@ const slashCommand: SlashCommandFile = {
                 // ...
             });
         }
-
-        const finalContent = `\`\`\`\n${
-            chapter.description[ctx.userData.language]
-        }\n\`\`\`\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}${
-            chapter.hints
-                ? "\n\n" +
-                  chapter
-                      .hints(ctx)
-                      .map((x) => `:exclamation: HINT: ${x}`)
-                      .join("\n")
-                : ""
-        }`;
-
-        const chapterReply = containers.primary({
-            title: makeChapterTitle(chapter, ctx.userData),
-            description: finalContent,
-        });
-        if (components.length > 0) {
-            chapterReply.components.push(Functions.actionRow(components));
-        }
-        ctx.makeMessage(chapterReply);
     },
 };
 

@@ -2,16 +2,18 @@ import {
     Message,
     ButtonBuilder,
     ButtonStyle,
-    MessageComponentInteraction,
-    APIEmbed,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
+    ActionRowBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
-import { shuffleArray, actionRow, generateRandomId } from "../../utils/Functions";
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
 import { SlashCommandFile } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { cloneDeep } from "lodash";
+import { COLORS, containers, V2Reply } from "../../utils/containers";
 
 const slotsChart = {
     [Emojis.diamond_gif]: {
@@ -79,19 +81,16 @@ const slotsChart = {
         3: 2.2,
         frequence: 3,
     },
-
     "🍈": {
         2: 1.4,
         3: 2.1,
         frequence: 3,
     },
-
     "🍑": {
         2: 1.3,
         3: 2,
         frequence: 3,
     },
-
     "🍏": {
         2: 1.2,
         3: 1.9,
@@ -102,6 +101,7 @@ const slotsChart = {
 const totalFruits = Object.values(slotsChart)
     .map((d) => d.frequence)
     .reduce((arr, curr) => arr + curr);
+const DARBY = NPCs.Daniel_J_DArby;
 
 function getSymbolTwoOfThreeProbability(symbol: keyof typeof slotsChart): number {
     return (slotsChart[symbol].frequence / totalFruits) ** 2;
@@ -113,26 +113,32 @@ function getSymbolThreeOfThreeProbability(symbol: keyof typeof slotsChart): numb
 
 function getOverallTwoOfThreeProbability(): number {
     const symbolProbabilities = Object.keys(slotsChart).map((symbol) =>
-        getSymbolTwoOfThreeProbability(symbol)
+        getSymbolTwoOfThreeProbability(symbol as keyof typeof slotsChart)
     );
-    const singleSpinTwoOutOfThreeProbability = symbolProbabilities.reduce(
-        (acc, curr) => acc + Number(curr),
-        0
-    );
-
-    return singleSpinTwoOutOfThreeProbability;
+    return symbolProbabilities.reduce((acc, curr) => acc + Number(curr), 0);
 }
 
 function getOverallThreeOfThreeProbability(): number {
     const symbolProbabilities = Object.keys(slotsChart).map((symbol) =>
-        getSymbolThreeOfThreeProbability(symbol)
+        getSymbolThreeOfThreeProbability(symbol as keyof typeof slotsChart)
     );
-    const singleSpinJackpotProbability = symbolProbabilities.reduce(
-        (acc, curr) => acc + Number(curr),
-        0
-    );
+    return symbolProbabilities.reduce((acc, curr) => acc + Number(curr), 0);
+}
 
-    return singleSpinJackpotProbability;
+function darbyLine(text: string): string {
+    return `${DARBY.emoji} **Daniel J. D'Arby:** ${text}`;
+}
+
+function casinoWarning(text: string): V2Reply {
+    return containers.warning(darbyLine(text));
+}
+
+function formatSlotGrid(symbols: string[]): string {
+    return [
+        `${symbols[0]}  ${symbols[1]}  ${symbols[2]}`,
+        `➡️ ${symbols[3]}  ${symbols[4]}  ${symbols[5]}`,
+        `${symbols[6]}  ${symbols[7]}  ${symbols[8]}`,
+    ].join("\n");
 }
 
 const slashCommand: SlashCommandFile = {
@@ -160,502 +166,296 @@ const slashCommand: SlashCommandFile = {
             },
         ],
     },
+    checkRPGCooldown: "slots",
+
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         if (ctx.options.getSubcommand() === "chart") {
-            const symbolNames = Object.keys(slotsChart);
-
-            const symbolProbabilities = symbolNames.map((symbol) => {
-                const twoOutOfThreeProbability =
-                    3 / (symbolNames.length * (symbolNames.length - 1)) || 0;
-                const threeOutOfThreeProbability =
-                    4 /
-                        (symbolNames.length *
-                            (symbolNames.length - 1) *
-                            (symbolNames.length - 2)) || 0;
-
-                // return `${symbol}: 2/3 Probability - ${twoOutOfThreeProbability.toFixed(4)}, 3/3 Jackpot Probability - ${threeOutOfThreeProbability.toFixed(4)}`;
+            const sections = Object.keys(slotsChart).map((symbol) => {
+                const typedSymbol = symbol as keyof typeof slotsChart;
+                const data = slotsChart[typedSymbol];
                 return {
-                    symbol,
-                    2: twoOutOfThreeProbability.toFixed(4),
-                    3: threeOutOfThreeProbability.toFixed(4),
+                    text:
+                        `${symbol} **x${data[2]}** for 2 matches, **x${data[3]}** jackpot\n` +
+                        `> Frequency: ${data.frequence} | 2/3: ${getSymbolTwoOfThreeProbability(typedSymbol).toFixed(4)} | 3/3: ${getSymbolThreeOfThreeProbability(typedSymbol).toFixed(4)}`,
                 };
             });
 
-            const probabilityEmbed: APIEmbed = {
-                title: "Probabilities",
-                description: "Probabilities for getting 2/3 symbols and jackpots for each symbol:",
-                fields: /*[
-                    {
-                        name: "Symbol Probabilities",
-                        value: symbolProbabilities.join("\n"),
-                        inline: false
-                    },
-                ]*/ [
-                    {
-                        name: "Symbol",
-                        value:
-                            Object.keys(slotsChart)
-                                .map((s) => s)
-                                .join("\n") + "\nΩ",
-                        inline: true,
-                    },
-                    {
-                        name: "2/3",
-                        value:
-                            Object.keys(slotsChart)
-                                .map((s) => getSymbolTwoOfThreeProbability(s))
-                                .join("\n") + `\n${getOverallTwoOfThreeProbability().toFixed(4)}`,
-                        inline: true,
-                    },
-                    {
-                        name: "3/3",
-                        value:
-                            Object.keys(slotsChart)
-                                .map((s) => getSymbolThreeOfThreeProbability(s))
-                                .join("\n") + `\n${getOverallThreeOfThreeProbability().toFixed(4)}`,
-                        inline: true,
-                    },
-                ],
+            return void ctx.makeMessage(
+                containers.primary({
+                    title: "🎰 Slots Chart",
+                    description:
+                        `Payouts are multiplied by your bet.\n` +
+                        `> Total 2/3 chance: **${getOverallTwoOfThreeProbability().toFixed(4)}**\n` +
+                        `> Total jackpot chance: **${getOverallThreeOfThreeProbability().toFixed(4)}**`,
+                    descriptionDivider: true,
+                    sections,
+                    color: COLORS.accent,
+                    footer: "Patreon tiers add extra diamonds to the machine.",
+                })
+            );
+        }
 
-                footer: {
-                    text: "Note that patreons get more diamonds added to the slots machine based on their tier subscription.",
-                },
-            };
+        let bet = ctx.options.getInteger("bet", true);
+        if (bet < 1) {
+            return void ctx.makeMessage(casinoWarning("Hahahahaha... you're joking, right? Place a real bet."));
+        }
 
-            const embed: APIEmbed = {
-                title: "Slots Chart",
-                description: "The slots chart is a table that shows the payout of each symbol.",
-                fields: [
-                    {
-                        name: "Symbol",
-                        value: Object.keys(slotsChart)
-                            .map((s) => s)
-                            .join("\n"),
-                        inline: true,
-                    },
-                    {
-                        name: "2",
-                        value: Object.keys(slotsChart)
-                            .map((s) => slotsChart[s as keyof typeof slotsChart][2])
-                            .join("\n"),
-                        inline: true,
-                    },
-                    {
-                        name: "3",
-                        value: Object.keys(slotsChart)
-                            .map((s) => slotsChart[s as keyof typeof slotsChart][3])
-                            .join("\n"),
-                        inline: true,
-                    },
-                ],
-                footer: {
-                    text: "The payout is multiplied by the bet amount.",
-                },
-            };
+        // Concurrency lock
+        const lockKey = `tempCache_slotsLock_${ctx.user.id}`;
+        const lockResult = await ctx.client.database.redis.set(lockKey, "1", {
+            NX: true,
+            EX: 300,
+        });
+        if (lockResult === null) {
+            return void ctx.makeMessage(casinoWarning("One machine at a time! Finish your current spin first."));
+        }
+        const releaseLock = () => ctx.client.database.redis.del(lockKey).catch(() => 0);
 
-            const frequenceEmbed: APIEmbed = {
-                title: "Frequencies",
-                description: "The frequency of each symbol in the slots machine.",
-                fields: [
-                    {
-                        name: "Symbol",
-                        value: Object.keys(slotsChart)
-                            .map((s) => s)
-                            .join("\n"),
-                        inline: true,
-                    },
-                    {
-                        name: "Frequency",
-                        value: Object.keys(slotsChart)
-                            .map((s) => slotsChart[s as keyof typeof slotsChart].frequence)
-                            .join("\n"),
-                        inline: true,
-                    },
-                ],
-                footer: {
-                    text: "The more frequent the symbol, the higher the chance of getting it.",
-                },
-            };
-
-            return void ctx.makeMessage({
-                embeds: [embed, probabilityEmbed, frequenceEmbed].map((d) => {
-                    d.color = 0x70926c;
-                    return d;
-                }),
-            });
-        } else {
-            const bet = ctx.options.getInteger("bet", true);
-
-            if (ctx.userData.coins < 0) {
-                return void ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Daniel_J_DArby,
-                        `You're in debt. Get out of here!`
-                    ),
-                });
-            }
-
-            if (bet < 1) {
-                ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Daniel_J_DArby,
-                        "Hahahahaha... You're joking, right?"
-                    ),
-                });
-                return;
+        try {
+            ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+            if (ctx.userData.coins < 1) {
+                await releaseLock();
+                return void ctx.makeMessage(casinoWarning("You're broke. Get out of here!"));
             }
             if (bet > ctx.userData.coins) {
-                ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Daniel_J_DArby,
-                        `Are you trying to scam me? You don't have that much money... BOZO`
-                    ),
-                });
-                return;
+                await releaseLock();
+                return void ctx.makeMessage(casinoWarning("Are you trying to scam me? You don't have that much money."));
             }
 
-            const fruits = Object.keys(slotsChart);
-
-            for (const id in slotsChart) {
-                const symbol = slotsChart[id as keyof typeof slotsChart];
-                for (let i = 0; i < symbol.frequence; i++) fruits.push(id);
-            }
-
-            const patreonData = ctx.client.patreons.find((s) => s.id === ctx.user.id);
-            if (patreonData) {
-                for (let i = 0; i < patreonData.level * 5; i++) fruits.push("💎");
-                ctx.followUpQueue.push({
-                    ephemeral: true,
-                    content: Functions.makeNPCString(
-                        NPCs.Daniel_J_DArby,
-                        `Since you're a patreon, I'll add some diamonds (+${patreonData.level * 5}) to the slots machine.`
-                    ),
-                });
-            }
-
-            let slotsMachine: string[] = Functions.shuffle([
-                ...Functions.shuffle([
-                    ...Functions.shuffle(fruits),
-                    ...Functions.shuffle(fruits),
-                    ...Functions.shuffle(fruits),
-                    ...Functions.shuffle(fruits),
-                ]),
-            ]); // Am I shuffling too much? Yes.
-            const betID = Functions.generateRandomId();
+            const spinID = Functions.generateRandomId();
+            const changeBetID = Functions.generateRandomId();
             const cancelID = Functions.generateRandomId();
-            const pullAgainID = Functions.generateRandomId();
 
-            const betButton = new ButtonBuilder()
-                .setCustomId(betID)
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji("🎰")
-                .setLabel("Bet");
+            function buildInitialUI(): V2Reply {
+                const sections = [
+                    {
+                        text: `You are about to bet **${Functions.localeNumber(bet)}** ${ctx.client.localEmojis.jocoins}.`
+                    },
+                    {
+                        text: darbyLine("Ready to lose some coins, kid?")
+                    }
+                ];
+                const reply = containers.primary({
+                    title: `${DARBY.emoji} Slots Machine`,
+                    sections,
+                    sectionDividers: true,
+                    color: COLORS.accent,
+                    footer: `Balance: ${Functions.localeNumber(ctx.userData.coins)} ${ctx.client.localEmojis.jocoins}`,
+                });
+                reply.components.push(Functions.actionRow([
+                    new ButtonBuilder().setCustomId(spinID).setLabel("Spin").setStyle(ButtonStyle.Primary).setEmoji("🎰"),
+                    new ButtonBuilder().setCustomId(changeBetID).setLabel("Change bet").setStyle(ButtonStyle.Secondary),
+                    new ButtonBuilder().setCustomId(cancelID).setLabel("Nevermind").setStyle(ButtonStyle.Danger)
+                ]));
+                return reply;
+            }
 
-            const cancelButton = new ButtonBuilder()
-                .setCustomId(cancelID)
-                .setStyle(ButtonStyle.Danger)
-                .setLabel("Nevermind");
-
-            const pullAgainButton = new ButtonBuilder()
-                .setCustomId(pullAgainID)
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji("🎰")
-                .setLabel("Pull again");
-
-            await ctx.sendTranslated("casino:CONFIRM_MESSAGE", {
-                bet: Functions.localeNumber(bet),
-                left: Functions.localeNumber(ctx.userData.coins),
-                components: [Functions.actionRow([betButton, cancelButton])],
-            });
-
-            const filter = (i: MessageComponentInteraction) =>
-                i.user.id === ctx.user.id &&
-                (i.customId === betID || i.customId === cancelID || i.customId === pullAgainID);
+            await ctx.makeMessage(buildInitialUI());
 
             const collector = ctx.channel.createMessageComponentCollector({
-                filter,
-                time: 30000,
-                max: 2,
+                filter: (i) => i.user.id === ctx.user.id,
+                time: 60000,
             });
 
-            let followUpReply: Message | undefined;
-            let left = Functions.randomNumber(2, 6);
-
-            collector.on("collect", async (i: MessageComponentInteraction) => {
-                if (await ctx.antiCheat(true)) return;
-                i.deferUpdate().catch(() => {});
-
+            collector.on("collect", async (i) => {
                 if (i.customId === cancelID) {
-                    return void ctx.sendTranslated("casino:CANCEL_MESSAGE", {
-                        components: [],
-                    });
-                } else if (i.customId === pullAgainID) {
-                    if (followUpReply)
-                        await followUpReply
-                            .fetch()
-                            .then((m) => m.delete())
-                            .catch(() => {});
-
-                    return void ctx.client.commands.get("slots")?.execute(ctx);
+                    collector.stop("cancelled");
+                    await ctx.makeMessage(containers.error(`Game cancelled.`));
+                    return;
                 }
 
-                ctx.interaction
-                    .fetchReply()
-                    .then(async (m: Message) => {
-                        ctx.client.database.setCooldown(
-                            ctx.user.id,
-                            `You're currently spinning the slots machine. Can't find the message? https://discord.com/channels/${m.guild?.id}/${m.channel.id}/${m.id}`
+                if (i.customId === changeBetID) {
+                    const modal = new ModalBuilder()
+                        .setCustomId(`slotsBetModal_${ctx.user.id}_${Functions.generateRandomId()}`)
+                        .setTitle("Change Bet")
+                        .addComponents(
+                            new ActionRowBuilder<TextInputBuilder>().addComponents(
+                                new TextInputBuilder()
+                                    .setCustomId("betInput")
+                                    .setLabel("Amount to bet")
+                                    .setStyle(TextInputStyle.Short)
+                                    .setValue(bet.toString())
+                                    .setRequired(true)
+                            )
                         );
-                    })
-                    .catch(() => {
-                        ctx.client.database.setCooldown(
-                            ctx.user.id,
-                            `You're currently spinning the slots machine. Can't find the message?`
-                        );
-                    });
+                    
+                    await i.showModal(modal);
+                    const submission = await i.awaitModalSubmit({ time: 30000 }).catch(() => null);
+                    if (!submission) return;
 
-                while (left !== -1 || left >= 0) {
-                    await runMachine(ctx, slotsMachine, bet, followUpReply, left, pullAgainButton);
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
-                    slotsMachine = slotsMachine.slice(3);
-                    left--;
+                    const newBet = parseInt(submission.fields.getTextInputValue("betInput"));
+                    if (isNaN(newBet) || newBet < 1) {
+                        return void submission.reply({ ...containers.error("Enter a valid bet amount."), ephemeral: true });
+                    }
+                    if (newBet > ctx.userData.coins) {
+                        return void submission.reply({ ...containers.error("You don't have enough coins for that bet."), ephemeral: true });
+                    }
+                    
+                    bet = newBet;
+                    await submission.deferUpdate();
+                    await ctx.makeMessage(buildInitialUI());
+                    return;
+                }
+
+                if (i.customId === spinID) {
+                    if (bet > ctx.userData.coins) {
+                        return void i.reply({ ...containers.error("You don't have enough coins for that bet anymore!"), ephemeral: true });
+                    }
+                    collector.stop("spinning");
+                    await i.deferUpdate();
+                    await runGame(ctx, bet);
                 }
             });
+
+            collector.on("end", async (_, reason) => {
+                if (reason === "time" || reason === "cancelled") {
+                    await releaseLock();
+                }
+            });
+
+        } catch (e) {
+            ctx.client.log(`Slots command failed for ${ctx.user.id}: ${e instanceof Error ? e.stack ?? e.message : String(e)}`, "error");
+            await releaseLock();
         }
     },
 };
 
-async function runMachine(
-    ctx: CommandInteractionContext,
-    slotMachineFruits: string[],
-    bet: number,
-    followUpReply: Message,
-    left: number,
-    pullAgainButton: ButtonBuilder
-): Promise<void> {
-    let msg =
-        "[  :slot_machine: | **CASINO** ]\n+----------------+\n" +
-        "| " +
-        slotMachineFruits[0] +
-        " : " +
-        slotMachineFruits[1] +
-        " : " +
-        slotMachineFruits[2] +
-        "  | \n" +
-        "| " +
-        slotMachineFruits[3] +
-        " : " +
-        slotMachineFruits[4] +
-        " : " +
-        slotMachineFruits[5] +
-        "  | **<**\n" +
-        "| " +
-        slotMachineFruits[6] +
-        " : " +
-        slotMachineFruits[7] +
-        " : " +
-        slotMachineFruits[8] +
-        "  | \n+----------------+\n";
-    let followUpMsg: string;
-
-    let loose = true;
-
-    if (left === 0) {
-        ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
-        const oldData = cloneDeep(ctx.userData);
-
-        if (
-            slotMachineFruits[3] === slotMachineFruits[4] &&
-            slotMachineFruits[4] === slotMachineFruits[5]
-        ) {
-            // JACKPOT
-            const multiplier = slotsChart[slotMachineFruits[3] as keyof typeof slotsChart][3];
-            loose = false;
-
-            msg += "| : : **JACKPOT** : : |\n";
-            Functions.addCoins(ctx.userData, bet * multiplier);
-            followUpMsg = Functions.randomArray(
-                ctx.translate("casino:JACKPOT_MESSAGES", {
-                    returnObjects: true,
-                })
-            );
-        } else if (
-            slotMachineFruits[3] === slotMachineFruits[4] ||
-            slotMachineFruits[4] === slotMachineFruits[5] ||
-            slotMachineFruits[3] === slotMachineFruits[5]
-        ) {
-            // 2/3
-            const emojiMatch =
-                slotMachineFruits[3] === slotMachineFruits[4]
-                    ? slotMachineFruits[3]
-                    : slotMachineFruits[4] === slotMachineFruits[5]
-                    ? slotMachineFruits[4]
-                    : slotMachineFruits[3];
-            const multiplier = slotsChart[emojiMatch as keyof typeof slotsChart][2];
-            if (multiplier) {
-                msg += "| : : : : **WIN** : : : : |";
-                loose = false;
-                Functions.addCoins(ctx.userData, bet * multiplier);
-                followUpMsg = ctx.translate("casino:CASINO_YOU_GOT", {
-                    amount: Functions.localeNumber(Math.round(bet * multiplier)),
-                });
-            }
-        }
-
-        if (loose) {
-            msg += "| : : : : **LOOSE** : : : : |";
-            Functions.addCoins(ctx.userData, -bet);
-            followUpMsg = Functions.randomArray(
-                ctx.translate("casino:LOSE_MESSAGES", {
-                    returnObjects: true,
-                })
-            );
-        }
-
-        //ctx.client.database.saveUserData(ctx.RPGUserData);
-        const transaction = await ctx.client.database.handleTransaction(
-            [
-                {
-                    oldData,
-                    newData: ctx.userData,
-                },
-            ],
-            `Slots: ${followUpMsg}`
-        );
-        if (!transaction) {
-            ctx.makeMessage({
-                content: "Transaction failed.",
-                components: [],
-                embeds: [],
-            });
-            return;
-        }
-        ctx.client.database.deleteCooldown(ctx.user.id);
-        ctx.makeMessage({
-            content: msg,
-            components: [Functions.actionRow([pullAgainButton])],
-        });
-        followUpReply = await ctx.followUp({
-            content: followUpMsg,
-            fetchReply: true,
-        });
-    } else {
-        msg += `| : : : : :  **${left}**  : : : : : |`;
-
-        await ctx.makeMessage({
-            content: msg,
-            components: [],
-        });
-    }
-}
-
-// function to simulate X times the slots machine and tell the user if it won or not every time
-async function consoleSimulate(times: number): Promise<void> {
+async function runGame(ctx: CommandInteractionContext, bet: number) {
     const fruits = Object.keys(slotsChart);
-
     for (const id in slotsChart) {
         const symbol = slotsChart[id as keyof typeof slotsChart];
         for (let i = 0; i < symbol.frequence; i++) fruits.push(id);
     }
 
-    let left = Functions.randomNumber(2, 6);
-
-    while (times !== 0) {
-        let slotsMachine: string[] = Functions.shuffle([
-            ...Functions.shuffle([
-                ...Functions.shuffle(fruits),
-                ...Functions.shuffle(fruits),
-                ...Functions.shuffle(fruits),
-                ...Functions.shuffle(fruits),
-            ]),
-        ]); // Am I shuffling too much? Yes.
-
-        console.log("Spinning the slots machine...");
-        // while (left !== -1 || left >= 0) {
-        runMachineConsole(slotsMachine, left);
-        slotsMachine = slotsMachine.slice(3);
-        left--;
-        //  }
-        times--;
+    const patreonData = ctx.client.patreons.find((s) => s.id === ctx.user.id);
+    if (patreonData) {
+        for (let i = 0; i < patreonData.level * 5; i++) fruits.push("💎");
     }
+
+    let slotMachineFruits = Functions.shuffle([...fruits, ...fruits, ...fruits]);
+    let left = Functions.randomNumber(3, 6);
+
+    const pullAgainID = Functions.generateRandomId();
+    const changeBetID = Functions.generateRandomId();
+
+    const pullAgainButton = new ButtonBuilder().setCustomId(pullAgainID).setLabel("Spin again").setStyle(ButtonStyle.Primary).setEmoji("🎰");
+    const changeBetButton = new ButtonBuilder().setCustomId(changeBetID).setLabel("Change bet").setStyle(ButtonStyle.Secondary).setEmoji("🔄");
+
+    function buildUI(isFinal: boolean, resultText?: string, dialogue?: string): V2Reply {
+        const sections = [
+            {
+                text: `You bet **${Functions.localeNumber(bet)}** ${ctx.client.localEmojis.jocoins}.`
+            },
+            {
+                text: formatSlotGrid(slotMachineFruits)
+            }
+        ];
+
+        if (resultText) {
+            sections.push({ text: resultText });
+        }
+
+        if (dialogue) {
+            sections.push({ text: dialogue });
+        }
+
+        const reply = containers.primary({
+            title: `🎰 Slots Machine`,
+            sections,
+            sectionDividers: true,
+            color: isFinal ? resultKindColor(resultText) : COLORS.accent,
+            footer: `Balance: ${Functions.localeNumber(ctx.userData.coins)} ${ctx.client.localEmojis.jocoins}`,
+        });
+
+        if (isFinal) {
+            reply.components.push(Functions.actionRow([pullAgainButton, changeBetButton]));
+        }
+        return reply;
+    }
+
+    while (left > 0) {
+        await ctx.makeMessage(buildUI(false, `Spinning... **${left}**`));
+        await new Promise(r => setTimeout(r, 800));
+        slotMachineFruits = slotMachineFruits.slice(3);
+        if (slotMachineFruits.length < 9) slotMachineFruits = Functions.shuffle([...fruits, ...fruits]);
+        left--;
+    }
+
+    // Final result
+    const oldData = cloneDeep(ctx.userData);
+    let multiplier = 0;
+    let resultKind: "jackpot" | "win" | "loss" = "loss";
+
+    if (slotMachineFruits[3] === slotMachineFruits[4] && slotMachineFruits[4] === slotMachineFruits[5]) {
+        resultKind = "jackpot";
+        multiplier = (slotsChart[slotMachineFruits[3] as keyof typeof slotsChart] as any)[3];
+    } else if (slotMachineFruits[3] === slotMachineFruits[4] || slotMachineFruits[4] === slotMachineFruits[5] || slotMachineFruits[3] === slotMachineFruits[5]) {
+        const match = slotMachineFruits[3] === slotMachineFruits[4] ? slotMachineFruits[3] : (slotMachineFruits[4] === slotMachineFruits[5] ? slotMachineFruits[4] : slotMachineFruits[3]);
+        multiplier = (slotsChart[match as keyof typeof slotsChart] as any)[2];
+        if (multiplier) resultKind = "win";
+    }
+
+    let net = 0;
+    let dialogue = "";
+    let resultText = "";
+
+    if (resultKind === "jackpot") {
+        net = Math.round(bet * multiplier);
+        resultText = `🎰 **JACKPOT!** You won ${Functions.localeNumber(net)} ${ctx.client.localEmojis.jocoins}!`;
+        dialogue = Functions.randomArray(ctx.translate<string[]>("casino:JACKPOT_MESSAGES", { returnObjects: true })).trim();
+    } else if (resultKind === "win") {
+        net = Math.round(bet * multiplier);
+        resultText = `🏆 **WIN!** You won ${Functions.localeNumber(net)} ${ctx.client.localEmojis.jocoins}!`;
+        dialogue = Functions.randomArray(ctx.translate<string[]>("casino:BASIC_WIN_MESSAGES", { returnObjects: true, win: Functions.localeNumber(net) })).trim();
+    } else {
+        net = -bet;
+        resultText = `💥 **LOSE!** You lost ${Functions.localeNumber(bet)} ${ctx.client.localEmojis.jocoins}.`;
+        dialogue = Functions.randomArray(ctx.translate<string[]>("casino:LOSE_MESSAGES", { returnObjects: true, emojis: ctx.client.localEmojis })).trim();
+    }
+
+    Functions.addCoins(ctx.userData, net);
+    
+    const tx = await ctx.client.database.handleTransaction(
+        [{ oldData, newData: ctx.userData }],
+        `Slots: ${resultKind} (bet=${bet}, net=${net})`
+    );
+
+    if (!tx) {
+        await ctx.makeMessage(containers.error("Transaction failed. Your coins were not moved."));
+        await ctx.client.database.redis.del(`tempCache_slotsLock_${ctx.user.id}`).catch(() => 0);
+        return;
+    } else {
+        await ctx.makeMessage(buildUI(true, resultText, dialogue));
+    }
+
+    // Release lock for "Pull Again" collector
+    await ctx.client.database.redis.del(`tempCache_slotsLock_${ctx.user.id}`).catch(() => 0);
+
+    const finalCollector = ctx.channel.createMessageComponentCollector({
+        filter: (i) => i.user.id === ctx.user.id,
+        time: 30000,
+        max: 1
+    });
+
+    finalCollector.on("collect", async (i) => {
+        if (i.customId === pullAgainID) {
+            await i.deferUpdate();
+            await runGame(ctx, bet);
+        } else if (i.customId === changeBetID) {
+            // Re-invoke the command to show initial screen with Change Bet option
+            // Or better, just show the modal here?
+            // To keep it simple, we'll re-invoke execute
+            await i.deferUpdate();
+            await slashCommand.execute(ctx);
+        }
+    });
 }
 
-const results = {
-    win: 0,
-    loose: 0,
-    jackpot: 0,
-};
-
-function runMachineConsole(slotMachineFruits: string[], left: number): void {
-    let msg =
-        "[  :slot_machine: | **CASINO** ]\n+----------------+\n" +
-        "| " +
-        slotMachineFruits[0] +
-        " : " +
-        slotMachineFruits[1] +
-        " : " +
-        slotMachineFruits[2] +
-        "  | \n" +
-        "| " +
-        slotMachineFruits[3] +
-        " : " +
-        slotMachineFruits[4] +
-        " : " +
-        slotMachineFruits[5] +
-        "  | **<**\n" +
-        "| " +
-        slotMachineFruits[6] +
-        " : " +
-        slotMachineFruits[7] +
-        " : " +
-        slotMachineFruits[8] +
-        "  | \n+----------------+\n";
-    let followUpMsg: string;
-
-    let loose = true;
-
-    if (left === 0) {
-        if (
-            slotMachineFruits[3] === slotMachineFruits[4] &&
-            slotMachineFruits[4] === slotMachineFruits[5]
-        ) {
-            // JACKPOT
-            const multiplier = slotsChart[slotMachineFruits[3] as keyof typeof slotsChart][3];
-            loose = false;
-
-            msg += "| : : **JACKPOT** : : |\n";
-            followUpMsg = "JACKPOT";
-            results.jackpot++;
-        } else if (
-            slotMachineFruits[3] === slotMachineFruits[4] ||
-            slotMachineFruits[4] === slotMachineFruits[5] ||
-            slotMachineFruits[3] === slotMachineFruits[5]
-        ) {
-            // 2/3
-            const emojiMatch =
-                slotMachineFruits[3] === slotMachineFruits[4]
-                    ? slotMachineFruits[3]
-                    : slotMachineFruits[4] === slotMachineFruits[5]
-                    ? slotMachineFruits[4]
-                    : slotMachineFruits[3];
-            const multiplier = slotsChart[emojiMatch as keyof typeof slotsChart][2];
-            if (multiplier) {
-                msg += "| : : : : **WIN** : : : : |";
-                loose = false;
-                followUpMsg = "WIN";
-                results.win++;
-            }
-        }
-
-        if (loose) {
-            msg += "| : : : : **LOOSE** : : : : |";
-            followUpMsg = "LOOSE";
-            results.loose++;
-        }
-
-        console.log(msg);
-        console.log(followUpMsg);
-    }
+function resultKindColor(resultText?: string): number {
+    if (!resultText) return COLORS.accent;
+    if (resultText.includes("LOSE")) return COLORS.error;
+    if (resultText.includes("JACKPOT")) return COLORS.warning;
+    return COLORS.success;
 }
 
 export default slashCommand;

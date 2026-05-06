@@ -1,4 +1,4 @@
-import { SlashCommandFile, Shop, Item } from "../../@types";
+import { SlashCommandFile, Shop } from "../../@types";
 import {
     Message,
     InteractionResponse,
@@ -9,11 +9,6 @@ import {
     ActionRowBuilder,
     ButtonInteraction,
     MessageActionRowComponentBuilder,
-    ComponentType,
-    TextDisplayBuilder,
-    SeparatorBuilder,
-    SeparatorSpacingSize,
-    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -21,7 +16,7 @@ import * as Shops from "../../rpg/Shops";
 import * as Stands from "../../rpg/Stands/Stands";
 import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
 import { cloneDeep } from "lodash";
-import { containers, SectionData, COLORS, EMOJIS } from "../../utils/containers";
+import { containers, SectionData, EMOJIS } from "../../utils/containers";
 import { emojiBar } from "../../utils/emojiBar";
 
 export const standPrice = {
@@ -305,42 +300,36 @@ const slashCommand: SlashCommandFile = {
 
                 const goBackButton = new ButtonBuilder()
                     .setCustomId("go_back_shop")
-                    .setStyle(ButtonStyle.Primary)
-                    .setLabel("Go Back")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setLabel("Back")
                     .setEmoji("⬅️");
 
-                const containerComponents: any[] = [];
-                
-                containerComponents.push(new TextDisplayBuilder().setContent(`## ${xitem.emoji} ${xitem.name}`).toJSON());
-                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
-
-                const itemDesc = `${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${bonusesText}\n\n${!xitem.storable ? "`[Not Storable]` (Used on purchase)" : ""}`.trim();
-                containerComponents.push(new TextDisplayBuilder().setContent(itemDesc).toJSON());
-                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
-                
-                containerComponents.push({
-                    type: ComponentType.ActionRow,
-                    components: [selectMenu.toJSON()]
-                });
-                containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+                const sections: SectionData[] = [
+                    {
+                        text: `${currencyEmoji} Cost: **${unitPrice.toLocaleString()}** ${currencyName}${
+                            !xitem.storable ? "\n> Used immediately on purchase." : ""
+                        }${bonusesText}`,
+                    },
+                ];
 
                 if (Functions.isConsumable(xitem)) {
-                    containerComponents.push(new TextDisplayBuilder().setContent(bars).toJSON());
-                    containerComponents.push(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small).toJSON());
+                    sections.push({ text: bars });
                 }
 
-                containerComponents.push(new TextDisplayBuilder().setContent(`-# ${footerText}`).toJSON());
+                const replyData = containers.primary({
+                    title: `${xitem.emoji} ${xitem.name}`,
+                    sections,
+                    sectionDividers: true,
+                    selectMenus: [selectMenu],
+                    footer: footerText,
+                });
 
                 return {
                     components: [
-                        {
-                            type: ComponentType.Container,
-                            accentColor: COLORS.primary,
-                            components: containerComponents
-                        },
+                        ...replyData.components,
                         new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(goBackButton)
                     ],
-                    flags: MessageFlags.IsComponentsV2
+                    flags: replyData.flags
                 };
             }
 
@@ -380,21 +369,21 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 return {
-                    text: `### ${xitem.emoji} ${xitem.name}${!xitem.storable ? " \`[NS]\`" : ""}\n\n${currencyEmoji} Cost: **${price.toLocaleString()}** ${currencyName}${bonusesText}`,
+                    text: `${xitem.emoji} **${xitem.name}**${!xitem.storable ? " `[NS]`" : ""}\n> Cost: **${price.toLocaleString()}** ${currencyEmoji}${bonusesText}`,
                     accessory: new ButtonBuilder()
                         .setCustomId(`view_item_${xitem.id}`)
                         .setStyle(ButtonStyle.Secondary)
-                        .setLabel("Select")
+                        .setLabel("...")
                 };
             });
 
             const replyData = containers.primary({
                 title: `${shop.emoji} ${shop.name}`,
-                //description: bars,
+                description: `Choose an item to inspect, then select how many to buy.`,
                 descriptionDivider: true,
                 sections: sections,
                 sectionDividers: true,
-                footer: footerText,
+                footer: `${footerText} Page ${currentPage + 1}/${totalPages}.`,
             });
 
             const actionRows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [];

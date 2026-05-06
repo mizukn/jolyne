@@ -5,6 +5,7 @@ import {
     i18n_key,
     RequirementStatus,
     SideQuest,
+    RPGUserQuest,
 } from "../../@types";
 import {
     Message,
@@ -159,22 +160,118 @@ const slashCommand: SlashCommandFile = {
 
             const sideQuestRequirementStatus = Functions.getSideQuestRequirements(SideQuest, ctx);
 
-            const sqReply = generateSideQuestReply(SideQuest, status, sideQuestRequirementStatus, ctx);
+            const userSideQuest = ctx.userData.sideQuests.find((x) => x.id === sideQuest);
+            let currentPage = 0;
+            const totalPages = Math.max(
+                1,
+                Math.ceil(status.message.split("\n").filter(Boolean).length / Functions.QUEST_LIST_ITEMS_PER_PAGE),
+            );
+            const buildSideQuestReply = () =>
+                generateSideQuestReply(
+                    SideQuest,
+                    status,
+                    sideQuestRequirementStatus,
+                    ctx,
+                    undefined,
+                    userSideQuest.quests,
+                    currentPage,
+                );
+
+            const sqReply = buildSideQuestReply();
+            if (totalPages > 1) {
+                sqReply.components.push(
+                    Functions.actionRow([
+                        new ButtonBuilder()
+                            .setCustomId(ctx.interaction.id + "side-quest-prev")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji("⬅️")
+                            .setDisabled(currentPage === 0),
+                        new ButtonBuilder()
+                            .setCustomId(ctx.interaction.id + "side-quest-page")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setLabel(`${currentPage + 1} / ${totalPages}`)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId(ctx.interaction.id + "side-quest-next")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji("➡️")
+                            .setDisabled(currentPage === totalPages - 1),
+                    ]),
+                );
+            }
             if (components.length > 0) {
                 sqReply.components.push(Functions.actionRow(components));
             }
             ctx.makeMessage(sqReply);
 
-            if (components.length !== 0) {
+            if (components.length !== 0 || status.message) {
                 const collector = ctx.channel.createMessageComponentCollector({
                     filter: (i) =>
                         (i.user.id === ctx.user.id && i.customId === rewardsButtonID) ||
                         (i.user.id === ctx.user.id && i.customId === redoQuestID) ||
                         (i.user.id === ctx.user.id && i.customId === deleteId) ||
-                        (i.user.id === ctx.user.id && i.customId === reloadQuestsButtonID),
+                        (i.user.id === ctx.user.id && i.customId === reloadQuestsButtonID) ||
+                        (i.user.id === ctx.user.id && i.customId === ctx.interaction.id + "side-quest-prev") ||
+                        (i.user.id === ctx.user.id && i.customId === ctx.interaction.id + "side-quest-next"),
                     time: 60000,
                 });
                 collector.on("collect", async (i) => {
+                    if (i.customId === ctx.interaction.id + "side-quest-prev") {
+                        currentPage = Math.max(0, currentPage - 1);
+                        const reply = buildSideQuestReply();
+                        if (totalPages > 1) {
+                            reply.components.push(
+                                Functions.actionRow([
+                                    new ButtonBuilder()
+                                        .setCustomId(ctx.interaction.id + "side-quest-prev")
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setEmoji("⬅️")
+                                        .setDisabled(currentPage === 0),
+                                    new ButtonBuilder()
+                                        .setCustomId(ctx.interaction.id + "side-quest-page")
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setLabel(`${currentPage + 1} / ${totalPages}`)
+                                        .setDisabled(true),
+                                    new ButtonBuilder()
+                                        .setCustomId(ctx.interaction.id + "side-quest-next")
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setEmoji("➡️")
+                                        .setDisabled(currentPage === totalPages - 1),
+                                ]),
+                            );
+                        }
+                        if (components.length > 0) reply.components.push(Functions.actionRow(components));
+                        return i.update(reply);
+                    }
+
+                    if (i.customId === ctx.interaction.id + "side-quest-next") {
+                        currentPage = Math.min(totalPages - 1, currentPage + 1);
+                        const reply = buildSideQuestReply();
+                        if (totalPages > 1) {
+                            reply.components.push(
+                                Functions.actionRow([
+                                    new ButtonBuilder()
+                                        .setCustomId(ctx.interaction.id + "side-quest-prev")
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setEmoji("⬅️")
+                                        .setDisabled(currentPage === 0),
+                                    new ButtonBuilder()
+                                        .setCustomId(ctx.interaction.id + "side-quest-page")
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setLabel(`${currentPage + 1} / ${totalPages}`)
+                                        .setDisabled(true),
+                                    new ButtonBuilder()
+                                        .setCustomId(ctx.interaction.id + "side-quest-next")
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setEmoji("➡️")
+                                        .setDisabled(currentPage === totalPages - 1),
+                                ]),
+                            );
+                        }
+                        if (components.length > 0) reply.components.push(Functions.actionRow(components));
+                        return i.update(reply);
+                    }
+
                     i.deferUpdate().catch(() => {});
                     if (await ctx.antiCheat(true)) return;
                     const oldData = cloneDeep(ctx.userData);
@@ -323,7 +420,7 @@ const slashCommand: SlashCommandFile = {
             const status = getQuestsStats(quests, ctx);
             const sideQuestRequirementStatus = Functions.getSideQuestRequirements(SideQuest, ctx);
             ctx.makeMessage(
-                generateSideQuestReply(SideQuest, status, sideQuestRequirementStatus, ctx, `Preview: \`${SideQuest.id}\``)
+                generateSideQuestReply(SideQuest, status, sideQuestRequirementStatus, ctx, `Preview: \`${SideQuest.id}\``, quests)
             );
         }
     },
@@ -367,26 +464,50 @@ function generateSideQuestReply(
         message: string;
     },
     ctx: CommandInteractionContext,
-    footer?: string
+    footer?: string,
+    quests?: RPGUserQuest[],
+    currentPage = 0,
 ): V2Reply {
     const extraInfo: string[] = [];
     if (sideQuest.cancelQuestIfRequirementsNotMetAnymore)
         extraInfo.push(
-            "-# - This side quest will be automatically erased if you don't meet the requirements anymore."
+            "This side quest will be automatically erased if you don't meet the requirements anymore."
         );
     if (sideQuest.canRedoSideQuest)
-        extraInfo.push("-# - You'll be able to redo this side quest as much as you want");
+        extraInfo.push("You'll be able to redo this side quest as much as you want.");
     if (sideQuest.canReloadQuests)
         extraInfo.push(
-            "-# - You can reload this side quest whenever you want, but note that it will reset your progress"
+            "You can reload this side quest whenever you want, but note that it will reset your progress."
         );
+
+    const questRows = Functions.buildQuestListRows(
+        ctx,
+        quests ?? [],
+        status.message,
+        undefined,
+    );
+    const totalPages = Math.max(1, Math.ceil(questRows.length / Functions.QUEST_LIST_ITEMS_PER_PAGE));
+    const firstQuest = currentPage * Functions.QUEST_LIST_ITEMS_PER_PAGE;
+    const sections = [
+        {
+            text: `${ctx.client.localEmojis.a_} **Requirements**\n${sideQuestRequirementStatus.message}`,
+        },
+        ...questRows.slice(firstQuest, firstQuest + Functions.QUEST_LIST_ITEMS_PER_PAGE),
+    ];
+
+    if (extraInfo.length > 0) {
+        sections.push({
+            text: extraInfo.map((line) => `-# - ${line}`).join("\n"),
+        });
+    }
 
     return containers.primary({
         title: `${sideQuest.emoji} ${sideQuest.title}`,
-        description: `\`\`\`\n${sideQuest.description}\n\`\`\`\n${extraInfo.join("\n")}\n\n${
-            ctx.client.localEmojis.a_
-        } **__Requirements:__**\n${sideQuestRequirementStatus.message}\n\n📜 **__Quests:__** (${status.percent.toFixed(2)}%)\n${status.message}`,
-        color: sideQuest.color,
-        footer,
+        description: `\`\`\`\n${sideQuest.description}\n\`\`\`\nProgress: **${status.percent.toFixed(2)}%**`,
+        descriptionDivider: true,
+        sections,
+        sectionDividers: true,
+        color: sideQuest.color ?? Functions.QUEST_LIST_ACCENT_COLOR,
+        footer: footer ?? `Page ${currentPage + 1}/${totalPages}.`,
     });
 }

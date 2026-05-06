@@ -3,7 +3,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import { SlashCommandFile } from "../../@types";
 import * as Functions from "../../utils/Functions";
 import * as NPCs from "../../rpg/NPCs/NPCs";
-import { containers, V2Reply } from "../../utils/containers";
+import { COLORS, containers, V2Reply } from "../../utils/containers";
 import { cloneDeep } from "lodash";
 
 const RANKS = [
@@ -60,6 +60,7 @@ const RANK_EMOJI: Record<Rank, string> = {
 
 const HIDDEN_CARD = "<:unkcard:1301222170982088744>";
 const RESULT_DOT: Record<string, string> = { W: "🟢", L: "🔴", P: "🟡", B: "🟣" };
+const DARBY = NPCs.Daniel_J_DArby;
 
 interface Card {
     rank: Rank;
@@ -70,8 +71,7 @@ type ResultKind = "blackjack" | "win" | "dealer-bust" | "push" | "loss" | "bust"
 
 interface GameResult {
     kind: ResultKind;
-    net: number; // signed coin delta vs. the placed bet
-    payout: number; // amount to credit back at settlement
+    net: number; // signed coin delta — applied to the user's balance at settlement
     historyChar: "W" | "L" | "P" | "B";
 }
 
@@ -184,6 +184,21 @@ function resultLine(result: GameResult, coins: string, dealerVal: number, player
     }
 }
 
+function darbyLine(text: string): string {
+    return `${DARBY.emoji} **Daniel J. D'Arby:** ${text}`;
+}
+
+function resultColor(result?: GameResult): number {
+    if (!result) return COLORS.accent;
+    if (result.kind === "push") return COLORS.warning;
+    if (result.net > 0) return COLORS.success;
+    return COLORS.error;
+}
+
+function errorReply(description: string): V2Reply {
+    return containers.warning(darbyLine(description));
+}
+
 const slashCommand: SlashCommandFile = {
     data: {
         name: "blackjack",
@@ -201,36 +216,24 @@ const slashCommand: SlashCommandFile = {
 
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
         if (ctx.client.otherCache.get("disableBlackjack")) {
-            return void ctx.makeMessage({
-                content: Functions.makeNPCString(
-                    NPCs.Daniel_J_DArby,
-                    `This command is disabled for now.`
-                ),
-            });
+            return void ctx.makeMessage(errorReply("This table is closed for now."));
         }
 
         const bet = ctx.options.getInteger("bet", true);
         if (bet < 1) {
-            return void ctx.makeMessage({
-                content: Functions.makeNPCString(NPCs.Daniel_J_DArby, `Place a real bet.`),
-            });
+            return void ctx.makeMessage(errorReply("Place a real bet."));
         }
 
         // Concurrent-game lock with a 10-minute fallback expiry. Atomically
         // refuses a second blackjack while one is still in flight, which is
         // what previously let users multiply payouts by racing games.
-        const lockKey = `bjLock_${ctx.user.id}`;
+        const lockKey = `tempCache_bjLock_${ctx.user.id}`;
         const lockResult = await ctx.client.database.redis.set(lockKey, "1", {
             NX: true,
             EX: 600,
         });
         if (lockResult === null) {
-            return void ctx.makeMessage({
-                content: Functions.makeNPCString(
-                    NPCs.Daniel_J_DArby,
-                    `One game at a time, kid. Finish your current hand first.`
-                ),
-            });
+            return void ctx.makeMessage(errorReply("One game at a time, kid. Finish your current hand first."));
         }
         const releaseLock = () => ctx.client.database.redis.del(lockKey).catch(() => 0);
 
@@ -239,21 +242,11 @@ const slashCommand: SlashCommandFile = {
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
         if (ctx.userData.coins < 1) {
             await releaseLock();
-            return void ctx.makeMessage({
-                content: Functions.makeNPCString(
-                    NPCs.Daniel_J_DArby,
-                    `You're broke. Get out of here!`
-                ),
-            });
+            return void ctx.makeMessage(errorReply("You're broke. Get out of here!"));
         }
         if (bet > ctx.userData.coins) {
             await releaseLock();
-            return void ctx.makeMessage({
-                content: Functions.makeNPCString(
-                    NPCs.Daniel_J_DArby,
-                    `You don't have enough coins for that bet.`
-                ),
-            });
+            return void ctx.makeMessage(errorReply("You don't have enough coins for that bet."));
         }
 
         // Persisted addiction-loop state.
@@ -286,21 +279,9 @@ const slashCommand: SlashCommandFile = {
         if (await ctx.client.database.getString(`bjblacklist_${ctx.user.id}`)) bias = 1;
         if (ctx.client.patreons.find((x) => x.id === ctx.user.id)) bias *= 0.6;
 
-        // Lock the funds by deducting the bet up front; settlement adds the
-        // payout (refund + winnings) back at the end.
-        const preBetData = cloneDeep(ctx.userData);
-        Functions.addCoins(ctx.userData, -bet);
-        const placeBetTx = await ctx.client.database.handleTransaction(
-            [{ oldData: preBetData, newData: ctx.userData }],
-            `Blackjack: bet placed (${bet} coins)`
-        );
-        if (!placeBetTx) {
-            await releaseLock();
-            return void ctx.makeMessage({
-                content: `SYSTEM: Failed to place your bet. Try again.`,
-            });
-        }
-
+        // No coins move until the hand resolves — if the bot crashes mid-game
+        // the lock just expires and the user keeps their balance. The Redis
+        // lock above is what actually blocks the racing exploit.
         const counter =
             parseInt(await ctx.client.database.getString(`tempCache_blackjack_${ctx.user.id}`)) || 0;
         const standID = Functions.generateRandomId();
@@ -320,13 +301,13 @@ const slashCommand: SlashCommandFile = {
 
             const sections: { text: string }[] = [
                 {
-                    text: `### Dealer's Hand (Value: ${dealerDisplay})\n${formatHand(
+                    text: `**Dealer** — ${dealerDisplay}\n${formatHand(
                         dealerCards,
                         !reveal
                     )}`,
                 },
                 {
-                    text: `### Your Hand (Value: ${playerVal})\n${formatHand(playerCards)}`,
+                    text: `**${ctx.user.username}** — ${playerVal}\n${formatHand(playerCards)}`,
                 },
             ];
 
@@ -334,9 +315,18 @@ const slashCommand: SlashCommandFile = {
                 sections.push({
                     text: resultLine(result, jocoinsEmoji, dealerVal, playerVal),
                 });
+                sections.push({
+                    text: darbyLine(
+                        result.net > 0
+                            ? `The cards favor you today. You won **${Math.abs(result.net).toLocaleString("en-US")}** ${jocoinsEmoji}.`
+                            : result.net < 0
+                              ? `Bad hand. You lost **${Math.abs(result.net).toLocaleString("en-US")}** ${jocoinsEmoji}.`
+                              : "A push. How terribly polite of fate."
+                    ),
+                });
             } else {
                 const lines: string[] = [
-                    `💰 **Bet:** ${bet.toLocaleString("en-US")} ${jocoinsEmoji}`,
+                    `You bet **${bet.toLocaleString("en-US")}** ${jocoinsEmoji}.`,
                 ];
                 if (streak > 0) lines.push(`🔥 **Win streak:** ${streak}`);
                 else if (streak < 0) lines.push(`💔 **Loss streak:** ${Math.abs(streak)}`);
@@ -351,9 +341,11 @@ const slashCommand: SlashCommandFile = {
             }
 
             const reply = containers.primary({
-                title: "🃏 Blackjack",
+                title: `${DARBY.emoji} Blackjack`,
                 sections,
                 sectionDividers: true,
+                color: resultColor(result),
+                footer: `Balance: ${ctx.userData.coins.toLocaleString("en-US")} ${jocoinsEmoji}`,
             });
 
             const hitButton = new ButtonBuilder()
@@ -378,48 +370,34 @@ const slashCommand: SlashCommandFile = {
             const playerNatural = isBlackjack(playerCards);
             const dealerNatural = isBlackjack(dealerCards);
 
-            if (playerVal > 21) {
-                return { kind: "bust", net: -bet, payout: 0, historyChar: "L" };
-            }
+            if (playerVal > 21) return { kind: "bust", net: -bet, historyChar: "L" };
             if (playerNatural && !dealerNatural) {
-                const winnings = Math.round(bet * 1.5);
-                return {
-                    kind: "blackjack",
-                    net: winnings,
-                    payout: bet + winnings,
-                    historyChar: "B",
-                };
+                return { kind: "blackjack", net: Math.round(bet * 1.5), historyChar: "B" };
             }
             if (dealerNatural && !playerNatural) {
-                return { kind: "loss", net: -bet, payout: 0, historyChar: "L" };
+                return { kind: "loss", net: -bet, historyChar: "L" };
             }
             if (playerNatural && dealerNatural) {
-                return { kind: "push", net: 0, payout: bet, historyChar: "P" };
+                return { kind: "push", net: 0, historyChar: "P" };
             }
-            if (dealerVal > 21) {
-                return { kind: "dealer-bust", net: bet, payout: bet * 2, historyChar: "W" };
-            }
-            if (playerVal > dealerVal) {
-                return { kind: "win", net: bet, payout: bet * 2, historyChar: "W" };
-            }
-            if (playerVal === dealerVal) {
-                return { kind: "push", net: 0, payout: bet, historyChar: "P" };
-            }
-            return { kind: "loss", net: -bet, payout: 0, historyChar: "L" };
+            if (dealerVal > 21) return { kind: "dealer-bust", net: bet, historyChar: "W" };
+            if (playerVal > dealerVal) return { kind: "win", net: bet, historyChar: "W" };
+            if (playerVal === dealerVal) return { kind: "push", net: 0, historyChar: "P" };
+            return { kind: "loss", net: -bet, historyChar: "L" };
         }
 
         async function settle(result: GameResult): Promise<void> {
             try {
                 ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
                 const oldData = cloneDeep(ctx.userData);
-                if (result.payout > 0) Functions.addCoins(ctx.userData, result.payout);
+                if (result.net !== 0) Functions.addCoins(ctx.userData, result.net);
                 const tx = await ctx.client.database.handleTransaction(
                     [{ oldData, newData: ctx.userData }],
-                    `Blackjack: ${result.kind} (bet=${bet}, payout=${result.payout})`
+                    `Blackjack: ${result.kind} (bet=${bet}, net=${result.net})`
                 );
                 if (!tx) {
                     ctx.client.log(
-                        `Blackjack payout transaction failed for user ${ctx.user.id} (kind=${result.kind}, bet=${bet}, payout=${result.payout})`,
+                        `Blackjack settlement transaction failed for user ${ctx.user.id} (kind=${result.kind}, bet=${bet}, net=${result.net})`,
                         "error"
                     );
                 }
@@ -513,17 +491,7 @@ const slashCommand: SlashCommandFile = {
 
         collector.on("end", async () => {
             try {
-                if (!endedByPlay) {
-                    // Timed out without playing a card — refund the bet.
-                    ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
-                    const oldData = cloneDeep(ctx.userData);
-                    Functions.addCoins(ctx.userData, bet);
-                    await ctx.client.database.handleTransaction(
-                        [{ oldData, newData: ctx.userData }],
-                        `Blackjack: timeout refund (${bet} coins)`
-                    );
-                    return;
-                }
+                if (!endedByPlay) return;
 
                 // Player hit to exactly 21 — dealer still needs to play out.
                 if (handValue(playerCards) === 21) {

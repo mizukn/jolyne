@@ -591,6 +591,136 @@ export const generateDiscordTimestamp = (
         .replace("FULL_D", "F")}>`;
 };
 
+export const QUEST_LIST_ACCENT_COLOR = 0xf5a14f;
+export const QUEST_LIST_ITEMS_PER_PAGE = 3;
+
+export const makeNPCLine = (npc: Pick<NPC, "emoji" | "name">, text: string): string => {
+    return `${npc.emoji ?? ""} **${npc.name}:** ${text}`.trim();
+};
+
+const normalizeQuestProgressText = (progress: string): string => {
+    return progress
+        .trim()
+        .replace(/^\((.*)\)$/, "$1")
+        .replace(/\*\*/g, "")
+        .replace(/:white_check_mark:/g, "✅")
+        .replace(/:x:/g, "❌");
+};
+
+export const formatQuestListLine = (line: string): string => {
+    return line
+        .replace(/^<a?:reply(?:End)?:\d+>\s*/i, "")
+        .replace(/^<a?:[^:]+:\d+>\s*/i, "")
+        .replace(/\s*\|\|(.*?)\|\|/g, (_, progress: string) => {
+            return `\n> Progression: ${normalizeQuestProgressText(progress)}`;
+        })
+        .replace(/[^\S\n]{2,}/g, " ")
+        .trim();
+};
+
+export const getQuestProgressText = (line: string): string => {
+    const progress = line.match(/\|\|(.*?)\|\|/)?.[1];
+    if (!progress) return "In progress";
+    return normalizeQuestProgressText(progress);
+};
+
+export const getQuestDisplayEmoji = (
+    quest: RPGUserQuest,
+    ctx: CommandInteractionContext,
+): string => {
+    if (isFightNPCQuest(quest)) return "⚔️";
+    if (isRaidNPCQuest(quest)) return "💣";
+    if (isStartDungeonQuest(quest)) return "🗝️";
+    if (isMustReadEmailQuest(quest)) return "✉️";
+    if (isWaitQuest(quest)) return ctx.client.localEmojis.timerIcon ?? "⏳";
+    if (isActionQuest(quest)) return quest.emoji ?? "✨";
+    if (isAnswerChineseNewYearQuizQuest(quest)) return "❓";
+    if (isClaimItemQuest(quest)) return findItem(quest.item)?.emoji ?? "🎁";
+    if (isClaimXQuest(quest)) {
+        return {
+            coin: ctx.client.localEmojis.jocoins,
+            xp: ctx.client.localEmojis.xp,
+            daily: "📆",
+            social_credit: ctx.client.localEmojis.social_credit,
+        }[quest.x];
+    }
+    if (isUseXCommandQuest(quest)) {
+        return {
+            assault: "⚔️",
+            loot: "🎁",
+            raid: "💣",
+            dungeon: "🗝️",
+            slots: "🎰",
+            blackjack: "🃏",
+        }[quest.command] ?? "▶️";
+    }
+    return "emoji" in quest && typeof quest.emoji === "string" ? quest.emoji : "📜";
+};
+
+export const getDailyQuestRowRewards = (
+    quest: RPGUserQuest,
+    ctx: CommandInteractionContext,
+): { coins: number; xp: number } => {
+    let coins = 100;
+    let xp = 75;
+
+    if (isClaimItemQuest(quest) || isClaimXQuest(quest)) {
+        coins = quest.goal / 5;
+        xp = quest.goal / 15;
+    } else if (isFightNPCQuest(quest)) {
+        const npc = Object.values(FightableNPCS).find((r) => r.id === quest.npc);
+        if (npc) {
+            coins = (npc.level + 1) * 100;
+            xp = (npc.level + 1) * 10;
+        }
+    }
+
+    xp = Math.round(xp * 1.99);
+    if (
+        ctx.client.patreons.find((r) => r.id === ctx.userData.id) ||
+        ctx.client.boosters.find((r) => r === ctx.userData.id)
+    ) {
+        xp = Math.round(xp * 1.1);
+    }
+
+    return {
+        coins: Math.round(coins),
+        xp,
+    };
+};
+
+export const buildQuestListRows = (
+    ctx: CommandInteractionContext,
+    quests: RPGUserQuest[],
+    statusMessage: string,
+    _customIdPrefix?: string,
+    rewardLine?: (quest: RPGUserQuest, index: number) => string | null,
+): { text: string }[] => {
+    return statusMessage
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => line.trim())
+        .map((line, index) => {
+            const quest = quests[index] ?? quests[0];
+            const cleanedLine = formatQuestListLine(line).split("\n> Progression:")[0].trim();
+            const rewards = quest ? rewardLine?.(quest, index) : null;
+            const rewardText = rewards ? `\n> Rewards: ${rewards}` : "";
+
+            return {
+                text:
+                    `${quest ? getQuestDisplayEmoji(quest, ctx) : "📜"} **${index + 1}.** ${cleanedLine}` +
+                    rewardText +
+                    `\n> Progression: ${getQuestProgressText(line)}`,
+            };
+        });
+};
+
+export const fieldSections = (fields: { name: string; value: string }[]): { text: string }[] => {
+    return fields.map((field) => ({
+        text: `**${field.name}**\n${field.value}`,
+    }));
+};
+
 export const localeNumber = (num: number): string => {
     return num?.toLocaleString();
 };
