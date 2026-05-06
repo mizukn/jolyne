@@ -67,13 +67,14 @@ const slashCommand: SlashCommandFile = {
         }
 
         switch (ctx.interaction.options.getSubcommand()) {
+            case "start":
             case "rest": {
                 getStats().then(async (stats) => {
                     if (stats.health === undefined || isNaN(stats.health)) {
                         ctx.userData.restingAtCampfire = Date.now();
                         ctx.makeMessage({
                             content: `🔥🪵 You're now resting at the campfire. Use this command again to see what you've gained. You can leave the campfire with ${ctx.client.getSlashCommandMention(
-                                "campfire leave"
+                                "rest leave"
                             )} command.`,
                         });
                         ctx.client.database.saveUserData(ctx.userData);
@@ -92,7 +93,7 @@ const slashCommand: SlashCommandFile = {
                             )}/${Functions.getMaxStamina(ctx.userData).toLocaleString(
                                 "en-US"
                             )} :zap:].\n You can leave the campfire with ${ctx.client.getSlashCommandMention(
-                                "campfire leave"
+                                "rest leave"
                             )} command.`,
                         });
                     }
@@ -104,7 +105,7 @@ const slashCommand: SlashCommandFile = {
                     if (stats.health === undefined || isNaN(stats.health)) {
                         ctx.makeMessage({
                             content: `You're not resting at the campfire. Use ${ctx.client.getSlashCommandMention(
-                                "campfire rest"
+                                "rest start"
                             )} to rest.`,
                         });
                     } else {

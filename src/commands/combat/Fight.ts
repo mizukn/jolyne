@@ -418,7 +418,7 @@ const slashCommand: SlashCommandFile = {
                     if (fightType === FightTypes.DailyQuest) {
                         command = ctx.client.getSlashCommandMention("daily quests");
                     } else if (fightType === FightTypes.ChapterQuest) {
-                        command = ctx.client.getSlashCommandMention("chapter");
+                        command = ctx.client.getSlashCommandMention("story");
                     } else if (fightType === FightTypes.SideQuest) {
                         command = ctx.client.getSlashCommandMention("side quest view");
                     }
@@ -428,7 +428,7 @@ const slashCommand: SlashCommandFile = {
                             ctx.userData.daily.quests.push(quest.pushQuestWhenCompleted);
                             command = ctx.client.getSlashCommandMention("daily quests");
                         } else if (fightType === FightTypes.ChapterQuest) {
-                            command = ctx.client.getSlashCommandMention("chapter");
+                            command = ctx.client.getSlashCommandMention("story");
                             ctx.userData.chapter.quests.push(quest.pushQuestWhenCompleted);
                         } else if (fightType === FightTypes.SideQuest) {
                             command = ctx.client.getSlashCommandMention("side quest view");

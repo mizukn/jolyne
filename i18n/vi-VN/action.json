@@ -22,7 +22,7 @@
     "DESCRIPTION": "Go to the airport"
   },
   "TYGAD": {
-    "SUCCESS": "📧 You've successfully sent an e-mail about the current situation to your Grandfather. Now, wait for him to answer. Use the {{command.chapter}} to see how long it will take.",
+    "SUCCESS": "📧 You've successfully sent an e-mail about the current situation to your Grandfather. Now, wait for him to answer. Use the {{command.story}} to see how long it will take.",
     "DESCRIPTION": "Tell to your grandfather about Dio"
   },
   "REMOVE_FLESHBUD": {

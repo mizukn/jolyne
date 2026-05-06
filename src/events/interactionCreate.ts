@@ -148,7 +148,7 @@ const Event: EventFile = {
                         }**, you have **${Functions.getRawSkillPointsLeft(
                             ctx.userData,
                         )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
-                            "skill points invest",
+                            "skills invest",
                         )} command to invest them! It is crucial to invest your skill points to progress in the game, so please do it.`,
                     });
                     return;
@@ -196,7 +196,7 @@ const Event: EventFile = {
                             content: `🔥🪵 | Welcome back, **${
                                 ctx.user.username
                             }**! You were resting at the campfire while you were offline. Use the ${ctx.client.getSlashCommandMention(
-                                "campfire leave"
+                                "rest leave"
                             )} command to leave. [PATREON PASSIVE]`
                         };
                         if (command.data.name === "campfire") {
@@ -208,10 +208,13 @@ const Event: EventFile = {
                         }
                     }
                 } */
-                if (Number(ctx.userData.restingAtCampfire) && command.data.name !== "campfire") {
+                if (
+                    Number(ctx.userData.restingAtCampfire) &&
+                    !["campfire", "rest"].includes(command.data.name)
+                ) {
                     ctx.makeMessage({
                         content: `🔥🪵 You're currently resting at the campfire. Use the ${ctx.client.getSlashCommandMention(
-                            "campfire leave",
+                            "rest leave",
                         )} command to leave.`,
                     });
                     return;
@@ -244,7 +247,7 @@ const Event: EventFile = {
                             )} yourself. You can use the ${ctx.client.getSlashCommandMention(
                                 "shop",
                             )} command to use consumables. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
-                                "campfire rest",
+                                "rest start",
                             )} (1% of your max health every 2 minutes)`,
                         );
                 }
@@ -580,7 +583,7 @@ const Event: EventFile = {
                         }**, you have **${Functions.getRawSkillPointsLeft(
                             ctx.userData,
                         )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
-                            "skill points invest",
+                            "skills invest",
                         )} command to invest them!`,
                     );
                 }

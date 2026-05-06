@@ -396,7 +396,7 @@ const slashCommand: SlashCommandFile = {
                 if (ctx.userData.chapter.id === 1) {
                     ctx.interaction.reply({
                         content:
-                            "You can't do that right now. Use that command once you complete the Chapter I (`/chapter`)",
+                            "You can't do that right now. Use that command once you complete the Chapter I (`/story`)",
                     });
                     return;
                 }

@@ -23,7 +23,7 @@ export const InvestSkillPoints: Quest = {
     completed: (user) => {
         return (Functions.getRawSkillPointsLeft(user) / user.level) * 3;
     },
-    hintCommand: "skill points invest",
+    hintCommand: "skills invest",
 };
 
 export const CompleteBeginnerSideQuest: Quest = {
