@@ -12,7 +12,7 @@ export const AwakenYourStand: Quest = {
 
         return 0;
     },
-    hintCommand: "inventory use",
+    hintCommand: "item use",
 };
 
 export const InvestSkillPoints: Quest = {

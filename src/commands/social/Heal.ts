@@ -278,7 +278,7 @@ const slashCommand: SlashCommandFile = {
                             "en-US"
                         )}\`.
                 \n\nEither re-use this command or maybe try healing manually ${ctx.client.getSlashCommandMention(
-                    "inventory use"
+                    "item use"
                 )}`,
                     },
                 ];

@@ -60,7 +60,7 @@ const slashCommand: SlashCommandFile = {
                     content: Functions.makeNPCString(
                         NPCs.Jolyne,
                         `Oi oi, you can't use equipable items like that! Use the ${ctx.client.getSlashCommandMention(
-                            "inventory equip"
+                            "equip"
                         )} command instead.`
                     ),
                 });
@@ -114,7 +114,7 @@ const slashCommand: SlashCommandFile = {
                 content: Functions.makeNPCString(
                     NPCs.Jolyne,
                     `Oi oi, you can't use equipable items like that! Use the ${ctx.client.getSlashCommandMention(
-                        "inventory equip"
+                        "equip"
                     )} command instead.`
                 ),
             });

@@ -36,6 +36,109 @@ const itemTaxes = {
     C: 0.3,
 };
 
+export async function unequipInventoryItem(ctx: CommandInteractionContext): Promise<void> {
+    const itemString = fixItemString(ctx.interaction.options.getString("item", true));
+    const itemData = Functions.findItem(itemString);
+    if (!itemData) {
+        await ctx.makeMessage({
+            content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
+        });
+        return;
+    }
+    if (!Object.keys(ctx.userData.equippedItems).includes(itemString)) {
+        await ctx.makeMessage({
+            content: `You don't have this item equipped.`,
+        });
+        return;
+    }
+
+    delete ctx.userData.equippedItems[itemData.id];
+    ctx.userData.inventory[itemData.id] = (ctx.userData.inventory[itemData.id] || 0) + 1;
+    await ctx.client.database.saveUserData(ctx.userData);
+    await ctx.makeMessage({
+        content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,
+    });
+}
+
+export async function equipInventoryItem(ctx: CommandInteractionContext): Promise<void> {
+    let itemString = fixItemString(ctx.interaction.options.getString("item", true));
+    const amountX = ctx.interaction.options.getInteger("amount") || 1;
+
+    if (ctx.userData.inventory[itemString] === undefined) {
+        const foundItem = Functions.findItem(itemString);
+        if (foundItem) {
+            itemString = foundItem.id;
+        } else {
+            await ctx.makeMessage({
+                content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
+            });
+            return;
+        }
+    }
+    const left = ctx.userData.inventory[itemString] || 0;
+
+    if (left === 0) {
+        return void ctx.makeMessage({
+            content: "This item does not exist or you don't have any left. Nice try",
+        });
+    }
+
+    if (left < amountX) {
+        await ctx.makeMessage({
+            content: `You don't have enough of this item. You have ${left} left.`,
+        });
+        return;
+    }
+
+    const itemData = Functions.findItem(itemString);
+    if (!itemData) {
+        await ctx.makeMessage({
+            content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
+        });
+        return;
+    }
+    if (!Functions.isEquipableItem(itemData)) {
+        await ctx.makeMessage({
+            content: `You can't equip this item. Nice try`,
+        });
+        return;
+    }
+    if (
+        Object.values(ctx.userData.equippedItems).filter((r) => r === itemData.type).length >=
+        equipableItemTypesLimit[itemData.type]
+    ) {
+        await ctx.makeMessage({
+            content: `You can't equip more than ${
+                equipableItemTypesLimit[itemData.type]
+            } items of this type.`,
+        });
+        return;
+    }
+    if (Object.keys(ctx.userData.equippedItems).find((r) => r === itemData.id)) {
+        await ctx.makeMessage({
+            content: `You already have this item equipped.`,
+        });
+    }
+
+    if (!Functions.userMeetsRequirementsForItem(ctx.userData, itemData)) {
+        ctx.makeMessage({
+            content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
+                "item info"
+            )} command to get more informations.`,
+        });
+        return;
+    }
+
+    ctx.userData.equippedItems[itemData.id] = itemData.type;
+    ctx.userData.inventory[itemData.id] -= amountX;
+    await ctx.makeMessage({
+        content: ` [${formattedEquipableItemTypes[itemData.type]}] You equipped ${
+            itemData.emoji
+        } \`${itemData.name}\``,
+    });
+    await ctx.client.database.saveUserData(ctx.userData);
+}
+
 function goToPage(
     ctx: CommandInteractionContext,
     page: number,
@@ -146,7 +249,7 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "throw",
                 description:
-                    "Throws an item away. Can be re-claimed by using the /inventory claim command [args: ID]",
+                    "Throws an item away. Can be re-claimed by using the /item recover command [args: ID]",
                 type: 1,
                 options: [
                     {
@@ -388,104 +491,9 @@ const slashCommand: SlashCommandFile = {
                 flags: reply.flags,
             });
         } else if (ctx.interaction.options.getSubcommand() === "unequip") {
-            const itemString = fixItemString(ctx.interaction.options.getString("item", true));
-            const itemData = Functions.findItem(itemString);
-            if (!itemData) {
-                await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                });
-                return;
-            }
-            if (!Object.keys(ctx.userData.equippedItems).includes(itemString)) {
-                await ctx.makeMessage({
-                    content: `You don't have this item equipped.`,
-                });
-                return;
-            }
-
-            delete ctx.userData.equippedItems[itemData.id];
-            ctx.userData.inventory[itemData.id] = (ctx.userData.inventory[itemData.id] || 0) + 1;
-            await ctx.client.database.saveUserData(ctx.userData);
-            await ctx.makeMessage({
-                content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,
-            });
+            await unequipInventoryItem(ctx);
         } else if (ctx.interaction.options.getSubcommand() === "equip") {
-            let itemString = fixItemString(ctx.interaction.options.getString("item", true));
-            const amountX = ctx.interaction.options.getInteger("amount") || 1;
-
-            if (ctx.userData.inventory[itemString] === undefined) {
-                const foundItem = Functions.findItem(itemString);
-                if (foundItem) {
-                    itemString = foundItem.id;
-                } else {
-                    await ctx.makeMessage({
-                        content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                    });
-                    return;
-                }
-            }
-            const left = ctx.userData.inventory[itemString] || 0;
-
-            if (left === 0) {
-                return void ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try",
-                });
-            }
-
-            if (left < amountX) {
-                await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`,
-                });
-                return;
-            }
-
-            const itemData = Functions.findItem(itemString);
-            if (!itemData) {
-                await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                });
-                return;
-            }
-            if (!Functions.isEquipableItem(itemData)) {
-                await ctx.makeMessage({
-                    content: `You can't equip this item. Nice try`,
-                });
-                return;
-            }
-            if (
-                Object.values(ctx.userData.equippedItems).filter((r) => r === itemData.type)
-                    .length >= equipableItemTypesLimit[itemData.type]
-            ) {
-                await ctx.makeMessage({
-                    content: `You can't equip more than ${
-                        equipableItemTypesLimit[itemData.type]
-                    } items of this type.`,
-                });
-                return;
-            }
-            if (Object.keys(ctx.userData.equippedItems).find((r) => r === itemData.id)) {
-                await ctx.makeMessage({
-                    content: `You already have this item equipped.`,
-                });
-            }
-
-            if (!Functions.userMeetsRequirementsForItem(ctx.userData, itemData)) {
-                ctx.makeMessage({
-                    content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
-                        "inventory info"
-                    )} command to get more informations.`,
-                });
-                return;
-            }
-
-            ctx.userData.equippedItems[itemData.id] = itemData.type;
-            ctx.userData.inventory[itemData.id] -= amountX;
-            await ctx.makeMessage({
-                content: ` [${formattedEquipableItemTypes[itemData.type]}] You equipped ${
-                    itemData.emoji
-                } \`${itemData.name}\``,
-            });
-            await ctx.client.database.saveUserData(ctx.userData);
+            await equipInventoryItem(ctx);
         } else if (ctx.interaction.options.getSubcommand() === "use") {
             let itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
@@ -531,7 +539,7 @@ const slashCommand: SlashCommandFile = {
                     content: Functions.makeNPCString(
                         NPCs.Jolyne,
                         `Oi oi, you can't use equipable items like that! Use the ${ctx.client.getSlashCommandMention(
-                            "inventory equip"
+                            "equip"
                         )} command instead.`
                     ),
                 });
@@ -607,7 +615,7 @@ const slashCommand: SlashCommandFile = {
                     (Functions.getRewardsCompareData(oldData, ctx.userData).join(", ") ??
                         "nothing"),
             });
-        } else if (ctx.interaction.options.getSubcommand() === "throw") {
+        } else if (["throw", "discard"].includes(ctx.interaction.options.getSubcommand())) {
             if (Functions.userIsCommunityBanned(ctx.userData)) {
                 await ctx.makeMessage({
                     content:
@@ -709,10 +717,10 @@ const slashCommand: SlashCommandFile = {
                 content: `You threw ${itemData.emoji} x${amountX} \`${
                     itemData.name
                 }\`! (You can pick it up again with the ${ctx.client.getSlashCommandMention(
-                    "inventory claim"
+                    "item recover"
                 )} command [ID: \`${itemId}\`])\n**The item will be deleted in a week.**`,
             });
-        } else if (ctx.interaction.options.getSubcommand() === "claim") {
+        } else if (["claim", "recover"].includes(ctx.interaction.options.getSubcommand())) {
             if (Functions.userIsCommunityBanned(ctx.userData)) {
                 await ctx.makeMessage({
                     content:
@@ -842,7 +850,7 @@ const slashCommand: SlashCommandFile = {
                     content: Functions.makeNPCString(
                         NPCs.Pucci,
                         `bro, don't sell me trash items. wtf is that? you better ${ctx.client.getSlashCommandMention(
-                            "inventory throw"
+                            "item discard"
                         )} that away.`
                     ),
                 });
@@ -1070,7 +1078,7 @@ const slashCommand: SlashCommandFile = {
         } else if (
             interaction.options.getSubcommand() === "sell" ||
             interaction.options.getSubcommand() === "throw" ||
-            interaction.options.getSubcommand() === "sell"
+            interaction.options.getSubcommand() === "discard"
         ) {
             // all items
             const userItems = Object.keys(userData.inventory).map((v) => {

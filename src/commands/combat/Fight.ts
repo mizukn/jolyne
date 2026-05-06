@@ -256,7 +256,7 @@ const slashCommand: SlashCommandFile = {
                         `You're too low on health to fight. Try to  ${ctx.client.getSlashCommandMention(
                             "heal"
                         )} yourself first by using some consumables (${ctx.client.getSlashCommandMention(
-                            "inventory use"
+                            "item use"
                         )} or ${ctx.client.getSlashCommandMention("shop")})` +
                         (!Functions.hasVotedRecenty(
                             ctx.userData,

@@ -40,7 +40,7 @@ export const RequiemArrowEvolve: SideQuest = {
             content: Functions.makeNPCString(
                 Functions.findNPC("polnareff"),
                 `Alright, thank you for your help. Here's your Requiem Arrow as promised. You may use it by using the ${ctx.client.getSlashCommandMention(
-                    "inventory use"
+                    "item use"
                 )} command.`
             ),
         });
@@ -115,7 +115,7 @@ export const Beginner: SideQuest = {
         Functions.addItem(ctx.userData, Functions.findItem("money_box"));
         ctx.followUp({
             content: `GG! You've completed the beginner quest. You've been given a **Stand Arrow** and a **Money Box**. You can use the **Stand Arrow** by using the ${ctx.client.getSlashCommandMention(
-                "inventory use"
+                "item use"
             )} command. However if you're still at Chapter 1 Part 1, you won't be able to use that arrow. Note that you can redo this quest anytime, just re-use the ${ctx.client.getSlashCommandMention(
                 "side quest view"
             )} command.`,
@@ -300,7 +300,7 @@ export const ChristmasEvent2023: SideQuest = {
             content: Functions.makeNPCString(
                 NPCs.SantasElf,
                 `You have been given a Christmas Present. You can open it by using the ${ctx.client.getSlashCommandMention(
-                    "inventory use"
+                    "item use"
                 )} command.\n\nDon't forget to feed my reindeers! I'll pay you a lot (${ctx.client.getSlashCommandMention(
                     "event feed"
                 )})`
@@ -512,7 +512,7 @@ export const TwoYearAnniversaryEvent: SideQuest = {
             content: Functions.makeNPCString(
                 NPCs.Jolyne,
                 `Thank you for playing the game! We've made you level up + 3 levels and gave you a 2nd anniversary bag. You can equip it by using the ${ctx.client.getSlashCommandMention(
-                    "inventory equip"
+                    "equip"
                 )} command.`
             ),
         });
@@ -576,7 +576,7 @@ export const CMoon: SideQuest = {
         Functions.addItem(ctx.userData, Functions.findItem("green_baby"), 1);
         ctx.followUp({
             content: `You've been given a green baby, ${ctx.client.getSlashCommandMention(
-                "inventory use"
+                "item use"
             )} the item to awaken your stand. However, it's not over ; perhaps there is more potential? (${
                 ctx.client.localEmojis.mih
             })`,
@@ -771,7 +771,7 @@ export const ChristmasEvent2024: SideQuest = {
             content: Functions.makeNPCString(
                 NPCs.SantasElf,
                 `Thank you! You have been given a Christmas Present. You can open it by using the ${ctx.client.getSlashCommandMention(
-                    "inventory use"
+                    "item use"
                 )} command.\n\n-# Re-use the ${ctx.client.getSlashCommandMention(
                     "side quest view"
                 )} command to reload the quests & beat Krampus and his goons again to earn more ornaments.`
