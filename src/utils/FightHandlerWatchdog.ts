@@ -19,6 +19,15 @@ export function watchFightHandler(client: Jolyne): void {
 
     setInterval(() => {
         for (const fight of client.fightHandlers.map((x) => x)) {
+            // A fight that already ended but is still sitting in the map is a leak —
+            // not something to re-end. Force-remove it and move on; otherwise every
+            // tick re-fires `emit('end')` and external listeners pay rewards again.
+            if (fight.ended) {
+                client.fightHandlers.delete(fight.id);
+                staleCounts.delete(fight.id);
+                continue;
+            }
+
             const prev = previousState.find((x) => x.id === fight.id)?.currentState;
             const stateUnchanged = prev !== undefined && prev === fight.currentState;
 
@@ -76,13 +85,29 @@ export function watchFightHandler(client: Jolyne): void {
                     console.error(error);
                 }
             }
-            fight.emit("end", winnerTeam, loserTeams, fight.infos?.type ?? FightTypes.Boss);
-            fight.sendFightStats();
+
+            // Run the kill path under a try/catch and ALWAYS evict the fight from the
+            // map, even if `emit('end')` or `sendFightStats()` throws. If we don't,
+            // a corrupted fight (e.g., undefined infos) zombies in the map and gets
+            // re-killed every tick — that's the cascading-rewards bug from prod.
+            try {
+                fight.emit("end", winnerTeam, loserTeams, fight.infos?.type ?? FightTypes.Boss);
+            } catch (error) {
+                console.error(`watchdog: emit('end') threw for fight ${fight.id}:`, error);
+            }
+            try {
+                fight.sendFightStats();
+            } catch (error) {
+                console.error(
+                    `watchdog: sendFightStats() threw for fight ${fight.id}:`,
+                    error
+                );
+            }
+            fight.ended = true;
+            client.fightHandlers.delete(fight.id);
             staleCounts.delete(fight.id);
             setTimeout(() => {
-                if (!fight.ended) {
-                    client.cluster.emit(`fightEnd_${fight.id}`);
-                }
+                client.cluster.emit(`fightEnd_${fight.id}`);
             }, 1000);
         }
 
