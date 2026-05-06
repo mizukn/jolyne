@@ -8,18 +8,15 @@ import {
 } from "../../@types";
 import {
     Message,
-    APIEmbed,
     ButtonBuilder,
     ButtonStyle,
     MessageComponentInteraction,
-    ApplicationCommandOptionType,
-    AutocompleteInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
 import { getQuestsStats } from "./Chapter";
 import { cloneDeep } from "lodash";
+import { containers } from "../../utils/containers";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -65,11 +62,9 @@ const slashCommand: SlashCommandFile = {
             continue;
         }
 
-        const embed: APIEmbed = {
+        const prestigeReply = containers.primary({
             title: `${ctx.client.localEmojis.a_} Prestige`,
-            description: `- You will get ${ctx.client.localEmojis.prestige_shard} **x${Functions.PrestigeShardReward} Prestige Shards** each time you prestige\n- Your level will drop by a certain amount\n- - \`Level → Level - (50 + 200 + 350 + 500 + ... + 500 + n)\`, with a max level cap of 500 \`∀P>2\`\n- The extra ${ctx.client.localEmojis.xp} you have allows you to level up within the limits of your new prestige level.
-
-Prestige therefore allows you to continue progressing while resetting your level in exchange for rewards`,
+            description: `- You will get ${ctx.client.localEmojis.prestige_shard} **x${Functions.PrestigeShardReward} Prestige Shards** each time you prestige\n- Your level will drop by a certain amount\n- - \`Level → Level - (50 + 200 + 350 + 500 + ... + 500 + n)\`, with a max level cap of 500 \`∀P>2\`\n- The extra ${ctx.client.localEmojis.xp} you have allows you to level up within the limits of your new prestige level.\n\nPrestige therefore allows you to continue progressing while resetting your level in exchange for rewards`,
             fields: [
                 {
                     name: "Max Level",
@@ -80,7 +75,6 @@ Prestige therefore allows you to continue progressing while resetting your level
                             )}:\` ${Functions.getMaxPrestigeLevel(n)}`;
                         })
                         .join("\n"),
-                    inline: true,
                 },
                 {
                     name: "Status",
@@ -91,16 +85,10 @@ Prestige therefore allows you to continue progressing while resetting your level
                     }**\n- Current chapter progress: **${status.percent.toFixed(
                         2,
                     )}%** (do not go to the next chapter! stay in the current one)`,
-                    inline: true,
                 },
                 {
                     name: "Skill Points Bonus",
-                    value: `- \`P1–4:\` +10/prestige (40 total at P4)  
-- \`P4–10:\` +5/prestige  
-- \`P10–20:\` +2/prestige  
-- \`P20+:\` +1/prestige
-`,
-                    inline: true,
+                    value: `- \`P1–4:\` +10/prestige (40 total at P4)\n- \`P4–10:\` +5/prestige\n- \`P10–20:\` +2/prestige\n- \`P20+:\` +1/prestige`,
                 },
                 {
                     name: "Changes if you prestige",
@@ -117,12 +105,11 @@ Prestige therefore allows you to continue progressing while resetting your level
                           } (total prestige: **${cobaye.prestige}**)`,
                 },
             ],
-            color: 0x70926c,
-        };
-        await ctx.makeMessage({
-            embeds: [embed],
-            components: meetRequirements ? [Functions.actionRow([prestigeButton])] : [],
         });
+        if (meetRequirements) {
+            prestigeReply.components.push(Functions.actionRow([prestigeButton]));
+        }
+        await ctx.makeMessage(prestigeReply);
 
         const collector = ctx.channel.createMessageComponentCollector({
             time: 30000,
@@ -141,14 +128,13 @@ async function handlePrestige(
     i: MessageComponentInteraction,
 ): Promise<void> {
     if (!process.env.ENABLE_PRESTIGE) {
-        const reply = await ctx.interaction.fetchReply();
-        if (!reply) return;
-        return void (await ctx.interaction.editReply({
-            content:
-                ":x: | The `PRESTIGE_WORKER` is disabled in this version of Jolyne. You will be able to prestige at the V4 of Jolyne.",
-            embeds: Functions.makeEmbedReds(reply.embeds),
-            components: Functions.disableComponents(reply.components),
-        }));
+        await i.deferUpdate().catch(() => {});
+        await ctx.makeMessage(
+            containers.error(
+                "The `PRESTIGE_WORKER` is disabled in this version of Jolyne. You will be able to prestige at the V4 of Jolyne."
+            )
+        );
+        return;
     }
     if (await ctx.antiCheat(true)) return;
     await i.deferUpdate();
@@ -156,25 +142,21 @@ async function handlePrestige(
     while (Functions.prestigeUser(ctx.userData)) {
         continue;
     }
-    if (!prestigeStatus)
-        return void ctx.makeMessage({
-            content: "An error occurred while prestiging.",
-            components: [],
-        });
+    if (!prestigeStatus) {
+        return void ctx.makeMessage(containers.error("An error occurred while prestiging."));
+    }
 
     await ctx.client.database.saveUserData(ctx.userData);
 
-    await ctx.makeMessage({
-        content: null,
-        components: [],
-    });
-    ctx.followUp({
-        content: `:star: | You have prestiged! You are now level **${
-            ctx.userData.level
-        }** with **${ctx.userData.xp.toLocaleString()}** xp (total prestige: **${
-            ctx.userData.prestige
-        }**).`,
-    });
+    await ctx.makeMessage(
+        containers.success(
+            `:star: You have prestiged! You are now level **${
+                ctx.userData.level
+            }** with **${ctx.userData.xp.toLocaleString()}** xp (total prestige: **${
+                ctx.userData.prestige
+            }**).`
+        )
+    );
 }
 
 export default slashCommand;
