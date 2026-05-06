@@ -1,8 +1,9 @@
 import { RPGUserDataJSON, SlashCommandFile, Leaderboard } from "../../@types";
-import { Message, APIEmbed, ButtonBuilder, ButtonStyle } from "discord.js";
+import { Message, ButtonBuilder, ButtonStyle } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
+import { containers, V2Reply } from "../../utils/containers";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -24,7 +25,6 @@ const slashCommand: SlashCommandFile = {
                 name: "items",
                 description: "Shows the most owned items",
                 type: 1,
-                // reverse option
                 options: [
                     {
                         name: "reverse",
@@ -39,19 +39,13 @@ const slashCommand: SlashCommandFile = {
                 description: "Shows the users with the highest daily streak",
                 type: 1,
             },
-            /*{
-                name: "xp",
-                description: "Shows the users with the most gained xp",
-                type: 1,
-            },*/
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
-        // refresh:
-
         const startDate = Date.now();
+        const subcommand = ctx.interaction.options.getSubcommand();
         let query;
-        switch (ctx.interaction.options.getSubcommand()) {
+        switch (subcommand) {
             case "level":
                 query = `SELECT id, tag, level, xp,"communityBans"
                              FROM "RPGUsers"
@@ -62,7 +56,7 @@ const slashCommand: SlashCommandFile = {
                              FROM "RPGUsers"
                              ORDER BY coins DESC`;
                 break;
-            case "items": // most owned items
+            case "items":
                 query = `SELECT inventory,"communityBans"
                              FROM "RPGUsers"`;
                 break;
@@ -80,25 +74,24 @@ const slashCommand: SlashCommandFile = {
             .query(query)
             .then((res) => res.rows.filter((x) => !Functions.userIsCommunityBanned(x)))
             .catch((err) => {
-                console.error(err);
+                ctx.client.log(err, "error");
                 return [];
             });
         await ctx.client.database.setString(
-            `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`,
+            `${ctx.client.user.id}_leaderboard:${subcommand}`,
             JSON.stringify({
                 lastUpdated: Date.now(),
                 data: data,
             })
         );
-        console.log(
-            `Leaderboard ${ctx.interaction.options.getSubcommand()} took ${
-                Date.now() - startDate
-            }ms to update`
+        ctx.client.log(
+            `Leaderboard ${subcommand} took ${Date.now() - startDate}ms to update`,
+            "cmd"
         );
 
         const lastLeaderboard = (JSON.parse(
             await ctx.client.database.getString(
-                `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`
+                `${ctx.client.user.id}_leaderboard:${subcommand}`
             )
         ) as Leaderboard) || { lastUpdated: 0, data: [] };
         lastLeaderboard.data = lastLeaderboard.data.filter(
@@ -106,26 +99,18 @@ const slashCommand: SlashCommandFile = {
         );
         let userPos: "N/A" | number =
             lastLeaderboard.data.findIndex((user) => user.id === ctx.user.id) + 1 || "N/A";
-        if (ctx.interaction.options.getSubcommand() === "daily") {
+
+        if (subcommand === "daily") {
             for (const user of lastLeaderboard.data) {
                 const userData = user.daily as RPGUserDataJSON["daily"];
-                // check if last time user claimed exceeds 25 hours
                 if (userData.lastClaimed + 1000 * 60 * 60 * 48 < Date.now()) {
                     userData.claimStreak = 0;
                 }
             }
-
             lastLeaderboard.data.sort((a, b) => b.daily.claimStreak - a.daily.claimStreak);
             userPos =
                 lastLeaderboard.data.findIndex((user) => user.id === ctx.user.id) + 1 || "N/A";
         }
-
-        const embed: APIEmbed = {
-            title: "Leaderboard",
-            description: `${ctx.client.localEmojis.loading} | Loading...`,
-            color: 0x70926c,
-            fields: [],
-        };
 
         let currentPage = 1;
         const previousPageButton = new ButtonBuilder()
@@ -147,8 +132,9 @@ const slashCommand: SlashCommandFile = {
         const userPageButton = new ButtonBuilder()
             .setCustomId("userPage" + ctx.interaction.id)
             .setEmoji("📍")
-            .setDisabled(userPos === "N/A" || ctx.interaction.options.getSubcommand() === "items")
+            .setDisabled(userPos === "N/A" || subcommand === "items")
             .setStyle(ButtonStyle.Secondary);
+
         const totalItems = lastLeaderboard.data.map((user) => user.inventory);
         const totalItemsAmount = totalItems.reduce((acc, val) => {
             for (const item in val) {
@@ -160,170 +146,105 @@ const slashCommand: SlashCommandFile = {
             }
             return acc;
         }, {});
-        const totalItemsK = Object.values(totalItemsAmount).reduce((a, b) => a + b, 0);
+        const totalItemsK = Object.values(totalItemsAmount).reduce((a: number, b) => a + (b as number), 0);
         const totalPages =
-            ctx.interaction.options.getSubcommand() === "items"
+            subcommand === "items"
                 ? Math.ceil(Object.keys(totalItemsAmount).length / 10)
                 : Math.ceil(lastLeaderboard.data.length / 10);
 
-        function updateMessage(page: number) {
+        function buildReply(page: number): V2Reply {
             currentPage = page;
+            if (currentPage > totalPages) currentPage = totalPages;
+            else if (currentPage < 1) currentPage = 1;
 
-            if (currentPage > totalPages) {
-                currentPage = totalPages;
-            } else if (currentPage < 1) {
-                currentPage = 1;
-            }
+            let title: string;
+            let lines: string[];
 
-            embed.footer = {
-                text: `Page ${currentPage}/${totalPages} | Last updated: ${new Date(
-                    lastLeaderboard.lastUpdated
-                ).toLocaleString()}`,
-            };
-
-            switch (ctx.interaction.options.getSubcommand()) {
+            switch (subcommand) {
                 case "level": {
-                    embed.title = "Level Leaderboard";
-                    // only users with page currentPage
-                    embed.fields = lastLeaderboard.data
+                    title = "Level Leaderboard";
+                    lines = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)
-                        .map((user, i) => ({
-                            name: `${
-                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
-                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
-                            value: `${
-                                ctx.client.localEmojis.a_
-                            } Level **${user.level.toLocaleString(
-                                "en-US"
-                            )}** with **${user.xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`,
-                            inline: false,
-                        }));
-
+                        .map((user) => {
+                            const rank =
+                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1;
+                            return `**${rank} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}**\n${ctx.client.localEmojis.a_} Level **${user.level.toLocaleString("en-US")}** with **${user.xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`;
+                        });
                     break;
                 }
-
                 case "coins": {
-                    embed.title = "Richest Players";
-                    embed.fields = lastLeaderboard.data
+                    title = "Richest Players";
+                    lines = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)
-                        .map((user, i) => ({
-                            name: `${
-                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
-                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
-                            value: `${ctx.client.localEmojis.a_} **${user.coins.toLocaleString(
-                                "en-US"
-                            )}** ${ctx.client.localEmojis.jocoins}`,
-                            inline: false,
-                        }));
+                        .map((user) => {
+                            const rank =
+                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1;
+                            return `**${rank} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}**\n${ctx.client.localEmojis.a_} **${user.coins.toLocaleString("en-US")}** ${ctx.client.localEmojis.jocoins}`;
+                        });
                     break;
                 }
-
                 case "items": {
-                    // user.inventory is like that { "itemID": amount }
                     const reverse = ctx.interaction.options.getBoolean("reverse", false);
-                    embed.title = `${reverse ? "Less" : "Most"} Owned Items`;
-                    // field.name should be like 1 - Item Name ${item.emoji}
-                    // to get the item we can do Functions.findItem(itemID)
-                    // and to get the emoji we can do Functions.findItem(itemID).emoji
-                    // value should be the amount of the item/total amount of items (percentage)
-                    // check if reverse is true
-                    embed.fields = Object.entries(totalItemsAmount)
-                        .sort((a, b) => (reverse ? a[1] - b[1] : b[1] - a[1]))
+                    title = `${reverse ? "Less" : "Most"} Owned Items`;
+                    lines = Object.entries(totalItemsAmount)
+                        .sort((a, b) => (reverse ? (a[1] as number) - (b[1] as number) : (b[1] as number) - (a[1] as number)))
                         .slice((currentPage - 1) * 10, currentPage * 10)
                         .map(([itemID, amount], i) => {
                             const item = Functions.findItem(itemID);
                             const ownedByXUsers = totalItems.filter((x) => x[itemID] > 0).length;
-                            return {
-                                name: `${(currentPage - 1) * 10 + i + 1} - ${item.name} ${
-                                    item.emoji
-                                }`,
-                                value: `${
-                                    ctx.client.localEmojis.replyEnd
-                                } \`${amount.toLocaleString(
-                                    "en-US"
-                                )}\` copies owned by **${ownedByXUsers.toLocaleString(
-                                    "en-US"
-                                )}** players (${((amount / totalItemsK) * 100).toFixed(2)}%)`,
-                                inline: false,
-                            };
+                            return `**${(currentPage - 1) * 10 + i + 1} - ${item.name} ${item.emoji}**\n${ctx.client.localEmojis.replyEnd} \`${(amount as number).toLocaleString("en-US")}\` copies owned by **${ownedByXUsers.toLocaleString("en-US")}** players (${(((amount as number) / totalItemsK) * 100).toFixed(2)}%)`;
                         });
                     break;
                 }
-
-                // daily streaks are stored in UserData.daily.claimStreak
                 case "daily": {
-                    embed.title = "Highest Daily Streaks";
-                    embed.fields = lastLeaderboard.data
+                    title = "Highest Daily Streaks";
+                    lines = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)
-                        .map((user, i) => ({
-                            name: `${
-                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
-                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
-                            value: `${ctx.client.localEmojis.replyEnd} **${user.daily.claimStreak}** days in a row 📅`,
-                            inline: false,
-                        }));
+                        .map((user) => {
+                            const rank =
+                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1;
+                            return `**${rank} - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}**\n${ctx.client.localEmojis.replyEnd} **${user.daily.claimStreak}** days in a row 📅`;
+                        });
                     break;
                 }
-
-                case "xp": {
-                    embed.title = "Most Gained XP";
-                    embed.fields = lastLeaderboard.data
-                        .sort((a, b) => Functions.getTotalXp(b) - Functions.getTotalXp(a))
-                        .slice((currentPage - 1) * 10, currentPage * 10)
-                        .map((user, i) => ({
-                            name: `${
-                                lastLeaderboard.data.findIndex((x) => x.id === user.id) + 1 || "N/A"
-                            } - ${user.tag}${user.id === ctx.user.id ? " 📍" : ""}`,
-                            value: `${ctx.client.localEmojis.a_} **${Functions.getTotalXp(
-                                user
-                            ).toLocaleString()}** total ${ctx.client.localEmojis.xp}`,
-                            inline: false,
-                        }));
-                    break;
+                default: {
+                    title = "Leaderboard";
+                    lines = [];
                 }
             }
 
-            ctx.interaction.editReply({
-                embeds: [embed],
-                // if last updated is more than 6 hours, show a warning
-                content:
-                    lastLeaderboard.lastUpdated + 1000 * 60 * 60 * 6 < Date.now()
-                        ? `:warning: The leaderboard is outdated. Use ${ctx.client.getSlashCommandMention(
-                              `leaderboard ${ctx.interaction.options.getSubcommand()}`
-                          )} command to refresh it!`
-                        : "",
-                components: [
-                    Functions.actionRow([
-                        firstPageButton,
-                        previousPageButton,
-                        userPageButton,
-                        nextPageButton,
-                        lastPageButton,
-                    ]),
-                ],
+            const posLine =
+                subcommand !== "items"
+                    ? `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\`\n\n`
+                    : `:information_source: There are \`${totalItemsK.toLocaleString("en-US")}\` items in the game\n\n`;
+
+            let footer = `Page ${currentPage}/${totalPages} | Last updated: ${new Date(
+                lastLeaderboard.lastUpdated
+            ).toLocaleString()}`;
+            if (lastLeaderboard.lastUpdated + 1000 * 60 * 60 * 6 < Date.now()) {
+                footer += `\n⚠️ Outdated — use ${ctx.client.getSlashCommandMention(
+                    `leaderboard ${subcommand}`
+                )} to refresh`;
+            }
+
+            const reply = containers.primary({
+                title,
+                description: posLine + lines.join("\n\n"),
+                footer,
             });
+            reply.components.push(
+                Functions.actionRow([
+                    firstPageButton,
+                    previousPageButton,
+                    userPageButton,
+                    nextPageButton,
+                    lastPageButton,
+                ])
+            );
+            return reply;
         }
 
-        await ctx.interaction
-            .reply({
-                embeds: [embed],
-                content:
-                    lastLeaderboard.lastUpdated + 1000 * 60 * 60 * 6 < Date.now()
-                        ? `:warning: The leaderboard is outdated. Use ${ctx.client.getSlashCommandMention(
-                              `leaderboard ${ctx.interaction.options.getSubcommand()}`
-                          )} command to refresh it!`
-                        : "",
-            }) // eslint-disable-next-line @typescript-eslint/no-empty-function
-            .catch(() => {})
-            .then(() => {
-                if (ctx.interaction.options.getSubcommand() !== "items")
-                    embed.description = `${ctx.client.localEmojis.replyEnd} 📍 Your position: \`${userPos}\`/\`${lastLeaderboard.data.length}\``;
-                else
-                    embed.description = `:information_source: There are \`${totalItemsK.toLocaleString(
-                        "en-US"
-                    )}\` items in the game`;
-                updateMessage(currentPage);
-            });
+        await ctx.makeMessage(buildReply(currentPage));
 
         const collector = ctx.interaction.channel.createMessageComponentCollector({
             filter: (interaction) =>
@@ -333,7 +254,6 @@ const slashCommand: SlashCommandFile = {
 
         collector.on("collect", (interaction) => {
             if (!interaction.isButton()) return;
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             interaction.deferUpdate().catch(() => {});
 
             switch (interaction.customId.replace(ctx.interaction.id, "")) {
@@ -354,58 +274,8 @@ const slashCommand: SlashCommandFile = {
                     break;
             }
 
-            updateMessage(currentPage);
+            ctx.makeMessage(buildReply(currentPage));
         });
-
-        /*
-        if (lastLeaderboard.lastUpdated + 1000 * 5 < Date.now()) {
-            const startDate = Date.now();
-            let query;
-            switch (ctx.interaction.options.getSubcommand()) {
-                case "level":
-                    query = `SELECT id, tag, level, xp
-                             FROM "RPGUsers"
-                             ORDER BY level DESC, xp DESC`;
-                    break;
-                case "coins":
-                    query = `SELECT id, tag, coins
-                             FROM "RPGUsers"
-                             ORDER BY coins DESC`;
-                    break;
-                case "items": // most owned items
-                    query = `SELECT inventory
-                             FROM "RPGUsers"`;
-                    break;
-                case "daily":
-                    query = `SELECT id, tag, daily
-                             FROM "RPGUsers"
-                             ORDER BY daily->>'claimStreak' DESC`;
-                    break;
-                default:
-                    query = `SELECT *
-                             FROM "RPGUsers"
-                             ORDER BY level DESC, xp DESC`;
-            }
-            const data = await ctx.client.database.postgresql
-                .query(query)
-                .then((res) => res.rows)
-                .catch((err) => {
-                    console.error(err);
-                    return [];
-                });
-            await ctx.client.database.setString(
-                `${ctx.client.user.id}_leaderboard:${ctx.interaction.options.getSubcommand()}`,
-                JSON.stringify({
-                    lastUpdated: Date.now(),
-                    data: data,
-                })
-            );
-            console.log(
-                `Leaderboard ${ctx.interaction.options.getSubcommand()} took ${
-                    Date.now() - startDate
-                }ms to update`
-            );
-        }*/
     },
 };
 
