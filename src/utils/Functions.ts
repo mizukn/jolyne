@@ -13,7 +13,6 @@ import {
     AnswerChineseNewYearQuizQuest,
     Quests,
     Item,
-    Garment,
     RPGUserQuest,
     RPGUserDataJSON,
     SkillPoints,
@@ -23,7 +22,6 @@ import {
     RPGUserEmail,
     WaitQuest,
     Consumable,
-    Special,
     EquipableItem,
     Weapon,
     equipableItemTypes,
@@ -89,6 +87,11 @@ import {
     isUseXCommandQuest,
     isWaitQuest,
 } from "./quest_guards";
+import {
+    isConsumable as isConsumableItem,
+    isEquipableItem,
+    isWeapon,
+} from "./item_guards";
 export {
     isActionQuest,
     isAnswerChineseNewYearQuizQuest,
@@ -116,6 +119,7 @@ const totalStands = [
 ];
 
 export { generateRandomId } from "./random";
+export { isEquipableItem, isGarment, isSpecial, isWeapon } from "./item_guards";
 export {
     getCurrentDate,
     hasDone4DungeonsToday,
@@ -123,16 +127,7 @@ export {
     roundToNext15Minutes,
 } from "./date";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const randomArray = pickOne;
-
-export const isGarment = (item: Item): item is Garment => {
-    return (item as Garment).skillPoints !== undefined;
-};
-
-export const isSpecial = (item: Item): item is Special => {
-    return (item as Special)["use"] !== undefined;
-};
 
 export const pushItemWhenCompleted = (
     quest: Quests,
@@ -605,10 +600,6 @@ export const getEmojiId = (emoji: string): string => {
     return match[0];
 };
 
-export const isWeapon = (item: EquipableItem | Item | Weapon): item is Weapon => {
-    return (item as Weapon).abilities !== undefined;
-};
-
 const totalWeapons = Object.values(EquipableItems).filter((x) => isWeapon(x));
 
 export const weaponAbilitiesEmbed = (
@@ -810,11 +801,6 @@ export const randomNumber = randomInt;
 
 
 export const isClaimXQuest = UserService.isClaimXQuest;
-
-export const isEquipableItem = (item: Item): item is EquipableItem => {
-    const equipables = Object.values(EquipableItems);
-    return equipables.some((i) => i.id === item.id);
-};
 
 export { findItem };
 
@@ -1117,7 +1103,7 @@ export const isConsumable = (item: Item | "string"): item is Consumable => {
         item = findItem(item);
     }
     if (!item) return false;
-    return (item as Consumable)["effects"] !== undefined && !isEquipableItem(item);
+    return isConsumableItem(item);
 };
 
 export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: number): void {
