@@ -1,9 +1,10 @@
 import Jolyne from "../structures/JolyneClient";
 import { Fighter, FightTypes } from "../structures/FightHandler";
-
-const TICK_MS = 60_000; // 1 minute
-const STALE_TICKS_THRESHOLD = 3; // 3 minutes of no state change before we kill
-const MAX_FIGHT_AGE_MS = 30 * 60 * 1000; // hard cap so a runaway fight can't live forever
+import {
+    WATCHDOG_FIGHT_MAX_AGE_MS,
+    WATCHDOG_STALE_TICKS_THRESHOLD,
+    WATCHDOG_TICK_MS,
+} from "../config/gameplay";
 
 interface FightStateData {
     id: string;
@@ -38,13 +39,13 @@ export function watchFightHandler(client: Jolyne): void {
             }
 
             const staleTicks = staleCounts.get(fight.id) ?? 0;
-            const tooOld = fight.startedAt + MAX_FIGHT_AGE_MS < Date.now();
+            const tooOld = fight.startedAt + WATCHDOG_FIGHT_MAX_AGE_MS < Date.now();
             const corrupted = !fight.infos?.type;
 
             // Both conditions used to be OR'd against a single tick of staleness, which
             // killed legitimate slow fights and 20-min boss raids. Require the fight to
             // be either persistently stuck OR actually too old.
-            if (staleTicks < STALE_TICKS_THRESHOLD && !tooOld && !corrupted) continue;
+            if (staleTicks < WATCHDOG_STALE_TICKS_THRESHOLD && !tooOld && !corrupted) continue;
 
             let winnerTeam: Fighter[] | undefined;
             for (const team of fight.teams) {
@@ -72,7 +73,7 @@ export function watchFightHandler(client: Jolyne): void {
             const reason = corrupted
                 ? "fight has no type"
                 : tooOld
-                  ? `fight exceeded ${MAX_FIGHT_AGE_MS / 60000} minutes`
+                  ? `fight exceeded ${WATCHDOG_FIGHT_MAX_AGE_MS / 60000} minutes`
                   : `fight stalled for ${staleTicks} consecutive ticks`;
             const message = `:warning: \`FightHandlerWatchdog\` exception in fight \`${fight.id}\` (${reason})! The fight has been forcibly ended.\n\n--> Winner is the team with the most humans alive; random if none.`;
             if (fight.turns) {
@@ -118,5 +119,5 @@ export function watchFightHandler(client: Jolyne): void {
         for (const id of staleCounts.keys()) {
             if (!client.fightHandlers.has(id)) staleCounts.delete(id);
         }
-    }, TICK_MS);
+    }, WATCHDOG_TICK_MS);
 }
