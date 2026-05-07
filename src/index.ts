@@ -30,6 +30,7 @@ import { count } from "console";
 import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import seedrandom from "seedrandom";
 import {
     endOf2024ChristmasEvent,
     is2024ChristmasEventActive,
@@ -46,6 +47,13 @@ import {
     is2025HalloweenEventActive,
     startOf2025HalloweenEvent,
 } from "./rpg/Events/2025HalloweenEvent";
+
+// Deterministic per-NPC level: same id always resolves to the same number across
+// boots and clusters, so we never have to write generated levels back to disk.
+const stableLevel = (id: string, min: number, max: number): number => {
+    const seed = `${process.env.ENABLE_PRESTIGE ? "prestige" : "normal"}::${id}`;
+    return Math.floor(seedrandom(seed)() * (max - min + 1)) + min;
+};
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
@@ -589,7 +597,8 @@ for (const stand of [
                 minLevel = getPrestigeAdd(stand);
                 maxLevel = minLevel * 2;
             }
-            formattedStandUsers[`${stand.name.replace(" ", "")}User`] = Functions.randomNumber(
+            formattedStandUsers[`${stand.name.replace(" ", "")}User`] = stableLevel(
+                `${stand.name.replace(" ", "")}User`,
                 Math.round(minLevel * 1.5),
                 maxLevel
             );
@@ -681,7 +690,7 @@ for (const stand of [
                 minLevel += getPrestigeAdd(stand);
                 maxLevel = minLevel * 2;
             }
-            formattedStandUsers[ID] = Functions.randomNumber(Math.round(minLevel * 1.5), maxLevel);
+            formattedStandUsers[ID] = stableLevel(ID, Math.round(minLevel * 1.5), maxLevel);
         }
         const npcData: FightableNPC = {
             // @ts-expect-error it exists
@@ -862,19 +871,6 @@ async function init() {
     };
 
     await loadCommands(path.resolve(__dirname, "commands"));
-
-    // save standUsersNPCS.json
-    delete formattedStandUsers["default"];
-    fs.writeFileSync(
-        path.resolve(
-            __dirname,
-            "..",
-            "src",
-            process.env.ENABLE_PRESTIGE ? "prestigeNPCs.json" : "NPCs.json"
-        ),
-        JSON.stringify(formattedStandUsers, null, 4)
-    );
-    client.log("Saved standUsersNPCS.json", "file");
 }
 
 init();
