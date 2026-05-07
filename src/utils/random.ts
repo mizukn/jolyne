@@ -40,3 +40,6 @@ export const chance = (percent: number): boolean => {
 export const seededInt = (seed: string, min: number, max: number): number => {
     return Math.floor(seedrandom(seed)() * (max - min + 1)) + min;
 };
+
+export const generateRandomId = (): string =>
+    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);

@@ -75,6 +75,11 @@ import * as UserService from "../services/UserService";
 import { EVENT_IDS, getEvent, isActive } from "../services/EventService";
 import { findEmail, findItem, findNPC, findQuest, findStand } from "./lookup";
 import {
+    generateClaimXQuest,
+    generateFightQuest,
+    generateUseXCommandQuest,
+} from "./quest_factories";
+import {
     isActionQuest,
     isAnswerChineseNewYearQuizQuest,
     isBaseQuest,
@@ -112,11 +117,7 @@ const totalStands = [
     }),
 ];
 
-export const generateRandomId = (): string => {
-    return (
-        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-    );
-};
+export { generateRandomId } from "./random";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const randomArray = pickOne;
@@ -215,170 +216,17 @@ export const editNPCLevel = (npc: NPC, level: number): NPC | FightableNPC => {
 
     return newNPC;
 };
-export const generateFightQuest = (
-    npc: NPC,
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-    pushItemWhenCompleted?: Quest["pushItemWhenCompleted"],
-): FightNPCQuest => {
-    const quest: FightNPCQuest = {
-        type: "fight",
-        id: generateRandomId(),
-        completed: false,
-        npc: npc.id,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-        pushItemWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generataRaidQuest = (
-    boss: NPC,
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-    pushItemWhenCompleted?: Quest["pushItemWhenCompleted"],
-): RaidNPCQuest => {
-    const quest: RaidNPCQuest = {
-        type: "raid",
-        id: generateRandomId(),
-        completed: false,
-        boss: boss.id,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-        pushItemWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generateStartDungeonQuest = (
-    total: number,
-    stage?: number,
-    modifiers?: StartDungeonQuest["modifiers"],
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-): StartDungeonQuest => {
-    const quest: StartDungeonQuest = {
-        type: "startDungeon",
-        id: generateRandomId(),
-        completed: 0,
-        total,
-        stage: stage,
-        modifiers: modifiers,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generateMustReadEmailQuest = (
-    email: Email,
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-): MustReadEmailQuest => {
-    const quest: MustReadEmailQuest = {
-        type: "mustRead",
-        id: generateRandomId(),
-        completed: false,
-        email: email.id,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generateActionQuest = (
-    id: ActionQuest["id"],
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-): ActionQuest => {
-    const quest: ActionQuest = {
-        type: "action",
-        ...Object.values(ActionQuests).find((actionQuest) => actionQuest.id === id),
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generateClaimXQuest = (
-    x: ClaimXQuest["x"],
-    goal: ClaimXQuest["goal"],
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-): ClaimXQuest => {
-    const quest: ClaimXQuest = {
-        type: "claimX",
-        id: generateRandomId(),
-        amount: 0,
-        x,
-        goal,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generateClaimItemQuest = (
-    item: ClaimItemQuest["item"],
-    goal: ClaimXQuest["goal"],
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-): ClaimItemQuest => {
-    const quest: ClaimItemQuest = {
-        type: "ClaimXQuest",
-        id: generateRandomId(),
-        amount: 0,
-        item,
-        goal,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generateUseXCommandQuest = (
-    command: UseXCommandQuest["command"],
-    goal: ClaimXQuest["goal"],
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-): UseXCommandQuest => {
-    const quest: UseXCommandQuest = {
-        type: "UseXCommandQuest",
-        id: generateRandomId(),
-        amount: 0,
-        command,
-        goal,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-    };
-
-    return quest;
-};
-
-export const generateAnswerChineseNewYearQuizQuest = (
-    goal: AnswerChineseNewYearQuizQuest["goal"],
-    pushQuestWhenCompleted?: Quest["pushQuestWhenCompleted"],
-    pushEmailWhenCompleted?: Quest["pushEmailWhenCompleted"],
-): AnswerChineseNewYearQuizQuest => {
-    const quest: AnswerChineseNewYearQuizQuest = {
-        type: "answerChineseNewYearQuiz",
-        id: generateRandomId(),
-        goal,
-        amount: 0,
-        pushEmailWhenCompleted,
-        pushQuestWhenCompleted,
-    };
-
-    return quest;
-};
+export {
+    generateActionQuest,
+    generateAnswerChineseNewYearQuizQuest,
+    generateClaimItemQuest,
+    generateClaimXQuest,
+    generateFightQuest,
+    generateMustReadEmailQuest,
+    generataRaidQuest,
+    generateStartDungeonQuest,
+    generateUseXCommandQuest,
+} from "./quest_factories";
 
 export { findStand, findNPC };
 
@@ -1267,29 +1115,7 @@ export const s = (num: number): string => {
 };
 
 
-export const generateWaitQuest = (
-    time: number,
-    email?: WaitQuest["email"],
-    quest?: WaitQuest["quest"],
-    i18n_key?: WaitQuest["i18n_key"],
-    mustRead?: WaitQuest["mustRead"],
-): WaitQuest => {
-    const questData: WaitQuest = {
-        type: "wait",
-        end: Date.now() + time,
-        id: generateRandomId(),
-        email,
-        quest,
-        i18n_key,
-        mustRead,
-    };
-
-    if (!email) delete questData.email;
-    if (!quest) delete questData.quest;
-    if (!i18n_key) delete questData.i18n_key;
-
-    return questData;
-};
+export { generateWaitQuest } from "./quest_factories";
 
 export const isConsumable = (item: Item | "string"): item is Consumable => {
     if (typeof item === "string") {
