@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addCoins, isClaimXQuest } from "./UserService";
-import type { RPGUserDataJSON, RPGUserQuest } from "../@types";
+import type { ClaimXQuest, RPGUserDataJSON, RPGUserQuest } from "../@types";
 
 // Importing utils/Functions here would pull in the entire data registry
 // (Webhooks, SpecialItems, Stand-Disc generation, etc.) which has top-level
@@ -16,14 +16,23 @@ const baseUser = (): RPGUserDataJSON =>
         sideQuests: [],
     }) as unknown as RPGUserDataJSON;
 
+const claimXQuest = (overrides: Partial<ClaimXQuest> = {}): ClaimXQuest => ({
+    type: "claimX",
+    id: "test",
+    x: "coin",
+    amount: 0,
+    goal: 100,
+    ...overrides,
+});
+
 describe("UserService.isClaimXQuest", () => {
     it("classifies claimX quests", () => {
-        expect(isClaimXQuest({ type: "claimX" } as RPGUserQuest)).toBe(true);
+        expect(isClaimXQuest(claimXQuest())).toBe(true);
     });
 
     it("rejects non-claimX quests", () => {
-        expect(isClaimXQuest({ type: "fight" } as RPGUserQuest)).toBe(false);
-        expect(isClaimXQuest({ type: "ClaimXQuest" } as RPGUserQuest)).toBe(false);
+        expect(isClaimXQuest({ type: "fight", id: "x" } as RPGUserQuest)).toBe(false);
+        expect(isClaimXQuest({ type: "ClaimXQuest", id: "x" } as RPGUserQuest)).toBe(false);
     });
 });
 
@@ -56,19 +65,16 @@ describe("UserService.addCoins", () => {
 
     it("increments coin-tracked claimX quests", () => {
         const user = baseUser();
-        user.daily.quests.push(
-            { type: "claimX", x: "coin", amount: 0 } as RPGUserQuest,
-            { type: "claimX", x: "xp", amount: 0 } as RPGUserQuest,
-        );
+        user.daily.quests.push(claimXQuest({ x: "coin" }), claimXQuest({ x: "xp" }));
         addCoins(user, 100);
-        expect((user.daily.quests[0] as { amount: number }).amount).toBe(100);
-        expect((user.daily.quests[1] as { amount: number }).amount).toBe(0);
+        expect((user.daily.quests[0] as ClaimXQuest).amount).toBe(100);
+        expect((user.daily.quests[1] as ClaimXQuest).amount).toBe(0);
     });
 
     it("ignores claimX quests on a negative amount", () => {
         const user = baseUser();
-        user.daily.quests.push({ type: "claimX", x: "coin", amount: 0 } as RPGUserQuest);
+        user.daily.quests.push(claimXQuest({ x: "coin" }));
         addCoins(user, -50);
-        expect((user.daily.quests[0] as { amount: number }).amount).toBe(0);
+        expect((user.daily.quests[0] as ClaimXQuest).amount).toBe(0);
     });
 });
