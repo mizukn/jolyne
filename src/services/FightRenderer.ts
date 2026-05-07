@@ -9,7 +9,6 @@ import {
     ButtonStyle,
     StringSelectMenuBuilder,
     ActionRowBuilder,
-    AnyComponentBuilder,
 } from "discord.js";
 import * as Functions from "../utils/Functions";
 import {
@@ -34,7 +33,7 @@ export interface FightSnapshot {
 export interface RenderResult {
     content: string;
     embeds: APIEmbed[];
-    components: ActionRowBuilder<AnyComponentBuilder>[];
+    components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[];
 }
 
 export interface RenderTurnOptions {
