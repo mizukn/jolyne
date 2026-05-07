@@ -76,6 +76,8 @@ const EVENTS: readonly EventDef[] = [
     },
 ];
 
+export const getEvents = (): readonly EventDef[] => EVENTS;
+
 export const getEvent = (id: EventId): EventDef | undefined =>
     EVENTS.find((event) => event.id === id);
 

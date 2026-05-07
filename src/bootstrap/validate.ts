@@ -8,6 +8,29 @@ import * as Consumables from "../rpg/Items/ConsumableItems";
 import * as EquipableItems from "../rpg/Items/EquipableItems";
 import * as SpecialItems from "../rpg/Items/SpecialItems";
 import Items from "../rpg/Items";
+import { endOf2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
+import {
+    endOf2024ChristmasEvent,
+    startOf2024ChristmasEvent,
+} from "../rpg/Events/2024ChristmasEvent";
+import { endOf2025WinterEvent, startOf2025WinterEvent } from "../rpg/Events/2025WinterEvent";
+import {
+    endOf2025ChineseNewYear,
+    startOf2025ChineseNewYear,
+} from "../rpg/Events/2025ChineseNewYear";
+import {
+    endOf3rdAnnivesaryEvent,
+    startOf3rdAnnivesaryEvent,
+} from "../rpg/Events/3rdYearAnniversaryEvent";
+import {
+    endOf4thAnnivesaryEvent,
+    startOf4thAnnivesaryEvent,
+} from "../rpg/Events/4thAnniversaryEvent";
+import {
+    endOf2025HalloweenEvent,
+    startOf2025HalloweenEvent,
+} from "../rpg/Events/2025HalloweenEvent";
+import { EVENT_IDS, EventDef, EventId, getEvent, getEvents } from "../services/EventService";
 
 // Boot-time invariants. We check the data registries after index.ts has
 // finished its dynamic NPC/Stand-Disc generation so the validator sees both
@@ -42,8 +65,113 @@ const idsBySource = (
     return { ids, errors };
 };
 
+const toTime = (date: Date | number): number => new Date(date).getTime();
+
+const validateEventWindow = (
+    expected: EventDef,
+    actual: EventDef | undefined,
+): string[] => {
+    if (!actual) return [`EventService is missing event "${expected.id}"`];
+
+    const errors: string[] = [];
+    if (actual.startsAt.getTime() !== expected.startsAt.getTime()) {
+        errors.push(
+            `EventService.${expected.id}.startsAt is ${actual.startsAt.toISOString()} but event module exports ${expected.startsAt.toISOString()}`,
+        );
+    }
+    if (actual.endsAt.getTime() !== expected.endsAt.getTime()) {
+        errors.push(
+            `EventService.${expected.id}.endsAt is ${actual.endsAt.toISOString()} but event module exports ${expected.endsAt.toISOString()}`,
+        );
+    }
+    if ((actual.startsInclusive ?? true) !== (expected.startsInclusive ?? true)) {
+        errors.push(
+            `EventService.${expected.id}.startsInclusive is ${String(
+                actual.startsInclusive ?? true,
+            )} but expected ${String(expected.startsInclusive ?? true)}`,
+        );
+    }
+    if ((actual.endsInclusive ?? true) !== (expected.endsInclusive ?? true)) {
+        errors.push(
+            `EventService.${expected.id}.endsInclusive is ${String(
+                actual.endsInclusive ?? true,
+            )} but expected ${String(expected.endsInclusive ?? true)}`,
+        );
+    }
+
+    return errors;
+};
+
+export const validateEventWindows = (): string[] => {
+    const errors: string[] = [];
+    const expectedEvents: readonly EventDef[] = [
+        {
+            id: EVENT_IDS.HALLOWEEN_2024,
+            startsAt: new Date(0),
+            endsAt: new Date(endOf2024HalloweenEvent),
+            endsInclusive: false,
+        },
+        {
+            id: EVENT_IDS.CHRISTMAS_2024,
+            startsAt: new Date(startOf2024ChristmasEvent),
+            endsAt: new Date(endOf2024ChristmasEvent),
+            startsInclusive: false,
+            endsInclusive: false,
+        },
+        {
+            id: EVENT_IDS.WINTER_2025,
+            startsAt: startOf2025WinterEvent,
+            endsAt: endOf2025WinterEvent,
+        },
+        {
+            id: EVENT_IDS.CHINESE_NEW_YEAR_2025,
+            startsAt: startOf2025ChineseNewYear,
+            endsAt: endOf2025ChineseNewYear,
+        },
+        {
+            id: EVENT_IDS.THIRD_ANNIVERSARY,
+            startsAt: startOf3rdAnnivesaryEvent,
+            endsAt: endOf3rdAnnivesaryEvent,
+        },
+        {
+            id: EVENT_IDS.HALLOWEEN_2025,
+            startsAt: startOf2025HalloweenEvent,
+            endsAt: endOf2025HalloweenEvent,
+        },
+        {
+            id: EVENT_IDS.FOURTH_ANNIVERSARY,
+            startsAt: startOf4thAnnivesaryEvent,
+            endsAt: endOf4thAnnivesaryEvent,
+        },
+    ];
+
+    const expectedIds = new Set<EventId>();
+    for (const expectedEvent of expectedEvents) {
+        expectedIds.add(expectedEvent.id);
+        errors.push(...validateEventWindow(expectedEvent, getEvent(expectedEvent.id)));
+    }
+
+    for (const event of getEvents()) {
+        if (!expectedIds.has(event.id)) {
+            errors.push(`EventService has unvalidated event "${event.id}"`);
+        }
+        if (Number.isNaN(toTime(event.startsAt))) {
+            errors.push(`EventService.${event.id}.startsAt is not a valid date`);
+        }
+        if (Number.isNaN(toTime(event.endsAt))) {
+            errors.push(`EventService.${event.id}.endsAt is not a valid date`);
+        }
+        if (event.startsAt.getTime() > event.endsAt.getTime()) {
+            errors.push(`EventService.${event.id} starts after it ends`);
+        }
+    }
+
+    return errors;
+};
+
 export const validateRegistries = (): string[] => {
     const errors: string[] = [];
+    errors.push(...validateEventWindows());
 
     // Items: each source file is a flat record of named exports. The merged
     // `Items.default` is what the rest of the codebase looks up against, but
