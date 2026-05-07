@@ -92,6 +92,7 @@ import {
     isEquipableItem,
     isWeapon,
 } from "./item_guards";
+import { plusOrMinus } from "./math";
 export {
     isActionQuest,
     isAnswerChineseNewYearQuizQuest,
@@ -119,6 +120,7 @@ const totalStands = [
 ];
 
 export { generateRandomId } from "./random";
+export { calculateArrayValues, getDiffPercent, plusOrMinus } from "./math";
 export { isEquipableItem, isGarment, isSpecial, isWeapon } from "./item_guards";
 export {
     getCurrentDate,
@@ -499,10 +501,6 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
     );
 
     return damages;
-};
-
-export const getDiffPercent = (a: number, b: number): number => {
-    return Math.abs((a - b) / ((a + b) / 2)) * 100;
 };
 
 export const getAbilityDamage = (
@@ -1118,14 +1116,6 @@ export const addStamina = function addStamina(userData: RPGUserDataJSON, amount:
     if (userData.stamina > getMaxStamina(userData)) userData.stamina = getMaxStamina(userData);
 };
 
-export const calculateArrayValues = (array: number[]): number => {
-    let sum = 0;
-    for (let i = 0; i < array.length; i++) {
-        sum += array[i];
-    }
-    return sum;
-};
-
 export const standPrices = {
     SS: 200000,
     S: 50000,
@@ -1248,12 +1238,6 @@ export const TopGGVoteRewards = (userData: RPGUserDataJSON): { coins: number; xp
 
 export const isEvolvableStand = (stand: Stand | EvolutionStand): boolean => {
     return (stand as EvolutionStand).evolutions !== undefined;
-};
-
-export const plusOrMinus = (num: number, num2: number): string => {
-    if (num2 > num) return "+";
-    else if (num2 < num) return "-";
-    else return "=~";
 };
 
 export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserDataJSON): string[] => {
