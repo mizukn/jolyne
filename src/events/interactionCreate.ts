@@ -5,7 +5,13 @@ import {
     type RPGUserQuest,
     type UseXCommandQuest,
 } from "../@types";
-import { Events, Interaction, InteractionReplyOptions, MessagePayload } from "discord.js";
+import {
+    Events,
+    Interaction,
+    InteractionReplyOptions,
+    MessageFlags,
+    MessagePayload,
+} from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Functions from "../utils/Functions";
@@ -36,7 +42,7 @@ const Event: EventFile = {
                 );
                 return interaction.reply({
                     content: `The bot is currently in maintenance mode. Reason: \`${interaction.client.maintenanceReason}\``,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
@@ -60,7 +66,7 @@ const Event: EventFile = {
                 // if not process.env.BETA then tell no perms
                 return interaction.reply({
                     content: "You don't have permission to use this command.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
             if (!interaction.channel)
@@ -74,7 +80,7 @@ const Event: EventFile = {
                     content: `This command is deprecated! Use the ${interaction.client.getSlashCommandMention(
                         replacementCommand,
                     )} command instead.`,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
@@ -90,7 +96,7 @@ const Event: EventFile = {
                             content: `You can use this command again in ${(timeLeft / 1000).toFixed(
                                 2,
                             )} seconds.`,
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         });
                     } else
                         interaction.client.cooldowns.delete(
@@ -676,7 +682,7 @@ const Event: EventFile = {
                         content: `There was an error while executing this command. Please try again later.\nError: ${
                             (error as Error)["message"]
                         }`,
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     }) // eslint-disable-next-line @typescript-eslint/no-empty-function
                     .catch(() => {});
             }
