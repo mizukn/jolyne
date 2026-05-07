@@ -286,14 +286,9 @@ const slashCommand: SlashCommandFile = {
                     embeds: [],
                     components: [],
                 });
-            } else {
-                if (!message) {
-                    console.log("NO MESSAGE FOUND, ATTEMTPING TO DELETE");
-                }
             }
             const npc = cloneDeep(Functions.findNPC<FightableNPC>(npcId, true));
             if (customLevel) {
-                console.log(`Custom level set for NPC ${npc.name}: ${customLevel}`);
                 npc.level = customLevel;
                 Functions.fixNpcRewards(npc);
                 Functions.generateSkillPointsByBuild(npc, Functions.getSkillPointsBuild(npc));
