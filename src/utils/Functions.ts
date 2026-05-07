@@ -65,7 +65,13 @@ import color from "get-image-colors";
 import { is2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
 import { level } from "winston";
 import e from "express";
-import seedrandom from "seedrandom";
+import {
+    chance,
+    pickOne,
+    randomInt,
+    shuffle as randomShuffle,
+    shuffleInPlace,
+} from "./random";
 import {
     endOf2024ChristmasEvent,
     is2024ChristmasEventActive,
@@ -94,9 +100,7 @@ export const generateRandomId = (): string => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const randomArray = <T>(array: T[]): T => {
-    return array[Math.floor(Math.random() * array.length)];
-};
+export const randomArray = pickOne;
 
 export const isGarment = (item: Item): item is Garment => {
     return (item as Garment).skillPoints !== undefined;
@@ -725,14 +729,9 @@ export const localeNumber = (num: number): string => {
     return num?.toLocaleString();
 };
 
-export const RNG = (min: number, max: number): number => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+export const RNG = randomInt;
 
-export const percent = (percent: number): boolean => {
-    const cal = RNG(0, 10000000) / 100000;
-    return cal <= percent;
-};
+export const percent = chance;
 
 export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
     const quests: RPGUserQuest[] = [];
@@ -1155,19 +1154,9 @@ export const getSkillPointsBuild = (data: RPGUserDataJSON | FightableNPC): Skill
     return sp;
 };
 
-export const shuffleArray = <T>(array: T[]): T[] => {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-};
+export const shuffleArray = shuffleInPlace;
 
-const rng = seedrandom(); // or use a custom seed for consistency across runs
-
-export const randomNumber = (min: number, max: number): number => {
-    return Math.floor(rng() * (max - min + 1)) + min;
-};
+export const randomNumber = randomInt;
 
 export const isClaimItemQuest = (quest: RPGUserQuest): quest is ClaimItemQuest => {
     return (quest as ClaimItemQuest).type === "ClaimXQuest";
@@ -1929,14 +1918,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
     return limit + 4 + calcEquipableItemsBonus(realUserData).standDisc; // remove +4 later
 };
 
-export const shuffle = function shuffle<T>(array: T[]): T[] {
-    const shuffledArray = [...array];
-    for (let i = shuffledArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-    }
-    return shuffledArray;
-};
+export const shuffle = randomShuffle;
 
 export const getBlackMarketString = function getBlackMarketString(id: string): string {
     const date = new Date();

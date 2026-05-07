@@ -30,7 +30,7 @@ import { count } from "console";
 import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
-import seedrandom from "seedrandom";
+import { seededInt } from "./utils/random";
 import {
     endOf2024ChristmasEvent,
     is2024ChristmasEventActive,
@@ -50,10 +50,8 @@ import {
 
 // Deterministic per-NPC level: same id always resolves to the same number across
 // boots and clusters, so we never have to write generated levels back to disk.
-const stableLevel = (id: string, min: number, max: number): number => {
-    const seed = `${process.env.ENABLE_PRESTIGE ? "prestige" : "normal"}::${id}`;
-    return Math.floor(seedrandom(seed)() * (max - min + 1)) + min;
-};
+const stableLevel = (id: string, min: number, max: number): number =>
+    seededInt(`${process.env.ENABLE_PRESTIGE ? "prestige" : "normal"}::${id}`, min, max);
 
 const StandUsersNPCS = process.env.ENABLE_PRESTIGE ? PRESTIGEJSON : JSONNPC;
 const getPrestigeAdd = (x: Stand | Weapon) => {
