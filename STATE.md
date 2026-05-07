@@ -102,12 +102,27 @@ At that point, re-add the XP bar in Profile (a previous version had it; was remo
 
 ### Other PLAN status
 
-Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-07) is the source of truth. The remaining open tracks are:
+Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-08) is the source of truth. The remaining open tracks are:
 
-- **P2.1 middleware pipeline** for `interactionCreate.ts` (still ~800-line god function).
-- **P3.1 Functions.ts split** (only minor peels via P1; bulk still inline).
-- **P3.4 fat command files** (`RaidSubcommands.ts`, `Dungeon.ts` still 1,200/826 lines).
+- **P2.1 middleware pipeline** for `interactionCreate.ts` (still ~740-line god function).
+- **P3.1 Functions.ts split** — 🟡 active. Down from 3,071 → 2,712 lines (−12% so far). Four sibling modules under `src/utils/` peeled this session: `lookup.ts` (find* helpers), `quest_guards.ts` (is*Quest type guards), `quest_factories.ts` (generate*Quest helpers + lives next to `random.ts` which now also owns `generateRandomId`), `format.ts` (`localeNumber` / `romanize` / `msToString` / `sleep`). Functions.ts re-exports each via `export { ... } from "./mod"` so all 100+ existing callers keep working unchanged. Bulk still inside (~2,700 lines). Next obvious peels per PLAN: `domain/items/inventory.ts` (addItem/removeItem/addCoins/addXp), `domain/items/equipment.ts`, `domain/embed/builders.ts`, `domain/prestige.ts`, `domain/stats/*`.
+- **P3.4 fat command files** (`RaidSubcommands.ts` 1,192 lines, `Dungeon.ts` 826).
 - **P4.x data hygiene** — type-safe registries, effect-based abilities, bigint field migration, atomic dual-write, transactions table integrity.
+
+### BRAINSTORM live-issue sweeps landed this session
+
+- **Empty `for (const key of Object.keys(this))` loops** — gone (cleaned up during `FightLifecycleHandlers.ts` extract).
+- **Misleading `fiveMinTimeout` field name** — renamed to `totalFightTimeout` (15-minute timer; old name was a vestige).
+- **`Fighter.npc = isNaN(Number(this.id))` brittle heuristic** — replaced with `Functions.isFighter(data) ? data.npc : !Functions.isRPGUserDataJSON(data)` (uses existing type guards).
+- **Dead 2nd-anniversary email check** at `interactionCreate.ts:280-288` (`Date.now() < 1707606000000` permanently false since Feb 2024) — removed.
+- **`console.log` debug noise** in `Fighter.removeHealth` (dodge logs), `DungeonHandler` (modifier dump, "deleting message"), `Fight.ts` ("ATTEMTPING TO DELETE", custom-level set) — removed.
+
+### BRAINSTORM live issues still in code (decision-pending or low-impact)
+
+- BRAINSTORM #15 (`FightHandler`) — `Fighter` weapon detection via `equippedItems[id] === equipableItemTypes.WEAPON` (`6`) is implicit. Functional but brittle; would need a data-model change to fix properly.
+- BRAINSTORM #18 (`FightHandler`) — `if (this.skillPoints.perception === Infinity)` godmode trigger in `Fighter.removeHealth`. Some upstream code path sets perception to Infinity (likely admin/eval). The dodge log was removed; the guard itself is intentional.
+- BRAINSTORM #8 (`FightHandler`) — extra-turn log substring matching (`logs.includes("extra turn")`) is fragile but only currently-canonical log uses that phrase. Refactor to a flag-on-`FightTurn` would be safer.
+- BRAINSTORM #17 (`FightHandler`) — `Fighter.removeHealth` `dodgeScore` semantics inverted (every-true means dodged). Counter-intuitive but documented inline.
 
 ## Stashes
 
