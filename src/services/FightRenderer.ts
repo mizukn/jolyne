@@ -28,7 +28,12 @@ export interface FightSnapshot {
     turns: { logs: string[] }[];
     whosTurn: Fighter | undefined;
     hasOneTarget: boolean;
-    ctx: { client: Jolyne };
+    ctx: {
+        client: Jolyne;
+        guild?: { name: string; id: string };
+        channel?: { name?: string; id: string };
+        interaction?: { id: string };
+    };
     getTeamIdx(fighter: Fighter): number;
 }
 
@@ -410,6 +415,127 @@ export function renderWeaponAbilityMenu(
 ): RenderResult {
     const embed = Functions.weaponAbilitiesEmbed(snap.whosTurn, snap.infos.cooldowns);
     return renderAbilityMenu(snap, availableAbilities, "wabilities", embed);
+}
+
+export function renderFightStartLog(snap: FightSnapshot): APIEmbed {
+    return {
+        title: snap.infos.type,
+        description: generateFightersInfo(snap),
+        color: FightTypeColor[snap.infos.type],
+        fields: [
+            {
+                name: "Guild info",
+                value: `\`${snap.ctx.guild?.name}\` (${snap.ctx.guild?.id})`,
+                inline: true,
+            },
+            {
+                name: "Channel info",
+                value: `\`${snap.ctx.channel?.name}\` (${snap.ctx.channel?.id})`,
+                inline: true,
+            },
+            {
+                name: "Timestamp",
+                value: `Started ${Functions.generateDiscordTimestamp(
+                    Date.now(),
+                    "FROM_NOW"
+                )} (${Functions.generateDiscordTimestamp(Date.now(), "FULL_DATE")})`,
+                inline: true,
+            },
+        ],
+        footer: {
+            text: `InteractionID ${snap.ctx.interaction?.id} | FightID ${snap.id}`,
+        },
+    };
+}
+
+export function renderFightEndLog(snap: FightSnapshot): APIEmbed {
+    return {
+        title: snap.infos.type,
+        description: generateFightersInfo(snap) + "\n**▬▬▬▬▬▬▬▬「INFO」▬▬▬▬▬▬▬▬▬**",
+        color: FightTypeColor[snap.infos.type],
+        fields: [
+            {
+                name: "Guild info",
+                value: `\`${snap.ctx.guild?.name}\` (${snap.ctx.guild?.id})`,
+                inline: true,
+            },
+            {
+                name: "Channel info",
+                value: `\`${snap.ctx.channel?.name}\` (${snap.ctx.channel?.id})`,
+                inline: true,
+            },
+            {
+                name: "Timestamp",
+                value: `Ended ${Functions.generateDiscordTimestamp(
+                    Date.now(),
+                    "FROM_NOW"
+                )} (${Functions.generateDiscordTimestamp(Date.now(), "FULL_DATE")})`,
+                inline: true,
+            },
+            ...Functions.fixFields(generateFields(snap)),
+        ],
+        footer: {
+            text: `InteractionID ${snap.ctx.interaction?.id} | FightID ${snap.id}`,
+        },
+    };
+}
+
+export function renderFightStatsEmbed(snap: FightSnapshot): APIEmbed {
+    const sortedByDamage = [...snap.fighters].sort(
+        (a, b) => b.totalDamageDealt - a.totalDamageDealt
+    );
+    const sortedByDodges = [...snap.fighters].sort((a, b) => b.stats.dodges - a.stats.dodges);
+    const sortedByExtraTurns = [...snap.fighters].sort(
+        (a, b) => b.stats.extraTurns - a.stats.extraTurns
+    );
+    const sortedByHealing = [...snap.fighters].sort(
+        (a, b) => b.totalHealingDone - a.totalHealingDone
+    );
+
+    return {
+        title: "Fight Stats",
+        fields: [
+            {
+                name: "👊 Total Damage Dealt",
+                value: sortedByDamage
+                    .map(
+                        (f) =>
+                            `- ${f.name}: **${Math.round(
+                                f.totalDamageDealt
+                            ).toLocaleString()}** damages dealt`
+                    )
+                    .join("\n"),
+            },
+            {
+                name: "🍃 Dodges",
+                value: sortedByDodges
+                    .map((f) => `- ${f.name}: **${f.stats.dodges}** dodges`)
+                    .join("\n"),
+            },
+            {
+                name: "🔄 Extra Turns",
+                value: sortedByExtraTurns
+                    .map((f) => `- ${f.name}: **${f.stats.extraTurns}** extra turns`)
+                    .join("\n"),
+            },
+            {
+                name: "🩹 Healing Done",
+                value: sortedByHealing
+                    .map(
+                        (f) =>
+                            `- ${f.name}: **${Math.round(
+                                f.totalHealingDone
+                            ).toLocaleString()}** healing done`
+                    )
+                    .join("\n"),
+            },
+        ],
+        color: FightTypeColor[snap.infos.type],
+        footer: {
+            text: `FightID ${snap.id}`,
+        },
+        timestamp: new Date().toISOString(),
+    };
 }
 
 export function renderForfeitConfirm(
