@@ -57,7 +57,7 @@ const slashCommand: SlashCommandFile = {
                         NPC.level
                     }\n:heart: HP: ${Functions.localeNumber(
                         Functions.getMaxHealth(NPC)
-                    )}\n:zap: Stamina: ${Functions.localeNumber(Functions.getMaxStamina(NPC))}`,
+                    )}\n:battery: Stamina: ${Functions.localeNumber(Functions.getMaxStamina(NPC))}`,
                     inline: true,
                 },
                 {

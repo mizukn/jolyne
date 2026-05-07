@@ -1890,7 +1890,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
         rewards.push(
             `**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(
                 data1.stamina - data2.stamina,
-            ).toLocaleString()}** :zap: (${data2.stamina.toLocaleString("en-US")}/${getMaxStamina(
+            ).toLocaleString()}** :battery: (${data2.stamina.toLocaleString("en-US")}/${getMaxStamina(
                 data2,
             ).toLocaleString()})`,
         );
@@ -2359,7 +2359,7 @@ export function addHealthOrStamina(
     type: "health" | "stamina",
     data: RPGUserDataJSON,
 ): void {
-    const emoji = type === "health" ? ":heart:" : ":zap:";
+    const emoji = type === "health" ? ":heart:" : ":battery:";
     const addX = type === "health" ? addHealth : addStamina;
     const x = type === "health" ? () => data.health : () => data.stamina;
     const oldX = x();

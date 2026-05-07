@@ -85,7 +85,7 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )}** :heart: and **${stats.stamina.toLocaleString(
                                 "en-US"
-                            )}** :zap: (${stats.currentHealth.toLocaleString(
+                            )}** :battery: (${stats.currentHealth.toLocaleString(
                                 "en-US"
                             )}/${Functions.getMaxHealth(ctx.userData).toLocaleString(
                                 "en-US"
@@ -93,7 +93,7 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )}/${Functions.getMaxStamina(ctx.userData).toLocaleString(
                                 "en-US"
-                            )} :zap:].\n You can leave the campfire with ${ctx.client.getSlashCommandMention(
+                            )} :battery:].\n You can leave the campfire with ${ctx.client.getSlashCommandMention(
                                 "rest leave"
                             )} command.`,
                         });
@@ -125,7 +125,7 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )}** :heart: and **${stats.stamina.toLocaleString(
                                 "en-US"
-                            )}** :zap:. (${ctx.userData.health.toLocaleString(
+                            )}** :battery:. (${ctx.userData.health.toLocaleString(
                                 "en-US"
                             )}/${Functions.getMaxHealth(ctx.userData).toLocaleString(
                                 "en-US"
@@ -133,7 +133,7 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )}/${Functions.getMaxStamina(ctx.userData).toLocaleString(
                                 "en-US"
-                            )} :zap:]`,
+                            )} :battery:]`,
                         });
                         // await ctx.client.database.saveUserData(ctx.userData);
                         const transaction = await ctx.client.database.handleTransaction(

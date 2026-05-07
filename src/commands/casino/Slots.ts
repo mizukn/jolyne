@@ -135,9 +135,9 @@ function casinoWarning(text: string): V2Reply {
 
 function formatSlotGrid(symbols: string[]): string {
     return [
-        `${symbols[0]}  ${symbols[1]}  ${symbols[2]}`,
-        `➡️ ${symbols[3]}  ${symbols[4]}  ${symbols[5]}`,
-        `${symbols[6]}  ${symbols[7]}  ${symbols[8]}`,
+        `| ${symbols[0]} : ${symbols[1]} : ${symbols[2]} |`,
+        `| ${symbols[3]} : ${symbols[4]} : ${symbols[5]} | <`,
+        `| ${symbols[6]} : ${symbols[7]} : ${symbols[8]} |`,
     ].join("\n");
 }
 

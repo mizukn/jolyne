@@ -301,13 +301,13 @@ const slashCommand: SlashCommandFile = {
 
             const sections: { text: string }[] = [
                 {
-                    text: `**Dealer** — ${dealerDisplay}\n${formatHand(
+                    text: `### **Dealer** — ${dealerDisplay}\n${formatHand(
                         dealerCards,
                         !reveal
                     )}`,
                 },
                 {
-                    text: `**${ctx.user.username}** — ${playerVal}\n${formatHand(playerCards)}`,
+                    text: `### **${ctx.user.username}** — ${playerVal}\n${formatHand(playerCards)}`,
                 },
             ];
 

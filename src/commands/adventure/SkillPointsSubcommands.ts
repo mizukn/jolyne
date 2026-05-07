@@ -19,7 +19,7 @@ import { cloneDeep } from "lodash";
 const SKILLS = [
     {
         key: "stamina",
-        emoji: "⚡",
+        emoji: "🔋",
         label: "Stamina",
         desc: "Increases your agility [stamina/energy]",
         miscFunc: Functions.getMaxStamina,

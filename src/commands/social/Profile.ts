@@ -243,7 +243,7 @@ const slashCommand: SlashCommandFile = {
                         rpgData.health
                     )}/${Functions.localeNumber(
                         Functions.getMaxHealth(rpgData)
-                    )}\n${emojiBar("hp", rpgData.health, Functions.getMaxHealth(rpgData))}\n:zap: Stamina: ${Functions.localeNumber(
+                    )}\n${emojiBar("hp", rpgData.health, Functions.getMaxHealth(rpgData))}\n:battery: Stamina: ${Functions.localeNumber(
                         rpgData.stamina
                     )}/${Functions.localeNumber(
                         Functions.getMaxStamina(rpgData)

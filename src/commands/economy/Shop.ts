@@ -235,7 +235,7 @@ const slashCommand: SlashCommandFile = {
             const maxSta = Functions.getMaxStamina(ctx.userData);
             const hpBar = emojiBar("hp", ctx.userData.health, maxHP);
             const staBar = emojiBar("sta", ctx.userData.stamina, maxSta);
-            const bars = `**Your stats:**\n> :heart: • **${ctx.userData.health.toLocaleString()} / ${maxHP.toLocaleString()}** HP\n>  ${hpBar}\n> :zap: • **${ctx.userData.stamina.toLocaleString()} / ${maxSta.toLocaleString()}** STA\n> ${staBar}`;
+            const bars = `**Your stats:**\n> :heart: • **${ctx.userData.health.toLocaleString()} / ${maxHP.toLocaleString()}** HP\n>  ${hpBar}\n> :battery: • **${ctx.userData.stamina.toLocaleString()} / ${maxSta.toLocaleString()}** STA\n> ${staBar}`;
 
             if (viewingItemId) {
                 const itemEntry = shop.items.find((x) => x.item === viewingItemId);
@@ -271,7 +271,7 @@ const slashCommand: SlashCommandFile = {
                         }
                         const barKind = stat === "health" ? "hp" : (stat === "stamina" ? "sta" : "xp");
                         const shortStat = stat === "health" ? "HP" : (stat === "stamina" ? "STA" : stat.toUpperCase());
-                        const emojiStat = stat === "health" ? "❤️" : (stat === "stamina" ? "⚡" : "");
+                        const emojiStat = stat === "health" ? "❤️" : (stat === "stamina" ? "🔋" : "");
                         const bar = emojiBar(barKind, Math.round(fillRatio * 100), 100);
                         return `\n> ${emojiStat} • **${displayVal}** ${shortStat}\n> ${bar}`;
                     });
