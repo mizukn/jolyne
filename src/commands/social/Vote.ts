@@ -124,7 +124,7 @@ const slashCommand: SlashCommandFile = {
                 embeds[0].fields.push({
                     name: `${ctx.client.localEmojis.timerIcon} Low Cooldown!`,
                     value: `Since you have voted recently, all your cooldowns are reduced to **45 seconds** !! (${[
-                        "hunt",
+                        "assault",
                         "loot",
                         "raid",
                     ]

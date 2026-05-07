@@ -29,7 +29,6 @@ const deprecatedCommandRedirects: Record<string, string> = {
     "action": "quests action",
     "adventure language": "settings language",
     "adventure start": "start",
-    "assault": "hunt",
     "campfire leave": "rest leave",
     "campfire rest": "rest start",
     "chapter": "story",
@@ -287,8 +286,6 @@ const Event: EventFile = {
                 if (command.data.options?.filter((r) => r.type === 1)?.length !== 0) {
                     commandName += ` ${interaction.options.getSubcommand()}`;
                 }
-                const questCommandName = commandName === "hunt" ? "assault" : commandName;
-
                 interaction.client.log(
                     `${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
                         interaction.options["data"],
@@ -555,7 +552,7 @@ const Event: EventFile = {
                         }
                         if (
                             Functions.isUseXCommandQuest(quest) &&
-                            quest.command === questCommandName
+                            quest.command === commandName
                         ) {
                             quest.amount++;
                         }
@@ -661,8 +658,7 @@ const Event: EventFile = {
                     ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.5 &&
                     (command.data.name === "fight" ||
                         command.data.name === "dungeon" ||
-                        command.data.name === "assault" ||
-                        command.data.name === "hunt") &&
+                        command.data.name === "assault") &&
                     ctx.userData.settings.notifications.low_health_or_stamina
                 ) {
                     notifications.push(

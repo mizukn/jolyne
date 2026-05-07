@@ -102,7 +102,7 @@ Recommended final item surface:
 | `/fight npc` | `/fight quest` or `/battle quest` | Rename candidate | It only fights NPCs from active quests, so `quest` is more honest. |
 | `/fight train` | `/train` or `/fight train` | Optional split | If training is no-reward practice, `/train` is more intuitive. |
 | `/fight custom` | `/fight custom` | Keep | Clear enough. |
-| `/assault` | `/hunt` | Rename | `assault` is aggressive and not obvious. `hunt` reads like "find a random matching NPC". |
+| `/assault` | `/assault` | Keep | Established command name; clearer description is enough. |
 | `/raid` | `/raid` | Keep | Clear and common game language. |
 | `/dungeon` | `/dungeon` | Keep | Clear and common game language. |
 | `/npc-info` | `/npc info` | Rename | Groups NPC utilities under `npc`. |
@@ -114,7 +114,7 @@ Optional future shape:
 | `/battle quest` | Fight a quest NPC. |
 | `/battle custom` | Custom PvP/team battle. |
 | `/train npc` | Friendly NPC fight. |
-| `/hunt` | Random level-matched NPC. |
+| `/assault` | Random level-matched NPC fight. |
 | `/raid` | Boss raid. |
 | `/dungeon` | Dungeon run. |
 

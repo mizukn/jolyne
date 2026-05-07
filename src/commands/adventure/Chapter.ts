@@ -156,8 +156,7 @@ export const getQuestsStats = (
                     emoji: Functions.findItem(quest.item).emoji,
                 });
             } else if (Functions.isUseXCommandQuest(quest)) {
-                const commandName = quest.command === "assault" ? "hunt" : quest.command;
-                const cmd = ctx.client.getSlashCommandMention(commandName);
+                const cmd = ctx.client.getSlashCommandMention(quest.command);
                 questMessage = ctx.translate("quest:USE_COMMAND", {
                     cmd,
                     cc: quest.goal.toLocaleString(),
