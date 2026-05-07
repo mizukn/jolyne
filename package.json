@@ -4,7 +4,8 @@
   "description": "A JJBA RPG Discord BOT",
   "main": "dist/Cluster.js",
   "scripts": {
-    "test": "node dist/scripts/test.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "start": "node dist/Cluster.js",
     "init-db": "node dist/scripts/initDatabase.js",
     "init-db-reset": "node dist/scripts/initDatabase.js --reset",
@@ -80,6 +81,7 @@
     "eslint": "^8.56.0",
     "express": "^4.18.2",
     "tslib": "^2.5.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.4"
   }
 }
