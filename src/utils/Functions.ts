@@ -546,9 +546,7 @@ export const fieldSections = (fields: { name: string; value: string }[]): { text
     }));
 };
 
-export const localeNumber = (num: number): string => {
-    return num?.toLocaleString();
-};
+export { localeNumber } from "./format";
 
 export const RNG = randomInt;
 
@@ -970,54 +968,13 @@ export const isEquipableItem = (item: Item): item is EquipableItem => {
 
 export { findItem };
 
-export const romanize = (num: number): string => {
-    if (isNaN(num)) return "NaN";
-    const digits = String(+num).split("");
-    const key = [
-        "",
-        "C",
-        "CC",
-        "CCC",
-        "CD",
-        "D",
-        "DC",
-        "DCC",
-        "DCCC",
-        "CM",
-        "",
-        "X",
-        "XX",
-        "XXX",
-        "XL",
-        "L",
-        "LX",
-        "LXX",
-        "LXXX",
-        "XC",
-        "",
-        "I",
-        "II",
-        "III",
-        "IV",
-        "V",
-        "VI",
-        "VII",
-        "VIII",
-        "IX",
-    ];
-    let roman = "";
-    let i = 3;
-    while (i--) roman = (key[+digits.pop() + i * 10] || "") + roman;
-    return Array(+digits.join("") + 1).join("M") + roman;
-};
+export { romanize } from "./format";
 
 export const getMaxXp = function getMaxXP(level: RPGUserDataJSON["level"]): number {
     return (level / 5) * 1000 * 13;
 };
 
-export const sleep = (ms: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-};
+export { sleep } from "./format";
 
 const bufferCache: { [key: string]: Buffer } = {};
 
@@ -1583,23 +1540,7 @@ export const hasExceedStandLimit = function hasExceedStandLimit(
     else return discCount > limit;
 };
 
-export const msToString = function msToString(ms: number): string {
-    let seconds = Math.floor(ms / 1000);
-    let minutes = Math.floor(seconds / 60);
-    let hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    seconds %= 60;
-    minutes %= 60;
-    hours %= 24;
-
-    const dayStr = days ? `${days} day${days > 1 ? "s" : ""}` : "";
-    const hourStr = hours ? `${hours} hour${hours > 1 ? "s" : ""}` : "";
-    const minuteStr = minutes ? `${minutes} minute${minutes > 1 ? "s" : ""}` : "";
-    const secondStr = seconds ? `${seconds} second${seconds > 1 ? "s" : ""}` : "";
-
-    return `${dayStr} ${hourStr} ${minuteStr} ${secondStr}`;
-};
+export { msToString } from "./format";
 
 export function splitEmbedIfExceedsLimit(embed: APIEmbed): APIEmbed[] {
     const embeds: APIEmbed[] = [];
