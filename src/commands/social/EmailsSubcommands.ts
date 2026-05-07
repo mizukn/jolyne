@@ -44,6 +44,7 @@ function getMailboxType(subcommand: string): MailboxType {
 }
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "emails",
         description: "View your emails",

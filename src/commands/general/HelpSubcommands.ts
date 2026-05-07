@@ -34,10 +34,14 @@ interface PublicCommand {
     category: SlashCommand["category"];
     options?: { name: string; description: string; required?: boolean }[];
     cooldown?: number;
+    hidden?: boolean;
 }
 
 function publicCommands(ctx: CommandInteractionContext): PublicCommand[] {
-    return ctx.client.allCommands.filter((c) => c.category !== "admin") as PublicCommand[];
+    return ctx.client.allCommands.filter((c) => {
+        const command = c as PublicCommand;
+        return command.category !== "admin" && !command.hidden;
+    }) as PublicCommand[];
 }
 
 function buildContainer(ctx: CommandInteractionContext, view: HelpView): ContainerBuilder {
@@ -281,9 +285,10 @@ const slashCommand: SlashCommandFile = {
         });
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
-        const commands = interaction.client.allCommands.filter(
+        const commands = (interaction.client.allCommands as PublicCommand[]).filter(
             (x) =>
                 x.category !== "admin" &&
+                !x.hidden &&
                 (x.name.toLowerCase().includes(currentInput.toLowerCase()) ||
                     x.description.toLowerCase().includes(currentInput.toLowerCase()))
         );

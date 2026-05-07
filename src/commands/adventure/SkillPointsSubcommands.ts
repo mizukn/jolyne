@@ -23,6 +23,7 @@ import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNP
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "skill",
         description: "Invest your skill points or view them",

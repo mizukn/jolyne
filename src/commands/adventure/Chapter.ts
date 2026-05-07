@@ -441,6 +441,7 @@ function getChapterOrChapterPartInfos(id: number): Chapter | ChapterPart {
 }
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "chapter",
         description: "Show your current chapter progress",

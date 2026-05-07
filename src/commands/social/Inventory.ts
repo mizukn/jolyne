@@ -175,6 +175,15 @@ function goToPage(
 }
 
 const slashCommand: SlashCommandFile = {
+    hiddenCommandNames: [
+        "inventory use",
+        "inventory equip",
+        "inventory info",
+        "inventory unequip",
+        "inventory throw",
+        "inventory claim",
+        "inventory sell",
+    ],
     data: {
         name: "inventory",
         description: "Show information about your inventory",

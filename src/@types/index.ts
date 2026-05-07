@@ -44,6 +44,8 @@ export interface SlashCommandFile {
     };
     ownerOnly?: boolean;
     adminOnly?: boolean;
+    hidden?: boolean;
+    hiddenCommandNames?: string[];
     checkRPGCooldown?: string;
     data: DiscordSlashCommandsData;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

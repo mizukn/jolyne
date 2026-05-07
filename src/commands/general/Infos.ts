@@ -103,6 +103,7 @@ const getCommit = async () => {
 const numberOfDays = 30;
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "infos",
         description: "Display informations about the bot",

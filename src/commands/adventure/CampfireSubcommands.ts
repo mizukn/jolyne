@@ -7,6 +7,7 @@ import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "campfire",
         description: "Rest at the campfire, or leave it.",

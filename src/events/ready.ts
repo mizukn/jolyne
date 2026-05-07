@@ -369,12 +369,15 @@ const Event: EventFile = {
                         .filter((r) => r.type !== 4).length !== 0
                 ) {
                     return v.data.options.map((c) => {
+                        const name = `${v.data.name} ${c.name}`;
                         return {
                             cooldown: v.cooldown,
                             category: v.category,
                             options: v.data?.options?.filter((r) => r.name === c.name)[0]?.options,
-                            name: `${v.data.name} ${c.name}`,
+                            name,
                             description: removeEmoji(c.description),
+                            hidden: v.hidden || v.hiddenCommandNames?.includes(name),
+                            hiddenCommandNames: v.hiddenCommandNames,
                         };
                     });
                 } else
@@ -386,6 +389,8 @@ const Event: EventFile = {
                         ),
                         name: v.data.name,
                         description: removeEmoji(v.data.description),
+                        hidden: v.hidden || v.hiddenCommandNames?.includes(v.data.name),
+                        hiddenCommandNames: v.hiddenCommandNames,
                     };
             })
             .map((v) => {
@@ -397,6 +402,8 @@ const Event: EventFile = {
                             options: v.options,
                             name: v.name,
                             description: v.description,
+                            hidden: v.hidden,
+                            hiddenCommandNames: v.hiddenCommandNames,
                         };
                     });
                 } else
@@ -406,6 +413,8 @@ const Event: EventFile = {
                         options: v.options,
                         name: v.name,
                         description: v.description,
+                        hidden: v.hidden,
+                        hiddenCommandNames: v.hiddenCommandNames,
                     };
             });
         const commandsV2 = [];
@@ -420,12 +429,16 @@ const Event: EventFile = {
         for (const commands of commandsV2) {
             if (commands.options?.find((x) => x.type === 1)) {
                 for (const command of commands.options) {
+                    const name = `${commands.name} ${command.name}`;
                     commandsV3.push({
                         cooldown: commands.cooldown,
                         category: commands.category,
                         options: command.options,
-                        name: `${commands.name} ${command.name}`,
+                        name,
                         description: command.description,
+                        hidden:
+                            commands.hidden ||
+                            commands.hiddenCommandNames?.includes(name),
                     });
                 }
             } else commandsV3.push(commands);
