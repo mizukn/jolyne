@@ -1,6 +1,6 @@
 import emojis from "../emojis.json";
 
-type BarKind = "hp" | "sta" | "xp";
+type BarKind = "hp" | "sta" | "xp" | "def" | "empty";
 
 /**
  * Builds a discrete progress bar from custom Discord emojis.

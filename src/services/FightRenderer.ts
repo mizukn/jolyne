@@ -81,16 +81,19 @@ const fighterLine = (fighter: Fighter): string => {
         ? `${prefix} ~~**${fighter.name}**~~ • LVL ${fighter.trueLevel} ☠️`
         : `${prefix} **${fighter.name}** • LVL ${fighter.trueLevel}`;
     const hpBar = emojiBar("hp", fighter.health, fighter.maxHealth);
-    const hpLine = `${hpBar} \`${fighter.health.toLocaleString("en-US")}/${fighter.maxHealth.toLocaleString("en-US")}\` ❤️ • 🛡️ \`${fighter.defense.toLocaleString("en-US")}/${fighter.maxDefense.toLocaleString("en-US")}\``;
-    return `${nameLine}\n${hpLine}`;
+    const defBar = emojiBar("def", fighter.defense, fighter.maxDefense);
+    const hpLine = `> -# :heart: • **${fighter.health.toLocaleString()} / ${fighter.maxHealth.toLocaleString()}** HP\n> ${hpBar}`;
+    const defLine = fighter.maxDefense > 0 ? `> -# 🛡️ • **${fighter.defense.toLocaleString()} / ${fighter.maxDefense.toLocaleString()}** DEF\n> ${defBar}` : "";
+    return `${nameLine}\n${hpLine}\n${defLine}`;
 };
 
 const teamSections = (snap: FightSnapshot, ignoreTeamIndex?: number): SectionData[] => {
+    const isTeamDead = (team: Fighter[]): string => team.every((fighter) => fighter.health <= 0) ? "~~" : "";
     return snap.teams
         .map((team, idx) => ({ team, idx }))
         .filter(({ idx }) => idx !== ignoreTeamIndex)
         .map(({ team, idx }) => ({
-            text: `### 👥 Team ${idx + 1}\n${team.map(fighterLine).join("\n\n")}`,
+            text: `### 👥 ${isTeamDead(team)}Team ${idx + 1}${isTeamDead(team)}\n${team.map(fighterLine).join("\n\n")}`,
         }));
 };
 
@@ -121,7 +124,7 @@ export function renderTurn(snap: FightSnapshot, opts: RenderTurnOptions = {}): R
     const headerSection: SectionData = {
         text: [
             `### 🎯 ${whosTurn?.name ?? "Unknown"}'s Turn`,
-            `${emojiBar("sta", whosTurn?.stamina ?? 0, whosTurn?.maxStamina ?? 1)} \`${whosTurn?.stamina ?? 0}/${whosTurn?.maxStamina ?? 0}\` ⚡ stamina`,
+            `> 🔋 • **${whosTurn?.stamina?.toLocaleString() ?? 0} / ${whosTurn?.maxStamina?.toLocaleString() ?? 0}** STA\n> ${emojiBar("sta", whosTurn?.stamina ?? 0, whosTurn?.maxStamina ?? 1)} `,
         ].join("\n"),
     };
     const avatarUrl = fighterAvatarURL(snap, whosTurn);
