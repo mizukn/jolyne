@@ -1,4 +1,4 @@
-import type { APIEmbed } from "discord.js";
+import { ChatInputCommandInteraction, Message, type APIEmbed } from "discord.js";
 
 export const fixFields = function fixFields(
     fields: { name: string; value: string; inline?: boolean }[],
@@ -93,3 +93,126 @@ export function splitEmbedIfExceedsLimit(embed: APIEmbed): APIEmbed[] {
 
     return embeds;
 }
+
+export const disableComponents = (
+    components: any[],
+): any[] => {
+    components.forEach((c) => {
+        if (c.components) {
+            c.components.forEach((innerC: any) => {
+                if (innerC.data) innerC.data.disabled = true;
+            });
+        }
+    });
+
+    return components;
+};
+
+export const disableRows = (interaction: ChatInputCommandInteraction | Message): void => {
+    if (interaction instanceof Message) {
+        interaction.edit({
+            components: disableComponents(interaction.components),
+        });
+    } else {
+        interaction.fetchReply().then((x) => {
+            if (!x) return;
+            x.edit({
+                components: disableComponents(x.components),
+            });
+        });
+    }
+};
+
+export const redEmbeds = (interaction: ChatInputCommandInteraction | Message): void => {
+    if (interaction instanceof Message) {
+        interaction.edit({
+            embeds: interaction.embeds.map((x) => {
+                // @ts-expect-error DNC ABOUT THE READ ONLY
+                x.data.color = 0xff0000;
+                return x;
+            }),
+        });
+    } else {
+        interaction.fetchReply().then((x) => {
+            if (!x) return;
+            x.edit({
+                embeds: x.embeds.map((x) => {
+                    // @ts-expect-error DNC ABOUT THE READ ONLY
+                    x.data.color = 0xff0000;
+                    return x;
+                }),
+            });
+        });
+    }
+};
+
+export const makeEmbedReds = (embeds: APIEmbed[]): APIEmbed[] => {
+    return embeds.map((x) => {
+        // @ts-expect-error DNC ABOUT THE READ ONLY
+        x.data.color = 0xff0000;
+        return x;
+    });
+};
+
+const MAX_DESCRIPTION_LENGTH = 4096;
+
+export const fixEmbeds = (embeds: APIEmbed[]): APIEmbed[] => {
+    const resultEmbeds: APIEmbed[] = [];
+
+    embeds.forEach((embed) => {
+        const { description = "", footer, color } = embed;
+
+        if (description.length <= MAX_DESCRIPTION_LENGTH) {
+            resultEmbeds.push(embed);
+        } else {
+            const chunks = splitDescriptionNicely(description, MAX_DESCRIPTION_LENGTH);
+
+            chunks.forEach((chunk, index) => {
+                const newEmbed: APIEmbed = {
+                    description: chunk,
+                    color,
+                };
+
+                if (index === chunks.length - 1 && footer) {
+                    newEmbed.footer = footer;
+                }
+
+                resultEmbeds.push(newEmbed);
+            });
+        }
+    });
+
+    if (embeds[0].title) resultEmbeds[0].title = embeds[0].title;
+    if (embeds[0].author) resultEmbeds[0].author = embeds[0].author;
+    if (embeds[0].footer) resultEmbeds[resultEmbeds.length - 1].footer = embeds[0].footer;
+
+    return resultEmbeds;
+};
+
+const splitDescriptionNicely = (text: string, maxLength: number): string[] => {
+    const result: string[] = [];
+    let remainingText = text;
+
+    while (remainingText.length > maxLength) {
+        let chunk = remainingText.slice(0, maxLength);
+        const lastNewlineIndex = chunk.lastIndexOf("\n");
+
+        if (lastNewlineIndex !== -1) {
+            chunk = remainingText.slice(0, lastNewlineIndex + 1);
+        } else {
+            const lastSpaceIndex = chunk.lastIndexOf(" ");
+            if (lastSpaceIndex !== -1) {
+                chunk = remainingText.slice(0, lastSpaceIndex);
+            }
+        }
+
+        result.push(chunk);
+        remainingText = remainingText.slice(chunk.length).trim();
+    }
+
+    if (remainingText.length > 0) {
+        result.push(remainingText);
+    }
+
+    return result;
+};

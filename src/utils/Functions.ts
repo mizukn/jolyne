@@ -44,9 +44,7 @@ import {
     StringSelectMenuBuilder,
     APIEmbed,
     Utils,
-    Message,
     MessageActionRowComponent,
-    ChatInputCommandInteraction,
     ActionRow,
 } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
@@ -1160,7 +1158,15 @@ export const calcEquipableItemsBonus = UserService.calcEquipableItemsBonus;
 
 export { capitalize } from "./format";
 
-export { fixFields } from "./embed";
+export {
+    disableComponents,
+    disableRows,
+    fixEmbeds,
+    fixFields,
+    makeEmbedReds,
+    redEmbeds,
+    splitEmbedIfExceedsLimit,
+} from "./embed";
 
 export { generateMessageLink } from "./format";
 
@@ -1230,8 +1236,6 @@ export const hasExceedStandLimit = function hasExceedStandLimit(
 };
 
 export { msToString } from "./format";
-
-export { splitEmbedIfExceedsLimit } from "./embed";
 
 export const TopGGVoteRewards = (userData: RPGUserDataJSON): { coins: number; xp: number } => {
     // 5% of the user's max xp
@@ -1995,66 +1999,6 @@ export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): numbe
     }
 };
 
-export const disableComponents = (
-    components: any[],
-): any[] => {
-    components.forEach((c) => {
-        if (c.components) {
-            c.components.forEach((innerC: any) => {
-                if (innerC.data) innerC.data.disabled = true;
-            });
-        }
-    });
-
-    return components;
-};
-
-export const disableRows = (interaction: ChatInputCommandInteraction | Message): void => {
-    if (interaction instanceof Message) {
-        interaction.edit({
-            components: disableComponents(interaction.components),
-        });
-    } else {
-        interaction.fetchReply().then((x) => {
-            if (!x) return; // message deleted
-            x.edit({
-                components: disableComponents(x.components),
-            });
-        });
-    }
-};
-
-export const redEmbeds = (interaction: ChatInputCommandInteraction | Message): void => {
-    if (interaction instanceof Message) {
-        interaction.edit({
-            embeds: interaction.embeds.map((x) => {
-                // @ts-expect-error DNC ABOUT THE READ ONLY
-                x.data.color = 0xff0000;
-                return x;
-            }),
-        });
-    } else {
-        interaction.fetchReply().then((x) => {
-            if (!x) return; // message deleted
-            x.edit({
-                embeds: x.embeds.map((x) => {
-                    // @ts-expect-error DNC ABOUT THE READ ONLY
-                    x.data.color = 0xff0000;
-                    return x;
-                }),
-            });
-        });
-    }
-};
-
-export const makeEmbedReds = (embeds: APIEmbed[]): APIEmbed[] => {
-    return embeds.map((x) => {
-        // @ts-expect-error DNC ABOUT THE READ ONLY
-        x.data.color = 0xff0000;
-        return x;
-    });
-};
-
 export const fixUserSettings = (data: RPGUserDataJSON): void => {
     if (!data.settings) {
         data.settings = defaultUserSettings;
@@ -2075,80 +2019,6 @@ export const fixUserSettings = (data: RPGUserDataJSON): void => {
             }
         }
     }
-};
-
-const MAX_DESCRIPTION_LENGTH = 4096; // Maximum length for embed descriptions, Discord's limit
-
-export const fixEmbeds = (embeds: APIEmbed[]): APIEmbed[] => {
-    const resultEmbeds: APIEmbed[] = [];
-
-    embeds.forEach((embed) => {
-        const { description = "", footer, color } = embed;
-
-        // If description is within limits, just push the embed as is
-        if (description.length <= MAX_DESCRIPTION_LENGTH) {
-            resultEmbeds.push(embed);
-        } else {
-            // Split the description by new lines to avoid breaking in the middle of words or emojis
-            const chunks = splitDescriptionNicely(description, MAX_DESCRIPTION_LENGTH);
-
-            // Create a new embed for each chunk, copying color and other properties
-            chunks.forEach((chunk, index) => {
-                const newEmbed: APIEmbed = {
-                    description: chunk,
-                    color: color,
-                };
-
-                // Only add the footer to the last embed in the series
-                if (index === chunks.length - 1 && footer) {
-                    newEmbed.footer = footer;
-                }
-
-                resultEmbeds.push(newEmbed);
-            });
-        }
-    });
-
-    if (embeds[0].title) resultEmbeds[0].title = embeds[0].title;
-    if (embeds[0].author) resultEmbeds[0].author = embeds[0].author;
-    if (embeds[0].footer) resultEmbeds[resultEmbeds.length - 1].footer = embeds[0].footer;
-
-    return resultEmbeds;
-};
-
-// Utility function to split the description nicely, respecting word boundaries
-const splitDescriptionNicely = (text: string, maxLength: number): string[] => {
-    const result: string[] = [];
-    let remainingText = text;
-
-    while (remainingText.length > maxLength) {
-        // Find the largest possible chunk that fits within the maxLength
-        let chunk = remainingText.slice(0, maxLength);
-
-        // Try to find the last occurrence of a newline within the chunk
-        const lastNewlineIndex = chunk.lastIndexOf("\n");
-
-        // If we found a newline, we split at that point for a cleaner break
-        if (lastNewlineIndex !== -1) {
-            chunk = remainingText.slice(0, lastNewlineIndex + 1); // Include the newline in the chunk
-        } else {
-            // Otherwise, try to split at the last space to avoid cutting off words or emojis
-            const lastSpaceIndex = chunk.lastIndexOf(" ");
-            if (lastSpaceIndex !== -1) {
-                chunk = remainingText.slice(0, lastSpaceIndex);
-            }
-        }
-
-        result.push(chunk);
-        remainingText = remainingText.slice(chunk.length).trim(); // Remove the processed chunk
-    }
-
-    // Add the remaining part as the final chunk
-    if (remainingText.length > 0) {
-        result.push(remainingText);
-    }
-
-    return result;
 };
 
 export const getSideQuestRequirements = (
