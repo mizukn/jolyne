@@ -14,6 +14,7 @@ import { tradeWebhook } from "../../utils/Webhooks";
 import { createCanvas, loadImage } from "canvas";
 import { cloneDeep } from "lodash";
 import { containers } from "../../utils/containers";
+import { acquireTradeLocks, validateOfferAgainstInventory } from "../../services/TradeService";
 
 const slashCommand: SlashCommandFile = {
     hiddenCommandNames: ["trade start", "trade view"],
@@ -343,67 +344,110 @@ const slashCommand: SlashCommandFile = {
                                 break;
                             accepted.push(i.user.id);
                             if (accepted.length === 2) {
+                                const tradeLock = await acquireTradeLocks(
+                                    ctx.client.database.redis,
+                                    [ctx.user.id, target.id],
+                                    tradeID,
+                                );
+                                if (!tradeLock) {
+                                    accepted = [];
+                                    await ctx.makeMessage({
+                                        content:
+                                            ":warning: Trade is busy. Please wait a few seconds and accept again.",
+                                    });
+                                    return;
+                                }
+                                ctx.client.cluster.off(`trade_${ctx.user.id}`, callback2);
+                                ctx.client.cluster.off(`trade_${target.id}`, callback);
+
+                                try {
+                                    const userData = await ctx.client.database.getRPGUserData(
+                                        ctx.user.id,
+                                    );
+                                    const targetData = await ctx.client.database.getRPGUserData(
+                                        target.id,
+                                    );
+
+                                    const inventoryErrors = [
+                                        ...validateOfferAgainstInventory(
+                                            userData.inventory,
+                                            userOffer,
+                                        ).map((error) => `${ctx.user.username}: ${error}`),
+                                        ...validateOfferAgainstInventory(
+                                            targetData.inventory,
+                                            targetOffer,
+                                        ).map((error) => `${target.username}: ${error}`),
+                                    ];
+                                    if (inventoryErrors.length) {
+                                        await ctx.makeMessage({
+                                            content: `:x: Trade rejected because an offer is no longer valid:\n${inventoryErrors
+                                                .map((error) => `- ${error}`)
+                                                .join("\n")}`,
+                                            components: [],
+                                        });
+                                        collector.stop();
+                                        return;
+                                    }
+
+                                    const results: boolean[] = [];
+                                    const oldTargetData = cloneDeep(targetData);
+                                    const oldUserData = cloneDeep(userData);
+
+                                    // handle delete item first
+                                    for (const [item, amount] of Object.entries(userOffer)) {
+                                        results.push(Functions.removeItem(userData, item, amount));
+                                    }
+                                    for (const [item, amount] of Object.entries(targetOffer)) {
+                                        results.push(
+                                            Functions.removeItem(targetData, item, amount),
+                                        );
+                                    }
+
+                                    // and then add item
+                                    for (const [item, amount] of Object.entries(userOffer)) {
+                                        results.push(
+                                            Functions.addItem(targetData, item, amount, true, ctx),
+                                        );
+                                    }
+                                    for (const [item, amount] of Object.entries(targetOffer)) {
+                                        results.push(
+                                            Functions.addItem(userData, item, amount, true, ctx),
+                                        );
+                                    }
+
+                                    const transaction = await ctx.client.database.handleTransaction(
+                                        [
+                                            {
+                                                oldData: oldUserData,
+                                                newData: userData,
+                                            },
+                                            {
+                                                oldData: oldTargetData,
+                                                newData: targetData,
+                                            },
+                                        ],
+                                        `From trade #${tradeID}`,
+                                        results,
+                                    );
+
+                                    if (!transaction) {
+                                        await ctx.makeMessage({
+                                            content: `:x: TRANSACTION REJECTED:: Please check if one of you has enough stand disc space, or if one of the items is limited and a user has reached the limit. If you believe this is an error, please [contact us](https://discord.gg/jolyne-support-923608916540145694).`,
+                                            embeds: [],
+                                        });
+                                        Functions.disableRows(ctx.interaction);
+                                        collector.stop();
+                                        return;
+                                    }
+                                } finally {
+                                    await tradeLock.release();
+                                }
+
                                 ctx.makeMessage({
                                     content: `:white_check_mark: Trade completed! (ID: \`${tradeID}\`)`,
                                     components: [],
                                 });
                                 collector.stop();
-                                ctx.client.cluster.off(`trade_${ctx.user.id}`, callback2);
-                                ctx.client.cluster.off(`trade_${target.id}`, callback);
-                                const userData = await ctx.client.database.getRPGUserData(
-                                    ctx.user.id
-                                );
-                                const targetData = await ctx.client.database.getRPGUserData(
-                                    target.id
-                                );
-
-                                const results: boolean[] = [];
-                                const oldTargetData = cloneDeep(targetData);
-                                const oldUserData = cloneDeep(userData);
-
-                                // handle delete item first
-                                for (const [item, amount] of Object.entries(userOffer)) {
-                                    results.push(Functions.removeItem(userData, item, amount));
-                                }
-                                for (const [item, amount] of Object.entries(targetOffer)) {
-                                    results.push(Functions.removeItem(targetData, item, amount));
-                                }
-
-                                // and then add item
-                                for (const [item, amount] of Object.entries(userOffer)) {
-                                    results.push(
-                                        Functions.addItem(targetData, item, amount, true, ctx)
-                                    );
-                                }
-                                for (const [item, amount] of Object.entries(targetOffer)) {
-                                    results.push(
-                                        Functions.addItem(userData, item, amount, true, ctx)
-                                    );
-                                }
-
-                                const transaction = await ctx.client.database.handleTransaction(
-                                    [
-                                        {
-                                            oldData: oldUserData,
-                                            newData: userData,
-                                        },
-                                        {
-                                            oldData: oldTargetData,
-                                            newData: targetData,
-                                        },
-                                    ],
-                                    `From trade #${tradeID}`,
-                                    results
-                                );
-
-                                if (!transaction) {
-                                    await ctx.makeMessage({
-                                        content: `:x: TRANSACTION REJECTED:: Please check if one of you has enough stand disc space, or if one of the items is limited and a user has reached the limit. If you believe this is an error, please [contact us](https://discord.gg/jolyne-support-923608916540145694).`,
-                                        embeds: [],
-                                    });
-                                    Functions.disableRows(ctx.interaction);
-                                    return;
-                                }
                                 //await ctx.client.database.saveUserData(userData);
                                 //await ctx.client.database.saveUserData(targetData);
                                 ctx.client.database.deleteCooldown(target.id);
