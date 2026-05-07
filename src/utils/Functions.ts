@@ -69,7 +69,6 @@ import {
     shuffle as randomShuffle,
     shuffleInPlace,
 } from "./random";
-import { getTodayString as formatTodayString } from "./format";
 import * as UserService from "../services/UserService";
 import { EVENT_IDS, getEvent, isActive } from "../services/EventService";
 import { findEmail, findItem, findNPC, findQuest, findStand } from "./lookup";
@@ -117,6 +116,12 @@ const totalStands = [
 ];
 
 export { generateRandomId } from "./random";
+export {
+    getCurrentDate,
+    hasDone4DungeonsToday,
+    isTimeNext15,
+    roundToNext15Minutes,
+} from "./date";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const randomArray = pickOne;
@@ -1700,86 +1705,6 @@ export const dailyClaimRewardsChristmas = (
         // chatpgt end
     };
 };
-
-export function getCurrentDate(date?: Date): `${number}-${number}-${number}` {
-    const currentDate = date ? new Date(date) : new Date();
-    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
-    return formattedDate as `${number}-${number}-${number}`;
-}
-
-// make a function:
-// if it is 17:22, it will return 17:30 (using date.time)
-// if it is 17:32, it will return 18:00 (using date.time)
-// if it is 17:59, it will return 18:00 (using date.time)
-// if it is 18:00, it will return 18:30 (using date.time)
-// if it is 18:32, it will return 19:00 (using date.time)
-// etc..
-
-/*
-export function roundToNext30Minutes(date: Date): Date {
-    const roundedDate = new Date(date);
-
-    // Get the current minutes
-    const currentMinutes = roundedDate.getMinutes();
-
-    // Calculate the remaining minutes to the next 30-minute interval
-    const remainingMinutes = 30 - (currentMinutes % 30);
-
-    // Add the remaining minutes to the current date
-    roundedDate.setMinutes(currentMinutes + remainingMinutes);
-    roundedDate.setSeconds(0);
-    roundedDate.setMilliseconds(0);
-
-    return roundedDate;
-}
-
-// check if time ends with 00 or 30
-export function isTimeEndsIn30(date: Date): boolean {
-    const minutes = date.getMinutes();
-    return minutes === 0 || minutes === 30;
-}*/
-
-export function isTimeNext15(date: Date): boolean {
-    const minutes = date.getMinutes();
-    return minutes === 15 || minutes === 30 || minutes === 45 || minutes === 0;
-}
-
-export function roundToNext15Minutes(date: Date): Date {
-    const roundedDate = new Date(date);
-
-    // Get the current minutes
-    const currentMinutes = roundedDate.getMinutes();
-
-    // Calculate the remaining minutes to the next 15-minute interval
-    const remainingMinutes = 15 - (currentMinutes % 15);
-
-    // Add the remaining minutes to the current date
-    roundedDate.setMinutes(currentMinutes + remainingMinutes);
-    roundedDate.setSeconds(0);
-    roundedDate.setMilliseconds(0);
-
-    return roundedDate;
-}
-
-export async function hasDone4DungeonsToday(
-    ctx: CommandInteractionContext,
-    id: string,
-): Promise<boolean> {
-    const dungeonDoneToday = await ctx.client.database.getString(
-        `dungeonDone:${id}:${formatTodayString()}`,
-    );
-    const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
-    const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
-    const nextDate = dateAtMidnight + 86400000;
-
-    if (dungeonDoneTodayCount >= 4) {
-        return true;
-    }
-
-    return false;
-}
 
 export function addHealthOrStamina(
     amount: numOrPerc,
