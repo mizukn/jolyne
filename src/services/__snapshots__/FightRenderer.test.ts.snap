@@ -4,6 +4,76 @@ exports[`FightRenderer.renderTurn > renders a 4-fighter, two-team, mid-turn snap
 {
   "components": [
     {
+      "accentColor": 4040894,
+      "components": [
+        {
+          "content": "## 🎌 Friendly Fight",
+          "type": 10,
+        },
+        {
+          "divider": true,
+          "spacing": 1,
+          "type": 14,
+        },
+        {
+          "content": "### 🎯 Alice's Turn
+<:bluebegp:1499894030840889384><:bluemdp:1499894069562966076><:bluemdp:1499894069562966076><:bluemdp:1499894069562966076><:bluemdp:1499894069562966076><:bendp:1499893459195265024> \`8/10\` ⚡ stamina",
+          "type": 10,
+        },
+        {
+          "divider": true,
+          "spacing": 1,
+          "type": 14,
+        },
+        {
+          "content": "### 👥 Team 1
+👤 **Alice** • LVL 50
+<:rbegp:1499892865457848390><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rendp:1499892039012323540> \`1,000/1,000\` ❤️ • 🛡️ \`100/100\`
+
+👤 ~~**Bob**~~ • LVL 50 ☠️
+<:bbegp:1499893513154723920><:bmdp:1499893491461918811><:bmdp:1499893491461918811><:bmdp:1499893491461918811><:bmdp:1499893491461918811><:bendp:1499893459195265024> \`0/1,000\` ❤️ • 🛡️ \`100/100\`",
+          "type": 10,
+        },
+        {
+          "divider": true,
+          "spacing": 1,
+          "type": 14,
+        },
+        {
+          "content": "### 👥 Team 2
+👤 **Carol** • LVL 50
+<:rbegp:1499892865457848390><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rendp:1499892039012323540> \`1,000/1,000\` ❤️ • 🛡️ \`100/100\`
+
+👤 **Dan** • LVL 50
+<:rbegp:1499892865457848390><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rmdp:1499892463228420229><:rendp:1499892039012323540> \`1,000/1,000\` ❤️ • 🛡️ \`100/100\`",
+          "type": 10,
+        },
+        {
+          "divider": true,
+          "spacing": 1,
+          "type": 14,
+        },
+        {
+          "content": "### 📜 Turn 1
+Alice punched Carol
+
+### 📜 Turn 2
+Carol froze Dan",
+          "type": 10,
+        },
+        {
+          "divider": true,
+          "spacing": 1,
+          "type": 14,
+        },
+        {
+          "content": "-# Auto-target 🔓 manual • FightID fight-id",
+          "type": 10,
+        },
+      ],
+      "type": 17,
+    },
+    {
       "components": [
         {
           "custom_id": "fight-idattack",
@@ -19,7 +89,7 @@ exports[`FightRenderer.renderTurn > renders a 4-fighter, two-team, mid-turn snap
         },
         {
           "custom_id": "fight-iddefend",
-          "disabled": true,
+          "disabled": false,
           "emoji": {
             "animated": false,
             "id": undefined,
@@ -54,74 +124,25 @@ exports[`FightRenderer.renderTurn > renders a 4-fighter, two-team, mid-turn snap
           "type": 2,
         },
       ],
+      "kind": "ActionRow",
     },
     {
       "components": [
         {
           "custom_id": "fight-idlock",
-          "disabled": false,
           "emoji": {
             "animated": false,
             "id": undefined,
             "name": "🔓",
           },
-          "label": "Auto-Target Lock",
+          "label": "Auto-Target",
           "style": 2,
           "type": 2,
         },
       ],
-    },
-    {
-      "components": [
-        {
-          "custom_id": "lalala",
-          "disabled": true,
-          "options": [
-            {
-              "emoji": undefined,
-              "label": "Select another target",
-              "value": "selectAnotherTarget",
-            },
-          ],
-          "placeholder": "[Waiting for Alice]",
-          "type": 3,
-        },
-      ],
+      "kind": "ActionRow",
     },
   ],
-  "content": "It's **Alice**'s turn.",
-  "embeds": [
-    {
-      "color": 4040894,
-      "description": "**▬▬▬▬▬▬「Team 1」▬▬▬▬▬▬**
--  \`Alice [TRUE LVL 50]:\` 1,000/1,000 :heart: ; 100/100 :shield:
--  ~~\`Bob [TRUE LVL 50]:\`~~ 0/1,000 :heart: ; 100/100 :shield:
-**▬▬▬▬▬▬「Team 2」▬▬▬▬▬▬**
--  \`Carol [TRUE LVL 50]:\` 1,000/1,000 :heart: ; 100/100 :shield:
--  \`Dan [TRUE LVL 50]:\` 1,000/1,000 :heart: ; 100/100 :shield:
-
-**▬▬▬▬▬▬▬▬「TURNS」▬▬▬▬▬▬▬▬▬**",
-      "fields": [
-        {
-          "name": "Turn 1",
-          "value": "Alice punched Carol",
-        },
-        {
-          "name": "Turn 2",
-          "value": "Carol froze Dan",
-        },
-      ],
-      "footer": {
-        "text": "You have 8 stamina left. ⚡",
-      },
-      "image": {
-        "url": undefined,
-      },
-      "thumbnail": {
-        "url": undefined,
-      },
-      "title": "🎌 Friendly Fight",
-    },
-  ],
+  "flags": 32768,
 }
 `;
