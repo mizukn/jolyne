@@ -156,7 +156,8 @@ export const getQuestsStats = (
                     emoji: Functions.findItem(quest.item).emoji,
                 });
             } else if (Functions.isUseXCommandQuest(quest)) {
-                const cmd = ctx.client.getSlashCommandMention(quest.command);
+                const commandName = quest.command === "assault" ? "hunt" : quest.command;
+                const cmd = ctx.client.getSlashCommandMention(commandName);
                 questMessage = ctx.translate("quest:USE_COMMAND", {
                     cmd,
                     cc: quest.goal.toLocaleString(),
@@ -178,7 +179,7 @@ export const getQuestsStats = (
                         name: quest.x.replace(/_/g, " "),
                     }) +
                     (quest.x === "daily"
-                        ? ` (${ctx.client.getSlashCommandMention("daily claim")})`
+                        ? ` (${ctx.client.getSlashCommandMention("daily")})`
                         : "");
             }
 
@@ -214,7 +215,7 @@ export const getQuestsStats = (
             ) {
                 const messageString = `Defeat ${npc.name} ${npc.emoji} (LVL ${
                     quest.customLevel ?? npc.level
-                }) (${ctx.client.getSlashCommandMention("fight npc")}) ||(${
+                }) (${ctx.client.getSlashCommandMention("fight quest")}) ||(${
                     questPercent === 1 ? ":white_check_mark:" : ":x:"
                 })||`;
                 if (!message.join(" ").includes(messageString)) message.push(messageString);
@@ -222,7 +223,7 @@ export const getQuestsStats = (
                 const messageString = `Defeat ${
                     quests.filter((r) => Functions.isFightNPCQuest(r) && r.npc === npc.id).length
                 } ${npc.name} ${npc.emoji} (${ctx.client.getSlashCommandMention(
-                    "fight npc",
+                    "fight quest",
                 )}) (LVL ${quest.customLevel ?? npc.level}) ||(${
                     quests.filter(
                         (r) => Functions.isFightNPCQuest(r) && r.npc === npc.id && r.completed,
@@ -272,7 +273,7 @@ export const getQuestsStats = (
             // prettier-ignore
             message.push(`${ctx.translate(`action:${originalQuest.i18n_key}.DESCRIPTION`)} ${
                     originalQuest.emoji
-                } (${ctx.client.getSlashCommandMention("action")}) ||(${questPercent === 100 ? ":white_check_mark:" : ":x:"})||`
+                } (${ctx.client.getSlashCommandMention("quests action")}) ||(${questPercent === 100 ? ":white_check_mark:" : ":x:"})||`
             );
             totalPercent += questPercent;
             continue;

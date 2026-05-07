@@ -461,7 +461,7 @@ export const C2_P11: ChapterPart = {
 📜 Quests: (0.00%)
 :reply: Defeat 1 Corpse Horde Dungeon (0/1) 0%
 :reply: Claim 175,000 coins  (0/175,000) 0.00%
-:reply: Claim your daily reward 2 times (using the /daily claim command)  (0/2) 0.00%
+:reply: Claim your daily reward 2 times (using the /daily command)  (0/2) 0.00%
 :reply: Use the /loot command 10 times  (0/10) 0.00%
 :replyEnd: Use the /assault command 10 times  (0/10) 0.00% 
 @

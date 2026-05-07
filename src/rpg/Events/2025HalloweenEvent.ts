@@ -20,7 +20,7 @@ export const halloween2025EventMessage = (ctx: CommandInteractionContext): strin
     return `\`\`\`\nThe dead are rising again!\nDefeat the zombies and their master, 「Rotten King」, to earn rewards.\`\`\`
   
 - Use the ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`HalloweenEvent2025\`] command to check your progression
 - - Defeat NPCs from this side quest to get :brain: **Spooky Zombie Brains**
 - You can trade your :brain: **Spooky Zombie Brains** with <:spooky_polpo:1294731380017856715> **Spooky Polpo** for items using by using the ${ctx.client.getSlashCommandMention(

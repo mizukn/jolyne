@@ -49,27 +49,18 @@ const dailyQuestResetPrice = {
 const slashCommand: SlashCommandFile = {
     data: {
         name: "daily",
-        description: "Claim your daily or view your daily quests.",
+        description: "Claim your daily rewards.",
         type: ApplicationCommandOptionType.Subcommand,
-        options: [
-            {
-                name: "claim",
-                description: "Claim your daily rewards.",
-                type: 1,
-            },
-            {
-                name: "quests",
-                description: "Shows your daily quests.",
-                type: 1,
-            },
-        ],
+        options: [],
     },
     execute: async (
         ctx: CommandInteractionContext,
     ): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
         const dateAtMidnight = new Date().setUTCHours(0, 0, 0, 0);
         const nextDate = dateAtMidnight + 86400000;
-        switch (ctx.interaction.options.getSubcommand()) {
+        const subcommand =
+            ctx.interaction.commandName === "daily" ? "claim" : ctx.interaction.options.getSubcommand();
+        switch (subcommand) {
             case "claim": {
                 const oldData = cloneDeep(ctx.userData);
                 if (
@@ -339,6 +330,7 @@ const slashCommand: SlashCommandFile = {
 
                 break;
             }
+            case "daily":
             case "quests": {
                 const status = getQuestsStats(ctx.userData.daily.quests, ctx);
 

@@ -12,6 +12,7 @@ import * as Functions from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as Emojis from "../../emojis.json";
 import { containers } from "../../utils/containers";
+import adventureCommand from "../adventure/AdventureSubcommands";
 
 function booleanToEmoji(bool: boolean | unknown): string {
     return bool ? Emojis.yes : Emojis.no;
@@ -198,6 +199,10 @@ function generateAutoHealField(user: RPGUserDataJSON, commands?: string[]): { na
 }
 
 const slashCommand: SlashCommandFile = {
+    hiddenCommandNames: [
+        "settings auto-heal sort-by-strongest",
+        "settings auto-heal exclude-items",
+    ],
     data: {
         name: "settings",
         description: "Shows the leaderboard",
@@ -216,6 +221,20 @@ const slashCommand: SlashCommandFile = {
                     {
                         name: "sort-by-strongest",
                         description: "Enable auto-heal",
+                        type: 1,
+                        options: [
+                            {
+                                name: "mode",
+                                description:
+                                    "Should we sort your items that give the most effective healing?",
+                                type: ApplicationCommandOptionType.Boolean,
+                                required: true,
+                            },
+                        ],
+                    },
+                    {
+                        name: "sort",
+                        description: "Sort healing items by strongest effect first",
                         type: 1,
                         options: [
                             {
@@ -249,6 +268,27 @@ const slashCommand: SlashCommandFile = {
                             },
                         ],
                     },
+                    {
+                        name: "exclusions",
+                        description: "Manage items excluded from auto-heal",
+                        type: 1,
+                        options: [
+                            {
+                                name: "add",
+                                description: "The items to exclude separated by commas",
+                                type: ApplicationCommandOptionType.String,
+                                required: false,
+                                autocomplete: false,
+                            },
+                            {
+                                name: "remove",
+                                description:
+                                    "The items to remove from the exclusion list separated by commas",
+                                type: ApplicationCommandOptionType.String,
+                                required: false,
+                            },
+                        ],
+                    },
                 ],
             },
             {
@@ -256,6 +296,11 @@ const slashCommand: SlashCommandFile = {
                 description: "Change your notification settings",
                 type: 1,
                 // there will be a select string menu
+            },
+            {
+                name: "language",
+                description: "Change your adventure language.",
+                type: 1,
             },
             {
                 name: "fight",
@@ -278,9 +323,9 @@ const slashCommand: SlashCommandFile = {
                         ]),
                         generateAutoHealField(user, [
                             ctx.client.getSlashCommandMention(
-                                "settings auto-heal sort-by-strongest"
+                                "settings auto-heal sort"
                             ),
-                            ctx.client.getSlashCommandMention("settings auto-heal exclude-items"),
+                            ctx.client.getSlashCommandMention("settings auto-heal exclusions"),
                             ctx.client.getSlashCommandMention("heal"),
                         ]),
                         generateFightField(user, [
@@ -289,6 +334,8 @@ const slashCommand: SlashCommandFile = {
                     ],
                 })
             );
+        } else if (subcommand === "language") {
+            return adventureCommand.execute(ctx);
         } else if (subcommand === "notifications" || subcommand === "fight") {
             const type = (subcommand === "notifications" ? "notifications" : "fight") as
                 | "notifications"
@@ -396,7 +443,7 @@ const slashCommand: SlashCommandFile = {
             });
 
             collector.on("end", () => {});
-        } else if (subcommand === "exclude-items") {
+        } else if (subcommand === "exclude-items" || subcommand === "exclusions") {
             /*const subcommandGroup = ctx.options.getSubcommand();
             if (subcommandGroup === "add") {
                 const items = ctx.options.getString("add", false);
@@ -526,7 +573,7 @@ const slashCommand: SlashCommandFile = {
                     content: "You didn't provide any items to exclude or remove.",
                 });
             }
-        } else if (subcommand === "sort-by-strongest") {
+        } else if (subcommand === "sort-by-strongest" || subcommand === "sort") {
             const mode = ctx.options.getBoolean("mode", true);
             if (mode === undefined) {
                 return void ctx.makeMessage({

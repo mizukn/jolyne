@@ -15,6 +15,7 @@ const tiers = {
 };
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "patreon",
         description: "Get the patreon link to support Jolyne and earn rewards",

@@ -39,5 +39,5 @@ export const CompleteBeginnerSideQuest: Quest = {
 
         return 100;
     },
-    hintCommand: "side quest view",
+    hintCommand: "quests side view",
 };

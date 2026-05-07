@@ -1,5 +1,5 @@
 {
-    "NO_ADVENTURE": "{{emojis.jolyne}} Вы еще не начали свое приключение. Используйте {{command.adventure start}} чтобы его начать!",
+    "NO_ADVENTURE": "{{emojis.jolyne}} Вы еще не начали свое приключение. Используйте {{command.start}} чтобы его начать!",
     "ALREADY_ADVENTURE": "{{emojis.jolyne}} Вы уже начали свое невероятное приключение.",
     "USER_NO_ADVENTURE": "{{emojis.think}} **{{user_option.username}}** еще не начали свое приключение.",
     "AND": "и",

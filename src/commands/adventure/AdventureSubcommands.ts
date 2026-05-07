@@ -23,6 +23,7 @@ import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNP
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "adventure",
         description: "Start your bizarre adventure! Or change your settings.",
@@ -79,7 +80,10 @@ const slashCommand: SlashCommandFile = {
             .setMinValues(1)
             .setMaxValues(1);
 
-        switch (ctx.interaction.options.getSubcommand()) {
+        const subcommand =
+            ctx.interaction.commandName === "start" ? "start" : ctx.interaction.options.getSubcommand();
+
+        switch (subcommand) {
             case "start": {
                 if (ctx.userData) return ctx.sendTranslated("base:ALREADY_ADVENTURE");
                 ctx.client.database.setCooldown(

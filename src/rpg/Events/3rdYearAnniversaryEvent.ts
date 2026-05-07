@@ -21,7 +21,7 @@ Happy 3rd anniversary! This past year has been amazing and challenging, as the d
 \`\`\`
 
 - Use the ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`ThirdYearAnniversaryEvent\`] command to check your progression
 - Everyone has a **+15% XP Boost**
 - - You can drop **Pinata Hat** <:pinata_hat:1345192118267936859> (15%)

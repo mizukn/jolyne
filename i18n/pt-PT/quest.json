@@ -31,7 +31,7 @@
 		"DESCRIPTION": "Use the `/loot` command {{cc}} time{{s}}"
 	},
 	"USE_ASSAULT": {
-		"DESCRIPTION": "Use the `/assault` command {{cc}} time{{s}}"
+		"DESCRIPTION": "Use the `/hunt` command {{cc}} time{{s}}"
 	},
 	"SPEEDWAGON_ANSWER": {
 		"TITLE": "Wait for the SPEEDWAGON to answer",

@@ -6,6 +6,7 @@ import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { containers, V2Reply } from "../../utils/containers";
 
 const slashCommand: SlashCommandFile = {
+    hiddenCommandNames: ["leaderboard daily"],
     data: {
         name: "leaderboard",
         description: "Shows the leaderboard",
@@ -39,6 +40,11 @@ const slashCommand: SlashCommandFile = {
                 description: "Shows the users with the highest daily streak",
                 type: 1,
             },
+            {
+                name: "streaks",
+                description: "Shows the users with the highest daily streak",
+                type: 1,
+            },
         ],
     },
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
@@ -61,6 +67,7 @@ const slashCommand: SlashCommandFile = {
                              FROM "RPGUsers"`;
                 break;
             case "daily":
+            case "streaks":
                 query = `SELECT id, tag, daily,"communityBans"
                              FROM "RPGUsers"
                              ORDER BY daily->>'claimStreak' DESC`;
@@ -100,7 +107,7 @@ const slashCommand: SlashCommandFile = {
         let userPos: "N/A" | number =
             lastLeaderboard.data.findIndex((user) => user.id === ctx.user.id) + 1 || "N/A";
 
-        if (subcommand === "daily") {
+        if (subcommand === "daily" || subcommand === "streaks") {
             for (const user of lastLeaderboard.data) {
                 const userData = user.daily as RPGUserDataJSON["daily"];
                 if (userData.lastClaimed + 1000 * 60 * 60 * 48 < Date.now()) {
@@ -196,7 +203,8 @@ const slashCommand: SlashCommandFile = {
                         });
                     break;
                 }
-                case "daily": {
+                case "daily":
+                case "streaks": {
                     title = "Highest Daily Streaks";
                     lines = lastLeaderboard.data
                         .slice((currentPage - 1) * 10, currentPage * 10)

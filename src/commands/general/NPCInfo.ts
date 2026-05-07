@@ -15,6 +15,7 @@ import * as FightableNPCS from "../../rpg/NPCs/FightableNPCs";
 const totalNPCs = Object.values(FightableNPCS);
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "npc-info",
         description: "Show information about an NPC (kinda like a player profile)",

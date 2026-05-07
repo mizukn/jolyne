@@ -16,6 +16,7 @@ import { ButtonStyle } from "discord.js";
 import { cloneDeep } from "lodash";
 
 const slashCommand: SlashCommandFile = {
+    hiddenCommandNames: ["fight npc"],
     data: {
         name: "fight",
         description: "Starts a fight.",
@@ -29,6 +30,20 @@ const slashCommand: SlashCommandFile = {
                         name: "npc",
                         description: "The NPC that you want to fight against",
                         type: ApplicationCommandOptionType.String, // 3
+                        autocomplete: true,
+                        required: true,
+                    },
+                ],
+            },
+            {
+                name: "quest",
+                description: "Fight against an NPC from your active quests.",
+                type: 1,
+                options: [
+                    {
+                        name: "npc",
+                        description: "The NPC that you want to fight against",
+                        type: ApplicationCommandOptionType.String,
                         autocomplete: true,
                         required: true,
                     },
@@ -416,22 +431,22 @@ const slashCommand: SlashCommandFile = {
 
                     let command: string;
                     if (fightType === FightTypes.DailyQuest) {
-                        command = ctx.client.getSlashCommandMention("daily quests");
+                        command = ctx.client.getSlashCommandMention("quests daily");
                     } else if (fightType === FightTypes.ChapterQuest) {
                         command = ctx.client.getSlashCommandMention("story");
                     } else if (fightType === FightTypes.SideQuest) {
-                        command = ctx.client.getSlashCommandMention("side quest view");
+                        command = ctx.client.getSlashCommandMention("quests side view");
                     }
 
                     if (quest.pushQuestWhenCompleted) {
                         if (fightType === FightTypes.DailyQuest) {
                             ctx.userData.daily.quests.push(quest.pushQuestWhenCompleted);
-                            command = ctx.client.getSlashCommandMention("daily quests");
+                            command = ctx.client.getSlashCommandMention("quests daily");
                         } else if (fightType === FightTypes.ChapterQuest) {
                             command = ctx.client.getSlashCommandMention("story");
                             ctx.userData.chapter.quests.push(quest.pushQuestWhenCompleted);
                         } else if (fightType === FightTypes.SideQuest) {
-                            command = ctx.client.getSlashCommandMention("side quest view");
+                            command = ctx.client.getSlashCommandMention("quests side view");
                             Object.values(ctx.userData.sideQuests)
                                 .find((r) => r.quests.find((r) => r.id === questId))
                                 .quests.push(quest.pushQuestWhenCompleted);
@@ -557,6 +572,7 @@ const slashCommand: SlashCommandFile = {
         }
 
         switch (ctx.interaction.options.getSubcommand()) {
+            case "quest":
             case "npc": {
                 if (message || ctx.interaction.options.getString("npc").length < 6) {
                     const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
@@ -758,7 +774,7 @@ const slashCommand: SlashCommandFile = {
                             content:
                                 "Could not find questId `" +
                                 NPC +
-                                "`\n\nIf this problem appears, just type `1` on the npc argument (example: `/fight npc npc:1`).\nThis is often due because you've not properly selected the choice (perhaps your wifi is slow).",
+                                "`\n\nIf this problem appears, just type `1` on the npc argument (example: `/fight quest npc:1`).\nThis is often due because you've not properly selected the choice (perhaps your wifi is slow).",
                         });
                         return;
                     }
@@ -791,7 +807,10 @@ const slashCommand: SlashCommandFile = {
         return;
     },
     autoComplete: async (interaction, userData, currentInput) => {
-        if (interaction.options.getSubcommand() === "npc") {
+        if (
+            interaction.options.getSubcommand() === "npc" ||
+            interaction.options.getSubcommand() === "quest"
+        ) {
             const chapterQuestsNPC = userData.chapter.quests.filter(
                 (r) => Functions.isFightNPCQuest(r) && !r.completed
             );

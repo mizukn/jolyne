@@ -74,7 +74,7 @@ const slashCommand: SlashCommandFile = {
                 // orange
                 color: 0xffa500,
                 description: `- Use the ${ctx.client.getSlashCommandMention(
-                    "side quest view"
+                    "quests side view"
                 )} command to complete the event side quest.\n- You can gain ${
                     ctx.client.localEmojis.spooky_soul
                 } **Spooky Souls** by killing event NPCs and by completing the event side quest.\n- You can trade your ${
@@ -106,7 +106,7 @@ const slashCommand: SlashCommandFile = {
                 description: `- Everyone has a **+25% XP Boost**\n- Make sure to check your e-mails for a special gift (${ctx.client.getSlashCommandMention(
                     "mail inbox"
                 )}\n- Make sure to view your side quests with ${ctx.client.getSlashCommandMention(
-                    "side quest view"
+                    "quests side view"
                 )} to complete the event side quest.\n- The Confetti Golem spawns every :00 :15 :30 :45 ; the golem will spawn ${Functions.generateDiscordTimestamp(
                     Functions.roundToNext15Minutes(new Date()),
                     "FROM_NOW"

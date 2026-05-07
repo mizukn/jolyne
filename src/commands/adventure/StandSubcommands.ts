@@ -21,6 +21,7 @@ const regularStandList = Object.values(Stands);
 const evolvableStandList = Object.values(EvolvableStands);
 
 const slashCommand: SlashCommandFile = {
+    hiddenCommandNames: ["stand display", "stand delete", "stand set-evolution"],
     data: {
         name: "stand",
         description: "Display, erase or store your stand",
@@ -41,8 +42,28 @@ const slashCommand: SlashCommandFile = {
             },
             {
                 type: 1,
+                name: "view",
+                description: "🔱 View information about your current stand",
+                options: [
+                    {
+                        name: "stand",
+                        description: "The stand to view",
+                        type: 3,
+                        required: false,
+                        autocomplete: true,
+                    },
+                ],
+            },
+            {
+                type: 1,
                 name: "delete",
                 description: "❌ Deletes your stand.",
+                options: [],
+            },
+            {
+                type: 1,
+                name: "erase",
+                description: "❌ Erases your stand.",
                 options: [],
             },
             {
@@ -60,6 +81,21 @@ const slashCommand: SlashCommandFile = {
             {
                 type: 1,
                 name: "set-evolution",
+                description:
+                    "If you previously evolved your stand, you can go back to the base stand at any time",
+                options: [
+                    {
+                        name: "evolution",
+                        description: "The evolution to set",
+                        type: 3,
+                        required: true,
+                        autocomplete: true,
+                    },
+                ],
+            },
+            {
+                type: 1,
+                name: "evolve",
                 description:
                     "If you previously evolved your stand, you can go back to the base stand at any time",
                 options: [
@@ -213,6 +249,7 @@ const slashCommand: SlashCommandFile = {
                 });
                 break;
             }
+            case "view":
             case "display": {
                 const choice = ctx.interaction.options.getString("stand");
                 const stand = choice
@@ -376,7 +413,7 @@ const slashCommand: SlashCommandFile = {
                         if (!transaction) {
                             return void ctx.makeMessage({
                                 content: `An error occurred while storing your stand's disc. Perhaps this stand is limited and you exceeded the limit?\n\nIf the stand you are trying to store is a limited stand, you'll be able to store it once the event ends. If that's not the case, please [contact us](https://discord.gg/jolyne-support-923608916540145694)\nAlternatively, if you don't care about your current stand, consider using the ${ctx.client.getSlashCommandMention(
-                                    "stand delete"
+                                    "stand erase"
                                 )} command instead.`,
                                 components: [],
                                 embeds: [],
@@ -392,6 +429,7 @@ const slashCommand: SlashCommandFile = {
                 });
                 break;
             }
+            case "erase":
             case "delete": {
                 if (ctx.userData.chapter.id === 1) {
                     ctx.interaction.reply({
@@ -452,6 +490,7 @@ const slashCommand: SlashCommandFile = {
                 });
                 break;
             }
+            case "evolve":
             case "set-evolution": {
                 const evolution = ctx.interaction.options.getString("evolution", true)
                     ? parseInt(ctx.interaction.options.getString("evolution", true))
@@ -585,7 +624,10 @@ ${Object.keys(stand.skillPoints)
             value: string;
         }[] = [];
 
-        if (interaction.options.getSubcommand() === "set-evolution") {
+        if (
+            interaction.options.getSubcommand() === "set-evolution" ||
+            interaction.options.getSubcommand() === "evolve"
+        ) {
             const loop = userData.standsEvolved[userData.stand]
                 ? userData.standsEvolved[userData.stand]
                 : 0;

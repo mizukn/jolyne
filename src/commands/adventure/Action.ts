@@ -20,6 +20,7 @@ import * as Functions from "../../utils/Functions";
 import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "action",
         description: "Complete an action quest",

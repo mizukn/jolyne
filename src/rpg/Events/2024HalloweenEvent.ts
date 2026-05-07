@@ -308,7 +308,7 @@ The enemies you have defeated until now are coming back on Halloween, wanting re
 \`\`\`
 
 - Use the ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`HalloweenEvent2024\`] command to check your progression
 - - Defeat NPCs from this side quest to get :jack_o_lantern: **Pumpkins** (15%)
 - Each time you use a command, there’s a chance that :jack_o_lantern: \`x[2-5]\` **Pumpkins** will appear in the chat! (Anyone can claim them by clicking the button.)

@@ -63,7 +63,7 @@ Record<i18n_key, string> => ({
     "en-US": `\`\`\`\nKrampus has been abducting children, leaving chaos in his wake! Defeat him to free the children and earn rewards\n\`\`\`
 
 - Use the ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] command to check your progression
 - - Defeat Krampus' Goons <:krampus_goon:1311458615173054604> to get <:ornament:1311072010696396840> **Ornaments** (15%)
 - - Completing this side quest will give you a <:xmasgift:1055916688568229938> **Christmas Gift**
@@ -80,7 +80,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} with <:jollypolpo:1311452026428723240> **Jolly Polpo**
 - Everyone has a **+25% ${ctx.client.localEmojis.xp} Boost** during the weekend
-- Make sure to ${ctx.client.getSlashCommandMention("daily claim")} to get special rewards every day!
+- Make sure to ${ctx.client.getSlashCommandMention("daily")} to get special rewards every day!
 - - If you claim your daily on <t:1735084800:F> (<t:1735084800:R>), you will get a T-tier weapon that is only obtainable that day
 - The event ends on ${Functions.generateDiscordTimestamp(
         endOf2024ChristmasEvent,
@@ -90,7 +90,7 @@ Record<i18n_key, string> => ({
     "es-ES": `\`\`\`\n¡Krampus ha estado secuestrando niños, dejando caos a su paso! ¡Derrota a Krampus para liberar a los niños y ganar recompensas!\n\`\`\`
 
 - Usa el comando ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] para verificar tu progreso
 - - Derrota a los esbirros de Krampus <:krampus_goon:1311458615173054604> para obtener <:ornament:1311072010696396840> **Adornos** (15%)
 - - Completar esta misión secundaria te dará un <:xmasgift:1055916688568229938> **Regalo Navideño**
@@ -107,7 +107,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} con <:jollypolpo:1311452026428723240> **Jolly Polpo**
 - ¡Asegúrate de ${ctx.client.getSlashCommandMention(
-        "daily claim"
+        "daily"
     )} para obtener recompensas especiales todos los días!
 - - Si reclamas tu recompensa diaria el <t:1735084800:F> (<t:1735084800:R>), obtendrás un arma de nivel T que solo estará disponible ese día
 - El evento termina el ${Functions.generateDiscordTimestamp(
@@ -118,7 +118,7 @@ Record<i18n_key, string> => ({
     "de-DE": `\`\`\`\nKrampus entführt Kinder und hinterlässt Chaos! Besiege ihn, um die Kinder zu retten und Belohnungen zu verdienen!\n\`\`\`
 
 - Verwende den ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] Befehl, um deinen Fortschritt zu überprüfen
 - - Besiege Krampus' Handlanger <:krampus_goon:1311458615173054604>, um <:ornament:1311072010696396840> **Ornamente** (15%) zu erhalten
 - - Das Abschließen dieser Nebenquest bringt dir ein <:xmasgift:1055916688568229938> **Weihnachtsgeschenk**
@@ -135,7 +135,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} bei <:jollypolpo:1311452026428723240> **Jolly Polpo** erhalten
 - Denke daran, ${ctx.client.getSlashCommandMention(
-        "daily claim"
+        "daily"
     )} zu nutzen, um jeden Tag spezielle Belohnungen zu erhalten!
 - - Wenn du deine tägliche Belohnung am <t:1735084800:F> (<t:1735084800:R>) beanspruchst, erhältst du eine T-Stufen-Waffe, die nur an diesem Tag verfügbar ist
 - Das Event endet am ${Functions.generateDiscordTimestamp(
@@ -146,7 +146,7 @@ Record<i18n_key, string> => ({
     "fr-FR": `\`\`\`\nKrampus a kidnappé des enfants, laissant le chaos derrière lui ! Vainquez-le pour libérer les enfants et gagner des récompenses !\n\`\`\`
 
 - Utilisez la commande ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] pour vérifier votre progression
 - - Battez les sbires de Krampus <:krampus_goon:1311458615173054604> pour obtenir <:ornament:1311072010696396840> **Ornements** (15%)
 - - Compléter cette quête secondaire vous donnera un <:xmasgift:1055916688568229938> **Cadeau de Noël**
@@ -163,7 +163,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} auprès de <:jollypolpo:1311452026428723240> **Jolly Polpo**
 - N'oubliez pas de ${ctx.client.getSlashCommandMention(
-        "daily claim"
+        "daily"
     )} pour obtenir des récompenses spéciales tous les jours !
 - - Si vous réclamez votre récompense quotidienne le <t:1735084800:F> (<t:1735084800:R>), vous obtiendrez une arme de rang T uniquement disponible ce jour-là
 - L'événement se termine le ${Functions.generateDiscordTimestamp(
@@ -174,7 +174,7 @@ Record<i18n_key, string> => ({
     "it-IT": `\`\`\`\nKrampus ha rapito dei bambini, lasciando caos dietro di sé! Sconfiggilo per liberare i bambini e guadagnare ricompense\n\`\`\`
 
 - Usa il comando ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] per verificare i tuoi progressi
 - - Sconfiggi i scagnozzi di Krampus <:krampus_goon:1311458615173054604> per ottenere <:ornament:1311072010696396840> **Decorazioni** (15%)
 - - Completare questa missione secondaria ti darà un <:xmasgift:1055916688568229938> **Regalo di Natale**
@@ -191,7 +191,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} con <:jollypolpo:1311452026428723240> **Jolly Polpo**
 - Assicurati di usare ${ctx.client.getSlashCommandMention(
-        "daily claim"
+        "daily"
     )} per ottenere ricompense speciali ogni giorno!
 - - Se ritiri il tuo premio giornaliero il <t:1735084800:F> (<t:1735084800:R>), riceverai un'arma di livello T che sarà disponibile solo quel giorno
 - L'evento termina il ${Functions.generateDiscordTimestamp(
@@ -202,7 +202,7 @@ Record<i18n_key, string> => ({
     "ja-JP": `\`\`\`\nKrampusは子供たちを誘拐し、混乱を引き起こしています！彼を倒して子供たちを解放し、報酬を獲得しましょう\n\`\`\`
 
 - ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] コマンドを使用して進行状況を確認
 - - Krampusの手下を倒して <:krampus_goon:1311458615173054604> <:ornament:1311072010696396840> **オーナメント** (15%) を取得
 - - このサイドクエストを完了すると、<:xmasgift:1055916688568229938> **クリスマスギフト** がもらえます
@@ -219,7 +219,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} コマンドで <:jollypolpo:1311452026428723240> **ジョリーポルポ** と交換して入手することもできます
 - ${ctx.client.getSlashCommandMention(
-        "daily claim"
+        "daily"
     )} を忘れずに使って、毎日特別な報酬を手に入れましょう！
 - - <t:1735084800:F> (<t:1735084800:R>) に毎日の報酬を受け取ると、その日にしか手に入らないT-tier武器がもらえます
 - イベントは${Functions.generateDiscordTimestamp(
@@ -230,7 +230,7 @@ Record<i18n_key, string> => ({
     "ko-KR": `\`\`\`\n크람푸스가 아이들을 납치하고 혼란을 일으켰습니다! 그를 물리쳐 아이들을 구하고 보상을 얻으세요\n\`\`\`
 
 - ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] 명령어를 사용하여 진행 상황을 확인하세요
 - - 크람푸스의 부하들을 처치하고 <:krampus_goon:1311458615173054604> <:ornament:1311072010696396840> **장식품** (15%)을 얻으세요
 - - 이 사이드 퀘스트를 완료하면 <:xmasgift:1055916688568229938> **크리스마스 선물**을 받게 됩니다
@@ -246,7 +246,7 @@ Record<i18n_key, string> => ({
 - - 또는, ${ctx.client.getSlashCommandMention(
         "event trade"
     )} 명령어를 사용하여 <:jollypolpo:1311452026428723240> **조리 폴포**와 교환할 수 있습니다
-- ${ctx.client.getSlashCommandMention("daily claim")} 명령어를 사용하여 매일 특별한 보상을 받으세요!
+- ${ctx.client.getSlashCommandMention("daily")} 명령어를 사용하여 매일 특별한 보상을 받으세요!
 - - <t:1735084800:F> (<t:1735084800:R>)에 매일 보상을 받으면 그 날만 얻을 수 있는 T-tier 무기를 받을 수 있습니다
 - 이벤트는 ${Functions.generateDiscordTimestamp(
         endOf2024ChristmasEvent,
@@ -256,7 +256,7 @@ Record<i18n_key, string> => ({
     "pt-BR": `\`\`\`\nKrampus tem sequestrado crianças, deixando caos por onde passa! Derrote-o para libertar as crianças e ganhar recompensas\n\`\`\`
 
 - Use o comando ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] para verificar seu progresso
 - - Derrote os capangas do Krampus <:krampus_goon:1311458615173054604> para obter <:ornament:1311072010696396840> **Enfeites** (15%)
 - - Completar essa missão secundária te dará um <:xmasgift:1055916688568229938> **Presente de Natal**
@@ -273,7 +273,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} com <:jollypolpo:1311452026428723240> **Jolly Polpo**
 - Não se esqueça de usar ${ctx.client.getSlashCommandMention(
-        "daily claim"
+        "daily"
     )} para obter recompensas especiais todos os dias!
 - - Se você resgatar sua recompensa diária em <t:1735084800:F> (<t:1735084800:R>), receberá uma arma de T-tier que só estará disponível nesse dia
 - O evento termina em ${Functions.generateDiscordTimestamp(
@@ -284,7 +284,7 @@ Record<i18n_key, string> => ({
     "ru-RU": `\`\`\`\nКрампус похищает детей, оставляя за собой хаос! Победите его, чтобы освободить детей и получить награды\n\`\`\`
 
 - Используйте команду ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] для проверки вашего прогресса
 - - Побеждайте приспешников Крампуса <:krampus_goon:1311458615173054604>, чтобы получать <:ornament:1311072010696396840> **Украшения** (15%)
 - - Завершив этот побочный квест, вы получите <:xmasgift:1055916688568229938> **Рождественский подарок**
@@ -301,7 +301,7 @@ Record<i18n_key, string> => ({
         "event trade"
     )} у <:jollypolpo:1311452026428723240> **Джолли Полпо**
 - Не забудьте использовать ${ctx.client.getSlashCommandMention(
-        "daily claim"
+        "daily"
     )} для получения специальных наград каждый день!
 - - Если вы заберете свою ежедневную награду <t:1735084800:F> (<t:1735084800:R>), вы получите оружие Т-уровня, которое можно получить только в этот день
 - Событие заканчивается ${Functions.generateDiscordTimestamp(
@@ -312,7 +312,7 @@ Record<i18n_key, string> => ({
     "zh-CN": `\`\`\`\n克兰普斯绑架了孩子，带来了混乱！击败他以解救孩子并获得奖励\n\`\`\`
 
 - 使用${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] 命令查看你的进度
 - - 击败克兰普斯的手下 <:krampus_goon:1311458615173054604> 以获得 <:ornament:1311072010696396840> **装饰品** (15%)
 - - 完成这个支线任务将赠送你一个 <:xmasgift:1055916688568229938> **圣诞礼物**
@@ -328,7 +328,7 @@ Record<i18n_key, string> => ({
 - - 或者你可以通过${ctx.client.getSlashCommandMention(
         "event trade"
     )} 与 <:jollypolpo:1311452026428723240> **Jolly Polpo** 交换获得
-- 别忘了使用${ctx.client.getSlashCommandMention("daily claim")}来领取每天的特殊奖励！
+- 别忘了使用${ctx.client.getSlashCommandMention("daily")}来领取每天的特殊奖励！
 - - 如果你在 <t:1735084800:F> (<t:1735084800:R>) 领取日常奖励，你将获得当天专属的T-tier武器
 - 本活动将于 ${Functions.generateDiscordTimestamp(
         endOf2024ChristmasEvent,
@@ -338,7 +338,7 @@ Record<i18n_key, string> => ({
     "zh-TW": `\`\`\`\n克蘭普斯綁架了孩子，帶來了混亂！擊敗他以解救孩子並獲得獎勳\n\`\`\`
 
 - 使用${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] 命令查看你的進度
 - - 擊敗克蘭普斯的手下 <:krampus_goon:1311458615173054604> 以獲得 <:ornament:1311072010696396840> **裝飾品** (15%)
 - - 完成這個支線任務將會贈送你一個 <:xmasgift:1055916688568229938> **聖誕禮物**
@@ -354,7 +354,7 @@ Record<i18n_key, string> => ({
 - - 或者你可以使用${ctx.client.getSlashCommandMention(
         "event trade"
     )} 與 <:jollypolpo:1311452026428723240> **Jolly Polpo** 交換獲得
-- 別忘了使用${ctx.client.getSlashCommandMention("daily claim")}來每天領取特殊獎勳！
+- 別忘了使用${ctx.client.getSlashCommandMention("daily")}來每天領取特殊獎勳！
 - - 如果你在 <t:1735084800:F> (<t:1735084800:R>) 領取日常獎勳，你將獲得當天專屬的T-tier武器
 - 本活動將於 ${Functions.generateDiscordTimestamp(
         endOf2024ChristmasEvent,
@@ -367,7 +367,7 @@ export const Chritmas2024eventMessage = (ctx: CommandInteractionContext): string
     return `\`\`\`\nKrampus has been abducting children, leaving chaos in his wake! Defeat him to free the children and earn rewards\n\`\`\`
 
 - Use the ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} [\`${"ChristmasEvent2024"}\`] command to check your progression
 - - Defeat Krampus' Goons <:krampus_goon:1311458615173054604> to get <:ornament:1311072010696396840> **Ornaments** (15%)
 - - Completing this side quest will give you a <:xmasgift:1055916688568229938> **Christmas Gift**
@@ -383,7 +383,7 @@ export const Chritmas2024eventMessage = (ctx: CommandInteractionContext): string
 - - Alternatively, you can get it by ${ctx.client.getSlashCommandMention(
         "event trade"
     )} with <:jollypolpo:1311452026428723240> **Jolly Polpo**
-- Make sure to ${ctx.client.getSlashCommandMention("daily claim")} to get special rewards every day!
+- Make sure to ${ctx.client.getSlashCommandMention("daily")} to get special rewards every day!
 - - If you claim your daily on <t:1735084800:F> (<t:1735084800:R>), you will get a T-tier weapon that is only obtainable that day
 -# - The event ends on ${Functions.generateDiscordTimestamp(
         endOf2024ChristmasEvent,

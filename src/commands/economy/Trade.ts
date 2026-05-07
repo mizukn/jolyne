@@ -16,6 +16,7 @@ import { cloneDeep } from "lodash";
 import { containers } from "../../utils/containers";
 
 const slashCommand: SlashCommandFile = {
+    hiddenCommandNames: ["trade start", "trade view"],
     data: {
         name: "trade",
         description: "trade with a user",
@@ -23,6 +24,19 @@ const slashCommand: SlashCommandFile = {
             {
                 name: "start",
                 description: "Starts a trade with a user",
+                type: 1,
+                options: [
+                    {
+                        name: "user",
+                        description: "The user you want to trade with",
+                        type: 6,
+                        required: true,
+                    },
+                ],
+            },
+            {
+                name: "request",
+                description: "Request a trade with a user",
                 type: 1,
                 options: [
                     {
@@ -87,6 +101,20 @@ const slashCommand: SlashCommandFile = {
                     },
                 ],
             },
+            {
+                name: "status",
+                description: "Shows information about a trade",
+                type: 1,
+                options: [
+                    {
+                        name: "id",
+                        description: "ID of the trade you want to view",
+                        type: 3,
+                        required: true,
+                        autocomplete: true,
+                    },
+                ],
+            },
         ],
     },
     execute: async (
@@ -106,7 +134,9 @@ const slashCommand: SlashCommandFile = {
             });
         }
 
-        if (ctx.interaction.options.getSubcommand() === "start") {
+        const subcommand = ctx.interaction.options.getSubcommand();
+
+        if (subcommand === "start" || subcommand === "request") {
             const target = ctx.options.getUser("user") || ctx.user;
             const targetData = await ctx.client.database.getRPGUserData(target.id);
             const tradeID = Functions.generateRandomId();
@@ -477,7 +507,7 @@ const slashCommand: SlashCommandFile = {
                     }
                 }
             });
-        } else if (ctx.interaction.options.getSubcommand() === "add") {
+        } else if (subcommand === "add") {
             const msg = await ctx.client.database.getCooldown(ctx.user.id);
             if (!msg || !msg.includes("trading")) {
                 ctx.makeMessage({
@@ -519,7 +549,7 @@ const slashCommand: SlashCommandFile = {
                 content: `:white_check_mark:`,
                 ephemeral: true,
             });
-        } else if (ctx.interaction.options.getSubcommand() === "remove") {
+        } else if (subcommand === "remove") {
             const msg = await ctx.client.database.getCooldown(ctx.user.id);
             if (!msg || !msg.includes("trading")) {
                 ctx.makeMessage({
@@ -547,7 +577,7 @@ const slashCommand: SlashCommandFile = {
                 content: `:white_check_mark:`,
                 ephemeral: true,
             });
-        } else if (ctx.interaction.options.getSubcommand() === "view") {
+        } else if (subcommand === "view" || subcommand === "status") {
             const tradeId = ctx.interaction.options.getString("id", true);
             const rows = await ctx.client.database.postgresql.query(
                 `SELECT *
@@ -611,7 +641,10 @@ const slashCommand: SlashCommandFile = {
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
         if (!interaction.client.database.postgresql) return;
         if (Functions.userIsCommunityBanned(userData)) return;
-        if (interaction.options.getSubcommand() === "view") {
+        if (
+            interaction.options.getSubcommand() === "view" ||
+            interaction.options.getSubcommand() === "status"
+        ) {
             const rows = await interaction.client.database.postgresql.query(
                 `SELECT *
                  FROM trades

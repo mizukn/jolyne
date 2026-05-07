@@ -26,7 +26,7 @@ The Chinese New Year is here! The beast Nian has come to the city and is causing
 Defeat it to earn some Social Credits.
 \`\`\`
 - Use the ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} \`[side_quest: ChineseNewYearEvent2025]\` command to view your progress about the side quest
 - Use the ${ctx.client.getSlashCommandMention(
         "event quiz"
@@ -41,7 +41,7 @@ Defeat it to earn some Social Credits.
 - This event features the limited weapon ${ctx.client.localEmojis.snake_jian} **Snake Jian**
 - - You can craft this weapon by using the ${ctx.client.getSlashCommandMention("craft")} command
 - - You can get some **Snake Skins** by defeating the Celestial Snakes from your ${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} or from the ${ctx.client.getSlashCommandMention("event trade")}
 - - You can get some **Beast Nian's Horn** by defeating **Beast Nian** from ${ctx.client.getSlashCommandMention(
         "raid"

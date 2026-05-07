@@ -95,10 +95,10 @@ export const C1: Chapter = {
     ],
     hints: (ctx) => [
         `Do not forget to complete your **Beginner** side quest! (${ctx.client.getSlashCommandMention(
-            "side quest view"
+            "quests side view"
         )})! You can get a Stand Arrow and a Money Box (gives you between 20k and 50k coins)`,
         `While using the **${ctx.client.getSlashCommandMention(
-            "fight npc"
+            "fight quest"
             )}** command, make sure to fight the bandits from your chapter quests and not from your side quests \`Bandit [FROM YOUR CHAPTER QUESTS]\``,
     ],
 };

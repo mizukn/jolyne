@@ -36,6 +36,7 @@ function generateHighNPC(userData: RPGUserDataJSON): FightableNPC {
 }
 
 const slashCommand: SlashCommandFile = {
+    hidden: true,
     data: {
         name: "assault",
         description: "Assaults a random NPC that matches your level.",

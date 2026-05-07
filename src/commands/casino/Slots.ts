@@ -142,6 +142,7 @@ function formatSlotGrid(symbols: string[]): string {
 }
 
 const slashCommand: SlashCommandFile = {
+    hiddenCommandNames: ["slots spin", "slots chart"],
     data: {
         name: "slots",
         description: "Play the slots machine or view the slots chart.",
@@ -160,8 +161,26 @@ const slashCommand: SlashCommandFile = {
                 type: 1,
             },
             {
+                name: "play",
+                description: "Play the slots machine.",
+                options: [
+                    {
+                        name: "bet",
+                        description: "The amount of money you want to bet.",
+                        type: 4,
+                        required: true,
+                    },
+                ],
+                type: 1,
+            },
+            {
                 name: "chart",
                 description: "View the slots chart.",
+                type: 1,
+            },
+            {
+                name: "payouts",
+                description: "View the slots payouts.",
                 type: 1,
             },
         ],
@@ -169,7 +188,7 @@ const slashCommand: SlashCommandFile = {
     checkRPGCooldown: "slots",
 
     execute: async (ctx: CommandInteractionContext): Promise<Message | void> => {
-        if (ctx.options.getSubcommand() === "chart") {
+        if (ctx.options.getSubcommand() === "chart" || ctx.options.getSubcommand() === "payouts") {
             const sections = Object.keys(slotsChart).map((symbol) => {
                 const typedSymbol = symbol as keyof typeof slotsChart;
                 const data = slotsChart[typedSymbol];

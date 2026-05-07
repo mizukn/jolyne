@@ -20,7 +20,7 @@ Krampus wasn't done yet. After leaving this world, he spawned some Ice Bandits t
 - Defeat them to earn some <:ice_shard:1323363296719536158> **Ice Shards** and summon the **Ice Golem** using the ${ctx.client.getSlashCommandMention(
         "raid"
     )} command (${ctx.client.getSlashCommandMention(
-        "side quest view"
+        "quests side view"
     )} \`side_quest: WinterEvent2025\`).
 - - The Ice Golem can drop many **Ice Shards** or ${Frostblade.emoji} **Frostblade** (5%).
 - - If you can't drop the **Frostblade**, you can ${ctx.client.getSlashCommandMention(

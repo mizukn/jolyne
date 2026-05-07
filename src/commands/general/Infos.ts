@@ -199,7 +199,7 @@ const slashCommand: SlashCommandFile = {
                             (patreon) => patreon.id === ctx.interaction.user.id
                         )
                             ? `\nAlternatively, you can support us on [Patreon](https://www.patreon.com/mizuki54) and get exclusive rewards! (${ctx.client.getSlashCommandMention(
-                                  "patreon"
+                                  "premium"
                               )})`
                             : ""),
                 },

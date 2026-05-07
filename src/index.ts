@@ -473,7 +473,7 @@ for (const stand of [
             if (Functions.findStand(ctx.userData.stand)) {
                 ctx.makeMessage({
                     content: `Dawg you already have a stand. If you'd like to change your stand, please either erase your current one (${ctx.client.getSlashCommandMention(
-                        "stand delete"
+                        "stand erase"
                     )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`,
                 });
                 return 0;

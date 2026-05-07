@@ -34,7 +34,7 @@ import { cloneDeep } from "lodash";
 const sideQuestsArr = Object.values(SideQuests);
 
 const slashCommand: SlashCommandFile = {
-    hiddenCommandNames: ["side quest requirements"],
+    hidden: true,
     data: {
         name: "side",
         description: "Shows your side quests",
@@ -75,7 +75,7 @@ const slashCommand: SlashCommandFile = {
                     },
                     {
                         name: "requirements",
-                        description: "Deprecated. Use /side quest info instead.",
+                        description: "Deprecated. Use /quests side info instead.",
                         type: 1,
                         options: [
                             {

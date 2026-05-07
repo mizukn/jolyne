@@ -117,7 +117,7 @@ export const Beginner: SideQuest = {
             content: `GG! You've completed the beginner quest. You've been given a **Stand Arrow** and a **Money Box**. You can use the **Stand Arrow** by using the ${ctx.client.getSlashCommandMention(
                 "item use"
             )} command. However if you're still at Chapter 1 Part 1, you won't be able to use that arrow. Note that you can redo this quest anytime, just re-use the ${ctx.client.getSlashCommandMention(
-                "side quest view"
+                "quests side view"
             )} command.`,
         });
         return true;
@@ -773,7 +773,7 @@ export const ChristmasEvent2024: SideQuest = {
                 `Thank you! You have been given a Christmas Present. You can open it by using the ${ctx.client.getSlashCommandMention(
                     "item use"
                 )} command.\n\n-# Re-use the ${ctx.client.getSlashCommandMention(
-                    "side quest view"
+                    "quests side view"
                 )} command to reload the quests & beat Krampus and his goons again to earn more ornaments.`
             ),
         });

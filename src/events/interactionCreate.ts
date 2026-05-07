@@ -102,10 +102,11 @@ const Event: EventFile = {
                 );
                 ctx = new CommandInteractionContext(interaction, userData);
                 if (!ctx.userData) {
-                    if (command.data.name === "adventure") {
-                        if (interaction.options.getSubcommand() !== "start")
-                            return ctx.sendTranslated("base:NO_ADVENTURE");
-                    } else return ctx.sendTranslated("base:NO_ADVENTURE");
+                    const startsAdventure =
+                        command.data.name === "start" ||
+                        (command.data.name === "adventure" &&
+                            interaction.options.getSubcommand() === "start");
+                    if (!startsAdventure) return ctx.sendTranslated("base:NO_ADVENTURE");
                 }
 
                 if (command.checkRPGCooldown) {
@@ -223,6 +224,7 @@ const Event: EventFile = {
                 if (command.data.options?.filter((r) => r.type === 1)?.length !== 0) {
                     commandName += ` ${interaction.options.getSubcommand()}`;
                 }
+                const questCommandName = commandName === "hunt" ? "assault" : commandName;
 
                 interaction.client.log(
                     `${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
@@ -394,7 +396,7 @@ const Event: EventFile = {
                                 `${SideQuest.emoji} | You now have the **${
                                     SideQuest.title
                                 }** SideQuest! (${ctx.client.getSlashCommandMention(
-                                    "side quest view",
+                                    "quests side view",
                                 )})`,
                             );
                         }
@@ -488,7 +490,10 @@ const Event: EventFile = {
                             }
                             quest.pushItemWhenCompleted = null;
                         }
-                        if (Functions.isUseXCommandQuest(quest) && quest.command === commandName) {
+                        if (
+                            Functions.isUseXCommandQuest(quest) &&
+                            quest.command === questCommandName
+                        ) {
                             quest.amount++;
                         }
 
@@ -593,7 +598,8 @@ const Event: EventFile = {
                     ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.5 &&
                     (command.data.name === "fight" ||
                         command.data.name === "dungeon" ||
-                        command.data.name === "assault") &&
+                        command.data.name === "assault" ||
+                        command.data.name === "hunt") &&
                     ctx.userData.settings.notifications.low_health_or_stamina
                 ) {
                     notifications.push(
@@ -635,7 +641,7 @@ const Event: EventFile = {
                         `:scroll:${ctx.client.localEmojis.timerIcon} | **${
                             ctx.user.username
                         }**, you have new daily quests! Use the ${ctx.client.getSlashCommandMention(
-                            "daily quests",
+                            "quests daily",
                         )} command to see them!`,
                     );
                 }
