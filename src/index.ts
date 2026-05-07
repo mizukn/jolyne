@@ -2,36 +2,30 @@ import type {
     EventFile,
     SlashCommandFile,
     SlashCommand,
-    Special,
     Weapon,
     FightableNPC,
-    EvolutionStand,
     Stand,
 } from "./@types";
-import { GatewayIntentBits, Partials, Options, Embed, Utils } from "discord.js";
-import { getInfo, ClusterClient, messageType } from "discord-hybrid-sharding";
+import { GatewayIntentBits, Partials, Options } from "discord.js";
+import { getInfo, ClusterClient } from "discord-hybrid-sharding";
 import JolyneClient from "./structures/JolyneClient";
 import * as FightableNPCs from "./rpg/NPCs/FightableNPCs";
 import * as Functions from "./utils/Functions";
 import i18n from "./structures/i18n";
 import fs from "fs";
 import path from "path";
-import * as Items from "./rpg/Items";
 import * as Stands from "./rpg/Stands";
-import * as Emojis from "./emojis.json";
 import * as NPCs from "./rpg/NPCs/NPCs";
 import * as JSONNPC from "../src/NPCs.json";
 import * as PRESTIGEJSON from "../src/prestigeNPCs.json";
 import * as EquipableItems from "./rpg/Items/EquipableItems";
 import * as Sentry from "@sentry/node";
-import { exec } from "child_process";
-import { count } from "console";
 import { FightHandler } from "./structures/FightHandler";
-import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { seededInt } from "./utils/random";
 import { runRegistryValidation } from "./bootstrap/validate";
 import { registerSeasonalEventNPCs } from "./services/EventNPCGenerator";
+import { registerStandDiscs } from "./rpg/Items/StandDiscFactory";
 import log from "./utils/Logger";
 
 // Deterministic per-NPC level: same id always resolves to the same number across
@@ -170,98 +164,7 @@ for (let i = 1; i < 500; i += 3) {
 }
 */
 
-/**
- * Temp code starts from here
- */
-const standPrices = {
-    SS: 200000,
-    S: 50000,
-    A: 25000,
-    B: 10000,
-    C: 5000,
-    T: 69,
-};
-
-const Multiplier = {
-    SS: 1.65,
-    S: 1.45,
-    A: 1.2,
-    B: 1.1,
-    C: 1.05,
-    T: 1.35,
-};
-
-const getInitials = (name: string): string => {
-    return name
-        .split(" ")
-        .map((x) => x[0])
-        .join("");
-};
-
-const comasAnd = (arr: string[]): string => {
-    if (arr.length === 1) return arr[0];
-    return arr.slice(0, -1).join(", ") + " and " + arr.slice(-1);
-};
-
-for (const stand of [
-    ...Object.values(Stands.Stands),
-    ...Object.values(Stands.EvolutionStands).map((x) => {
-        return {
-            ...x.evolutions[0],
-            id: x.id,
-        };
-    }),
-]) {
-    if (!stand.available) continue;
-    //console.log(`Adding ${stand.name} Stand Disc`);
-    const evolutions = Object.values(Stands.EvolutionStands).find((x) => x.id === stand.id);
-    const standDisc: Special = {
-        id: stand.id + ".$disc$",
-        name:
-            stand.name +
-            " Stand Disc" +
-            (evolutions
-                ? ` [${evolutions.evolutions.map((x) => getInitials(x.name)).join(", ")}]`
-                : ""),
-
-        description:
-            "A disc that contains the power of " +
-            (evolutions ? comasAnd(evolutions.evolutions.map((x) => x.name)) : stand.name),
-        rarity: stand.rarity,
-        price: standPrices[stand.rarity],
-        tradable: true,
-        storable: true,
-        emoji: stand.emoji + Emojis.disk,
-        use: async (ctx) => {
-            if (Functions.findStand(ctx.userData.stand)) {
-                ctx.makeMessage({
-                    content: `Dawg you already have a stand. If you'd like to change your stand, please either erase your current one (${ctx.client.getSlashCommandMention(
-                        "stand erase"
-                    )}) or store it (${ctx.client.getSlashCommandMention("stand store")})`,
-                });
-                return 0;
-            }
-            ctx.userData.stand = stand.id;
-            const newStand = Functions.findStand(
-                ctx.userData.stand,
-                ctx.userData.standsEvolved[ctx.userData.stand]
-            );
-            ctx.makeMessage({
-                content: Functions.makeNPCString(
-                    NPCs.Pucci,
-                    "You have successfully equipped **" +
-                        newStand.name +
-                        "** " +
-                        newStand.emoji +
-                        " !"
-                ),
-            });
-            return 1;
-        },
-    };
-    // @ts-expect-error because it's a dynamic property
-    Items.default[standDisc.id] = standDisc;
-}
+registerStandDiscs();
 
 /*
 for (const item of Object.values(Items.default)) {
