@@ -43,9 +43,9 @@ Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green
 
 ## What's NOT done / in-flight
 
-### FightHandler split (PLAN §5 P3.2) — orchestrator at 795 lines
+### FightHandler split (PLAN §5 P3.2) — orchestrator at 771 lines
 
-Was 2,820. Down to 795 (−72%). The body now lives in sibling modules under `src/structures/`:
+Was 2,820. Down to 771 (−73%). The body now lives in sibling modules under `src/structures/`:
 
 | Module | Role |
 | --- | --- |
@@ -65,12 +65,13 @@ Was 2,820. Down to 795 (−72%). The body now lives in sibling modules under `sr
 | `FightSpecialCases.ts` | HolHorse-vs-Avdol auto-targeting + Hol Horse 9999999 instakill |
 | `FightTimeouts.ts` | Per-turn timeout penalty |
 | `FightLifecycle.ts` | `runUpdateMessage(fight)` + `armTurnTimeout(fight)` + `armNPCTimeout(fight)` + `endOrUnexpected(fight, error)` — bodies of the former `updateMessage` / `setTimeout` / `setNPCTimeout` / `endFightOrUnexpected` |
+| `FightWebhookLogs.ts` | `sendFightLogs(fight)` + `sendFightStats(fight)` — bodies of the former `sendLogs` / `sendFightStats` (the latter is still callable via the FightHandler delegator since `FightHandlerWatchdog` invokes it externally) |
 
 `FightHandler.ts` is now mostly: constructor + collector dispatch + 1-line delegators into the modules above.
 
 **Still inline in FightHandler**:
 - The constructor itself + its collector switch (button/select dispatch). This is the next big target — ~400 lines, but invasive.
-- `sendLogs` / `sendFightStats` webhook log glue, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `addOrEditCooldown`, `continueStep`, plus the small `whosTurn` / `whosTurnAvailableAbilities*` / `availableFighters` / `hasOneTarget` getters.
+- `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `addOrEditCooldown`, `continueStep`, plus the small `whosTurn` / `whosTurnAvailableAbilities*` / `availableFighters` / `hasOneTarget` getters.
 
 **Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `NPCTimeout`, `NPCAttack`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
 
