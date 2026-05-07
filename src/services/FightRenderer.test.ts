@@ -152,7 +152,7 @@ describe("FightRenderer.renderTurn", () => {
         const snap = buildSnapshot({
             teams: [[npc]],
             fighters: [npc],
-            whosTurn: npc,
+            whosTurn: { ...npc, npc: true } as Fighter,
         });
 
         const result = renderTurn(snap);
@@ -161,6 +161,24 @@ describe("FightRenderer.renderTurn", () => {
         expect(rows).toHaveLength(1);
         expect(rows[0].components).toHaveLength(1);
         expect(rows[0].components[0].data.custom_id).toBe("fight-idwaitingNPC");
+    });
+
+    it("does not treat non-numeric human ids as NPCs", () => {
+        const alice = fighter({ id: "human-with-string-id", name: "Alice", npc: false });
+        const snap = buildSnapshot({
+            teams: [[alice]],
+            fighters: [alice],
+            whosTurn: alice,
+        });
+
+        const result = renderTurn(snap);
+        const rows = result.components.filter(isActionRow);
+        const customIds = rows.flatMap((row) =>
+            row.components.map((c) => c.data.custom_id).filter((id): id is string => !!id)
+        );
+
+        expect(customIds).toContain("fight-idattack");
+        expect(customIds).not.toContain("fight-idwaitingNPC");
     });
 
     it("uses customId prefixes derived from the fight id", () => {

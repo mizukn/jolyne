@@ -125,9 +125,7 @@ const recentTurnsText = (snap: FightSnapshot): string | null => {
 export function renderTurn(snap: FightSnapshot, opts: RenderTurnOptions = {}): RenderResult {
     const silent = opts.silent ?? false;
     const whosTurn = opts.whoseTurn ?? snap.whosTurn;
-    const isNPC = isNaN(
-        Number(whosTurn?.manipulatedBy ? whosTurn.manipulatedBy.id : whosTurn?.id)
-    );
+    const isNPC = Boolean(whosTurn?.manipulatedBy ? whosTurn.manipulatedBy.npc : whosTurn?.npc);
 
     const headerSection: SectionData = {
         text: [
