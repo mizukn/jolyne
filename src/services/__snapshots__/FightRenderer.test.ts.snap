@@ -1,0 +1,127 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`FightRenderer.renderTurn > renders a 4-fighter, two-team, mid-turn snapshot 1`] = `
+{
+  "components": [
+    {
+      "components": [
+        {
+          "custom_id": "fight-idattack",
+          "disabled": false,
+          "emoji": {
+            "animated": false,
+            "id": undefined,
+            "name": "👊",
+          },
+          "label": "Attack",
+          "style": 1,
+          "type": 2,
+        },
+        {
+          "custom_id": "fight-iddefend",
+          "disabled": true,
+          "emoji": {
+            "animated": false,
+            "id": undefined,
+            "name": "🛡️",
+          },
+          "label": "Defend",
+          "style": 1,
+          "type": 2,
+        },
+        {
+          "custom_id": "fight-idskip",
+          "disabled": false,
+          "emoji": {
+            "animated": false,
+            "id": undefined,
+            "name": "⏭️",
+          },
+          "label": "Skip",
+          "style": 2,
+          "type": 2,
+        },
+        {
+          "custom_id": "fight-idforfeit",
+          "disabled": false,
+          "emoji": {
+            "animated": false,
+            "id": undefined,
+            "name": "🏳️",
+          },
+          "label": "Forfeit",
+          "style": 4,
+          "type": 2,
+        },
+      ],
+    },
+    {
+      "components": [
+        {
+          "custom_id": "fight-idlock",
+          "disabled": false,
+          "emoji": {
+            "animated": false,
+            "id": undefined,
+            "name": "🔓",
+          },
+          "label": "Auto-Target Lock",
+          "style": 2,
+          "type": 2,
+        },
+      ],
+    },
+    {
+      "components": [
+        {
+          "custom_id": "lalala",
+          "disabled": true,
+          "options": [
+            {
+              "emoji": undefined,
+              "label": "Select another target",
+              "value": "selectAnotherTarget",
+            },
+          ],
+          "placeholder": "[Waiting for Alice]",
+          "type": 3,
+        },
+      ],
+    },
+  ],
+  "content": "It's **Alice**'s turn.",
+  "embeds": [
+    {
+      "color": 4040894,
+      "description": "**▬▬▬▬▬▬「Team 1」▬▬▬▬▬▬**
+-  \`Alice [TRUE LVL 50]:\` 1,000/1,000 :heart: ; 100/100 :shield:
+-  ~~\`Bob [TRUE LVL 50]:\`~~ 0/1,000 :heart: ; 100/100 :shield:
+**▬▬▬▬▬▬「Team 2」▬▬▬▬▬▬**
+-  \`Carol [TRUE LVL 50]:\` 1,000/1,000 :heart: ; 100/100 :shield:
+-  \`Dan [TRUE LVL 50]:\` 1,000/1,000 :heart: ; 100/100 :shield:
+
+**▬▬▬▬▬▬▬▬「TURNS」▬▬▬▬▬▬▬▬▬**",
+      "fields": [
+        {
+          "name": "Turn 1",
+          "value": "Alice punched Carol",
+        },
+        {
+          "name": "Turn 2",
+          "value": "Carol froze Dan",
+        },
+      ],
+      "footer": {
+        "text": "You have 8 stamina left. ⚡",
+      },
+      "image": {
+        "url": undefined,
+      },
+      "thumbnail": {
+        "url": undefined,
+      },
+      "title": "🎌 Friendly Fight",
+    },
+  ],
+}
+`;
