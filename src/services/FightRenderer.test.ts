@@ -11,7 +11,7 @@ vi.mock("../utils/Functions", () => ({
     generateDiscordTimestamp: vi.fn(() => "TIMESTAMP"),
 }));
 
-vi.mock("../structures/FightHandler", () => ({
+vi.mock("../structures/FightTypes", () => ({
     FightTypes: {
         Friendly: "🎌 Friendly Fight",
         Ranked: "⚔️ Ranked Fight",
@@ -40,7 +40,8 @@ import {
     renderForfeitConfirm,
     type FightSnapshot,
 } from "./FightRenderer";
-import type { Fighter, FightInfos } from "../structures/FightHandler";
+import type { Fighter } from "../structures/FightHandler";
+import type { FightInfos } from "../structures/FightTypes";
 
 const fighter = (overrides: Partial<Fighter> = {}): Fighter =>
     ({

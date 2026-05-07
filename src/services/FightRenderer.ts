@@ -21,8 +21,10 @@ import { emojiBar } from "../utils/emojiBar";
 import {
     FightTypes,
     FightTypeColor,
-    type Fighter,
     type FightInfos,
+} from "../structures/FightTypes";
+import {
+    type Fighter,
 } from "../structures/FightHandler";
 import type Jolyne from "../structures/JolyneClient";
 import type { Ability } from "../@types";
