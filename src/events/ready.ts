@@ -141,7 +141,7 @@ async function fetchSupportMembers(client: Jolyne): Promise<void> {
     if (!hasReloaded) {
         await client.database.reloadRPGUsers();
         await client.database.redis.set("hasReloaded", "true");
-        console.log("Reloaded RPG users");
+        client.log("Reloaded RPG users", "ready");
     }
 
     // remove jolyne_beta_tester_ jolyne_contributor_ jolyne_staff_ from people that are not in the server anymore or dont have the role anymore
@@ -292,7 +292,12 @@ const Event: EventFile = {
         }
 
         async function fetchPatreons() {
-            console.log(parseInt(process.env.CLUSTER) + 1, parseInt(process.env.CLUSTER_COUNT));
+            client.log(
+                `Cluster ${parseInt(process.env.CLUSTER) + 1}/${parseInt(
+                    process.env.CLUSTER_COUNT,
+                )}`,
+                "ready",
+            );
             // fetching patrons, second priority to not make the bot laod slower
             // prettier-ignore
             if (parseInt(process.env.CLUSTER ) + 1 === parseInt(process.env.CLUSTER_COUNT)) {
@@ -502,7 +507,7 @@ const Event: EventFile = {
                         if (value.includes("trading")) continue;
                         client.database.redis.del(key);
                     }
-                    console.log(`Cleared ${keys.length} temp cache keys.`);
+                    client.log(`Cleared ${keys.length} temp cache keys.`, "redis");
                 });
             },
             1000 * 60 * 2,
@@ -511,14 +516,14 @@ const Event: EventFile = {
         while (client.patreonTiers.length === 0) {
             const result = await client.fetchRewards();
             if (result) client.patreonTiers = result;
-            console.log("Fetched patreon tiers");
+            client.log("Fetched patreon tiers", "patron");
             await new Promise((resolve) => setTimeout(resolve, 15000));
         }
 
         if (!(await client.database.redis.get("updateSettingsPrestige"))) {
             await client.database.fixSettingsToEveryone();
             await client.database.redis.set("updateSettingsPrestige", "true");
-            console.log("Updated settings to everyone");
+            client.log("Updated settings to everyone", "ready");
         }
 
         setInterval(() => updateClusterStatus(client), 15_000);

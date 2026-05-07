@@ -16,6 +16,7 @@ import type {
 import type Jolyne from "../structures/JolyneClient";
 import type { Fighter } from "../structures/FightHandler";
 import { EVENT_IDS, isActive } from "./EventService";
+import log from "../utils/Logger";
 
 export const isClaimXQuest = (quest: RPGUserQuest): quest is ClaimXQuest => {
     return (quest as ClaimXQuest).type === "claimX";
@@ -290,7 +291,7 @@ export const addXp = function addXp(
     amount = Math.round(amount * multiplier);
     if (userIsCommunityBanned(userData)) amount = Math.round(amount / 2);
     if (process.env.ENABLE_PRESTIGE && userData.level >= getMaxPrestigeLevel(userData.prestige)) {
-        console.log("Prestige level reached");
+        log(`Prestige level reached for user ${userData.id}`, "debug");
         amount = 0;
     }
 

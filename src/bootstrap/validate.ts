@@ -31,6 +31,7 @@ import {
     startOf2025HalloweenEvent,
 } from "../rpg/Events/2025HalloweenEvent";
 import { EVENT_IDS, EventDef, EventId, getEvent, getEvents } from "../services/EventService";
+import log from "../utils/Logger";
 
 // Boot-time invariants. We check the data registries after index.ts has
 // finished its dynamic NPC/Stand-Disc generation so the validator sees both
@@ -286,9 +287,9 @@ export const runRegistryValidation = (): void => {
     const formatted = `${banner}\n  - ${errors.join("\n  - ")}`;
 
     if (process.env.BETA) {
-        console.warn(formatted);
+        log(formatted, "warn");
         return;
     }
-    console.error(formatted);
+    log(formatted, "error");
     process.exit(1);
 };

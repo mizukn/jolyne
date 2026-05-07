@@ -5,6 +5,8 @@
 // content and dates, but delegates the boolean check to this registry so
 // callers stop having to know which file an event lives in.
 
+import log from "../utils/Logger";
+
 export const EVENT_IDS = {
     HALLOWEEN_2024: "halloween_2024",
     CHRISTMAS_2024: "christmas_2024",
@@ -132,10 +134,10 @@ export const registerCommandEntryHook = (id: EventId, hook: CommandEntryHook): v
 };
 
 const reportCommandEntryHookError = (id: EventId, error: unknown): void => {
-    // Surface to the existing console for now; promote to a structured logger
-    // when src/utils/logger lands (PLAN P1.6).
-    // eslint-disable-next-line no-console
-    console.error(`Event hook for "${id}" threw:`, error);
+    log(
+        `Event hook for "${id}" threw: ${error instanceof Error ? error.stack ?? error.message : String(error)}`,
+        "error",
+    );
 };
 
 export const runCommandEntryHooks = (ctx: unknown, now: Date = new Date()): void => {

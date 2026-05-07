@@ -44,6 +44,7 @@ import {
     startOf2025HalloweenEvent,
 } from "./rpg/Events/2025HalloweenEvent";
 import { EVENT_IDS, isActive } from "./services/EventService";
+import log from "./utils/Logger";
 
 // Deterministic per-NPC level: same id always resolves to the same number across
 // boots and clusters, so we never have to write generated levels back to disk.
@@ -313,13 +314,13 @@ function generateIceBandits(): void {
 
 if (isActive(EVENT_IDS.WINTER_2025)) {
     generateIceBandits();
-    console.log("Generated Ice Bandits");
+    log("Generated Ice Bandits", "event");
 } else if (Date.now() < endOf2025WinterEvent.getTime()) {
     // then it means that it didnt end yet
     setTimeout(() => {
         generateIceBandits();
     }, startOf2025WinterEvent.getTime() - Date.now());
-    console.log(`Generating Ice Bandits in ${startOf2025WinterEvent.getTime() - Date.now()}ms`);
+    log(`Generating Ice Bandits in ${startOf2025WinterEvent.getTime() - Date.now()}ms`, "event");
 }
 
 if (isActive(EVENT_IDS.HALLOWEEN_2025)) {
@@ -781,17 +782,20 @@ process.on("SIGTERM", () => {
 });
 
 process.on("exit", () => {
-    console.log("Exiting...");
+    log("Exiting...", "event");
     client.database.postgresql?.end();
     client.database.redis.quit();
 });
 
 process.on("unhandledRejection", (error: Error) => {
-    console.error("Unhandled promise rejection:", error);
+    log(`Unhandled promise rejection: ${error.stack ?? error.message}`, "error");
 });
 
 process.on("uncaughtException", (error) => {
-    console.error("Uncaught exception:", error);
+    log(
+        `Uncaught exception: ${error instanceof Error ? error.stack ?? error.message : String(error)}`,
+        "error",
+    );
 });
 
 client.cluster = new ClusterClient(client);

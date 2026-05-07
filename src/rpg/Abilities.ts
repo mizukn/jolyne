@@ -1869,7 +1869,6 @@ const lifePunchPromise = (
         callerId: user.id,
         executeOnlyOnce: false,
         promise: (fight) => {
-            console.log("life punch promise");
             const healthLost = Math.round(target.maxHealth * percentage);
             const staminaLost = Math.round(target.maxStamina * percentage);
             const oldHealth = target.health;

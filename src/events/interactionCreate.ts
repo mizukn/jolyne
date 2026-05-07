@@ -81,8 +81,9 @@ const Event: EventFile = {
                 interaction.client.maintenanceReason &&
                 !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
             ) {
-                console.log(
+                interaction.client.log(
                     `${interaction.user.username} tried to use a command while in maintenance.`,
+                    "warn",
                 );
                 return interaction.reply({
                     content: `The bot is currently in maintenance mode. Reason: \`${interaction.client.maintenanceReason}\``,
@@ -727,7 +728,10 @@ const Event: EventFile = {
             try {
                 await command.execute(ctx);
             } catch (error) {
-                console.error(error);
+                interaction.client.log(
+                    error instanceof Error ? error.stack ?? error.message : String(error),
+                    "error",
+                );
                 await interaction
                     .reply({
                         content: `There was an error while executing this command. Please try again later.\nError: ${
