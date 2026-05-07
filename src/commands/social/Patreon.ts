@@ -105,13 +105,13 @@ const slashCommand: SlashCommandFile = {
 
             await ctx.makeMessage({
                 embeds: [embed],
-                ephemeral: !isPublic,
+                flags: isPublic ? undefined : MessageFlags.Ephemeral,
             });
         } else {
             if (ctx.client.patreonTiers.length === 0) {
                 await ctx.makeMessage({
                     content: "No patreon tiers found",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
                 return;
             }

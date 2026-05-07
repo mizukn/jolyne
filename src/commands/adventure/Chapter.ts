@@ -12,6 +12,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     MessageComponentInteraction,
+    MessageFlags,
     TextChannel,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
@@ -588,7 +589,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop();
                     ctx.followUp({
                         content: `We're sorry, but this is the last chapter for now. We're working on new content!`,
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                     return;
                 }
@@ -597,7 +598,7 @@ const slashCommand: SlashCommandFile = {
                     collector.stop();
                     ctx.followUp({
                         content: `You have reached the maximum level. Please prestige to continue progressing through the chapters.`,
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                     return;
                 }

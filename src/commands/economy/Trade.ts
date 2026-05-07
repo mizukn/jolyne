@@ -7,6 +7,7 @@ import {
     ButtonInteraction,
     MessageComponentInteraction,
     AttachmentBuilder,
+    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -131,7 +132,7 @@ const slashCommand: SlashCommandFile = {
         if (Functions.userIsCommunityBanned(ctx.userData)) {
             return void ctx.makeMessage({
                 content: "🖕 ",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -156,7 +157,7 @@ const slashCommand: SlashCommandFile = {
             if (Functions.userIsCommunityBanned(targetData)) {
                 return void ctx.makeMessage({
                     content: "This user is community banned...",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
@@ -591,7 +592,7 @@ const slashCommand: SlashCommandFile = {
             ctx.client.cluster.emit(`trade_${ctx.user.id}`, itemData.id, amount);
             ctx.makeMessage({
                 content: `:white_check_mark:`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } else if (subcommand === "remove") {
             const msg = await ctx.client.database.getCooldown(ctx.user.id);
@@ -619,7 +620,7 @@ const slashCommand: SlashCommandFile = {
             ctx.client.cluster.emit(`trade_${ctx.user.id}`, itemData.id, -amount);
             ctx.makeMessage({
                 content: `:white_check_mark:`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } else if (subcommand === "view" || subcommand === "status") {
             const tradeId = ctx.interaction.options.getString("id", true);

@@ -18,6 +18,7 @@ import {
     ButtonStyle,
     PermissionFlagsBits,
     AttachmentBuilder,
+    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -608,14 +609,14 @@ const slashCommand: SlashCommandFile = {
                 if (Functions.userIsCommunityBanned(ctx.userData)) {
                     return void i.reply({
                         content: "The host is community banned.",
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                 }
 
                 if (totalPlayers.length >= 2) {
                     return void i.reply({
                         content: "This dungeon is full.",
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                 }
 
@@ -634,7 +635,7 @@ const slashCommand: SlashCommandFile = {
                             Date.now() + timeLeft,
                             "FROM_NOW"
                         )}.`,
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                 }
 
@@ -644,14 +645,14 @@ const slashCommand: SlashCommandFile = {
                 if (Functions.userIsCommunityBanned(usrData)) {
                     return void i.reply({
                         content: "You're community banned.",
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                 }
 
                 if (totalPlayers.find((f) => f.id === i.user.id)) {
                     return void i.reply({
                         content: "You're already in this dungeon.",
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                 }
                 const data = await ctx.client.database.getRPGUserData(i.user.id);
@@ -659,7 +660,7 @@ const slashCommand: SlashCommandFile = {
                 totalPlayers.push(data);
                 i.reply({
                     content: "You've joined the dungeon.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
                 await ctx.makeMessage({
                     content: `<:kars:1057261454421676092> **Kars:** ${

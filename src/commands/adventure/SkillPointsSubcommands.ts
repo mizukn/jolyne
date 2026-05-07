@@ -239,8 +239,7 @@ const slashCommand: SlashCommandFile = {
             const pointsLeft = Functions.getRawSkillPointsLeft(ctx.userData);
             if (pointsLeft <= 0) {
                 return i.reply({
-                    ...containers.error("You don't have any skill points left!"),
-                    ephemeral: true,
+                    ...containers.ephemeral(containers.error("You don't have any skill points left!")),
                 });
             }
 
@@ -273,8 +272,7 @@ const slashCommand: SlashCommandFile = {
             const amount = Number.parseInt(submission.fields.getTextInputValue("amount"), 10);
             if (isNaN(amount) || amount < 1) {
                 return submission.reply({
-                    ...containers.error("Please enter a valid amount greater than 0."),
-                    ephemeral: true,
+                    ...containers.ephemeral(containers.error("Please enter a valid amount greater than 0.")),
                 });
             }
 
@@ -284,8 +282,9 @@ const slashCommand: SlashCommandFile = {
 
             if (amount > freshPointsLeft) {
                 return submission.reply({
-                    ...containers.error(`You only have **${freshPointsLeft.toLocaleString()}** points left!`),
-                    ephemeral: true,
+                    ...containers.ephemeral(
+                        containers.error(`You only have **${freshPointsLeft.toLocaleString()}** points left!`),
+                    ),
                 });
             }
 
@@ -300,8 +299,9 @@ const slashCommand: SlashCommandFile = {
             if (!transaction) {
                 ctx.RPGUserData = oldData;
                 return submission.reply({
-                    ...containers.error("Transaction failed. Your points were not invested."),
-                    ephemeral: true,
+                    ...containers.ephemeral(
+                        containers.error("Transaction failed. Your points were not invested."),
+                    ),
                 });
             }
 

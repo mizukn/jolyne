@@ -1,5 +1,12 @@
 import { SlashCommandFile } from "../../@types";
-import { APIEmbed, ButtonBuilder, ButtonStyle, InteractionResponse, Message } from "discord.js";
+import {
+    APIEmbed,
+    ButtonBuilder,
+    ButtonStyle,
+    InteractionResponse,
+    Message,
+    MessageFlags,
+} from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { Patron } from "../../structures/JolyneClient";
@@ -43,7 +50,7 @@ const slashCommand: SlashCommandFile = {
         await ctx.client.database.setString(`patronCache_${name}`, user.id);
         await ctx.makeMessage({
             content: `Set ${user.username} as ${name}`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     },
 };

@@ -1,7 +1,13 @@
 import * as Functions from "../../utils/Functions";
 import { Pumpkin } from "../Items/ConsumableItems";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
-import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
+import {
+    APIEmbed,
+    ButtonBuilder,
+    ButtonStyle,
+    MessageFlags,
+    StringSelectMenuBuilder,
+} from "discord.js";
 import { cloneDeep, get, method } from "lodash";
 import { SideQuest, SlashCommand } from "../../@types";
 import { it } from "node:test";
@@ -100,7 +106,7 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
             } | The halloween event is ending soon! You currently have **${pumpkinsLeft}** pumpkins. You should ${ctx.client.getSlashCommandMention(
                 "event trade"
             )} them with Polpo before the event ends.`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 
@@ -236,7 +242,7 @@ export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Pro
 
         interaction.reply({
             content: `You claimed ${item.amount}x ${item.item.name}.`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     });
 
@@ -514,7 +520,7 @@ export const Halloween2024EventCommandHandler: SlashCommand["execute"] = async (
                     if (pumpkins() < selectedAmount) {
                         ctx.interaction.followUp({
                             content: "You don't have enough pumpkins.",
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         });
                         interaction.deferUpdate().catch(() => {});
                         return;
@@ -528,7 +534,7 @@ export const Halloween2024EventCommandHandler: SlashCommand["execute"] = async (
                             .followUp({
                                 content:
                                     "An error occurred. If you selected Nix Stand Disc, please note that you can't have more than 3 copies of it.",
-                                ephemeral: true,
+                                flags: MessageFlags.Ephemeral,
                             })
                             .catch(() => {});
                         return;
@@ -538,7 +544,7 @@ export const Halloween2024EventCommandHandler: SlashCommand["execute"] = async (
                     ctx.interaction
                         .followUp({
                             content: `You traded ${amountBought} pumpkins for ${selectedAmount}x ${currentTrade.item}.`,
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         })
                         .catch(() => {});
                     ctx.makeMessage({

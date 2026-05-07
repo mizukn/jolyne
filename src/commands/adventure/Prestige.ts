@@ -10,6 +10,7 @@ import {
     Message,
     ButtonBuilder,
     ButtonStyle,
+    MessageFlags,
     MessageComponentInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
@@ -27,7 +28,7 @@ const slashCommand: SlashCommandFile = {
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         if (!process.env.ENABLE_PRESTIGE) {
             ctx.followUpQueue.push({
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
                 content:
                     "Please note that the `PRESTIGE_WORKER` is disabled in this version of Jolyne. This is just a preview of the prestige system. More infos will be shared in our [support server](https://discord.gg/jolyne-support-923608916540145694).",
             });

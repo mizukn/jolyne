@@ -1,5 +1,5 @@
 import { RPGUserDataJSON, SlashCommandFile, Leaderboard, i18n_key } from "../../@types";
-import { Message, InteractionResponse } from "discord.js";
+import { Message, InteractionResponse, MessageFlags } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import * as SideQuests from "../../rpg/SideQuests";
@@ -33,7 +33,7 @@ const slashCommand: SlashCommandFile = {
         if (Functions.userIsCommunityBanned(ctx.userData)) {
             return void ctx.makeMessage({
                 content: Functions.makeNPCString(NPCs.Jolyne, `🖕 `),
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
         async function getStats(): Promise<{

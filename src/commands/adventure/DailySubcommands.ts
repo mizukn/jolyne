@@ -517,12 +517,13 @@ const slashCommand: SlashCommandFile = {
                             ];
                             if (ctx.userData.coins < price) {
                                 await i.reply({
-                                    ...containers.error(
-                                        `You need **${price.toLocaleString(
-                                            "en-US",
-                                        )}** ${ctx.client.localEmojis.jocoins} to reset your daily quests.`,
+                                    ...containers.ephemeral(
+                                        containers.error(
+                                            `You need **${price.toLocaleString(
+                                                "en-US",
+                                            )}** ${ctx.client.localEmojis.jocoins} to reset your daily quests.`,
+                                        ),
                                     ),
-                                    ephemeral: true,
                                 });
                                 return;
                             }
@@ -550,15 +551,17 @@ const slashCommand: SlashCommandFile = {
                             );
                             if (!transaction) {
                                 return i.reply({
-                                    ...containers.error("Daily quest reset failed. Your coins were not moved."),
-                                    ephemeral: true,
+                                    ...containers.ephemeral(
+                                        containers.error("Daily quest reset failed. Your coins were not moved."),
+                                    ),
                                 });
                             }
                             await i.reply({
-                                ...containers.success(
-                                    `Daily quests reset for **${price.toLocaleString()}** ${ctx.client.localEmojis.jocoins}.`,
+                                ...containers.ephemeral(
+                                    containers.success(
+                                        `Daily quests reset for **${price.toLocaleString()}** ${ctx.client.localEmojis.jocoins}.`,
+                                    ),
                                 ),
-                                ephemeral: true,
                             });
                             return;
                         }
@@ -580,8 +583,9 @@ const slashCommand: SlashCommandFile = {
                         );
                         if (!transaction) {
                             return i.reply({
-                                ...containers.error("Daily quest claim failed. Your rewards were not saved."),
-                                ephemeral: true,
+                                ...containers.ephemeral(
+                                    containers.error("Daily quest claim failed. Your rewards were not saved."),
+                                ),
                             });
                         }
                         await ctx.client.database.redis.set(

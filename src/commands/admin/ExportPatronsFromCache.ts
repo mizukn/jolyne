@@ -1,5 +1,12 @@
 import { SlashCommandFile } from "../../@types";
-import { APIEmbed, ButtonBuilder, ButtonStyle, InteractionResponse, Message } from "discord.js";
+import {
+    APIEmbed,
+    ButtonBuilder,
+    ButtonStyle,
+    InteractionResponse,
+    Message,
+    MessageFlags,
+} from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { Patron } from "../../structures/JolyneClient";
@@ -39,7 +46,7 @@ const slashCommand: SlashCommandFile = {
                     description: JSON.stringify(results),
                 },
             ],
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     },
 };

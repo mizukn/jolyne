@@ -790,7 +790,7 @@ const slashCommand: SlashCommandFile = {
                 if (Functions.userIsCommunityBanned(ctx.userData)) {
                     await ctx.makeMessage({
                         content: "You're community banned. 🖕 ",
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                     return;
                 }

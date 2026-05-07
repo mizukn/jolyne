@@ -183,4 +183,9 @@ export const containers = {
         ],
         flags: MessageFlags.IsComponentsV2,
     }),
+
+    ephemeral: <T extends { flags?: number }>(reply: T): T & { flags: number } => ({
+        ...reply,
+        flags: (reply.flags ?? 0) | MessageFlags.Ephemeral,
+    }),
 };

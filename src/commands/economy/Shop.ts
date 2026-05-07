@@ -474,8 +474,11 @@ const slashCommand: SlashCommandFile = {
 
                 if (userMoney < price) {
                     await menu.reply({
-                        ...containers.error(`You don't have enough ${isPrestige ? "prestige shards" : "coins"} to buy this item!`),
-                        ephemeral: true,
+                        ...containers.ephemeral(
+                            containers.error(
+                                `You don't have enough ${isPrestige ? "prestige shards" : "coins"} to buy this item!`,
+                            ),
+                        ),
                     });
                     return;
                 }
@@ -503,8 +506,7 @@ const slashCommand: SlashCommandFile = {
                 await ctx.client.database.saveUserData(ctx.userData);
 
                 await menu.reply({
-                    ...containers.success(`**${shop.name}**\n${successContent}`),
-                    ephemeral: true,
+                    ...containers.ephemeral(containers.success(`**${shop.name}**\n${successContent}`)),
                 });
 
                 // Re-fetch to reflect new balance on the item screen

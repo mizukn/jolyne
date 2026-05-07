@@ -1,7 +1,13 @@
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { Ornament } from "../Items/Items";
-import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
+import {
+    APIEmbed,
+    ButtonBuilder,
+    ButtonStyle,
+    MessageFlags,
+    StringSelectMenuBuilder,
+} from "discord.js";
 import { cloneDeep } from "lodash";
 import { i18n_key, SlashCommand } from "../../@types";
 import { is2025WinterEvent, Winter2025EventMessage } from "./2025WinterEvent";
@@ -606,7 +612,7 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
                     if (ornaments() < selectedAmount) {
                         ctx.interaction.followUp({
                             content: "You don't have enough ornaments.",
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         });
                         interaction.deferUpdate().catch(() => {});
                         return;
@@ -620,7 +626,7 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
                             .followUp({
                                 content:
                                     "An error occurred. Please note that you can only have 5 copies of the event hats and 3 copies of the event weapon.",
-                                ephemeral: true,
+                                flags: MessageFlags.Ephemeral,
                             })
                             .catch(() => {});
                         return;
@@ -630,7 +636,7 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
                     ctx.interaction
                         .followUp({
                             content: `You traded ${amountBought} ornaments for ${selectedAmount}x ${currentTrade.item}.`,
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         })
                         .catch(() => {});
                     ctx.makeMessage({

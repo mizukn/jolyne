@@ -3,6 +3,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     enableValidators,
+    MessageFlags,
     StringSelectMenuBuilder,
 } from "discord.js";
 import { AnswerChineseNewYearQuizQuest, SlashCommand } from "../../@types";
@@ -1743,7 +1744,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                     if (hangbaos() < selectedAmount) {
                         ctx.interaction.followUp({
                             content: "You don't have enough hangbaos.",
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         });
                         interaction.deferUpdate().catch(() => {});
                         return;
@@ -1758,7 +1759,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                             .followUp({
                                 content:
                                     "An error occurred. Please note that you can only have 5 copies of the event hats and 3 copies of the event weapon.",
-                                ephemeral: true,
+                                flags: MessageFlags.Ephemeral,
                             })
                             .catch(() => {});
                         return;
@@ -1778,7 +1779,7 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
                     ctx.interaction
                         .followUp({
                             content: `You traded ${amountBought} hangbaos for ${selectedAmount}x ${currentTrade.item} [${transaction}]`,
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         })
                         .catch(() => {});
                     ctx.makeMessage({

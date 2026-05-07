@@ -629,7 +629,7 @@ const slashCommand: SlashCommandFile = {
                 await ctx.makeMessage({
                     content:
                         "You're community banned. You can't throw items. You should throw yourself instead.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
                 return;
             }
@@ -640,7 +640,7 @@ const slashCommand: SlashCommandFile = {
             if (0 > amountX || amountX === 0 || amountX === Infinity) {
                 await ctx.makeMessage({
                     content: "WARNING: Stop trying to find glitches.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
                 const ownerId = process.env.OWNER_IDS?.split(",")[0];
                 if (ownerId)
@@ -734,7 +734,7 @@ const slashCommand: SlashCommandFile = {
                 await ctx.makeMessage({
                     content:
                         "You're community banned. You can't claim items. You should throw yourself instead.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
                 return;
             }

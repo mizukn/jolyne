@@ -13,6 +13,7 @@ import {
     Message,
     APIEmbed,
     ApplicationCommandOptionType,
+    MessageFlags,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from "discord.js";
@@ -533,7 +534,7 @@ const slashCommand: SlashCommandFile = {
         ) {
             ctx.followUpQueue.push({
                 content: `Looks like you're trying to raid the event boss. If you're alone and can't solo this boss, try to find people here --> https://discord.gg/jolyne-support-923608916540145694`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
         const raid = fixedBosses.find((r) => r.boss.id === bossChosen);
@@ -994,7 +995,7 @@ const slashCommand: SlashCommandFile = {
                     ctx.interaction
                         .followUp({
                             content: `${usrData.tag} has joined the raid.`,
-                            ephemeral: true,
+                            flags: MessageFlags.Ephemeral,
                         })
                         .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
                     ctx.client.database.setCooldown(
