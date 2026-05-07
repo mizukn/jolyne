@@ -6,6 +6,7 @@ import {
     TextInputBuilder,
     TextInputStyle,
     ActionRowBuilder,
+    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -14,6 +15,11 @@ import { SlashCommandFile } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { cloneDeep } from "lodash";
 import { COLORS, containers, V2Reply } from "../../utils/containers";
+
+const ephemeralV2 = (reply: V2Reply): V2Reply => ({
+    ...reply,
+    flags: reply.flags | MessageFlags.Ephemeral,
+});
 
 const slotsChart = {
     [Emojis.diamond_gif]: {
@@ -297,19 +303,23 @@ const slashCommand: SlashCommandFile = {
                                     .setRequired(true)
                             )
                         );
-                    
+
                     await i.showModal(modal);
                     const submission = await i.awaitModalSubmit({ time: 30000 }).catch(() => null);
                     if (!submission) return;
 
                     const newBet = parseInt(submission.fields.getTextInputValue("betInput"));
                     if (isNaN(newBet) || newBet < 1) {
-                        return void submission.reply({ ...containers.error("Enter a valid bet amount."), ephemeral: true });
+                        return void submission.reply(
+                            ephemeralV2(containers.error("Enter a valid bet amount."))
+                        );
                     }
                     if (newBet > ctx.userData.coins) {
-                        return void submission.reply({ ...containers.error("You don't have enough coins for that bet."), ephemeral: true });
+                        return void submission.reply(
+                            ephemeralV2(containers.error("You don't have enough coins for that bet."))
+                        );
                     }
-                    
+
                     bet = newBet;
                     await submission.deferUpdate();
                     await ctx.makeMessage(buildInitialUI());
@@ -318,7 +328,11 @@ const slashCommand: SlashCommandFile = {
 
                 if (i.customId === spinID) {
                     if (bet > ctx.userData.coins) {
-                        return void i.reply({ ...containers.error("You don't have enough coins for that bet anymore!"), ephemeral: true });
+                        return void i.reply(
+                            ephemeralV2(
+                                containers.error("You don't have enough coins for that bet anymore!")
+                            )
+                        );
                     }
                     collector.stop("spinning");
                     await i.deferUpdate();
