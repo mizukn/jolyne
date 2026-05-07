@@ -6,6 +6,7 @@ import {
     StringSelectMenuInteraction,
     ButtonBuilder,
     ButtonStyle,
+    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -336,7 +337,7 @@ const slashCommand: SlashCommandFile = {
                         content: `Email ${
                             email.archived ? "archived" : "unarchived"
                         } successfully!`,
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                     break;
                 }
@@ -349,7 +350,7 @@ const slashCommand: SlashCommandFile = {
                     menuEmbed();
                     interaction.reply({
                         content: "Email deleted successfully!",
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     });
                     break;
                 }

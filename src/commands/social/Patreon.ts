@@ -1,5 +1,12 @@
 import { SlashCommandFile } from "../../@types";
-import { APIEmbed, ButtonBuilder, ButtonStyle, InteractionResponse, Message } from "discord.js";
+import {
+    APIEmbed,
+    ButtonBuilder,
+    ButtonStyle,
+    InteractionResponse,
+    Message,
+    MessageFlags,
+} from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { Patron } from "../../structures/JolyneClient";
@@ -172,7 +179,7 @@ const slashCommand: SlashCommandFile = {
             await makeMesage();
             ctx.interaction.followUp({
                 content: `Consider supporting Jolyne on Patreon to get rewards and help the bot grow!:pray: https://patreon.com/mizuki54`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
 
             const collector = ctx.channel.createMessageComponentCollector({
