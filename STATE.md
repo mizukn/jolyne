@@ -87,8 +87,9 @@ Was 2,820. Down to 254 (−91%). The body now lives in sibling modules under `sr
 ### Fight V2 migration follow-ups
 
 - **`infos.thumbnail`** — done. Renders as a `ThumbnailBuilder` accessory on a dedicated section in `FightRenderer.renderTurn`.
-- **V2 message-transition audit** — *pending*. The five callsites that pass `messageX` to `new FightHandler(...)` still construct that message via legacy V1 reply paths: [Fight.ts:303](src/commands/combat/Fight.ts#L303), [RaidSubcommands.ts:652](src/commands/combat/RaidSubcommands.ts#L652), [EventSubcommands.ts:252](src/commands/adventure/EventSubcommands.ts#L252), [DungeonHandler.ts:189](src/structures/DungeonHandler.ts#L189), [Matchmaking.ts:97](src/utils/Matchmaking.ts#L97). When FightHandler edits these to V2 the first time, Discord may reject; the catch path falls back to `channel.send` (functional but adds a UX hiccup). To eliminate, ensure the upstream message is sent with `flags: MessageFlags.IsComponentsV2` and a V2-shaped placeholder. Best done with the bot live so each entry path can be clicked.
+- **V2 message-transition audit** — mostly done. `FightSetup` now uses `FightRenderer.renderInitializingFight()`, `/fight quest` edits any provided `messageX` into a V2 placeholder before handing it to `FightHandler`, and `DungeonHandler` no longer passes its dungeon-progress message as the fight message. Remaining live-test path: click through raid/event/matchmaking starts and verify no duplicate fallback fight message appears.
 - **April Fools `randomGifs`** — gone in the V2 migration. V2 containers don't have a body image. Eight hardcoded gif URLs no longer render on April 1. Decide whether to restore via section markdown / thumbnail accessory or accept the loss.
+- **Ephemeral deprecation warnings** — partially addressed. `CommandInteractionContext.makeMessage/followUp` and queued followups normalize `ephemeral` to `MessageFlags.Ephemeral`; direct command gates, `/fight` defer, Slots modal errors, Patreon followup, and Email action replies were converted. Some direct component replies still use `ephemeral` and can be swept incrementally.
 
 ### XP emoji bar (purple) — pending user upload
 
@@ -105,7 +106,7 @@ At that point, re-add the XP bar in Profile (a previous version had it; was remo
 Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-08) is the source of truth. The remaining open tracks are:
 
 - **P2.1 middleware pipeline** for `interactionCreate.ts` (still ~740-line god function).
-- **P3.1 Functions.ts split** — 🟡 active. Down from 3,071 → 2,712 lines (−12% so far). Four sibling modules under `src/utils/` peeled this session: `lookup.ts` (find* helpers), `quest_guards.ts` (is*Quest type guards), `quest_factories.ts` (generate*Quest helpers + lives next to `random.ts` which now also owns `generateRandomId`), `format.ts` (`localeNumber` / `romanize` / `msToString` / `sleep`). Functions.ts re-exports each via `export { ... } from "./mod"` so all 100+ existing callers keep working unchanged. Bulk still inside (~2,700 lines). Next obvious peels per PLAN: `domain/items/inventory.ts` (addItem/removeItem/addCoins/addXp), `domain/items/equipment.ts`, `domain/embed/builders.ts`, `domain/prestige.ts`, `domain/stats/*`.
+- **P3.1 Functions.ts split** — 🟡 active. Down from 3,071 → 2,488 lines (−19% so far). Sibling modules under `src/utils/` peeled so far: `lookup.ts` (find* helpers), `quest_guards.ts` (is*Quest type guards), `quest_factories.ts` (generate*Quest helpers + lives next to `random.ts` which now also owns `generateRandomId`), `format.ts` (`localeNumber` / `romanize` / `msToString` / `sleep` / string/date helpers), and `embed.ts` (`fixFields` / `splitEmbedIfExceedsLimit`). Functions.ts re-exports each via `export { ... } from "./mod"` so existing callers keep working unchanged. Bulk still inside (~2,500 lines). Next obvious peels per PLAN: `domain/items/inventory.ts` (addItem/removeItem/addCoins/addXp), `domain/items/equipment.ts`, `domain/prestige.ts`, `domain/stats/*`.
 - **P3.4 fat command files** (`RaidSubcommands.ts` 1,192 lines, `Dungeon.ts` 826).
 - **P4.x data hygiene** — type-safe registries, effect-based abilities, bigint field migration, atomic dual-write, transactions table integrity.
 
@@ -116,6 +117,8 @@ Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-0
 - **`Fighter.npc = isNaN(Number(this.id))` brittle heuristic** — replaced with `Functions.isFighter(data) ? data.npc : !Functions.isRPGUserDataJSON(data)` (uses existing type guards).
 - **Dead 2nd-anniversary email check** at `interactionCreate.ts:280-288` (`Date.now() < 1707606000000` permanently false since Feb 2024) — removed.
 - **`console.log` debug noise** in `Fighter.removeHealth` (dodge logs), `DungeonHandler` (modifier dump, "deleting message"), `Fight.ts` ("ATTEMTPING TO DELETE", custom-level set) — removed.
+- **More noisy logs** in `Functions.getAttackDamages`, `Functions.fixNpcRewards`, `Functions.hasVotedRecenty`, `Heal`, and `Patreon` — removed.
+- **`FightRenderer` NPC detection** — no longer uses `isNaN(Number(id))`; it now trusts explicit `fighter.npc` / `manipulatedBy.npc`.
 
 ### BRAINSTORM live issues still in code (decision-pending or low-impact)
 
