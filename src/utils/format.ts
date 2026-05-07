@@ -1,3 +1,5 @@
+import type { Message } from "discord.js";
+
 export const localeNumber = (num: number): string => num?.toLocaleString();
 
 export const sleep = (ms: number): Promise<void> =>
@@ -60,4 +62,29 @@ export const msToString = (ms: number): string => {
     const secondStr = seconds ? `${seconds} second${seconds > 1 ? "s" : ""}` : "";
 
     return `${dayStr} ${hourStr} ${minuteStr} ${secondStr}`;
+};
+
+export const s = (num: number): string => (num === 1 ? "" : "s");
+
+export const capitalize = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
+
+export const generateMessageLink = (message: Message<boolean>): string =>
+    `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
+
+export const getBlackMarketString = (id: string): string => {
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `black_market:${id}_(${day < 10 ? "0" + day : day}/${
+        month < 10 ? "0" + month : month
+    }/${year})`;
+};
+
+export const getTodayString = (): string => {
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${day < 10 ? "0" + day : day}/${month < 10 ? "0" + month : month}/${year}`;
 };

@@ -71,6 +71,7 @@ import {
     shuffle as randomShuffle,
     shuffleInPlace,
 } from "./random";
+import { getTodayString as formatTodayString } from "./format";
 import * as UserService from "../services/UserService";
 import { EVENT_IDS, getEvent, isActive } from "../services/EventService";
 import { findEmail, findItem, findNPC, findQuest, findStand } from "./lookup";
@@ -1103,9 +1104,7 @@ export const addStandDisc = (
     }
 };
 
-export const s = (num: number): string => {
-    return num === 1 ? "" : "s";
-};
+export { s } from "./format";
 
 
 export { generateWaitQuest } from "./quest_factories";
@@ -1159,15 +1158,11 @@ export const userIsCommunityBanned = UserService.userIsCommunityBanned;
 
 export const calcEquipableItemsBonus = UserService.calcEquipableItemsBonus;
 
-export const capitalize = function capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
+export { capitalize } from "./format";
 
 export { fixFields } from "./embed";
 
-export const generateMessageLink = function generateMessageLink(r: Message<boolean>): string {
-    return `https://discord.com/channels/${r.guild.id}/${r.channel.id}/${r.id}`;
-};
+export { generateMessageLink } from "./format";
 
 export const calcStandDiscLimit = function calcStandDiscLimit(
     ctx: CommandInteractionContext,
@@ -1216,23 +1211,7 @@ export const calcStandDiscLimit = function calcStandDiscLimit(
 
 export const shuffle = randomShuffle;
 
-export const getBlackMarketString = function getBlackMarketString(id: string): string {
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    return `black_market:${id}_(${day < 10 ? "0" + day : day}/${
-        month < 10 ? "0" + month : month
-    }/${year})`;
-};
-
-export const getTodayString = function getTodayString(): string {
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    return `${day < 10 ? "0" + day : day}/${month < 10 ? "0" + month : month}/${year}`;
-};
+export { getBlackMarketString, getTodayString } from "./format";
 
 export const hasExceedStandLimit = function hasExceedStandLimit(
     ctx: CommandInteractionContext,
@@ -1785,7 +1764,7 @@ export async function hasDone4DungeonsToday(
     id: string,
 ): Promise<boolean> {
     const dungeonDoneToday = await ctx.client.database.getString(
-        `dungeonDone:${id}:${getTodayString()}`,
+        `dungeonDone:${id}:${formatTodayString()}`,
     );
     const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
     const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
