@@ -43,9 +43,9 @@ Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green
 
 ## What's NOT done / in-flight
 
-### FightHandler split (PLAN §5 P3.2) — orchestrator at 907 lines
+### FightHandler split (PLAN §5 P3.2) — orchestrator at 795 lines
 
-Was 2,820. Down to 907 (−68%). The body now lives in sibling modules under `src/structures/`:
+Was 2,820. Down to 795 (−72%). The body now lives in sibling modules under `src/structures/`:
 
 | Module | Role |
 | --- | --- |
@@ -64,15 +64,15 @@ Was 2,820. Down to 907 (−68%). The body now lives in sibling modules under `sr
 | `FightTeams.ts` | `getLastStandingOutcome`, `forceLastTeamStanding`, `getTeamIndex`, `getHumanFavoredWinner` |
 | `FightSpecialCases.ts` | HolHorse-vs-Avdol auto-targeting + Hol Horse 9999999 instakill |
 | `FightTimeouts.ts` | Per-turn timeout penalty |
+| `FightLifecycle.ts` | `runUpdateMessage(fight)` + `armTurnTimeout(fight)` + `armNPCTimeout(fight)` + `endOrUnexpected(fight, error)` — bodies of the former `updateMessage` / `setTimeout` / `setNPCTimeout` / `endFightOrUnexpected` |
 
-`FightHandler.ts` is now mostly: constructor + collector dispatch + `updateMessage` glue (which delegates to `FightRenderer.ts` in the parent repo) + 1-line delegators into the modules above.
+`FightHandler.ts` is now mostly: constructor + collector dispatch + 1-line delegators into the modules above.
 
 **Still inline in FightHandler**:
 - The constructor itself + its collector switch (button/select dispatch). This is the next big target — ~400 lines, but invasive.
-- `updateMessage` (V2 payload edit + send-fallback) — lives next to the renderer for now.
-- `setTimeout` / `setNPCTimeout` glue, `endFightOrUnexpected`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `addOrEditCooldown`, `continueStep`, plus the small `whosTurn` / `whosTurnAvailableAbilities*` / `availableFighters` / `hasOneTarget` getters.
+- `sendLogs` / `sendFightStats` webhook log glue, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `addOrEditCooldown`, `continueStep`, plus the small `whosTurn` / `whosTurnAvailableAbilities*` / `availableFighters` / `hasOneTarget` getters.
 
-**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
+**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `NPCTimeout`, `NPCAttack`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
 
 ### Fight V2 migration follow-ups
 
