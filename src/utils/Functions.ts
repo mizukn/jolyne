@@ -74,6 +74,30 @@ import {
 import * as UserService from "../services/UserService";
 import { EVENT_IDS, getEvent, isActive } from "../services/EventService";
 import { findEmail, findItem, findNPC, findQuest, findStand } from "./lookup";
+import {
+    isActionQuest,
+    isAnswerChineseNewYearQuizQuest,
+    isBaseQuest,
+    isClaimItemQuest,
+    isFightNPCQuest,
+    isMustReadEmailQuest,
+    isRaidNPCQuest,
+    isStartDungeonQuest,
+    isUseXCommandQuest,
+    isWaitQuest,
+} from "./quest_guards";
+export {
+    isActionQuest,
+    isAnswerChineseNewYearQuizQuest,
+    isBaseQuest,
+    isClaimItemQuest,
+    isFightNPCQuest,
+    isMustReadEmailQuest,
+    isRaidNPCQuest,
+    isStartDungeonQuest,
+    isUseXCommandQuest,
+    isWaitQuest,
+};
 
 export const PrestigeShardReward = 50;
 const endOf2024ChristmasEvent = getEvent(EVENT_IDS.CHRISTMAS_2024)?.endsAt.getTime() ?? 0;
@@ -101,42 +125,8 @@ export const isGarment = (item: Item): item is Garment => {
     return (item as Garment).skillPoints !== undefined;
 };
 
-export const isAnswerChineseNewYearQuizQuest = (
-    quest: RPGUserQuest | Quests,
-): quest is AnswerChineseNewYearQuizQuest => {
-    return quest.type === "answerChineseNewYearQuiz";
-};
-
 export const isSpecial = (item: Item): item is Special => {
     return (item as Special)["use"] !== undefined;
-};
-
-export const isBaseQuest = (quest: Quests | RPGUserQuest): quest is Quest => {
-    return (quest as Quest).type === "baseQuest";
-};
-//damx
-export const isFightNPCQuest = (quest: Quests | RPGUserQuest): quest is FightNPCQuest => {
-    return (quest as FightNPCQuest).type === "fight";
-};
-
-export const isStartDungeonQuest = (quest: Quests | RPGUserQuest): quest is StartDungeonQuest => {
-    return quest.type === "startDungeon";
-};
-
-export const isRaidNPCQuest = (quest: Quests | RPGUserQuest): quest is RaidNPCQuest => {
-    return (quest as RaidNPCQuest).type === "raid";
-};
-
-export const isMustReadEmailQuest = (quest: Quests | RPGUserQuest): quest is MustReadEmailQuest => {
-    return (quest as MustReadEmailQuest).type === "mustRead";
-};
-
-export const isActionQuest = (quest: Quests | RPGUserQuest): quest is ActionQuest => {
-    return (quest as ActionQuest).type === "action";
-};
-
-export const isUseXCommandQuest = (quest: Quests | RPGUserQuest): quest is UseXCommandQuest => {
-    return (quest as UseXCommandQuest).type === "UseXCommandQuest";
 };
 
 export const pushItemWhenCompleted = (
@@ -970,9 +960,6 @@ export const shuffleArray = shuffleInPlace;
 
 export const randomNumber = randomInt;
 
-export const isClaimItemQuest = (quest: RPGUserQuest): quest is ClaimItemQuest => {
-    return (quest as ClaimItemQuest).type === "ClaimXQuest";
-};
 
 export const isClaimXQuest = UserService.isClaimXQuest;
 
@@ -1322,9 +1309,6 @@ export const s = (num: number): string => {
     return num === 1 ? "" : "s";
 };
 
-export const isWaitQuest = (quest: Quests | RPGUserQuest): quest is WaitQuest => {
-    return (quest as WaitQuest).type === "wait";
-};
 
 export const generateWaitQuest = (
     time: number,
