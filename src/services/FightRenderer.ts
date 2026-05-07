@@ -134,7 +134,10 @@ export function renderTurn(snap: FightSnapshot, opts: RenderTurnOptions = {}): R
     if (log) sections.push({ text: log });
 
     if (snap.infos.thumbnail) {
-        sections.push({ text: `> -# Effect: ${snap.infos.thumbnail}` });
+        sections.push({
+            text: `> -# ✨ Effect`,
+            accessory: new ThumbnailBuilder().setURL(snap.infos.thumbnail),
+        });
     }
 
     const reply = containers.primary({
