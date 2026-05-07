@@ -31,6 +31,7 @@ import { FightHandler } from "./structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { seededInt } from "./utils/random";
+import { runRegistryValidation } from "./bootstrap/validate";
 import {
     endOf2024ChristmasEvent,
     is2024ChristmasEventActive,
@@ -871,6 +872,7 @@ async function init() {
     await loadCommands(path.resolve(__dirname, "commands"));
 }
 
+runRegistryValidation();
 init();
 
 client.login(process.env.CLIENT_TOKEN);
