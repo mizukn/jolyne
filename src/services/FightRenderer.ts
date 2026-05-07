@@ -18,6 +18,7 @@ import {
     type FightInfos,
 } from "../structures/FightHandler";
 import type Jolyne from "../structures/JolyneClient";
+import type { Ability } from "../@types";
 
 export interface FightSnapshot {
     id: string;
@@ -28,6 +29,7 @@ export interface FightSnapshot {
     whosTurn: Fighter | undefined;
     hasOneTarget: boolean;
     ctx: { client: Jolyne };
+    getTeamIdx(fighter: Fighter): number;
 }
 
 export interface RenderResult {
@@ -286,5 +288,160 @@ export function renderTurn(snap: FightSnapshot, opts: RenderTurnOptions = {}): R
         components: isNPC
             ? [Functions.actionRow([waitingNPC])]
             : rows.map((row) => Functions.actionRow(row)),
+    };
+}
+
+export function renderTargetSelect(
+    snap: FightSnapshot,
+    availableTargets: Fighter[]
+): RenderResult {
+    const whosTurn = snap.whosTurn;
+    const sourceId = whosTurn?.manipulatedBy ? whosTurn.manipulatedBy.id : whosTurn?.id;
+
+    const stringSelectMenu = new StringSelectMenuBuilder()
+        .setCustomId(snap.id + "target")
+        .setPlaceholder(`[${whosTurn?.name}: select a target]`)
+        .setMinValues(1)
+        .setMaxValues(1)
+        .addOptions(
+            availableTargets.map((target) => ({
+                label:
+                    ((target.manipulatedBy ? target.manipulatedBy.npc : target.npc)
+                        ? target.name
+                        : target.manipulatedBy
+                        ? target.name
+                        : snap.ctx.client.users.cache.get(target.id)?.tag ?? target.name) +
+                    `: ${target.health.toLocaleString(
+                        "en-US"
+                    )}/${target.maxHealth.toLocaleString()} ❤️ (Team ${
+                        snap.getTeamIdx(target) + 1
+                    })`,
+                emoji: target.manipulatedBy
+                    ? snap.ctx.client.localEmojis["hierophant_green"]
+                    : Functions.findNPC(
+                          target.manipulatedBy ? target.manipulatedBy.id : target.id
+                      )?.emoji ?? undefined,
+                value: target.id,
+            }))
+        );
+
+    // The original handler set `embed` but commented out the `embeds:` field on
+    // message.edit, so the embed is intentionally not rendered. Keep parity.
+    void sourceId;
+
+    return {
+        content: `It's **${whosTurn?.name}**'s turn: Select a target for your next move (or you can just defend after selecting the target)`,
+        embeds: [],
+        components: [
+            Functions.actionRow([stringSelectMenu]),
+            Functions.actionRow([
+                new ButtonBuilder()
+                    .setCustomId(snap.id + "goBack")
+                    .setEmoji("⬅️")
+                    .setStyle(ButtonStyle.Secondary),
+            ]),
+        ],
+    };
+}
+
+function renderAbilityMenu(
+    snap: FightSnapshot,
+    availableAbilities: Ability[],
+    selectCustomIdSuffix: "abilities" | "wabilities",
+    embed: APIEmbed
+): RenderResult {
+    const whosTurn = snap.whosTurn;
+    const components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] = [];
+
+    if (availableAbilities.length !== 0) {
+        components.push(
+            Functions.actionRow([
+                new StringSelectMenuBuilder()
+                    .setCustomId(snap.id + selectCustomIdSuffix)
+                    .setPlaceholder(`[${whosTurn?.name}: select an ability]`)
+                    .setMinValues(1)
+                    .setMaxValues(1)
+                    .addOptions(
+                        availableAbilities.map((ability) => ({
+                            label: ability.name,
+                            value: ability.name,
+                        }))
+                    ),
+            ])
+        );
+    } else {
+        components.push(
+            Functions.actionRow([
+                new ButtonBuilder()
+                    .setDisabled(true)
+                    .setLabel("[No abilities available]")
+                    .setCustomId(snap.id + "noAbilities")
+                    .setStyle(ButtonStyle.Danger),
+            ])
+        );
+    }
+    components.push(
+        Functions.actionRow([
+            new ButtonBuilder()
+                .setCustomId(snap.id + "goBack")
+                .setEmoji("⬅️")
+                .setStyle(ButtonStyle.Secondary),
+        ])
+    );
+
+    return {
+        content: `It's **${whosTurn?.name}**'s turn: Select an ability to use`,
+        embeds: Functions.splitEmbedIfExceedsLimit(embed),
+        components,
+    };
+}
+
+export function renderStandAbilityMenu(
+    snap: FightSnapshot,
+    availableAbilities: Ability[]
+): RenderResult {
+    const embed = Functions.standAbilitiesEmbed(snap.whosTurn, snap.infos.cooldowns);
+    return renderAbilityMenu(snap, availableAbilities, "abilities", embed);
+}
+
+export function renderWeaponAbilityMenu(
+    snap: FightSnapshot,
+    availableAbilities: Ability[]
+): RenderResult {
+    const embed = Functions.weaponAbilitiesEmbed(snap.whosTurn, snap.infos.cooldowns);
+    return renderAbilityMenu(snap, availableAbilities, "wabilities", embed);
+}
+
+export function renderForfeitConfirm(
+    snap: FightSnapshot,
+    user: { username: string; avatarURL: string }
+): RenderResult {
+    const forfeitButton = new ButtonBuilder()
+        .setCustomId(snap.id + `forfeitConfirm`)
+        .setLabel("Yes")
+        .setEmoji("🏳️")
+        .setStyle(ButtonStyle.Danger);
+    const goBackButton = new ButtonBuilder()
+        .setCustomId(snap.id + "goBack")
+        .setLabel("No")
+        .setEmoji("⬅️")
+        .setStyle(ButtonStyle.Secondary);
+
+    return {
+        content: `[FORFEIT]`,
+        embeds: [
+            {
+                author: {
+                    name: user.username,
+                    icon_url: user.avatarURL,
+                },
+                description: `Are you sure you want to forfeit the fight, **${snap.whosTurn?.name}**?\nYou're still going to lose all your hp and stamina.`,
+                color: 0x70926c,
+                footer: {
+                    text: `⚠️ Only forfeit if you gotta go IRL or if you're sure you can't win.`,
+                },
+            },
+        ],
+        components: [Functions.actionRow([forfeitButton, goBackButton])],
     };
 }
