@@ -2,6 +2,7 @@ import type { EventFile } from "../@types";
 import { inspect } from "util";
 import { Events, Message } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
+import log from "../utils/Logger";
 
 const Event: EventFile = {
     name: Events.MessageCreate,
@@ -36,11 +37,21 @@ const Event: EventFile = {
                         try {
                             message.channel.send(`\`\`\`\njs\n${output}\n\`\`\``);
                         } catch (e) {
-                            console.error(e);
+                            log(
+                                `Failed to send eval output: ${
+                                    e instanceof Error ? e.stack ?? e.message : String(e)
+                                }`,
+                                "error",
+                            );
                         }
                     })
                     .catch((err) => {
-                        console.error(err);
+                        log(
+                            `Eval command failed: ${
+                                err instanceof Error ? err.stack ?? err.message : String(err)
+                            }`,
+                            "error",
+                        );
                         err = err.toString();
                         if (err.includes(client.token)) {
                             err = err.replace(new RegExp(client.token, "gi"), `T0K3N`);
@@ -50,7 +61,12 @@ const Event: EventFile = {
 
                             message.channel.send(`\`\`\`\njs\n${err}\n\`\`\``);
                         } catch (e) {
-                            console.error(e);
+                            log(
+                                `Failed to send eval error: ${
+                                    e instanceof Error ? e.stack ?? e.message : String(e)
+                                }`,
+                                "error",
+                            );
                         }
                     });
             }

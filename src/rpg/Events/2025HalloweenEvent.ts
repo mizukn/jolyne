@@ -130,7 +130,6 @@ export const Halloween2025EventCommandHandler: SlashCommand["execute"] = async (
                 brains() >= trade.amount &&
                 Functions.addItem(cloneDeep(ctx.userData), trade.item, 1),
         }));
-        console.log(formattedTrades);
 
         const getSelectMenuTrades = () =>
             formattedTrades

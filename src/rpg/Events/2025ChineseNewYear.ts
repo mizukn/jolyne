@@ -10,6 +10,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import * as Functions from "../../utils/Functions";
 import { cloneDeep } from "lodash";
 import { Hangbao } from "../Items/Items";
+import log from "../../utils/Logger";
 
 import { EVENT_IDS, isActive, registerCommandEntryHook } from "../../services/EventService";
 
@@ -1881,7 +1882,6 @@ export const ChineseNewYear2025EventCommand: SlashCommand["execute"] = async (ct
 
 export const handleInteraction = async (ctx: CommandInteractionContext): Promise<void> => {
     if (!is2025ChineseNewYear()) return;
-    console.log("2025 Chinese New Year Event");
 
     const currentSocialCredits = ctx.userData.social_credits_2025;
 
@@ -1902,7 +1902,6 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
                 }
                 Functions.addItem(ctx.userData, "hangbao", 12);
                 newHigh = i;
-                console.log("gave 12 hangbao");
             }
         }
     } else {
@@ -1918,12 +1917,14 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
                 const twoPercentOfCoins = Math.max(5000, Math.floor(ctx.userData.coins * 0.02));
                 Functions.addCoins(ctx.userData, -twoPercentOfCoins);
                 newHigh = i;
-                console.log("lost 3% of coins");
             }
         }
     }
     if (newHigh !== highestSocialCredits) {
-        console.log(newHigh, highestSocialCredits);
+        log(
+            `Chinese New Year social credits changed for ${ctx.user.id}: ${highestSocialCredits} -> ${newHigh}`,
+            "event",
+        );
         await ctx.client.database.redis.set(`chineseNewYear2025:${newHigh}_${ctx.user.id}`, "true");
         await ctx.client.database.redis.set(
             `chineseNewYear2025:highestSocialCredits_${ctx.user.id}`,
