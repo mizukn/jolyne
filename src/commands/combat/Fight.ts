@@ -3,6 +3,7 @@ import {
     Message,
     APIEmbed,
     ApplicationCommandOptionType,
+    InteractionResponse,
     StringSelectMenuBuilder,
     MessageComponentInteraction,
     StringSelectMenuInteraction,
@@ -10,6 +11,7 @@ import {
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
+import * as FightRenderer from "../../services/FightRenderer";
 import { FightableNPCS } from "../../rpg/NPCs";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
@@ -259,12 +261,12 @@ const slashCommand: SlashCommandFile = {
                 .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
         }
 
-        function startFight(
+        async function startFight(
             questId: string,
             npcId: string,
             type: FightTypes.DailyQuest | FightTypes.ChapterQuest | FightTypes.SideQuest,
             customLevel?: number
-        ) {
+        ): Promise<void | Message | InteractionResponse> {
             if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
                 return ctx.makeMessage({
                     content:
@@ -295,7 +297,10 @@ const slashCommand: SlashCommandFile = {
             }
             // ctx.interaction.deleteReply();
 
-            const fight = new FightHandler(ctx, [[ctx.userData], [npc]], type, message);
+            const fightMessage = message
+                ? await message.edit(FightRenderer.renderInitializingFight(type)).catch(() => undefined)
+                : undefined;
+            const fight = new FightHandler(ctx, [[ctx.userData], [npc]], type, fightMessage);
             ctx.interaction.fetchReply().then((r) => {
                 ctx.client.database.setCooldown(
                     ctx.userData.id,

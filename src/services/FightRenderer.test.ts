@@ -35,6 +35,7 @@ vi.mock("../structures/FightTypes", () => ({
 }));
 
 import {
+    renderInitializingFight,
     renderTurn,
     renderTargetSelect,
     renderForfeitConfirm,
@@ -93,6 +94,15 @@ const isActionRow = (
     c: unknown
 ): c is { kind: "ActionRow"; components: { data: { custom_id?: string; disabled?: boolean } }[] } =>
     typeof c === "object" && c !== null && (c as { kind?: string }).kind === "ActionRow";
+
+describe("FightRenderer.renderInitializingFight", () => {
+    it("returns a V2 placeholder container", () => {
+        const result = renderInitializingFight("🎌 Friendly Fight" as never);
+
+        expect(isContainer(result.components[0])).toBe(true);
+        expect(result.flags).toBeGreaterThan(0);
+    });
+});
 
 describe("FightRenderer.renderTurn", () => {
     it("renders a 4-fighter, two-team, mid-turn snapshot", () => {

@@ -63,6 +63,14 @@ export interface RenderTurnOptions {
     whoseTurn?: Fighter;
 }
 
+export function renderInitializingFight(type: FightTypes): RenderResult {
+    return containers.primary({
+        title: type,
+        description: `Initializing ${type}…`,
+        color: FightTypeColor[type],
+    });
+}
+
 const fighterAvatarURL = (snap: FightSnapshot, fighter: Fighter | undefined): string | undefined => {
     const id = fighter?.manipulatedBy ? fighter.manipulatedBy.id : fighter?.id;
     return (
