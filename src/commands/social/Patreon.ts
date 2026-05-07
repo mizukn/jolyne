@@ -121,7 +121,6 @@ const slashCommand: SlashCommandFile = {
                     ctx.client
                 );
                 const url = `${tier.attributes.url}`;
-                console.log(url);
                 buttons.push(
                     new ButtonBuilder()
                         .setURL(url)

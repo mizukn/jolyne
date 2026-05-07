@@ -483,7 +483,6 @@ export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC)
             staminaScaling = 0.5 + (percent / 100) ** 2 * 0.6;
         }
 
-        console.log(`Stamina scaling: ${staminaScaling} since stamina is ${user.stamina}`);
     }
 
     /*const damages = Math.round(
@@ -749,7 +748,6 @@ export const generateSkillPointsByBuild = (
     // sp.properties ARE BY PERCENTAGE!!!
     const sum = Math.trunc(Object.values(sp).reduce((a, b) => a + b, 0));
     if (sum > 100) {
-        console.log("Sum of skill points is greater than 100%", sum);
         return generateSkillPoints(user, true);
     }
 
@@ -1082,12 +1080,7 @@ export const addEmail = function addEmail(userData: RPGUserDataJSON, email: stri
     const emailData = findEmail(email);
     if (!emailData) return;
 
-    if (userData.emails.find((v) => v.id === emailData.id)) {
-        console.log(
-            `Attempted to add email ${emailData.id} to user ${userData.id} but it already exists`,
-        );
-        return;
-    }
+    if (userData.emails.find((v) => v.id === emailData.id)) return;
     userData.emails.push(pushEmail(emailData));
 };
 
@@ -2098,7 +2091,6 @@ export function fixNpcRewards(npc: FightableNPC): void {
     const baseCoins = 1000 + npc.level * 0.25 + getMaxXp(npc.level) * 0.0005;
     npc.rewards.coins = Math.round(baseCoins * multiplier);
 
-    console.log(`Level: ${npc.level} xp: ${npc.rewards.xp} coins: ${npc.rewards.coins}`);
 }
 
 export const getStandEvolution = (stand: Stand): number => {
@@ -2154,19 +2146,14 @@ export const hasVotedRecenty = (data: RPGUserDataJSON, client: Jolyne, time?: nu
     ) // array of DAte.now() we must get the biggest one
         .sort((a, b) => b - a)[0];
 
-    if (!lastMonthVote) {
-        console.log("No vote found");
-        return false;
-    }
+    if (!lastMonthVote) return false;
 
     const isBooster = client.boosters.find((x) => x === data.id);
 
     const mustBeLessThan =
         time ?? 1000 * 60 * 5 + patreonTier * 1000 * 60 + (isBooster ? 1000 * 60 : 0); // 5 minutes + 1 minute per patreon tier
 
-    const result = Date.now() - lastMonthVote < mustBeLessThan;
-    console.log(`Result: ${result}`);
-    return result;
+    return Date.now() - lastMonthVote < mustBeLessThan;
 };
 
 const hextoNumber = (hex: string) => parseInt(hex.replace("#", ""), 16);

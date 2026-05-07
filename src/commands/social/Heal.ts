@@ -84,7 +84,6 @@ const slashCommand: SlashCommandFile = {
             currentOverLoop < maxOverLoop &&
             (ctx.userData.health < maxHealth || ctx.userData.stamina < maxStamina)
         ) {
-            console.log("Looping...", currentOverLoop);
             currentOverLoop++;
             const formattedInventory = Object.keys(ctx.userData.inventory)
                 .map((x) => {
@@ -219,15 +218,6 @@ const slashCommand: SlashCommandFile = {
                 maximumLoop > 0
             ) {
                 maximumLoop--;
-                /*
-            console.log(`Using ${item.item.name}`);
-
-            const oldData = cloneDeep(ctx.userData);
-            Functions.useConsumableItem(item.item, ctx.userData);
-            Functions.removeItem(ctx.userData, item.item.id, 1);
-            itemsUsed.push(item.item);
-            console.log(`Difference: ${oldData.health - ctx.userData.health}`);
-            console.log(`Difference: ${oldData.stamina - ctx.userData.stamina}`);*/
                 const need = ["health", "stamina"].filter(
                     (x) =>
                         ctx.userData[x as "health" | "stamina"] <
@@ -262,13 +252,9 @@ const slashCommand: SlashCommandFile = {
                 ) {
                     formattedInventory.splice(formattedInventory.indexOf(item), 1);
                 }
-                const oldData = cloneDeep(ctx.userData);
                 Functions.useConsumableItem(item.item, ctx.userData);
                 Functions.removeItem(ctx.userData, item.item.id, 1);
                 itemsUsed.push(item.item);
-                console.log(`Using ${item.item.name}`);
-                console.log(`Difference: ${ctx.userData.health - oldData.health}`);
-                console.log(`Difference: ${ctx.userData.stamina - oldData.stamina}`);
             }
 
             if (maximumLoop <= 0 && !isPreview) {
