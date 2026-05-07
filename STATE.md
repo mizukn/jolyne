@@ -43,9 +43,9 @@ Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green
 
 ## What's NOT done / in-flight
 
-### FightHandler split (PLAN §5 P3.2) — orchestrator at 771 lines
+### FightHandler split (PLAN §5 P3.2) — orchestrator at 254 lines
 
-Was 2,820. Down to 771 (−73%). The body now lives in sibling modules under `src/structures/`:
+Was 2,820. Down to 254 (−91%). The body now lives in sibling modules under `src/structures/`:
 
 | Module | Role |
 | --- | --- |
@@ -64,16 +64,25 @@ Was 2,820. Down to 771 (−73%). The body now lives in sibling modules under `sr
 | `FightTeams.ts` | `getLastStandingOutcome`, `forceLastTeamStanding`, `getTeamIndex`, `getHumanFavoredWinner` |
 | `FightSpecialCases.ts` | HolHorse-vs-Avdol auto-targeting + Hol Horse 9999999 instakill |
 | `FightTimeouts.ts` | Per-turn timeout penalty |
-| `FightLifecycle.ts` | `runUpdateMessage(fight)` + `armTurnTimeout(fight)` + `armNPCTimeout(fight)` + `endOrUnexpected(fight, error)` — bodies of the former `updateMessage` / `setTimeout` / `setNPCTimeout` / `endFightOrUnexpected` |
+| `FightLifecycle.ts` | `runUpdateMessage(fight)` + `armTurnTimeout(fight)` + `armNPCTimeout(fight)` + `endOrUnexpected(fight, error)` + `endIfOneTeamLeft(fight)` — bodies of the former `updateMessage` / `setTimeout` / `setNPCTimeout` / `endFightOrUnexpected` / `oneTeamLeft` |
 | `FightWebhookLogs.ts` | `sendFightLogs(fight)` + `sendFightStats(fight)` — bodies of the former `sendLogs` / `sendFightStats` (the latter is still callable via the FightHandler delegator since `FightHandlerWatchdog` invokes it externally) |
+| `FightInteraction.ts` | `handleInteraction(fight, interaction)` — body of the former constructor-internal `listenerCallback` (the button + string-select-menu dispatch switch) |
+| `FightLifecycleHandlers.ts` | `attachLifecycleHandlers(fight, fightEndCallback, fightCallFuncCallback)` — bodies of the former constructor-internal `on('unexpectedEnd')` / `on('end')` handlers |
+| `FightSetup.ts` | `initializeFight(fight, type, messageX)` (cluster-event registration + message-init dispatch) + `runFightSetup(fight, type, fightEndCallback, fightCallFuncCallback)` (fighter sort, channel concurrency check, total-fight timeout, `infos` / `turns` seed, listener creation, lifecycle handler attach, fight-start webhook, listener `collect` wiring, cooldown init, initial `updateMessage`) — bodies of the former constructor `Finally()` IIFE |
+| `FightActions.ts` | `handleDefend(fight)` + `handleSkip(fight)` + `continueStep(fight)` — bodies of the former turn-action handlers and the post-target-pick `currentStep` router |
+| `FightTurnQueue.ts` | `getWhosTurn(fight)` + `getWhosTurnAvailableAbilities(fight)` + `getWhosTurnAvailableAbilitiesWeapon(fight)` — bodies of the former `whosTurn` / `whosTurnAvailableAbilities` / `whosTurnAvailableAbilitiesWeapon` getters |
 
-`FightHandler.ts` is now mostly: constructor + collector dispatch + 1-line delegators into the modules above.
+`FightHandler.ts` is now a thin orchestrator: constructor (10 lines of state seeding + a single `initializeFight` call) + 1-line delegators into the modules above + the small `availableFighters` / `hasStoppedTime` / `hasOneTarget` getters and the 10-line `addOrEditCooldown` mutator.
 
 **Still inline in FightHandler**:
-- The constructor itself + its collector switch (button/select dispatch). This is the next big target — ~400 lines, but invasive.
-- `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `addOrEditCooldown`, `continueStep`, plus the small `whosTurn` / `whosTurnAvailableAbilities*` / `availableFighters` / `hasOneTarget` getters.
+- The 10 field-default lines + `initializeFight(this, type, messageX)` in the constructor.
+- `addOrEditCooldown(id, move, cooldown)` — 10-line `this.infos.cooldowns` mutator. Three external callers (FightSetup, FightDamage). No clear destination module — keeping inline.
+- The small getters: `availableFighters` (3 lines), `hasStoppedTime` (3 lines), `hasOneTarget` (10-line getAvailableTargets delegator).
+- One-line delegators into all the extract modules.
 
-**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `NPCTimeout`, `NPCAttack`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
+**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `NPCTimeout`, `NPCAttack`, `fiveMinTimeout`, `listener`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
+
+**Method removed entirely:** the `handleUseAbility` private delegator was deleted — its only callers (`continueStep`'s `"handleUseAbility"` case) now invoke `applyAbility(fight, ...)` directly from `FightActions.ts`, so the method had no remaining purpose.
 
 ### Fight V2 migration follow-ups
 
