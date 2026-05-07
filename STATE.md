@@ -33,15 +33,9 @@ All landed on `rework`. Each is its own commit. Highlights:
 
 ### V2 components migration (in progress)
 
-Done:
-- `src/utils/containers.ts` — Jolyne-themed V2 helpers (`containers.primary/success/error/warning`, palette in `COLORS`).
-- `src/utils/emojiBar.ts` — discrete progress bar from custom emojis. Falls back to Unicode `▱` for missing palettes.
-- `src/commands/social/Profile.ts` — V2 + emoji HP/stamina bars.
-- `src/commands/general/HelpSubcommands.ts` — V2 with category + per-command browser (multi-select pagination at >25 commands).
-- `src/commands/social/Inventory.ts` — `view` + `info` subcommands migrated to V2 (other subcommands still use `content: "..."` for short success/error messages — left alone for now).
-- `src/commands/adventure/DailySubcommands.ts` — `claim` + `quests` migrated.
+Done (per PLAN.md "V2 components UI" track): Profile, Help, Inventory, Daily, Settings, Trade, Emails, Side Quest, Chapter, Prestige, Leaderboard, Blackjack, Shop, Skills, plus the Fight UI itself (containers + emojiBar). Helpers in `src/utils/containers.ts` and `src/utils/emojiBar.ts`. Style guide lives in `README_V2_UI.md`.
 
-Bar emoji palette mapping in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = blue (`blue*`), `bar_empty_*` = black/basic (`b*`). XP palette (purple) is not yet uploaded — `bar_xp_*` keys are not defined; `emojiBar("xp", ...)` will render Unicode placeholders until the user adds them.
+Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green (`g*`), `bar_def_*` = blue (`blue*`), `bar_empty_*` = black/basic (`b*`). XP palette (purple) is still not uploaded — `bar_xp_*` keys are not defined; `emojiBar("xp", ...)` renders Unicode placeholders until added.
 
 ### Restructure (one big commit, intentional)
 
@@ -49,16 +43,40 @@ Bar emoji palette mapping in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*`
 
 ## What's NOT done / in-flight
 
-### V2 migration backlog (next work)
+### FightHandler split (PLAN §5 P3.2) — orchestrator at 1,047 lines
 
-Done so far: Profile, Help, Inventory (view+info), Daily (claim+quests). Next targets, suggested order:
-1. **Inventory** remaining: `equip` / `use` / `unequip` / `throw` / `claim` / `sell` — these are mostly content-only success/error replies; consider whether to wrap in `containers.success/error` or leave as plain text.
-2. **EmailsSubcommands** (list/view/archive) — list view is a good V2 fit.
-3. **Shop** — items + buy interaction.
-4. **Trade** — interactive two-phase flow; gnarlier, may want a service-layer rewrite first (PLAN P2.3).
-5. **Settings**.
-6. **Chapter** / **SideQuests** views.
-7. Fight UI (last — needs the FightHandler split first; see PLAN §5 P3.2).
+Was 2,820. Down to 1,047 (−63%). The body now lives in sibling modules under `src/structures/`:
+
+| Module | Role |
+| --- | --- |
+| `Fighter.ts` | Fighter class + `FighterRemoveHealthTypes` + `FighterAttackStaminaCost` |
+| `FightTypes.ts` | `FightTypes`, `FightTypeColor`, `FightInfos`, `FightTurn`, `FightEvents` (no runtime deps on FightHandler) |
+| `FightAI.ts` | Pure NPC decision helpers (`chooseNPCMove`, `chooseNPCStandAbility`, `chooseNPCWeaponAbility`, `chooseNPCTargetId`, `controlledFighter`, `isNPCControlled`) |
+| `FightNPCTurn.ts` | `runNPCTurn(fight)` — dispatcher that the side-effecting NPC turn drives |
+| `FightTurnEngine.ts` | `advanceTurn(fight)` + `checkNewRound(fight)` |
+| `FightDamage.ts` | `applyAttack(fight)` + `applyAbility(fight)` — bodies of the former `handleAttack` / `handleUseAbility` |
+| `FightPassives.ts` | `handleFightPassives(...)` engine dispatcher |
+| `FightPromiseQueue.ts` | `processFightPromises(...)` for next-turn / next-round queues |
+| `FightRound.ts` | `shouldStartNewRound`, `tickCooldowns`, `refreshFightersForNewRound` |
+| `FightExtraTurns.ts` | `grantExtraTurnIfEligible`, `clearExtraTurnLogs`, `hasExtraTurnLog`, `getOpponents` |
+| `FightTargeting.ts` | `getAvailableTargets` |
+| `FightTeams.ts` | `getLastStandingOutcome`, `forceLastTeamStanding`, `getTeamIndex`, `getHumanFavoredWinner` |
+| `FightSpecialCases.ts` | HolHorse-vs-Avdol auto-targeting + Hol Horse 9999999 instakill |
+| `FightTimeouts.ts` | Per-turn timeout penalty |
+
+`FightHandler.ts` is now mostly: constructor + collector dispatch + `updateMessage` glue (which delegates to `FightRenderer.ts` in the parent repo) + 1-line delegators into the modules above.
+
+**Still inline in FightHandler** (deliberate, deferred — moving them yields little):
+- The small NPC sub-branches inside `selectTarget` / `selectStandAbility` / `showWeaponAbilities` (4–15 lines each, tightly interleaved with the human-player paths next to them).
+- The collector switch in the constructor (button/select dispatch).
+
+**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
+
+### Fight V2 migration follow-ups
+
+- **`infos.thumbnail`** — done. Renders as a `ThumbnailBuilder` accessory on a dedicated section in `FightRenderer.renderTurn`.
+- **V2 message-transition audit** — *pending*. The five callsites that pass `messageX` to `new FightHandler(...)` still construct that message via legacy V1 reply paths: [Fight.ts:303](src/commands/combat/Fight.ts#L303), [RaidSubcommands.ts:652](src/commands/combat/RaidSubcommands.ts#L652), [EventSubcommands.ts:252](src/commands/adventure/EventSubcommands.ts#L252), [DungeonHandler.ts:189](src/structures/DungeonHandler.ts#L189), [Matchmaking.ts:97](src/utils/Matchmaking.ts#L97). When FightHandler edits these to V2 the first time, Discord may reject; the catch path falls back to `channel.send` (functional but adds a UX hiccup). To eliminate, ensure the upstream message is sent with `flags: MessageFlags.IsComponentsV2` and a V2-shaped placeholder. Best done with the bot live so each entry path can be clicked.
+- **April Fools `randomGifs`** — gone in the V2 migration. V2 containers don't have a body image. Eight hardcoded gif URLs no longer render on April 1. Decide whether to restore via section markdown / thumbnail accessory or accept the loss.
 
 ### XP emoji bar (purple) — pending user upload
 
@@ -70,15 +88,14 @@ The user said purple XP bar emojis will be added later. When they arrive, add to
 ```
 At that point, re-add the XP bar in Profile (a previous version had it; was removed because no XP palette existed yet).
 
-### Phase 1 foundations (untouched — see PLAN §3)
+### Other PLAN status
 
-- P1.1 `services/UserService.ts` clean extraction (NOT the half-done version in `stash@{0}` — that one inverted the dep direction).
-- P1.2 test harness (`vitest` or `bun test`).
-- P1.3 `src/config/gameplay.ts` for magic numbers.
-- P1.4 boot-time data validation.
-- P1.5 single RNG module.
-- P1.6 logger replacement + ESLint forbid `console.log`.
-- P1.7 stop writing `NPCs.json` / `prestigeNPCs.json` at runtime.
+Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-07) is the source of truth. The remaining open tracks are:
+
+- **P2.1 middleware pipeline** for `interactionCreate.ts` (still ~800-line god function).
+- **P3.1 Functions.ts split** (only minor peels via P1; bulk still inline).
+- **P3.4 fat command files** (`RaidSubcommands.ts`, `Dungeon.ts` still 1,200/826 lines).
+- **P4.x data hygiene** — type-safe registries, effect-based abilities, bigint field migration, atomic dual-write, transactions table integrity.
 
 ## Stashes
 
@@ -86,7 +103,7 @@ At that point, re-add the XP bar in Profile (a previous version had it; was remo
 
 ## Conventions (do not break)
 
-1. **Commit style:** one commit per fix, conventional-commit short messages (`fix(scope): brief`, `feat(scope): brief`, `refactor(scope): brief`). No body, no `Co-Authored-By`.
+1. **Commit style:** one commit per fix, short imperative phrase (e.g. `Extract fight turn engine`, `Render fight effect thumbnail as section accessory`). No `fix(scope):` prefix, no body, no `Co-Authored-By`.
 2. **No `Co-Authored-By`** in any commit.
 3. **Never** mention or credit other Discord bots/projects in commits, file content, comments. Describe designs as "the new V2 layout" etc.
 4. **No emojis in commit messages** (the user's old style had them; the new style does not).
