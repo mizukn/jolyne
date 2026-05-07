@@ -1,16 +1,13 @@
 import { Frostblade } from "../Items/EquipableItems";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
+import { EVENT_IDS, isActive, isEndingSoon } from "../../services/EventService";
 
 export const startOf2025WinterEvent = new Date("2024-12-31");
 export const endOf2025WinterEvent = new Date("2025-01-20");
-export const is2025WinterEvent = (): boolean =>
-    new Date() >= startOf2025WinterEvent && new Date() <= endOf2025WinterEvent;
-export const is2025WinterEventEndingSoon = (): boolean => {
-    if (!is2025WinterEvent()) return false;
-
-    return endOf2025WinterEvent.getTime() - new Date().getTime() < 2 * 24 * 60 * 60 * 1000;
-};
+export const is2025WinterEvent = (): boolean => isActive(EVENT_IDS.WINTER_2025);
+export const is2025WinterEventEndingSoon = (): boolean =>
+    isEndingSoon(EVENT_IDS.WINTER_2025, 2 * 24 * 60 * 60 * 1000);
 
 export const Winter2025EventMessage = (ctx: CommandInteractionContext): string => {
     return `\`\`\`

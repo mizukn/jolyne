@@ -2,10 +2,11 @@ import { SlashCommand } from "../../@types";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 
+import { EVENT_IDS, isActive } from "../../services/EventService";
+
 export const startOf4thAnnivesaryEvent = new Date("2026-03-06");
 export const endOf4thAnnivesaryEvent = new Date("2026-03-30");
-export const is4thAnnivesaryEvent = (): boolean =>
-    new Date() >= startOf4thAnnivesaryEvent && new Date() <= endOf4thAnnivesaryEvent;
+export const is4thAnnivesaryEvent = (): boolean => isActive(EVENT_IDS.FOURTH_ANNIVERSARY);
 
 export const FourthYearAnniversaryEventSlashCommandData: SlashCommand["data"] = {
     name: "event",

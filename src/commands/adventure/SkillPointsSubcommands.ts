@@ -1,26 +1,65 @@
-import { RPGUserDataJSON, SlashCommandFile, Leaderboard, i18n_key } from "../../@types";
 import {
     Message,
-    APIEmbed,
     ButtonBuilder,
-    StringSelectMenuBuilder,
-    ActionRowBuilder,
     ButtonStyle,
-    InteractionCollector,
-    ButtonInteraction,
-    CacheType,
-    StringSelectMenuInteraction,
-    UserSelectMenuInteraction,
-    RoleSelectMenuInteraction,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
+    ActionRowBuilder,
     InteractionResponse,
-    MessageComponentInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
+import { SlashCommandFile } from "../../@types";
 import * as Functions from "../../utils/Functions";
-import { FightHandler, FightTypes } from "../../structures/FightHandler";
-import { FightableNPCS, NPCs } from "../../rpg/NPCs";
-import { Heaven_Ascended_Dio, Jotaro, Kakyoin } from "../../rpg/NPCs/FightableNPCs";
+import { NPCs } from "../../rpg/NPCs";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
+import { COLORS, containers, SectionData, V2Reply } from "../../utils/containers";
+import { cloneDeep } from "lodash";
+
+const SKILLS = [
+    { key: "stamina", emoji: "⚡", label: "Stamina", desc: "Increases your agility [stamina/energy]", miscFunc: Functions.getMaxStamina, miscName: "Max Stamina" },
+    { key: "defense", emoji: "❤️", label: "Defense", desc: "Increases your health and your resistance", miscFunc: Functions.getMaxHealth, miscName: "Max Health" },
+    { key: "strength", emoji: "💪", label: "Strength", desc: "Increases your damages & your stand's damage", miscFunc: Functions.getAttackDamages, miscName: "ATK Damage" },
+    { key: "perception", emoji: "🍃", label: "Perception", desc: "Increases your dodges %", miscFunc: Functions.getDodgeScore, miscName: "Dodge Score" },
+    { key: "speed", emoji: "💨", label: "Speed", desc: "Decreases your opponent's perception and you may be able to attack 2 times in a row...", miscFunc: Functions.getSpeedScore, miscName: "Speed Score" },
+] as const;
+
+function buildUI(ctx: CommandInteractionContext): V2Reply {
+    const pointsLeft = Functions.getRawSkillPointsLeft(ctx.userData);
+    const sections: SectionData[] = [];
+
+    for (const skill of SKILLS) {
+        const value = ctx.userData.skillPoints[skill.key as keyof typeof ctx.userData.skillPoints] ?? 0;
+        sections.push({
+            text: `### ${skill.emoji} **${skill.label}:** ${value.toLocaleString()} points\n> -# ${skill.desc}\n**${skill.miscName}:** ${skill.miscFunc(ctx.userData).toLocaleString()}`,
+            accessory: new ButtonBuilder()
+                .setCustomId(`skill_upgrade_${skill.key}`)
+                .setLabel(`Upgrade ${skill.label}`)
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji(skill.emoji)
+                .setDisabled(pointsLeft <= 0)
+        });
+    }
+
+    const derivedStats = [
+        `:heart: • **Max Health:** ${Functions.getMaxHealth(ctx.userData).toLocaleString()}`,
+        `:zap: • **Max Stamina:** ${Functions.getMaxStamina(ctx.userData).toLocaleString()}`,
+        `:fist: • **ATK Damage:** ${Functions.getAttackDamages(ctx.userData).toLocaleString()}`,
+        `:leaves: • **Dodge score:** ${Functions.getDodgeScore(ctx.userData).toLocaleString()}`,
+        `:arrows_counterclockwise: • **Speed score:** ${Functions.getSpeedScore(ctx.userData).toLocaleString()}`,
+    ];
+
+    /*sections.push({
+        text: `### 📉 **Derived Stats:**\n${derivedStats.join("\n")}`,
+    });*/
+
+    return containers.primary({
+        title: "# 📊 Skill Points",
+        sections,
+        sectionDividers: true,
+        footer: `${ctx.client.localEmojis.arrowRight} ${pointsLeft} points left to invest.`
+    });
+}
 
 const slashCommand: SlashCommandFile = {
     hidden: true,
@@ -88,88 +127,118 @@ const slashCommand: SlashCommandFile = {
             const perception = ctx.options.getInteger("perception") ?? 0;
             const stamina = ctx.options.getInteger("stamina") ?? 0;
 
-            if (!strength && !defense && !speed && !perception && !stamina) {
-                return ctx.makeMessage({
-                    content: `Hey, what do you want to upgrade, uh? https://imgur.com/a/yVgD5AL`,
-                });
-            }
+            if (strength || defense || speed || perception || stamina) {
+                const totalAmount = strength + defense + speed + perception + stamina;
 
-            const totalAmount = strength + defense + speed + perception + stamina;
-            // check if any options is < 1
-            if (
-                (strength && strength < 1) ||
-                (defense && defense < 1) ||
-                (speed && speed < 1) ||
-                (perception && perception < 1) ||
-                (stamina && stamina < 1)
-            )
-                return await ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Dio,
-                        "You can't invest less than 1 point... smh",
-                        ctx.client.localEmojis.dioangry
-                    ),
-                });
+                if (strength < 0 || defense < 0 || speed < 0 || perception < 0 || stamina < 0) {
+                    return await ctx.makeMessage(containers.error(
+                        Functions.makeNPCString(
+                            NPCs.Dio,
+                            "You can't invest less than 0 points... smh",
+                            ctx.client.localEmojis.dioangry
+                        )
+                    ));
+                }
 
-            if (totalAmount > Functions.getRawSkillPointsLeft(ctx.userData))
-                return await ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Dio,
-                        `Maths don't work like that, ${
-                            ctx.user.username
-                        }... You can only invest **${Functions.getRawSkillPointsLeft(
-                            ctx.userData
-                        )}** points... WRYY`,
-                        ctx.client.localEmojis.dioangry
-                    ),
-                });
+                const pointsLeft = Functions.getRawSkillPointsLeft(ctx.userData);
+                if (totalAmount > pointsLeft) {
+                    return await ctx.makeMessage(containers.error(
+                        Functions.makeNPCString(
+                            NPCs.Dio,
+                            `Maths don't work like that, ${ctx.user.username}... You can only invest **${pointsLeft}** points... WRYY`,
+                            ctx.client.localEmojis.dioangry
+                        )
+                    ));
+                }
 
-            //}, 2000);
-            await ctx.client.database.saveUserData(ctx.userData);
-            const messages = [];
-            for (const key of Object.keys(ctx.userData.skillPoints).filter((key) =>
-                ctx.options.getInteger(key)
-            )) {
-                ctx.userData.skillPoints[key as keyof typeof ctx.userData.skillPoints] +=
-                    ctx.options.getInteger(key);
-                /*ctx.followUpQueue.push({
-                    content: Functions.makeNPCString(
-                        NPCs.Dio,
-                        `You've invested **${ctx.options.getInteger(key)}** points in **${key}**!`)
-                });*/
-                messages.push(
-                    `You've invested **${ctx.options.getInteger(key)}** points in **${key}**.`
+                const oldData = cloneDeep(ctx.userData);
+                const updates: string[] = [];
+
+                if (strength) { ctx.userData.skillPoints.strength += strength; updates.push(`+${strength} Strength`); }
+                if (defense) { ctx.userData.skillPoints.defense += defense; updates.push(`+${defense} Defense`); }
+                if (speed) { ctx.userData.skillPoints.speed += speed; updates.push(`+${speed} Speed`); }
+                if (perception) { ctx.userData.skillPoints.perception += perception; updates.push(`+${perception} Perception`); }
+                if (stamina) { ctx.userData.skillPoints.stamina += stamina; updates.push(`+${stamina} Stamina`); }
+
+                const transaction = await ctx.client.database.handleTransaction(
+                    [{ oldData, newData: ctx.userData }],
+                    `Skill Investment: ${updates.join(", ")}`
                 );
-            }
 
-            if (messages.length) {
-                ctx.followUpQueue.push({
-                    content: Functions.makeNPCString(
-                        NPCs.Dio,
-                        "\n\n" + messages.map((x, i) => `${i + 1}. ${x}`).join("\n")
-                    ),
-                });
+                if (!transaction) {
+                    return await ctx.makeMessage(containers.error("Transaction failed. Your points were not invested."));
+                }
             }
-            await ctx.client.database.saveUserData(ctx.userData);
         }
 
-        await ctx.sendTranslated("skill-points:BASE_MESSAGE", {
-            userData: ctx.userData,
-            atkDMG: Functions.getAttackDamages(ctx.userData).toLocaleString(),
-            dodgeScore: Functions.getDodgeScore(ctx.userData).toLocaleString(),
-            speedScore: Functions.getSpeedScore(ctx.userData).toLocaleString(),
-            maxHealth: Functions.getMaxHealth(ctx.userData).toLocaleString(),
-            maxStamina: Functions.getMaxStamina(ctx.userData).toLocaleString(),
-            components: [
-                Functions.actionRow([
-                    new ButtonBuilder()
-                        .setCustomId("ff" + Date.now())
-                        .setLabel(`${Functions.getRawSkillPointsLeft(ctx.userData)} points left`)
-                        .setEmoji("925416226547707924")
-                        .setDisabled(true)
-                        .setStyle(ButtonStyle.Secondary),
-                ]),
-            ],
+        await ctx.makeMessage(buildUI(ctx));
+
+        const collector = ctx.channel.createMessageComponentCollector({
+            filter: (i) => i.user.id === ctx.user.id && i.customId.startsWith("skill_upgrade_"),
+            time: 120000,
+        });
+
+        collector.on("collect", async (i) => {
+            const skillKey = i.customId.replace("skill_upgrade_", "");
+            const skill = SKILLS.find(s => s.key === skillKey);
+            if (!skill) return;
+
+            const pointsLeft = Functions.getRawSkillPointsLeft(ctx.userData);
+            if (pointsLeft <= 0) {
+                return i.reply({ ...containers.error("You don't have any skill points left!"), ephemeral: true });
+            }
+
+            const modalId = `skill_modal_${Date.now()}`;
+            const modal = new ModalBuilder()
+                .setCustomId(modalId)
+                .setTitle(`Invest in ${skill.label}`)
+                .addComponents(
+                    new ActionRowBuilder<TextInputBuilder>().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId("amount")
+                            .setLabel(`Amount (Max: ${pointsLeft})`)
+                            .setStyle(TextInputStyle.Short)
+                            .setPlaceholder("Enter the amount of points to invest")
+                            .setRequired(true)
+                    )
+                );
+
+            await i.showModal(modal);
+
+            const submission = await i.awaitModalSubmit({
+                filter: (sub) => sub.user.id === ctx.user.id && sub.customId === modalId,
+                time: 60000,
+            }).catch(() => null);
+
+            if (!submission) return;
+
+            const amount = parseInt(submission.fields.getTextInputValue("amount"));
+            if (isNaN(amount) || amount < 1) {
+                return submission.reply({ ...containers.error("Please enter a valid amount greater than 0."), ephemeral: true });
+            }
+
+            // Refresh user data to be sure
+            ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+            const freshPointsLeft = Functions.getRawSkillPointsLeft(ctx.userData);
+
+            if (amount > freshPointsLeft) {
+                return submission.reply({ ...containers.error(`You only have **${freshPointsLeft}** points left!`), ephemeral: true });
+            }
+
+            const oldData = cloneDeep(ctx.userData);
+            ctx.userData.skillPoints[skill.key as keyof typeof ctx.userData.skillPoints] += amount;
+
+            const transaction = await ctx.client.database.handleTransaction(
+                [{ oldData, newData: ctx.userData }],
+                `Skill Investment: ${skill.key} +${amount}`
+            );
+
+            if (!transaction) {
+                return submission.reply({ ...containers.error("Transaction failed. Your points were not invested."), ephemeral: true });
+            }
+
+            await submission.deferUpdate();
+            await ctx.makeMessage(buildUI(ctx));
         });
     },
 };

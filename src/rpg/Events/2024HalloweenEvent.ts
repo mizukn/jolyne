@@ -6,6 +6,7 @@ import { cloneDeep, get, method } from "lodash";
 import { SideQuest, SlashCommand } from "../../@types";
 import { it } from "node:test";
 import { halloweenClaimsWebhook } from "../../utils/Webhooks";
+import { EVENT_IDS, isActive, isEndingSoon } from "../../services/EventService";
 
 const currentDayMonthHourMinute = () => {
     const date = new Date();
@@ -79,9 +80,9 @@ const __sxvay21975y0o8xlj9bp = () =>
         (2 - 1);
 
 export const endOf2024HalloweenEvent = 1730700000000;
-export const is2024HalloweenEvent = (): boolean => Date.now() < endOf2024HalloweenEvent;
-export const is2024HalloweenEventEndingSoon = (): boolean => // 3 days before the end
-    Date.now() > endOf2024HalloweenEvent - 1000 * 60 * 60 * 24 * 3 && is2024HalloweenEvent();
+export const is2024HalloweenEvent = (): boolean => isActive(EVENT_IDS.HALLOWEEN_2024);
+export const is2024HalloweenEventEndingSoon = (): boolean =>
+    isEndingSoon(EVENT_IDS.HALLOWEEN_2024, 1000 * 60 * 60 * 24 * 3);
 
 export const handlePumpkinAppeared = async (ctx: CommandInteractionContext): Promise<boolean> => {
     if (Functions.userIsCommunityBanned(ctx.userData)) {

@@ -9,7 +9,7 @@ import * as Items from "./Items";
 import { EvolutionStands } from "../Stands";
 import { cloneDeep } from "lodash";
 import { standLogsWebhook } from "../../utils/Webhooks";
-import { is2024ChristmasEventActive } from "../Events/2024ChristmasEvent";
+import { EVENT_IDS, isActive } from "../../services/EventService";
 
 const totalStands = [
     ...Object.values(Stands),
@@ -883,7 +883,7 @@ export const ChristmasGift: Special = {
                     }*/,
                 ],
             ];
-            if (is2024ChristmasEventActive()) {
+            if (isActive(EVENT_IDS.CHRISTMAS_2024)) {
                 finalLoot[1].push(
                     {
                         percent: 100,

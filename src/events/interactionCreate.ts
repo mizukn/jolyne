@@ -12,11 +12,7 @@ import * as Functions from "../utils/Functions";
 import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
-import { handlePumpkinAppeared, is2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
-import { is2024ChristmasEventActive } from "../rpg/Events/2024ChristmasEvent";
-import { handleInteraction } from "../rpg/Events/2025ChineseNewYear";
-import { is3rdAnnivesaryEvent } from "../rpg/Events/3rdYearAnniversaryEvent";
-import { is2025HalloweenEventActive } from "../rpg/Events/2025HalloweenEvent";
+import { EVENT_IDS, isActive, runCommandEntryHooks } from "../services/EventService";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
     for (const quest of quests) {
@@ -193,7 +189,7 @@ const Event: EventFile = {
             } else ctx = new CommandInteractionContext(interaction);
 
             if (command.data.name !== "help" && ctx.userData) {
-                handleInteraction(ctx);
+                runCommandEntryHooks(ctx);
 
                 if (ctx.userData.inventory.candy_cane && ctx.userData.inventory.candy_cane < 0) {
                     return void ctx.makeMessage({
@@ -353,7 +349,7 @@ const Event: EventFile = {
                 }
 
                 if (
-                    is3rdAnnivesaryEvent() &&
+                    isActive(EVENT_IDS.THIRD_ANNIVERSARY) &&
                     !ctx.userData.emails.find((r) => r.id === "third_anniversary")
                 ) {
                     ctx.followUpQueue.push({
@@ -363,7 +359,7 @@ const Event: EventFile = {
                 }
 
                 if (
-                    is2024HalloweenEvent() &&
+                    isActive(EVENT_IDS.HALLOWEEN_2024) &&
                     !ctx.userData.emails.find((r) => r.id === "halloween_2024")
                 ) {
                     const hasAlreadyAdded = await ctx.client.database.getString(
@@ -382,7 +378,7 @@ const Event: EventFile = {
                     }
                 }
                 if (
-                    is2024ChristmasEventActive() &&
+                    isActive(EVENT_IDS.CHRISTMAS_2024) &&
                     !ctx.userData.emails.find((r) => r.id === "christmas_2024")
                 ) {
                     const hasAlreadyAdded = await ctx.client.database.getString(
@@ -402,7 +398,7 @@ const Event: EventFile = {
                 }
 
                 if (
-                    is2025HalloweenEventActive() &&
+                    isActive(EVENT_IDS.HALLOWEEN_2025) &&
                     !ctx.userData.emails.find((r) => r.id === "halloween_2025")
                 ) {
                     const hasAlreadyAdded = await ctx.client.database.getString(

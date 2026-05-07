@@ -5,16 +5,13 @@ import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "d
 import { cloneDeep } from "lodash";
 import { i18n_key, SlashCommand } from "../../@types";
 import { is2025WinterEvent, Winter2025EventMessage } from "./2025WinterEvent";
+import { EVENT_IDS, isActive, isEndingSoon } from "../../services/EventService";
 
 export const endOf2024ChristmasEvent = 1735772399000;
 export const startOf2024ChristmasEvent = 1732996800000; //new Date(2024, 11, 1).getTime();
-export const is2024ChristmasEventActive = (): boolean =>
-    Date.now() > startOf2024ChristmasEvent && Date.now() < endOf2024ChristmasEvent;
-export const is2024ChristmasEventEndingSoon = (): boolean => {
-    // 4 days before the event ends
-    if (!is2024ChristmasEventActive()) return false;
-    return endOf2024ChristmasEvent - Date.now() < 4 * 24 * 60 * 60 * 1000;
-};
+export const is2024ChristmasEventActive = (): boolean => isActive(EVENT_IDS.CHRISTMAS_2024);
+export const is2024ChristmasEventEndingSoon = (): boolean =>
+    isEndingSoon(EVENT_IDS.CHRISTMAS_2024, 4 * 24 * 60 * 60 * 1000);
 
 export const trades = [
     {

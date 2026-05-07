@@ -62,7 +62,6 @@ import * as Emojis from "../emojis.json";
 import { get, random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
 import color from "get-image-colors";
-import { is2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
 import { level } from "winston";
 import e from "express";
 import {
@@ -73,16 +72,10 @@ import {
     shuffleInPlace,
 } from "./random";
 import * as UserService from "../services/UserService";
-import {
-    endOf2024ChristmasEvent,
-    is2024ChristmasEventActive,
-} from "../rpg/Events/2024ChristmasEvent";
-import { is2025WinterEvent } from "../rpg/Events/2025WinterEvent";
-import { is2025ChineseNewYear } from "../rpg/Events/2025ChineseNewYear";
-import { is3rdAnnivesaryEvent } from "../rpg/Events/3rdYearAnniversaryEvent";
-import { is2025HalloweenEventActive } from "../rpg/Events/2025HalloweenEvent";
+import { EVENT_IDS, getEvent, isActive } from "../services/EventService";
 
 export const PrestigeShardReward = 50;
+const endOf2024ChristmasEvent = getEvent(EVENT_IDS.CHRISTMAS_2024)?.endsAt.getTime() ?? 0;
 
 const totalStands = [
     ...Object.values(Stands.Stands),
@@ -472,104 +465,14 @@ export const findNPC = <T extends NPC | FightableNPC>(npc: string, fightable?: b
     return foundNPC as T;
 };
 
-export const getSkillPointsBonus = (
-    rpgData: RPGUserDataJSON | FightableNPC | Fighter,
-): SkillPoints => {
-    const skillPoints = { ...rpgData.skillPoints };
-    const stand = isFighter(rpgData)
-        ? rpgData.stand
-        : isRPGUserDataJSON(rpgData)
-          ? getCurrentStand(rpgData)
-          : findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand]);
-
-    if (stand) {
-        for (const id of Object.keys(stand.skillPoints)) {
-            skillPoints[id as keyof typeof skillPoints] +=
-                stand.skillPoints[id as keyof typeof stand.skillPoints];
-        }
-    }
-    for (const itemId of Object.keys(rpgData.equippedItems)) {
-        const itemData = findItem<EquipableItem>(itemId);
-        if (!itemData) continue;
-        if (itemData.effects.skillPoints) {
-            for (const skill of Object.keys(itemData.effects.skillPoints)) {
-                skillPoints[skill as keyof SkillPoints] +=
-                    itemData.effects.skillPoints[skill as keyof SkillPoints];
-            }
-        }
-    }
-    return skillPoints;
-};
-
-export const getSkillPointsFromPrestige = (prestige: number): number => {
-    /*
-    from prestige 1 to 4: you get +10 skill points, which means at prestige 4 you will have 40 points to assign
-
-from prestige 4 to 10: +5 
-
-and from 10 to 20: +2
-
-from 20 to infinity: +1*/
-
-    let total = 0;
-
-    while (prestige > 0) {
-        if (prestige >= 20) {
-            total += 1;
-            prestige -= 1;
-        } else if (prestige >= 10) {
-            total += 2;
-            prestige -= 1;
-        } else if (prestige >= 4) {
-            total += 5;
-            prestige -= 1;
-        } else if (prestige >= 1) {
-            total += 10;
-            prestige -= 1;
-        }
-    }
-
-    /**
-     *  better version
-     *     if (prestige < 5) return prestige * 10;
-     if (prestige < 11) return 40 + (prestige - 4) * 5;
-     if (prestige < 21) return 70 + (prestige - 10) * 2;
-     return 110 + (prestige - 20);
-
-     */
-
-    return total;
-};
-
-export const getBaseHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    return 100 + Math.trunc(rpgData.level / 2);
-};
-
-export const getBaseStamina = 100;
-
-export const getMaxHealth = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    if (rpgData.level === 0) return 100;
-    if (rpgData.level <= 4 && findNPC(rpgData.id)) return 100;
-    return Math.round((getMaxHealthNoItem(rpgData) + calcEquipableItemsBonus(rpgData).health) * 3);
-};
-
-export const getMaxHealthNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    const skillPoints = getSkillPointsBonus(rpgData);
-    const baseHealth = getBaseHealth(rpgData);
-
-    return baseHealth + Math.round(skillPoints.defense * 11.55);
-};
-
-export const getMaxStaminaNoItem = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    const skillPoints = getSkillPointsBonus(rpgData);
-    const baseStamina = getBaseStamina;
-
-    return Math.round(baseStamina + skillPoints.stamina * 1.98); // + rpgData.level / 300);
-};
-
-export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    return Math.round(getMaxStaminaNoItem(rpgData) + calcEquipableItemsBonus(rpgData).stamina);
-};
+export const getSkillPointsBonus = UserService.getSkillPointsBonus;
+export const getSkillPointsFromPrestige = UserService.getSkillPointsFromPrestige;
+export const getBaseHealth = UserService.getBaseHealth;
+export const getBaseStamina = UserService.getBaseStamina;
+export const getMaxHealth = UserService.getMaxHealth;
+export const getMaxHealthNoItem = UserService.getMaxHealthNoItem;
+export const getMaxStaminaNoItem = UserService.getMaxStaminaNoItem;
+export const getMaxStamina = UserService.getMaxStamina;
 
 export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
     if (rpgData.level === 0) return 0;
@@ -787,20 +690,14 @@ export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQue
     return quests;
 };
 
-export const isRPGUserDataJSON = (
-    data: RPGUserDataJSON | FightableNPC | Fighter,
-): data is RPGUserDataJSON => {
-    return (data as RPGUserDataJSON).adventureStartedAt !== undefined;
-};
+export const isRPGUserDataJSON = UserService.isRPGUserDataJSON;
 
 export const actionRow = (
     components: (ButtonBuilder | StringSelectMenuBuilder)[],
 ): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder> =>
     new ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>().addComponents(...components);
 
-export const isFighter = (data: Fighter | RPGUserDataJSON | FightableNPC): data is Fighter => {
-    return (data as Fighter).isDefending !== undefined;
-};
+export const isFighter = UserService.isFighter;
 
 export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC): number => {
     const skillPoints = getSkillPointsBonus(user);
@@ -1043,19 +940,9 @@ export const weaponAbilitiesEmbed = (
     return embed;
 };
 
-export const getRawSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): number => {
-    const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
-    return (
-        getTotalSkillPoints(user) -
-        totalSkillPoints +
-        (!isRPGUserDataJSON(user) ? 0 : getSkillPointsFromPrestige(user.prestige))
-    );
-};
+export const getRawSkillPointsLeft = UserService.getRawSkillPointsLeft;
 
-export const skillPointsIsOK = (user: RPGUserDataJSON | FightableNPC): boolean => {
-    const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
-    return totalSkillPoints === getTotalSkillPoints(user);
-};
+export const skillPointsIsOK = UserService.skillPointsIsOK;
 
 export const generateSkillPoints = (
     user: RPGUserDataJSON | FightableNPC,
@@ -1139,10 +1026,7 @@ export const generateSkillPointsByBuild = (
     }
 };
 
-export const getTotalSkillPoints = (data: number | RPGUserDataJSON | FightableNPC): number => {
-    if (typeof data === "number") return data * 4;
-    else return data.level * 4;
-};
+export const getTotalSkillPoints = UserService.getTotalSkillPoints;
 
 export const getSkillPointsBuild = (data: RPGUserDataJSON | FightableNPC): SkillPoints => {
     const totalSkillPoints = getTotalSkillPoints(data);
@@ -1356,12 +1240,12 @@ export const addItem = (
     }
     if (!item) return false;
     if (!item.storable || item.private) return false;
-    if (is2024HalloweenEvent() && item.id === "nix.$disc$") {
+    if (isActive(EVENT_IDS.HALLOWEEN_2024) && item.id === "nix.$disc$") {
         const nixDisc = (userData.inventory["nix.$disc$"] || 0) + (amount || 1);
         if (nixDisc > 3) return false;
     }
 
-    if (is3rdAnnivesaryEvent()) {
+    if (isActive(EVENT_IDS.THIRD_ANNIVERSARY)) {
         if (item.id === "pinata_hat" || item.id === "pinata_hammer") {
             let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
             for (const xitem of Object.keys(userData.equippedItems)) {
@@ -1372,7 +1256,7 @@ export const addItem = (
         }
     }
 
-    if (is2025WinterEvent() && item.id === "frostblade") {
+    if (isActive(EVENT_IDS.WINTER_2025) && item.id === "frostblade") {
         let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
         for (const xitem of Object.keys(userData.equippedItems)) {
             if (xitem === item.id) itemLeft++;
@@ -1388,7 +1272,7 @@ export const addItem = (
         if (itemLeft > max) return false;
     }
 
-    if (is2025ChineseNewYear() && item.id === "snake_jian") {
+    if (isActive(EVENT_IDS.CHINESE_NEW_YEAR_2025) && item.id === "snake_jian") {
         let itemLeft = (userData.inventory[item.id] || 0) + (amount || 1);
         for (const xitem of Object.keys(userData.equippedItems)) {
             if (xitem === item.id) itemLeft++;
@@ -1396,7 +1280,7 @@ export const addItem = (
         if (itemLeft > 3) return false;
     }
 
-    if (is2025HalloweenEventActive() && item.id.includes("dead_revival")) {
+    if (isActive(EVENT_IDS.HALLOWEEN_2025) && item.id.includes("dead_revival")) {
         const totalItems = Object.keys(userData.inventory)
             .map((x) => {
                 return {
@@ -1510,60 +1394,7 @@ export const addSocialCredits = function addSocialCredits(
     return amount;
 };
 
-export const addXp = function addXp(
-    userData: RPGUserDataJSON,
-    amount: number,
-    client: Jolyne,
-    dontAdd?: boolean,
-): number {
-    if (calcEquipableItemsBonus(userData).xpBoost > 0) {
-        amount += Math.round((amount * calcEquipableItemsBonus(userData).xpBoost) / 100);
-    }
-    if (is2024ChristmasEventActive() && isWeekend()) amount = Math.round(amount * 1.25);
-    if (is3rdAnnivesaryEvent()) amount = Math.round(amount * 1.15);
-    let multiplier = 1;
-
-    const patreonTier = client.patreons.find((v) => v.id === userData.id)?.level;
-
-    if (patreonTier)
-        switch (patreonTier) {
-            case 4:
-                multiplier += 0.1;
-                break;
-            case 3:
-                multiplier += 0.07;
-                break;
-            case 2:
-                multiplier += 0.05;
-                break;
-            case 1:
-                multiplier += 0.04;
-                break;
-        }
-
-    if (client.boosters.find((x) => x === userData.id)) multiplier += 0.03;
-
-    amount = Math.round(amount * multiplier);
-    if (userIsCommunityBanned(userData)) amount = Math.round(amount / 2);
-    if (process.env.ENABLE_PRESTIGE && userData.level >= getMaxPrestigeLevel(userData.prestige)) {
-        console.log("Prestige level reached");
-        amount = 0;
-    }
-
-    if (!dontAdd) {
-        userData.xp += amount;
-        for (const quests of [
-            userData.daily.quests,
-            userData.chapter.quests,
-            ...userData.sideQuests.map((v) => v.quests),
-        ]) {
-            for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "xp")) {
-                (quest as ClaimXQuest).amount += amount;
-            }
-        }
-    }
-    return amount;
-};
+export const addXp = UserService.addXp;
 
 export const addEmail = function addEmail(userData: RPGUserDataJSON, email: string): void {
     const emailData = findEmail(email);
@@ -1674,69 +1505,9 @@ export const makeNPCString = function makeNPCString(
     return `${emoji ?? npc.emoji} **${npc.name}**: ${message}`;
 };
 
-export const userIsCommunityBanned = function userIsCommunityBanned(
-    userData: RPGUserDataJSON | LBData,
-): RPGUserDataJSON["communityBans"][0] {
-    if (userData.communityBans?.length === 0 || !userData.communityBans) return;
-    const activeCommunityBans = userData.communityBans.filter((v) => v.until > Date.now());
-    if (activeCommunityBans.length === 0) return;
-    return activeCommunityBans[0];
-};
+export const userIsCommunityBanned = UserService.userIsCommunityBanned;
 
-export const calcEquipableItemsBonus = function calcEquipableItemsBonus(
-    userData: RPGUserDataJSON | FightableNPC | Fighter,
-): {
-    stamina: number;
-    health: number;
-    skillPoints: SkillPoints;
-    xpBoost: number;
-    standDisc: number;
-} {
-    let stamina = 0;
-    let health = 0;
-    let xpBoost = 0;
-    let standDisc = 0;
-    const skillPoints: SkillPoints = {
-        strength: 0,
-        perception: 0,
-        stamina: 0,
-        speed: 0,
-        defense: 0,
-    };
-
-    for (const itemId of Object.keys(userData.equippedItems)) {
-        const itemData = findItem<EquipableItem>(itemId);
-        if (!itemData) continue;
-        if (itemData.effects.standDiscIncrease) standDisc += itemData.effects.standDiscIncrease;
-        if (itemData.effects.stamina)
-            stamina +=
-                typeof itemData.effects.stamina === "number"
-                    ? itemData.effects.stamina
-                    : getMaxHealthNoItem(userData) * (parseInt(itemData.effects.stamina) / 100);
-        if (itemData.effects.health)
-            health +=
-                typeof itemData.effects.health === "number"
-                    ? itemData.effects.health
-                    : getMaxHealthNoItem(userData) * (parseInt(itemData.effects.health) / 100);
-        if (itemData.effects.skillPoints) {
-            for (const skill of Object.keys(itemData.effects.skillPoints)) {
-                skillPoints[skill as keyof SkillPoints] +=
-                    itemData.effects.skillPoints[skill as keyof SkillPoints];
-            }
-        }
-        if (itemData.effects.xpBoost) {
-            xpBoost += itemData.effects.xpBoost;
-        }
-    }
-
-    return {
-        stamina,
-        health,
-        skillPoints,
-        xpBoost,
-        standDisc,
-    };
-};
+export const calcEquipableItemsBonus = UserService.calcEquipableItemsBonus;
 
 export const capitalize = function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -2075,10 +1846,10 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
             `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
                 "en-US",
             )}** XP ${Emojis.xp} ${
-                is2024ChristmasEventActive() && isWeekend()
+                isActive(EVENT_IDS.CHRISTMAS_2024) && isWeekend()
                     ? "(christmas event [Week-End]: +25%)"
                     : ""
-            }${is3rdAnnivesaryEvent() ? "(3rd anniversary event: +15%)" : ""}`,
+            }${isActive(EVENT_IDS.THIRD_ANNIVERSARY) ? "(3rd anniversary event: +15%)" : ""}`,
         );
     if (data1.coins !== data2.coins)
         rewards.push(
@@ -2640,6 +2411,13 @@ export const getCurrentStand = (data: RPGUserDataJSON): Stand => {
     return findStand(data.stand, currentEvolution);
 };
 
+UserService.configureUserService({
+    findNPC,
+    findStand,
+    getCurrentStand,
+    findEquipableItem: (item) => findItem<EquipableItem>(item),
+});
+
 const Multiplier = {
     SS: 1.65,
     S: 1.45,
@@ -3002,10 +2780,7 @@ export const getTotalXp = (
     return xp + (data.xp || 0);
 };
 
-export const getMaxPrestigeLevel = (prestigeLevel: number): number => {
-    if (prestigeLevel + 1 < 6) return (prestigeLevel + 1) * 100;
-    return 500;
-};
+export const getMaxPrestigeLevel = UserService.getMaxPrestigeLevel;
 
 export const prestigeUser = (data: RPGUserDataJSON): boolean => {
     if (!process.env.ENABLE_PRESTIGE) return false;
@@ -3216,10 +2991,7 @@ export function getRPGUserDataChanges(
     return changes;
 }
 
-export const isWeekend = (): boolean => {
-    const date = new Date();
-    return date.getDay() === 0 || date.getDay() === 6;
-};
+export const isWeekend = UserService.isWeekend;
 
 export const userMeetsRequirementsForItem = (
     data: RPGUserDataJSON,

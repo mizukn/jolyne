@@ -6,6 +6,7 @@ import { SlashCommand } from "../../@types";
 import { APIEmbed, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
 import { SpookyZombieBrain } from "../Items/Items";
 import { cloneDeep } from "lodash";
+import { EVENT_IDS, isActive } from "../../services/EventService";
 
 // start = 31 oct 2025
 // end = 14 nov 2025
@@ -13,7 +14,7 @@ export const startOf2025HalloweenEvent = new Date(Date.UTC(2025, 9, 31, 0, 0, 0)
 export const endOf2025HalloweenEvent = new Date(Date.UTC(2025, 10, 14, 23, 59, 59));
 
 export function is2025HalloweenEventActive(currentDate: Date = new Date()): boolean {
-    return currentDate >= startOf2025HalloweenEvent && currentDate <= endOf2025HalloweenEvent;
+    return isActive(EVENT_IDS.HALLOWEEN_2025, currentDate);
 }
 // zombie apocalypse event message
 export const halloween2025EventMessage = (ctx: CommandInteractionContext): string => {

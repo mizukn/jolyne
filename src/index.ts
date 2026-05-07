@@ -32,22 +32,18 @@ import { cloneDeep } from "lodash";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { seededInt } from "./utils/random";
 import { runRegistryValidation } from "./bootstrap/validate";
-import {
-    endOf2024ChristmasEvent,
-    is2024ChristmasEventActive,
-} from "./rpg/Events/2024ChristmasEvent";
+import { endOf2024ChristmasEvent } from "./rpg/Events/2024ChristmasEvent";
 import {
     endOf2025WinterEvent,
-    is2025WinterEvent,
     startOf2025WinterEvent,
 } from "./rpg/Events/2025WinterEvent";
 import { endOf2025ChineseNewYear } from "./rpg/Events/2025ChineseNewYear";
 import { endOf2024HalloweenEvent } from "./rpg/Events/2024HalloweenEvent";
 import {
     endOf2025HalloweenEvent,
-    is2025HalloweenEventActive,
     startOf2025HalloweenEvent,
 } from "./rpg/Events/2025HalloweenEvent";
+import { EVENT_IDS, isActive } from "./services/EventService";
 
 // Deterministic per-NPC level: same id always resolves to the same number across
 // boots and clusters, so we never have to write generated levels back to disk.
@@ -315,7 +311,7 @@ function generateIceBandits(): void {
     }
 }
 
-if (is2025WinterEvent()) {
+if (isActive(EVENT_IDS.WINTER_2025)) {
     generateIceBandits();
     console.log("Generated Ice Bandits");
 } else if (Date.now() < endOf2025WinterEvent.getTime()) {
@@ -326,7 +322,7 @@ if (is2025WinterEvent()) {
     console.log(`Generating Ice Bandits in ${startOf2025WinterEvent.getTime() - Date.now()}ms`);
 }
 
-if (is2025HalloweenEventActive()) {
+if (isActive(EVENT_IDS.HALLOWEEN_2025)) {
     generateZombies();
 } else if (Date.now() < endOf2025HalloweenEvent.getTime()) {
     // then it means that it didnt end yet

@@ -25,15 +25,7 @@ import * as Bosses from "../../rpg/Raids";
 import { raidWebhook } from "../../utils/Webhooks";
 import { cloneDeep } from "lodash";
 import { FightableNPCS } from "../../rpg/NPCs";
-import { is2024HalloweenEvent } from "../../rpg/Events/2024HalloweenEvent";
-import { is2024ChristmasEventActive } from "../../rpg/Events/2024ChristmasEvent";
-import { is2025WinterEvent } from "../../rpg/Events/2025WinterEvent";
-import { is2025ChineseNewYear } from "../../rpg/Events/2025ChineseNewYear";
-import {
-    endOf3rdAnnivesaryEvent,
-    is3rdAnnivesaryEvent,
-} from "../../rpg/Events/3rdYearAnniversaryEvent";
-import { is2025HalloweenEventActive } from "../../rpg/Events/2025HalloweenEvent";
+import { EVENT_IDS, isActive } from "../../services/EventService";
 
 const getIceShard = (data: RPGUserDataJSON): number => {
     return data.inventory["ice_shard"] ?? 0;
@@ -398,12 +390,12 @@ const PinataTitan: RaidBoss = {
 
 const getFixedBosses = () => {
     const fixedBosses = cloneDeep(Object.values(Bosses));
-    if (is2024HalloweenEvent()) {
+    if (isActive(EVENT_IDS.HALLOWEEN_2024)) {
         fixedBosses.push(Halloween2024EventRaid);
         fixedBosses.push(Halloween2024EventRaids);
     }
 
-    if (is2024ChristmasEventActive()) {
+    if (isActive(EVENT_IDS.CHRISTMAS_2024)) {
         /*if (Christmas2024EventRaid.minions.length === 0) {
             Christmas2024EventRaid.minions = Object.values(FightableNPCS)
                 .filter(
@@ -419,19 +411,19 @@ const getFixedBosses = () => {
         fixedBosses.push(Christmas2024EventRaid);
     }
 
-    if (is2025WinterEvent()) {
+    if (isActive(EVENT_IDS.WINTER_2025)) {
         fixedBosses.push(Winter2025EventRaid);
     }
 
-    if (is2025ChineseNewYear()) {
+    if (isActive(EVENT_IDS.CHINESE_NEW_YEAR_2025)) {
         fixedBosses.push(ChineseNewYearEvent2025Raid);
     }
 
-    if (is3rdAnnivesaryEvent()) {
+    if (isActive(EVENT_IDS.THIRD_ANNIVERSARY)) {
         fixedBosses.push(PinataTitan);
     }
 
-    if (is2025HalloweenEventActive()) {
+    if (isActive(EVENT_IDS.HALLOWEEN_2025)) {
         fixedBosses.push(Halloween2025EventRaidElite);
         fixedBosses.push(Halloween2025EventRaid);
     }

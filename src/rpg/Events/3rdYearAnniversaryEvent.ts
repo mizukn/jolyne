@@ -2,15 +2,13 @@ import { SlashCommand } from "../../@types";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 
+import { EVENT_IDS, isActive, isEndingSoon } from "../../services/EventService";
+
 export const startOf3rdAnnivesaryEvent = new Date("2025-03-01");
 export const endOf3rdAnnivesaryEvent = new Date("2025-03-21");
-export const is3rdAnnivesaryEvent = (): boolean =>
-    new Date() >= startOf3rdAnnivesaryEvent && new Date() <= endOf3rdAnnivesaryEvent;
-export const is3rdAnnivesaryEventEndingSoon = (): boolean => {
-    if (!is3rdAnnivesaryEvent()) return false;
-
-    return endOf3rdAnnivesaryEvent.getTime() - new Date().getTime() < 2 * 24 * 60 * 60 * 1000;
-};
+export const is3rdAnnivesaryEvent = (): boolean => isActive(EVENT_IDS.THIRD_ANNIVERSARY);
+export const is3rdAnnivesaryEventEndingSoon = (): boolean =>
+    isEndingSoon(EVENT_IDS.THIRD_ANNIVERSARY, 2 * 24 * 60 * 60 * 1000);
 /* - The Pinata Titan spawns every :00 :15 :30 :45 ; Pinata Titan will spawn ${Functions.generateDiscordTimestamp(
         Functions.roundToNext15Minutes(new Date()),
         "FROM_NOW"

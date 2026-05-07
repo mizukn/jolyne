@@ -11,13 +11,14 @@ import * as Functions from "../../utils/Functions";
 import { cloneDeep } from "lodash";
 import { Hangbao } from "../Items/Items";
 
+import { EVENT_IDS, isActive, registerCommandEntryHook } from "../../services/EventService";
+
 export const startOf2025ChineseNewYear = new Date(1738080000000);
 // endOf = after 1 week
 export const endOf2025ChineseNewYear = new Date(
     startOf2025ChineseNewYear.getTime() + 14 * 24 * 60 * 60 * 1000
 );
-export const is2025ChineseNewYear = (): boolean =>
-    new Date() >= startOf2025ChineseNewYear && new Date() <= endOf2025ChineseNewYear;
+export const is2025ChineseNewYear = (): boolean => isActive(EVENT_IDS.CHINESE_NEW_YEAR_2025);
 
 export const ChineseNewYear2025EventMessage = (ctx: CommandInteractionContext): string => {
     // beast nian
@@ -1942,3 +1943,7 @@ export const handleInteraction = async (ctx: CommandInteractionContext): Promise
         ctx.client.database.saveUserData(ctx.userData);
     }
 };
+
+registerCommandEntryHook(EVENT_IDS.CHINESE_NEW_YEAR_2025, (ctx) =>
+    handleInteraction(ctx as CommandInteractionContext),
+);

@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { addCoins, isClaimXQuest } from "./UserService";
+import {
+    addCoins,
+    addXp,
+    getMaxHealth,
+    getMaxStamina,
+    getRawSkillPointsLeft,
+    isClaimXQuest,
+} from "./UserService";
 import type { ClaimXQuest, RPGUserDataJSON, RPGUserQuest } from "../@types";
+import type Jolyne from "../structures/JolyneClient";
 
 // Importing utils/Functions here would pull in the entire data registry
 // (Webhooks, SpecialItems, Stand-Disc generation, etc.) which has top-level
@@ -10,7 +18,25 @@ import type { ClaimXQuest, RPGUserDataJSON, RPGUserQuest } from "../@types";
 
 const baseUser = (): RPGUserDataJSON =>
     ({
+        id: "test-user",
         coins: 0,
+        xp: 0,
+        level: 50,
+        prestige: 0,
+        adventureStartedAt: Date.now(),
+        stand: "",
+        customStandsEvolved: {},
+        standsEvolved: {},
+        equippedItems: {},
+        inventory: {},
+        skillPoints: {
+            strength: 0,
+            defense: 0,
+            stamina: 0,
+            perception: 0,
+            speed: 0,
+        },
+        communityBans: [],
         daily: { quests: [] as RPGUserQuest[] },
         chapter: { quests: [] as RPGUserQuest[] },
         sideQuests: [],
@@ -76,5 +102,61 @@ describe("UserService.addCoins", () => {
         user.daily.quests.push(claimXQuest({ x: "coin" }));
         addCoins(user, -50);
         expect((user.daily.quests[0] as ClaimXQuest).amount).toBe(0);
+    });
+});
+
+describe("UserService stat math", () => {
+    it("calculates max health from level and defense skill points", () => {
+        const user = baseUser();
+        user.skillPoints.defense = 100;
+
+        expect(getMaxHealth(user)).toBe(3840);
+    });
+
+    it("calculates max stamina from stamina skill points", () => {
+        const user = baseUser();
+        user.skillPoints.stamina = 50;
+
+        expect(getMaxStamina(user)).toBe(199);
+    });
+
+    it("calculates raw skill points left including prestige bonus", () => {
+        const user = baseUser();
+        user.level = 10;
+        user.prestige = 2;
+        user.skillPoints.strength = 5;
+
+        expect(getRawSkillPointsLeft(user)).toBe(55);
+    });
+});
+
+describe("UserService.addXp", () => {
+    const client = {
+        patreons: [],
+        boosters: [],
+    } as unknown as Jolyne;
+
+    it("adds xp to userData", () => {
+        const user = baseUser();
+        addXp(user, 50, client);
+
+        expect(user.xp).toBe(50);
+    });
+
+    it("increments xp-tracked claimX quests", () => {
+        const user = baseUser();
+        user.daily.quests.push(claimXQuest({ x: "xp" }));
+
+        addXp(user, 100, client);
+
+        expect((user.daily.quests[0] as ClaimXQuest).amount).toBe(100);
+    });
+
+    it("can calculate xp without mutating the user", () => {
+        const user = baseUser();
+        const amount = addXp(user, 25, client, true);
+
+        expect(amount).toBe(25);
+        expect(user.xp).toBe(0);
     });
 });

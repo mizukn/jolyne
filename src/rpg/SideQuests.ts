@@ -4,7 +4,7 @@ import { NPCs } from "./NPCs";
 import * as FightableNPCs from "./NPCs/FightableNPCs";
 import * as Raids from "./Raids";
 import Emojis from "../emojis.json";
-import { endOf2024HalloweenEvent, is2024HalloweenEvent } from "./Events/2024HalloweenEvent";
+import { endOf2024HalloweenEvent } from "./Events/2024HalloweenEvent";
 import { endOf2024ChristmasEvent, startOf2024ChristmasEvent } from "./Events/2024ChristmasEvent";
 import {
     endOf2025WinterEvent,
@@ -14,6 +14,7 @@ import {
 import { endOf2025ChineseNewYear, startOf2025ChineseNewYear } from "./Events/2025ChineseNewYear";
 import { endOf3rdAnnivesaryEvent } from "./Events/3rdYearAnniversaryEvent";
 import { endOf2025HalloweenEvent } from "./Events/2025HalloweenEvent";
+import { EVENT_IDS, isActive } from "../services/EventService";
 
 const RequiemArrowEvolveQuests: QuestArray = [
     Functions.generateUseXCommandQuest("assault", 50),
@@ -740,7 +741,7 @@ export const Halloween2024EventSideQuest: SideQuest = {
                 endOf2024HalloweenEvent,
                 "FULL_DATE"
             )}`,
-            status: is2024HalloweenEvent(),
+            status: isActive(EVENT_IDS.HALLOWEEN_2024),
         },
     ],
     //requirements: is2024HalloweenEvent,
