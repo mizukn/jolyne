@@ -6,6 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "lint": "eslint src --ext .ts --quiet",
     "start": "node dist/Cluster.js",
     "init-db": "node dist/scripts/initDatabase.js",
     "init-db-reset": "node dist/scripts/initDatabase.js --reset",

@@ -19,6 +19,7 @@ module.exports = {
         "@typescript-eslint/no-empty-function": "off",
         "no-mixed-spaces-and-tabs": ["warn", "smart-tabs"],
         "no-empty": "off",
+        "no-inner-declarations": "off",
         "no-console": ["warn", { allow: ["warn", "error"] }],
         semi: "error",
     },

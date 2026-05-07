@@ -1,7 +1,7 @@
 import { Ability, EvolutionStand } from "../../@types";
 import * as Abilities from "../Abilities";
 import * as Emojis from "../../emojis.json";
-import { FighterRemoveHealthTypes } from "../../structures/FightHandler";
+import { FightHandler, Fighter, FighterRemoveHealthTypes } from "../../structures/FightHandler";
 
 function addGif(ability: Ability, gif: Ability["thumbnail"]): Ability {
     return {
@@ -171,7 +171,7 @@ export const Whitesnake: EvolutionStand = {
             },
             available: true,
             customAttack: {
-                name: (ctx, user): string => {
+                name: (ctx: FightHandler, user: Fighter): string => {
                     const cacheID = `${ctx.id}_${user.id}.attack.cmoon`;
                     const attacks = (ctx.ctx.client.fightCache.get(cacheID) as number) || 0;
 
@@ -183,7 +183,12 @@ export const Whitesnake: EvolutionStand = {
                 },
                 // punch emoji
                 emoji: "👊",
-                handleAttack: (ctx, user, target, damages): void => {
+                handleAttack: (
+                    ctx: FightHandler,
+                    user: Fighter,
+                    target: Fighter,
+                    damages: number,
+                ): void => {
                     const cacheID = `${ctx.id}_${user.id}.attack.cmoon`;
                     const attacks = (ctx.ctx.client.fightCache.get(cacheID) as number) || 0;
                     user.stamina -= 1;

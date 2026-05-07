@@ -82,6 +82,7 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext
     ): Promise<void | Message<boolean> | InteractionResponse> => {
+        /* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-unused-vars */
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const Functions = require("../../utils/Functions");
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -92,6 +93,7 @@ const slashCommand: SlashCommandFile = {
         const SpecialItems = require("../../rpg/Items/SpecialItems");
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const Aes = require("../../utils/Aes").default;
+        /* eslint-enable @typescript-eslint/no-var-requires, @typescript-eslint/no-unused-vars */
 
         await ctx.interaction.deferReply();
         ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);

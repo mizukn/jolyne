@@ -9,7 +9,7 @@ export async function auditedAdminAction(
     before: Partial<RPGUserDataJSON>,
     after: Partial<RPGUserDataJSON>,
     action: string
-) {
+): Promise<void> {
     const embed = new EmbedBuilder()
         .setTitle(`Admin Action: ${action}`)
         .setColor(0xff0000)

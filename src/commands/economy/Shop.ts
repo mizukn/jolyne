@@ -47,7 +47,7 @@ const slashCommand: SlashCommandFile = {
     execute: async (
         ctx: CommandInteractionContext,
     ): Promise<Message | void | InteractionResponse> => {
-        let shops: cShop[] = [];
+        const shops: cShop[] = [];
         let currentCategoryIndex = 0;
         let currentPage = 0;
         let viewingItemId: string | null = null;
