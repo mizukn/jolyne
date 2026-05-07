@@ -73,6 +73,7 @@ import {
 } from "./random";
 import * as UserService from "../services/UserService";
 import { EVENT_IDS, getEvent, isActive } from "../services/EventService";
+import { findEmail, findItem, findNPC, findQuest, findStand } from "./lookup";
 
 export const PrestigeShardReward = 50;
 const endOf2024ChristmasEvent = getEvent(EVENT_IDS.CHRISTMAS_2024)?.endsAt.getTime() ?? 0;
@@ -162,14 +163,7 @@ export const pushQuestWhenCompleted = (
     return quest;
 };
 
-export const findQuest = (query: string): Quest => {
-    const quest = Object.values(BaseQuests).find(
-        (quest) => quest.id === query || quest.id.toLocaleLowerCase() === query.toLocaleLowerCase(),
-    );
-    if (!quest) return;
-
-    return quest;
-};
+export { findQuest };
 
 export const pushQuest = (quest: Quests): RPGUserQuest => {
     const questData: Quests = {
@@ -212,23 +206,7 @@ export const pushEmail = (email: Email): RPGUserEmail => {
     return emailData;
 };
 
-export const findEmail = (query: string): Email => {
-    if (!query) return;
-    if (Object.values(Emails).find((email) => email.id === query)) {
-        return Object.values(Emails).find((email) => email.id === query);
-    }
-
-    const email = Object.values(Emails).find(
-        (email) =>
-            (email.id || email.subject) === query ||
-            (email.id || email.subject) === query ||
-            (email.id || email.subject).toLocaleLowerCase() === query.toLocaleLowerCase() ||
-            (email.id || email.subject).toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
-            query.toLocaleLowerCase().includes((email.id || email.subject).toLocaleLowerCase()),
-    );
-
-    return email;
-};
+export { findEmail };
 
 export const editNPCLevel = (npc: NPC, level: number): NPC | FightableNPC => {
     const newNPC = JSON.parse(JSON.stringify({ ...npc })) as FightableNPC;
@@ -412,58 +390,7 @@ export const generateAnswerChineseNewYearQuizQuest = (
     return quest;
 };
 
-export const findStand = (stand: string, evolution?: number): Stand => {
-    if (!stand) return null;
-
-    const stands = Object.values({ ...Stands.Stands, ...Stands.EvolutionStands });
-    let foundStand = stands.find(
-        (standClass) =>
-            standClass.id === stand ||
-            ((standClass as Stand).name !== undefined && (standClass as Stand).name === stand) ||
-            ((standClass as Stand).name !== undefined &&
-                (standClass as Stand).name.toLocaleLowerCase() === stand.toLocaleLowerCase()),
-    );
-    if (!foundStand) return null;
-
-    if ((foundStand as EvolutionStand).evolutions) {
-        if (!evolution) evolution = 0;
-        foundStand = {
-            id: foundStand.id,
-            name: (foundStand as EvolutionStand).evolutions[evolution].name,
-            description: (foundStand as EvolutionStand).evolutions[evolution].description,
-            image: (foundStand as EvolutionStand).evolutions[evolution].image,
-            color: (foundStand as EvolutionStand).evolutions[evolution].color,
-            rarity: (foundStand as EvolutionStand).evolutions[evolution].rarity,
-            abilities: (foundStand as EvolutionStand).evolutions[evolution].abilities,
-            skillPoints: (foundStand as EvolutionStand).evolutions[evolution].skillPoints,
-            customAttack: (foundStand as EvolutionStand).evolutions[evolution].customAttack,
-            available: (foundStand as EvolutionStand).evolutions[evolution].available,
-            emoji: (foundStand as EvolutionStand).evolutions[evolution].emoji,
-        } as Stand;
-    }
-
-    return foundStand as Stand;
-};
-
-export const findNPC = <T extends NPC | FightableNPC>(npc: string, fightable?: boolean): T => {
-    if (!npc) return null;
-
-    const npcs = fightable ? Object.values(FightableNPCS) : Object.values(NPCs);
-
-    if (npcs.find((r) => r.id.toLowerCase() === npc.toLowerCase()))
-        return npcs.find((r) => r.id.toLowerCase() === npc.toLowerCase()) as T;
-
-    const foundNPC = npcs.find(
-        (npcClass) =>
-            npcClass.id === npc ||
-            npcClass.name === npc ||
-            npcClass.name.toLocaleLowerCase() === npc.toLocaleLowerCase() ||
-            npcClass.name.toLocaleLowerCase().includes(npc.toLocaleLowerCase()) ||
-            npc.toLocaleLowerCase().includes(npcClass.name.toLocaleLowerCase()),
-    );
-
-    return foundNPC as T;
-};
+export { findStand, findNPC };
 
 export const getSkillPointsBonus = UserService.getSkillPointsBonus;
 export const getSkillPointsFromPrestige = UserService.getSkillPointsFromPrestige;
@@ -1054,44 +981,7 @@ export const isEquipableItem = (item: Item): item is EquipableItem => {
     return equipables.some((i) => i.id === item.id);
 };
 
-export const findItem = <T extends Item | EquipableItem | Special | Weapon>(
-    name: string,
-    includePrivate?: boolean,
-): T => {
-    if (!name) return null;
-    const totalitems = Object.values(Items.default).filter((x) =>
-        includePrivate ? true : !x.private,
-    );
-
-    // first, check if Items.id.towLowercase() === name.toLowerCase()
-
-    if (totalitems.find((item) => item.id.toLowerCase() === name.toLowerCase()))
-        return (
-            (totalitems.find((item) => item.id.toLowerCase() === name.toLowerCase()) as T) || null
-        );
-    return (totalitems.find((item) => item.id.toLocaleLowerCase() === name.toLocaleLowerCase()) ||
-        totalitems.find((item) => item.id.toLocaleLowerCase().includes(name.toLocaleLowerCase())) ||
-        totalitems.find((item) =>
-            item.id.toLocaleLowerCase().startsWith(name.toLocaleLowerCase()),
-        ) ||
-        totalitems.find((item) => item.id.toLocaleLowerCase().endsWith(name.toLocaleLowerCase())) ||
-        totalitems.find((item) =>
-            item.id.toLocaleLowerCase().includes(name.toLocaleLowerCase().replace(/ /g, "")),
-        ) ||
-        totalitems.find((item) => item.name.toLocaleLowerCase() === name.toLocaleLowerCase()) ||
-        totalitems.find((item) =>
-            item.name.toLocaleLowerCase().includes(name.toLocaleLowerCase()),
-        ) ||
-        totalitems.find((item) =>
-            item.name.toLocaleLowerCase().startsWith(name.toLocaleLowerCase()),
-        ) ||
-        totalitems.find((item) =>
-            item.name.toLocaleLowerCase().endsWith(name.toLocaleLowerCase()),
-        ) ||
-        totalitems.find((item) =>
-            item.name.toLocaleLowerCase().includes(name.toLocaleLowerCase().replace(/ /g, "")),
-        )) as T;
-};
+export { findItem };
 
 export const romanize = (num: number): string => {
     if (isNaN(num)) return "NaN";
