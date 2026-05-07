@@ -43,9 +43,9 @@ Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green
 
 ## What's NOT done / in-flight
 
-### FightHandler split (PLAN §5 P3.2) — orchestrator at 1,047 lines
+### FightHandler split (PLAN §5 P3.2) — orchestrator at 907 lines
 
-Was 2,820. Down to 1,047 (−63%). The body now lives in sibling modules under `src/structures/`:
+Was 2,820. Down to 907 (−68%). The body now lives in sibling modules under `src/structures/`:
 
 | Module | Role |
 | --- | --- |
@@ -53,6 +53,7 @@ Was 2,820. Down to 1,047 (−63%). The body now lives in sibling modules under `
 | `FightTypes.ts` | `FightTypes`, `FightTypeColor`, `FightInfos`, `FightTurn`, `FightEvents` (no runtime deps on FightHandler) |
 | `FightAI.ts` | Pure NPC decision helpers (`chooseNPCMove`, `chooseNPCStandAbility`, `chooseNPCWeaponAbility`, `chooseNPCTargetId`, `controlledFighter`, `isNPCControlled`) |
 | `FightNPCTurn.ts` | `runNPCTurn(fight)` — dispatcher that the side-effecting NPC turn drives |
+| `FightActionMenus.ts` | `runTargetSelection`, `runStandAbilityMenu`, `runWeaponAbilityMenu` — bodies of the former `selectTarget` / `selectStandAbility` / `showWeaponAbilities` |
 | `FightTurnEngine.ts` | `advanceTurn(fight)` + `checkNewRound(fight)` |
 | `FightDamage.ts` | `applyAttack(fight)` + `applyAbility(fight)` — bodies of the former `handleAttack` / `handleUseAbility` |
 | `FightPassives.ts` | `handleFightPassives(...)` engine dispatcher |
@@ -66,11 +67,12 @@ Was 2,820. Down to 1,047 (−63%). The body now lives in sibling modules under `
 
 `FightHandler.ts` is now mostly: constructor + collector dispatch + `updateMessage` glue (which delegates to `FightRenderer.ts` in the parent repo) + 1-line delegators into the modules above.
 
-**Still inline in FightHandler** (deliberate, deferred — moving them yields little):
-- The small NPC sub-branches inside `selectTarget` / `selectStandAbility` / `showWeaponAbilities` (4–15 lines each, tightly interleaved with the human-player paths next to them).
-- The collector switch in the constructor (button/select dispatch).
+**Still inline in FightHandler**:
+- The constructor itself + its collector switch (button/select dispatch). This is the next big target — ~400 lines, but invasive.
+- `updateMessage` (V2 payload edit + send-fallback) — lives next to the renderer for now.
+- `setTimeout` / `setNPCTimeout` glue, `endFightOrUnexpected`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `addOrEditCooldown`, `continueStep`, plus the small `whosTurn` / `whosTurnAvailableAbilities*` / `availableFighters` / `hasOneTarget` getters.
 
-**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
+**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
 
 ### Fight V2 migration follow-ups
 
