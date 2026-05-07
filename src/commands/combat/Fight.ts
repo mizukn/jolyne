@@ -4,6 +4,7 @@ import {
     APIEmbed,
     ApplicationCommandOptionType,
     InteractionResponse,
+    MessageFlags,
     StringSelectMenuBuilder,
     MessageComponentInteraction,
     StringSelectMenuInteraction,
@@ -256,7 +257,7 @@ const slashCommand: SlashCommandFile = {
         if (!ctx.interaction.replied || !message) {
             await ctx.interaction
                 .deferReply({
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 })
                 .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
         }
