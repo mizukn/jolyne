@@ -289,16 +289,6 @@ const Event: EventFile = {
                 }
 
                 if (
-                    Date.now() < 1707606000000 &&
-                    !ctx.userData.emails.find((r) => r.id === "second_anniversary")
-                ) {
-                    ctx.followUpQueue.push({
-                        content: `:tada: | **${ctx.user.username}**, thank you for playing Jolyne's RPG! You received a special email & quest for the 2nd anniversary of the bot!`,
-                    });
-                    Functions.addEmail(ctx.userData, "second_anniversary");
-                }
-
-                if (
                     isActive(EVENT_IDS.THIRD_ANNIVERSARY) &&
                     !ctx.userData.emails.find((r) => r.id === "third_anniversary")
                 ) {
