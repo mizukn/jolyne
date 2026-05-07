@@ -72,6 +72,7 @@ import {
     shuffle as randomShuffle,
     shuffleInPlace,
 } from "./random";
+import * as UserService from "../services/UserService";
 import {
     endOf2024ChristmasEvent,
     is2024ChristmasEventActive,
@@ -1162,9 +1163,7 @@ export const isClaimItemQuest = (quest: RPGUserQuest): quest is ClaimItemQuest =
     return (quest as ClaimItemQuest).type === "ClaimXQuest";
 };
 
-export const isClaimXQuest = (quest: RPGUserQuest): quest is ClaimXQuest => {
-    return (quest as ClaimXQuest).type === "claimX";
-};
+export const isClaimXQuest = UserService.isClaimXQuest;
 
 export const isEquipableItem = (item: Item): item is EquipableItem => {
     const equipables = Object.values(EquipableItems);
@@ -1469,22 +1468,7 @@ export const removeItem = (
     return true;
 };
 
-export const addCoins = function addCoins(userData: RPGUserDataJSON, amount: number): number {
-    userData.coins += Math.round(amount);
-    if (amount < 0) return;
-
-    amount = Math.round(amount);
-    for (const quests of [
-        userData.daily.quests,
-        userData.chapter.quests,
-        ...userData.sideQuests.map((v) => v.quests),
-    ]) {
-        for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "coin")) {
-            (quest as ClaimXQuest).amount += amount;
-        }
-    }
-    return amount;
-};
+export const addCoins = UserService.addCoins;
 
 export const addPrestigeShards = function addPrestigeShards(
     userData: RPGUserDataJSON,
