@@ -34,14 +34,12 @@ export const isClaimXQuest = (quest: RPGUserQuest): quest is ClaimXQuest => {
 interface UserServiceDependencies {
     findNPC: <T extends NPC | FightableNPC>(npc: string, fightable?: boolean) => T;
     findStand: (stand: string, evolution?: number) => Stand;
-    getCurrentStand: (data: RPGUserDataJSON) => Stand;
     findEquipableItem: (item: string) => EquipableItem;
 }
 
 const missingDependencies: UserServiceDependencies = {
     findNPC: () => null,
     findStand: () => null,
-    getCurrentStand: () => null,
     findEquipableItem: () => null,
 };
 
@@ -64,6 +62,16 @@ export const isRPGUserDataJSON = (
     return (data as RPGUserDataJSON).adventureStartedAt !== undefined;
 };
 
+export const getCurrentStand = (data: RPGUserDataJSON): Stand => {
+    if (!data.stand) return;
+    const currentEvolution =
+        data.customStandsEvolved[data.stand] && data.customStandsEvolved[data.stand]?.active
+            ? data.customStandsEvolved[data.stand].evolution
+            : data.standsEvolved[data.stand];
+
+    return dependencies.findStand(data.stand, currentEvolution);
+};
+
 export const getSkillPointsBonus = (
     rpgData: RPGUserDataJSON | FightableNPC | Fighter,
 ): SkillPoints => {
@@ -71,7 +79,7 @@ export const getSkillPointsBonus = (
     const stand = isFighter(rpgData)
         ? rpgData.stand
         : isRPGUserDataJSON(rpgData)
-          ? dependencies.getCurrentStand(rpgData)
+          ? getCurrentStand(rpgData)
           : dependencies.findStand(rpgData.stand, rpgData.standsEvolved[rpgData.stand]);
 
     if (stand) {

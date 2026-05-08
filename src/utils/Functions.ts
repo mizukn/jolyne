@@ -1335,20 +1335,11 @@ export const isEvolutionStand = (stand: Stand | EvolutionStand): stand is Evolut
     return (stand as EvolutionStand).evolutions !== undefined;
 };
 
-export const getCurrentStand = (data: RPGUserDataJSON): Stand => {
-    if (!data.stand) return;
-    const currentEvolution =
-        data.customStandsEvolved[data.stand] && data.customStandsEvolved[data.stand]?.active
-            ? data.customStandsEvolved[data.stand].evolution
-            : data.standsEvolved[data.stand];
-
-    return findStand(data.stand, currentEvolution);
-};
+export const getCurrentStand = UserService.getCurrentStand;
 
 UserService.configureUserService({
     findNPC,
     findStand,
-    getCurrentStand,
     findEquipableItem: (item) => findItem<EquipableItem>(item),
 });
 

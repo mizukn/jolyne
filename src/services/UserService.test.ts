@@ -7,11 +7,13 @@ import {
     addStamina,
     addXp,
     calculateUserPower,
+    configureUserService,
     fixUserSettings,
     generateSkillPoints,
     generateSkillPointsByBuild,
     getAbilityDamage,
     getAttackDamages,
+    getCurrentStand,
     getDodgeScore,
     getHealthEffect,
     getMaxHealth,
@@ -36,6 +38,7 @@ import type {
     EquipableItem,
     RPGUserDataJSON,
     RPGUserQuest,
+    Stand,
 } from "../@types";
 import type Jolyne from "../structures/JolyneClient";
 
@@ -435,5 +438,31 @@ describe("UserService.getRPGUserDataChanges", () => {
             before: "1",
             after: "4",
         });
+    });
+});
+
+describe("UserService.getCurrentStand", () => {
+    it("uses the active custom stand evolution when present", () => {
+        const stand = {
+            id: "star_platinum",
+            skillPoints: {},
+            abilities: [],
+        } as Stand;
+        configureUserService({
+            findStand: (id, evolution) =>
+                ({
+                    ...stand,
+                    id: `${id}:${evolution}`,
+                }) as Stand,
+        });
+        const user = baseUser();
+        user.stand = "star_platinum";
+        user.standsEvolved.star_platinum = 1;
+        user.customStandsEvolved.star_platinum = {
+            active: true,
+            evolution: 3,
+        };
+
+        expect(getCurrentStand(user).id).toBe("star_platinum:3");
     });
 });
