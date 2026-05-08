@@ -708,32 +708,9 @@ export const addSocialCredits = UserService.addSocialCredits;
 
 export const addXp = UserService.addXp;
 
-export const addEmail = function addEmail(userData: RPGUserDataJSON, email: string): void {
-    const emailData = findEmail(email);
-    if (!emailData) return;
+export const addEmail = UserService.addEmail;
 
-    if (userData.emails.find((v) => v.id === emailData.id)) return;
-    userData.emails.push(pushEmail(emailData));
-};
-
-export const addStandDisc = (
-    userData: RPGUserDataJSON,
-    stand: Stand | "string",
-    amount?: number,
-): void => {
-    if (typeof stand === "string") {
-        stand = findStand(stand);
-    }
-    if (!stand) return;
-
-    const standId = stand.id + ".disc";
-    if (!userData.inventory[standId]) userData.inventory[standId] = 0;
-    if (amount) {
-        userData.inventory[standId] += amount;
-    } else {
-        userData.inventory[standId]++;
-    }
-};
+export const addStandDisc = UserService.addStandDisc;
 
 export { s } from "./format";
 
@@ -1341,6 +1318,7 @@ UserService.configureUserService({
     findNPC,
     findStand,
     findEquipableItem: (item) => findItem<EquipableItem>(item),
+    findEmail,
 });
 
 const Multiplier = {

@@ -8,6 +8,7 @@ import {
     type Ability,
     type ClaimXQuest,
     type Consumable,
+    type Email,
     type EquipableItem,
     type FightableNPC,
     type LBData,
@@ -35,12 +36,14 @@ interface UserServiceDependencies {
     findNPC: <T extends NPC | FightableNPC>(npc: string, fightable?: boolean) => T;
     findStand: (stand: string, evolution?: number) => Stand;
     findEquipableItem: (item: string) => EquipableItem;
+    findEmail: (email: string) => Email;
 }
 
 const missingDependencies: UserServiceDependencies = {
     findNPC: () => null,
     findStand: () => null,
     findEquipableItem: () => null,
+    findEmail: () => null,
 };
 
 let dependencies = missingDependencies;
@@ -539,6 +542,39 @@ export const addXp = function addXp(
         }
     }
     return amount;
+};
+
+export const addEmail = function addEmail(userData: RPGUserDataJSON, email: string): void {
+    const emailData = dependencies.findEmail(email);
+    if (!emailData) return;
+
+    if (userData.emails.find((v) => v.id === emailData.id)) return;
+    userData.emails.push({
+        id: emailData.id,
+        read: false,
+        archived: false,
+        date: Date.now(),
+        expiresAt: emailData.expiresAt ? emailData.expiresAt + Date.now() : undefined,
+    });
+};
+
+export const addStandDisc = (
+    userData: RPGUserDataJSON,
+    stand: Stand | string,
+    amount?: number,
+): void => {
+    if (typeof stand === "string") {
+        stand = dependencies.findStand(stand);
+    }
+    if (!stand) return;
+
+    const standId = `${stand.id}.disc`;
+    if (!userData.inventory[standId]) userData.inventory[standId] = 0;
+    if (amount) {
+        userData.inventory[standId] += amount;
+    } else {
+        userData.inventory[standId]++;
+    }
 };
 
 export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: number): void {

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
     addCoins,
+    addEmail,
     addHealth,
     addPrestigeShards,
     addSocialCredits,
     addStamina,
+    addStandDisc,
     addXp,
     calculateUserPower,
     configureUserService,
@@ -35,6 +37,7 @@ import type {
     ClaimXQuest,
     Ability,
     Consumable,
+    Email,
     EquipableItem,
     RPGUserDataJSON,
     RPGUserQuest,
@@ -189,6 +192,43 @@ describe("UserService currency and resource mutations", () => {
 
         expect(getHealthEffect(item, user)).toBe(getMaxHealth(user) * 0.1);
         expect(getStaminaEffect(item, user)).toBe(25);
+    });
+
+    it("adds an email once", () => {
+        const user = baseUser();
+        user.emails = [];
+        configureUserService({
+            findEmail: (id) =>
+                ({
+                    id,
+                    expiresAt: 1000,
+                }) as Email,
+        });
+
+        addEmail(user, "welcome");
+        addEmail(user, "welcome");
+
+        expect(user.emails).toHaveLength(1);
+        expect(user.emails[0]).toMatchObject({
+            id: "welcome",
+            read: false,
+            archived: false,
+        });
+        expect(user.emails[0].expiresAt).toBeGreaterThan(Date.now());
+    });
+
+    it("adds stand discs by stand id", () => {
+        const user = baseUser();
+        configureUserService({
+            findStand: (id) =>
+                ({
+                    id,
+                }) as Stand,
+        });
+
+        addStandDisc(user, "star_platinum", 2);
+
+        expect(user.inventory["star_platinum.disc"]).toBe(2);
     });
 });
 
