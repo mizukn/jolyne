@@ -839,45 +839,9 @@ export const removeItem = (
 
 export const addCoins = UserService.addCoins;
 
-export const addPrestigeShards = function addPrestigeShards(
-    userData: RPGUserDataJSON,
-    amount: number,
-): number {
-    if (!process.env.ENABLE_PRESTIGE) return 0;
-    if (!userData.prestige_shards) userData.prestige_shards = 0;
-    userData.prestige_shards += Math.round(amount);
-    if (amount < 0) return;
+export const addPrestigeShards = UserService.addPrestigeShards;
 
-    return Math.round(amount);
-};
-
-export const addSocialCredits = function addSocialCredits(
-    userData: RPGUserDataJSON,
-    amount: number,
-): number {
-    if (!userData.social_credits_2025) {
-        if (
-            userData.social_credits_2025 !== 0 ||
-            typeof userData.social_credits_2025 !== "number"
-        ) {
-            userData.social_credits_2025 = 1000;
-        }
-    }
-    userData.social_credits_2025 += Math.round(amount);
-    if (amount < 0) return;
-
-    amount = Math.round(amount);
-    for (const quests of [
-        userData.daily.quests,
-        userData.chapter.quests,
-        ...userData.sideQuests.map((v) => v.quests),
-    ]) {
-        for (const quest of quests.filter((x) => isClaimXQuest(x) && x.x === "social_credit")) {
-            (quest as ClaimXQuest).amount += amount;
-        }
-    }
-    return amount;
-};
+export const addSocialCredits = UserService.addSocialCredits;
 
 export const addXp = UserService.addXp;
 
@@ -921,17 +885,9 @@ export const isConsumable = (item: Item | "string"): item is Consumable => {
     return isConsumableItem(item);
 };
 
-export const addHealth = function addHealth(userData: RPGUserDataJSON, amount: number): void {
-    if (userData.health < 0) userData.health = 0;
-    userData.health += amount;
-    if (userData.health > getMaxHealth(userData)) userData.health = getMaxHealth(userData);
-};
+export const addHealth = UserService.addHealth;
 
-export const addStamina = function addStamina(userData: RPGUserDataJSON, amount: number): void {
-    if (userData.stamina < 0) userData.stamina = 0;
-    userData.stamina += amount;
-    if (userData.stamina > getMaxStamina(userData)) userData.stamina = getMaxStamina(userData);
-};
+export const addStamina = UserService.addStamina;
 
 export const standPrices = {
     SS: 200000,

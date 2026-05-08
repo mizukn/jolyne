@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
     addCoins,
+    addHealth,
+    addPrestigeShards,
+    addSocialCredits,
+    addStamina,
     addXp,
     fixUserSettings,
     getDodgeScore,
@@ -109,6 +113,48 @@ describe("UserService.addCoins", () => {
         user.daily.quests.push(claimXQuest({ x: "coin" }));
         addCoins(user, -50);
         expect((user.daily.quests[0] as ClaimXQuest).amount).toBe(0);
+    });
+});
+
+describe("UserService currency and resource mutations", () => {
+    it("adds social credits and increments tracked quests", () => {
+        const user = baseUser();
+        user.social_credits_2025 = 0;
+        user.daily.quests.push(claimXQuest({ x: "social_credit" }));
+
+        const returned = addSocialCredits(user, 75.4);
+
+        expect(returned).toBe(75);
+        expect(user.social_credits_2025).toBe(75);
+        expect((user.daily.quests[0] as ClaimXQuest).amount).toBe(75);
+    });
+
+    it("adds prestige shards only when prestige is enabled", () => {
+        const user = baseUser();
+        const previous = process.env.ENABLE_PRESTIGE;
+        process.env.ENABLE_PRESTIGE = "1";
+
+        try {
+            const returned = addPrestigeShards(user, 12.6);
+
+            expect(returned).toBe(13);
+            expect(user.prestige_shards).toBe(13);
+        } finally {
+            if (previous === undefined) delete process.env.ENABLE_PRESTIGE;
+            else process.env.ENABLE_PRESTIGE = previous;
+        }
+    });
+
+    it("caps health and stamina at their maximums", () => {
+        const user = baseUser();
+        user.health = 10;
+        user.stamina = 10;
+
+        addHealth(user, 5000);
+        addStamina(user, 5000);
+
+        expect(user.health).toBe(getMaxHealth(user));
+        expect(user.stamina).toBe(getMaxStamina(user));
     });
 });
 
