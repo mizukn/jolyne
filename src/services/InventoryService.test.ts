@@ -1,11 +1,60 @@
 import { describe, expect, it } from "vitest";
-import { configureInventoryService, isConsumable, removeItem } from "./InventoryService";
-import type { Consumable, EquipableItem, RPGUserDataJSON } from "../@types";
+import { addItem, configureInventoryService, isConsumable, removeItem } from "./InventoryService";
+import type { ClaimItemQuest, Consumable, EquipableItem, RPGUserDataJSON } from "../@types";
 
 const baseUser = (): RPGUserDataJSON =>
     ({
         inventory: {},
+        equippedItems: {},
+        daily: { quests: [] },
+        chapter: { quests: [] },
+        sideQuests: [],
     }) as RPGUserDataJSON;
+
+const item = (id: string, overrides: Partial<Consumable> = {}): Consumable =>
+    ({
+        id,
+        storable: true,
+        private: false,
+        effects: {
+            health: 10,
+        },
+        ...overrides,
+    }) as Consumable;
+
+const claimItemQuest = (itemId: string): ClaimItemQuest =>
+    ({
+        type: "ClaimXQuest",
+        id: "quest",
+        item: itemId,
+        amount: 0,
+        goal: 3,
+    }) as ClaimItemQuest;
+
+describe("InventoryService.addItem", () => {
+    it("adds an item amount to inventory", () => {
+        const user = baseUser();
+
+        expect(addItem(user, item("apple"), 2)).toBe(true);
+        expect(user.inventory.apple).toBe(2);
+    });
+
+    it("rejects private or non-storable items", () => {
+        const user = baseUser();
+
+        expect(addItem(user, item("secret", { private: true }))).toBe(false);
+        expect(addItem(user, item("temporary", { storable: false }))).toBe(false);
+        expect(user.inventory).toEqual({});
+    });
+
+    it("increments matching claim-item quests", () => {
+        const user = baseUser();
+        user.daily.quests.push(claimItemQuest("apple"));
+
+        expect(addItem(user, item("apple"), 2)).toBe(true);
+        expect((user.daily.quests[0] as ClaimItemQuest).amount).toBe(2);
+    });
+});
 
 describe("InventoryService.removeItem", () => {
     it("removes an item amount from inventory", () => {
