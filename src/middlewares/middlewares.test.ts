@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach, vi } from "vitest";
 import { MessageFlags } from "discord.js";
 
 import { channelMiddleware } from "./channel";
+import { commandCooldownMiddleware } from "./commandCooldown";
 import { deprecatedRedirectMiddleware } from "./deprecatedRedirect";
 import { maintenanceMiddleware } from "./maintenance";
 import { permissionsMiddleware } from "./permissions";
@@ -130,6 +131,51 @@ describe("channelMiddleware", () => {
         expect(decision.stop).toBe(true);
         if (!decision.stop) throw new Error("expected stop");
         expect(decision.reply?.content).toContain("thread");
+    });
+});
+
+describe("commandCooldownMiddleware", () => {
+    const buildCooldownInteraction = (
+        cooldowns: Map<string, number> = new Map(),
+        userId = "1",
+    ): ChatInputInteraction =>
+        ({
+            client: { cooldowns },
+            user: { id: userId, username: "tester" },
+        }) as unknown as ChatInputInteraction;
+
+    const cmd = (cooldown?: number): SlashCommand =>
+        ({ data: { name: "fight" }, cooldown }) as unknown as SlashCommand;
+
+    it("passes when the command has no cooldown configured", async () => {
+        const decision = await commandCooldownMiddleware(input(buildCooldownInteraction(), cmd()));
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("sets a cooldown on first invocation and lets the call through", async () => {
+        const cooldowns = new Map<string, number>();
+        const interaction = buildCooldownInteraction(cooldowns);
+        const decision = await commandCooldownMiddleware(input(interaction, cmd(10)));
+        expect(decision).toEqual({ stop: false });
+        expect(cooldowns.has("1:fight")).toBe(true);
+    });
+
+    it("blocks subsequent calls with the remaining time", async () => {
+        const cooldowns = new Map<string, number>([["1:fight", Date.now() + 5_000]]);
+        const decision = await commandCooldownMiddleware(
+            input(buildCooldownInteraction(cooldowns), cmd(10)),
+        );
+        expect(decision.stop).toBe(true);
+        if (!decision.stop) throw new Error("expected stop");
+        expect(decision.reply?.content).toMatch(/can use this command again/);
+    });
+
+    it("clears expired entries (preserving the pre-existing one-shot quirk)", async () => {
+        const cooldowns = new Map<string, number>([["1:fight", Date.now() - 1_000]]);
+        const interaction = buildCooldownInteraction(cooldowns);
+        const decision = await commandCooldownMiddleware(input(interaction, cmd(10)));
+        expect(decision).toEqual({ stop: false });
+        expect(cooldowns.has("1:fight")).toBe(false);
     });
 });
 

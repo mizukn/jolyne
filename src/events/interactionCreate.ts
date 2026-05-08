@@ -20,6 +20,7 @@ import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 import { EVENT_IDS, isActive, runCommandEntryHooks } from "../services/EventService";
 import { channelMiddleware } from "../middlewares/channel";
+import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
 import { deprecatedRedirectMiddleware } from "../middlewares/deprecatedRedirect";
 import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
@@ -75,31 +76,8 @@ const Event: EventFile = {
             if (await applyDecision(interaction, await runMiddleware(interaction, permissionsMiddleware, { command }))) return;
             if (await applyDecision(interaction, await runMiddleware(interaction, channelMiddleware))) return;
             if (await applyDecision(interaction, await runMiddleware(interaction, deprecatedRedirectMiddleware))) return;
+            if (await applyDecision(interaction, await runMiddleware(interaction, commandCooldownMiddleware, { command }))) return;
 
-            // cooldown
-            if (command.cooldown && !isNaN(command.cooldown)) {
-                const cd = interaction.client.cooldowns.get(
-                    `${interaction.user.id}:${command.data.name}`,
-                );
-                if (cd) {
-                    const timeLeft = cd - Date.now();
-                    if (timeLeft > 0) {
-                        return interaction.reply({
-                            content: `You can use this command again in ${(timeLeft / 1000).toFixed(
-                                2,
-                            )} seconds.`,
-                            flags: MessageFlags.Ephemeral,
-                        });
-                    } else
-                        interaction.client.cooldowns.delete(
-                            `${interaction.user.id}:${command.data.name}`,
-                        );
-                } else
-                    interaction.client.cooldowns.set(
-                        `${interaction.user.id}:${command.data.name}`,
-                        Date.now() + command.cooldown * 1000,
-                    );
-            }
             let ctx: CommandInteractionContext;
 
             if (command.data.name !== "help") {
