@@ -74,6 +74,18 @@ import {
     generateClaimXQuest,
     generateFightQuest,
     generateUseXCommandQuest,
+    pushEmail,
+    pushEmailWhenCompleted,
+    pushItemWhenCompleted,
+    pushQuest,
+    pushQuestWhenCompleted,
+} from "./quest_factories";
+export {
+    pushEmail,
+    pushEmailWhenCompleted,
+    pushItemWhenCompleted,
+    pushQuest,
+    pushQuestWhenCompleted,
 } from "./quest_factories";
 export {
     buildQuestListRows,
@@ -143,72 +155,7 @@ export {
 
 export const randomArray = pickOne;
 
-export const pushItemWhenCompleted = (
-    quest: Quests,
-    arr: Quests["pushItemWhenCompleted"],
-): Quests => {
-    quest.pushItemWhenCompleted = arr;
-    return quest;
-};
-
-export const pushEmailWhenCompleted = (
-    quest: Quests,
-    obj: Quests["pushEmailWhenCompleted"],
-): Quests => {
-    quest.pushEmailWhenCompleted = obj;
-    return quest;
-};
-
-export const pushQuestWhenCompleted = (
-    quest: Quests,
-    id: Quests["pushQuestWhenCompleted"],
-): Quests => {
-    quest.pushQuestWhenCompleted = id;
-    return quest;
-};
-
 export { findQuest };
-
-export const pushQuest = (quest: Quests): RPGUserQuest => {
-    const questData: Quests = {
-        ...quest,
-    };
-    if (isBaseQuest(questData)) {
-        delete questData.i18n_key;
-        delete questData.hintCommand;
-    }
-    if (
-        !isActionQuest(questData) &&
-        !isFightNPCQuest(questData) &&
-        !isMustReadEmailQuest(questData) &&
-        !isStartDungeonQuest(questData)
-    ) {
-        delete (questData as Quest).completed;
-        delete (questData as Quest).emoji;
-    }
-
-    if (isActionQuest(questData)) {
-        delete questData.use;
-        delete questData.emoji;
-        questData.completed = false;
-    }
-
-    return questData as RPGUserQuest;
-};
-
-export const pushEmail = (email: Email): RPGUserEmail => {
-    const emailData: RPGUserEmail = {
-        id: email.id,
-        read: false,
-        archived: false,
-        date: Date.now(),
-    };
-    if (email.expiresAt) {
-        emailData.expiresAt = email.expiresAt + Date.now();
-    }
-
-    return emailData;
-};
 
 export { findEmail };
 
