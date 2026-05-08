@@ -8,11 +8,13 @@ import {
     addXp,
     fixUserSettings,
     getDodgeScore,
+    getHealthEffect,
     getMaxHealth,
     getMaxStamina,
     getRawSkillPointsLeft,
     getRPGUserDataChanges,
     getSpeedScore,
+    getStaminaEffect,
     getTrueLevel,
     hasReachedMaxLevel,
     isClaimXQuest,
@@ -21,7 +23,13 @@ import {
     prestigeUserMethod2,
     userMeetsRequirementsForItem,
 } from "./UserService";
-import type { ClaimXQuest, EquipableItem, RPGUserDataJSON, RPGUserQuest } from "../@types";
+import type {
+    ClaimXQuest,
+    Consumable,
+    EquipableItem,
+    RPGUserDataJSON,
+    RPGUserQuest,
+} from "../@types";
 import type Jolyne from "../structures/JolyneClient";
 
 // Importing utils/Functions here would pull in the entire data registry
@@ -158,6 +166,19 @@ describe("UserService currency and resource mutations", () => {
 
         expect(user.health).toBe(getMaxHealth(user));
         expect(user.stamina).toBe(getMaxStamina(user));
+    });
+
+    it("calculates flat and percentage consumable effects", () => {
+        const user = baseUser();
+        const item = {
+            effects: {
+                health: "10%",
+                stamina: 25,
+            },
+        } as unknown as Consumable;
+
+        expect(getHealthEffect(item, user)).toBe(getMaxHealth(user) * 0.1);
+        expect(getStaminaEffect(item, user)).toBe(25);
     });
 });
 

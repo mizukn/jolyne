@@ -1618,27 +1618,9 @@ export const getProminentColor = async (
 
 export { removeZalgo } from "./format";
 
-export const getHealthEffect = (item: Consumable, data: RPGUserDataJSON): number => {
-    if (!item.effects.health) return 0;
+export const getHealthEffect = UserService.getHealthEffect;
 
-    switch (typeof item.effects.health) {
-        case "number":
-            return item.effects.health;
-        case "string":
-            return (getMaxHealth(data) / 100) * parseInt(item.effects.health);
-    }
-};
-
-export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): number => {
-    if (!item.effects.stamina) return 0;
-
-    switch (typeof item.effects.stamina) {
-        case "number":
-            return item.effects.stamina;
-        case "string":
-            return (getMaxStamina(data) / 100) * parseInt(item.effects.stamina);
-    }
-};
+export const getStaminaEffect = UserService.getStaminaEffect;
 
 export const fixUserSettings = UserService.fixUserSettings;
 

@@ -5,6 +5,7 @@
 import {
     defaultUserSettings,
     type ClaimXQuest,
+    type Consumable,
     type EquipableItem,
     type FightableNPC,
     type LBData,
@@ -411,6 +412,28 @@ export const addStamina = function addStamina(userData: RPGUserDataJSON, amount:
     if (userData.stamina < 0) userData.stamina = 0;
     userData.stamina += amount;
     if (userData.stamina > getMaxStamina(userData)) userData.stamina = getMaxStamina(userData);
+};
+
+export const getHealthEffect = (item: Consumable, data: RPGUserDataJSON): number => {
+    if (!item.effects.health) return 0;
+
+    switch (typeof item.effects.health) {
+        case "number":
+            return item.effects.health;
+        case "string":
+            return (getMaxHealth(data) / 100) * parseInt(item.effects.health);
+    }
+};
+
+export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): number => {
+    if (!item.effects.stamina) return 0;
+
+    switch (typeof item.effects.stamina) {
+        case "number":
+            return item.effects.stamina;
+        case "string":
+            return (getMaxStamina(data) / 100) * parseInt(item.effects.stamina);
+    }
 };
 
 export const fixUserSettings = (data: RPGUserDataJSON): void => {
