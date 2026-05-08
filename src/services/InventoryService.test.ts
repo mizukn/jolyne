@@ -1,9 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { addItem, configureInventoryService, isConsumable, removeItem } from "./InventoryService";
+import {
+    addItem,
+    calcStandDiscLimit,
+    configureInventoryService,
+    hasExceedStandLimit,
+    isConsumable,
+    removeItem,
+} from "./InventoryService";
 import type { ClaimItemQuest, Consumable, EquipableItem, RPGUserDataJSON } from "../@types";
+import type CommandInteractionContext from "../structures/CommandInteractionContext";
 
 const baseUser = (): RPGUserDataJSON =>
     ({
+        id: "test-user",
+        level: 50,
+        prestige: 0,
         inventory: {},
         equippedItems: {},
         daily: { quests: [] },
@@ -53,6 +64,27 @@ describe("InventoryService.addItem", () => {
 
         expect(addItem(user, item("apple"), 2)).toBe(true);
         expect((user.daily.quests[0] as ClaimItemQuest).amount).toBe(2);
+    });
+});
+
+describe("InventoryService stand disc limits", () => {
+    it("detects equal and exceeded stand disc limits", () => {
+        const user = baseUser();
+        configureInventoryService({
+            countStandsByRarity: () => 10,
+        });
+        const ctx = {
+            userData: user,
+            client: {
+                patreons: [],
+            },
+        } as unknown as CommandInteractionContext;
+        const limit = calcStandDiscLimit(ctx, user);
+        user.inventory["star_platinum$disc$"] = limit;
+
+        expect(limit).toBeGreaterThan(0);
+        expect(hasExceedStandLimit(ctx, user)).toBe(false);
+        expect(hasExceedStandLimit(ctx, user, true)).toBe(true);
     });
 });
 

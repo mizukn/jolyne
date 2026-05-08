@@ -1,17 +1,18 @@
 import type { ClaimItemQuest, Consumable, Item, RPGUserDataJSON } from "../@types";
 import type CommandInteractionContext from "../structures/CommandInteractionContext";
 import { EVENT_IDS, getEvent, isActive } from "./EventService";
+import { calcEquipableItemsBonus, getMaxPrestigeLevel } from "./UserService";
 import { isConsumable as isConsumableItem } from "../utils/item_guards";
 import { isClaimItemQuest } from "../utils/quest_guards";
 
 interface InventoryServiceDependencies {
     findItem: (item: string) => Item;
-    getStandDiscLimit: (ctx: CommandInteractionContext, data: RPGUserDataJSON) => number;
+    countStandsByRarity: (rarity: string) => number;
 }
 
 let dependencies: InventoryServiceDependencies = {
     findItem: () => null,
-    getStandDiscLimit: () => 0,
+    countStandsByRarity: () => 0,
 };
 
 export const configureInventoryService = (
@@ -25,6 +26,64 @@ export const configureInventoryService = (
 
 const Christmas2024LimitedItems = ["elf_hat", "santa_hat", "krampus_staff"];
 const endOf2024ChristmasEvent = getEvent(EVENT_IDS.CHRISTMAS_2024)?.endsAt.getTime() ?? 0;
+
+export const calcStandDiscLimit = function calcStandDiscLimit(
+    ctx: CommandInteractionContext,
+    userData?: RPGUserDataJSON,
+): number {
+    if (!ctx.userData.prestige) ctx.userData.prestige = 0;
+    let limit = dependencies.countStandsByRarity("S") + ctx.userData.prestige * 5;
+    const realUserData = userData ?? ctx.userData;
+
+    if (process.env.ENABLE_PRESTIGE) {
+        let currentLevel = realUserData.level;
+        for (let i = 0; i < ctx.userData.prestige - 1; i++) {
+            const maxLevel = getMaxPrestigeLevel(i);
+            currentLevel += maxLevel;
+        }
+        limit += Math.floor(currentLevel / 50);
+        limit += Math.floor(currentLevel / 100);
+    } else {
+        limit += Math.floor(realUserData.level / 50);
+        limit += Math.floor(realUserData.level / 100);
+    }
+    if (userData?.id && process.env.OWNER_IDS?.split(",").includes(userData.id))
+        limit = Infinity;
+
+    const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
+    if (patronTier) {
+        switch (patronTier) {
+            case 1:
+                limit += 25;
+                break;
+            case 2:
+                limit += 60;
+                break;
+            case 3:
+            case 4:
+                limit = Infinity;
+                break;
+        }
+    }
+
+    return limit + 4 + calcEquipableItemsBonus(realUserData).standDisc;
+};
+
+export const hasExceedStandLimit = function hasExceedStandLimit(
+    ctx: CommandInteractionContext,
+    userData?: RPGUserDataJSON,
+    canBeEqual?: boolean,
+): boolean {
+    const realUserData = userData ?? ctx.userData;
+    const limit = calcStandDiscLimit(ctx, realUserData);
+    let discCount = 0;
+    for (const item of Object.keys(realUserData.inventory)) {
+        if (item.includes("$disc$")) discCount += realUserData.inventory[item];
+    }
+
+    if (canBeEqual) return discCount >= limit;
+    else return discCount > limit;
+};
 
 export const addItem = (
     userData: RPGUserDataJSON,
@@ -101,7 +160,7 @@ export const addItem = (
             })
             .filter((x) => x.id.includes("$disc$"));
         const totalDiscs = totalItems.reduce((a, b) => a + b.amount, 0) + (amount || 1);
-        if (totalDiscs > dependencies.getStandDiscLimit(ctx, userData)) return false;
+        if (totalDiscs > calcStandDiscLimit(ctx, userData)) return false;
     }
     if (!userData.inventory[item.id]) userData.inventory[item.id] = 0;
     if (amount) {

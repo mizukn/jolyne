@@ -624,70 +624,13 @@ export {
 
 export { generateMessageLink } from "./format";
 
-export const calcStandDiscLimit = function calcStandDiscLimit(
-    ctx: CommandInteractionContext,
-    userData?: RPGUserDataJSON,
-): number {
-    if (!ctx.userData.prestige) ctx.userData.prestige = 0;
-    let limit =
-        Object.values(Stands.Stands).filter((x) => x.rarity === "S").length +
-        ctx.userData.prestige * 5;
-    // every 50 levels, the limit increases by 1
-    const realUserData = userData ?? ctx.userData;
-
-    if (process.env.ENABLE_PRESTIGE) {
-        let currentLevel = realUserData.level;
-        for (let i = 0; i < ctx.userData.prestige - 1; i++) {
-            const maxLevel = getMaxPrestigeLevel(i);
-            currentLevel += maxLevel;
-        }
-        limit += Math.floor(currentLevel / 50);
-        limit += Math.floor(currentLevel / 100);
-    } else {
-        limit += Math.floor(realUserData.level / 50);
-        limit += Math.floor(realUserData.level / 100);
-    }
-    if (userData?.id && process.env.OWNER_IDS?.split(",").includes(userData.id))
-        limit = Infinity;
-
-    const patronTier = ctx.client.patreons.find((v) => v.id === realUserData.id)?.level;
-    if (patronTier) {
-        switch (patronTier) {
-            case 1:
-                limit += 25;
-                break;
-            case 2:
-                limit += 60;
-                break;
-            case 3:
-            case 4:
-                limit = Infinity;
-                break;
-        }
-    }
-
-    return limit + 4 + calcEquipableItemsBonus(realUserData).standDisc; // remove +4 later
-};
+export const calcStandDiscLimit = InventoryService.calcStandDiscLimit;
 
 export const shuffle = randomShuffle;
 
 export { getBlackMarketString, getTodayString } from "./format";
 
-export const hasExceedStandLimit = function hasExceedStandLimit(
-    ctx: CommandInteractionContext,
-    userData?: RPGUserDataJSON,
-    canBeEqual?: boolean,
-): boolean {
-    const realUserData = userData ?? ctx.userData;
-    const limit = calcStandDiscLimit(ctx, realUserData);
-    let discCount = 0;
-    for (const item of Object.keys(realUserData.inventory)) {
-        if (item.includes("$disc$")) discCount += realUserData.inventory[item];
-    }
-
-    if (canBeEqual) return discCount >= limit;
-    else return discCount > limit;
-};
+export const hasExceedStandLimit = InventoryService.hasExceedStandLimit;
 
 export { msToString } from "./format";
 
@@ -1189,7 +1132,8 @@ UserService.configureUserService({
 
 InventoryService.configureInventoryService({
     findItem,
-    getStandDiscLimit: calcStandDiscLimit,
+    countStandsByRarity: (rarity) =>
+        Object.values(Stands.Stands).filter((x) => x.rarity === rarity).length,
 });
 
 const Multiplier = {
