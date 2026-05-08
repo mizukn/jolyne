@@ -2,12 +2,18 @@ import { describe, expect, it } from "vitest";
 import {
     addCoins,
     addXp,
+    fixUserSettings,
+    getDodgeScore,
     getMaxHealth,
     getMaxStamina,
     getRawSkillPointsLeft,
+    getSpeedScore,
+    getTrueLevel,
+    hasReachedMaxLevel,
     isClaimXQuest,
+    userMeetsRequirementsForItem,
 } from "./UserService";
-import type { ClaimXQuest, RPGUserDataJSON, RPGUserQuest } from "../@types";
+import type { ClaimXQuest, EquipableItem, RPGUserDataJSON, RPGUserQuest } from "../@types";
 import type Jolyne from "../structures/JolyneClient";
 
 // Importing utils/Functions here would pull in the entire data registry
@@ -128,6 +134,34 @@ describe("UserService stat math", () => {
 
         expect(getRawSkillPointsLeft(user)).toBe(55);
     });
+
+    it("calculates dodge and speed scores from perception and speed", () => {
+        const user = baseUser();
+        user.skillPoints.perception = 22;
+        user.skillPoints.speed = 33;
+
+        expect(getDodgeScore(user)).toBe(20);
+        expect(getSpeedScore(user)).toBe(30);
+    });
+
+    it("calculates true level from spent and unspent skill points", () => {
+        const user = baseUser();
+        user.level = 10;
+        user.skillPoints.strength = 4;
+
+        expect(getTrueLevel(user)).toBe(10);
+    });
+
+    it("detects the prestige level cap", () => {
+        const user = baseUser();
+        user.level = 100;
+        user.prestige = 0;
+
+        expect(hasReachedMaxLevel(user)).toBe(true);
+
+        user.level = 99;
+        expect(hasReachedMaxLevel(user)).toBe(false);
+    });
 });
 
 describe("UserService.addXp", () => {
@@ -158,5 +192,54 @@ describe("UserService.addXp", () => {
 
         expect(amount).toBe(25);
         expect(user.xp).toBe(0);
+    });
+});
+
+describe("UserService user validation", () => {
+    it("fills missing settings with defaults", () => {
+        const user = baseUser();
+        (user as { settings?: RPGUserDataJSON["settings"] }).settings = undefined;
+
+        fixUserSettings(user);
+
+        expect(user.settings.fight.auto_target_lock).toBe(true);
+        expect(user.settings.notifications.email).toBe(true);
+        expect(user.settings.auto_heal.excluded_items).toEqual([]);
+    });
+
+    it("fills missing nested settings without replacing existing choices", () => {
+        const user = baseUser();
+        user.settings = {
+            notifications: {
+                email: false,
+            },
+        };
+
+        fixUserSettings(user);
+
+        expect(user.settings.notifications.email).toBe(false);
+        expect(user.settings.notifications.low_health_or_stamina).toBe(true);
+        expect(user.settings.fight.auto_target_lock).toBe(true);
+    });
+
+    it("checks item level, prestige, and skill point requirements", () => {
+        const user = baseUser();
+        user.level = 20;
+        user.prestige = 1;
+        user.skillPoints.strength = 10;
+        const item = {
+            requirements: {
+                level: 10,
+                prestige: 1,
+                skillPoints: {
+                    strength: 5,
+                },
+            },
+        } as EquipableItem;
+
+        expect(userMeetsRequirementsForItem(user, item)).toBe(true);
+
+        item.requirements.skillPoints.strength = 15;
+        expect(userMeetsRequirementsForItem(user, item)).toBe(false);
     });
 });

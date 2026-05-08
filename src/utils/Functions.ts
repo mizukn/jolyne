@@ -29,9 +29,6 @@ import {
     numOrPerc,
     Rarity,
     LBData,
-    defaultUserSettings,
-    SideQuest,
-    RequirementStatus,
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
@@ -199,20 +196,8 @@ export const getMaxHealth = UserService.getMaxHealth;
 export const getMaxHealthNoItem = UserService.getMaxHealthNoItem;
 export const getMaxStaminaNoItem = UserService.getMaxStaminaNoItem;
 export const getMaxStamina = UserService.getMaxStamina;
-
-export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    if (rpgData.level === 0) return 0;
-    const skillPoints = getSkillPointsBonus(rpgData);
-    // return Math.round(Math.round(rpgData.level / 5 + skillPoints.perception / 1.1)); OLD
-    return Math.round(skillPoints.perception / 1.1);
-};
-
-export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    if (rpgData.level === 0) return 0;
-    const skillPoints = getSkillPointsBonus(rpgData);
-    // return Math.round(Math.round(rpgData.level / 5 + skillPoints.speed / 1.1));
-    return Math.round(Math.round(skillPoints.speed / 1.1));
-};
+export const getDodgeScore = UserService.getDodgeScore;
+export const getSpeedScore = UserService.getSpeedScore;
 
 export { generateDiscordTimestamp } from "./format";
 
@@ -1700,27 +1685,7 @@ export const getStaminaEffect = (item: Consumable, data: RPGUserDataJSON): numbe
     }
 };
 
-export const fixUserSettings = (data: RPGUserDataJSON): void => {
-    if (!data.settings) {
-        data.settings = defaultUserSettings;
-        return;
-    }
-
-    for (const key of Object.keys(defaultUserSettings)) {
-        if (data.settings[key] === undefined) {
-            data.settings[key] = defaultUserSettings[key];
-        }
-    }
-
-    for (const setting of Object.keys(data.settings)) {
-        const defaultSetting = defaultUserSettings[setting];
-        for (const key of Object.keys(defaultSetting)) {
-            if (data.settings[setting][key] === undefined) {
-                data.settings[setting][key] = defaultSetting[key];
-            }
-        }
-    }
-};
+export const fixUserSettings = UserService.fixUserSettings;
 
 export const getMaxPrestigeLevel = UserService.getMaxPrestigeLevel;
 
@@ -1935,48 +1900,9 @@ export function getRPGUserDataChanges(
 
 export const isWeekend = UserService.isWeekend;
 
-export const userMeetsRequirementsForItem = (
-    data: RPGUserDataJSON,
-    item: EquipableItem,
-): boolean => {
-    if (!item.requirements) return true;
+export const userMeetsRequirementsForItem = UserService.userMeetsRequirementsForItem;
 
-    if (item.requirements.level) {
-        if (data.level < item.requirements.level) {
-            return false;
-        }
-    }
-
-    if (item.requirements.prestige) {
-        if (data.prestige < item.requirements.prestige) {
-            return false;
-        }
-    }
-
-    if (item.requirements.skillPoints) {
-        for (const key of Object.keys(item.requirements.skillPoints)) {
-            if (
-                data.skillPoints[key as keyof typeof data.skillPoints] <
-                item.requirements.skillPoints[key as keyof typeof item.requirements.skillPoints]
-            ) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-};
-
-export const getTrueLevel = (data: RPGUserDataJSON | FightableNPC): number => {
-    // basically, they just count all their total skill points including bonuses
-    const bonusSkillPoints =
-        Object.values(getSkillPointsBonus(data)).reduce((acc, val) => acc + val, 0) +
-        getRawSkillPointsLeft(data);
-    const extraHealth = calcEquipableItemsBonus(data).health;
-    const extraStamina = calcEquipableItemsBonus(data).stamina;
-
-    return Math.round((bonusSkillPoints + extraHealth / 11.55 + extraStamina / 1.98) / 4);
-};
+export const getTrueLevel = UserService.getTrueLevel;
 
 export const calculateUserPower = (data: RPGUserDataJSON | FightableNPC | Fighter): number => {
     const trueLevel = isFighter(data) ? data.trueLevel : getTrueLevel(data);
@@ -2007,7 +1933,4 @@ export const calculateUserPower = (data: RPGUserDataJSON | FightableNPC | Fighte
     return Math.round(trueLevel + (totalAbilitiesDamage / 100) * 1.75);
 };
 
-export const hasReachedMaxLevel = (data: RPGUserDataJSON): boolean => {
-    const maxLevel = getMaxPrestigeLevel(data.prestige ?? 0);
-    return data.level >= maxLevel;
-};
+export const hasReachedMaxLevel = UserService.hasReachedMaxLevel;

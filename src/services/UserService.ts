@@ -2,16 +2,17 @@
 // is the source of truth for the listed helpers; Functions.ts re-exports them
 // so existing call sites keep working unchanged.
 
-import type {
-    ClaimXQuest,
-    EquipableItem,
-    FightableNPC,
-    LBData,
-    NPC,
-    RPGUserDataJSON,
-    RPGUserQuest,
-    SkillPoints,
-    Stand,
+import {
+    defaultUserSettings,
+    type ClaimXQuest,
+    type EquipableItem,
+    type FightableNPC,
+    type LBData,
+    type NPC,
+    type RPGUserDataJSON,
+    type RPGUserQuest,
+    type SkillPoints,
+    type Stand,
 } from "../@types";
 import type Jolyne from "../structures/JolyneClient";
 import type { Fighter } from "../structures/FightHandler";
@@ -195,6 +196,18 @@ export const getMaxStamina = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
     return Math.round(getMaxStaminaNoItem(rpgData) + calcEquipableItemsBonus(rpgData).stamina);
 };
 
+export const getDodgeScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    if (rpgData.level === 0) return 0;
+    const skillPoints = getSkillPointsBonus(rpgData);
+    return Math.round(skillPoints.perception / 1.1);
+};
+
+export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    if (rpgData.level === 0) return 0;
+    const skillPoints = getSkillPointsBonus(rpgData);
+    return Math.round(Math.round(skillPoints.speed / 1.1));
+};
+
 export const getTotalSkillPoints = (data: number | RPGUserDataJSON | FightableNPC): number => {
     if (typeof data === "number") return data * 4;
     else return data.level * 4;
@@ -226,6 +239,11 @@ export const userIsCommunityBanned = function userIsCommunityBanned(
 export const getMaxPrestigeLevel = (prestigeLevel: number): number => {
     if (prestigeLevel + 1 < 6) return (prestigeLevel + 1) * 100;
     return 500;
+};
+
+export const hasReachedMaxLevel = (data: RPGUserDataJSON): boolean => {
+    const maxLevel = getMaxPrestigeLevel(data.prestige ?? 0);
+    return data.level >= maxLevel;
 };
 
 export const isWeekend = (): boolean => {
@@ -308,4 +326,61 @@ export const addXp = function addXp(
         }
     }
     return amount;
+};
+
+export const fixUserSettings = (data: RPGUserDataJSON): void => {
+    if (!data.settings) {
+        data.settings = defaultUserSettings;
+        return;
+    }
+
+    for (const key of Object.keys(defaultUserSettings)) {
+        if (data.settings[key] === undefined) {
+            data.settings[key] = defaultUserSettings[key];
+        }
+    }
+
+    for (const setting of Object.keys(data.settings)) {
+        const defaultSetting = defaultUserSettings[setting];
+        if (!defaultSetting) continue;
+
+        for (const key of Object.keys(defaultSetting)) {
+            if (data.settings[setting][key] === undefined) {
+                data.settings[setting][key] = defaultSetting[key];
+            }
+        }
+    }
+};
+
+export const userMeetsRequirementsForItem = (
+    data: RPGUserDataJSON,
+    item: EquipableItem,
+): boolean => {
+    if (!item.requirements) return true;
+
+    if (item.requirements.level && data.level < item.requirements.level) return false;
+    if (item.requirements.prestige && data.prestige < item.requirements.prestige) return false;
+
+    if (item.requirements.skillPoints) {
+        for (const key of Object.keys(item.requirements.skillPoints)) {
+            if (
+                data.skillPoints[key as keyof typeof data.skillPoints] <
+                item.requirements.skillPoints[key as keyof typeof item.requirements.skillPoints]
+            ) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+export const getTrueLevel = (data: RPGUserDataJSON | FightableNPC): number => {
+    const bonusSkillPoints =
+        Object.values(getSkillPointsBonus(data)).reduce((acc, val) => acc + val, 0) +
+        getRawSkillPointsLeft(data);
+    const extraHealth = calcEquipableItemsBonus(data).health;
+    const extraStamina = calcEquipableItemsBonus(data).stamina;
+
+    return Math.round((bonusSkillPoints + extraHealth / 11.55 + extraStamina / 1.98) / 4);
 };
