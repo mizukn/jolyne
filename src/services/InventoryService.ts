@@ -1,7 +1,14 @@
-import type { ClaimItemQuest, Consumable, Item, RPGUserDataJSON } from "../@types";
+import type { ClaimItemQuest, Consumable, Item, numOrPerc, RPGUserDataJSON } from "../@types";
 import type CommandInteractionContext from "../structures/CommandInteractionContext";
 import { EVENT_IDS, getEvent, isActive } from "./EventService";
-import { calcEquipableItemsBonus, getMaxPrestigeLevel } from "./UserService";
+import {
+    addHealth,
+    addStamina,
+    calcEquipableItemsBonus,
+    getMaxHealth,
+    getMaxPrestigeLevel,
+    getMaxStamina,
+} from "./UserService";
 import { isConsumable as isConsumableItem } from "../utils/item_guards";
 import { isClaimItemQuest } from "../utils/quest_guards";
 
@@ -216,3 +223,40 @@ export const isConsumable = (item: Item | string): item is Consumable => {
     if (!item) return false;
     return isConsumableItem(item);
 };
+
+export function addHealthOrStamina(
+    amount: numOrPerc,
+    type: "health" | "stamina",
+    data: RPGUserDataJSON,
+): void {
+    const addX = type === "health" ? addHealth : addStamina;
+
+    switch (typeof amount) {
+        case "number":
+            addX(data, amount);
+            break;
+        case "string": {
+            const maxX = type === "health" ? getMaxHealth(data) : getMaxStamina(data);
+            const perc = parseInt(amount);
+            addX(data, (maxX / 100) * perc);
+            break;
+        }
+    }
+}
+
+export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amount?: number): void {
+    if (!amount) amount = 1;
+    if (item.effects.health)
+        for (let i = 0; i < amount; i++) addHealthOrStamina(item.effects.health, "health", data);
+    if (item.effects.stamina)
+        for (let i = 0; i < amount; i++)
+            addHealthOrStamina(item.effects.stamina, "stamina", data);
+    if (item.effects.items) {
+        const items = Object.keys(item.effects.items);
+
+        for (let i = 0; i < amount; i++)
+            for (const xitem of items) {
+                addItem(data, xitem, item.effects.items[xitem]);
+            }
+    }
+}

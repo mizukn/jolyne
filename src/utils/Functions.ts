@@ -17,12 +17,10 @@ import {
     EvolutionStand,
     RPGUserEmail,
     WaitQuest,
-    Consumable,
     EquipableItem,
     Weapon,
     equipableItemTypes,
     RaidNPCQuest,
-    numOrPerc,
     Rarity,
     LBData,
 } from "../@types";
@@ -1074,48 +1072,9 @@ export const dailyClaimRewardsChristmas = (
     };
 };
 
-export function addHealthOrStamina(
-    amount: numOrPerc,
-    type: "health" | "stamina",
-    data: RPGUserDataJSON,
-): void {
-    const emoji = type === "health" ? ":heart:" : ":battery:";
-    const addX = type === "health" ? addHealth : addStamina;
-    const x = type === "health" ? () => data.health : () => data.stamina;
-    const oldX = x();
+export const addHealthOrStamina = InventoryService.addHealthOrStamina;
 
-    const maxX = type === "health" ? getMaxHealth(data) : getMaxStamina(data);
-
-    switch (typeof amount) {
-        case "number":
-            addX(data, amount);
-            break;
-        case "string": {
-            // %
-            const maxX = type === "health" ? getMaxHealth(data) : getMaxStamina(data);
-            const perc = parseInt(amount);
-            addX(data, (maxX / 100) * perc);
-            break;
-        }
-        // default: impossible
-    }
-}
-
-export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amount?: number): void {
-    if (!amount) amount = 1;
-    if (item.effects.health)
-        for (let i = 0; i < amount; i++) addHealthOrStamina(item.effects.health, "health", data);
-    if (item.effects.stamina)
-        for (let i = 0; i < amount; i++) addHealthOrStamina(item.effects.stamina, "stamina", data);
-    if (item.effects.items) {
-        const items = Object.keys(item.effects.items);
-
-        for (let i = 0; i < amount; i++)
-            for (const xitem of items) {
-                addItem(data, xitem, item.effects.items[xitem]);
-            }
-    }
-}
+export const useConsumableItem = InventoryService.useConsumableItem;
 
 export const isEvolutionStand = (stand: Stand | EvolutionStand): stand is EvolutionStand => {
     return (stand as EvolutionStand).evolutions !== undefined;

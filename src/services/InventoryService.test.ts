@@ -6,6 +6,7 @@ import {
     hasExceedStandLimit,
     isConsumable,
     removeItem,
+    useConsumableItem,
 } from "./InventoryService";
 import type { ClaimItemQuest, Consumable, EquipableItem, RPGUserDataJSON } from "../@types";
 import type CommandInteractionContext from "../structures/CommandInteractionContext";
@@ -15,6 +16,19 @@ const baseUser = (): RPGUserDataJSON =>
         id: "test-user",
         level: 50,
         prestige: 0,
+        adventureStartedAt: Date.now(),
+        stand: "",
+        standsEvolved: {},
+        customStandsEvolved: {},
+        health: 0,
+        stamina: 0,
+        skillPoints: {
+            strength: 0,
+            defense: 0,
+            stamina: 0,
+            perception: 0,
+            speed: 0,
+        },
         inventory: {},
         equippedItems: {},
         daily: { quests: [] },
@@ -138,5 +152,46 @@ describe("InventoryService.isConsumable", () => {
         } as EquipableItem;
 
         expect(isConsumable(equipable)).toBe(false);
+    });
+});
+
+describe("InventoryService.useConsumableItem", () => {
+    it("applies health and stamina effects", () => {
+        const user = baseUser();
+
+        useConsumableItem(
+            item("pizza", {
+                effects: {
+                    health: 10,
+                    stamina: "10%",
+                },
+            }),
+            user,
+            2,
+        );
+
+        expect(user.health).toBe(20);
+        expect(user.stamina).toBe(20);
+    });
+
+    it("adds item effects once per consumed amount", () => {
+        const user = baseUser();
+        configureInventoryService({
+            findItem: (id) => item(id),
+        });
+
+        useConsumableItem(
+            item("box", {
+                effects: {
+                    items: {
+                        apple: 2,
+                    },
+                },
+            }),
+            user,
+            2,
+        );
+
+        expect(user.inventory.apple).toBe(4);
     });
 });
