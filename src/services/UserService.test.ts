@@ -9,6 +9,8 @@ import {
     fixUserSettings,
     generateSkillPoints,
     generateSkillPointsByBuild,
+    getAbilityDamage,
+    getAttackDamages,
     getDodgeScore,
     getHealthEffect,
     getMaxHealth,
@@ -28,6 +30,7 @@ import {
 } from "./UserService";
 import type {
     ClaimXQuest,
+    Ability,
     Consumable,
     EquipableItem,
     RPGUserDataJSON,
@@ -216,6 +219,17 @@ describe("UserService stat math", () => {
 
         expect(getDodgeScore(user)).toBe(20);
         expect(getSpeedScore(user)).toBe(30);
+    });
+
+    it("calculates attack and ability damage from strength", () => {
+        const user = baseUser();
+        user.skillPoints.strength = 10;
+        const ability = {
+            damage: 10,
+        } as Ability;
+
+        expect(getAttackDamages(user)).toBe(12);
+        expect(getAbilityDamage(user, ability)).toBe(24);
     });
 
     it("calculates true level from spent and unspent skill points", () => {

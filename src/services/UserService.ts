@@ -4,6 +4,7 @@
 
 import {
     defaultUserSettings,
+    type Ability,
     type ClaimXQuest,
     type Consumable,
     type EquipableItem,
@@ -211,6 +212,46 @@ export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
     if (rpgData.level === 0) return 0;
     const skillPoints = getSkillPointsBonus(rpgData);
     return Math.round(Math.round(skillPoints.speed / 1.1));
+};
+
+export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC): number => {
+    const skillPoints = getSkillPointsBonus(user);
+    const baseDamage = 5;
+
+    let staminaScaling = 1;
+
+    if (isFighter(user)) {
+        const percent = ((user.stamina ?? 1) / user.maxStamina) * 100;
+
+        if (percent <= 1) {
+            staminaScaling = 0.5;
+        } else if (percent >= 95) {
+            staminaScaling = 1.1;
+        } else {
+            staminaScaling = 0.5 + (percent / 100) ** 2 * 0.6;
+        }
+    }
+
+    const damages = Math.round(
+        baseDamage +
+            Math.round(
+                (skillPoints.strength * 0.675 + ((baseDamage / 100) * 12.5) / 2) * staminaScaling,
+            ),
+    );
+
+    return damages;
+};
+
+export const getAbilityDamage = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    ability: Ability,
+): number => {
+    if (ability.damage === 0) return 0;
+
+    let dmg = getAttackDamages(user);
+    dmg *= 1 + ability.damage / 10;
+
+    return Math.round(dmg);
 };
 
 export const getTotalSkillPoints = (data: number | RPGUserDataJSON | FightableNPC): number => {

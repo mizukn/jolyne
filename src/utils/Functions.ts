@@ -17,7 +17,6 @@ import {
     RPGUserDataJSON,
     Stand,
     EvolutionStand,
-    Ability,
     RPGUserEmail,
     WaitQuest,
     Consumable,
@@ -301,57 +300,9 @@ export const actionRow = (
 
 export const isFighter = UserService.isFighter;
 
-export const getAttackDamages = (user: Fighter | RPGUserDataJSON | FightableNPC): number => {
-    const skillPoints = getSkillPointsBonus(user);
-    const baseDamage = 5;
+export const getAttackDamages = UserService.getAttackDamages;
 
-    let staminaScaling = 1;
-
-    if (isFighter(user)) {
-        const percent = ((user.stamina ?? 1) / user.maxStamina) * 100;
-
-        if (percent <= 1) {
-            staminaScaling = 0.5;
-        } else if (percent >= 95) {
-            staminaScaling = 1.1;
-        } else {
-            // Use some piecewise function or formula to map percent to staminaScaling
-            // For example, you can use a quadratic function:
-            // staminaScaling = 0.5 + (percent / 100) ** 2 * 0.6;
-            // This quadratic function will smoothly scale between 0.5 and 1.1 as percent goes from 1 to 100.
-            staminaScaling = 0.5 + (percent / 100) ** 2 * 0.6;
-        }
-
-    }
-
-    /*const damages = Math.round(
-        baseDamage +
-            Math.round(
-                (skillPoints.strength * 0.675 + (user.level / 10 + (baseDamage / 100) * 12.5) / 2) *
-                    staminaScaling
-            )
-    );*/
-    const damages = Math.round(
-        baseDamage +
-            Math.round(
-                (skillPoints.strength * 0.675 + ((baseDamage / 100) * 12.5) / 2) * staminaScaling,
-            ),
-    );
-
-    return damages;
-};
-
-export const getAbilityDamage = (
-    user: Fighter | RPGUserDataJSON | FightableNPC,
-    ability: Ability,
-): number => {
-    if (ability.damage === 0) return 0;
-
-    let dmg = getAttackDamages(user);
-    dmg *= 1 + ability.damage / 10;
-
-    return Math.round(dmg);
-};
+export const getAbilityDamage = UserService.getAbilityDamage;
 
 export const standAbilitiesEmbed = (
     user: Fighter | RPGUserDataJSON | FightableNPC,
