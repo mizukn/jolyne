@@ -75,6 +75,16 @@ import {
     generateFightQuest,
     generateUseXCommandQuest,
 } from "./quest_factories";
+export {
+    buildQuestListRows,
+    fieldSections,
+    formatQuestListLine,
+    getQuestDisplayEmoji,
+    getQuestProgressText,
+    makeNPCLine,
+    QUEST_LIST_ACCENT_COLOR,
+    QUEST_LIST_ITEMS_PER_PAGE,
+} from "./quest_ui";
 import {
     isActionQuest,
     isAnswerChineseNewYearQuizQuest,
@@ -266,71 +276,11 @@ export const generateDiscordTimestamp = (
         .replace("FULL_D", "F")}>`;
 };
 
-export const QUEST_LIST_ACCENT_COLOR = 0xf5a14f;
-export const QUEST_LIST_ITEMS_PER_PAGE = 3;
+export { localeNumber } from "./format";
 
-export const makeNPCLine = (npc: Pick<NPC, "emoji" | "name">, text: string): string => {
-    return `${npc.emoji ?? ""} **${npc.name}:** ${text}`.trim();
-};
+export const RNG = randomInt;
 
-const normalizeQuestProgressText = (progress: string): string => {
-    return progress
-        .trim()
-        .replace(/^\((.*)\)$/, "$1")
-        .replace(/\*\*/g, "")
-        .replace(/:white_check_mark:/g, "✅")
-        .replace(/:x:/g, "❌");
-};
-
-export const formatQuestListLine = (line: string): string => {
-    return line
-        .replace(/^<a?:reply(?:End)?:\d+>\s*/i, "")
-        .replace(/^<a?:[^:]+:\d+>\s*/i, "")
-        .replace(/\s*\|\|(.*?)\|\|/g, (_, progress: string) => {
-            return `\n> Progression: ${normalizeQuestProgressText(progress)}`;
-        })
-        .replace(/[^\S\n]{2,}/g, " ")
-        .trim();
-};
-
-export const getQuestProgressText = (line: string): string => {
-    const progress = line.match(/\|\|(.*?)\|\|/)?.[1];
-    if (!progress) return "In progress";
-    return normalizeQuestProgressText(progress);
-};
-
-export const getQuestDisplayEmoji = (
-    quest: RPGUserQuest,
-    ctx: CommandInteractionContext,
-): string => {
-    if (isFightNPCQuest(quest)) return "⚔️";
-    if (isRaidNPCQuest(quest)) return "💣";
-    if (isStartDungeonQuest(quest)) return "🗝️";
-    if (isMustReadEmailQuest(quest)) return "✉️";
-    if (isWaitQuest(quest)) return ctx.client.localEmojis.timerIcon ?? "⏳";
-    if (isActionQuest(quest)) return quest.emoji ?? "✨";
-    if (isAnswerChineseNewYearQuizQuest(quest)) return "❓";
-    if (isClaimItemQuest(quest)) return findItem(quest.item)?.emoji ?? "🎁";
-    if (isClaimXQuest(quest)) {
-        return {
-            coin: ctx.client.localEmojis.jocoins,
-            xp: ctx.client.localEmojis.xp,
-            daily: "📆",
-            social_credit: ctx.client.localEmojis.social_credit,
-        }[quest.x];
-    }
-    if (isUseXCommandQuest(quest)) {
-        return {
-            assault: "⚔️",
-            loot: "🎁",
-            raid: "💣",
-            dungeon: "🗝️",
-            slots: "🎰",
-            blackjack: "🃏",
-        }[quest.command] ?? "▶️";
-    }
-    return "emoji" in quest && typeof quest.emoji === "string" ? quest.emoji : "📜";
-};
+export const percent = chance;
 
 export const getDailyQuestRowRewards = (
     quest: RPGUserQuest,
@@ -363,44 +313,6 @@ export const getDailyQuestRowRewards = (
         xp,
     };
 };
-
-export const buildQuestListRows = (
-    ctx: CommandInteractionContext,
-    quests: RPGUserQuest[],
-    statusMessage: string,
-    _customIdPrefix?: string,
-    rewardLine?: (quest: RPGUserQuest, index: number) => string | null,
-): { text: string }[] => {
-    return statusMessage
-        .split("\n")
-        .filter(Boolean)
-        .map((line) => line.trim())
-        .map((line, index) => {
-            const quest = quests[index] ?? quests[0];
-            const cleanedLine = formatQuestListLine(line).split("\n> Progression:")[0].trim();
-            const rewards = quest ? rewardLine?.(quest, index) : null;
-            const rewardText = rewards ? `\n> Rewards: ${rewards}` : "";
-
-            return {
-                text:
-                    `${quest ? getQuestDisplayEmoji(quest, ctx) : "📜"} **${index + 1}.** ${cleanedLine}` +
-                    rewardText +
-                    `\n> Progression: ${getQuestProgressText(line)}`,
-            };
-        });
-};
-
-export const fieldSections = (fields: { name: string; value: string }[]): { text: string }[] => {
-    return fields.map((field) => ({
-        text: `**${field.name}**\n${field.value}`,
-    }));
-};
-
-export { localeNumber } from "./format";
-
-export const RNG = randomInt;
-
-export const percent = chance;
 
 export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
     const quests: RPGUserQuest[] = [];
