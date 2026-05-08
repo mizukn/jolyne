@@ -19,6 +19,7 @@ import type Jolyne from "../structures/JolyneClient";
 import type { Fighter } from "../structures/FightHandler";
 import { EVENT_IDS, isActive } from "./EventService";
 import log from "../utils/Logger";
+import { pickOne } from "../utils/random";
 import { getMaxXp } from "../utils/rewards";
 
 export const PrestigeShardReward = 50;
@@ -229,6 +230,93 @@ export const getRawSkillPointsLeft = (user: RPGUserDataJSON | FightableNPC): num
 export const skillPointsIsOK = (user: RPGUserDataJSON | FightableNPC): boolean => {
     const totalSkillPoints = Object.values(user.skillPoints).reduce((a, b) => a + b, 0);
     return totalSkillPoints === getTotalSkillPoints(user);
+};
+
+export const generateSkillPoints = (
+    user: RPGUserDataJSON | FightableNPC,
+    dontReset?: boolean,
+): void => {
+    if (!dontReset)
+        user.skillPoints = {
+            strength: 0,
+            stamina: 0,
+            speed: 0,
+            defense: 0,
+            perception: 0,
+        };
+    const skillPointsLeft = getRawSkillPointsLeft(user);
+
+    for (let i = 0; i < skillPointsLeft; i++) {
+        const skill = pickOne(
+            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter((x) =>
+                user.skillPoints.stamina >= 100 ? x !== "stamina" : true,
+            ),
+        ) as keyof SkillPoints;
+
+        if (skill === "stamina" && user.skillPoints.stamina >= 100) {
+            continue;
+        }
+
+        user.skillPoints[skill]++;
+    }
+};
+
+export const generateSkillPointsByBuild = (
+    user: RPGUserDataJSON | FightableNPC,
+    sp: {
+        strength: number;
+        stamina: number;
+        speed: number;
+        defense: number;
+        perception: number;
+    },
+): void => {
+    const sum = Math.trunc(Object.values(sp).reduce((a, b) => a + b, 0));
+    if (sum > 100) {
+        return generateSkillPoints(user, true);
+    }
+
+    const spLeft = Object.keys(sp);
+    user.skillPoints = {
+        strength: 0,
+        stamina: 0,
+        speed: 0,
+        defense: 0,
+        perception: 0,
+    };
+    const toSpend = getRawSkillPointsLeft(user);
+
+    for (let spx = spLeft.pop(); spx; spx = spLeft.pop()) {
+        user.skillPoints[spx as keyof SkillPoints] = Math.min(
+            Math.round((sp[spx as keyof SkillPoints] / 100) * toSpend),
+            getRawSkillPointsLeft(user),
+        );
+    }
+
+    while (getRawSkillPointsLeft(user) > 0) {
+        const skill = pickOne(
+            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter((x) =>
+                user.skillPoints.stamina >= 100 ? x !== "stamina" : true,
+            ),
+        ) as keyof SkillPoints;
+
+        if (skill === "stamina" && user.skillPoints.stamina >= 100) {
+            continue;
+        }
+
+        user.skillPoints[skill]++;
+    }
+};
+
+export const getSkillPointsBuild = (data: RPGUserDataJSON | FightableNPC): SkillPoints => {
+    const totalSkillPoints = getTotalSkillPoints(data);
+    const sp = { ...data.skillPoints };
+
+    for (const key of Object.keys(sp)) {
+        sp[key as keyof SkillPoints] = (sp[key as keyof SkillPoints] / totalSkillPoints) * 100;
+    }
+
+    return sp;
 };
 
 export const userIsCommunityBanned = function userIsCommunityBanned(

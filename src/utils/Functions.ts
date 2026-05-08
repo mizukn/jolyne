@@ -15,7 +15,6 @@ import {
     Item,
     RPGUserQuest,
     RPGUserDataJSON,
-    SkillPoints,
     Stand,
     EvolutionStand,
     Ability,
@@ -534,99 +533,13 @@ export const getRawSkillPointsLeft = UserService.getRawSkillPointsLeft;
 
 export const skillPointsIsOK = UserService.skillPointsIsOK;
 
-export const generateSkillPoints = (
-    user: RPGUserDataJSON | FightableNPC,
-    dontReset?: boolean,
-): void => {
-    if (!dontReset)
-        user.skillPoints = {
-            strength: 0,
-            stamina: 0,
-            speed: 0,
-            defense: 0,
-            perception: 0,
-        };
-    const skillPointsLeft = getRawSkillPointsLeft(user);
+export const generateSkillPoints = UserService.generateSkillPoints;
 
-    for (let i = 0; i < skillPointsLeft; i++) {
-        const skill = randomArray(
-            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter((x) =>
-                user.skillPoints.stamina >= 100 ? x !== "stamina" : true,
-            ),
-        ) as keyof SkillPoints;
-
-        if (skill === "stamina" && user.skillPoints.stamina >= 100) {
-            continue; // Skip increasing stamina if it's already 100
-        }
-
-        user.skillPoints[skill]++;
-    }
-};
-
-export const generateSkillPointsByBuild = (
-    user: RPGUserDataJSON | FightableNPC,
-    sp: {
-        strength: number;
-        stamina: number;
-        speed: number;
-        defense: number;
-        perception: number;
-    },
-): void => {
-    // sp.properties ARE BY PERCENTAGE!!!
-    const sum = Math.trunc(Object.values(sp).reduce((a, b) => a + b, 0));
-    if (sum > 100) {
-        return generateSkillPoints(user, true);
-    }
-
-    const spLeft = Object.keys(sp);
-    user.skillPoints = {
-        strength: 0,
-        stamina: 0,
-        speed: 0,
-        defense: 0,
-        perception: 0,
-    };
-    const toSpend = getRawSkillPointsLeft(user);
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-        const spx = spLeft.pop();
-        if (!spx) break;
-
-        user.skillPoints[spx as keyof SkillPoints] = Math.min(
-            Math.round((sp[spx as keyof SkillPoints] / 100) * toSpend),
-            getRawSkillPointsLeft(user),
-        );
-    }
-
-    while (getRawSkillPointsLeft(user) > 0) {
-        const skill = randomArray(
-            (Object.keys(user.skillPoints) as (keyof SkillPoints)[]).filter((x) =>
-                user.skillPoints.stamina >= 100 ? x !== "stamina" : true,
-            ),
-        ) as keyof SkillPoints;
-
-        if (skill === "stamina" && user.skillPoints.stamina >= 100) {
-            continue; // Skip increasing stamina if it's already 100
-        }
-
-        user.skillPoints[skill]++;
-    }
-};
+export const generateSkillPointsByBuild = UserService.generateSkillPointsByBuild;
 
 export const getTotalSkillPoints = UserService.getTotalSkillPoints;
 
-export const getSkillPointsBuild = (data: RPGUserDataJSON | FightableNPC): SkillPoints => {
-    const totalSkillPoints = getTotalSkillPoints(data);
-    const sp = { ...data.skillPoints };
-
-    for (const key of Object.keys(sp)) {
-        sp[key as keyof SkillPoints] = (sp[key as keyof SkillPoints] / totalSkillPoints) * 100;
-    }
-
-    return sp;
-};
+export const getSkillPointsBuild = UserService.getSkillPointsBuild;
 
 export const shuffleArray = shuffleInPlace;
 

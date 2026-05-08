@@ -7,12 +7,15 @@ import {
     addStamina,
     addXp,
     fixUserSettings,
+    generateSkillPoints,
+    generateSkillPointsByBuild,
     getDodgeScore,
     getHealthEffect,
     getMaxHealth,
     getMaxStamina,
     getRawSkillPointsLeft,
     getRPGUserDataChanges,
+    getSkillPointsBuild,
     getSpeedScore,
     getStaminaEffect,
     getTrueLevel,
@@ -246,6 +249,45 @@ describe("UserService stat math", () => {
         expect(user.level).toBe(1);
         expect(user.skillPoints.strength).toBe(0);
         expect(user.prestige_shards).toBe(PrestigeShardReward);
+    });
+
+    it("generates random skill points up to the available total", () => {
+        const user = baseUser();
+        user.level = 10;
+
+        generateSkillPoints(user);
+
+        expect(Object.values(user.skillPoints).reduce((sum, value) => sum + value, 0)).toBe(40);
+        expect(user.skillPoints.stamina).toBeLessThanOrEqual(100);
+    });
+
+    it("generates skill points from a percentage build", () => {
+        const user = baseUser();
+        user.level = 10;
+
+        generateSkillPointsByBuild(user, {
+            strength: 50,
+            defense: 50,
+            stamina: 0,
+            speed: 0,
+            perception: 0,
+        });
+
+        expect(user.skillPoints.strength).toBe(20);
+        expect(user.skillPoints.defense).toBe(20);
+        expect(getRawSkillPointsLeft(user)).toBe(0);
+    });
+
+    it("calculates skill point build percentages", () => {
+        const user = baseUser();
+        user.level = 10;
+        user.skillPoints.strength = 20;
+        user.skillPoints.defense = 20;
+
+        expect(getSkillPointsBuild(user)).toMatchObject({
+            strength: 50,
+            defense: 50,
+        });
     });
 
     it("requires the prestige feature flag for prestigeUser", () => {
