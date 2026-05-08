@@ -24,6 +24,8 @@ import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
 import { deprecatedRedirectMiddleware } from "../middlewares/deprecatedRedirect";
 import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
+import { rpgCooldownMiddleware } from "../middlewares/rpgCooldown";
+import { userDataMiddleware } from "../middlewares/userData";
 import type { Middleware, MiddlewareDecision } from "../middlewares/types";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
@@ -33,19 +35,15 @@ function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     return fixedQuests;
 }
 
-// Runs a single middleware. Returns the decision so the caller can act on
-// `stop: true` (forward the log + reply, then bail). Surfacing the result
-// rather than throwing keeps the test surface a plain function call.
+// Runs a single middleware against a shared `pipeline` object. Middlewares
+// may mutate the pipeline (e.g. to publish `ctx` for later steps); keeping
+// one mutable object across the chain matches the standard middleware idiom
+// and avoids passing a growing extras bag through every call.
 async function runMiddleware(
-    interaction: Interaction & { client: JolyneClient },
+    pipeline: import("../middlewares/types").MiddlewareInput,
     middleware: Middleware,
-    extras: { command?: import("../@types").SlashCommand; ctx?: CommandInteractionContext } = {},
 ): Promise<MiddlewareDecision> {
-    if (!interaction.isChatInputCommand()) return { stop: false };
-    return await middleware({
-        interaction: interaction as Parameters<Middleware>[0]["interaction"],
-        ...extras,
-    });
+    return await middleware(pipeline);
 }
 
 async function applyDecision(
@@ -66,53 +64,25 @@ const Event: EventFile = {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction & { client: JolyneClient }) {
         if (interaction.isCommand() && interaction.isChatInputCommand()) {
-            if (await applyDecision(interaction, await runMiddleware(interaction, maintenanceMiddleware))) return;
+            const pipeline: import("../middlewares/types").MiddlewareInput = { interaction };
+
+            if (await applyDecision(interaction, await runMiddleware(pipeline, maintenanceMiddleware))) return;
 
             if (!interaction.client.allCommands) return;
 
             const command = interaction.client.commands.get(interaction.commandName);
             if (!command || !interaction.guild) return;
+            pipeline.command = command;
 
-            if (await applyDecision(interaction, await runMiddleware(interaction, permissionsMiddleware, { command }))) return;
-            if (await applyDecision(interaction, await runMiddleware(interaction, channelMiddleware))) return;
-            if (await applyDecision(interaction, await runMiddleware(interaction, deprecatedRedirectMiddleware))) return;
-            if (await applyDecision(interaction, await runMiddleware(interaction, commandCooldownMiddleware, { command }))) return;
+            if (await applyDecision(interaction, await runMiddleware(pipeline, permissionsMiddleware))) return;
+            if (await applyDecision(interaction, await runMiddleware(pipeline, channelMiddleware))) return;
+            if (await applyDecision(interaction, await runMiddleware(pipeline, deprecatedRedirectMiddleware))) return;
+            if (await applyDecision(interaction, await runMiddleware(pipeline, commandCooldownMiddleware))) return;
+            if (await applyDecision(interaction, await runMiddleware(pipeline, userDataMiddleware))) return;
+            if (await applyDecision(interaction, await runMiddleware(pipeline, rpgCooldownMiddleware))) return;
 
-            let ctx: CommandInteractionContext;
-
-            if (command.data.name !== "help") {
-                const userData = await interaction.client.database.getRPGUserData(
-                    interaction.user.id,
-                );
-                ctx = new CommandInteractionContext(interaction, userData);
-                if (!ctx.userData) {
-                    const startsAdventure =
-                        command.data.name === "start" ||
-                        (command.data.name === "adventure" &&
-                            interaction.options.getSubcommand() === "start");
-                    if (!startsAdventure) return ctx.sendTranslated("base:NO_ADVENTURE");
-                }
-
-                if (command.checkRPGCooldown) {
-                    const cooldown = await interaction.client.database.getRPGCooldown(
-                        ctx.user.id,
-                        command.checkRPGCooldown,
-                    );
-                    if (
-                        cooldown &&
-                        cooldown > Date.now() &&
-                        !ctx.client.user.username.includes("Beta") &&
-                        !ctx.client.user.username.includes("Alpha")
-                    ) {
-                        return ctx.makeMessage({
-                            content: `You can use this RPG command again ${Functions.generateDiscordTimestamp(
-                                cooldown,
-                                "FROM_NOW",
-                            )}`,
-                        });
-                    }
-                }
-            } else ctx = new CommandInteractionContext(interaction);
+            const ctx = pipeline.ctx;
+            if (!ctx) return;
 
             if (command.data.name !== "help" && ctx.userData) {
                 runCommandEntryHooks(ctx);

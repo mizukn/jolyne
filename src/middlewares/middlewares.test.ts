@@ -6,9 +6,11 @@ import { commandCooldownMiddleware } from "./commandCooldown";
 import { deprecatedRedirectMiddleware } from "./deprecatedRedirect";
 import { maintenanceMiddleware } from "./maintenance";
 import { permissionsMiddleware } from "./permissions";
+import { rpgCooldownMiddleware } from "./rpgCooldown";
+import { userDataMiddleware } from "./userData";
 
 import type { ChatInputInteraction, MiddlewareInput } from "./types";
-import type { SlashCommand } from "../@types";
+import type { RPGUserDataJSON, SlashCommand } from "../@types";
 
 vi.mock("../services/DeprecatedCommandService", () => ({
     getDeprecatedCommandRedirect: vi.fn(),
@@ -176,6 +178,125 @@ describe("commandCooldownMiddleware", () => {
         const decision = await commandCooldownMiddleware(input(interaction, cmd(10)));
         expect(decision).toEqual({ stop: false });
         expect(cooldowns.has("1:fight")).toBe(false);
+    });
+});
+
+describe("userDataMiddleware", () => {
+    const buildUserDataInteraction = (
+        userData: RPGUserDataJSON | null,
+        subcommandName = "view",
+    ): ChatInputInteraction => {
+        const getRPGUserData = vi.fn().mockResolvedValue(userData);
+        return {
+            client: {
+                database: { getRPGUserData },
+                translations: new Map([
+                    ["en-US", () => "Translated NO_ADVENTURE"],
+                ]),
+                localEmojis: {},
+            },
+            user: { id: "u1", username: "tester" },
+            options: { getSubcommand: () => subcommandName, getUser: (): null => null },
+        } as unknown as ChatInputInteraction;
+    };
+
+    const cmd = (name: string): SlashCommand =>
+        ({ data: { name } }) as unknown as SlashCommand;
+
+    it("creates a ctx without userData for /help", async () => {
+        const interaction = buildUserDataInteraction(null);
+        const pipeline: MiddlewareInput = { interaction, command: cmd("help") };
+        const decision = await userDataMiddleware(pipeline);
+        expect(decision).toEqual({ stop: false });
+        expect(pipeline.ctx).toBeDefined();
+    });
+
+    it("blocks with NO_ADVENTURE when an unknown user runs a non-onboarding command", async () => {
+        const interaction = buildUserDataInteraction(null);
+        const pipeline: MiddlewareInput = { interaction, command: cmd("fight") };
+        const decision = await userDataMiddleware(pipeline);
+        expect(decision.stop).toBe(true);
+        if (!decision.stop) throw new Error("expected stop");
+        expect(decision.reply?.content).toContain("Translated NO_ADVENTURE");
+        expect(pipeline.ctx).toBeDefined();
+    });
+
+    it("lets onboarding commands through for users without RPG data", async () => {
+        const interaction = buildUserDataInteraction(null);
+        const pipeline: MiddlewareInput = { interaction, command: cmd("start") };
+        const decision = await userDataMiddleware(pipeline);
+        expect(decision).toEqual({ stop: false });
+        expect(pipeline.ctx).toBeDefined();
+    });
+
+    it("publishes ctx with the fetched userData for normal commands", async () => {
+        const userData = { id: "u1", level: 12 } as unknown as RPGUserDataJSON;
+        const interaction = buildUserDataInteraction(userData);
+        const pipeline: MiddlewareInput = { interaction, command: cmd("profile") };
+        const decision = await userDataMiddleware(pipeline);
+        expect(decision).toEqual({ stop: false });
+        expect(pipeline.ctx?.userData).toBe(userData);
+    });
+});
+
+describe("rpgCooldownMiddleware", () => {
+    const baseCtx = { user: { id: "u1" }, userData: { id: "u1" } } as unknown as MiddlewareInput["ctx"];
+
+    const buildRpgInteraction = (
+        getRPGCooldown: (userId: string, key: string) => Promise<number>,
+        username = "Jolyne",
+    ): ChatInputInteraction =>
+        ({
+            client: {
+                database: { getRPGCooldown },
+                user: { username },
+            },
+        }) as unknown as ChatInputInteraction;
+
+    const cmd = (checkRPGCooldown?: string): SlashCommand =>
+        ({ data: { name: "raid" }, checkRPGCooldown }) as unknown as SlashCommand;
+
+    it("passes when the command does not declare a checkRPGCooldown", async () => {
+        const interaction = buildRpgInteraction(vi.fn());
+        const decision = await rpgCooldownMiddleware({
+            interaction,
+            command: cmd(),
+            ctx: baseCtx,
+        });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("passes when the cooldown is in the past", async () => {
+        const interaction = buildRpgInteraction(async () => Date.now() - 1_000);
+        const decision = await rpgCooldownMiddleware({
+            interaction,
+            command: cmd("raid"),
+            ctx: baseCtx,
+        });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("blocks with a Discord-formatted timestamp when the cooldown is active", async () => {
+        const cooldownAt = Date.now() + 60_000;
+        const interaction = buildRpgInteraction(async () => cooldownAt);
+        const decision = await rpgCooldownMiddleware({
+            interaction,
+            command: cmd("raid"),
+            ctx: baseCtx,
+        });
+        expect(decision.stop).toBe(true);
+        if (!decision.stop) throw new Error("expected stop");
+        expect(decision.reply?.content).toMatch(/<t:\d+:R>/);
+    });
+
+    it("ignores active cooldowns on Beta and Alpha deployments", async () => {
+        const interaction = buildRpgInteraction(async () => Date.now() + 60_000, "Jolyne Beta");
+        const decision = await rpgCooldownMiddleware({
+            interaction,
+            command: cmd("raid"),
+            ctx: baseCtx,
+        });
+        expect(decision).toEqual({ stop: false });
     });
 });
 
