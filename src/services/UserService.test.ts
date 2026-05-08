@@ -16,6 +16,9 @@ import {
     getTrueLevel,
     hasReachedMaxLevel,
     isClaimXQuest,
+    PrestigeShardReward,
+    prestigeUser,
+    prestigeUserMethod2,
     userMeetsRequirementsForItem,
 } from "./UserService";
 import type { ClaimXQuest, EquipableItem, RPGUserDataJSON, RPGUserQuest } from "../@types";
@@ -208,6 +211,35 @@ describe("UserService stat math", () => {
 
         user.level = 99;
         expect(hasReachedMaxLevel(user)).toBe(false);
+    });
+
+    it("prestiges a capped user with method 2", () => {
+        const user = baseUser();
+        user.level = 100;
+        user.prestige = 0;
+        user.prestige_shards = 0;
+        user.skillPoints.strength = 10;
+
+        expect(prestigeUserMethod2(user)).toBe(true);
+        expect(user.prestige).toBe(1);
+        expect(user.level).toBe(1);
+        expect(user.skillPoints.strength).toBe(0);
+        expect(user.prestige_shards).toBe(PrestigeShardReward);
+    });
+
+    it("requires the prestige feature flag for prestigeUser", () => {
+        const user = baseUser();
+        user.level = 100;
+        user.prestige_shards = 0;
+        const previous = process.env.ENABLE_PRESTIGE;
+        delete process.env.ENABLE_PRESTIGE;
+
+        try {
+            expect(prestigeUser(user)).toBe(false);
+            expect(user.prestige).toBe(0);
+        } finally {
+            if (previous !== undefined) process.env.ENABLE_PRESTIGE = previous;
+        }
     });
 });
 

@@ -128,7 +128,7 @@ export {
     isWaitQuest,
 };
 
-export const PrestigeShardReward = 50;
+export const PrestigeShardReward = UserService.PrestigeShardReward;
 const endOf2024ChristmasEvent = getEvent(EVENT_IDS.CHRISTMAS_2024)?.endsAt.getTime() ?? 0;
 
 const totalStands = [
@@ -203,7 +203,6 @@ export { generateDiscordTimestamp } from "./format";
 
 export { localeNumber } from "./format";
 export { getMaxXp, getRewards, getTotalXp, TopGGVoteRewards } from "./rewards";
-import { getTotalXp } from "./rewards";
 
 export const RNG = randomInt;
 
@@ -1645,85 +1644,9 @@ export const fixUserSettings = UserService.fixUserSettings;
 
 export const getMaxPrestigeLevel = UserService.getMaxPrestigeLevel;
 
-export const prestigeUser = (data: RPGUserDataJSON): boolean => {
-    if (!process.env.ENABLE_PRESTIGE) return false;
-    return prestigeUserMethod2(data);
-    // return prestigeUserMethod2(data);
-    // TODO: must have completed current chapter
-    // TODO: NPCs from chapter quests should be based on your lvl
-    if (data.level < getMaxPrestigeLevel(data.prestige ?? 0)) return false;
-    const currentPrestige = data.prestige ?? 0;
+export const prestigeUser = UserService.prestigeUser;
 
-    const totalXp = getTotalXp(data);
-
-    const remainingXp = Math.max(
-        totalXp - getMaxXp(getMaxPrestigeLevel(currentPrestige)),
-        totalXp * 0.9,
-    );
-
-    data.prestige = currentPrestige + 1;
-    data.level = 1;
-
-    const to = Math.trunc(
-        totalXp * (1 - 0.1) - getTotalXp({ level: getMaxPrestigeLevel(currentPrestige), xp: 0 }),
-    );
-    //data.xp = to > 0 ? to : 0; // If the user was already over the required xp, keep the remaining xp at exponential rate
-    //data.xp = remainingXp > 0 ? remainingXp * 0.9 : 0;
-
-    const maxRemainingXp = getTotalXp({ level: 2000, xp: 0 });
-    const minMultiplier = 0.6;
-    const maxMultiplier = 0.9;
-
-    // Calculate the multiplier based on remaining XP
-    const mult =
-        remainingXp > 0
-            ? minMultiplier +
-              (maxMultiplier - minMultiplier) * Math.min(remainingXp / maxRemainingXp, 1)
-            : 0;
-
-    // Apply the calculated multiplier to remainingXp
-    data.xp = Math.round(remainingXp * Math.max(minMultiplier, mult));
-
-    for (const key of Object.keys(data.skillPoints)) {
-        data.skillPoints[key as keyof typeof data.skillPoints] = 0;
-    }
-
-    while (
-        data.xp >= getMaxXp(data.level) &&
-        data.level < getMaxPrestigeLevel(data.prestige ?? 0)
-    ) {
-        data.xp -= getMaxXp(data.level);
-        data.level++;
-    }
-
-    return true;
-};
-
-export const prestigeUserMethod2 = (data: RPGUserDataJSON): boolean => {
-    //if (!process.env.ENABLE_PRESTIGE) return false;
-    if (data.level < getMaxPrestigeLevel(data.prestige ?? 0)) return false;
-    data.level -= getMaxPrestigeLevel(data.prestige ?? 0);
-    data.prestige = (data.prestige ?? 0) + 1;
-    //data.xp = 0;
-    while (
-        data.xp >= getMaxXp(data.level) &&
-        data.level < getMaxPrestigeLevel(data.prestige ?? 0)
-    ) {
-        data.xp -= getMaxXp(data.level);
-        data.level++;
-    }
-    data.skillPoints = {
-        strength: 0,
-        defense: 0,
-        stamina: 0,
-        perception: 0,
-        speed: 0,
-    };
-
-    data.prestige_shards += PrestigeShardReward;
-
-    return true;
-};
+export const prestigeUserMethod2 = UserService.prestigeUserMethod2;
 
 export const getWeapon = (data: RPGUserDataJSON | FightableNPC): Weapon => {
     return findItem<Weapon>(

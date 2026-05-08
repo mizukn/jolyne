@@ -18,6 +18,9 @@ import type Jolyne from "../structures/JolyneClient";
 import type { Fighter } from "../structures/FightHandler";
 import { EVENT_IDS, isActive } from "./EventService";
 import log from "../utils/Logger";
+import { getMaxXp } from "../utils/rewards";
+
+export const PrestigeShardReward = 50;
 
 export const isClaimXQuest = (quest: RPGUserQuest): quest is ClaimXQuest => {
     return (quest as ClaimXQuest).type === "claimX";
@@ -244,6 +247,36 @@ export const getMaxPrestigeLevel = (prestigeLevel: number): number => {
 export const hasReachedMaxLevel = (data: RPGUserDataJSON): boolean => {
     const maxLevel = getMaxPrestigeLevel(data.prestige ?? 0);
     return data.level >= maxLevel;
+};
+
+export const prestigeUser = (data: RPGUserDataJSON): boolean => {
+    if (!process.env.ENABLE_PRESTIGE) return false;
+    return prestigeUserMethod2(data);
+};
+
+export const prestigeUserMethod2 = (data: RPGUserDataJSON): boolean => {
+    if (data.level < getMaxPrestigeLevel(data.prestige ?? 0)) return false;
+    data.level -= getMaxPrestigeLevel(data.prestige ?? 0);
+    data.prestige = (data.prestige ?? 0) + 1;
+
+    while (
+        data.xp >= getMaxXp(data.level) &&
+        data.level < getMaxPrestigeLevel(data.prestige ?? 0)
+    ) {
+        data.xp -= getMaxXp(data.level);
+        data.level++;
+    }
+    data.skillPoints = {
+        strength: 0,
+        defense: 0,
+        stamina: 0,
+        perception: 0,
+        speed: 0,
+    };
+
+    data.prestige_shards += PrestigeShardReward;
+
+    return true;
 };
 
 export const isWeekend = (): boolean => {
