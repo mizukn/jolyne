@@ -3,7 +3,10 @@ import {
     capitalize,
     generateMessageLink,
     getBlackMarketString,
+    getEmojiId,
     getTodayString,
+    makeNPCString,
+    removeZalgo,
     s,
 } from "./format";
 
@@ -12,6 +15,10 @@ describe("format utils", () => {
         expect(s(1)).toBe("");
         expect(s(2)).toBe("s");
         expect(capitalize("stand")).toBe("Stand");
+        expect(getEmojiId("<:jolyne:123456789>")).toBe("123456789");
+        expect(getEmojiId("🧵")).toBe("🧵");
+        expect(makeNPCString({ emoji: "⭐", name: "Jolyne" }, "Ora")).toBe("⭐ **Jolyne**: Ora");
+        expect(removeZalgo("T̷I̴M̵E̶ STOP")).toBe("TIME STOP");
     });
 
     it("formats message links", () => {

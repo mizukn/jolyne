@@ -68,6 +68,20 @@ export const s = (num: number): string => (num === 1 ? "" : "s");
 
 export const capitalize = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
 
+export const getEmojiId = (emoji: string): string => {
+    const match = emoji.match(/(?<=:)\d+(?=>)/);
+    if (!match) return emoji;
+    return match[0];
+};
+
+export const makeNPCString = (
+    npc: { emoji: string; name: string },
+    message?: string,
+    emoji?: string,
+): string => `${emoji ?? npc.emoji} **${npc.name}**: ${message}`;
+
+export const removeZalgo = (str: string): string => str.replace(/[^A-Za-z0-9 ]/g, "");
+
 export const generateMessageLink = (message: Message<boolean>): string =>
     `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
 

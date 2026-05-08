@@ -93,6 +93,7 @@ import {
     isWeapon,
 } from "./item_guards";
 import { plusOrMinus } from "./math";
+import { getEmojiId } from "./format";
 export {
     isActionQuest,
     isAnswerChineseNewYearQuizQuest,
@@ -592,11 +593,7 @@ export const standAbilitiesEmbed = (
     return embed;
 };
 
-export const getEmojiId = (emoji: string): string => {
-    const match = emoji.match(/(?<=:)\d+(?=>)/);
-    if (!match) return emoji;
-    return match[0];
-};
+export { getEmojiId } from "./format";
 
 const totalWeapons = Object.values(EquipableItems).filter((x) => isWeapon(x));
 
@@ -1125,13 +1122,7 @@ export const standPrices = {
     T: 69696,
 };
 
-export const makeNPCString = function makeNPCString(
-    npc: NPC,
-    message?: string,
-    emoji?: string,
-): string {
-    return `${emoji ?? npc.emoji} **${npc.name}**: ${message}`;
-};
+export { makeNPCString } from "./format";
 
 export const userIsCommunityBanned = UserService.userIsCommunityBanned;
 
@@ -1868,9 +1859,7 @@ export const getProminentColor = async (
 
 // 'T̷̗̗̜̩̍̔̌͐̓͑͝Ì̴͉̖̝M̵̛̤̟̖͚̀͂̎͝Ḛ̶̮͉̉́͑͆͒̈̀̀̊̈́ ̵̢̢̮͖̘̱͈͖̯͗ͅS̷̢̭̯̭̬͎̙̼̯̿̐͂̇̍̎͆T̵̻͖͈̭͇̟̯̗̐͆̆̑̊̃͋́͘͝O̴̢̦̗̪̮̐̉̌̀̅͝͠͠͝Ṕ̶̧̰̦͛͂̚' to 'TIME STOP'
 
-export const removeZalgo = (str: string): string => {
-    return str.replace(/[^A-Za-z0-9 ]/g, "");
-};
+export { removeZalgo } from "./format";
 
 export const getHealthEffect = (item: Consumable, data: RPGUserDataJSON): number => {
     if (!item.effects.health) return 0;
