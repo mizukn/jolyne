@@ -20,11 +20,15 @@ import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 import { EVENT_IDS, isActive, runCommandEntryHooks } from "../services/EventService";
 import { channelMiddleware } from "../middlewares/channel";
+import { bannedUserMiddleware } from "../middlewares/bannedUser";
 import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
 import { deprecatedRedirectMiddleware } from "../middlewares/deprecatedRedirect";
+import { firstFightSkillPointsHintMiddleware } from "../middlewares/firstFightSkillPointsHint";
 import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
+import { restingAtCampfireMiddleware } from "../middlewares/restingAtCampfire";
 import { rpgCooldownMiddleware } from "../middlewares/rpgCooldown";
+import { userBusyMiddleware } from "../middlewares/userBusy";
 import { userDataMiddleware } from "../middlewares/userData";
 import type { Middleware, MiddlewareDecision } from "../middlewares/types";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
@@ -87,93 +91,11 @@ const Event: EventFile = {
             if (command.data.name !== "help" && ctx.userData) {
                 runCommandEntryHooks(ctx);
 
-                if (ctx.userData.inventory.candy_cane && ctx.userData.inventory.candy_cane < 0) {
-                    return void ctx.makeMessage({
-                        content: `:x: | **${ctx.user.username}**, You are banned. Please contact us at https://discord.gg/jolyne-support-923608916540145694-support-923608916540145694 to appeal (@mizukn).`,
-                    });
-                }
-                if (
-                    ctx.userData.level === 1 &&
-                    Functions.getRawSkillPointsLeft(ctx.userData) === 4 &&
-                    command.data.name === "fight"
-                ) {
-                    await ctx.makeMessage({
-                        content: `:arrow_up: | **${
-                            ctx.user.username
-                        }**, you have **${Functions.getRawSkillPointsLeft(
-                            ctx.userData,
-                        )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
-                            "skills invest",
-                        )} command to invest them! It is crucial to invest your skill points to progress in the game, so please do it.`,
-                    });
-                    return;
-                }
-                const isONCD = await ctx.client.database.getCooldown(ctx.user.id);
-                if (isONCD) {
-                    let dox = false;
-                    if (command.data.name === "trade") {
-                        if (ctx.interaction.options.getSubcommand() !== "trade") {
-                        } else dox = true;
-                    } else dox = true;
-                    if (dox) {
-                        await ctx.interaction.reply({
-                            content: isONCD,
-                        });
-                        if (
-                            !(await ctx.client.database.redis.get(
-                                `tempCache_cooldown:${ctx.user.id}_toldWarning`,
-                            ))
-                        ) {
-                            ctx.followUp({
-                                content: `Reminder: If you can't find the command or someone deleted it, just wait a few minutes and your cooldown will be automatically deleted. If this problem still persists, please contact us at https://discord.gg/jolyne-support-923608916540145694`,
-                                flags: MessageFlags.Ephemeral,
-                            });
-                            await ctx.client.database.redis.set(
-                                `tempCache_cooldown:${ctx.user.id}_toldWarning`,
-                                "true",
-                            );
-                        }
-                        return;
-                    }
-                }
-                if (typeof ctx.userData.restingAtCampfire !== "number")
-                    ctx.userData.restingAtCampfire = 0;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, bannedUserMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, firstFightSkillPointsHintMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, userBusyMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, restingAtCampfireMiddleware))) return;
 
-                /*
-                if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
-                    // if user data lastSeen is more than 1 hour and 5 minutes, put them to campfire at lastSeen + 1 hour
-                    if (
-                        ctx.userData.lastSeen &&
-                        new Date(ctx.userData.lastSeen).getTime() + 3900000 < Date.now()
-                    ) {
-                        ctx.userData.restingAtCampfire = new Date(ctx.userData.lastSeen).getTime();
-                        const options = {
-                            content: `🔥🪵 | Welcome back, **${
-                                ctx.user.username
-                            }**! You were resting at the campfire while you were offline. Use the ${ctx.client.getSlashCommandMention(
-                                "rest leave"
-                            )} command to leave. [PATREON PASSIVE]`
-                        };
-                        if (command.data.name === "campfire") {
-                            ctx.followUpQueue.push(options);
-                        } else {
-                            ctx.makeMessage(options);
-                            ctx.client.database.saveUserData(ctx.userData);
-                            return;
-                        }
-                    }
-                } */
-                if (
-                    Number(ctx.userData.restingAtCampfire) &&
-                    !["campfire", "rest"].includes(command.data.name)
-                ) {
-                    ctx.makeMessage({
-                        content: `🔥🪵 You're currently resting at the campfire. Use the ${ctx.client.getSlashCommandMention(
-                            "rest leave",
-                        )} command to leave.`,
-                    });
-                    return;
-                }
                 let commandName = command.data.name;
                 if (command.data.options?.filter((r) => r.type === 1)?.length !== 0) {
                     commandName += ` ${interaction.options.getSubcommand()}`;

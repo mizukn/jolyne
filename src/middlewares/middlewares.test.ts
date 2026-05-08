@@ -1,12 +1,16 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { MessageFlags } from "discord.js";
 
+import { bannedUserMiddleware } from "./bannedUser";
 import { channelMiddleware } from "./channel";
 import { commandCooldownMiddleware } from "./commandCooldown";
 import { deprecatedRedirectMiddleware } from "./deprecatedRedirect";
+import { firstFightSkillPointsHintMiddleware } from "./firstFightSkillPointsHint";
 import { maintenanceMiddleware } from "./maintenance";
 import { permissionsMiddleware } from "./permissions";
+import { restingAtCampfireMiddleware } from "./restingAtCampfire";
 import { rpgCooldownMiddleware } from "./rpgCooldown";
+import { userBusyMiddleware } from "./userBusy";
 import { userDataMiddleware } from "./userData";
 
 import type { ChatInputInteraction, MiddlewareInput } from "./types";
@@ -321,5 +325,213 @@ describe("deprecatedRedirectMiddleware", () => {
         if (!decision.stop) throw new Error("expected stop");
         expect(decision.reply?.content).toContain("</quests action:42>");
         expect(decision.reply?.flags).toBe(MessageFlags.Ephemeral);
+    });
+});
+
+describe("bannedUserMiddleware", () => {
+    const ctx = (candy_cane?: number): MiddlewareInput["ctx"] =>
+        ({
+            user: { username: "tester" },
+            userData: { inventory: candy_cane === undefined ? {} : { candy_cane } },
+        }) as unknown as MiddlewareInput["ctx"];
+
+    it("passes when no candy_cane sentinel is set", async () => {
+        const decision = await bannedUserMiddleware({ interaction: {} as ChatInputInteraction, ctx: ctx() });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("passes when candy_cane is positive", async () => {
+        const decision = await bannedUserMiddleware({ interaction: {} as ChatInputInteraction, ctx: ctx(5) });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("blocks when candy_cane is negative", async () => {
+        const decision = await bannedUserMiddleware({ interaction: {} as ChatInputInteraction, ctx: ctx(-1) });
+        expect(decision.stop).toBe(true);
+        if (!decision.stop) throw new Error("expected stop");
+        expect(decision.reply?.content).toContain("banned");
+    });
+});
+
+describe("firstFightSkillPointsHintMiddleware", () => {
+    const buildCtx = (level: number, skillPointSum: number): MiddlewareInput["ctx"] =>
+        ({
+            user: { username: "tester" },
+            userData: {
+                level,
+                prestige: 0,
+                skillPoints: { strength: skillPointSum, defense: 0, speed: 0, perception: 0, stamina: 0 },
+            },
+            client: { getSlashCommandMention: (slug: string) => `</${slug}:0>` },
+            makeMessage: vi.fn(),
+        }) as unknown as MiddlewareInput["ctx"];
+
+    const cmd = (name: string): SlashCommand =>
+        ({ data: { name } }) as unknown as SlashCommand;
+
+    it("passes for non-fight commands", async () => {
+        const decision = await firstFightSkillPointsHintMiddleware({
+            interaction: {} as ChatInputInteraction,
+            command: cmd("profile"),
+            ctx: buildCtx(1, 0),
+        });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("passes when the user has already invested some skill points", async () => {
+        const decision = await firstFightSkillPointsHintMiddleware({
+            interaction: {} as ChatInputInteraction,
+            command: cmd("fight"),
+            ctx: buildCtx(1, 1),
+        });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("blocks the brand-new player invoking /fight with all 4 points unspent", async () => {
+        const ctx = buildCtx(1, 0);
+        const decision = await firstFightSkillPointsHintMiddleware({
+            interaction: {} as ChatInputInteraction,
+            command: cmd("fight"),
+            ctx,
+        });
+        expect(decision.stop).toBe(true);
+        expect(ctx.makeMessage).toHaveBeenCalledOnce();
+    });
+});
+
+describe("userBusyMiddleware", () => {
+    const buildBusyInteraction = (
+        reason: string | null,
+        warningSeen: string | null = null,
+        subcommand = "view",
+    ): ChatInputInteraction => {
+        const reply = vi.fn();
+        const followUp = vi.fn();
+        return {
+            client: {
+                database: {
+                    getCooldown: vi.fn().mockResolvedValue(reason),
+                    redis: {
+                        get: vi.fn().mockResolvedValue(warningSeen),
+                        set: vi.fn().mockResolvedValue("OK"),
+                    },
+                },
+            },
+            user: { id: "u1" },
+            options: { getSubcommand: () => subcommand },
+            reply,
+        } as unknown as ChatInputInteraction;
+    };
+
+    const buildBusyCtx = (interaction: ChatInputInteraction): MiddlewareInput["ctx"] =>
+        ({
+            user: { id: "u1" },
+            userData: { id: "u1" },
+            interaction,
+            followUp: vi.fn(),
+        }) as unknown as MiddlewareInput["ctx"];
+
+    const cmd = (name: string): SlashCommand =>
+        ({ data: { name } }) as unknown as SlashCommand;
+
+    it("passes when no busy reason is stored", async () => {
+        const interaction = buildBusyInteraction(null);
+        const decision = await userBusyMiddleware({
+            interaction,
+            command: cmd("fight"),
+            ctx: buildBusyCtx(interaction),
+        });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("blocks an arbitrary command when a busy reason is stored", async () => {
+        const interaction = buildBusyInteraction("trading…");
+        const decision = await userBusyMiddleware({
+            interaction,
+            command: cmd("fight"),
+            ctx: buildBusyCtx(interaction),
+        });
+        expect(decision.stop).toBe(true);
+        expect(interaction.reply).toHaveBeenCalledWith({ content: "trading…" });
+    });
+
+    it("lets non-finalising /trade subcommands through (e.g. /trade view)", async () => {
+        const interaction = buildBusyInteraction("trading…", null, "view");
+        const decision = await userBusyMiddleware({
+            interaction,
+            command: cmd("trade"),
+            ctx: buildBusyCtx(interaction),
+        });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("blocks /trade trade so a busy user can't double-finalise", async () => {
+        const interaction = buildBusyInteraction("trading…", null, "trade");
+        const decision = await userBusyMiddleware({
+            interaction,
+            command: cmd("trade"),
+            ctx: buildBusyCtx(interaction),
+        });
+        expect(decision).toEqual({ stop: true });
+    });
+
+    it("only sends the warning followup once", async () => {
+        const interaction = buildBusyInteraction("trading…", "true");
+        const ctx = buildBusyCtx(interaction);
+        await userBusyMiddleware({ interaction, command: cmd("fight"), ctx });
+        expect(ctx.followUp).not.toHaveBeenCalled();
+    });
+});
+
+describe("restingAtCampfireMiddleware", () => {
+    const buildCtx = (resting: number | string): MiddlewareInput["ctx"] =>
+        ({
+            user: { id: "u1" },
+            userData: { id: "u1", restingAtCampfire: resting },
+            client: { getSlashCommandMention: (slug: string) => `</${slug}:0>` },
+        }) as unknown as MiddlewareInput["ctx"];
+
+    const cmd = (name: string): SlashCommand =>
+        ({ data: { name } }) as unknown as SlashCommand;
+
+    it("passes when user is not resting", async () => {
+        const decision = await restingAtCampfireMiddleware({
+            interaction: {} as ChatInputInteraction,
+            command: cmd("fight"),
+            ctx: buildCtx(0),
+        });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("normalises a non-numeric restingAtCampfire to 0", async () => {
+        const ctx = buildCtx("notanumber" as unknown as number);
+        await restingAtCampfireMiddleware({
+            interaction: {} as ChatInputInteraction,
+            command: cmd("fight"),
+            ctx,
+        });
+        expect(ctx.userData.restingAtCampfire).toBe(0);
+    });
+
+    it("blocks any command other than campfire/rest while resting", async () => {
+        const decision = await restingAtCampfireMiddleware({
+            interaction: {} as ChatInputInteraction,
+            command: cmd("fight"),
+            ctx: buildCtx(Date.now()),
+        });
+        expect(decision.stop).toBe(true);
+        if (!decision.stop) throw new Error("expected stop");
+        expect(decision.reply?.content).toContain("rest leave");
+    });
+
+    it("lets /rest and /campfire through while resting", async () => {
+        for (const name of ["rest", "campfire"]) {
+            const decision = await restingAtCampfireMiddleware({
+                interaction: {} as ChatInputInteraction,
+                command: cmd(name),
+                ctx: buildCtx(Date.now()),
+            });
+            expect(decision).toEqual({ stop: false });
+        }
     });
 });
