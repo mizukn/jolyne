@@ -28,6 +28,7 @@ import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
 import { restingAtCampfireMiddleware } from "../middlewares/restingAtCampfire";
 import { rpgCooldownMiddleware } from "../middlewares/rpgCooldown";
+import { seasonalEmailsMiddleware } from "../middlewares/seasonalEmails";
 import { userBusyMiddleware } from "../middlewares/userBusy";
 import { userDataMiddleware } from "../middlewares/userData";
 import type { Middleware, MiddlewareDecision } from "../middlewares/types";
@@ -156,73 +157,7 @@ const Event: EventFile = {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
                 }
 
-                if (
-                    isActive(EVENT_IDS.THIRD_ANNIVERSARY) &&
-                    !ctx.userData.emails.find((r) => r.id === "third_anniversary")
-                ) {
-                    ctx.followUpQueue.push({
-                        content: `:tada: | **${ctx.user.username}**, thank you for playing Jolyne's RPG! You received a special email & quest for the 3rd anniversary of the bot!`,
-                    });
-                    Functions.addEmail(ctx.userData, "third_anniversary");
-                }
-
-                if (
-                    isActive(EVENT_IDS.HALLOWEEN_2024) &&
-                    !ctx.userData.emails.find((r) => r.id === "halloween_2024")
-                ) {
-                    const hasAlreadyAdded = await ctx.client.database.getString(
-                        `setHalloween2024:${ctx.user.id}`,
-                    );
-                    if (!hasAlreadyAdded) {
-                        await ctx.client.database.setString(
-                            `setHalloween2024:${ctx.user.id}`,
-                            "true",
-                        );
-
-                        ctx.followUpQueue.push({
-                            content: `:jack_o_lantern: | **${ctx.user.username}**, Happy Halloween! You received a special email & quest for the 2024 Halloween event.`,
-                        });
-                        Functions.addEmail(ctx.userData, "halloween_2024");
-                    }
-                }
-                if (
-                    isActive(EVENT_IDS.CHRISTMAS_2024) &&
-                    !ctx.userData.emails.find((r) => r.id === "christmas_2024")
-                ) {
-                    const hasAlreadyAdded = await ctx.client.database.getString(
-                        `setChristmas2024:${ctx.user.id}`,
-                    );
-                    if (!hasAlreadyAdded) {
-                        await ctx.client.database.setString(
-                            `setChristmas2024:${ctx.user.id}`,
-                            "true",
-                        );
-
-                        ctx.followUpQueue.push({
-                            content: `:christmas_tree: | **${ctx.user.username}**, You received a special email & quest for the 2024 Christmas event.`,
-                        });
-                        Functions.addEmail(ctx.userData, "christmas_2024");
-                    }
-                }
-
-                if (
-                    isActive(EVENT_IDS.HALLOWEEN_2025) &&
-                    !ctx.userData.emails.find((r) => r.id === "halloween_2025")
-                ) {
-                    const hasAlreadyAdded = await ctx.client.database.getString(
-                        `setHalloween2025:${ctx.user.id}`,
-                    );
-                    if (!hasAlreadyAdded) {
-                        await ctx.client.database.setString(
-                            `setHalloween2025:${ctx.user.id}`,
-                            "true",
-                        );
-                        ctx.followUpQueue.push({
-                            content: `:jack_o_lantern: | **${ctx.user.username}**, Happy Halloween! You received a special email & quest for the 2025 Halloween event.`,
-                        });
-                        Functions.addEmail(ctx.userData, "halloween_2025");
-                    }
-                }
+                if (await applyDecision(interaction, await runMiddleware(pipeline, seasonalEmailsMiddleware))) return;
 
                 if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
                     if (

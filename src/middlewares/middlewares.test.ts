@@ -10,6 +10,7 @@ import { maintenanceMiddleware } from "./maintenance";
 import { permissionsMiddleware } from "./permissions";
 import { restingAtCampfireMiddleware } from "./restingAtCampfire";
 import { rpgCooldownMiddleware } from "./rpgCooldown";
+import { seasonalEmailsMiddleware } from "./seasonalEmails";
 import { userBusyMiddleware } from "./userBusy";
 import { userDataMiddleware } from "./userData";
 
@@ -533,5 +534,102 @@ describe("restingAtCampfireMiddleware", () => {
             });
             expect(decision).toEqual({ stop: false });
         }
+    });
+});
+
+vi.mock("../services/EventService", async () => {
+    const actual = await vi.importActual<typeof import("../services/EventService")>(
+        "../services/EventService",
+    );
+    return { ...actual, isActive: vi.fn() };
+});
+
+import { isActive } from "../services/EventService";
+
+describe("seasonalEmailsMiddleware", () => {
+    const mockedIsActive = vi.mocked(isActive);
+
+    type RedisStore = Map<string, string>;
+    const buildSeasonalCtx = (
+        existingEmailIds: string[] = [],
+        redis: RedisStore = new Map(),
+    ): MiddlewareInput["ctx"] => {
+        const followUpQueue: Array<{ content: string }> = [];
+        return {
+            user: { id: "u1", username: "tester" },
+            userData: {
+                emails: existingEmailIds.map((id) => ({ id })),
+            },
+            client: {
+                database: {
+                    getString: async (k: string) => redis.get(k) ?? null,
+                    setString: async (k: string, v: string) => {
+                        redis.set(k, v);
+                    },
+                },
+            },
+            followUpQueue,
+        } as unknown as MiddlewareInput["ctx"];
+    };
+
+    beforeEach(() => {
+        mockedIsActive.mockReset();
+    });
+
+    it("does nothing when no events are active", async () => {
+        mockedIsActive.mockReturnValue(false);
+        const ctx = buildSeasonalCtx();
+        const decision = await seasonalEmailsMiddleware({
+            interaction: {} as ChatInputInteraction,
+            ctx,
+        });
+        expect(decision).toEqual({ stop: false });
+        expect(ctx.userData.emails).toHaveLength(0);
+    });
+
+    it("queues the 3rd anniversary follow-up (no Redis idempotency) when active and absent", async () => {
+        mockedIsActive.mockImplementation((id) => id === "third_anniversary");
+        const ctx = buildSeasonalCtx();
+        await seasonalEmailsMiddleware({
+            interaction: {} as ChatInputInteraction,
+            ctx,
+        });
+        const queued = ctx.followUpQueue[0] as { content: string };
+        expect(queued.content).toContain("3rd anniversary");
+    });
+
+    it("does not double-inject if the user already has the email", async () => {
+        mockedIsActive.mockImplementation((id) => id === "halloween_2024");
+        const redis = new Map<string, string>();
+        const ctx = buildSeasonalCtx(["halloween_2024"], redis);
+        await seasonalEmailsMiddleware({
+            interaction: {} as ChatInputInteraction,
+            ctx,
+        });
+        expect(ctx.followUpQueue).toHaveLength(0);
+        expect(redis.size).toBe(0);
+    });
+
+    it("uses the Redis idempotency key for events that declare one", async () => {
+        mockedIsActive.mockImplementation((id) => id === "halloween_2024");
+        const redis = new Map<string, string>();
+        const ctx = buildSeasonalCtx([], redis);
+        await seasonalEmailsMiddleware({
+            interaction: {} as ChatInputInteraction,
+            ctx,
+        });
+        expect(redis.get("setHalloween2024:u1")).toBe("true");
+    });
+
+    it("respects an already-set Redis idempotency key", async () => {
+        mockedIsActive.mockImplementation((id) => id === "halloween_2024");
+        const redis = new Map([["setHalloween2024:u1", "true"]]);
+        const ctx = buildSeasonalCtx([], redis);
+        await seasonalEmailsMiddleware({
+            interaction: {} as ChatInputInteraction,
+            ctx,
+        });
+        expect(ctx.userData.emails).toHaveLength(0);
+        expect(ctx.followUpQueue).toHaveLength(0);
     });
 });
