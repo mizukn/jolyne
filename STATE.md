@@ -119,6 +119,8 @@ Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-0
 - **`console.log` debug noise** in `Fighter.removeHealth` (dodge logs), `DungeonHandler` (modifier dump, "deleting message"), `Fight.ts` ("ATTEMTPING TO DELETE", custom-level set) — removed.
 - **More noisy logs** in `Functions.getAttackDamages`, `Functions.fixNpcRewards`, `Functions.hasVotedRecenty`, `Heal`, and `Patreon` — removed.
 - **`FightRenderer` NPC detection** — no longer uses `isNaN(Number(id))`; it now trusts explicit `fighter.npc` / `manipulatedBy.npc`.
+- **Forfeit + resurrection passive conflict** — fixed. `Fighter.flags.forfeited` is set on forfeit and the passive engine skips forfeited fighters even for `evenIfDead` passives, so Dead Revival no longer resurrects someone who gave up.
+- **Anti-cheat debug logs** in `CommandInteractionContext` — removed.
 
 ### BRAINSTORM live issues still in code (decision-pending or low-impact)
 
