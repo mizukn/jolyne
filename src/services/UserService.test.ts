@@ -26,6 +26,7 @@ import {
     getSpeedScore,
     getStaminaEffect,
     getTrueLevel,
+    hasVotedRecenty,
     hasReachedMaxLevel,
     isClaimXQuest,
     PrestigeShardReward,
@@ -75,6 +76,8 @@ const baseUser = (): RPGUserDataJSON =>
         daily: { quests: [] as RPGUserQuest[] },
         chapter: { quests: [] as RPGUserQuest[] },
         sideQuests: [],
+        voteHistory: {},
+        totalVotes: 0,
     }) as unknown as RPGUserDataJSON;
 
 const claimXQuest = (overrides: Partial<ClaimXQuest> = {}): ClaimXQuest => ({
@@ -448,6 +451,35 @@ describe("UserService user validation", () => {
 
         item.requirements.skillPoints.strength = 15;
         expect(userMeetsRequirementsForItem(user, item)).toBe(false);
+    });
+});
+
+describe("UserService.hasVotedRecenty", () => {
+    const client = {
+        patreons: [],
+        boosters: [],
+    } as unknown as Jolyne;
+
+    it("detects a recent vote in the current month", () => {
+        const user = baseUser();
+        const voteMonth = new Date().toLocaleString("en-US", {
+            month: "long",
+            year: "numeric",
+        });
+        user.voteHistory[voteMonth] = [Date.now()];
+
+        expect(hasVotedRecenty(user, client)).toBe(true);
+    });
+
+    it("rejects stale votes", () => {
+        const user = baseUser();
+        const voteMonth = new Date().toLocaleString("en-US", {
+            month: "long",
+            year: "numeric",
+        });
+        user.voteHistory[voteMonth] = [Date.now() - 1000 * 60 * 10];
+
+        expect(hasVotedRecenty(user, client)).toBe(false);
     });
 });
 

@@ -705,6 +705,37 @@ export const calculateUserPower = (data: RPGUserDataJSON | FightableNPC | Fighte
     return Math.round(trueLevel + (totalAbilitiesDamage / 100) * 1.75);
 };
 
+export const hasVotedRecenty = (data: RPGUserDataJSON, client: Jolyne, time?: number): boolean => {
+    const patreonTier = client.patreons.find((v) => v.id === data.id)?.level ?? 0;
+    const voteMonth = new Date().toLocaleString("en-US", {
+        month: "long",
+        year: "numeric",
+    });
+
+    const month = new Date().getUTCMonth() - 1;
+    const year = new Date().getFullYear();
+    const previousMonthDateFormat = new Date(year, month, 1).toLocaleString("en-US", {
+        month: "long",
+        year: "numeric",
+    });
+
+    const lastMonthVote = (
+        data.voteHistory[voteMonth] ??
+        data.voteHistory[previousMonthDateFormat] ??
+        []
+    )
+        .sort((a, b) => b - a)[0];
+
+    if (!lastMonthVote) return false;
+
+    const isBooster = client.boosters.find((x) => x === data.id);
+
+    const mustBeLessThan =
+        time ?? 1000 * 60 * 5 + patreonTier * 1000 * 60 + (isBooster ? 1000 * 60 : 0);
+
+    return Date.now() - lastMonthVote < mustBeLessThan;
+};
+
 export function getRPGUserDataChanges(
     oldData: RPGUserDataJSON,
     newData: RPGUserDataJSON,
