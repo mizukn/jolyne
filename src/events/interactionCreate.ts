@@ -27,9 +27,12 @@ import { firstFightSkillPointsHintMiddleware } from "../middlewares/firstFightSk
 import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
 import { restingAtCampfireMiddleware } from "../middlewares/restingAtCampfire";
+import { patreonRewardsMiddleware } from "../middlewares/patreonRewards";
 import { rpgCooldownMiddleware } from "../middlewares/rpgCooldown";
 import { seasonalEmailsMiddleware } from "../middlewares/seasonalEmails";
+import { sideQuestEnrollmentMiddleware } from "../middlewares/sideQuestEnrollment";
 import { userBusyMiddleware } from "../middlewares/userBusy";
+import { userDataFixupsMiddleware } from "../middlewares/userDataFixups";
 import { userDataMiddleware } from "../middlewares/userData";
 import type { Middleware, MiddlewareDecision } from "../middlewares/types";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
@@ -107,7 +110,7 @@ const Event: EventFile = {
                     )}`,
                     "command",
                 );
-                const notifications: string[] = [];
+                const notifications: string[] = (pipeline.notifications ??= []);
                 // check if ctx.userData.health is lower than 10% of their Functions.getMaxHealth(ctx.userData) and/or for stamina
                 if (
                     (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1 ||
@@ -158,77 +161,9 @@ const Event: EventFile = {
                 }
 
                 if (await applyDecision(interaction, await runMiddleware(pipeline, seasonalEmailsMiddleware))) return;
-
-                if (ctx.client.patreons.find((r) => r.id === ctx.user.id)) {
-                    if (
-                        ctx.userData.lastPatreonReward !==
-                        ctx.client.patreons.find((r) => r.id === ctx.user.id).lastPatreonCharge
-                    ) {
-                        const oldDataPatreon = cloneDeep(ctx.userData);
-                        Functions.givePatreonRewards(
-                            ctx.userData,
-                            ctx.client.patreons.find((r) => r.id === ctx.user.id).level,
-                        );
-                        notifications.push(
-                            `:heart: <:patronbox:1056324158524502036> | You received your monthly Patreon rewards! You got these items: ${Functions.getRewardsCompareData(
-                                oldDataPatreon,
-                                ctx.userData,
-                            ).join(", ")}`,
-                        );
-                        ctx.userData.lastPatreonReward = ctx.client.patreons.find(
-                            (r) => r.id === ctx.user.id,
-                        ).lastPatreonCharge;
-                    }
-                }
-                for (const SideQuest of Object.values(SideQuests)) {
-                    const status = Functions.getSideQuestRequirements(SideQuest, ctx);
-                    if (status.status) {
-                        if (!ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)) {
-                            const fixedQuests = SideQuest.quests(ctx).map((v) =>
-                                Functions.pushQuest(v),
-                            );
-                            ctx.userData.sideQuests.push({
-                                id: SideQuest.id,
-                                quests: fixedQuests,
-                            });
-                            notifications.push(
-                                `${SideQuest.emoji} | You now have the **${
-                                    SideQuest.title
-                                }** SideQuest! (${ctx.client.getSlashCommandMention(
-                                    "quests side view",
-                                )})`,
-                            );
-                        }
-                    } else {
-                        if (
-                            (ctx.userData.sideQuests.find((r) => r.id === SideQuest.id) &&
-                                SideQuest.cancelQuestIfRequirementsNotMetAnymore) ||
-                            (ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)?.quests &&
-                                ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)?.quests
-                                    .length === 0)
-                        ) {
-                            if (
-                                !ctx.userData.sideQuests.find((r) => r.id === SideQuest.id)
-                                    .claimedPrize
-                            ) {
-                                ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
-                                    (r) => r.id !== SideQuest.id,
-                                );
-                                notifications.push(
-                                    `:x: | You no longer meet the requirements for the **${SideQuest.title}** sidequest, so it has been removed from your sidequests list. Sorry! All your progress on it has been lost.\n\n${status.notMeet}`,
-                                );
-                            }
-                        }
-                    }
-                }
-
-                // check if in inventory it has something like { stand_arrow: null } and fix nulls
-                ctx.userData.tag = ctx.user.username;
-                for (const item in ctx.userData.inventory) {
-                    if (ctx.userData.inventory[item] === null) {
-                        delete ctx.userData.inventory[item];
-                    }
-                }
+                if (await applyDecision(interaction, await runMiddleware(pipeline, patreonRewardsMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, sideQuestEnrollmentMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, userDataFixupsMiddleware))) return;
 
                 for (const quests of [
                     ctx.userData.daily.quests,

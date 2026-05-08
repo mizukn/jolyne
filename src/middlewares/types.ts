@@ -19,6 +19,14 @@ export interface MiddlewareInput {
     command?: SlashCommand;
     /** The wrapped context, present after the user-data middleware runs. */
     ctx?: CommandInteractionContext;
+    /**
+     * Notifications accumulated by middlewares that observe RPG-state side
+     * effects (Patreon rewards, sidequest enrollment, level-ups, low-health
+     * reminders, …). The save middleware joins them with `\n\n` and queues
+     * the result as a single follow-up so users get one consolidated bubble
+     * instead of one Discord message per concern.
+     */
+    notifications?: string[];
 }
 
 export type StopDecision = {

@@ -1,6 +1,35 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { MessageFlags } from "discord.js";
 
+// Some middlewares pull `getRewardsCompareData` from utils/Functions, which
+// transitively imports utils/Webhooks. Webhooks construct WebhookClients at
+// module load and crash without real URLs. Stub the whole module so we
+// don't have to seed every webhook env var in tests.
+// `rpg/SideQuests` reaches into `Raids.ts` at module load, which reads
+// `FightableNPCs.<x>.rewards` — that field is only populated by the boot
+// pass in `index.ts`. Vitest doesn't run that pass, so unmocked imports
+// crash. We mock the whole barrel to an empty record; the few middlewares
+// that iterate it just see "no side quests" and behave correctly.
+vi.mock("../rpg/SideQuests", () => ({}));
+
+vi.mock("../utils/Webhooks", () => ({
+    voteWebhook: { send: vi.fn() },
+    tradeWebhook: { send: vi.fn() },
+    raidWebhook: { send: vi.fn() },
+    thrownItemsWebhook: { send: vi.fn() },
+    claimedItemsWebhook: { send: vi.fn() },
+    commandLogsWebhook: { send: vi.fn() },
+    shardLogsWebhook: { send: vi.fn() },
+    dungeonLogsWebhook: { send: vi.fn() },
+    fightStartWebhook: { send: vi.fn() },
+    fightEndWebhook: { send: vi.fn() },
+    standLogsWebhook: { send: vi.fn() },
+    specialLogsWebhook: { send: vi.fn() },
+    erroredFightLogsWebhook: { send: vi.fn() },
+    halloweenClaimsWebhook: { send: vi.fn() },
+    transactionLogsWebhook: { send: vi.fn() },
+}));
+
 import { bannedUserMiddleware } from "./bannedUser";
 import { channelMiddleware } from "./channel";
 import { commandCooldownMiddleware } from "./commandCooldown";
@@ -8,10 +37,13 @@ import { deprecatedRedirectMiddleware } from "./deprecatedRedirect";
 import { firstFightSkillPointsHintMiddleware } from "./firstFightSkillPointsHint";
 import { maintenanceMiddleware } from "./maintenance";
 import { permissionsMiddleware } from "./permissions";
+import { patreonRewardsMiddleware } from "./patreonRewards";
 import { restingAtCampfireMiddleware } from "./restingAtCampfire";
 import { rpgCooldownMiddleware } from "./rpgCooldown";
 import { seasonalEmailsMiddleware } from "./seasonalEmails";
+import { sideQuestEnrollmentMiddleware } from "./sideQuestEnrollment";
 import { userBusyMiddleware } from "./userBusy";
+import { userDataFixupsMiddleware } from "./userDataFixups";
 import { userDataMiddleware } from "./userData";
 
 import type { ChatInputInteraction, MiddlewareInput } from "./types";
@@ -631,5 +663,101 @@ describe("seasonalEmailsMiddleware", () => {
         });
         expect(ctx.userData.emails).toHaveLength(0);
         expect(ctx.followUpQueue).toHaveLength(0);
+    });
+});
+
+describe("patreonRewardsMiddleware", () => {
+    const buildPatronCtx = (
+        patrons: Array<{ id: string; level: 1 | 2 | 3 | 4; lastPatreonCharge: number }>,
+        userData: { id: string; lastPatreonReward: number; inventory?: Record<string, number> },
+    ): MiddlewareInput["ctx"] =>
+        ({
+            user: { id: userData.id },
+            userData: {
+                ...userData,
+                inventory: userData.inventory ?? {},
+                daily: { quests: [] },
+                chapter: { quests: [] },
+                sideQuests: [],
+                xp: 0,
+                coins: 0,
+                health: 100,
+                stamina: 100,
+                level: 50,
+                skillPoints: { strength: 0, defense: 0, speed: 0, perception: 0, stamina: 0 },
+                equippedItems: {},
+            },
+            client: { patreons: patrons },
+        }) as unknown as MiddlewareInput["ctx"];
+
+    it("does nothing for non-patrons", async () => {
+        const ctx = buildPatronCtx([], { id: "u1", lastPatreonReward: 0 });
+        const input: MiddlewareInput = { interaction: {} as ChatInputInteraction, ctx };
+        const decision = await patreonRewardsMiddleware(input);
+        expect(decision).toEqual({ stop: false });
+        expect(input.notifications ?? []).toHaveLength(0);
+    });
+
+    it("does nothing if the patron has already been credited for this charge", async () => {
+        const ctx = buildPatronCtx(
+            [{ id: "u1", level: 2, lastPatreonCharge: 1_000 }],
+            { id: "u1", lastPatreonReward: 1_000 },
+        );
+        const input: MiddlewareInput = { interaction: {} as ChatInputInteraction, ctx };
+        await patreonRewardsMiddleware(input);
+        expect(input.notifications ?? []).toHaveLength(0);
+    });
+
+    it("credits and stamps `lastPatreonReward` on first run after a new charge", async () => {
+        const ctx = buildPatronCtx(
+            [{ id: "u1", level: 2, lastPatreonCharge: 2_000 }],
+            { id: "u1", lastPatreonReward: 1_000 },
+        );
+        const input: MiddlewareInput = { interaction: {} as ChatInputInteraction, ctx };
+        await patreonRewardsMiddleware(input);
+        expect((ctx.userData as { lastPatreonReward: number }).lastPatreonReward).toBe(2_000);
+        expect(input.notifications?.[0]).toContain("Patreon");
+    });
+});
+
+describe("sideQuestEnrollmentMiddleware", () => {
+    it("is a no-op without ctx", async () => {
+        const input: MiddlewareInput = { interaction: {} as ChatInputInteraction };
+        const decision = await sideQuestEnrollmentMiddleware(input);
+        expect(decision).toEqual({ stop: false });
+    });
+
+    // Real coverage of the iteration logic would need to mock every entry in
+    // SideQuests; instead we check the middleware initialises notifications
+    // and tolerates a minimal ctx.
+    it("initialises pipeline.notifications even when nothing is enrolled", async () => {
+        const ctx = {
+            user: { id: "u1" },
+            userData: { sideQuests: [] },
+            client: { getSlashCommandMention: (slug: string) => `</${slug}:0>` },
+        } as unknown as MiddlewareInput["ctx"];
+        const input: MiddlewareInput = { interaction: {} as ChatInputInteraction, ctx };
+        await sideQuestEnrollmentMiddleware(input);
+        expect(Array.isArray(input.notifications)).toBe(true);
+    });
+});
+
+describe("userDataFixupsMiddleware", () => {
+    it("syncs the discord username onto userData.tag", async () => {
+        const ctx = {
+            user: { id: "u1", username: "FreshName" },
+            userData: { tag: "OldName", inventory: {} },
+        } as unknown as MiddlewareInput["ctx"];
+        await userDataFixupsMiddleware({ interaction: {} as ChatInputInteraction, ctx });
+        expect(ctx.userData.tag).toBe("FreshName");
+    });
+
+    it("removes null inventory entries", async () => {
+        const ctx = {
+            user: { id: "u1", username: "u" },
+            userData: { tag: "u", inventory: { stand_arrow: null, pizza: 5 } },
+        } as unknown as MiddlewareInput["ctx"];
+        await userDataFixupsMiddleware({ interaction: {} as ChatInputInteraction, ctx });
+        expect(ctx.userData.inventory).toEqual({ pizza: 5 });
     });
 });
