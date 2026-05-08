@@ -1494,13 +1494,7 @@ export const prestigeUser = UserService.prestigeUser;
 
 export const prestigeUserMethod2 = UserService.prestigeUserMethod2;
 
-export const getWeapon = (data: RPGUserDataJSON | FightableNPC): Weapon => {
-    return findItem<Weapon>(
-        Object.keys(data.equippedItems).find(
-            (r) => data.equippedItems[r] === equipableItemTypes.WEAPON,
-        ),
-    );
-};
+export const getWeapon = UserService.getWeapon;
 
 export const getRPGUserDataChanges = UserService.getRPGUserDataChanges;
 
@@ -1510,33 +1504,6 @@ export const userMeetsRequirementsForItem = UserService.userMeetsRequirementsFor
 
 export const getTrueLevel = UserService.getTrueLevel;
 
-export const calculateUserPower = (data: RPGUserDataJSON | FightableNPC | Fighter): number => {
-    const trueLevel = isFighter(data) ? data.trueLevel : getTrueLevel(data);
-    let totalAbilitiesDamage = 0;
-
-    if (data.stand) {
-        const stand = isFighter(data)
-            ? data.stand
-            : findStand(data.stand, data.standsEvolved[data.stand]);
-        if (stand) {
-            for (const ability of stand.abilities) {
-                if (ability.damage) {
-                    totalAbilitiesDamage += getAbilityDamage(data, ability);
-                }
-            }
-        }
-    }
-
-    const weapon = isFighter(data) ? data.weapon : getWeapon(data);
-    if (weapon) {
-        for (const ability of weapon.abilities) {
-            if (ability.damage) {
-                totalAbilitiesDamage += getAbilityDamage(data, ability);
-            }
-        }
-    }
-
-    return Math.round(trueLevel + (totalAbilitiesDamage / 100) * 1.75);
-};
+export const calculateUserPower = UserService.calculateUserPower;
 
 export const hasReachedMaxLevel = UserService.hasReachedMaxLevel;

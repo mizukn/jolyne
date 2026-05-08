@@ -4,6 +4,7 @@
 
 import {
     defaultUserSettings,
+    equipableItemTypes,
     type Ability,
     type ClaimXQuest,
     type Consumable,
@@ -15,6 +16,7 @@ import {
     type RPGUserQuest,
     type SkillPoints,
     type Stand,
+    type Weapon,
 } from "../@types";
 import type Jolyne from "../structures/JolyneClient";
 import type { Fighter } from "../structures/FightHandler";
@@ -612,6 +614,14 @@ export const userMeetsRequirementsForItem = (
     return true;
 };
 
+export const getWeapon = (data: RPGUserDataJSON | FightableNPC): Weapon => {
+    const itemId = Object.keys(data.equippedItems).find(
+        (r) => data.equippedItems[r] === equipableItemTypes.WEAPON,
+    );
+    if (!itemId) return;
+    return dependencies.findEquipableItem(itemId) as Weapon;
+};
+
 export const getTrueLevel = (data: RPGUserDataJSON | FightableNPC): number => {
     const bonusSkillPoints =
         Object.values(getSkillPointsBonus(data)).reduce((acc, val) => acc + val, 0) +
@@ -620,6 +630,35 @@ export const getTrueLevel = (data: RPGUserDataJSON | FightableNPC): number => {
     const extraStamina = calcEquipableItemsBonus(data).stamina;
 
     return Math.round((bonusSkillPoints + extraHealth / 11.55 + extraStamina / 1.98) / 4);
+};
+
+export const calculateUserPower = (data: RPGUserDataJSON | FightableNPC | Fighter): number => {
+    const trueLevel = isFighter(data) ? data.trueLevel : getTrueLevel(data);
+    let totalAbilitiesDamage = 0;
+
+    if (data.stand) {
+        const stand = isFighter(data)
+            ? data.stand
+            : dependencies.findStand(data.stand, data.standsEvolved[data.stand]);
+        if (stand) {
+            for (const ability of stand.abilities) {
+                if (ability.damage) {
+                    totalAbilitiesDamage += getAbilityDamage(data, ability);
+                }
+            }
+        }
+    }
+
+    const weapon = isFighter(data) ? data.weapon : getWeapon(data);
+    if (weapon) {
+        for (const ability of weapon.abilities) {
+            if (ability.damage) {
+                totalAbilitiesDamage += getAbilityDamage(data, ability);
+            }
+        }
+    }
+
+    return Math.round(trueLevel + (totalAbilitiesDamage / 100) * 1.75);
 };
 
 export function getRPGUserDataChanges(

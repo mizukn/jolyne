@@ -6,6 +6,7 @@ import {
     addSocialCredits,
     addStamina,
     addXp,
+    calculateUserPower,
     fixUserSettings,
     generateSkillPoints,
     generateSkillPointsByBuild,
@@ -238,6 +239,13 @@ describe("UserService stat math", () => {
         user.skillPoints.strength = 4;
 
         expect(getTrueLevel(user)).toBe(10);
+    });
+
+    it("uses true level as power when no ability damage is available", () => {
+        const user = baseUser();
+        user.level = 10;
+
+        expect(calculateUserPower(user)).toBe(getTrueLevel(user));
     });
 
     it("detects the prestige level cap", () => {
