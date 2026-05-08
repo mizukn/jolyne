@@ -27,6 +27,13 @@ export interface MiddlewareInput {
      * instead of one Discord message per concern.
      */
     notifications?: string[];
+    /**
+     * Resolved command path including the subcommand if the command declares
+     * one (e.g. "settings notifications", "fight quest"). Populated by the
+     * userData middleware once `command` is known. Quest effects compare
+     * against this to increment `UseXCommand` quest counters.
+     */
+    commandName?: string;
 }
 
 export type StopDecision = {

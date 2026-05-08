@@ -23,6 +23,12 @@ export const userDataMiddleware: Middleware = async (input): Promise<MiddlewareD
     const ctx = new CommandInteractionContext(interaction, userData);
     input.ctx = ctx;
 
+    let commandName = command.data.name;
+    if (command.data.options?.filter((r) => r.type === 1)?.length !== 0) {
+        commandName += ` ${interaction.options.getSubcommand()}`;
+    }
+    input.commandName = commandName;
+
     if (!ctx.userData) {
         const startsAdventure =
             command.data.name === "start" ||

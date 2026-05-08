@@ -38,6 +38,7 @@ import { firstFightSkillPointsHintMiddleware } from "./firstFightSkillPointsHint
 import { maintenanceMiddleware } from "./maintenance";
 import { permissionsMiddleware } from "./permissions";
 import { patreonRewardsMiddleware } from "./patreonRewards";
+import { questEffectsMiddleware } from "./questEffects";
 import { restingAtCampfireMiddleware } from "./restingAtCampfire";
 import { rpgCooldownMiddleware } from "./rpgCooldown";
 import { seasonalEmailsMiddleware } from "./seasonalEmails";
@@ -47,7 +48,7 @@ import { userDataFixupsMiddleware } from "./userDataFixups";
 import { userDataMiddleware } from "./userData";
 
 import type { ChatInputInteraction, MiddlewareInput } from "./types";
-import type { RPGUserDataJSON, SlashCommand } from "../@types";
+import type { RPGUserDataJSON, RPGUserQuest, SlashCommand } from "../@types";
 
 vi.mock("../services/DeprecatedCommandService", () => ({
     getDeprecatedCommandRedirect: vi.fn(),
@@ -739,6 +740,61 @@ describe("sideQuestEnrollmentMiddleware", () => {
         const input: MiddlewareInput = { interaction: {} as ChatInputInteraction, ctx };
         await sideQuestEnrollmentMiddleware(input);
         expect(Array.isArray(input.notifications)).toBe(true);
+    });
+});
+
+describe("questEffectsMiddleware", () => {
+    it("is a no-op without ctx", async () => {
+        const decision = await questEffectsMiddleware({ interaction: {} as ChatInputInteraction });
+        expect(decision).toEqual({ stop: false });
+    });
+
+    it("bumps UseXCommand quest amount when commandName matches", async () => {
+        const useXQuest = {
+            id: "use-x",
+            type: "UseXCommandQuest",
+            command: "fight quest",
+            amount: 0,
+            goal: 5,
+        } as unknown as RPGUserQuest;
+        const ctx = {
+            user: { id: "u1" },
+            userData: {
+                daily: { quests: [useXQuest] },
+                chapter: { quests: [] },
+                sideQuests: [],
+            },
+        } as unknown as MiddlewareInput["ctx"];
+        await questEffectsMiddleware({
+            interaction: {} as ChatInputInteraction,
+            ctx,
+            commandName: "fight quest",
+        });
+        expect((useXQuest as unknown as { amount: number }).amount).toBe(1);
+    });
+
+    it("leaves UseXCommand quests alone when commandName differs", async () => {
+        const useXQuest = {
+            id: "use-x",
+            type: "UseXCommandQuest",
+            command: "fight quest",
+            amount: 0,
+            goal: 5,
+        } as unknown as RPGUserQuest;
+        const ctx = {
+            user: { id: "u1" },
+            userData: {
+                daily: { quests: [useXQuest] },
+                chapter: { quests: [] },
+                sideQuests: [],
+            },
+        } as unknown as MiddlewareInput["ctx"];
+        await questEffectsMiddleware({
+            interaction: {} as ChatInputInteraction,
+            ctx,
+            commandName: "profile",
+        });
+        expect((useXQuest as unknown as { amount: number }).amount).toBe(0);
     });
 });
 

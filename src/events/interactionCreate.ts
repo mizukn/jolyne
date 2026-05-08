@@ -28,6 +28,7 @@ import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
 import { restingAtCampfireMiddleware } from "../middlewares/restingAtCampfire";
 import { patreonRewardsMiddleware } from "../middlewares/patreonRewards";
+import { questEffectsMiddleware } from "../middlewares/questEffects";
 import { rpgCooldownMiddleware } from "../middlewares/rpgCooldown";
 import { seasonalEmailsMiddleware } from "../middlewares/seasonalEmails";
 import { sideQuestEnrollmentMiddleware } from "../middlewares/sideQuestEnrollment";
@@ -100,10 +101,7 @@ const Event: EventFile = {
                 if (await applyDecision(interaction, await runMiddleware(pipeline, userBusyMiddleware))) return;
                 if (await applyDecision(interaction, await runMiddleware(pipeline, restingAtCampfireMiddleware))) return;
 
-                let commandName = command.data.name;
-                if (command.data.options?.filter((r) => r.type === 1)?.length !== 0) {
-                    commandName += ` ${interaction.options.getSubcommand()}`;
-                }
+                const commandName = pipeline.commandName ?? command.data.name;
                 interaction.client.log(
                     `${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
                         interaction.options["data"],
@@ -164,111 +162,7 @@ const Event: EventFile = {
                 if (await applyDecision(interaction, await runMiddleware(pipeline, patreonRewardsMiddleware))) return;
                 if (await applyDecision(interaction, await runMiddleware(pipeline, sideQuestEnrollmentMiddleware))) return;
                 if (await applyDecision(interaction, await runMiddleware(pipeline, userDataFixupsMiddleware))) return;
-
-                for (const quests of [
-                    ctx.userData.daily.quests,
-                    ctx.userData.chapter.quests,
-                    ...ctx.userData.sideQuests.map((v) => v.quests),
-                ]) {
-                    for (const quest of quests) {
-                        if (quest.pushEmailWhenCompleted && quest.completed) {
-                            const mailData = Functions.findEmail(
-                                quest.pushEmailWhenCompleted.email,
-                            );
-                            if (quest.pushEmailWhenCompleted.timeout) {
-                                quests.push(
-                                    Functions.generateWaitQuest(
-                                        quest.pushEmailWhenCompleted.timeout,
-                                        mailData.id,
-                                        null,
-                                        null,
-                                        quest.pushEmailWhenCompleted.mustRead,
-                                    ),
-                                );
-                            } else {
-                                Functions.addEmail(
-                                    ctx.userData,
-                                    quest.pushEmailWhenCompleted.email,
-                                );
-                                if (quest.pushEmailWhenCompleted.mustRead) {
-                                    quests.push(Functions.generateMustReadEmailQuest(mailData));
-                                }
-                            }
-                            quest.pushEmailWhenCompleted = null;
-                        }
-
-                        if (quest.pushQuestWhenCompleted && quest.completed) {
-                            if (!quests.find((x) => x.id === quest.pushQuestWhenCompleted.id))
-                                quests.push(quest.pushQuestWhenCompleted);
-                            quest.pushQuestWhenCompleted = null;
-                        }
-
-                        if (quest.pushItemWhenCompleted && quest.completed) {
-                            for (const item of quest.pushItemWhenCompleted) {
-                                const itemData = Functions.findItem(item.item);
-                                if (!itemData) continue;
-                                if (item.chance) {
-                                    if (Functions.percent(item.chance)) {
-                                        // wtf is this
-                                        Functions.addItem(ctx.userData, item.item, item.amount);
-                                        notifications.push(
-                                            `-# You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`,
-                                        );
-                                    }
-                                } else {
-                                    Functions.addItem(ctx.userData, item.item, item.amount);
-                                    notifications.push(
-                                        `-# You got ${itemData.emoji} \`${item.amount}x ${itemData.name}\` from a quest [${quest.type}:${quest.id}].`,
-                                    );
-                                }
-                            }
-                            quest.pushItemWhenCompleted = null;
-                        }
-                        if (
-                            Functions.isUseXCommandQuest(quest) &&
-                            quest.command === commandName
-                        ) {
-                            quest.amount++;
-                        }
-
-                        if (Functions.isWaitQuest(quest) && !quest.claimed) {
-                            if (quest.end < Date.now()) {
-                                quest.claimed = true;
-                                if (quest.email) {
-                                    const mailData = Functions.findEmail(quest.email);
-                                    Functions.addEmail(ctx.userData, quest.email);
-                                    if (quest.mustRead) {
-                                        quests.push(Functions.generateMustReadEmailQuest(mailData));
-                                    }
-                                }
-                                if (quest.quest) {
-                                    const questData = Functions.findQuest(quest.quest);
-                                    // find a way to find if from daily, quests or sidequests
-                                    if (questData) {
-                                        if (quests.find((r) => r.id === quest.id))
-                                            ctx.userData.chapter.quests.push(
-                                                Functions.pushQuest(questData),
-                                            );
-                                        else if (
-                                            ctx.userData.daily.quests.find((r) => r.id === quest.id)
-                                        )
-                                            ctx.userData.daily.quests.push(
-                                                Functions.pushQuest(questData),
-                                            );
-                                        else {
-                                            for (const sideQuest of ctx.userData.sideQuests) {
-                                                if (sideQuest.quests.find((r) => r.id === quest.id))
-                                                    sideQuest.quests.push(
-                                                        Functions.pushQuest(questData),
-                                                    );
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                if (await applyDecision(interaction, await runMiddleware(pipeline, questEffectsMiddleware))) return;
                 // while checker if userData xp greater than maxXp
                 const queue: string[] = [];
                 const oldLevel = ctx.userData.level;
