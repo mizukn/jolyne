@@ -19,7 +19,11 @@ import * as SideQuests from "../rpg/SideQuests";
 import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 import { EVENT_IDS, isActive, runCommandEntryHooks } from "../services/EventService";
-import { getDeprecatedCommandRedirect } from "../services/DeprecatedCommandService";
+import { channelMiddleware } from "../middlewares/channel";
+import { deprecatedRedirectMiddleware } from "../middlewares/deprecatedRedirect";
+import { maintenanceMiddleware } from "../middlewares/maintenance";
+import { permissionsMiddleware } from "../middlewares/permissions";
+import type { Middleware, MiddlewareDecision } from "../middlewares/types";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
     for (const quest of quests) {
@@ -28,61 +32,49 @@ function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     return fixedQuests;
 }
 
+// Runs a single middleware. Returns the decision so the caller can act on
+// `stop: true` (forward the log + reply, then bail). Surfacing the result
+// rather than throwing keeps the test surface a plain function call.
+async function runMiddleware(
+    interaction: Interaction & { client: JolyneClient },
+    middleware: Middleware,
+    extras: { command?: import("../@types").SlashCommand; ctx?: CommandInteractionContext } = {},
+): Promise<MiddlewareDecision> {
+    if (!interaction.isChatInputCommand()) return { stop: false };
+    return await middleware({
+        interaction: interaction as Parameters<Middleware>[0]["interaction"],
+        ...extras,
+    });
+}
+
+async function applyDecision(
+    interaction: Interaction & { client: JolyneClient },
+    decision: MiddlewareDecision,
+): Promise<boolean> {
+    if (!decision.stop) return false;
+    if (decision.log) {
+        interaction.client.log(decision.log.message, decision.log.type ?? "info");
+    }
+    if (decision.reply && interaction.isRepliable()) {
+        await interaction.reply(decision.reply);
+    }
+    return true;
+}
+
 const Event: EventFile = {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction & { client: JolyneClient }) {
         if (interaction.isCommand() && interaction.isChatInputCommand()) {
-            if (
-                interaction.client.maintenanceReason &&
-                !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
-            ) {
-                interaction.client.log(
-                    `${interaction.user.username} tried to use a command while in maintenance.`,
-                    "warn",
-                );
-                return interaction.reply({
-                    content: `The bot is currently in maintenance mode. Reason: \`${interaction.client.maintenanceReason}\``,
-                    flags: MessageFlags.Ephemeral,
-                });
-            }
+            if (await applyDecision(interaction, await runMiddleware(interaction, maintenanceMiddleware))) return;
 
             if (!interaction.client.allCommands) return;
 
             const command = interaction.client.commands.get(interaction.commandName);
             if (!command || !interaction.guild) return;
 
-            if (
-                command.ownerOnly &&
-                !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
-            )
-                return interaction.reply({
-                    content: interaction.client.localEmojis["jolyne"],
-                });
-            if (
-                command.adminOnly &&
-                !process.env.ADMIN_IDS.split(",").includes(interaction.user.id) &&
-                !process.env.BETA
-            ) {
-                // if not process.env.BETA then tell no perms
-                return interaction.reply({
-                    content: "You don't have permission to use this command.",
-                    flags: MessageFlags.Ephemeral,
-                });
-            }
-            if (!interaction.channel)
-                return interaction.reply(
-                    "This command is not available here. If you're on a thread, please make sure that I have the permissions to send/read messages in this thread.",
-                );
-
-            const replacementCommand = getDeprecatedCommandRedirect(interaction);
-            if (replacementCommand) {
-                return interaction.reply({
-                    content: `This command is deprecated! Use the ${interaction.client.getSlashCommandMention(
-                        replacementCommand,
-                    )} command instead.`,
-                    flags: MessageFlags.Ephemeral,
-                });
-            }
+            if (await applyDecision(interaction, await runMiddleware(interaction, permissionsMiddleware, { command }))) return;
+            if (await applyDecision(interaction, await runMiddleware(interaction, channelMiddleware))) return;
+            if (await applyDecision(interaction, await runMiddleware(interaction, deprecatedRedirectMiddleware))) return;
 
             // cooldown
             if (command.cooldown && !isNaN(command.cooldown)) {
