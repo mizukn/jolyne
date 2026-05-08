@@ -3,6 +3,7 @@ import {
     addItem,
     calcStandDiscLimit,
     configureInventoryService,
+    givePatreonRewards,
     hasExceedStandLimit,
     isConsumable,
     removeItem,
@@ -193,5 +194,18 @@ describe("InventoryService.useConsumableItem", () => {
         );
 
         expect(user.inventory.apple).toBe(4);
+    });
+});
+
+describe("InventoryService.givePatreonRewards", () => {
+    it("adds the patron box amount for the tier", () => {
+        const user = baseUser();
+        configureInventoryService({
+            findItem: (id) => item(id),
+        });
+
+        givePatreonRewards(user, 3);
+
+        expect(user.inventory.patron_box).toBe(5);
     });
 });

@@ -696,16 +696,7 @@ export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserData
     return rewards;
 };
 
-export const givePatreonRewards = (userData: RPGUserDataJSON, tier: 1 | 2 | 3 | 4): void => {
-    const patronBox = {
-        1: 1,
-        2: 2,
-        3: 5,
-        4: 8,
-    };
-
-    addItem(userData, findItem("patron_box").id, patronBox[tier]);
-};
+export const givePatreonRewards = InventoryService.givePatreonRewards;
 
 // daily claim rewards for christmas
 

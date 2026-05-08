@@ -260,3 +260,14 @@ export function useConsumableItem(item: Consumable, data: RPGUserDataJSON, amoun
             }
     }
 }
+
+export const givePatreonRewards = (userData: RPGUserDataJSON, tier: 1 | 2 | 3 | 4): void => {
+    const patronBox = {
+        1: 1,
+        2: 2,
+        3: 5,
+        4: 8,
+    };
+
+    addItem(userData, "patron_box", patronBox[tier]);
+};
