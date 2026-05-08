@@ -35,3 +35,30 @@ export const TopGGVoteRewards = (userData: RPGUserDataJSON): { coins: number; xp
         xp,
     };
 };
+
+const levelXpCache: { [level: number]: number } = {};
+
+export const getTotalXp = (
+    data:
+        | RPGUserDataJSON
+        | {
+              level: number;
+              xp: number;
+          },
+): number => {
+    if (levelXpCache[data.level]) return levelXpCache[data.level] + (data.xp || 0);
+    let xp = 0;
+    for (let i = 1; i <= data.level; i++) {
+        if (levelXpCache[i]) {
+            xp += levelXpCache[i];
+            continue;
+        }
+
+        const newXp = getMaxXp(i);
+        xp += newXp;
+        levelXpCache[i] = newXp;
+    }
+
+    levelXpCache[data.level] = xp;
+    return xp + (data.xp || 0);
+};

@@ -217,7 +217,8 @@ export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
 export { generateDiscordTimestamp } from "./format";
 
 export { localeNumber } from "./format";
-export { getMaxXp, getRewards, TopGGVoteRewards } from "./rewards";
+export { getMaxXp, getRewards, getTotalXp, TopGGVoteRewards } from "./rewards";
+import { getTotalXp } from "./rewards";
 
 export const RNG = randomInt;
 
@@ -1719,32 +1720,6 @@ export const fixUserSettings = (data: RPGUserDataJSON): void => {
             }
         }
     }
-};
-
-const levelXpCache: { [level: number]: number } = {}; // avoid max call stack
-export const getTotalXp = (
-    data:
-        | RPGUserDataJSON
-        | {
-              level: number;
-              xp: number;
-          },
-): number => {
-    if (levelXpCache[data.level]) return levelXpCache[data.level] + (data.xp || 0);
-    let xp = 0;
-    for (let i = 1; i <= data.level; i++) {
-        if (levelXpCache[i]) {
-            xp += levelXpCache[i];
-            continue;
-        }
-
-        const newXp = getMaxXp(i);
-        xp += newXp;
-        levelXpCache[i] = newXp;
-    }
-
-    levelXpCache[data.level] = xp;
-    return xp + (data.xp || 0);
 };
 
 export const getMaxPrestigeLevel = UserService.getMaxPrestigeLevel;
