@@ -384,3 +384,116 @@ export const getTrueLevel = (data: RPGUserDataJSON | FightableNPC): number => {
 
     return Math.round((bonusSkillPoints + extraHealth / 11.55 + extraStamina / 1.98) / 4);
 };
+
+export function getRPGUserDataChanges(
+    oldData: RPGUserDataJSON,
+    newData: RPGUserDataJSON,
+): { name: string; before: string; after: string }[] {
+    const changes: { name: string; before: string; after: string }[] = [];
+
+    function addChange(name: string, before: string, after: string) {
+        changes.push({ name, before, after });
+    }
+
+    function handleQuestsChange(oldQuest: RPGUserQuest, newQuest: RPGUserQuest, prefix: string) {
+        if (oldQuest && newQuest)
+            for (const key of Object.keys(oldQuest) as (keyof RPGUserQuest)[]) {
+                if (oldQuest[key] !== newQuest[key]) {
+                    addChange(`${prefix}.${key}`, String(oldQuest[key]), String(newQuest[key]));
+                }
+            }
+        else if (oldQuest && !newQuest) {
+            for (const key of Object.keys(oldQuest) as (keyof RPGUserQuest)[]) {
+                addChange(`${prefix}.${key}`, String(oldQuest[key]), "undefined");
+            }
+        } else if (!oldQuest && newQuest) {
+            for (const key of Object.keys(newQuest) as (keyof RPGUserQuest)[]) {
+                addChange(`${prefix}.${key}`, "undefined", String(newQuest[key]));
+            }
+        }
+    }
+
+    function deepCheck(prefix: string, oldVal: string, newVal: string) {
+        if (oldVal !== newVal) {
+            addChange(prefix, oldVal, newVal);
+        }
+    }
+
+    for (const key of Object.keys(oldData) as (keyof RPGUserDataJSON)[]) {
+        if (
+            key !== "inventory" &&
+            key !== "chapter" &&
+            key !== "daily" &&
+            key !== "sideQuests" &&
+            key !== "lastSeen"
+        ) {
+            deepCheck(key, String(oldData[key]), String(newData[key]));
+        }
+    }
+
+    for (const itemId of new Set([
+        ...Object.keys(oldData.inventory),
+        ...Object.keys(newData.inventory),
+    ])) {
+        const before = oldData.inventory[itemId] ?? undefined;
+        const after = newData.inventory[itemId] ?? undefined;
+        if (before !== after) {
+            addChange(`inventory[${itemId}]`, String(before), String(after));
+        }
+    }
+
+    if (oldData.chapter.id !== newData.chapter.id) {
+        addChange("chapter.id", String(oldData.chapter.id), String(newData.chapter.id));
+    }
+    for (const [index, quest] of newData.chapter.quests.entries()) {
+        const oldQuest = oldData.chapter.quests[index];
+        if (JSON.stringify(oldQuest) !== JSON.stringify(quest)) {
+            handleQuestsChange(oldQuest, quest, `chapter.quests[${index}]`);
+        }
+    }
+
+    if (oldData.daily.claimStreak !== newData.daily.claimStreak) {
+        addChange(
+            "daily.claimStreak",
+            String(oldData.daily.claimStreak),
+            String(newData.daily.claimStreak),
+        );
+    }
+    if (oldData.daily.lastClaimed !== newData.daily.lastClaimed) {
+        addChange(
+            "daily.lastClaimed",
+            String(oldData.daily.lastClaimed),
+            String(newData.daily.lastClaimed),
+        );
+    }
+    if (oldData.daily.questsStreak !== newData.daily.questsStreak) {
+        addChange(
+            "daily.questsStreak",
+            String(oldData.daily.questsStreak),
+            String(newData.daily.questsStreak),
+        );
+    }
+    for (const [index, quest] of newData.daily.quests.entries()) {
+        const oldQuest = oldData.daily.quests[index];
+        if (JSON.stringify(oldQuest) !== JSON.stringify(quest)) {
+            handleQuestsChange(oldQuest, quest, `daily.quests[${index}]`);
+        }
+    }
+
+    for (const [index, quest] of newData.sideQuests.entries()) {
+        const oldQuest = oldData.sideQuests[index];
+        if (JSON.stringify(oldQuest) !== JSON.stringify(quest)) {
+            addChange(`sideQuests[${index}]`, JSON.stringify(oldQuest), JSON.stringify(quest));
+            if (JSON.stringify(oldQuest.quests) !== JSON.stringify(quest.quests)) {
+                for (const [i, q] of quest.quests.entries()) {
+                    const oldQ = oldQuest.quests[i];
+                    if (JSON.stringify(oldQ) !== JSON.stringify(q)) {
+                        handleQuestsChange(oldQ, q, `sideQuests[${index}].quests[${i}]`);
+                    }
+                }
+            }
+        }
+    }
+
+    return changes;
+}

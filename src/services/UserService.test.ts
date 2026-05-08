@@ -7,6 +7,7 @@ import {
     getMaxHealth,
     getMaxStamina,
     getRawSkillPointsLeft,
+    getRPGUserDataChanges,
     getSpeedScore,
     getTrueLevel,
     hasReachedMaxLevel,
@@ -241,5 +242,35 @@ describe("UserService user validation", () => {
 
         item.requirements.skillPoints.strength = 15;
         expect(userMeetsRequirementsForItem(user, item)).toBe(false);
+    });
+});
+
+describe("UserService.getRPGUserDataChanges", () => {
+    it("reports top-level and inventory changes", () => {
+        const before = baseUser();
+        const after = baseUser();
+        before.inventory.arrow = 1;
+        after.inventory.arrow = 3;
+        after.coins = 250;
+
+        expect(getRPGUserDataChanges(before, after)).toEqual(
+            expect.arrayContaining([
+                { name: "coins", before: "0", after: "250" },
+                { name: "inventory[arrow]", before: "1", after: "3" },
+            ]),
+        );
+    });
+
+    it("reports nested daily quest changes", () => {
+        const before = baseUser();
+        const after = baseUser();
+        before.daily.quests.push(claimXQuest({ amount: 1 }));
+        after.daily.quests.push(claimXQuest({ amount: 4 }));
+
+        expect(getRPGUserDataChanges(before, after)).toContainEqual({
+            name: "daily.quests[0].amount",
+            before: "1",
+            after: "4",
+        });
     });
 });
