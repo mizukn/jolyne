@@ -22,8 +22,11 @@ import { EVENT_IDS, isActive, runCommandEntryHooks } from "../services/EventServ
 import { channelMiddleware } from "../middlewares/channel";
 import { bannedUserMiddleware } from "../middlewares/bannedUser";
 import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
+import { dailyResetMiddleware } from "../middlewares/dailyReset";
 import { deprecatedRedirectMiddleware } from "../middlewares/deprecatedRedirect";
+import { equippedItemsMiddleware } from "../middlewares/equippedItems";
 import { firstFightSkillPointsHintMiddleware } from "../middlewares/firstFightSkillPointsHint";
+import { levelUpMiddleware } from "../middlewares/levelUp";
 import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
 import { restingAtCampfireMiddleware } from "../middlewares/restingAtCampfire";
@@ -35,6 +38,7 @@ import { sideQuestEnrollmentMiddleware } from "../middlewares/sideQuestEnrollmen
 import { userBusyMiddleware } from "../middlewares/userBusy";
 import { userDataFixupsMiddleware } from "../middlewares/userDataFixups";
 import { userDataMiddleware } from "../middlewares/userData";
+import { userStateNotificationsMiddleware } from "../middlewares/userStateNotifications";
 import type { Middleware, MiddlewareDecision } from "../middlewares/types";
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
@@ -109,51 +113,14 @@ const Event: EventFile = {
                     "command",
                 );
                 const notifications: string[] = (pipeline.notifications ??= []);
-                // check if ctx.userData.health is lower than 10% of their Functions.getMaxHealth(ctx.userData) and/or for stamina
-                if (
-                    (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1 ||
-                        ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.1) &&
-                    command.data.name !== "shop" &&
-                    command.data.name !== "inventory" &&
-                    command.data.name !== "campfire" &&
-                    command.data.name !== "heal"
-                ) {
-                    if (ctx.userData.settings.notifications.low_health_or_stamina)
-                        notifications.push(
-                            `🩸 | You're low in health/stamina. You should  ${ctx.client.getSlashCommandMention(
-                                "heal",
-                            )} yourself. You can use the ${ctx.client.getSlashCommandMention(
-                                "shop",
-                            )} command to use consumables. If you don't want to waste your money/items, you can rest at the ${ctx.client.getSlashCommandMention(
-                                "rest start",
-                            )} (1% of your max health every 2 minutes)`,
-                        );
-                }
-
                 const oldDataJSON = JSON.stringify(ctx.userData);
-                // quests must be unique;
+
+                // quests must be unique
                 ctx.userData.chapter.quests = returnUniqueQuests(ctx.userData.chapter.quests);
                 ctx.userData.daily.quests = returnUniqueQuests(ctx.userData.daily.quests);
-
-                // check if emails filter !read      and tell user has x emails unread
-                const unreadEmails = ctx.userData.emails.filter((r) => !r.read);
-                if (
-                    unreadEmails.length > 0 &&
-                    command.data.name !== "emails" &&
-                    ctx.userData.settings.notifications.email
-                ) {
-                    notifications.push(
-                        `📧 | You have **${unreadEmails.length}** unread email${
-                            unreadEmails.length > 1 ? "s" : ""
-                        }. Use the ${ctx.client.getSlashCommandMention(
-                            "mail inbox",
-                        )} command to read them.`,
-                    );
-                }
                 ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
                     (x) => x && x.quests?.length > 0,
                 );
-
                 for (const sideQuest of ctx.userData.sideQuests) {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
                 }
@@ -163,128 +130,10 @@ const Event: EventFile = {
                 if (await applyDecision(interaction, await runMiddleware(pipeline, sideQuestEnrollmentMiddleware))) return;
                 if (await applyDecision(interaction, await runMiddleware(pipeline, userDataFixupsMiddleware))) return;
                 if (await applyDecision(interaction, await runMiddleware(pipeline, questEffectsMiddleware))) return;
-                // while checker if userData xp greater than maxXp
-                const queue: string[] = [];
-                const oldLevel = ctx.userData.level;
-                while (
-                    ctx.userData.xp >= Functions.getMaxXp(ctx.userData.level) &&
-                    (process.env.ENABLE_PRESTIGE
-                        ? ctx.userData.level < Functions.getMaxPrestigeLevel(ctx.userData.prestige)
-                        : true)
-                ) {
-                    ctx.userData.xp -= Functions.getMaxXp(ctx.userData.level);
-                    ctx.userData.level++;
-                    queue.push(`:up: | You just leveled up to level **${ctx.userData.level}**!`);
-                }
-                if (queue.length > 1) {
-                    notifications.push(
-                        `:up: | You leveled up: **${oldLevel}** ${ctx.client.localEmojis.arrowRight} **${ctx.userData.level}**!`,
-                    );
-                } else {
-                    for (const item of queue) {
-                        notifications.push(item);
-                    }
-                }
-                if (new Date().getDay() === 0 && command.data.name !== "shop") {
-                    if (!ctx.client.otherCache.get(`black_market:${ctx.user.id}`)) {
-                        const data = await ctx.client.database.getJSONData(
-                            Functions.getBlackMarketString(ctx.user.id),
-                        );
-                        ctx.client.otherCache.set(`black_market:${ctx.user.id}`, data);
-
-                        if (!data) {
-                            if (ctx.userData.settings.notifications.black_market)
-                                notifications.push(
-                                    `🃏 | The black market is open! Use the ${ctx.client.getSlashCommandMention(
-                                        "shop",
-                                    )} command to see what's available!\n-# You can disable this notification with the ${ctx.client.getSlashCommandMention(
-                                        "settings notifications",
-                                    )} command.`,
-                                );
-                        }
-                    }
-                }
-
-                if (
-                    Functions.getRawSkillPointsLeft(ctx.userData) > 0 &&
-                    command.data.name !== "skill" &&
-                    ctx.userData.settings.notifications.skill_points
-                ) {
-                    notifications.push(
-                        `:arrow_up: | **${
-                            ctx.user.username
-                        }**, you have **${Functions.getRawSkillPointsLeft(
-                            ctx.userData,
-                        )}** skill points left! Use the ${ctx.client.getSlashCommandMention(
-                            "skills invest",
-                        )} command to invest them!`,
-                    );
-                }
-
-                // if user datA STAMINA is lower than 50% of their Functions.getMaxStamina(ctx.userData), and they used the fight command, follow up telling them that they just started a fight with low stamina, which affects their atk damage since it is based on their stam
-                if (
-                    ctx.userData.stamina < Functions.getMaxStamina(ctx.userData) * 0.5 &&
-                    (command.data.name === "fight" ||
-                        command.data.name === "dungeon" ||
-                        command.data.name === "assault") &&
-                    ctx.userData.settings.notifications.low_health_or_stamina
-                ) {
-                    notifications.push(
-                        `:warning: | You're low in stamina and you just started a fight. Your stamina affects your attack damage, so be careful!`,
-                    );
-                }
-
-                if (
-                    ctx.userData.level >= Functions.getMaxPrestigeLevel(ctx.userData.prestige) &&
-                    process.env.ENABLE_PRESTIGE &&
-                    ctx.userData.settings.notifications.reached_max_level &&
-                    command.data.name !== "prestige"
-                ) {
-                    notifications.push(
-                        `:star: | You reached the maximum level for your prestige level! Use the ${ctx.client.getSlashCommandMention(
-                            "prestige",
-                        )} command to prestige and start over...`,
-                    );
-                }
-
-                if (
-                    ctx.userData.daily.lastDailyQuestsReset !==
-                    new Date().setUTCHours(0, 0, 0, 0) /*
-                         ||
-                    ctx.userData.daily.quests.find((r) =>
-                        Functions.isFightNPCQuest(r) && Functions.findNPC(r.npc)
-                            ? Functions.findNPC<FightableNPC>(r.npc, true).level >
-                              ctx.userData.level
-                            : false
-                    ) */
-                ) {
-                    ctx.userData.daily.quests = Functions.generateDailyQuests(
-                        Functions.getTrueLevel(ctx.userData),
-                    );
-                    ctx.userData.daily.lastDailyQuestsReset = new Date().setUTCHours(0, 0, 0, 0);
-                    ctx.userData.daily.dailyQuestsReset = 0;
-                    ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
-                    notifications.push(
-                        `:scroll:${ctx.client.localEmojis.timerIcon} | **${
-                            ctx.user.username
-                        }**, you have new daily quests! Use the ${ctx.client.getSlashCommandMention(
-                            "quests daily",
-                        )} command to see them!`,
-                    );
-                }
-
-                for (const [key, value] of Object.entries(ctx.userData.equippedItems)) {
-                    const itemData = Functions.findItem(key);
-                    if (!Functions.isEquipableItem(itemData)) continue;
-
-                    if (!Functions.userMeetsRequirementsForItem(ctx.userData, itemData)) {
-                        delete ctx.userData.equippedItems[key];
-                        Functions.addItem(ctx.userData, key, 1, true);
-                        notifications.push(
-                            `:x: | **${ctx.user.username}**, you no longer meet the requirements for the ${itemData.emoji} \`${itemData.name}\` item, so it has been unequipped and put back in your inventory.`,
-                        );
-                    }
-                }
+                if (await applyDecision(interaction, await runMiddleware(pipeline, levelUpMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, dailyResetMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, equippedItemsMiddleware))) return;
+                if (await applyDecision(interaction, await runMiddleware(pipeline, userStateNotificationsMiddleware))) return;
 
                 if (notifications.length > 0) {
                     ctx.followUpQueue.push({
