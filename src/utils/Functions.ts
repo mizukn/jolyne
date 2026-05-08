@@ -104,6 +104,7 @@ import {
 } from "./item_guards";
 import { plusOrMinus } from "./math";
 import { getEmojiId } from "./format";
+import { getMaxXp, getRewards } from "./rewards";
 export {
     isActionQuest,
     isAnswerChineseNewYearQuizQuest,
@@ -277,6 +278,7 @@ export const generateDiscordTimestamp = (
 };
 
 export { localeNumber } from "./format";
+export { getMaxXp, getRewards, TopGGVoteRewards } from "./rewards";
 
 export const RNG = randomInt;
 
@@ -713,10 +715,6 @@ export { findItem };
 
 export { romanize } from "./format";
 
-export const getMaxXp = function getMaxXP(level: RPGUserDataJSON["level"]): number {
-    return (level / 5) * 1000 * 13;
-};
-
 export { sleep } from "./format";
 
 const bufferCache: { [key: string]: Buffer } = {};
@@ -787,21 +785,6 @@ export const generateStandCart = async function standCart(stand: Stand): Promise
     bufferCache[stand.name as keyof typeof bufferCache] = canvas.toBuffer();
 
     return canvas.toBuffer();
-};
-
-export const getRewards = (
-    level: number,
-): {
-    coins: number;
-    xp: number;
-} => {
-    const rewards = {
-        coins: level * 1000 - (level * 1000 * 25) / 100,
-        xp: level * 400 - (level * 400 * 10) / 100,
-    };
-    if (rewards.coins > 6000) rewards.coins = 6000;
-
-    return rewards;
 };
 
 const Christmas2024LimitedItems = ["elf_hat", "santa_hat", "krampus_staff"];
@@ -1120,24 +1103,6 @@ export const hasExceedStandLimit = function hasExceedStandLimit(
 };
 
 export { msToString } from "./format";
-
-export const TopGGVoteRewards = (userData: RPGUserDataJSON): { coins: number; xp: number } => {
-    // 5% of the user's max xp
-    let xp = Math.round((getMaxXp(userData.level) * 5) / 100);
-    const coins = 15000;
-
-    if (xp > 20000) {
-        xp = 20000;
-        xp += getMaxXp(userData.level) * 0.08;
-    }
-
-    xp = Math.round(xp * 2);
-
-    return {
-        coins,
-        xp,
-    };
-};
 
 export const isEvolvableStand = (stand: Stand | EvolutionStand): boolean => {
     return (stand as EvolutionStand).evolutions !== undefined;
