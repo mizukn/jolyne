@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { RPGUserQuest } from "../@types";
+import type { SideQuest } from "../@types";
 import type CommandInteractionContext from "../structures/CommandInteractionContext";
 import {
     buildQuestListRows,
@@ -7,6 +8,7 @@ import {
     formatQuestListLine,
     getQuestDisplayEmoji,
     getQuestProgressText,
+    getSideQuestRequirements,
     makeNPCLine,
 } from "./quest_ui";
 
@@ -66,5 +68,20 @@ describe("quest UI utils", () => {
     it("formats small line helpers", () => {
         expect(makeNPCLine({ emoji: "⭐", name: "Jolyne" }, "Ora")).toBe("⭐ **Jolyne:** Ora");
         expect(fieldSections([{ name: "A", value: "B" }])).toEqual([{ text: "**A**\nB" }]);
+    });
+
+    it("summarizes side quest requirements", () => {
+        const sideQuest = {
+            requirements: () => [
+                { requirement: "Level 10", status: true },
+                { requirement: "Read email", status: false },
+            ],
+        } as unknown as SideQuest;
+
+        const result = getSideQuestRequirements(sideQuest, ctx);
+
+        expect(result.status).toBe(false);
+        expect(result.message).toContain("Level 10");
+        expect(result.notMeet).toContain("Read email");
     });
 });

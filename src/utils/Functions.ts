@@ -93,6 +93,7 @@ export {
     formatQuestListLine,
     getQuestDisplayEmoji,
     getQuestProgressText,
+    getSideQuestRequirements,
     makeNPCLine,
     QUEST_LIST_ACCENT_COLOR,
     QUEST_LIST_ITEMS_PER_PAGE,
@@ -1718,26 +1719,6 @@ export const fixUserSettings = (data: RPGUserDataJSON): void => {
             }
         }
     }
-};
-
-export const getSideQuestRequirements = (
-    sideQuest: SideQuest,
-    ctx: CommandInteractionContext,
-): {
-    status: boolean;
-    message: string;
-    notMeet: string;
-} => {
-    const req = sideQuest.requirements(ctx);
-    const notMeet = req.filter((x) => !x.status);
-    const mapper = // RequirementStatus
-        (x: RequirementStatus, i: number) =>
-            `${i + 1}. ${x.requirement} (${x.status ? "✅" : "❌"})`;
-    return {
-        status: req.filter((x) => !x.status).length === 0,
-        message: req.map(mapper).join("\n"),
-        notMeet: notMeet.map(mapper).join("\n"),
-    };
 };
 
 const levelXpCache: { [level: number]: number } = {}; // avoid max call stack

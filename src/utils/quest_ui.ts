@@ -1,4 +1,4 @@
-import type { ClaimXQuest, NPC, RPGUserQuest } from "../@types";
+import type { ClaimXQuest, NPC, RequirementStatus, RPGUserQuest, SideQuest } from "../@types";
 import type CommandInteractionContext from "../structures/CommandInteractionContext";
 import {
     isActionQuest,
@@ -121,4 +121,24 @@ export const fieldSections = (fields: { name: string; value: string }[]): { text
     return fields.map((field) => ({
         text: `**${field.name}**\n${field.value}`,
     }));
+};
+
+export const getSideQuestRequirements = (
+    sideQuest: SideQuest,
+    ctx: CommandInteractionContext,
+): {
+    status: boolean;
+    message: string;
+    notMeet: string;
+} => {
+    const req = sideQuest.requirements(ctx);
+    const notMeet = req.filter((x) => !x.status);
+    const mapper = (x: RequirementStatus, i: number) =>
+        `${i + 1}. ${x.requirement} (${x.status ? "✅" : "❌"})`;
+
+    return {
+        status: notMeet.length === 0,
+        message: req.map(mapper).join("\n"),
+        notMeet: notMeet.map(mapper).join("\n"),
+    };
 };
