@@ -85,6 +85,17 @@ export const removeZalgo = (str: string): string => str.replace(/[^A-Za-z0-9 ]/g
 export const generateMessageLink = (message: Message<boolean>): string =>
     `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
 
+export const generateDiscordTimestamp = (
+    date: Date | number,
+    type: "FROM_NOW" | "DATE" | "FULL_DATE",
+): string => {
+    const fixedDate = new Date(date);
+    return `<t:${(fixedDate.getTime() / 1000).toFixed(0)}:${type
+        .replace("FROM_NOW", "R")
+        .replace("DATE", "D")
+        .replace("FULL_D", "F")}>`;
+};
+
 export const getBlackMarketString = (id: string): string => {
     const date = new Date();
     const day = date.getDate();

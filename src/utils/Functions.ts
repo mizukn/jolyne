@@ -213,16 +213,7 @@ export const getSpeedScore = (rpgData: RPGUserDataJSON | FightableNPC | Fighter)
     return Math.round(Math.round(skillPoints.speed / 1.1));
 };
 
-export const generateDiscordTimestamp = (
-    date: Date | number,
-    type: "FROM_NOW" | "DATE" | "FULL_DATE",
-): string => {
-    const fixedDate = new Date(date);
-    return `<t:${(fixedDate.getTime() / 1000).toFixed(0)}:${type
-        .replace("FROM_NOW", "R")
-        .replace("DATE", "D")
-        .replace("FULL_D", "F")}>`;
-};
+export { generateDiscordTimestamp } from "./format";
 
 export { localeNumber } from "./format";
 export { getMaxXp, getRewards, TopGGVoteRewards } from "./rewards";

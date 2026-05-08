@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
     capitalize,
+    generateDiscordTimestamp,
     generateMessageLink,
     getBlackMarketString,
     getEmojiId,
@@ -19,6 +20,9 @@ describe("format utils", () => {
         expect(getEmojiId("🧵")).toBe("🧵");
         expect(makeNPCString({ emoji: "⭐", name: "Jolyne" }, "Ora")).toBe("⭐ **Jolyne**: Ora");
         expect(removeZalgo("T̷I̴M̵E̶ STOP")).toBe("TIME STOP");
+        expect(generateDiscordTimestamp(new Date("2026-05-08T00:00:00Z"), "FROM_NOW")).toBe(
+            "<t:1778198400:R>",
+        );
     });
 
     it("formats message links", () => {
