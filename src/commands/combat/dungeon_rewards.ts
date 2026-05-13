@@ -3,7 +3,7 @@
 // commits a transaction, edits the dungeon message with a per-player
 // breakdown, and posts a webhook log with a side-by-side avatar canvas.
 
-import { AttachmentBuilder } from "discord.js";
+import { AttachmentBuilder, MessageFlags } from "discord.js";
 import { Image, createCanvas, loadImage } from "canvas";
 import { cloneDeep } from "lodash";
 import type { RPGUserDataJSON, StartDungeonQuest } from "../../@types";
@@ -11,7 +11,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import DungeonHandler from "../../structures/DungeonHandler";
 import * as Functions from "../../utils/Functions";
 import { dungeonLogsWebhook } from "../../utils/Webhooks";
-import { containers, COLORS, SectionData } from "../../utils/containers";
+import { containers, COLORS, SectionData, V2Reply } from "../../utils/containers";
 import {
     possibleModifiers,
     getTotalXpIncrease,
@@ -22,6 +22,24 @@ import {
 const KARS = { emoji: "<:kars:1057261454421676092>", name: "Kars" } as const;
 const karsLine = (text: string): string =>
     `${KARS.emoji} **${KARS.name}:** ${text}`;
+
+const editDungeonMessageAsV2 = async (
+    dungeon: DungeonHandler,
+    payload: V2Reply,
+): Promise<void> => {
+    if (!dungeon.message.flags?.has(MessageFlags.IsComponentsV2)) {
+        await dungeon.message
+            .edit({
+                content: "",
+                embeds: [],
+                components: [],
+                attachments: [],
+            })
+            .catch(() => undefined);
+    }
+
+    await dungeon.message.edit(payload);
+};
 
 const timeFn = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -197,9 +215,9 @@ export async function giveRewards(
         results,
     );
     if (!Transaction) {
-        dungeon.message
-            .edit({ ...containers.error(karsLine("An error occurred.")) })
-            .catch(() => {});
+        editDungeonMessageAsV2(dungeon, containers.error(karsLine("An error occurred."))).catch(
+            () => {},
+        );
         return;
     }
 
@@ -245,7 +263,7 @@ export async function giveRewards(
         sectionDividers: true,
         color: COLORS.primary,
     });
-    dungeon.message.edit({ ...summary });
+    await editDungeonMessageAsV2(dungeon, summary).catch(() => {});
     const canvas = players.length === 2 ? createCanvas(1024, 512) : createCanvas(512, 512);
     const ctxCanvas = canvas.getContext("2d");
 
