@@ -31,9 +31,9 @@ All landed on `rework`. Each is its own commit. Highlights:
 - `perf(ready): poll patreon every 15min instead of every 2min`
 - `security: replace hardcoded dev id with OWNER_IDS env`
 
-### V2 components migration (in progress)
+### V2 components migration (done)
 
-Done (per PLAN.md "V2 components UI" track): Profile, Help, Inventory, Daily, Settings, Trade, Emails, Side Quest, Chapter, Prestige, Leaderboard, Blackjack, Shop, Skills, plus the Fight UI itself (containers + emojiBar). Helpers in `src/utils/containers.ts` and `src/utils/emojiBar.ts`. Style guide lives in `README_V2_UI.md`.
+Done: Profile, Help, Inventory, Daily, Settings, Trade, Emails, Side Quest, Chapter, Prestige, Leaderboard, Blackjack, Shop, Skills, Fight UI, Vote, Heal, Stand, Adventure, plus the new `/guide` paginated command. Helpers in `src/utils/containers.ts` and `src/utils/emojiBar.ts`. Style guide lives in `README_V2_UI.md`.
 
 Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green (`g*`), `bar_def_*` = blue (`blue*`), `bar_empty_*` = black/basic (`b*`). XP palette (purple) is still not uploaded — `bar_xp_*` keys are not defined; `emojiBar("xp", ...)` renders Unicode placeholders until added.
 
@@ -103,11 +103,11 @@ At that point, re-add the XP bar in Profile (a previous version had it; was remo
 
 ### Other PLAN status
 
-Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-08) is the source of truth. The remaining open tracks are:
+Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-13) is the source of truth. The remaining open tracks are:
 
-- **P2.1 middleware pipeline** for `interactionCreate.ts` (still ~740-line god function).
-- **P3.1 Functions.ts split** — 🟡 active. Down from 3,071 → 1,214 lines (−60% so far). Sibling modules under `src/utils/` peeled so far: `lookup.ts` (find* helpers), `quest_guards.ts` (is*Quest type guards), `quest_factories.ts` (generate*Quest + push* helpers; lives next to `random.ts` which now also owns `generateRandomId`), `quest_ui.ts` (quest list V2 row helpers + side quest requirement summaries), `rewards.ts` (reward formulas + total XP), `format.ts` (`localeNumber` / `romanize` / `msToString` / `sleep` / string/date/display helpers / Discord timestamps), `embed.ts` (`fixFields` / `splitEmbedIfExceedsLimit` / embed message helpers), `date.ts`, `item_guards.ts`, and `math.ts`. User-domain helpers, mail/disc helpers, vote recency, current stand lookup, combat stat/power math, prestige, skill-point generation, and user-data diffing now live in `src/services/UserService.ts`; `InventoryService.ts` owns inventory add/remove/type checks, stand-disc limits, consumable application, and Patreon item rewards. Functions.ts aliases remain for back-compat. Bulk still inside (~1,200 lines). Next obvious peels per PLAN: equipment helpers and domain/stats leftovers.
-- **P3.4 fat command files** (`RaidSubcommands.ts` 1,192 lines, `Dungeon.ts` 826).
+- **P2.1 middleware pipeline** — 🟡 mostly done. `interactionCreate.ts` is 224 lines (down from ~740), running a clean middleware chain. 20+ middleware files live under `src/middlewares/` with a `types.ts` for `Middleware` / `MiddlewareDecision` / `MiddlewareInput` and a colocated `middlewares.test.ts`. Acceptance target was < 100 lines — the remaining content is the pipeline plumbing helpers (`runMiddleware` / `applyDecision`), the autocomplete handler, the command-log webhook, and the post-pipeline notification flush. All extractable; not urgent.
+- **P3.1 Functions.ts split** — 🟡 active. Down from 3,071 → 1,212 lines (−60% so far). Sibling modules under `src/utils/` peeled so far: `lookup.ts` (find* helpers), `quest_guards.ts` (is*Quest type guards), `quest_factories.ts` (generate*Quest + push* helpers; lives next to `random.ts` which now also owns `generateRandomId`), `quest_ui.ts` (quest list V2 row helpers + side quest requirement summaries), `rewards.ts` (reward formulas + total XP), `format.ts` (`localeNumber` / `romanize` / `msToString` / `sleep` / string/date/display helpers / Discord timestamps), `embed.ts` (`fixFields` / `splitEmbedIfExceedsLimit` / embed message helpers), `date.ts`, `item_guards.ts`, and `math.ts`. User-domain helpers, mail/disc helpers, vote recency, current stand lookup, combat stat/power math, prestige, skill-point generation, and user-data diffing now live in `src/services/UserService.ts` (850 lines); `InventoryService.ts` (273 lines) owns inventory add/remove/type checks, stand-disc limits, consumable application, and Patreon item rewards. Functions.ts aliases remain for back-compat. Next obvious peels: equipment helpers (`calcEquipableItemsBonus`, `userMeetsRequirementsForItem`), stand-ability/weapon-ability embed builders (could move into a `combat_embed.ts` or `FightRenderer`), and the `dailyClaimRewardsChristmas` legacy block (deletable now that the 2024 holidays are gone).
+- **P3.4 fat command files** (`RaidSubcommands.ts` 1,193 lines, `Dungeon.ts` 829 lines).
 - **P4.x data hygiene** — type-safe registries, effect-based abilities, bigint field migration, atomic dual-write, transactions table integrity.
 
 ### BRAINSTORM live-issue sweeps landed this session
