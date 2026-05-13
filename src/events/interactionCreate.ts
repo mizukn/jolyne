@@ -1,14 +1,11 @@
 import type { EventFile } from "../@types";
-import {
-    Events,
-    Interaction,
-    MessageFlags,
-} from "discord.js";
+import { Events, Interaction } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
 import { runCommandEntryHooks } from "../services/EventService";
 import { runStep } from "../middlewares/pipeline";
 import { handleAutocomplete } from "./handleAutocomplete";
 import { logCommandUsage } from "./logCommandUsage";
+import { runCommand } from "./runCommand";
 import { channelMiddleware } from "../middlewares/channel";
 import { bannedUserMiddleware } from "../middlewares/bannedUser";
 import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
@@ -83,23 +80,7 @@ const Event: EventFile = {
                 if (await runStep(pipeline, saveUserDataMiddleware)) return;
             }
 
-            try {
-                await command.execute(ctx);
-            } catch (error) {
-                interaction.client.log(
-                    error instanceof Error ? error.stack ?? error.message : String(error),
-                    "error",
-                );
-                await interaction
-                    .reply({
-                        content: `There was an error while executing this command. Please try again later.\nError: ${
-                            (error as Error)["message"]
-                        }`,
-                        flags: MessageFlags.Ephemeral,
-                    }) // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    .catch(() => {});
-            }
-
+            await runCommand(interaction, command, ctx);
             logCommandUsage(interaction, command);
         } else if (interaction.isAutocomplete()) {
             await handleAutocomplete(interaction);
