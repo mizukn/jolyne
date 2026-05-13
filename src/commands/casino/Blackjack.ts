@@ -104,7 +104,7 @@ function isBlackjack(hand: Card[]): boolean {
 }
 
 function formatCard(c: Card): string {
-    return `${RANK_EMOJI[c.rank]}\`${c.suit}\``;
+    return `${RANK_EMOJI[c.rank]} [${c.suit}]`;
 }
 
 function formatHand(hand: Card[], hideSecond = false): string {
