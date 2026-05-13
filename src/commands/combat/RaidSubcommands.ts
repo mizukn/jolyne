@@ -1,12 +1,6 @@
 import {
-    EquipableItem,
-    FightableNPC,
-    Item,
     RPGUserDataJSON,
-    RaidNPCQuest,
     SlashCommandFile,
-    Special,
-    Weapon,
 } from "../../@types";
 import {
     Message,
@@ -21,22 +15,13 @@ import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
-import { raidWebhook } from "../../utils/Webhooks";
 import { cloneDeep } from "lodash";
 import { eventRaid, getFixedBosses } from "../../rpg/SeasonalRaids";
-
-const getIceShard = (data: RPGUserDataJSON): number => {
-    return data.inventory["ice_shard"] ?? 0;
-};
-
-const safeFollowUp = async (
-    ctx: CommandInteractionContext,
-    content: string,
-): Promise<Message | null> =>
-    ctx
-        .followUp({ content })
-        .then((message) => message)
-        .catch(() => null);
+import {
+    attachRaidFightResultHandlers,
+    getIceShard,
+    safeRaidFollowUp,
+} from "./raid_results";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -261,245 +246,14 @@ const slashCommand: SlashCommandFile = {
                 [[enhancedBoss, ...raid.minions], [...users]],
                 FightTypes.Boss
             );
-            fight.on("end", async (winners, losers) => {
-                for (const user of joinedUsers) {
-                    ctx.client.database.deleteCooldown(user.id);
-                    await ctx.client.database.setRPGCooldown(
-                        user.id,
-                        "raid",
-                        Functions.hasVotedRecenty(user, ctx.client) ? 30000 : raid.cooldown
-                    );
-                }
-                raidWebhook
-                    .send({
-                        embeds: [
-                            {
-                                title: `${enhancedBoss.name} Raid`,
-                                description: `${joinedUsers
-                                    .map((x) => "**" + x.tag + "**")
-                                    .join(", ")} raided **${enhancedBoss.name}** and ${
-                                    joinedUsers.find((r) => r.id === winners[0].id) ? "won" : "lost"
-                                }!`,
-                                color: 0x70926c,
-                                fields: [
-                                    {
-                                        name: "Host",
-                                        value: ctx.user.username,
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Winners",
-                                        value: winners.map((r) => r.name).join(", "),
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Losers",
-                                        value: losers
-                                            .map((team) => team.map((r) => r.name).join(", "))
-                                            .join("\n"),
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Guild info",
-                                        value: `${ctx.guild.name} (${ctx.guild.id})`,
-                                        inline: true,
-                                    },
-                                    {
-                                        name: "Total damages",
-                                        value: [...winners, ...losers.flat()]
-                                            .sort((a, b) => b.totalDamageDealt - a.totalDamageDealt)
-                                            .map(
-                                                (r) =>
-                                                    `- ${r.name}: **${r.totalDamageDealt.toLocaleString(
-                                                        "en-US"
-                                                    )}**`
-                                            )
-                                            .join("\n"),
-                                    },
-                                ],
-                                thumbnail: {
-                                    url:
-                                        enhancedBoss.avatarURL ??
-                                        `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
-                                            enhancedBoss.emoji
-                                        )}.png`,
-                                },
-                            },
-                        ],
-                    })
-                    .catch(() => undefined);
-                if (winners?.find((r) => r.id === joinedUsers[0].id)) {
-                    const fixedWinners: {
-                        oldData: RPGUserDataJSON;
-                        newData: RPGUserDataJSON;
-                    }[] = [];
-                    for (const winner of winners) {
-                        const itemDidntDrop: {
-                            percentage: number;
-                            item: Item | EquipableItem | Special | Weapon;
-                        }[] = [];
-                        if (!joinedUsers.find((r) => r.id === winner.id)) continue;
-                        const winnerData = await ctx.client.database.getRPGUserData(winner.id);
-                        if (!winnerData) continue;
-                        const oldWinnerData = cloneDeep(winnerData);
-
-                        const winContent: string[] = [];
-                        if (raid.baseRewards?.coins) {
-                            const coins = Math.round(
-                                winner.health === 0
-                                    ? raid.baseRewards.coins / 4
-                                    : raid.baseRewards.coins
-                            );
-                            Functions.addCoins(winnerData, coins);
-                            winContent.push(
-                                `+**${coins.toLocaleString()}** ${ctx.client.localEmojis.jocoins}`
-                            );
-                        }
-                        if (raid.baseRewards?.xp) {
-                            // only give xps based of winner.totalDamageDealt . If totalDamageDealth is the boss.raid.health or higher, give full xp. Faites le proportionnellement
-                            let xp = /*Math.round(
-                                winner.health === 0 ? raid.baseRewards.xp / 4 : raid.baseRewards.xp
-                            );*/ Math.round(
-                                (winner.totalDamageDealt / Functions.getMaxHealth(enhancedBoss)) *
-                                    raid.baseRewards.xp
-                            );
-
-                            xp = Functions.addXp(winnerData, xp, ctx.client);
-                            winContent.push(
-                                `+**${xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`
-                            );
-                        }
-                        if (raid.baseRewards && raid.baseRewards?.items.length > 0) {
-                            for (const item of raid.baseRewards.items) {
-                                const chance =
-                                    (winner.totalDamageDealt /
-                                        Functions.getMaxHealth(enhancedBoss)) *
-                                    item.chance;
-                                const itemData = Functions.findItem(item.item);
-                                if (item.chance && !Functions.percent(chance)) {
-                                    itemDidntDrop.push({
-                                        percentage: chance,
-                                        item: itemData,
-                                    });
-                                    continue;
-                                }
-                                if (!itemData) continue;
-                                const status = Functions.addItem(
-                                    winnerData,
-                                    itemData.id,
-                                    item.amount
-                                );
-                                winContent.push(
-                                    `${status ? "" : "~~"}${item.amount}x ${itemData.emoji} **${
-                                        itemData.name
-                                    }** (${chance.toFixed(2)}%)${status ? "" : "~~"}`
-                                );
-                            }
-                        }
-                        winnerData.health = winner.health;
-                        if (winnerData.stamina > winner.stamina)
-                            winnerData.stamina = winner.stamina;
-                        if (raid.boss.id.includes("nian")) {
-                            Functions.addSocialCredits(winnerData, 50);
-                            fight.message
-                                .reply({
-                                    content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 50 social credits <@${winner.id}>!`,
-                                })
-                                .catch(() => undefined);
-                        }
-
-                        for (const quests of [
-                            winnerData.daily.quests,
-                            winnerData.chapter.quests,
-                            ...winnerData.sideQuests.map((v) => v.quests),
-                        ]) {
-                            for (const quest of quests.filter((x) => Functions.isRaidNPCQuest(x))) {
-                                if (
-                                    (quest as RaidNPCQuest).boss === enhancedBoss.id &&
-                                    !quest.completed
-                                ) {
-                                    quest.completed = true;
-                                    safeFollowUp(
-                                        ctx,
-                                        `:white_check_mark: <@${winner.id}> Your RaidQUEST has been completed (\`${quest.id}\`)`
-                                    );
-                                    break;
-                                }
-                            }
-                        }
-                        Functions.addCoins(winnerData, -raidCost);
-
-                        safeFollowUp(
-                            ctx,
-                            `<@${winner.id}> won the raid ${
-                                winner.health === 0
-                                    ? " but they died, so they only got the following rewards"
-                                    : "and got the following rewards"
-                            }:\n${winContent.join(", ")}${
-                                /*
-                                itemDidntDrop.length !== 0
-                                    ? ` (${itemDidntDrop
-                                          .map(
-                                              (r) =>
-                                                  `~~${r.item.emoji} ${r.item.name} (${r.percentage}%)~~`
-                                          )
-                                          .join(", ")})`
-                                    : ""
-                            */ ""
-                            }`
-                        );
-                        //ctx.client.database.saveUserData(winnerData);
-                        const status =
-                            bossChosen !== "ice_golem" ? null : getIceShard(winnerData) >= 50;
-                        if (status === true) {
-                            winnerData.inventory["ice_shard"] -= 50;
-                        }
-
-                        fixedWinners.push({
-                            oldData: oldWinnerData,
-                            newData: status !== false ? winnerData : oldWinnerData,
-                        });
-                        if (status === false) {
-                            safeFollowUp(
-                                ctx,
-                                `<@${winner.id}> didn't have enough Ice Shards to raid the Ice Golem, so they didn't get the rewards.`
-                            );
-                        }
-                    }
-                    const transaction = await ctx.client.database.handleTransaction(
-                        fixedWinners,
-                        `Raided ${enhancedBoss.name}`
-                    );
-                    if (!transaction) {
-                        safeFollowUp(
-                            ctx,
-                            `IGNORE THE MESSAGES ABOVE::: An error occurred while saving the data and no changes were made. Is somebody community banned? Is someone trying to cheat/dupe items...?`
-                        );
-                    }
-                } else {
-                    for (const team of losers) {
-                        for (const loser of team) {
-                            if (!joinedUsers.find((r) => r.id === loser.id)) continue;
-                            const loserData = await ctx.client.database.getRPGUserData(loser.id);
-                            if (!loserData) continue;
-                            loserData.health = 0;
-                            loserData.stamina = 0;
-                            Functions.addCoins(loserData, -raidCost);
-                            safeFollowUp(ctx, `<@${loser.id}> lost the raid and died.`);
-                            ctx.client.database.saveUserData(loserData);
-                        }
-                    }
-                }
-            });
-
-            fight.on("unexpectedEnd", (error) => {
-                for (const user of joinedUsers) {
-                    ctx.client.database.deleteCooldown(user.id);
-                }
-                safeFollowUp(
-                    ctx,
-                    `The raid ended unexpectedly due to an error: \`${error}\`. Please report this to the developers Your data has been saved and no cooldown has been set for you.`
-                );
+            attachRaidFightResultHandlers({
+                ctx,
+                fight,
+                joinedUsers,
+                enhancedBoss,
+                raid,
+                raidCost,
+                bossChosen,
             });
         });
 
@@ -510,7 +264,7 @@ const slashCommand: SlashCommandFile = {
 
             if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
                 if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                    safeFollowUp(
+                    safeRaidFollowUp(
                         ctx,
                         `<@${interaction.user.id}> tried to join the raid but they low in health.`
                     );
@@ -522,7 +276,7 @@ const slashCommand: SlashCommandFile = {
                 case joinRaidID: {
                     if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeFollowUp(
+                            safeRaidFollowUp(
                                 ctx,
                                 `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`
                             );
@@ -533,7 +287,7 @@ const slashCommand: SlashCommandFile = {
 
                     if (Functions.userIsCommunityBanned(ctx.userData)) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeFollowUp(
+                            safeRaidFollowUp(
                                 ctx,
                                 `<@${interaction.user.id}> tried to join the raid but the host is community banned.`
                             );
@@ -547,7 +301,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (joinedUsers.length >= raid.maxPlayers) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeFollowUp(
+                            safeRaidFollowUp(
                                 ctx,
                                 `<@${interaction.user.id}> tried to join the raid but it is full.`
                             );
@@ -566,7 +320,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (usrData.level < raid.level) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeFollowUp(
+                            safeRaidFollowUp(
                                 ctx,
                                 `<@${interaction.user.id}> tried to join the raid but they are too low level.`
                             );
@@ -578,7 +332,7 @@ const slashCommand: SlashCommandFile = {
 
                     if (usrData.prestige < raid.prestige) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeFollowUp(
+                            safeRaidFollowUp(
                                 ctx,
                                 `<@${interaction.user.id}> tried to join the raid but they are too low prestige.`
                             );
@@ -588,7 +342,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (usrData.coins < raidCost) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeFollowUp(
+                            safeRaidFollowUp(
                                 ctx,
                                 `<@${interaction.user.id}> tried to join the raid but they don't have enough coins.`
                             );
@@ -598,7 +352,7 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (bossChosen === "ice_golem" && getIceShard(usrData) < 50) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeFollowUp(
+                            safeRaidFollowUp(
                                 ctx,
                                 `<@${interaction.user.id}> tried to join the raid but they don't have enough Ice Shards.`
                             );
