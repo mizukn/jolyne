@@ -110,7 +110,7 @@ export const buildQuestListRows = (
 
             return {
                 text:
-                    `${quest ? getQuestDisplayEmoji(quest, ctx) : "📜"} **${index + 1}.** ${cleanedLine}` +
+                    `${quest ? getQuestDisplayEmoji(quest, ctx) : "📜"} ${index + 1}. ${cleanedLine}` +
                     rewardText +
                     `\n> Progression: ${getQuestProgressText(line)}`,
             };
