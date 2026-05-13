@@ -1,30 +1,22 @@
 import {
     SlashCommandFile,
-    Leaderboard,
-    equipableItemTypesLimit,
-    formattedEquipableItemTypes,
-    EquipableItem,
-    SkillPoints,
-    Weapon,
     Consumable,
 } from "../../@types";
 import {
     Message,
-    APIEmbed,
     InteractionResponse,
     ApplicationCommandOptionType,
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
+    MessageActionRowComponentBuilder
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { makeChapterTitle } from "../adventure/Chapter";
-import * as Chapters from "../../rpg/Chapters/Chapters";
-import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
-import { t } from "i18next";
-import { cloneDeep, max } from "lodash";
 import { NPCs } from "../../rpg/NPCs";
+import { cloneDeep } from "lodash";
+import { containers, COLORS, V2Reply, SectionData } from "../../utils/containers";
+import { emojiBar } from "../../utils/emojiBar";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -58,7 +50,6 @@ const slashCommand: SlashCommandFile = {
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
         const oldData = cloneDeep(ctx.userData);
-        const baseOldData = cloneDeep(ctx.userData);
         const maxHealth = Functions.getMaxHealth(ctx.userData);
         const maxStamina = Functions.getMaxStamina(ctx.userData);
         const isPreview = ctx.options.getBoolean("preview") || false;
@@ -69,17 +60,12 @@ const slashCommand: SlashCommandFile = {
             sortByStrongest = ctx.userData.settings.auto_heal.sort_by_strongest;
 
         if (ctx.userData.health >= maxHealth && ctx.userData.stamina >= maxStamina) {
-            return ctx.makeMessage({
-                content: "You are already at full health and stamina.",
-            });
+            return ctx.makeMessage(containers.error("You are already at full health and stamina."));
         }
-
-        await ctx.makeMessage({
-            content: `${ctx.client.localEmojis.loading} | Sorting your inventory...`,
-        });
 
         const maxOverLoop = 5;
         let currentOverLoop = 0;
+        
         while (
             currentOverLoop < maxOverLoop &&
             (ctx.userData.health < maxHealth || ctx.userData.stamina < maxStamina)
@@ -88,10 +74,9 @@ const slashCommand: SlashCommandFile = {
             const formattedInventory = Object.keys(ctx.userData.inventory)
                 .map((x) => {
                     const itemData = Functions.findItem(x);
-                    if (!itemData) return null;
-                    if (!Functions.isConsumable(itemData)) return null;
+                    if (!itemData || !Functions.isConsumable(itemData)) return null;
                     return {
-                        item: Functions.findItem<Consumable>(x),
+                        item: itemData as Consumable,
                         amount: ctx.userData.inventory[x],
                     };
                 })
@@ -124,16 +109,6 @@ const slashCommand: SlashCommandFile = {
                     const boldData = cloneDeep(ctx.userData);
                     Functions.useConsumableItem(b.item, boldData);
 
-                    const bEffects = {
-                        health: aoldData.health - boldData.health,
-                        stamina: aoldData.stamina - boldData.stamina,
-                    };
-
-                    const aEffects = {
-                        health: oldData.health - aoldData.health,
-                        stamina: oldData.stamina - aoldData.stamina,
-                    };
-
                     const expectedBEffects = {
                         health: Functions.getHealthEffect(b.item, ctx.userData),
                         stamina: Functions.getStaminaEffect(b.item, ctx.userData),
@@ -143,9 +118,6 @@ const slashCommand: SlashCommandFile = {
                         stamina: Functions.getStaminaEffect(a.item, ctx.userData),
                     };
 
-                    // check if
-
-                    // priority: total health gained (% compared to max health) + total stamina gained (% compared to max stamina)
                     let aPriority =
                         (boldData.health / Functions.getMaxHealth(boldData)) * 0.5 +
                         (boldData.stamina / Functions.getMaxStamina(boldData)) * 0.5;
@@ -199,18 +171,8 @@ const slashCommand: SlashCommandFile = {
             const constMaxLoop = 500;
             let maximumLoop = constMaxLoop;
             if (formattedInventory.length === 0) {
-                return ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Jolyne,
-                        `You don't have any items that can heal you. Consider buying some from the ${ctx.client.getSlashCommandMention(
-                            "shop"
-                        )}.`
-                    ),
-                });
+                return ctx.makeMessage(containers.error(Functions.makeNPCString(NPCs.Jolyne, `You don't have any items that can heal you. Consider buying some from the ${ctx.client.getSlashCommandMention("shop")}.`)));
             }
-            await ctx.makeMessage({
-                content: `${ctx.client.localEmojis.loading} | Using items...`,
-            });
 
             while (
                 (ctx.userData.health < maxHealth || ctx.userData.stamina < maxStamina) &&
@@ -232,12 +194,12 @@ const slashCommand: SlashCommandFile = {
                         : false
                 )[0];
                 if (!item) break;
-                // remoev amount from formatted inventory
+
                 item.amount--;
                 if (item.amount <= 0 || (ctx.userData.inventory[item.item.id] ?? 0) <= 0) {
                     formattedInventory.splice(formattedInventory.indexOf(item), 1);
                 }
-                // check if using this item will make the user go over the max health or max stamina
+
                 const expectedEffects = {
                     health: Functions.getHealthEffect(item.item, ctx.userData),
                     stamina: Functions.getStaminaEffect(item.item, ctx.userData),
@@ -260,19 +222,11 @@ const slashCommand: SlashCommandFile = {
             if (maximumLoop <= 0 && !isPreview) {
                 ctx.followUpQueue = [
                     {
-                        content: `Maximum loop reached. It's most likely because you have too much health and you've got many weak items.\nFor safety & performance reasons, the maximum loop is limited to \`${constMaxLoop.toLocaleString(
-                            "en-US"
-                        )}\`.
-                \n\nEither re-use this command or maybe try healing manually ${ctx.client.getSlashCommandMention(
-                    "item use"
-                )}`,
+                        content: `Maximum loop reached. It's most likely because you have too much health and you've got many weak items.\nFor safety & performance reasons, the maximum loop is limited to \`${constMaxLoop.toLocaleString("en-US")}\`.\n\nEither re-use this command or maybe try healing manually ${ctx.client.getSlashCommandMention("item use")}`,
                     },
                 ];
             }
         }
-        // compare oldData.inventory with ctx.userData.inventory
-        // get the difference
-        // get the rewards
 
         const itemsUsedData = Object.keys(oldData.inventory)
             .map((x) => {
@@ -292,69 +246,64 @@ const slashCommand: SlashCommandFile = {
         const uniqueItemsUsed = itemsUsedData
             .filter((x) => x !== null)
             .map((x) => x.item as Consumable);
-        //[...new Set(itemsUsed)];
 
         const rewards = Functions.getRewardsCompareData(oldData, ctx.userData);
 
-        // You used x1 xitem, x2 yitem and you got: rewards.join(", ")
+        const usedStr = itemsUsedData.length > 0
+            ? itemsUsedData.map((x) => `> ${x.item.emoji} **x${x.amount}** ${x.item.name}`).join("\n")
+            : "> *(None)*";
 
-        const msgString = `${
-            isPreview ? ":information_source: | `[PREVIEW]` " : ""
-        }You used ${uniqueItemsUsed
-            .map(
-                (x) =>
-                    `x${itemsUsedData.find((g) => g.item.id === x.id).amount} **${x.name}** ${
-                        x.emoji
-                    }`
-            )
-            .join(", ")} and you got: ${rewards.join(", ")}`;
+        const rewardsStr = rewards.length > 0
+            ? rewards.map((x) => `> - ${x}`).join("\n")
+            : "> *(None)*";
+
+        const sections: SectionData[] = [
+            { text: `### 🎒 **Items Consumed**\n${usedStr}` },
+            { text: `### ✨ **Effects Applied**\n${rewardsStr}` }
+        ];
+
+        const hpBar = emojiBar("hp", ctx.userData.health, maxHealth);
+        const staBar = emojiBar("sta", ctx.userData.stamina, maxStamina);
+        sections.push({
+            text: `### 📊 **New Stats**\n> :heart: • **${ctx.userData.health.toLocaleString()} / ${maxHealth.toLocaleString()}** HP\n> ${hpBar}\n> :battery: • **${ctx.userData.stamina.toLocaleString()} / ${maxStamina.toLocaleString()}** STA\n> ${staBar}`
+        });
+
+        const reply = containers.primary({
+            title: isPreview ? `👀 Auto-Heal Preview` : `❤️‍🩹 Auto-Heal Complete`,
+            description: isPreview ? `If you proceed, the following items will be consumed to restore your stats:` : `You have successfully consumed items from your inventory to heal.`,
+            descriptionDivider: true,
+            sections,
+            sectionDividers: true,
+            color: isPreview ? COLORS.warning : COLORS.success,
+        });
 
         const cancelButton = new ButtonBuilder()
             .setCustomId(ctx.interaction.id + "cancel")
-            .setLabel("Cancel")
+            .setLabel("Undo Healing")
             .setEmoji("🔁")
             .setStyle(ButtonStyle.Secondary);
 
-        ctx.makeMessage({
-            content: msgString,
-            components: !isPreview ? [Functions.actionRow([cancelButton])] : [],
-        });
+        if (!isPreview) {
+            reply.components.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(cancelButton));
+            await ctx.client.database.saveUserData(ctx.userData);
+        }
+
+        await ctx.makeMessage(reply);
 
         if (!isPreview) {
-            ctx.client.database.saveUserData(ctx.userData);
-
             const collector = ctx.channel.createMessageComponentCollector({
                 time: 60000,
-                filter: (i) =>
-                    i.user.id === ctx.user.id && i.customId === ctx.interaction.id + "cancel",
-            });
-
-            collector.on("end", async (collected, reason) => {
-                //if (reason === "time") {
-                Functions.disableRows(ctx.interaction);
-                return;
-                //}
+                filter: (i) => i.user.id === ctx.user.id && i.customId === ctx.interaction.id + "cancel",
             });
 
             collector.on("collect", async (i) => {
-                collector.stop("received item");
+                collector.stop();
                 if (await ctx.antiCheat(true)) return;
 
                 ctx.RPGUserData = oldData;
-                ctx.client.database.saveUserData(ctx.userData);
+                await ctx.client.database.saveUserData(ctx.userData);
 
-                //ctx.interaction.deleteReply().catch(() => {});
-                ctx.interaction
-                    .fetchReply()
-                    .then((x) => {
-                        if (!x) return;
-                        const content = x.content;
-                        x.edit({
-                            content: `~~${content}~~\n\n*Cancelled.*`,
-                        });
-                    })
-                    .catch(() => {});
-                i.deferUpdate().catch(() => {});
+                await i.update(containers.error("Auto-Heal action undone. Items and stats have been reverted to their previous state."));
             });
         }
     },
