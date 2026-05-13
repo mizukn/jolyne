@@ -1,6 +1,7 @@
 import {
     SlashCommandFile,
     possibleModifiers as PossibleModifierId,
+    RPGUserDataJSON,
 } from "../../@types";
 import {
     Message,
@@ -11,6 +12,7 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from "discord.js";
+import { cloneDeep } from "lodash";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import DungeonHandler from "../../structures/DungeonHandler";
@@ -60,6 +62,64 @@ const finalizeDungeonRewards = async (
 
 const hasDungeonProgress = (dungeon: DungeonHandler): boolean =>
     dungeon.stage > 0 || dungeon.beatenEnemies.length > 0;
+
+const isMessageAccessFailure = (reason: string): boolean =>
+    reason.includes("permission") ||
+    reason.includes("Missing Access") ||
+    reason.includes("50001") ||
+    reason.includes("50013") ||
+    reason.includes("message access") ||
+    reason.includes("send messages");
+
+const recordDungeonAttempt = async (
+    ctx: CommandInteractionContext,
+    players: RPGUserDataJSON[],
+): Promise<void> => {
+    for (const player of players) {
+        await ctx.client.database.setRPGCooldown(player.id, "dungeon", 1000 * 60 * 15);
+        const key = `dungeonDone:${player.id}:${Functions.getTodayString()}`;
+        const dungeonDoneToday = await ctx.client.database.getString(key);
+        const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
+        await ctx.client.database.redis.set(key, (dungeonDoneTodayCount + 1).toString());
+    }
+};
+
+const settleDungeonMessageAccessFailure = async (
+    dungeon: DungeonHandler,
+    ctx: CommandInteractionContext,
+    players: RPGUserDataJSON[],
+): Promise<void> => {
+    const fixedPlayers = [];
+    const results: boolean[] = [];
+
+    for (const dungeonPlayer of dungeon.players) {
+        const player = await ctx.client.database.getRPGUserData(dungeonPlayer.id);
+        if (!player) continue;
+
+        const oldData = cloneDeep(player);
+        player.health = Math.max(0, dungeonPlayer.health);
+        player.stamina = Math.max(0, dungeonPlayer.stamina);
+
+        if (player.id === ctx.userData.id) {
+            results.push(Functions.removeItem(player, "dungeon_key", 1));
+        }
+
+        fixedPlayers.push({
+            oldData,
+            newData: player,
+        });
+    }
+
+    if (fixedPlayers.length > 0) {
+        await ctx.client.database.handleTransaction(
+            fixedPlayers,
+            `Aborted a dungeon after losing message access: total of ${dungeon.stage} waves and beaten ${dungeon.beatenEnemies.length} enemies.`,
+            results,
+        );
+    }
+
+    await recordDungeonAttempt(ctx, players);
+};
 
 const renderLobby = (
     hostTag: string,
@@ -312,7 +372,15 @@ const slashCommand: SlashCommandFile = {
                         ctx.client.database.deleteCooldown(player.id);
                     }
                     const hasProgress = hasDungeonProgress(dungeon);
-                    if (reason === "maintenance" || ctx.client.maintenanceReason) {
+                    const isAccessFailure = isMessageAccessFailure(reason);
+                    if (isAccessFailure) {
+                        await settleDungeonMessageAccessFailure(dungeon, ctx, totalPlayers);
+                        await safeDungeonReply(
+                            dungeon,
+                            ctx,
+                            `The dungeon has ended because I lost message access in this channel. Your dungeon key was consumed and no rewards were generated.`,
+                        );
+                    } else if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         await safeDungeonReply(
                             dungeon,
                             ctx,
@@ -330,7 +398,7 @@ const slashCommand: SlashCommandFile = {
                         );
                     }
 
-                    if (hasProgress) {
+                    if (hasProgress && !isAccessFailure) {
                         await finalizeDungeonRewards(dungeon, ctx, selectedModifiers, true);
                     }
                 });
@@ -347,24 +415,7 @@ const slashCommand: SlashCommandFile = {
                             `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         );
                     } else {
-                        for (const player of totalPlayers) {
-                            await ctx.client.database.setRPGCooldown(
-                                player.id,
-                                "dungeon",
-                                1000 * 60 * 15
-                            );
-                            // incr dungeon done today
-                            const dungeonDoneToday = await ctx.client.database.getString(
-                                `dungeonDone:${player.id}:${Functions.getTodayString()}`
-                            );
-                            const dungeonDoneTodayCount = dungeonDoneToday
-                                ? parseInt(dungeonDoneToday)
-                                : 0;
-                            await ctx.client.database.redis.set(
-                                `dungeonDone:${player.id}:${Functions.getTodayString()}`,
-                                (dungeonDoneTodayCount + 1).toString()
-                            );
-                        }
+                        await recordDungeonAttempt(ctx, totalPlayers);
                     }
 
                     await finalizeDungeonRewards(dungeon, ctx, selectedModifiers);
