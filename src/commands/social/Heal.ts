@@ -303,7 +303,7 @@ const slashCommand: SlashCommandFile = {
                 ctx.RPGUserData = oldData;
                 await ctx.client.database.saveUserData(ctx.userData);
 
-                await i.update(containers.error("Auto-Heal action undone. Items and stats have been reverted to their previous state."));
+                await i.update(containers.success("Auto-Heal action undone. Items and stats have been reverted to their previous state."));
             });
         }
     },
