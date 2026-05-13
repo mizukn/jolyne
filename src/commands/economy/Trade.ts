@@ -14,7 +14,7 @@ import * as Functions from "../../utils/Functions";
 import { tradeWebhook } from "../../utils/Webhooks";
 import { createCanvas, loadImage } from "canvas";
 import { cloneDeep } from "lodash";
-import { containers } from "../../utils/containers";
+import { containers, COLORS, SectionData } from "../../utils/containers";
 import { acquireTradeLocks, validateOfferAgainstInventory } from "../../services/TradeService";
 
 const slashCommand: SlashCommandFile = {
@@ -123,10 +123,7 @@ const slashCommand: SlashCommandFile = {
         ctx: CommandInteractionContext
     ): Promise<Message | void | InteractionResponse> => {
         if (!ctx.client.database.postgresql) {
-            return void ctx.makeMessage({
-                content:
-                    "This command is disabled because the PostgreSQL database is currently having issues. For security reasons, this command is disabled until the issue is resolved.",
-            });
+            return void ctx.makeMessage(containers.error("This command is disabled because the PostgreSQL database is currently having issues. For security reasons, this command is disabled until the issue is resolved."));
         }
 
         if (Functions.userIsCommunityBanned(ctx.userData)) {
@@ -148,17 +145,12 @@ const slashCommand: SlashCommandFile = {
                 !targetData ||
                 targetData.restingAtCampfire
             ) {
-                await ctx.makeMessage({
-                    content: `**${target.tag}** is currently on cooldown or haven't started their adventure yet!`,
-                });
+                await ctx.makeMessage(containers.error(`**${target.tag}** is currently on cooldown or haven't started their adventure yet!`));
                 return;
             }
 
             if (Functions.userIsCommunityBanned(targetData)) {
-                return void ctx.makeMessage({
-                    content: "This user is community banned...",
-                    flags: MessageFlags.Ephemeral,
-                });
+                return void ctx.makeMessage(containers.ephemeral(containers.error("This user is community banned...")));
             }
 
             const targetOffer: RPGUserDataJSON["inventory"] = {};
@@ -166,44 +158,38 @@ const slashCommand: SlashCommandFile = {
 
             let stage = 0; // 1 = trade started
 
-            function makeMessage(): void {
+            function makeMessage(acceptedText?: string): void {
+                const userOfferStr = Object.entries(userOffer)
+                    .map(([itemId, amount]) => {
+                        const itemData = Functions.findItem(itemId);
+                        return `> ${itemData.emoji} **x${amount.toLocaleString()}** ${itemData.name}`;
+                    })
+                    .join("\n") || "> *(nothing yet)*";
+                
+                const targetOfferStr = Object.entries(targetOffer)
+                    .map(([itemId, amount]) => {
+                        const itemData = Functions.findItem(itemId);
+                        return `> ${itemData.emoji} **x${amount.toLocaleString()}** ${itemData.name}`;
+                    })
+                    .join("\n") || "> *(nothing yet)*";
+
                 const tradeReply = containers.primary({
-                    title: `Trade | ${tradeID}`,
-                    description: `- If you want to add an item to the trade, use the ${ctx.client.getSlashCommandMention(
-                        "trade add"
-                    )} command. (arguments: \`item\`, \`amount\`)\n- If you want to remove an item from the trade, use the ${ctx.client.getSlashCommandMention(
-                        "trade remove"
-                    )} command. (arguments: \`item\`, \`amount\`)\n- Trade ends automatically ${Functions.generateDiscordTimestamp(
-                        time,
-                        "FROM_NOW"
-                    )}`,
-                    fields: [
+                    title: `🤝 Trade | ${tradeID}`,
+                    description: `Manage your trade by using the ${ctx.client.getSlashCommandMention("trade add")} and ${ctx.client.getSlashCommandMention("trade remove")} commands.` + (acceptedText ? `\n\n**Status:** ${acceptedText}` : ""),
+                    descriptionDivider: true,
+                    sections: [
                         {
-                            name: `${ctx.user.tag}'s offers`,
-                            value:
-                                Object.entries(userOffer)
-                                    .map(
-                                        ([item, amount]) =>
-                                            `${Functions.findItem(item).emoji} ${amount}x ${
-                                                Functions.findItem(item).name
-                                            }`
-                                    )
-                                    .join("\n") || "*(nothing yet)*",
+                            text: `### 👤 **${ctx.user.username}'s Offers**\n${userOfferStr}`,
                         },
                         {
-                            name: `${target.tag}'s offers`,
-                            value:
-                                Object.entries(targetOffer)
-                                    .map(
-                                        ([item, amount]) =>
-                                            `${Functions.findItem(item).emoji} ${amount}x ${
-                                                Functions.findItem(item).name
-                                            }`
-                                    )
-                                    .join("\n") || "*(nothing yet)*",
-                        },
+                            text: `### 👤 **${target.username}'s Offers**\n${targetOfferStr}`,
+                        }
                     ],
+                    sectionDividers: true,
+                    color: COLORS.primary,
+                    footer: `Trade ends automatically ${Functions.generateDiscordTimestamp(time, "FROM_NOW")}. Both players must click Accept to finalize.`,
                 });
+                
                 tradeReply.components.push(Functions.actionRow([acceptBTN, cancelBTN]));
                 ctx.makeMessage(tradeReply);
             }
@@ -213,26 +199,29 @@ const slashCommand: SlashCommandFile = {
             const acceptBTN = new ButtonBuilder()
                 .setCustomId(acceptID)
                 .setLabel("Accept")
+                .setEmoji("✅")
                 .setStyle(ButtonStyle.Success);
             const rejectBTN = new ButtonBuilder()
                 .setCustomId(cancelID)
                 .setLabel("Reject")
+                .setEmoji("❌")
                 .setStyle(ButtonStyle.Danger);
             const cancelBTN = new ButtonBuilder()
                 .setCustomId(cancelID)
-                .setLabel("Cancel")
+                .setLabel("Cancel Trade")
+                .setEmoji("🛑")
                 .setStyle(ButtonStyle.Danger);
             const time = Date.now() + 60000 * 5;
 
-            ctx.makeMessage({
-                content: `<@${target.id}> | **${
-                    ctx.user.username
-                }** wants to trade with you (trade ends automatically ${Functions.generateDiscordTimestamp(
-                    time,
-                    "FROM_NOW"
-                )})`,
-                components: [Functions.actionRow([acceptBTN, rejectBTN])],
+            const requestReply = containers.primary({
+                title: `🤝 Trade Request`,
+                description: `<@${target.id}>, **${ctx.user.username}** wants to trade with you!`,
+                color: COLORS.info,
+                footer: `Request expires ${Functions.generateDiscordTimestamp(time, "FROM_NOW")}`,
             });
+            requestReply.components.push(Functions.actionRow([acceptBTN, rejectBTN]));
+            
+            await ctx.makeMessage(requestReply);
 
             const filter = (i: MessageComponentInteraction): boolean => {
                 return (
@@ -310,10 +299,7 @@ const slashCommand: SlashCommandFile = {
                                 (await ctx.client.database.getCooldown(target.id)) ||
                                 (await ctx.client.database.getCooldown(ctx.user.id))
                             ) {
-                                ctx.makeMessage({
-                                    content: `:warning: Trade cancelled:: one of the users is on cooldown. This is weird and we think you are trying to find a glitch to duplicate items. If this is the case, please note that trying to find glitches or cheat by any means is against the ToS of the RPG.`,
-                                    components: [],
-                                });
+                                ctx.makeMessage(containers.warning("Trade cancelled: one of the users is on cooldown. This is weird and we think you are trying to find a glitch to duplicate items. If this is the case, please note that trying to find glitches or cheat by any means is against the ToS of the RPG."));
                                 collector.stop();
                                 break;
                             }
@@ -353,8 +339,7 @@ const slashCommand: SlashCommandFile = {
                                 if (!tradeLock) {
                                     accepted = [];
                                     await ctx.makeMessage({
-                                        content:
-                                            ":warning: Trade is busy. Please wait a few seconds and accept again.",
+                                        ...containers.warning("Trade is busy. Please wait a few seconds and accept again."),
                                     });
                                     return;
                                 }
@@ -381,9 +366,7 @@ const slashCommand: SlashCommandFile = {
                                     ];
                                     if (inventoryErrors.length) {
                                         await ctx.makeMessage({
-                                            content: `:x: Trade rejected because an offer is no longer valid:\n${inventoryErrors
-                                                .map((error) => `- ${error}`)
-                                                .join("\n")}`,
+                                            ...containers.error(`Trade rejected because an offer is no longer valid:\n${inventoryErrors.map((error) => `- ${error}`).join("\n")}`),
                                             components: [],
                                         });
                                         collector.stop();
@@ -433,8 +416,8 @@ const slashCommand: SlashCommandFile = {
 
                                     if (!transaction) {
                                         await ctx.makeMessage({
-                                            content: `:x: TRANSACTION REJECTED:: Please check if one of you has enough stand disc space, or if one of the items is limited and a user has reached the limit. If you believe this is an error, please [contact us](https://discord.gg/jolyne-support-923608916540145694).`,
-                                            embeds: [],
+                                            ...containers.error("TRANSACTION REJECTED:: Please check if one of you has enough stand disc space, or if one of the items is limited and a user has reached the limit. If you believe this is an error, please contact support."),
+                                            components: [],
                                         });
                                         Functions.disableRows(ctx.interaction);
                                         collector.stop();
@@ -444,10 +427,7 @@ const slashCommand: SlashCommandFile = {
                                     await tradeLock.release();
                                 }
 
-                                ctx.makeMessage({
-                                    content: `:white_check_mark: Trade completed! (ID: \`${tradeID}\`)`,
-                                    components: [],
-                                });
+                                ctx.makeMessage(containers.success(`Trade completed! (ID: \`${tradeID}\`)`));
                                 collector.stop();
                                 //await ctx.client.database.saveUserData(userData);
                                 //await ctx.client.database.saveUserData(targetData);
@@ -480,29 +460,20 @@ const slashCommand: SlashCommandFile = {
                                                 {
                                                     name: `${ctx.user.username}'s offer`,
                                                     value: Object.entries(userOffer)
-                                                        .map(
-                                                            ([item, amount]) =>
-                                                                `${
-                                                                    Functions.findItem(item).emoji
-                                                                } ${amount}x ${
-                                                                    Functions.findItem(item).name
-                                                                }`
-                                                        )
-                                                        .join("\n"),
+                                                        .map(([itemId, amount]) => {
+                                                            const itemData = Functions.findItem(itemId);
+                                                            return `${itemData.emoji} ${amount}x ${itemData.name}`;
+                                                        })
+                                                        .join("\n") || "Nothing",
                                                 },
                                                 {
                                                     name: `${target.username}'s offer`,
                                                     value: Object.entries(targetOffer)
-
-                                                        .map(
-                                                            ([item, amount]) =>
-                                                                `${
-                                                                    Functions.findItem(item).emoji
-                                                                } ${amount}x ${
-                                                                    Functions.findItem(item).name
-                                                                }`
-                                                        )
-                                                        .join("\n"),
+                                                        .map(([itemId, amount]) => {
+                                                            const itemData = Functions.findItem(itemId);
+                                                            return `${itemData.emoji} ${amount}x ${itemData.name}`;
+                                                        })
+                                                        .join("\n") || "Nothing",
                                                 },
                                             ],
                                             color: 0x70926c,
@@ -528,17 +499,15 @@ const slashCommand: SlashCommandFile = {
                                         Date.now(),
                                     ]
                                 );
-                            } else
-                                ctx.makeMessage({
-                                    content: `:white_check_mark: <@${i.user.id}> accepted the trade...`,
-                                });
+                            } else {
+                                makeMessage(`✅ <@${i.user.id}> accepted the trade... waiting for the other player.`);
+                            }
                         }
                         break;
                     }
                     case cancelID: {
                         ctx.makeMessage({
-                            content: `:x: Trade cancelled.`,
-                            embeds: [],
+                            ...containers.error("Trade cancelled."),
                             components: [],
                         });
                         collector.stop();
@@ -555,73 +524,49 @@ const slashCommand: SlashCommandFile = {
         } else if (subcommand === "add") {
             const msg = await ctx.client.database.getCooldown(ctx.user.id);
             if (!msg || !msg.includes("trading")) {
-                ctx.makeMessage({
-                    content: `:x: You are not trading.`,
-                });
+                ctx.makeMessage(containers.error("You are not trading."));
                 return;
             }
             const itemString = ctx.interaction.options.getString("item", true);
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
-                ctx.makeMessage({
-                    content: `:x: Item not found.`,
-                });
+                ctx.makeMessage(containers.error("Item not found."));
                 return;
             }
             const amount = ctx.interaction.options.getInteger("amount", true);
             if (amount <= 0) {
-                ctx.makeMessage({
-                    content: `:x: Invalid amount.`,
-                });
+                ctx.makeMessage(containers.error("Invalid amount."));
                 return;
             }
             if (amount > ctx.userData.inventory[itemData.id]) {
-                ctx.makeMessage({
-                    content: `:x: You don't have enough of this item (you have only ${
-                        ctx.userData.inventory[itemData.id]
-                    }).`,
-                });
+                ctx.makeMessage(containers.error(`You don't have enough of this item (you have only ${ctx.userData.inventory[itemData.id]}).`));
                 return;
             }
             if (!itemData.tradable) {
-                ctx.makeMessage({
-                    content: `:x: This item is not tradable.`,
-                });
+                ctx.makeMessage(containers.error("This item is not tradable."));
                 return;
             }
             ctx.client.cluster.emit(`trade_${ctx.user.id}`, itemData.id, amount);
-            ctx.makeMessage({
-                content: `:white_check_mark:`,
-                flags: MessageFlags.Ephemeral,
-            });
+            ctx.makeMessage(containers.ephemeral(containers.success(`Added x${amount} ${itemData.name} to the trade.`)));
         } else if (subcommand === "remove") {
             const msg = await ctx.client.database.getCooldown(ctx.user.id);
             if (!msg || !msg.includes("trading")) {
-                ctx.makeMessage({
-                    content: `:x: You are not trading.`,
-                });
+                ctx.makeMessage(containers.error("You are not trading."));
                 return;
             }
             const itemString = ctx.interaction.options.getString("item", true);
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
-                ctx.makeMessage({
-                    content: `:x: Item not found.`,
-                });
+                ctx.makeMessage(containers.error("Item not found."));
                 return;
             }
             const amount = ctx.interaction.options.getInteger("amount", true);
             if (amount <= 0) {
-                ctx.makeMessage({
-                    content: `:x: Invalid amount.`,
-                });
+                ctx.makeMessage(containers.error("Invalid amount."));
                 return;
             }
             ctx.client.cluster.emit(`trade_${ctx.user.id}`, itemData.id, -amount);
-            ctx.makeMessage({
-                content: `:white_check_mark:`,
-                flags: MessageFlags.Ephemeral,
-            });
+            ctx.makeMessage(containers.ephemeral(containers.success(`Removed x${amount} ${itemData.name} from the trade.`)));
         } else if (subcommand === "view" || subcommand === "status") {
             const tradeId = ctx.interaction.options.getString("id", true);
             const rows = await ctx.client.database.postgresql.query(
@@ -632,9 +577,7 @@ const slashCommand: SlashCommandFile = {
             );
             const trade = rows.rows[0];
             if (!trade) {
-                await ctx.makeMessage({
-                    content: `:x: Trade not found.`,
-                });
+                await ctx.makeMessage(containers.error("Trade not found."));
                 return;
             }
             const userData = (await ctx.client.database.getRPGUserData(trade.user_id)) || {
@@ -646,39 +589,35 @@ const slashCommand: SlashCommandFile = {
                 id: trade.target_id,
             };
 
+            const userOfferStr = Object.entries(trade.user_offers)
+                .map(([itemId, amount]) => {
+                    const itemData = Functions.findItem(itemId);
+                    return `> ${itemData.emoji} **x${(amount as number).toLocaleString()}** ${itemData.name}`;
+                })
+                .join("\n") || "> *(nothing)*";
+
+            const targetOfferStr = Object.entries(trade.target_offers)
+                .map(([itemId, amount]) => {
+                    const itemData = Functions.findItem(itemId);
+                    return `> ${itemData.emoji} **x${(amount as number).toLocaleString()}** ${itemData.name}`;
+                })
+                .join("\n") || "> *(nothing)*";
+
             ctx.makeMessage(
                 containers.primary({
-                    title: `Trade #${trade.id}`,
-                    description: `Trade completed ${Functions.generateDiscordTimestamp(
-                        Number(trade.date),
-                        "FULL_DATE"
-                    )} in server ${
-                        ctx.client.guilds.cache.get(trade.server_id)?.name ?? trade.server_id
-                    }`,
-                    fields: [
+                    title: `🤝 Trade Status | #${trade.id}`,
+                    description: `Trade completed ${Functions.generateDiscordTimestamp(Number(trade.date), "FULL_DATE")} in server ${ctx.client.guilds.cache.get(trade.server_id)?.name ?? trade.server_id}.`,
+                    descriptionDivider: true,
+                    sections: [
                         {
-                            name: `${userData.tag}'s offers`,
-                            value: Object.entries(trade.user_offers)
-                                .map(
-                                    ([item, amount]) =>
-                                        `${Functions.findItem(item).emoji} ${amount}x ${
-                                            Functions.findItem(item).name
-                                        }`
-                                )
-                                .join("\n"),
+                            text: `### 👤 **${userData.tag}'s Offers**\n${userOfferStr}`,
                         },
                         {
-                            name: `${targetData.tag}'s offers`,
-                            value: Object.entries(trade.target_offers)
-                                .map(
-                                    ([item, amount]) =>
-                                        `${Functions.findItem(item).emoji} ${amount}x ${
-                                            Functions.findItem(item).name
-                                        }`
-                                )
-                                .join("\n"),
-                        },
+                            text: `### 👤 **${targetData.tag}'s Offers**\n${targetOfferStr}`,
+                        }
                     ],
+                    sectionDividers: true,
+                    color: COLORS.success,
                 })
             );
         }
