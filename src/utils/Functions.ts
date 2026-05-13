@@ -42,7 +42,6 @@ import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Items from "../rpg/Items";
 import * as BaseQuests from "../rpg/Quests/Quests";
 import * as Emails from "../rpg/Emails";
-import * as EquipableItems from "../rpg/Items/EquipableItems";
 import { Command } from "ioredis";
 import * as Emojis from "../emojis.json";
 import { get, random } from "lodash";
@@ -118,15 +117,6 @@ export {
 };
 
 export const PrestigeShardReward = UserService.PrestigeShardReward;
-const totalStands = [
-    ...Object.values(Stands.Stands),
-    ...Object.values(Stands.EvolutionStands).map((x) => {
-        return {
-            ...x.evolutions[0],
-            id: x.id,
-        };
-    }),
-];
 
 export { generateRandomId } from "./random";
 export { calculateArrayValues, getDiffPercent, plusOrMinus } from "./math";
@@ -371,7 +361,6 @@ export const standAbilitiesEmbed = (
 
 export { getEmojiId } from "./format";
 
-const totalWeapons = Object.values(EquipableItems).filter((x) => isWeapon(x));
 
 export const weaponAbilitiesEmbed = (
     user: Fighter | RPGUserDataJSON | FightableNPC,
@@ -560,9 +549,7 @@ export const hasExceedStandLimit = InventoryService.hasExceedStandLimit;
 
 export { msToString } from "./format";
 
-export const isEvolvableStand = (stand: Stand | EvolutionStand): boolean => {
-    return (stand as EvolutionStand).evolutions !== undefined;
-};
+export { isEvolvableStand } from "./stand";
 
 export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserDataJSON): string[] => {
     const rewards: string[] = [];
@@ -995,9 +982,7 @@ export const addHealthOrStamina = InventoryService.addHealthOrStamina;
 
 export const useConsumableItem = InventoryService.useConsumableItem;
 
-export const isEvolutionStand = (stand: Stand | EvolutionStand): stand is EvolutionStand => {
-    return (stand as EvolutionStand).evolutions !== undefined;
-};
+export { isEvolutionStand } from "./stand";
 
 export const getCurrentStand = UserService.getCurrentStand;
 
@@ -1055,37 +1040,7 @@ export function fixNpcRewards(npc: FightableNPC): void {
 
 }
 
-export const getStandEvolution = (stand: Stand): number => {
-    const baseStand = Object.values(Stands.EvolutionStands).find((x) => x.id === stand.id);
-    if (!baseStand) return 0;
-
-    return baseStand.evolutions.findIndex((x) => x.name === stand.name);
-};
-
-export const getRandomStand = (
-    includeRarity?: Rarity[],
-): {
-    stand: Stand;
-    evolution: number;
-} => {
-    const randomStand = includeRarity
-        ? randomArray(totalStands.filter((x) => includeRarity.includes(x.rarity)))
-        : randomArray(totalStands);
-    const evolution = getStandEvolution(randomStand);
-
-    return {
-        stand: randomStand,
-        evolution,
-    };
-};
-
-export const getRandomWeapon = (includeRarity?: Rarity[]): Weapon => {
-    const randomWeapon = includeRarity
-        ? randomArray(totalWeapons.filter((x) => includeRarity.includes(x.rarity)))
-        : randomArray(totalWeapons);
-
-    return randomWeapon as Weapon;
-};
+export { getStandEvolution, getRandomStand, getRandomWeapon } from "./stand";
 
 export const hasVotedRecenty = UserService.hasVotedRecenty;
 
