@@ -162,24 +162,27 @@ const Event: EventFile = {
                     .catch(() => {});
             }
 
+            let optionsString = JSON.stringify(interaction.options["data"] || {});
+            if (optionsString.length > 1000) {
+                optionsString = optionsString.slice(0, 1000) + "... (truncated)";
+            }
+
             commandLogsWebhook.send(
                 `🤖 | ${interaction.user.username} \`(${interaction.user.id})\` used \`/${
                     interaction.commandName
-                }\` in guild ${interaction.guild.name} \`(${
-                    interaction.guild.id
-                })\` with options: \`\`\`${JSON.stringify(interaction.options["data"])}\`\`\` _ _`,
-            );
+                }\` in guild ${interaction.guild?.name || "DMs"} \`(${
+                    interaction.guild?.id || "N/A"
+                })\` with options: \`\`\`${optionsString}\`\`\` _ _`,
+            ).catch(() => {});
 
             if (command.category === "admin") {
                 specialLogsWebhook.send(
                     `:warning: | ${interaction.user.username} \`(${
                         interaction.user.id
                     })\` used \`/${interaction.commandName}\` in guild ${
-                        interaction.guild.name
-                    } \`(${interaction.guild.id})\` with options: \`\`\`${JSON.stringify(
-                        interaction.options["data"],
-                    )}\`\`\` _ _`,
-                );
+                        interaction.guild?.name || "DMs"
+                    } \`(${interaction.guild?.id || "N/A"})\` with options: \`\`\`${optionsString}\`\`\` _ _`,
+                ).catch(() => {});
             }
         } else if (interaction.isAutocomplete()) {
             if (
