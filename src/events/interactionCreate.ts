@@ -1,24 +1,13 @@
-import {
-    FightableNPC,
-    type EventFile,
-    type RPGUserDataJSON,
-    type RPGUserQuest,
-    type UseXCommandQuest,
-} from "../@types";
+import type { EventFile, RPGUserQuest } from "../@types";
 import {
     Events,
     Interaction,
-    InteractionReplyOptions,
     MessageFlags,
-    MessagePayload,
 } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
-import CommandInteractionContext from "../structures/CommandInteractionContext";
-import * as Functions from "../utils/Functions";
-import * as SideQuests from "../rpg/SideQuests";
-import { cloneDeep, set } from "lodash";
 import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
-import { EVENT_IDS, isActive, runCommandEntryHooks } from "../services/EventService";
+import { runCommandEntryHooks } from "../services/EventService";
+import { runStep } from "../middlewares/pipeline";
 import { channelMiddleware } from "../middlewares/channel";
 import { bannedUserMiddleware } from "../middlewares/bannedUser";
 import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
@@ -39,7 +28,8 @@ import { userBusyMiddleware } from "../middlewares/userBusy";
 import { userDataFixupsMiddleware } from "../middlewares/userDataFixups";
 import { userDataMiddleware } from "../middlewares/userData";
 import { userStateNotificationsMiddleware } from "../middlewares/userStateNotifications";
-import type { Middleware, MiddlewareDecision } from "../middlewares/types";
+import type { MiddlewareInput } from "../middlewares/types";
+
 function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     const fixedQuests: RPGUserQuest[] = [];
     for (const quest of quests) {
@@ -48,38 +38,13 @@ function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
     return fixedQuests;
 }
 
-// Runs a single middleware against a shared `pipeline` object. Middlewares
-// may mutate the pipeline (e.g. to publish `ctx` for later steps); keeping
-// one mutable object across the chain matches the standard middleware idiom
-// and avoids passing a growing extras bag through every call.
-async function runMiddleware(
-    pipeline: import("../middlewares/types").MiddlewareInput,
-    middleware: Middleware,
-): Promise<MiddlewareDecision> {
-    return await middleware(pipeline);
-}
-
-async function applyDecision(
-    interaction: Interaction & { client: JolyneClient },
-    decision: MiddlewareDecision,
-): Promise<boolean> {
-    if (!decision.stop) return false;
-    if (decision.log) {
-        interaction.client.log(decision.log.message, decision.log.type ?? "info");
-    }
-    if (decision.reply && interaction.isRepliable()) {
-        await interaction.reply(decision.reply);
-    }
-    return true;
-}
-
 const Event: EventFile = {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction & { client: JolyneClient }) {
         if (interaction.isCommand() && interaction.isChatInputCommand()) {
-            const pipeline: import("../middlewares/types").MiddlewareInput = { interaction };
+            const pipeline: MiddlewareInput = { interaction };
 
-            if (await applyDecision(interaction, await runMiddleware(pipeline, maintenanceMiddleware))) return;
+            if (await runStep(pipeline, maintenanceMiddleware)) return;
 
             if (!interaction.client.allCommands) return;
 
@@ -87,12 +52,12 @@ const Event: EventFile = {
             if (!command || !interaction.guild) return;
             pipeline.command = command;
 
-            if (await applyDecision(interaction, await runMiddleware(pipeline, permissionsMiddleware))) return;
-            if (await applyDecision(interaction, await runMiddleware(pipeline, channelMiddleware))) return;
-            if (await applyDecision(interaction, await runMiddleware(pipeline, deprecatedRedirectMiddleware))) return;
-            if (await applyDecision(interaction, await runMiddleware(pipeline, commandCooldownMiddleware))) return;
-            if (await applyDecision(interaction, await runMiddleware(pipeline, userDataMiddleware))) return;
-            if (await applyDecision(interaction, await runMiddleware(pipeline, rpgCooldownMiddleware))) return;
+            if (await runStep(pipeline, permissionsMiddleware)) return;
+            if (await runStep(pipeline, channelMiddleware)) return;
+            if (await runStep(pipeline, deprecatedRedirectMiddleware)) return;
+            if (await runStep(pipeline, commandCooldownMiddleware)) return;
+            if (await runStep(pipeline, userDataMiddleware)) return;
+            if (await runStep(pipeline, rpgCooldownMiddleware)) return;
 
             const ctx = pipeline.ctx;
             if (!ctx) return;
@@ -100,10 +65,10 @@ const Event: EventFile = {
             if (command.data.name !== "help" && ctx.userData) {
                 runCommandEntryHooks(ctx);
 
-                if (await applyDecision(interaction, await runMiddleware(pipeline, bannedUserMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, firstFightSkillPointsHintMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, userBusyMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, restingAtCampfireMiddleware))) return;
+                if (await runStep(pipeline, bannedUserMiddleware)) return;
+                if (await runStep(pipeline, firstFightSkillPointsHintMiddleware)) return;
+                if (await runStep(pipeline, userBusyMiddleware)) return;
+                if (await runStep(pipeline, restingAtCampfireMiddleware)) return;
 
                 const commandName = pipeline.commandName ?? command.data.name;
                 interaction.client.log(
@@ -125,15 +90,15 @@ const Event: EventFile = {
                     sideQuest.quests = returnUniqueQuests(sideQuest.quests);
                 }
 
-                if (await applyDecision(interaction, await runMiddleware(pipeline, seasonalEmailsMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, patreonRewardsMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, sideQuestEnrollmentMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, userDataFixupsMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, questEffectsMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, levelUpMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, dailyResetMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, equippedItemsMiddleware))) return;
-                if (await applyDecision(interaction, await runMiddleware(pipeline, userStateNotificationsMiddleware))) return;
+                if (await runStep(pipeline, seasonalEmailsMiddleware)) return;
+                if (await runStep(pipeline, patreonRewardsMiddleware)) return;
+                if (await runStep(pipeline, sideQuestEnrollmentMiddleware)) return;
+                if (await runStep(pipeline, userDataFixupsMiddleware)) return;
+                if (await runStep(pipeline, questEffectsMiddleware)) return;
+                if (await runStep(pipeline, levelUpMiddleware)) return;
+                if (await runStep(pipeline, dailyResetMiddleware)) return;
+                if (await runStep(pipeline, equippedItemsMiddleware)) return;
+                if (await runStep(pipeline, userStateNotificationsMiddleware)) return;
 
                 if (notifications.length > 0) {
                     ctx.followUpQueue.push({
