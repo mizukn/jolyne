@@ -18,6 +18,31 @@ import { ButtonBuilder } from "discord.js";
 import { ButtonStyle } from "discord.js";
 import { cloneDeep } from "lodash";
 
+const safeFollowUp = async (
+    ctx: CommandInteractionContext,
+    content: string,
+): Promise<Message | null> =>
+    ctx
+        .followUp({ content })
+        .then((message) => message)
+        .catch(() => null);
+
+const safeFightReply = async (
+    fight: FightHandler,
+    ctx: CommandInteractionContext,
+    content: string,
+): Promise<Message | null> => {
+    if (fight.message) {
+        const message = await fight.message
+            .reply({ content })
+            .then((reply) => reply)
+            .catch(() => null);
+        if (message) return message;
+    }
+
+    return safeFollowUp(ctx, content);
+};
+
 const slashCommand: SlashCommandFile = {
     hiddenCommandNames: ["fight npc"],
     data: {
@@ -209,16 +234,18 @@ const slashCommand: SlashCommandFile = {
                 const fightHandler = new FightHandler(ctx, teams, FightTypes.Friendly);
 
                 fightHandler.on("end", async (winners) => {
-                    await ctx.followUp({
-                        content: `The fight has ended. The winners are: ${winners
+                    await safeFollowUp(
+                        ctx,
+                        `The fight has ended. The winners are: ${winners
                             .map((x) => x.name)
-                            .join(", ")}`,
-                    });
+                            .join(", ")}`
+                    );
                 });
                 fightHandler.on("unexpectedEnd", async (reason) => {
-                    await ctx.followUp({
-                        content: `The fight has ended unexpectedly due to an error. Reason: ${reason}`,
-                    });
+                    await safeFollowUp(
+                        ctx,
+                        `The fight has ended unexpectedly due to an error. Reason: ${reason}`
+                    );
                 });
             });
             collector.on("collect", async (i: MessageComponentInteraction) => {
@@ -310,14 +337,16 @@ const slashCommand: SlashCommandFile = {
             });
             fight.on("unexpectedEnd", (message) => {
                 ctx.client.database.deleteCooldown(ctx.userData.id);
-                ctx.followUp({
-                    content: `An error occured and your fight was ended. No changes were made towards your stats. \n\`\`\`${message}\`\`\``,
-                });
+                safeFollowUp(
+                    ctx,
+                    `An error occured and your fight was ended. No changes were made towards your stats. \n\`\`\`${message}\`\`\``
+                );
             });
 
             fight.on("end", async (winners, losers, fightType) => {
                 await ctx.client.database.deleteCooldown(ctx.userData.id);
                 ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.userData.id); // IN CASE new daily quests
+                let victoryMsg: Message | null = null;
 
                 if (losers[0].find((r) => r.id === ctx.userData.id)) {
                     const userDataFighter = losers[0].find((r) => r.id === ctx.userData.id);
@@ -325,13 +354,14 @@ const slashCommand: SlashCommandFile = {
                     ctx.userData.health = 0; // Security
                     ctx.userData.stamina = userDataFighter.stamina;
 
-                    await ctx.followUp({
-                        content: `:skull: You lost against ${
+                    await safeFollowUp(
+                        ctx,
+                        `:skull: You lost against ${
                             npc.name
                         }... Better luck next time or train yourself more.\n\nTIP: You can use ${ctx.client.getSlashCommandMention(
                             "fight train"
-                        )} to fight this NPC without losing any health or stamina.`,
-                    });
+                        )} to fight this NPC without losing any health or stamina.`
+                    );
                 } else {
                     const userDataFighter = winners.find((r) => r.id === ctx.userData.id);
 
@@ -352,16 +382,17 @@ const slashCommand: SlashCommandFile = {
                     }
 
                     if (quest.completed) {
-                        return void fight.message.reply({
-                            content: `This quest has already been completed...?`,
-                        });
+                        await safeFightReply(fight, ctx, `This quest has already been completed...?`);
+                        return;
                     }
 
                     if (npc.id.includes("celestialSnake")) {
                         Functions.addSocialCredits(ctx.userData, 30);
-                        fight.message.reply({
-                            content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 30 social credits.`,
-                        });
+                        safeFightReply(
+                            fight,
+                            ctx,
+                            `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 30 social credits.`
+                        );
                     }
 
                     quest.completed = true;
@@ -486,16 +517,16 @@ const slashCommand: SlashCommandFile = {
                     // todo: add rewards
                     // todo: check if quest has to add chapter quests and/or emails
 
-                    const victoryMsg = await fight.message.reply({
-                        content: `:crossed_swords: Congratulations on beating **${
+                    victoryMsg = await safeFightReply(
+                        fight,
+                        ctx,
+                        `:crossed_swords: Congratulations on beating **${
                             npc.name
                         }**, you got the following rewards: \n${winContent.join(
                             " "
                         )}\n\n---> Use the ${command} command to see your progression.`,
-                    });
+                    );
 
-                    // Store victoryMsg on the fight object temporarily so we can access it outside
-                    (fight as any).victoryMsg = victoryMsg;
                 }
 
                 const oldData = await ctx.client.database.getRPGUserData(ctx.userData.id);
@@ -511,9 +542,12 @@ const slashCommand: SlashCommandFile = {
                 );
 
                 if (!transaction) {
-                    return void fight.message.reply({
-                        content: "An error occured while saving your data. No changes were made.",
-                    });
+                    await safeFightReply(
+                        fight,
+                        ctx,
+                        "An error occured while saving your data. No changes were made."
+                    );
+                    return;
                 }
 
                 const chapterQuestsNPC = ctx.userData.chapter.quests.filter(
@@ -545,8 +579,6 @@ const slashCommand: SlashCommandFile = {
                     .setEmoji(ctx.client.localEmojis.arrowRight)
                     .setLabel("Next Fight");
 
-                const victoryMsg = (fight as any).victoryMsg as Message | undefined;
-
                 if (
                     victoryMsg &&
                     (chapterQuestsNPC.length !== 0 ||
@@ -554,9 +586,11 @@ const slashCommand: SlashCommandFile = {
                         sideQuestsNPC.length !== 0) &&
                     ctx.userData.health > 10
                 ) {
-                    await victoryMsg.edit({
-                        components: [Functions.actionRow([nextFightButton])],
-                    });
+                    await victoryMsg
+                        .edit({
+                            components: [Functions.actionRow([nextFightButton])],
+                        })
+                        .catch(() => undefined);
 
                     const filter = (i: MessageComponentInteraction) =>
                         i.customId === ctx.interaction.id + "nfight" &&

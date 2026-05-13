@@ -29,6 +29,14 @@ const getIceShard = (data: RPGUserDataJSON): number => {
     return data.inventory["ice_shard"] ?? 0;
 };
 
+const safeFollowUp = async (
+    ctx: CommandInteractionContext,
+    content: string,
+): Promise<Message | null> =>
+    ctx
+        .followUp({ content })
+        .then((message) => message)
+        .catch(() => null);
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -262,62 +270,64 @@ const slashCommand: SlashCommandFile = {
                         Functions.hasVotedRecenty(user, ctx.client) ? 30000 : raid.cooldown
                     );
                 }
-                raidWebhook.send({
-                    embeds: [
-                        {
-                            title: `${enhancedBoss.name} Raid`,
-                            description: `${joinedUsers
-                                .map((x) => "**" + x.tag + "**")
-                                .join(", ")} raided **${enhancedBoss.name}** and ${
-                                joinedUsers.find((r) => r.id === winners[0].id) ? "won" : "lost"
-                            }!`,
-                            color: 0x70926c,
-                            fields: [
-                                {
-                                    name: "Host",
-                                    value: ctx.user.username,
-                                    inline: true,
+                raidWebhook
+                    .send({
+                        embeds: [
+                            {
+                                title: `${enhancedBoss.name} Raid`,
+                                description: `${joinedUsers
+                                    .map((x) => "**" + x.tag + "**")
+                                    .join(", ")} raided **${enhancedBoss.name}** and ${
+                                    joinedUsers.find((r) => r.id === winners[0].id) ? "won" : "lost"
+                                }!`,
+                                color: 0x70926c,
+                                fields: [
+                                    {
+                                        name: "Host",
+                                        value: ctx.user.username,
+                                        inline: true,
+                                    },
+                                    {
+                                        name: "Winners",
+                                        value: winners.map((r) => r.name).join(", "),
+                                        inline: true,
+                                    },
+                                    {
+                                        name: "Losers",
+                                        value: losers
+                                            .map((team) => team.map((r) => r.name).join(", "))
+                                            .join("\n"),
+                                        inline: true,
+                                    },
+                                    {
+                                        name: "Guild info",
+                                        value: `${ctx.guild.name} (${ctx.guild.id})`,
+                                        inline: true,
+                                    },
+                                    {
+                                        name: "Total damages",
+                                        value: [...winners, ...losers.flat()]
+                                            .sort((a, b) => b.totalDamageDealt - a.totalDamageDealt)
+                                            .map(
+                                                (r) =>
+                                                    `- ${r.name}: **${r.totalDamageDealt.toLocaleString(
+                                                        "en-US"
+                                                    )}**`
+                                            )
+                                            .join("\n"),
+                                    },
+                                ],
+                                thumbnail: {
+                                    url:
+                                        enhancedBoss.avatarURL ??
+                                        `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
+                                            enhancedBoss.emoji
+                                        )}.png`,
                                 },
-                                {
-                                    name: "Winners",
-                                    value: winners.map((r) => r.name).join(", "),
-                                    inline: true,
-                                },
-                                {
-                                    name: "Losers",
-                                    value: losers
-                                        .map((team) => team.map((r) => r.name).join(", "))
-                                        .join("\n"),
-                                    inline: true,
-                                },
-                                {
-                                    name: "Guild info",
-                                    value: `${ctx.guild.name} (${ctx.guild.id})`,
-                                    inline: true,
-                                },
-                                {
-                                    name: "Total damages",
-                                    value: [...winners, ...losers.flat()]
-                                        .sort((a, b) => b.totalDamageDealt - a.totalDamageDealt)
-                                        .map(
-                                            (r) =>
-                                                `- ${r.name}: **${r.totalDamageDealt.toLocaleString(
-                                                    "en-US"
-                                                )}**`
-                                        )
-                                        .join("\n"),
-                                },
-                            ],
-                            thumbnail: {
-                                url:
-                                    enhancedBoss.avatarURL ??
-                                    `https://cdn.discordapp.com/emojis/${Functions.getEmojiId(
-                                        enhancedBoss.emoji
-                                    )}.png`,
                             },
-                        },
-                    ],
-                });
+                        ],
+                    })
+                    .catch(() => undefined);
                 if (winners?.find((r) => r.id === joinedUsers[0].id)) {
                     const fixedWinners: {
                         oldData: RPGUserDataJSON;
@@ -391,9 +401,11 @@ const slashCommand: SlashCommandFile = {
                             winnerData.stamina = winner.stamina;
                         if (raid.boss.id.includes("nian")) {
                             Functions.addSocialCredits(winnerData, 50);
-                            fight.message.reply({
-                                content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 50 social credits <@${winner.id}>!`,
-                            });
+                            fight.message
+                                .reply({
+                                    content: `${ctx.client.localEmojis.social_credit} | 伟大的！You earned 50 social credits <@${winner.id}>!`,
+                                })
+                                .catch(() => undefined);
                         }
 
                         for (const quests of [
@@ -407,17 +419,19 @@ const slashCommand: SlashCommandFile = {
                                     !quest.completed
                                 ) {
                                     quest.completed = true;
-                                    ctx.followUp({
-                                        content: `:white_check_mark: <@${winner.id}> Your RaidQUEST has been completed (\`${quest.id}\`)`,
-                                    });
+                                    safeFollowUp(
+                                        ctx,
+                                        `:white_check_mark: <@${winner.id}> Your RaidQUEST has been completed (\`${quest.id}\`)`
+                                    );
                                     break;
                                 }
                             }
                         }
                         Functions.addCoins(winnerData, -raidCost);
 
-                        ctx.followUp({
-                            content: `<@${winner.id}> won the raid ${
+                        safeFollowUp(
+                            ctx,
+                            `<@${winner.id}> won the raid ${
                                 winner.health === 0
                                     ? " but they died, so they only got the following rewards"
                                     : "and got the following rewards"
@@ -432,8 +446,8 @@ const slashCommand: SlashCommandFile = {
                                           .join(", ")})`
                                     : ""
                             */ ""
-                            }`,
-                        });
+                            }`
+                        );
                         //ctx.client.database.saveUserData(winnerData);
                         const status =
                             bossChosen !== "ice_golem" ? null : getIceShard(winnerData) >= 50;
@@ -446,9 +460,10 @@ const slashCommand: SlashCommandFile = {
                             newData: status !== false ? winnerData : oldWinnerData,
                         });
                         if (status === false) {
-                            ctx.followUp({
-                                content: `<@${winner.id}> didn't have enough Ice Shards to raid the Ice Golem, so they didn't get the rewards.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${winner.id}> didn't have enough Ice Shards to raid the Ice Golem, so they didn't get the rewards.`
+                            );
                         }
                     }
                     const transaction = await ctx.client.database.handleTransaction(
@@ -456,9 +471,10 @@ const slashCommand: SlashCommandFile = {
                         `Raided ${enhancedBoss.name}`
                     );
                     if (!transaction) {
-                        ctx.followUp({
-                            content: `IGNORE THE MESSAGES ABOVE::: An error occurred while saving the data and no changes were made. Is somebody community banned? Is someone trying to cheat/dupe items...?`,
-                        });
+                        safeFollowUp(
+                            ctx,
+                            `IGNORE THE MESSAGES ABOVE::: An error occurred while saving the data and no changes were made. Is somebody community banned? Is someone trying to cheat/dupe items...?`
+                        );
                     }
                 } else {
                     for (const team of losers) {
@@ -469,9 +485,7 @@ const slashCommand: SlashCommandFile = {
                             loserData.health = 0;
                             loserData.stamina = 0;
                             Functions.addCoins(loserData, -raidCost);
-                            ctx.followUp({
-                                content: `<@${loser.id}> lost the raid and died.`,
-                            });
+                            safeFollowUp(ctx, `<@${loser.id}> lost the raid and died.`);
                             ctx.client.database.saveUserData(loserData);
                         }
                     }
@@ -482,9 +496,10 @@ const slashCommand: SlashCommandFile = {
                 for (const user of joinedUsers) {
                     ctx.client.database.deleteCooldown(user.id);
                 }
-                ctx.followUp({
-                    content: `The raid ended unexpectedly due to an error: \`${error}\`. Please report this to the developers Your data has been saved and no cooldown has been set for you.`,
-                });
+                safeFollowUp(
+                    ctx,
+                    `The raid ended unexpectedly due to an error: \`${error}\`. Please report this to the developers Your data has been saved and no cooldown has been set for you.`
+                );
             });
         });
 
@@ -495,9 +510,10 @@ const slashCommand: SlashCommandFile = {
 
             if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
                 if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                    ctx.followUp({
-                        content: `<@${interaction.user.id}> tried to join the raid but they low in health.`,
-                    });
+                    safeFollowUp(
+                        ctx,
+                        `<@${interaction.user.id}> tried to join the raid but they low in health.`
+                    );
                     cooldownedUsers.push(interaction.user.id);
                 }
                 return;
@@ -506,9 +522,10 @@ const slashCommand: SlashCommandFile = {
                 case joinRaidID: {
                     if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`
+                            );
                             cooldownedUsers.push(interaction.user.id);
                         }
                         return;
@@ -516,9 +533,10 @@ const slashCommand: SlashCommandFile = {
 
                     if (Functions.userIsCommunityBanned(ctx.userData)) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but the host is community banned.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${interaction.user.id}> tried to join the raid but the host is community banned.`
+                            );
                             cooldownedUsers.push(interaction.user.id);
                         }
 
@@ -529,9 +547,10 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (joinedUsers.length >= raid.maxPlayers) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but it is full.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${interaction.user.id}> tried to join the raid but it is full.`
+                            );
                             cooldownedUsers.push(interaction.user.id);
                         }
                         return;
@@ -547,9 +566,10 @@ const slashCommand: SlashCommandFile = {
                     }
                     if (usrData.level < raid.level) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but they are too low level.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${interaction.user.id}> tried to join the raid but they are too low level.`
+                            );
                             cooldownedUsers.push(interaction.user.id);
                         }
 
@@ -558,27 +578,30 @@ const slashCommand: SlashCommandFile = {
 
                     if (usrData.prestige < raid.prestige) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but they are too low prestige.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${interaction.user.id}> tried to join the raid but they are too low prestige.`
+                            );
                             cooldownedUsers.push(interaction.user.id);
                         }
                         return;
                     }
                     if (usrData.coins < raidCost) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but they don't have enough coins.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${interaction.user.id}> tried to join the raid but they don't have enough coins.`
+                            );
                             cooldownedUsers.push(interaction.user.id);
                         }
                         return;
                     }
                     if (bossChosen === "ice_golem" && getIceShard(usrData) < 50) {
                         if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            ctx.followUp({
-                                content: `<@${interaction.user.id}> tried to join the raid but they don't have enough Ice Shards.`,
-                            });
+                            safeFollowUp(
+                                ctx,
+                                `<@${interaction.user.id}> tried to join the raid but they don't have enough Ice Shards.`
+                            );
                             cooldownedUsers.push(interaction.user.id);
                         }
                         return;
