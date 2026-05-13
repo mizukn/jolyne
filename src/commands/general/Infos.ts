@@ -173,7 +173,6 @@ const slashCommand: SlashCommandFile = {
         const todayDateString = `${new Date().getUTCDate()}-${
             new Date().getUTCMonth() + 1
         }-${new Date().getUTCFullYear()}`;
-        console.log(commit);
 
         const embed: APIEmbed = {
             author: {

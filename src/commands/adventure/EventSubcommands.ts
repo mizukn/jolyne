@@ -269,9 +269,6 @@ const slashCommand: SlashCommandFile = {
                             );
                             continue;
                         }
-                        console.log(
-                            `Removed ${soulsPut[player.id]} corrupted souls from ${player.id}`
-                        );
                     }
 
                     if (losers[0].find((r) => r.id === FightableNPCS.Santa.id)) {

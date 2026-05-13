@@ -68,7 +68,6 @@ const slashCommand: SlashCommandFile = {
             const oldData = cloneDeep(ctx.userData);
 
             if (Functions.isConsumable(itemData)) {
-                console.log(`Attempting to use consumable item: ${itemData.id}`);
                 Functions.useConsumableItem(itemData, ctx.userData, amountX);
                 Functions.removeItem(ctx.userData, itemString, amountX);
             } else if (Functions.isSpecial(itemData)) {
