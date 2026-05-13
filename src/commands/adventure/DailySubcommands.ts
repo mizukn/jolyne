@@ -5,6 +5,8 @@ import {
     ButtonStyle,
     InteractionResponse,
     MessageComponentInteraction,
+    ActionRowBuilder,
+    MessageActionRowComponentBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -14,7 +16,8 @@ import { StandArrow } from "../../rpg/Items/SpecialItems";
 import { getQuestsStats } from "./Chapter";
 import { cloneDeep } from "lodash";
 import Aes from "../../utils/Aes";
-import { COLORS, containers, V2Reply } from "../../utils/containers";
+import { COLORS, containers, V2Reply, SectionData } from "../../utils/containers";
+import { emojiBar } from "../../utils/emojiBar";
 
 const dailyQuestResetPrice = {
     undefined: 1000,
@@ -46,6 +49,7 @@ const dailyQuestResetPrice = {
     24: 5000000000000000,
     25: 9000000000000000,
 };
+
 const slashCommand: SlashCommandFile = {
     data: {
         name: "daily",
@@ -70,7 +74,7 @@ const slashCommand: SlashCommandFile = {
                 ) {
                     return ctx.makeMessage(
                         containers.primary({
-                            title: "📆 Daily Reward",
+                            title: "# 📆 Daily Reward",
                             description: ctx.translate("daily:ALREADY_CLAIMED", {
                                 time: Functions.generateDiscordTimestamp(
                                     Date.now() + (nextDate - Date.now()),
@@ -174,36 +178,28 @@ const slashCommand: SlashCommandFile = {
                         });
                 }
 
-                const dailyFields: { name: string; value: string }[] = [
-                    {
-                        name: ctx.translate("daily:WANT_MORE_HEADER"),
-                        value: "[..]",
-                    },
-                ];
+                const dailySections: SectionData[] = [];
                 const dailyFooter =
                     ctx.translate<string>("daily:CLAIMED_EMBED_FOOTER") +
                     ` ${ctx.userData.daily.claimStreak}/${nextGoal}`;
 
+                let wantMoreDesc = "";
                 if (
                     ctx.client.patreons.find((r) => r.id === ctx.userData.id) &&
                     ctx.client.boosters.find((r) => r === ctx.userData.id)
                 ) {
-                    dailyFields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER",
-                    );
+                    wantMoreDesc = ctx.translate("daily:WANT_MORE_DESCRIPTION_PREMIUM_BOOSTER");
                 } else if (ctx.client.patreons.find((r) => r.id === ctx.userData.id)) {
-                    dailyFields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER",
-                    );
+                    wantMoreDesc = ctx.translate("daily:WANT_MORE_DESCRIPTION_PREMIUM_NON_BOOSTER");
                 } else if (ctx.client.boosters.find((r) => r === ctx.userData.id)) {
-                    dailyFields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER",
-                    );
+                    wantMoreDesc = ctx.translate("daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_BOOSTER");
                 } else {
-                    dailyFields[0].value = ctx.translate(
-                        "daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_NON_BOOSTER",
-                    );
+                    wantMoreDesc = ctx.translate("daily:WANT_MORE_DESCRIPTION_NON_PREMIUM_NON_BOOSTER");
                 }
+
+                dailySections.push({
+                    text: `### 🎁 **${ctx.translate("daily:WANT_MORE_HEADER")}**\n> ${wantMoreDesc}`
+                });
 
                 if (ctx.userData.daily.claimStreak % 7 == 0) {
                     let arrows = 0;
@@ -218,9 +214,8 @@ const slashCommand: SlashCommandFile = {
                     for (let i = 0; i < arrows; i++) {
                         Functions.addItem(ctx.userData, StandArrow);
                     }
-                    dailyFields.push({
-                        name: "Streak Bonus",
-                        value: `\`x${arrows} ${StandArrow.name}\` ${StandArrow.emoji}`,
+                    dailySections.push({
+                        text: `### 🔥 **Streak Bonus**\n> **Rewards:** \`x${arrows} ${StandArrow.name}\` ${StandArrow.emoji}`
                     });
                 }
 
@@ -241,18 +236,18 @@ const slashCommand: SlashCommandFile = {
                         Functions.getCurrentDate()
                     ]
                 ) {
-                    const rewards = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
+                    const christmasRewards = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
                         Functions.getCurrentDate()
                     ];
-                    const nextReward = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
+                    const nextChristmasReward = Functions.dailyClaimRewardsChristmas(ctx.userData.level)[
                         Functions.getCurrentDate(
                             new Date(Date.now() + 86400000), // next day
                         )
                     ];
 
-                    const coins = rewards.coins;
-                    const xp = rewards.xp;
-                    const items = rewards.items;
+                    const coins = christmasRewards.coins;
+                    const xp = christmasRewards.xp;
+                    const items = christmasRewards.items;
 
                     if (coins) Functions.addCoins(ctx.userData, coins);
                     if (xp) Functions.addXp(ctx.userData, xp, ctx.client);
@@ -262,44 +257,39 @@ const slashCommand: SlashCommandFile = {
                         }
                     }
 
-                    let nextRewards = "";
-                    if (nextReward) {
+                    let nextRewardsText = "";
+                    if (nextChristmasReward) {
                         const nextData = cloneDeep(oldData);
-                        if (nextReward.coins) Functions.addCoins(nextData, nextReward.coins);
-                        if (nextReward.xp) Functions.addXp(nextData, nextReward.xp, ctx.client);
-                        if (nextReward.items) {
-                            for (const item of Object.keys(nextReward.items)) {
+                        if (nextChristmasReward.coins) Functions.addCoins(nextData, nextChristmasReward.coins);
+                        if (nextChristmasReward.xp) Functions.addXp(nextData, nextChristmasReward.xp, ctx.client);
+                        if (nextChristmasReward.items) {
+                            for (const item of Object.keys(nextChristmasReward.items)) {
                                 Functions.addItem(
                                     nextData,
                                     Functions.findItem(item),
-                                    nextReward.items[item],
+                                    nextChristmasReward.items[item],
                                 );
                             }
                         }
-                        nextRewards = Functions.getRewardsCompareData(oldData, nextData)
+                        nextRewardsText = Functions.getRewardsCompareData(oldData, nextData)
                             .map((x) => `-# - ${x}`)
                             .join("\n");
                     }
 
-                    dailyFields.push({
-                        name: "Merry Christmas!",
-                        value: `You got the following rewards for claiming today:\n${Functions.getRewardsCompareData(
-                            oldData,
-                            ctx.userData,
-                        )
-                            .map((x) => `- ${x}`)
-                            .join("\n")} ${
-                            nextReward
-                                ? `\n\nExpected rewards if you claim tomorrow (${Functions.generateDiscordTimestamp(
+                    dailySections.push({
+                        text: `### 🎄 **Merry Christmas!**\n> You got the following rewards for claiming today:\n${Functions.getRewardsCompareData(oldData, ctx.userData)
+                            .map((x) => `> - ${x}`)
+                            .join("\n")}${
+                            nextChristmasReward
+                                ? `\n\n> **Expected rewards tomorrow** (${Functions.generateDiscordTimestamp(
                                       new Date(Date.now() + 86400000).setUTCHours(0, 0, 0, 0),
                                       "FROM_NOW",
-                                  )}):\n${nextRewards}`
+                                  )}):\n${nextRewardsText}`
                                 : ""
                         }`,
                     });
                 }
 
-                //await ctx.client.database.saveUserData(ctx.userData);
                 const transaction = await ctx.client.database.handleTransaction(
                     [
                         {
@@ -315,19 +305,16 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 const dailyReply = containers.primary({
-                    title: `📆 Daily Reward`,
-                    description: embed_description,
+                    title: `# 📆 Daily Reward`,
+                    description: `${ctx.client.localEmojis.a_} **Rewards Claimed:**\n${embed_description}`,
                     color: COLORS.primary,
                     descriptionDivider: true,
-                    sections: Functions.fieldSections(dailyFields),
+                    sections: dailySections,
                     sectionDividers: true,
                     footer: dailyFooter,
                 });
-                await ctx.makeMessage({
-                    components: dailyReply.components,
-                    flags: dailyReply.flags,
-                });
-
+                
+                await ctx.makeMessage(dailyReply);
                 break;
             }
             case "daily":
@@ -358,7 +345,6 @@ const slashCommand: SlashCommandFile = {
                 }
                 if (coinReward > 50000) coinReward = 50000;
                 xpReward = Math.round(xpReward * 1.99);
-                // check if is booster or patreon
 
                 if (
                     ctx.client.patreons.find((r) => r.id === ctx.userData.id) ||
@@ -367,25 +353,24 @@ const slashCommand: SlashCommandFile = {
                     xpReward = Math.round(xpReward * 1.1);
                 }
 
-                const components: ButtonBuilder[] = [];
+                const questButtons: ButtonBuilder[] = [];
 
                 if (Number(status.percent) === 100) {
                     const alreadyClaimed = await ctx.client.database.redis.get(
                         `daily-quests-${ctx.userData.id}`,
                     );
 
-                    components.push(
+                    questButtons.push(
                         new ButtonBuilder()
                             .setStyle(ButtonStyle.Success)
                             .setEmoji("⭐")
-                            .setLabel(alreadyClaimed === "true" ? "Claimed" : "Claim")
+                            .setLabel(alreadyClaimed === "true" ? "Claimed" : "Claim Rewards")
                             .setCustomId(ctx.interaction.id + "daily-quests-claim")
                             .setDisabled(alreadyClaimed === "true"),
                     );
 
                     if (alreadyClaimed === "true") {
-                        components.push(
-                            // repeat button
+                        questButtons.push(
                             new ButtonBuilder()
                                 .setStyle(ButtonStyle.Secondary)
                                 .setEmoji("🔁")
@@ -401,22 +386,22 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 const resetUnix = Math.round((dateAtMidnight + 86400000) / 1000);
-                const questLines = status.message
-                    .split("\n")
-                    .filter(Boolean)
-                    .map((line) => line.trim());
                 let currentPage = 0;
-                const totalPages = Math.max(1, Math.ceil(questLines.length / Functions.QUEST_LIST_ITEMS_PER_PAGE));
+                const totalQuests = ctx.userData.daily.quests.length;
+                const totalPages = Math.max(1, Math.ceil(totalQuests / Functions.QUEST_LIST_ITEMS_PER_PAGE));
+                
                 const questRows = Functions.buildQuestListRows(
                     ctx,
                     ctx.userData.daily.quests,
                     status.message,
                     undefined,
                     (quest) => {
-                        const rewards = Functions.getDailyQuestRowRewards(quest, ctx);
-                        return `**x${rewards.coins.toLocaleString()}** ${ctx.client.localEmojis.jocoins}, **x${rewards.xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`;
+                        const rowRewards = Functions.getDailyQuestRowRewards(quest, ctx);
+                        return `**x${rowRewards.coins.toLocaleString()}** ${ctx.client.localEmojis.jocoins}, **x${rowRewards.xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`;
                     },
-                );
+                ).map(row => ({
+                    text: row.text
+                }));
 
                 function buildQuestsReply(): V2Reply {
                     const firstQuest = currentPage * Functions.QUEST_LIST_ITEMS_PER_PAGE;
@@ -426,17 +411,19 @@ const slashCommand: SlashCommandFile = {
                     );
 
                     const questsReply = containers.primary({
-                        title: `📜 Daily Quests`,
+                        title: `# 📜 Daily Quests`,
+                        description: `📊 **Progress:** ${status.percent.toFixed(2)}%`,
+                        descriptionDivider: true,
                         sections: pageSections,
                         sectionDividers: true,
                         color: Functions.QUEST_LIST_ACCENT_COLOR,
                         footer: `Quests reset at <t:${resetUnix}:t> (<t:${resetUnix}:R>). Page ${currentPage + 1}/${totalPages}.`,
                     });
 
-                    const actionRows = [];
+                    const actionRows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [];
                     if (totalPages > 1) {
                         actionRows.push(
-                            Functions.actionRow([
+                            new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
                                 new ButtonBuilder()
                                     .setCustomId(ctx.interaction.id + "daily-quests-prev")
                                     .setStyle(ButtonStyle.Secondary)
@@ -452,11 +439,11 @@ const slashCommand: SlashCommandFile = {
                                     .setStyle(ButtonStyle.Secondary)
                                     .setEmoji("➡️")
                                     .setDisabled(currentPage === totalPages - 1),
-                            ]),
+                            )
                         );
                     }
-                    if (components.length !== 0) {
-                        actionRows.push(Functions.actionRow(components));
+                    if (questButtons.length !== 0) {
+                        actionRows.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(questButtons));
                     }
 
                     return {
@@ -467,143 +454,83 @@ const slashCommand: SlashCommandFile = {
 
                 await ctx.makeMessage(buildQuestsReply());
 
-                if (questLines.length > 0 || components.length > 0) {
-                    const filter = (i: MessageComponentInteraction) => {
-                        return (
-                            i.user.id === ctx.user.id &&
-                            (i.customId === ctx.interaction.id + "daily-quests-claim" ||
-                                i.customId === ctx.interaction.id + "daily-quests-reset" ||
-                                i.customId === ctx.interaction.id + "daily-quests-prev" ||
-                                i.customId === ctx.interaction.id + "daily-quests-next")
-                        );
-                    };
+                const collector = ctx.channel.createMessageComponentCollector({
+                    filter: (i) => i.user.id === ctx.user.id && i.customId.startsWith(ctx.interaction.id),
+                    time: 60000,
+                });
 
-                    const collector = ctx.channel.createMessageComponentCollector({
-                        filter,
-                        time: 60000,
-                    });
+                collector.on("collect", async (i) => {
+                    if (i.customId === ctx.interaction.id + "daily-quests-prev") {
+                        currentPage = Math.max(0, currentPage - 1);
+                        return i.update(buildQuestsReply());
+                    }
 
-                    collector.on("collect", async (i) => {
-                        /**
-                         * Priority:
-                         * 1. Check if user is trying to cheat
-                         * 2. Save user data
-                         * 3. Set daily-quests-<id> to true
-                         */
-                        const currentRPGJson = JSON.stringify(ctx.userData);
-                        ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+                    if (i.customId === ctx.interaction.id + "daily-quests-next") {
+                        currentPage = Math.min(totalPages - 1, currentPage + 1);
+                        return i.update(buildQuestsReply());
+                    }
 
-                        if (i.customId === ctx.interaction.id + "daily-quests-prev") {
-                            currentPage = Math.max(0, currentPage - 1);
-                            return i.update(buildQuestsReply());
-                        }
+                    ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
+                    const oldData = cloneDeep(ctx.userData);
 
-                        if (i.customId === ctx.interaction.id + "daily-quests-next") {
-                            currentPage = Math.min(totalPages - 1, currentPage + 1);
-                            return i.update(buildQuestsReply());
-                        }
-
-                        if (currentRPGJson !== JSON.stringify(ctx.userData)) {
-                            collector.stop("cheater");
-                            return;
-                        }
-                        const oldData = cloneDeep(ctx.userData);
-
-                        if (i.customId === ctx.interaction.id + "daily-quests-reset") {
-                            const price =
-                                dailyQuestResetPrice[
-                                    ctx.userData.daily
-                                        .dailyQuestsReset as keyof typeof dailyQuestResetPrice
-                            ];
-                            if (ctx.userData.coins < price) {
-                                await i.reply({
-                                    ...containers.ephemeral(
-                                        containers.error(
-                                            `You need **${price.toLocaleString(
-                                                "en-US",
-                                            )}** ${ctx.client.localEmojis.jocoins} to reset your daily quests.`,
-                                        ),
-                                    ),
-                                });
-                                return;
-                            }
-
-                            ctx.userData.coins -= price;
-                            ctx.userData.daily.quests = Functions.generateDailyQuests(
-                                process.env.ENABLE_PRESTIGE
-                                    ? Functions.getTrueLevel(ctx.userData)
-                                    : ctx.userData.level,
-                            );
-                            await ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
-                            if (!ctx.userData.daily.dailyQuestsReset) {
-                                ctx.userData.daily.dailyQuestsReset = 0;
-                            }
-                            ctx.userData.daily.dailyQuestsReset++;
-                            //await ctx.client.database.saveUserData(ctx.userData);
-                            const transaction = await ctx.client.database.handleTransaction(
-                                [
-                                    {
-                                        oldData,
-                                        newData: ctx.userData,
-                                    },
-                                ],
-                                "Daily Quest Reset",
-                            );
-                            if (!transaction) {
-                                return i.reply({
-                                    ...containers.ephemeral(
-                                        containers.error("Daily quest reset failed. Your coins were not moved."),
-                                    ),
-                                });
-                            }
-                            await i.reply({
-                                ...containers.ephemeral(
-                                    containers.success(
-                                        `Daily quests reset for **${price.toLocaleString()}** ${ctx.client.localEmojis.jocoins}.`,
-                                    ),
-                                ),
+                    if (i.customId === ctx.interaction.id + "daily-quests-reset") {
+                        const price = dailyQuestResetPrice[ctx.userData.daily.dailyQuestsReset as keyof typeof dailyQuestResetPrice];
+                        if (ctx.userData.coins < price) {
+                            return void i.reply({
+                                ...containers.ephemeral(containers.error(`You need **${price.toLocaleString()}** ${ctx.client.localEmojis.jocoins} to reset your daily quests.`)),
                             });
-                            return;
                         }
 
+                        ctx.userData.coins -= price;
+                        ctx.userData.daily.quests = Functions.generateDailyQuests(
+                            process.env.ENABLE_PRESTIGE ? Functions.getTrueLevel(ctx.userData) : ctx.userData.level,
+                        );
+                        await ctx.client.database.redis.del(`daily-quests-${ctx.userData.id}`);
+                        ctx.userData.daily.dailyQuestsReset = (ctx.userData.daily.dailyQuestsReset ?? 0) + 1;
+
+                        const transaction = await ctx.client.database.handleTransaction(
+                            [{ oldData, newData: ctx.userData }],
+                            "Daily Quest Reset",
+                        );
+                        if (!transaction) {
+                            return void i.reply({
+                                ...containers.ephemeral(containers.error("Daily quest reset failed.")),
+                            });
+                        }
+                        await i.reply({
+                            ...containers.ephemeral(containers.success(`Daily quests reset for **${price.toLocaleString()}** ${ctx.client.localEmojis.jocoins}.`)),
+                        });
+                        return void i.message.edit(buildQuestsReply());
+                    }
+
+                    if (i.customId === ctx.interaction.id + "daily-quests-claim") {
                         const coins = Functions.addCoins(ctx.userData, coinReward);
                         const xp = Functions.addXp(ctx.userData, xpReward, ctx.client);
                         Functions.addItem(ctx.userData, Functions.findItem("Stand Arrow"));
                         Functions.addItem(ctx.userData, Functions.findItem("Dungeon"));
 
-                        //await ctx.client.database.saveUserData(ctx.userData);
                         const transaction = await ctx.client.database.handleTransaction(
-                            [
-                                {
-                                    oldData,
-                                    newData: ctx.userData,
-                                },
-                            ],
+                            [{ oldData, newData: ctx.userData }],
                             "Daily Quest Claim",
                         );
                         if (!transaction) {
-                            return i.reply({
-                                ...containers.ephemeral(
-                                    containers.error("Daily quest claim failed. Your rewards were not saved."),
-                                ),
+                            return void i.reply({
+                                ...containers.ephemeral(containers.error("Daily quest claim failed.")),
                             });
                         }
-                        await ctx.client.database.redis.set(
-                            `daily-quests-${ctx.userData.id}`,
-                            "true",
-                        );
+                        await ctx.client.database.redis.set(`daily-quests-${ctx.userData.id}`, "true");
 
-                        await i.update({
-                            ...containers.success(
+                        await i.update(
+                            containers.success(
                                 ctx.translate("daily:REWARDS_CLAIM_MESSAGE", {
                                     coins: coins.toLocaleString(),
                                     xp: xp.toLocaleString(),
                                     dungeon_key: Functions.findItem("Dungeon").emoji,
-                                }),
-                            ),
-                        });
-                    });
-                }
+                                })
+                            )
+                        );
+                    }
+                });
                 break;
             }
         }
