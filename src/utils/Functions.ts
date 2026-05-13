@@ -1,43 +1,14 @@
-import {
-    NPC,
-    FightNPCQuest,
+import type {
     FightableNPC,
-    Quest,
-    MustReadEmailQuest,
-    Email,
-    ActionQuest,
-    ClaimXQuest,
-    StartDungeonQuest,
-    UseXCommandQuest,
-    AnswerChineseNewYearQuizQuest,
-    Quests,
-    RPGUserQuest,
     RPGUserDataJSON,
     Stand,
-    EvolutionStand,
-    RPGUserEmail,
-    WaitQuest,
     EquipableItem,
     Weapon,
-    equipableItemTypes,
-    RaidNPCQuest,
-    Rarity,
-    LBData,
 } from "../@types";
+import { equipableItemTypes } from "../@types";
 import * as Stands from "../rpg/Stands";
-import { FightableNPCS, NPCs } from "../rpg/NPCs";
 import type { APIEmbed } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
-import * as ActionQuests from "../rpg/Quests/ActionQuests";
-import CommandInteractionContext from "../structures/CommandInteractionContext";
-import * as Items from "../rpg/Items";
-import * as BaseQuests from "../rpg/Quests/Quests";
-import * as Emails from "../rpg/Emails";
-import { Command } from "ioredis";
-import { get, random } from "lodash";
-import Jolyne from "../structures/JolyneClient";
-import { level } from "winston";
-import e from "express";
 import {
     chance,
     pickOne,
