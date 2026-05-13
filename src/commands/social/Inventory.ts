@@ -1,7 +1,6 @@
 import {
     SlashCommandFile,
     RPGUserDataJSON,
-    numOrPerc,
     formattedEquipableItemTypes,
     equipableItemTypesLimit,
     SkillPoints,
@@ -9,23 +8,22 @@ import {
 } from "../../@types";
 import {
     Message,
-    APIEmbed,
     ButtonBuilder,
     ButtonStyle,
     MessageComponentInteraction,
     InteractionResponse,
-    ContainerBuilder,
-    TextDisplayBuilder,
-    SeparatorBuilder,
-    SeparatorSpacingSize,
     MessageFlags,
+    ActionRowBuilder,
+    MessageActionRowComponentBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
-import { COLORS, containers } from "../../utils/containers";
+import { COLORS, containers, SectionData, V2Reply } from "../../utils/containers";
+
+const ITEMS_PER_PAGE = 5;
 
 const itemTaxes = {
     T: 1,
@@ -36,141 +34,283 @@ const itemTaxes = {
     C: 0.3,
 };
 
-export async function unequipInventoryItem(ctx: CommandInteractionContext): Promise<void> {
-    const itemString = fixItemString(ctx.interaction.options.getString("item", true));
+export async function unequipInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, isButton: boolean = false): Promise<void> {
+    const itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
+    
+    const respond = async (payload: any): Promise<void> => {
+        if (isButton) return void await ctx.interaction.editReply(payload);
+        return void await ctx.makeMessage(payload);
+    };
+
     const itemData = Functions.findItem(itemString);
     if (!itemData) {
-        await ctx.makeMessage({
-            content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-        });
-        return;
+        return await respond(containers.error(`Unknown item: \`${itemString}\`.`));
     }
-    if (!Object.keys(ctx.userData.equippedItems).includes(itemString)) {
-        await ctx.makeMessage({
-            content: `You don't have this item equipped.`,
-        });
-        return;
+    if (!Object.keys(ctx.userData.equippedItems).includes(itemData.id)) {
+        return await respond(containers.error(`You don't have this item equipped.`));
     }
 
+    const oldData = cloneDeep(ctx.userData);
     delete ctx.userData.equippedItems[itemData.id];
     ctx.userData.inventory[itemData.id] = (ctx.userData.inventory[itemData.id] || 0) + 1;
-    await ctx.client.database.saveUserData(ctx.userData);
-    await ctx.makeMessage({
-        content: `Unequipped ${itemData.emoji} \`${itemData.name}\``,
-    });
+    
+    const transaction = await ctx.client.database.handleTransaction(
+        [{ oldData, newData: ctx.userData }],
+        `Unequipped ${itemData.name}`
+    );
+
+    if (!transaction) {
+        return await respond(containers.error("Transaction failed. Item was not unequipped."));
+    }
+
+    await respond(containers.success(`Unequipped ${itemData.emoji} **${itemData.name}**`));
 }
 
-export async function equipInventoryItem(ctx: CommandInteractionContext): Promise<void> {
-    let itemString = fixItemString(ctx.interaction.options.getString("item", true));
-    const amountX = ctx.interaction.options.getInteger("amount") || 1;
+export async function equipInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, isButton: boolean = false): Promise<void> {
+    let itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
+    const amountX = 1;
+
+    const respond = async (payload: any): Promise<void> => {
+        if (isButton) return void await ctx.interaction.editReply(payload);
+        return void await ctx.makeMessage(payload);
+    };
 
     if (ctx.userData.inventory[itemString] === undefined) {
         const foundItem = Functions.findItem(itemString);
         if (foundItem) {
             itemString = foundItem.id;
         } else {
-            await ctx.makeMessage({
-                content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-            });
-            return;
+            return await respond(containers.error(`Unknown item: \`${itemString}\`.`));
         }
     }
     const left = ctx.userData.inventory[itemString] || 0;
 
     if (left === 0) {
-        return void ctx.makeMessage({
-            content: "This item does not exist or you don't have any left. Nice try",
-        });
-    }
-
-    if (left < amountX) {
-        await ctx.makeMessage({
-            content: `You don't have enough of this item. You have ${left} left.`,
-        });
-        return;
+        return await respond(containers.error("You don't have any of this item left."));
     }
 
     const itemData = Functions.findItem(itemString);
     if (!itemData) {
-        await ctx.makeMessage({
-            content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-        });
-        return;
+        return await respond(containers.error(`Unknown item: \`${itemString}\`.`));
     }
     if (!Functions.isEquipableItem(itemData)) {
-        await ctx.makeMessage({
-            content: `You can't equip this item. Nice try`,
-        });
-        return;
+        return await respond(containers.error(`You can't equip this item.`));
     }
     if (
         Object.values(ctx.userData.equippedItems).filter((r) => r === itemData.type).length >=
         equipableItemTypesLimit[itemData.type]
     ) {
-        await ctx.makeMessage({
-            content: `You can't equip more than ${
-                equipableItemTypesLimit[itemData.type]
-            } items of this type.`,
-        });
-        return;
+        return await respond(containers.error(`You can't equip more than **${equipableItemTypesLimit[itemData.type]}** items of this type.`));
     }
     if (Object.keys(ctx.userData.equippedItems).find((r) => r === itemData.id)) {
-        await ctx.makeMessage({
-            content: `You already have this item equipped.`,
-        });
+        return await respond(containers.error(`You already have this item equipped.`));
     }
 
     if (!Functions.userMeetsRequirementsForItem(ctx.userData, itemData)) {
-        ctx.makeMessage({
-            content: `You don't meet the requirements to equip this item. Use the ${ctx.client.getSlashCommandMention(
-                "item info"
-            )} command to get more informations.`,
-        });
-        return;
+        return await respond(containers.error(`You don't meet the requirements to equip this item. Use ${ctx.client.getSlashCommandMention("item info")} to see what you need.`));
     }
 
+    const oldData = cloneDeep(ctx.userData);
     ctx.userData.equippedItems[itemData.id] = itemData.type;
     ctx.userData.inventory[itemData.id] -= amountX;
-    await ctx.makeMessage({
-        content: ` [${formattedEquipableItemTypes[itemData.type]}] You equipped ${
-            itemData.emoji
-        } \`${itemData.name}\``,
-    });
-    await ctx.client.database.saveUserData(ctx.userData);
+    if (ctx.userData.inventory[itemData.id] === 0) delete ctx.userData.inventory[itemData.id];
+
+    const transaction = await ctx.client.database.handleTransaction(
+        [{ oldData, newData: ctx.userData }],
+        `Equipped ${itemData.name}`
+    );
+
+    if (!transaction) {
+        return await respond(containers.error("Transaction failed. Item was not equipped."));
+    }
+
+    await respond(containers.success(`[${formattedEquipableItemTypes[itemData.type]}] You equipped ${itemData.emoji} **${itemData.name}**`));
 }
 
-function goToPage(
-    ctx: CommandInteractionContext,
-    page: number,
-    prevPageButton: ButtonBuilder,
-    nextPageButton: ButtonBuilder,
-    content: string[][]
-): Promise<Message<boolean> | InteractionResponse<boolean>> {
-    const sep = () =>
-        new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small);
-    const inventoryEmoji = ctx.client.localEmojis.inventory ?? "🎒";
-    const container = new ContainerBuilder()
-        .setAccentColor(COLORS.primary)
-        .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`## ${inventoryEmoji} Inventory`)
+export async function useInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, amountArg?: number, isButton: boolean = false): Promise<void> {
+    let itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
+    const amountX = amountArg ?? ctx.interaction.options.getInteger("amount") ?? 1;
+
+    const respond = async (payload: any): Promise<void> => {
+        if (isButton) return void await ctx.interaction.editReply(payload);
+        return void await ctx.makeMessage(payload);
+    };
+
+    if (ctx.userData.inventory[itemString] === undefined) {
+        const foundItem = Functions.findItem(itemString);
+        if (foundItem) {
+            itemString = foundItem.id;
+        } else {
+            return await respond(containers.error(`Unknown item: \`${itemString}\`.`));
+        }
+    }
+
+    const left = ctx.userData.inventory[itemString] || 0;
+    if (left === 0) {
+        return await respond(containers.error("You don't have any of this item left."));
+    }
+    if (left < amountX) {
+        return await respond(containers.error(`You don't have enough of this item. You have **${left}** left.`));
+    }
+
+    const itemData = Functions.findItem(itemString);
+    if (!itemData) {
+        return await respond(containers.error(`Unknown item: \`${itemString}\`.`));
+    }
+
+    if (Functions.isEquipableItem(itemData))
+        return await respond(containers.error(
+                Functions.makeNPCString(
+                    NPCs.Jolyne,
+                    `Oi oi, you can't use equipable items like that! Use the ${ctx.client.getSlashCommandMention("equip")} command instead.`
+                )
+            ));
+
+    const oldData = cloneDeep(ctx.userData);
+
+    if (Functions.isConsumable(itemData)) {
+        Functions.useConsumableItem(itemData, ctx.userData, amountX);
+        Functions.removeItem(ctx.userData, itemString, amountX);
+    } else if (Functions.isSpecial(itemData)) {
+        await ctx.client.database.setCooldown(ctx.user.id, "You're currently using an item.");
+        try {
+            const status = await itemData.use(ctx);
+            if (status) {
+                const statusX = Functions.removeItem(ctx.userData, itemString, status);
+                if (!statusX) {
+                    ctx.RPGUserData = oldData;
+                    await ctx.client.database.saveUserData(ctx.userData);
+                    if (!isButton) await ctx.interaction.followUp(containers.error("An error occured while using this item. Your data has been rolled back."));
+                    else await ctx.interaction.editReply(containers.error("An error occured while using this item. Your data has been rolled back."));
+                    return;
+                }
+                await ctx.client.database.handleTransaction(
+                    [{ oldData, newData: ctx.userData }],
+                    `Used ${itemData.name}`,
+                    [statusX]
+                );
+            }
+        } catch (e) {
+            await ctx.client.database.deleteCooldown(ctx.user.id);
+            ctx.RPGUserData = oldData;
+            await ctx.client.database.saveUserData(ctx.userData);
+            throw e;
+        }
+        await ctx.client.database.deleteCooldown(ctx.user.id);
+        return;
+    } else {
+        return await respond(containers.error(`You can't use this item..?`));
+    }
+
+    await ctx.client.database.handleTransaction(
+        [{ oldData, newData: ctx.userData }],
+        `Used ${itemData.name}`
+    );
+    
+    const rewards = Functions.getRewardsCompareData(oldData, ctx.userData).join(", ");
+    await respond(containers.success(`You used ${itemData.emoji} x${amountX} **${itemData.name}** and got: ${rewards || "nothing"}`));
+}
+
+export async function sellInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, amountArg?: number, isButton: boolean = false): Promise<void> {
+    const itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
+    const amountX = amountArg ?? ctx.interaction.options.getInteger("amount") ?? 1;
+    const left = ctx.userData.inventory[itemString] || 0;
+
+    const respond = async (payload: any): Promise<void> => {
+        if (isButton) return void await ctx.interaction.editReply(payload);
+        return void await ctx.makeMessage(payload);
+    };
+
+    if (left === 0) {
+        return await respond(containers.error("You don't have any of this item left."));
+    }
+    if (left < amountX) {
+        return await respond(containers.error(`You don't have enough of this item. You have **${left}** left.`));
+    }
+    if (amountX < 1) {
+        return await respond(containers.error("You can't sell less than 1 item. Nice try."));
+    }
+
+    const itemData = Functions.findItem(itemString);
+    if (!itemData) {
+        return await respond(containers.error(`Unknown item: \`${itemString}\`.`));
+    }
+
+    if (itemData.rarity === "C" && !itemData.id.includes("$")) {
+        return await respond(containers.warning(Functions.makeNPCString(
+                NPCs.Pucci,
+                `Bro, don't sell me trash items. wtf is that? You better ${ctx.client.getSlashCommandMention("item discard")} that away.`
+            )));
+    }
+
+    if (itemData.id === "dungeon_key") {
+        return await respond(containers.warning(Functions.makeNPCString(
+                NPCs.Pucci,
+                `H-Hey... I'm not interested in buying that. Y-You should keep it for yourself... (${ctx.client.getSlashCommandMention("dungeon")})`
+            )));
+    }
+
+    if (!itemData.price) {
+        return await respond(containers.error(Functions.makeNPCString(
+                NPCs.Pucci,
+                `I'm sorry, but this item is not sellable.`
+            )));
+    }
+
+    const salePrice = Math.round(itemData.price * itemTaxes[itemData.rarity as keyof typeof itemTaxes] * amountX);
+    const confirmId = `${ctx.interaction.id}_confirm_sell_${Date.now()}`;
+
+    const warningReply = containers.warning(Functions.makeNPCString(
+        NPCs.Pucci,
+        `Since this item is ${itemData.rarity} tier, I'll give you ${itemTaxes[itemData.rarity as keyof typeof itemTaxes] * 100}% of the original price.\n> You'll get **${salePrice.toLocaleString()}** ${ctx.client.localEmojis.jocoins} for x${amountX} ${itemData.emoji} ${itemData.name}.`
+    ));
+
+    warningReply.components.push(
+        new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+            new ButtonBuilder()
+                .setCustomId(confirmId)
+                .setLabel("Confirm Sale")
+                .setEmoji(ctx.client.localEmojis.jocoins)
+                .setStyle(ButtonStyle.Danger)
         )
-        .addSeparatorComponents(sep())
-        .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(content[page].join("\n"))
-        )
-        .addSeparatorComponents(sep())
-        .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`-# Page ${page + 1}/${content.length}`)
+    );
+
+    await respond(warningReply);
+
+    const collector = ctx.channel.createMessageComponentCollector({
+        filter: (i) => i.customId === confirmId && i.user.id === ctx.user.id,
+        time: 60000,
+        max: 1,
+    });
+
+    collector.on("collect", async (i) => {
+        if (await ctx.antiCheat(true)) {
+            collector.stop("cheat");
+            return;
+        }
+        const oldData = cloneDeep(ctx.userData);
+        
+        Functions.addCoins(ctx.userData, salePrice);
+        const result = Functions.removeItem(ctx.userData, itemString, amountX);
+        
+        const transaction = await ctx.client.database.handleTransaction(
+            [{ oldData, newData: ctx.userData }],
+            `Sold x${amountX} ${itemData.name}`,
+            [result]
         );
-    return ctx.makeMessage({
-        components: [
-            container,
-            Functions.actionRow([
-                prevPageButton.setDisabled(page === 0),
-                nextPageButton.setDisabled(page === content.length - 1),
-            ]),
-        ],
-        flags: MessageFlags.IsComponentsV2,
+
+        if (!transaction) {
+            return void await i.update({ content: "", embeds: [], ...containers.error("An error occured while selling this item.") });
+        }
+
+        await i.update({
+            content: "",
+            embeds: [],
+            ...containers.success(Functions.makeNPCString(
+                NPCs.Pucci,
+                `Thanks for selling me ${itemData.emoji} x${amountX} **${itemData.name}**! (+${salePrice.toLocaleString()} ${ctx.client.localEmojis.jocoins})`
+            ))
+        });
     });
 }
 
@@ -327,6 +467,7 @@ const slashCommand: SlashCommandFile = {
                 if (!item) return;
                 if (ctx.userData.inventory[v] === 0) return;
                 return {
+                    id: item.id,
                     name: item.name,
                     emoji: item.emoji,
                     rarity: item.rarity,
@@ -336,8 +477,8 @@ const slashCommand: SlashCommandFile = {
             })
             .filter((v) => v !== undefined)
             .sort((a, b) => {
-                let aVal = rarityValue[a.rarity];
-                let bVal = rarityValue[b.rarity];
+                let aVal = rarityValue[a.rarity as keyof typeof rarityValue];
+                let bVal = rarityValue[b.rarity as keyof typeof rarityValue];
 
                 if (a.name.toLowerCase().includes("disc")) aVal += 15;
                 if (b.name.toLowerCase().includes("disc")) bVal += 15;
@@ -354,331 +495,254 @@ const slashCommand: SlashCommandFile = {
                 return aVal - bVal;
             });
 
-        if (ctx.interaction.options.getSubcommand() === "view") {
-            const content: string[][] = [[]];
-            const contentPhaseMaxLength = 2048;
+        const subcommand = ctx.interaction.options.getSubcommand();
 
+        if (subcommand === "view") {
             if (userItems.length === 0) {
-                content.push(["WTF? you got no items bro, how is that even possible? :clown:"]);
+                return void ctx.makeMessage(containers.primary({
+                    title: "🎒 Inventory",
+                    description: "Your bag is empty. Go get some loot! 🤡",
+                    color: COLORS.warning
+                }));
             }
 
-            for (const item of userItems) {
-                const emoji =
-                    item === userItems[userItems.length - 1]
-                        ? ctx.client.localEmojis.replyEnd
-                        : ctx.client.localEmojis.reply;
-
-                const itemString = `${emoji} ${item.emoji} \`${item.name} (x${item.amount})\``;
-                if (
-                    content[content.length - 1].join("\n").length + itemString.length >
-                    contentPhaseMaxLength
-                )
-                    content.push([]);
-                content[content.length - 1].push(itemString);
-            }
-
-            const nextPageButton = new ButtonBuilder()
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji("943187898495303720")
-                .setCustomId("nextPage");
-            const prevPageButton = new ButtonBuilder()
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji("943188053390929940")
-                .setCustomId("prevPage");
+            const totalPages = Math.max(1, Math.ceil(userItems.length / ITEMS_PER_PAGE));
             let page = 0;
 
-            await goToPage(ctx, page, prevPageButton, nextPageButton, content);
+            const buildReply = (p: number): V2Reply => {
+                const start = p * ITEMS_PER_PAGE;
+                const pageItems = userItems.slice(start, start + ITEMS_PER_PAGE);
 
-            if (content.length === 1) return;
+                const sections: SectionData[] = pageItems.map(item => ({
+                    text: `### ${item.emoji} **${item.name}**\n> -# **x${item.amount.toLocaleString()}** • Rarity: **${item.rarity}**`,
+                    accessory: new ButtonBuilder()
+                        .setCustomId(`${ctx.interaction.id}_info_${item.id}`)
+                        .setLabel("Details")
+                        .setStyle(ButtonStyle.Secondary)
+                }));
 
-            const filter = (i: MessageComponentInteraction) => {
-                return i.user.id === ctx.user.id;
+                const reply = containers.primary({
+                    title: "# 🎒 Inventory",
+                    description: `You are carrying **${userItems.length}** types of items.`,
+                    descriptionDivider: true,
+                    sections,
+                    sectionDividers: true,
+                    color: COLORS.primary,
+                    footer: `Page ${p + 1}/${totalPages} • ${ctx.client.getSlashCommandMention("item info")} <item> for full stats`,
+                });
+
+                if (totalPages > 1) {
+                    reply.components.push(
+                        new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                            new ButtonBuilder()
+                                .setCustomId(`${ctx.interaction.id}_prev`)
+                                .setEmoji("⬅️")
+                                .setStyle(ButtonStyle.Secondary)
+                                .setDisabled(p === 0),
+                            new ButtonBuilder()
+                                .setCustomId(`${ctx.interaction.id}_page`)
+                                .setLabel(`${p + 1} / ${totalPages}`)
+                                .setStyle(ButtonStyle.Secondary)
+                                .setDisabled(true),
+                            new ButtonBuilder()
+                                .setCustomId(`${ctx.interaction.id}_next`)
+                                .setEmoji("➡️")
+                                .setStyle(ButtonStyle.Secondary)
+                                .setDisabled(p === totalPages - 1)
+                        )
+                    );
+                }
+                return reply;
             };
-            const collector = ctx.interaction.channel.createMessageComponentCollector({
-                filter,
-                time: 30000,
+
+            await ctx.makeMessage(buildReply(page));
+
+            const collector = ctx.channel.createMessageComponentCollector({
+                filter: (i) => i.user.id === ctx.user.id && i.customId.startsWith(ctx.interaction.id),
+                time: 120000,
             });
 
             collector.on("collect", async (i) => {
-                i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                if (i.customId === "nextPage") {
-                    page++;
-                } else if (i.customId === "prevPage") {
+                if (i.customId === `${ctx.interaction.id}_prev`) {
                     page--;
+                    await i.update(buildReply(page));
+                } else if (i.customId === `${ctx.interaction.id}_next`) {
+                    page++;
+                    await i.update(buildReply(page));
+                } else if (i.customId.startsWith(`${ctx.interaction.id}_info_`)) {
+                    const itemId = i.customId.replace(`${ctx.interaction.id}_info_`, "");
+                    await i.reply({
+                        ...containers.info(`To view full details, use: ${ctx.client.getSlashCommandMention("item info")} \`item:${itemId}\``),
+                        ephemeral: true
+                    });
                 }
-                await goToPage(ctx, page, prevPageButton, nextPageButton, content);
             });
-        } else if (ctx.interaction.options.getSubcommand() === "info") {
+        } else if (subcommand === "info") {
             const itemString = fixItemString(ctx.interaction.options.getString("item", true));
-
             const itemData = Functions.findItem(itemString);
 
             if (!itemData) {
-                await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                });
-                return;
+                return void ctx.makeMessage(containers.error(`Unknown item: \`${itemString}\`.`));
             }
 
-            const fields: { name: string; value: string }[] = [
-                { name: "Rarity", value: itemData.rarity },
+            const count = ctx.userData.inventory[itemData.id] || 0;
+            const equippedItem = ctx.userData.equippedItems[itemData.id];
+            const isEquipped = !!equippedItem;
+
+            const sections: SectionData[] = [
                 {
-                    name: "Price",
-                    value: `${ctx.client.localEmojis.jocoins} ${
-                        itemData.price?.toLocaleString() ?? "N/A (unbuyable/not sellable)"
-                    }`,
-                },
-                { name: "Tradable?", value: itemData.tradable ? "Yes" : "No" },
+                    text: `### 💎 **Rarity:** ${itemData.rarity}\n> **Price:** ${itemData.price?.toLocaleString() ?? "N/A"} ${ctx.client.localEmojis.jocoins} • **Tradable:** ${itemData.tradable ? "Yes" : "No"}\n> **Owned:** x${count.toLocaleString()} • **Status:** ${isEquipped ? "Equipped" : "In Bag"}`
+                }
             ];
 
             if (Functions.isEquipableItem(itemData)) {
-                fields.push({
-                    name: "Bonus if equipped",
-                    value: `${ctx.client.localEmojis.xp} XP Boost: **${
-                        itemData.effects.xpBoost ?? 0
-                    }%**\n\`[+]\` Health: **${itemData.effects.health ?? 0}**\n\`[+]\` Stamina: **${
-                        itemData.effects.stamina ?? 0
-                    }**\n${
-                        itemData.effects.skillPoints
-                            ? Object.keys(itemData.effects.skillPoints)
-                                  .map(
-                                      (x) =>
-                                          `\`[SP]\` ${Functions.capitalize(x)}: **${
-                                              itemData.effects.skillPoints[x as keyof SkillPoints]
-                                          }**`
-                                  )
-                                  .join("\n")
-                            : ""
-                    }${
-                        itemData.effects.standDiscIncrease
-                            ? `\n\`[+]\` Stand Discs: **${itemData.effects.standDiscIncrease}**`
-                            : ""
-                    }`,
-                });
-                if (itemData.requirements)
-                    fields.push({
-                        name: "Requirements to equip",
-                        value: `Level: ${itemData.requirements.level ?? 0}\n${
-                            itemData.requirements.skillPoints
-                                ? Object.keys(itemData.requirements.skillPoints)
-                                      .map(
-                                          (x) =>
-                                              `[SP] ${Functions.capitalize(x)}: ${
-                                                  itemData.requirements.skillPoints[
-                                                      x as keyof SkillPoints
-                                                  ]
-                                              }`
-                                      )
-                                      .join("\n")
-                                : ""
-                        }`,
-                    });
+                let bonusText = `### ✨ **Equip Bonuses**\n❤️ **Health:** +${itemData.effects.health ?? 0}\n🔋 **Stamina:** +${itemData.effects.stamina ?? 0}`;
+                if (itemData.effects.xpBoost) bonusText += `\n✨ **XP Boost:** ${itemData.effects.xpBoost}%`;
+                if (itemData.effects.skillPoints) {
+                    bonusText += "\n" + Object.entries(itemData.effects.skillPoints)
+                        .map(([k, v]) => `🌀 **${Functions.capitalize(k)}:** +${v}`)
+                        .join("\n");
+                }
+                if (itemData.effects.standDiscIncrease) {
+                    bonusText += `\n💾 **Stand Discs:** +${itemData.effects.standDiscIncrease}`;
+                }
+
+                sections.push({ text: bonusText });
+
+                if (itemData.requirements) {
+                    let reqText = `### 📋 **Requirements**\n⭐ **Level:** ${itemData.requirements.level ?? 0}`;
+                    if (itemData.requirements.skillPoints) {
+                        reqText += "\n" + Object.entries(itemData.requirements.skillPoints)
+                            .map(([k, v]) => `🌀 **${Functions.capitalize(k)}:** ${v}`)
+                            .join("\n");
+                    }
+                    sections.push({ text: reqText });
+                }
             } else if (Functions.isConsumable(itemData)) {
-                fields.push({
-                    name: "Effects",
-                    value: `${
-                        itemData.effects.health
-                            ? `\`[+]\` Health: **${itemData.effects.health}**\n`
-                            : ""
-                    }${
-                        itemData.effects.stamina
-                            ? `\`[+]\` Stamina: **${itemData.effects.stamina}**\n`
-                            : ""
-                    }`,
+                let effectText = "";
+                if (itemData.effects.health) effectText += `❤️ **Health:** +${itemData.effects.health}\n`;
+                if (itemData.effects.stamina) effectText += `🔋 **Stamina:** +${itemData.effects.stamina}\n`;
+                
+                sections.push({
+                    text: `### ✨ **Effects**\n${effectText.trim() || "No immediate effects."}`
                 });
             }
 
             const reply = containers.primary({
-                title: `${itemData.emoji} ${itemData.name}`,
+                title: `# ${itemData.emoji} ${itemData.name}`,
                 description: itemData.description,
-                color: (itemData as Weapon).color ?? COLORS.primary,
-                fields,
+                descriptionDivider: true,
+                sections,
+                sectionDividers: true,
+                color: Functions.isWeapon(itemData) ? itemData.color : COLORS.accent,
+                footer: "Use the buttons below to manage this item."
             });
 
-            await ctx.makeMessage({
-                components: reply.components,
-                flags: reply.flags,
-            });
-        } else if (ctx.interaction.options.getSubcommand() === "unequip") {
-            await unequipInventoryItem(ctx);
-        } else if (ctx.interaction.options.getSubcommand() === "equip") {
-            await equipInventoryItem(ctx);
-        } else if (ctx.interaction.options.getSubcommand() === "use") {
-            let itemString = fixItemString(ctx.interaction.options.getString("item", true));
-            const amountX = ctx.interaction.options.getInteger("amount") || 1;
+            const actionButtons: ButtonBuilder[] = [];
 
-            if (ctx.userData.inventory[itemString] === undefined) {
-                const foundItem = Functions.findItem(itemString);
-                if (foundItem) {
-                    itemString = foundItem.id;
-                } else {
-                    await ctx.makeMessage({
-                        content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                    });
-                    return;
+            if (Functions.isEquipableItem(itemData)) {
+                if (isEquipped) {
+                    actionButtons.push(
+                        new ButtonBuilder()
+                            .setCustomId(`${ctx.interaction.id}_unequip_${itemData.id}`)
+                            .setLabel("Unequip")
+                            .setStyle(ButtonStyle.Danger)
+                    );
+                } else if (count > 0) {
+                    actionButtons.push(
+                        new ButtonBuilder()
+                            .setCustomId(`${ctx.interaction.id}_equip_${itemData.id}`)
+                            .setLabel("Equip")
+                            .setStyle(ButtonStyle.Success)
+                    );
                 }
-            }
-
-            const left = ctx.userData.inventory[itemString] || 0;
-
-            if (left === 0) {
-                await ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try",
-                });
-                return;
-            }
-
-            if (left < amountX) {
-                await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`,
-                });
-                return;
-            }
-
-            const itemData = Functions.findItem(itemString);
-            if (!itemData) {
-                await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                });
-                return;
-            }
-
-            if (Functions.isEquipableItem(itemData))
-                return void ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Jolyne,
-                        `Oi oi, you can't use equipable items like that! Use the ${ctx.client.getSlashCommandMention(
-                            "equip"
-                        )} command instead.`
-                    ),
-                });
-            const winContent = `You used ${itemData.emoji} x${amountX} \`${itemData.name}\` and got:`;
-            const oldData = cloneDeep(ctx.userData);
-
-            if (Functions.isConsumable(itemData)) {
-                console.log(`Attempting to use consumable item: ${itemData.id}`);
-                Functions.useConsumableItem(itemData, ctx.userData, amountX);
-                Functions.removeItem(ctx.userData, itemString, amountX);
-            } else if (Functions.isSpecial(itemData)) {
-                await ctx.client.database.setCooldown(
-                    ctx.user.id,
-                    "You're currently using an item."
+            } else if (count > 0 && (Functions.isConsumable(itemData) || Functions.isSpecial(itemData))) {
+                 actionButtons.push(
+                    new ButtonBuilder()
+                        .setCustomId(`${ctx.interaction.id}_use_${itemData.id}`)
+                        .setLabel("Use Item")
+                        .setStyle(ButtonStyle.Primary)
                 );
-                try {
-                    const status = await itemData.use(ctx);
-                    if (status) {
-                        //ctx.RPGUserData = await ctx.client.database.getRPGUserData(ctx.user.id);
-                        const statusX = Functions.removeItem(ctx.userData, itemString, status);
-                        if (!statusX) {
-                            ctx.RPGUserData = oldData;
-                            ctx.interaction.followUp({
-                                content: `An error occured while using this item. Your data has been rolled back.`,
-                            });
-                            ctx.client.database.saveUserData(ctx.userData);
-                        }
-                        await ctx.client.database.handleTransaction(
-                            [
-                                {
-                                    oldData,
-                                    newData: ctx.userData,
-                                },
-                            ],
-                            `Used ${itemData.name}`,
-                            [statusX]
-                        );
+            }
+
+            if (count > 0 && itemData.price && itemData.rarity !== "C") {
+                 actionButtons.push(
+                    new ButtonBuilder()
+                        .setCustomId(`${ctx.interaction.id}_sell_${itemData.id}`)
+                        .setLabel("Sell")
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji(ctx.client.localEmojis.jocoins)
+                );
+            }
+
+            if (actionButtons.length > 0) {
+                reply.components.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(actionButtons));
+            }
+
+            await ctx.makeMessage(reply);
+
+            if (actionButtons.length > 0) {
+                const collector = ctx.channel.createMessageComponentCollector({
+                    filter: (i) => i.user.id === ctx.user.id && i.customId.startsWith(ctx.interaction.id),
+                    time: 60000,
+                });
+
+                collector.on("collect", async (i) => {
+                    await i.deferUpdate();
+                    collector.stop();
+
+                    if (i.customId.includes("_sell_")) {
+                        await sellInventoryItem(ctx, itemData.id, 1, true);
+                    } else if (i.customId.includes("_equip_")) {
+                        await equipInventoryItem(ctx, itemData.id, true);
+                    } else if (i.customId.includes("_unequip_")) {
+                        await unequipInventoryItem(ctx, itemData.id, true);
+                    } else if (i.customId.includes("_use_")) {
+                        await useInventoryItem(ctx, itemData.id, 1, true);
                     }
-                } catch (e) {
-                    ctx.client.database.deleteCooldown(ctx.user.id);
-                    ctx.followUp({
-                        content: `An error occured while using this item. Your data has been saved.\n\nLogs for developer: ${
-                            (e as Error).stack
-                        }`,
-                    });
-                    console.error(e);
-                    ctx.RPGUserData = oldData;
-                    ctx.client.database.saveUserData(ctx.userData);
-                    throw e;
-                }
-                await ctx.client.database.deleteCooldown(ctx.user.id);
-                return;
-                // TODO: If used multiple times
-            } else {
-                return void ctx.makeMessage({
-                    content: `You can't use this item..?`,
                 });
             }
-            //ctx.client.database.saveUserData(ctx.userData);
-            ctx.client.database.handleTransaction(
-                [
-                    {
-                        oldData,
-                        newData: ctx.userData,
-                    },
-                ],
-                `Used ${itemData.name}`
-            );
-            ctx.makeMessage({
-                content:
-                    winContent +
-                    " " +
-                    (Functions.getRewardsCompareData(oldData, ctx.userData).join(", ") ??
-                        "nothing"),
-            });
-        } else if (["throw", "discard"].includes(ctx.interaction.options.getSubcommand())) {
+        } else if (subcommand === "unequip") {
+            await unequipInventoryItem(ctx);
+        } else if (subcommand === "equip") {
+            await equipInventoryItem(ctx);
+        } else if (subcommand === "use") {
+            await useInventoryItem(ctx);
+        } else if (subcommand === "sell") {
+            await sellInventoryItem(ctx);
+        } else if (["throw", "discard"].includes(subcommand)) {
             if (Functions.userIsCommunityBanned(ctx.userData)) {
-                await ctx.makeMessage({
-                    content:
-                        "You're community banned. You can't throw items. You should throw yourself instead.",
+                return void ctx.makeMessage({
+                    ...containers.error("You're community banned. You can't throw items. You should throw yourself instead."),
                     flags: MessageFlags.Ephemeral,
                 });
-                return;
             }
             const itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const left = ctx.userData.inventory[itemString] || 0;
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
 
-            if (0 > amountX || amountX === 0 || amountX === Infinity) {
-                await ctx.makeMessage({
-                    content: "WARNING: Stop trying to find glitches.",
+            if (amountX <= 0 || amountX === Infinity) {
+                return void ctx.makeMessage({
+                    ...containers.error("Stop trying to find glitches."),
                     flags: MessageFlags.Ephemeral,
                 });
-                const ownerId = process.env.OWNER_IDS?.split(",")[0];
-                if (ownerId)
-                    ctx.client.users.fetch(ownerId).then((user) => {
-                        user.send(
-                            `Someone tried to duplicate items. User: ${ctx.user.tag} (${ctx.user.id})`
-                        );
-                    });
-                return;
             }
 
             if (left === 0) {
-                await ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try",
-                });
-                return;
+                return void ctx.makeMessage(containers.error("You don't have any of this item left."));
             }
 
             const itemData = Functions.findItem(itemString);
             if (!itemData) {
-                await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                });
-                return;
+                return void ctx.makeMessage(containers.error(`Unknown item: \`${itemString}\`.`));
             }
 
             if (left < amountX) {
-                await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`,
-                });
-                return;
+                return void ctx.makeMessage(containers.error(`You don't have enough of this item. You have **${left}** left.`));
             }
 
             if (!itemData.tradable || !itemData.storable) {
-                await ctx.makeMessage({
-                    content: "You can't throw this item.",
-                });
-                return;
+                return void ctx.makeMessage(containers.error("You can't throw this item."));
             }
 
             const itemId = Functions.generateRandomId();
@@ -689,277 +753,91 @@ const slashCommand: SlashCommandFile = {
                 droppedBy: ctx.user.id,
                 droppedAt: Date.now(),
             };
-            await ctx.client.database.redis.set(
-                "thrownItem_" + itemId,
-                JSON.stringify(itemDataJSON)
-            );
+            
+            await ctx.client.database.redis.set("thrownItem_" + itemId, JSON.stringify(itemDataJSON));
+            
             const status = Functions.removeItem(ctx.userData, itemString, amountX);
             const transaction = await ctx.client.database.handleTransaction(
-                [
-                    {
-                        oldData,
-                        newData: ctx.userData,
-                    },
-                ],
+                [{ oldData, newData: ctx.userData }],
                 `Thrown x${amountX} ${itemData.name} [ID: ${itemId}]`,
                 [status]
             );
+
             if (!transaction) {
-                await ctx.makeMessage({
-                    content: "An error occured while throwing this item.",
-                });
-                return;
+                return void ctx.makeMessage(containers.error("An error occured while throwing this item."));
             }
 
-            //await ctx.client.database.saveUserData(ctx.userData);
             await thrownItemsWebhook.send({
-                embeds: [
-                    {
-                        title: "Item thrown",
-                        description: `> - User: **${ctx.user.tag}** (<@!${ctx.user.id}>)\n> - Item: ${itemData.emoji} x${amountX} \`${itemData.name}\`\n> - Item ID: \`${itemId}\`\n> - Guild: \`${ctx.guild.name}\` (\`${ctx.guild.id}\`)`,
-                        color: 0x00ff00,
-                        timestamp: new Date().toISOString(),
-                    },
-                ],
+                embeds: [{
+                    title: "Item thrown",
+                    description: `> - User: **${ctx.user.tag}** (<@!${ctx.user.id}>)\n> - Item: ${itemData.emoji} x${amountX} \`${itemData.name}\`\n> - Item ID: \`${itemId}\`\n> - Guild: \`${ctx.guild.name}\` (\`${ctx.guild.id}\`)`,
+                    color: 0x00ff00,
+                    timestamp: new Date().toISOString(),
+                }],
             });
-            await ctx.makeMessage({
-                content: `You threw ${itemData.emoji} x${amountX} \`${
-                    itemData.name
-                }\`! (You can pick it up again with the ${ctx.client.getSlashCommandMention(
-                    "item recover"
-                )} command [ID: \`${itemId}\`])\n**The item will be deleted in a week.**`,
-            });
-        } else if (["claim", "recover"].includes(ctx.interaction.options.getSubcommand())) {
+
+            await ctx.makeMessage(containers.success(`You threw ${itemData.emoji} x${amountX} **${itemData.name}**!\n> Use ${ctx.client.getSlashCommandMention("item recover")} \`id:${itemId}\` to pick it up again.\n> *The item will be deleted in a week.*`));
+
+        } else if (["claim", "recover"].includes(subcommand)) {
             if (Functions.userIsCommunityBanned(ctx.userData)) {
-                await ctx.makeMessage({
-                    content:
-                        "You're community banned. You can't claim items. You should throw yourself instead.",
+                return void ctx.makeMessage({
+                    ...containers.error("You're community banned. You can't claim items. You should throw yourself instead."),
                     flags: MessageFlags.Ephemeral,
                 });
-                return;
             }
 
             const itemId = ctx.interaction.options.getString("id", true);
-            const itemData = await ctx.client.database.redis.get("thrownItem_" + itemId);
-            if (!itemData) {
-                await ctx.makeMessage({
-                    content:
-                        "This item does not exist or has already been claimed [ERROR: not in redis cache].",
-                });
-                return;
+            const itemDataStr = await ctx.client.database.redis.get("thrownItem_" + itemId);
+            if (!itemDataStr) {
+                return void ctx.makeMessage(containers.error("This item does not exist or has already been claimed."));
             }
 
-            const itemDataJSON: {
-                item: string;
-                amount: number;
-                droppedBy: string;
-                droppedAt: number;
-            } = JSON.parse(itemData);
+            const itemDataJSON: { item: string; amount: number; droppedBy: string; droppedAt: number; } = JSON.parse(itemDataStr);
             const item = Functions.findItem(itemDataJSON?.item);
+            
             if (!item) {
-                await ctx.makeMessage({
-                    content:
-                        "This item does not exist or has already been claimed [ERROR: item does not exist].",
-                });
-                return;
-            }
-            if (item.id.includes("$disc$") && Functions.hasExceedStandLimit(ctx)) {
-                await ctx.makeMessage({
-                    content:
-                        "You dont have enough Stand Disc Storage! (TIP: Sell/Throw useless stand discs)",
-                });
-                return;
+                return void ctx.makeMessage(containers.error("This item does not exist or has already been claimed."));
             }
 
-            // if item has been dropped for over a week, tell him it has been expired. If they think that is a mistake or bug, contact us at .gg/jolyne
-            if (Date.now() - itemDataJSON.droppedAt > 604800000) {
-                await ctx.makeMessage({
-                    content: `This item has expired [${item.emoji} x${itemDataJSON.amount} \`${item.name}\`]. You can't claim it anymore. If you think this is a mistake, contact us at https://discord.gg/jolyne-support-923608916540145694`,
-                });
-                await ctx.client.database.redis.del("thrownItem_" + itemId);
-                return;
+            if (item.id.includes("$disc$") && Functions.hasExceedStandLimit(ctx)) {
+                return void ctx.makeMessage(containers.error("You don't have enough Stand Disc Storage! Sell or throw some away."));
             }
-            // TODO: count stand discsc in inventory, anti bypass
+
+            if (Date.now() - itemDataJSON.droppedAt > 604800000) {
+                await ctx.client.database.redis.del("thrownItem_" + itemId);
+                return void ctx.makeMessage(containers.error(`This item has expired [${item.emoji} x${itemDataJSON.amount} **${item.name}**].`));
+            }
 
             const oldData = cloneDeep(ctx.userData);
-
-            const result = Functions.addItem(
-                ctx.userData,
-                itemDataJSON.item,
-                itemDataJSON.amount,
-                true
-            );
+            const result = Functions.addItem(ctx.userData, itemDataJSON.item, itemDataJSON.amount, true);
+            
             const transaction = await ctx.client.database.handleTransaction(
-                [
-                    {
-                        oldData,
-                        newData: ctx.userData,
-                    },
-                ],
+                [{ oldData, newData: ctx.userData }],
                 `Claimed x${itemDataJSON.amount} ${item.name} [ID: ${itemId}]`,
                 [result]
             );
+
             if (!transaction) {
-                await ctx.makeMessage({
-                    content: "Transaction failed. An error occured while claiming this item.",
-                });
-                return;
+                return void ctx.makeMessage(containers.error("Transaction failed. An error occured while claiming this item."));
             }
+
             await ctx.client.database.redis.del("thrownItem_" + itemId);
 
             await claimedItemsWebhook.send({
-                embeds: [
-                    {
-                        title: "Item claimed",
-                        description: `> - User: **${ctx.user.tag} (<@!${ctx.user.id}>)**\n> - Item: ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`\n> - Item ID: \`${itemId}\`\n> - Guild: \`${ctx.guild.name}\` (\`${ctx.guild.id}\`)`,
-                        color: 0x00ff00,
-                        timestamp: new Date().toISOString(),
-                    },
-                ],
-            });
-            await ctx.makeMessage({
-                content: `You claimed ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`!`,
-            });
-        } else if (ctx.interaction.options.getSubcommand() === "sell") {
-            const itemString = fixItemString(ctx.interaction.options.getString("item", true));
-            const amountX = ctx.interaction.options.getInteger("amount") || 1;
-            const left = ctx.userData.inventory[itemString] || 0;
-
-            if (left === 0) {
-                await ctx.makeMessage({
-                    content: "This item does not exist or you don't have any left. Nice try",
-                });
-                return;
-            }
-
-            if (left < amountX) {
-                await ctx.makeMessage({
-                    content: `You don't have enough of this item. You have ${left} left.`,
-                });
-                return;
-            }
-
-            if (amountX < 1) {
-                await ctx.makeMessage({
-                    content: "You can't sell less than 1 item. Nice try",
-                });
-                return;
-            }
-
-            const itemData = Functions.findItem(itemString);
-            if (!itemData) {
-                await ctx.makeMessage({
-                    content: `Unknown item: \`${itemString}\`. Join https://discord.gg/jolyne-support-923608916540145694 to get a possible refund.`,
-                });
-                return;
-            }
-
-            if (itemData.rarity === "C" && !itemData.id.includes("$")) {
-                await ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Pucci,
-                        `bro, don't sell me trash items. wtf is that? you better ${ctx.client.getSlashCommandMention(
-                            "item discard"
-                        )} that away.`
-                    ),
-                });
-                return;
-            }
-
-            if (itemData.id === "dungeon_key") {
-                await ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Pucci,
-                        `H-Hey... I'm not interested in buying that. Y-You should keep it for yourself... (${ctx.client.getSlashCommandMention(
-                            "dungeon"
-                        )})`
-                    ),
-                });
-                return;
-            }
-
-            if (!itemData.price) {
-                await ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Pucci,
-                        `I'm sorry, but this item is not sellable.`
-                    ),
-                });
-                return;
-            }
-
-            await ctx.makeMessage({
-                content: Functions.makeNPCString(
-                    NPCs.Pucci,
-                    `Hmm, since this item is ${itemData.rarity} tier, I'll give you ${
-                        itemTaxes[itemData.rarity] * 100
-                    }% of the original price, which means you'll get ${Math.round(
-                        itemData.price * itemTaxes[itemData.rarity] * amountX
-                    ).toLocaleString()} coins. (x${amountX} ${itemData.emoji} ${itemData.name})`
-                ),
-                components: [
-                    Functions.actionRow([
-                        new ButtonBuilder()
-                            .setCustomId(`${ctx.interaction.id}_sell`)
-                            .setLabel("Sell")
-                            .setEmoji(ctx.client.localEmojis.jocoins)
-                            .setStyle(ButtonStyle.Secondary),
-                    ]),
-                ],
+                embeds: [{
+                    title: "Item claimed",
+                    description: `> - User: **${ctx.user.tag} (<@!${ctx.user.id}>)**\n> - Item: ${item.emoji} x${itemDataJSON.amount} \`${item.name}\`\n> - Item ID: \`${itemId}\`\n> - Guild: \`${ctx.guild.name}\` (\`${ctx.guild.id}\`)`,
+                    color: 0x00ff00,
+                    timestamp: new Date().toISOString(),
+                }],
             });
 
-            const collector = ctx.channel.createMessageComponentCollector({
-                filter: (i) =>
-                    i.customId === `${ctx.interaction.id}_sell` && i.user.id === ctx.user.id,
-                time: 60000,
-                max: 1,
-            });
-
-            collector.on("collect", async (i) => {
-                if (await ctx.antiCheat(true)) {
-                    collector.stop("cheat");
-                    return;
-                }
-                const oldData = cloneDeep(ctx.userData);
-                i.deferUpdate().catch(() => {});
-                Functions.addCoins(
-                    ctx.userData,
-                    Math.round(itemData.price * itemTaxes[itemData.rarity] * amountX)
-                );
-                const result = Functions.removeItem(ctx.userData, itemString, amountX);
-                //ctx.client.database.saveUserData(ctx.userData)
-                const transaction = await ctx.client.database.handleTransaction(
-                    [
-                        {
-                            oldData,
-                            newData: ctx.userData,
-                        },
-                    ],
-                    `Sold x${amountX} ${itemData.name}`,
-                    [result]
-                );
-                if (!transaction) {
-                    await ctx.makeMessage({
-                        content: "An error occured while selling this item.",
-                    });
-                    return;
-                }
-                ctx.makeMessage({
-                    content: Functions.makeNPCString(
-                        NPCs.Pucci,
-                        `Thanks for selling me ${itemData.emoji} x${amountX} \`${
-                            itemData.name
-                        }\`! (+${Math.round(
-                            itemData.price * itemTaxes[itemData.rarity] * amountX
-                        ).toLocaleString()} ${ctx.client.localEmojis.jocoins})`
-                    ),
-                    components: [],
-                });
-            });
+            await ctx.makeMessage(containers.success(`You claimed ${item.emoji} x${itemDataJSON.amount} **${item.name}**!`));
         }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
-        if (interaction.options.getSubcommand() === "use") {
+        const subcommand = interaction.options.getSubcommand();
+        if (subcommand === "use") {
             const userItems = Object.keys(userData.inventory).map((v) => {
                 const item = Functions.findItem(v);
                 if (!item) return;
@@ -972,18 +850,14 @@ const slashCommand: SlashCommandFile = {
                     amount: userData.inventory[v],
                     id: v,
                 };
-            });
+            }).filter((r): r is NonNullable<typeof r> => !!r);
 
             await interaction.respond(
                 userItems
-                    .filter((r) => r)
-                    .map((i) => {
-                        return {
-                            value: i.id,
-                            name: `${i.name} (x${i.amount} left)`,
-                            description: i,
-                        };
-                    })
+                    .map((i) => ({
+                        value: i.id,
+                        name: `${i.name} (x${i.amount} left)`,
+                    }))
                     .filter(
                         (item) =>
                             item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
@@ -991,11 +865,7 @@ const slashCommand: SlashCommandFile = {
                     )
                     .slice(0, 25)
             );
-        } else if (interaction.options.getSubcommand() === "info") {
-            for (const item of Object.keys(userData.equippedItems)) {
-                Functions.addItem(userData, item, 1);
-            }
-
+        } else if (subcommand === "info") {
             const userItems = Object.keys(userData.inventory).map((v) => {
                 const item = Functions.findItem(v);
                 if (!item) return;
@@ -1003,29 +873,24 @@ const slashCommand: SlashCommandFile = {
 
                 return {
                     name: item.name,
-                    amount: userData.inventory[v],
                     id: v,
                 };
-            });
+            }).filter((r): r is NonNullable<typeof r> => !!r);
 
-            const finalItems = userItems
-                .filter((r) => r)
-                .map((i) => {
-                    return {
+            await interaction.respond(
+                userItems
+                    .map((i) => ({
                         value: i.id,
-                        name: `${i.name}`,
-                        description: i,
-                    };
-                })
-                .filter(
-                    (item) =>
-                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                        item.value.toLowerCase().includes(currentInput.toLowerCase())
-                );
-            if (finalItems.length > 25) finalItems.length = 25;
-
-            interaction.respond(finalItems);
-        } else if (interaction.options.getSubcommand() === "equip") {
+                        name: i.name,
+                    }))
+                    .filter(
+                        (item) =>
+                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                            item.value.toLowerCase().includes(currentInput.toLowerCase())
+                    )
+                    .slice(0, 25)
+            );
+        } else if (subcommand === "equip") {
             const userItems = Object.keys(userData.inventory).map((v) => {
                 const item = Functions.findItem(v);
                 if (!item) return;
@@ -1037,26 +902,22 @@ const slashCommand: SlashCommandFile = {
                     amount: userData.inventory[v],
                     id: v,
                 };
-            });
+            }).filter((r): r is NonNullable<typeof r> => !!r);
 
-            const finalItems = userItems
-                .filter((r) => r)
-                .map((i) => {
-                    return {
+            await interaction.respond(
+                userItems
+                    .map((i) => ({
                         value: i.id,
                         name: `${i.name} (x${i.amount} left)`,
-                        description: i,
-                    };
-                })
-                .filter(
-                    (item) =>
-                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                        item.value.toLowerCase().includes(currentInput.toLowerCase())
-                );
-            if (finalItems.length > 25) finalItems.length = 25;
-
-            interaction.respond(finalItems);
-        } else if (interaction.options.getSubcommand() === "unequip") {
+                    }))
+                    .filter(
+                        (item) =>
+                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                            item.value.toLowerCase().includes(currentInput.toLowerCase())
+                    )
+                    .slice(0, 25)
+            );
+        } else if (subcommand === "unequip") {
             const userItems = Object.keys(userData.equippedItems).map((v) => {
                 const item = Functions.findItem(v);
                 if (!item) return;
@@ -1066,30 +927,22 @@ const slashCommand: SlashCommandFile = {
                     name: item.name + ` [${formattedEquipableItemTypes[item.type]}]`,
                     id: v,
                 };
-            });
-            const realItems = userItems
-                .filter((r) => r)
-                .map((i) => {
-                    return {
+            }).filter((r): r is NonNullable<typeof r> => !!r);
+
+            await interaction.respond(
+                userItems
+                    .map((i) => ({
                         value: i.id,
                         name: i.name,
-                        description: i,
-                    };
-                })
-                .filter(
-                    (item) =>
-                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                        item.value.toLowerCase().includes(currentInput.toLowerCase())
-                );
-            if (realItems.length > 25) realItems.length = 25;
-
-            interaction.respond(realItems);
-        } else if (
-            interaction.options.getSubcommand() === "sell" ||
-            interaction.options.getSubcommand() === "throw" ||
-            interaction.options.getSubcommand() === "discard"
-        ) {
-            // all items
+                    }))
+                    .filter(
+                        (item) =>
+                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                            item.value.toLowerCase().includes(currentInput.toLowerCase())
+                    )
+                    .slice(0, 25)
+            );
+        } else if (["sell", "throw", "discard"].includes(subcommand)) {
             const userItems = Object.keys(userData.inventory).map((v) => {
                 const item = Functions.findItem(v);
                 if (!item) return;
@@ -1100,39 +953,30 @@ const slashCommand: SlashCommandFile = {
                     amount: userData.inventory[v],
                     id: v,
                 };
-            });
+            }).filter((r): r is NonNullable<typeof r> => !!r);
 
-            const finalItems = userItems
-                .filter((r) => r)
-                .map((i) => {
-                    return {
+            await interaction.respond(
+                userItems
+                    .map((i) => ({
                         value: i.id,
                         name: `${i.name} (x${i.amount} left)`,
-                        description: i,
-                    };
-                })
-                .filter(
-                    (item) =>
-                        item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
-                        item.value.toLowerCase().includes(currentInput.toLowerCase())
-                );
-            if (finalItems.length > 25) finalItems.length = 25;
-
-            interaction.respond(finalItems);
+                    }))
+                    .filter(
+                        (item) =>
+                            item.name.toLowerCase().includes(currentInput.toLowerCase()) ||
+                            item.value.toLowerCase().includes(currentInput.toLowerCase())
+                    )
+                    .slice(0, 25)
+            );
         }
     },
 };
 
 function fixItemString(str: string): string {
-    let itemString = str;
     if (str.includes("(") && str.includes(")") && str.includes("x") && str.includes("left")) {
-        // ex: Patron Box (x1 left)
-        // we want to get the item name from this
-        const itemName = itemString.split("(")[0].trim();
-        itemString = itemName;
+        return str.split("(")[0].trim();
     }
-
-    return itemString;
+    return str;
 }
 
 export default slashCommand;
