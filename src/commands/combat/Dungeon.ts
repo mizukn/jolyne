@@ -48,9 +48,11 @@ const finalizeDungeonRewards = async (
     dungeon: DungeonHandler,
     ctx: CommandInteractionContext,
     selectedModifiers: PossibleModifierId[],
-    endedUnexpectedly = false,
+    options: {
+        consumeKey?: boolean;
+    } = {},
 ): Promise<void> => {
-    await giveRewards(dungeon, ctx, selectedModifiers, endedUnexpectedly).catch((error) => {
+    await giveRewards(dungeon, ctx, selectedModifiers, options).catch((error) => {
         ctx.client.log(
             `Dungeon reward finalization failed: ${
                 error instanceof Error ? error.stack ?? error.message : String(error)
@@ -84,41 +86,25 @@ const recordDungeonAttempt = async (
     }
 };
 
-const settleDungeonMessageAccessFailure = async (
-    dungeon: DungeonHandler,
+const consumeDungeonKeyOnly = async (
     ctx: CommandInteractionContext,
-    players: RPGUserDataJSON[],
+    dungeon: DungeonHandler,
 ): Promise<void> => {
-    const fixedPlayers = [];
-    const results: boolean[] = [];
+    const host = await ctx.client.database.getRPGUserData(ctx.userData.id);
+    if (!host) return;
 
-    for (const dungeonPlayer of dungeon.players) {
-        const player = await ctx.client.database.getRPGUserData(dungeonPlayer.id);
-        if (!player) continue;
-
-        const oldData = cloneDeep(player);
-        player.health = Math.max(0, dungeonPlayer.health);
-        player.stamina = Math.max(0, dungeonPlayer.stamina);
-
-        if (player.id === ctx.userData.id) {
-            results.push(Functions.removeItem(player, "dungeon_key", 1));
-        }
-
-        fixedPlayers.push({
-            oldData,
-            newData: player,
-        });
-    }
-
-    if (fixedPlayers.length > 0) {
-        await ctx.client.database.handleTransaction(
-            fixedPlayers,
-            `Aborted a dungeon after losing message access: total of ${dungeon.stage} waves and beaten ${dungeon.beatenEnemies.length} enemies.`,
-            results,
-        );
-    }
-
-    await recordDungeonAttempt(ctx, players);
+    const oldData = cloneDeep(host);
+    const removedKey = Functions.removeItem(host, "dungeon_key", 1);
+    await ctx.client.database.handleTransaction(
+        [
+            {
+                oldData,
+                newData: host,
+            },
+        ],
+        `Aborted a dungeon before progress after losing message access: total of ${dungeon.stage} waves and beaten ${dungeon.beatenEnemies.length} enemies.`,
+        [removedKey],
+    );
 };
 
 const renderLobby = (
@@ -374,11 +360,12 @@ const slashCommand: SlashCommandFile = {
                     const hasProgress = hasDungeonProgress(dungeon);
                     const isAccessFailure = isMessageAccessFailure(reason);
                     if (isAccessFailure) {
-                        await settleDungeonMessageAccessFailure(dungeon, ctx, totalPlayers);
                         await safeDungeonReply(
                             dungeon,
                             ctx,
-                            `The dungeon has ended because I lost message access in this channel. Your dungeon key was consumed and no rewards were generated.`,
+                            hasProgress
+                                ? `The dungeon has ended because I lost message access in this channel. Your dungeon key was used and you still get the rewards.`
+                                : `The dungeon has ended because I lost message access in this channel. Your dungeon key was used, but no rewards were generated because the dungeon did not start.`,
                         );
                     } else if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         await safeDungeonReply(
@@ -398,8 +385,16 @@ const slashCommand: SlashCommandFile = {
                         );
                     }
 
-                    if (hasProgress && !isAccessFailure) {
-                        await finalizeDungeonRewards(dungeon, ctx, selectedModifiers, true);
+                    if (hasProgress) {
+                        await finalizeDungeonRewards(dungeon, ctx, selectedModifiers, {
+                            consumeKey: isAccessFailure,
+                        });
+                        if (isAccessFailure) {
+                            await recordDungeonAttempt(ctx, totalPlayers);
+                        }
+                    } else if (isAccessFailure) {
+                        await consumeDungeonKeyOnly(ctx, dungeon);
+                        await recordDungeonAttempt(ctx, totalPlayers);
                     }
                 });
 
@@ -418,7 +413,9 @@ const slashCommand: SlashCommandFile = {
                         await recordDungeonAttempt(ctx, totalPlayers);
                     }
 
-                    await finalizeDungeonRewards(dungeon, ctx, selectedModifiers);
+                    await finalizeDungeonRewards(dungeon, ctx, selectedModifiers, {
+                        consumeKey: true,
+                    });
                 });
                 collector.stop("start");
             } else if (i.customId === "cancel_dungeon" + ctx.interaction.id) {

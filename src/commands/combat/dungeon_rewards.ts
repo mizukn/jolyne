@@ -63,7 +63,9 @@ export async function giveRewards(
     dungeon: DungeonHandler,
     ctx: CommandInteractionContext,
     selectedModifiers: string[],
-    endedUnexpectedly = false,
+    options: {
+        consumeKey?: boolean;
+    } = {},
 ): Promise<void> {
     let xpRewards = 60000;
     let coinRewards = 0;
@@ -200,10 +202,7 @@ export async function giveRewards(
             }
         }
 
-        if (
-            player.id === ctx.userData.id &&
-            (!ctx.client.maintenanceReason || !endedUnexpectedly)
-        ) {
+        if (player.id === ctx.userData.id && options.consumeKey !== false) {
             results.push(Functions.removeItem(player, "dungeon_key", 1));
         }
 
