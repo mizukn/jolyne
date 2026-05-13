@@ -1,4 +1,4 @@
-import { SlashCommandFile, Shop, FightNPCQuest } from "../../@types";
+import { SlashCommandFile, FightNPCQuest } from "../../@types";
 import {
     Message,
     InteractionResponse,
@@ -7,45 +7,23 @@ import {
     ButtonBuilder,
     ButtonStyle,
     MessageFlags,
+    ActionRowBuilder,
+    MessageActionRowComponentBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import * as Emojis from "../../emojis.json";
-import { containers } from "../../utils/containers";
-
-const standPercent = {
-    SS: 2,
-    S: 4,
-    A: 14,
-    B: 38,
-    C: 50,
-    T: 2,
-};
-
-export const standPrice = {
-    SS: 2000000000000000,
-    S: 100000,
-    A: 50000,
-    B: 25000,
-    C: 10000,
-    T: 6969696969696969,
-};
-
-type cShop = {
-    name: string;
-    data: StringSelectMenuBuilder;
-    items: Shop["items"];
-    emoji: string;
-};
+import { containers, SectionData, COLORS, V2Reply } from "../../utils/containers";
+import { cloneDeep } from "lodash";
 
 type MailboxType = "inbox" | "archived";
+
+const EMAILS_PER_PAGE = 5;
 
 function getMailboxType(subcommand: string): MailboxType {
     return subcommand === "archived" ? "archived" : "inbox";
 }
 
 const slashCommand: SlashCommandFile = {
-    hidden: true,
     data: {
         name: "emails",
         description: "View your emails",
@@ -67,293 +45,268 @@ const slashCommand: SlashCommandFile = {
         ctx: CommandInteractionContext
     ): Promise<Message<boolean> | void | InteractionResponse> => {
         const type = getMailboxType(ctx.interaction.options.getSubcommand());
-        const emails = () =>
+        let currentPage = 0;
+        let viewingEmailId: string | null = null;
+
+        const getEmails = () =>
             type === "inbox"
                 ? ctx.userData.emails.filter((email) => !email.archived)
                 : ctx.userData.emails.filter((email) => email.archived);
-        if (!emails().length) {
-            ctx.makeMessage(containers.warning("You don't have any emails.."));
-            return;
-        }
-        const emoji = type === "inbox" ? "📬" : "📥";
-        const name = type === "inbox" ? "inbox" : "archived";
 
-        const goBackID = Functions.generateRandomId();
-        const deleteEmailID = Functions.generateRandomId();
-        const EmailsSelectionID = Functions.generateRandomId();
-        const actionID = Functions.generateRandomId();
-        let currentEmail: string;
-
-        const goBackButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
-            .setEmoji(Emojis.arrowLeft)
-            .setCustomId(goBackID);
-        const deleteEmailBtn = new ButtonBuilder()
-            .setStyle(ButtonStyle.Danger)
-            .setEmoji("🗑️")
-            .setCustomId(deleteEmailID);
-        let EmailsSelection = new StringSelectMenuBuilder()
-            .setCustomId(EmailsSelectionID)
-            .setPlaceholder("Select an email to view");
-        const actionBtn = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
-            .setEmoji(emoji)
-            .setLabel(type === "inbox" ? "Archive" : "Unarchive")
-            .setCustomId(actionID);
-
-        function menuEmbed(): void {
-            if (!emails().length) {
-                ctx.makeMessage(containers.warning("You don't have any emails.."));
-                return;
+        function renderMailbox(): V2Reply {
+            const list = getEmails();
+            if (!list.length) {
+                return containers.warning(`You don't have any emails in your ${type}.`);
             }
 
-            currentEmail = null;
-            EmailsSelection = new StringSelectMenuBuilder()
-                .setCustomId(EmailsSelectionID)
-                .setPlaceholder("Select an email to view");
+            const totalPages = Math.max(1, Math.ceil(list.length / EMAILS_PER_PAGE));
+            if (currentPage >= totalPages) currentPage = totalPages - 1;
 
-            const menuFields: { name: string; value: string }[] = [];
+            const pageItems = list.slice(
+                currentPage * EMAILS_PER_PAGE,
+                (currentPage + 1) * EMAILS_PER_PAGE
+            );
 
-            for (const email of emails()) {
-                const emailData = Functions.findEmail(email.id);
-                if (!emailData) continue;
-                EmailsSelection.addOptions([
-                    {
-                        label: emailData.subject,
-                        description: `From: ${emailData.author.email ?? emailData.author.name}`,
-                        value: email.id,
-                        emoji: emailData.emoji ?? emailData.author.emoji,
-                    },
-                ]);
-                menuFields.push({
-                    name:
-                        (emailData.emoji ?? emailData.author.emoji) +
-                        " | " +
-                        emailData.subject +
-                        (email.read ? "" : " (❗Unread)"),
-                    value: `${ctx.client.localEmojis.reply} From: \`${emailData.author.name} (${
-                        emailData.author.email ?? emailData.author.name
-                    })\`\n${
-                        ctx.client.localEmojis.replyEnd
-                    } Date: ${Functions.generateDiscordTimestamp(
-                        email.date,
-                        "FULL_DATE"
-                    )} (${Functions.generateDiscordTimestamp(email.date, "FROM_NOW")})`,
-                });
-            }
-
-            const menuReply = containers.primary({
-                title: `${emoji} ${Functions.capitalize(name)}`,
-                description: `You have ${emails().length} ${name} e-mails.`,
-                fields: menuFields,
+            const sections: SectionData[] = pageItems.map((email) => {
+                const data = Functions.findEmail(email.id);
+                const emoji = data?.emoji ?? data?.author.emoji ?? "📩";
+                const unread = !email.read ? " ❗" : "";
+                
+                return {
+                    text: `### ${emoji} **${data?.subject ?? "Unknown Subject"}**${unread}\n> -# From: **${data?.author.name}** • ${Functions.generateDiscordTimestamp(email.date, "FROM_NOW")}`,
+                    accessory: new ButtonBuilder()
+                        .setCustomId(`view_${email.id}`)
+                        .setLabel("Read")
+                        .setStyle(ButtonStyle.Secondary)
+                };
             });
 
-            if (EmailsSelection.options.length <= 25) {
-                menuReply.components.push(Functions.actionRow([EmailsSelection]));
-            } else {
-                let left = EmailsSelection.options.length;
-                let i = 0;
-                while (left > 0) {
-                    const options = EmailsSelection.options.slice(i, i + 25);
-                    menuReply.components.push(
-                        Functions.actionRow([
-                            new StringSelectMenuBuilder()
-                                .setCustomId(EmailsSelectionID + i)
-                                .setPlaceholder("Select an email to view")
-                                .addOptions(options),
-                        ])
-                    );
-                    left -= 25;
-                    i += 25;
-                }
+            const emoji = type === "inbox" ? "📬" : "📥";
+            const reply = containers.primary({
+                title: `# ${emoji} ${Functions.capitalize(type)}`,
+                description: `You have **${list.length}** emails in your ${type}.`,
+                descriptionDivider: true,
+                sections,
+                sectionDividers: true,
+                color: COLORS.primary,
+                footer: `Page ${currentPage + 1}/${totalPages}`,
+            });
+
+            const actionRows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [];
+
+            // Select Menu for current page
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId("select_email")
+                .setPlaceholder("Select an email to read")
+                .addOptions(
+                    pageItems.map((email) => {
+                        const data = Functions.findEmail(email.id);
+                        return {
+                            label: data?.subject.substring(0, 100) ?? "Unknown",
+                            value: email.id,
+                            description: `From: ${data?.author.name}`,
+                            emoji: data?.emoji ?? data?.author.emoji,
+                        };
+                    })
+                );
+            actionRows.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu));
+
+            // Pagination
+            if (totalPages > 1) {
+                actionRows.push(
+                    new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId("prev_page")
+                            .setEmoji("⬅️")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled(currentPage === 0),
+                        new ButtonBuilder()
+                            .setCustomId("page_info")
+                            .setLabel(`${currentPage + 1} / ${totalPages}`)
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId("next_page")
+                            .setEmoji("➡️")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled(currentPage === totalPages - 1)
+                    )
+                );
             }
 
-            ctx.makeMessage(menuReply);
+            return {
+                components: [...reply.components, ...actionRows],
+                flags: reply.flags
+            };
         }
 
-        function makeEmailEmbed(email: string): void {
-            const emailData = Functions.findEmail(email);
-            const emailBrut = ctx.userData.emails.find((email) => email.id === emailData?.id);
+        async function renderEmail(emailId: string): Promise<V2Reply> {
+            const emailData = Functions.findEmail(emailId);
+            const userEmail = ctx.userData.emails.find((e) => e.id === emailId);
 
-            if (!emailData) return;
-            currentEmail = email;
+            if (!emailData || !userEmail) {
+                return containers.error("Email not found.");
+            }
 
-            const emailFields: { name: string; value: string }[] = [];
+            const oldData = cloneDeep(ctx.userData);
+            const rewardsLines: string[] = [];
 
-            if (!emailBrut.read) {
-                emailBrut.read = Date.now();
-                const winContent: string[] = [];
+            // Logic for first-time reading
+            if (!userEmail.read) {
+                userEmail.read = Date.now();
 
+                // 1. Quests validation
                 for (const quests of [
                     ctx.userData.daily.quests,
                     ctx.userData.chapter.quests,
                     ...ctx.userData.sideQuests.map((v) => v.quests),
                 ]) {
                     for (const quest of quests) {
-                        if (Functions.isMustReadEmailQuest(quest) && quest.email === email) {
+                        if (Functions.isMustReadEmailQuest(quest) && quest.email === emailId) {
                             quest.completed = true;
-                            let chapterFrom = "ERROR";
-                            if (ctx.userData.daily.quests.find((v) => v.id === quest.id)) {
-                                chapterFrom = "Daily Quest";
-                            } else if (ctx.userData.chapter.quests.find((v) => v.id === quest.id)) {
-                                chapterFrom = "Chapter Quest";
-                            } else if (
-                                ctx.userData.sideQuests.find((v) =>
-                                    v.quests.find((q) => q.id === quest.id)
-                                )
-                            ) {
-                                chapterFrom = `Side Quest: ${
-                                    ctx.userData.sideQuests.find((v) =>
-                                        v.quests.find((q) => q.id === quest.id)
-                                    ).id
-                                }`;
-                            }
-                            winContent.push(
-                                `:white_check_mark: Validated quest: ${quest.id} [${chapterFrom}]`
-                            );
+                            rewardsLines.push(`✅ **Quest Validated:** ${quest.id}`);
                         }
                     }
                 }
-                // TBC
 
+                // 2. Chapter quests injection
                 if (emailData.chapterQuests) {
-                    for (const chapter of emailData.chapterQuests) {
-                        if ((chapter as FightNPCQuest).npc) {
-                            winContent.push(
-                                `:scroll: Defeat ${(chapter as FightNPCQuest).npc} (Chapter Quest)`
-                            );
-                        } else winContent.push(`:scroll: ${chapter.id} (Chapter Quest)`);
-                        ctx.userData.chapter.quests.push(Functions.pushQuest(chapter));
+                    for (const q of emailData.chapterQuests) {
+                        ctx.userData.chapter.quests.push(Functions.pushQuest(q));
+                        const label = (q as FightNPCQuest).npc ? `Defeat ${(q as FightNPCQuest).npc}` : q.id;
+                        rewardsLines.push(`📜 **New Chapter Quest:** ${label}`);
                     }
                 }
 
+                // 3. Rewards claiming
                 if (emailData.rewards) {
                     if (emailData.rewards.coins) {
                         Functions.addCoins(ctx.userData, emailData.rewards.coins);
-                        winContent.push(
-                            `+${emailData.rewards.coins.toLocaleString()} ${
-                                ctx.client.localEmojis.jocoins
-                            }`
-                        );
+                        rewardsLines.push(`+**${emailData.rewards.coins.toLocaleString()}** ${ctx.client.localEmojis.jocoins}`);
                     }
                     if (emailData.rewards.xp) {
-                        const xp = Functions.addXp(ctx.userData, emailData.rewards.xp, ctx.client);
-                        winContent.push(`+${xp.toLocaleString()} ${ctx.client.localEmojis.xp}`);
+                        const addedXp = Functions.addXp(ctx.userData, emailData.rewards.xp, ctx.client);
+                        rewardsLines.push(`+**${addedXp.toLocaleString()}** ${ctx.client.localEmojis.xp}`);
                     }
                     if (emailData.rewards.items) {
                         for (const item of emailData.rewards.items) {
                             const itemData = Functions.findItem(item.item);
                             Functions.addItem(ctx.userData, itemData.id, item.amount);
-                            winContent.push(
-                                `${item.amount}x **${itemData.name}** ${itemData.emoji} `
-                            );
+                            rewardsLines.push(`+**${item.amount}x** ${itemData.name} ${itemData.emoji}`);
                         }
                     }
                 }
 
-                if (winContent.length) {
-                    emailFields.push({
-                        name: ":gift: You got:",
-                        value: winContent.join("\n"),
-                    });
+                // Save changes via transaction
+                await ctx.client.database.handleTransaction(
+                    [{ oldData, newData: ctx.userData }],
+                    `Read email: ${emailId}`
+                );
+            }
+
+            const sections: SectionData[] = [
+                {
+                    text: emailData.content(ctx).replace(/{{userName}}/gi, ctx.user.username),
+                    accessory: new ButtonBuilder()
+                        .setCustomId("back_to_list")
+                        .setEmoji("↩️")
+                        .setStyle(ButtonStyle.Secondary)
                 }
-                ctx.client.database.getRPGUserData(ctx.user.id).then((rpgUserData) => {
-                    ctx.client.database.handleTransaction(
-                        [
-                            {
-                                oldData: rpgUserData,
-                                newData: ctx.userData,
-                            },
-                        ],
-                        `Read email: ${emailData.id}`
-                    );
+            ];
+
+            if (rewardsLines.length > 0) {
+                sections.push({
+                    text: `### 🎁 **Rewards & Quests**\n${rewardsLines.join("\n")}`
                 });
             }
 
-            const emailReply = containers.primary({
-                title: `${emailData.emoji ?? emailData.author.emoji} | ${emailData.subject}`,
-                description: `${ctx.client.localEmojis.reply} From: \`${emailData.author.name} (${
-                    emailData.author.email ?? emailData.author.name
-                })\`\n${
-                    ctx.client.localEmojis.replyEnd
-                } Date: ${Functions.generateDiscordTimestamp(
-                    emailBrut.date,
-                    "FULL_DATE"
-                )} (${Functions.generateDiscordTimestamp(
-                    emailBrut.date,
-                    "FROM_NOW"
-                )})\n\n${emailData.content(ctx).replace(/{{userName}}/gi, ctx.user.username)}`,
+            const reply = containers.primary({
+                title: `# ${emailData.emoji ?? emailData.author.emoji} ${emailData.subject}`,
+                description: `> -# From: **${emailData.author.name}** (${emailData.author.email ?? emailData.author.name})\n> -# Received: ${Functions.generateDiscordTimestamp(userEmail.date, "FULL_DATE")}`,
+                descriptionDivider: true,
+                sections,
+                sectionDividers: true,
+                color: COLORS.accent,
                 footer: emailData.footer,
-                fields: emailFields,
             });
 
-            emailReply.components.push(Functions.actionRow([deleteEmailBtn, actionBtn]));
-            emailReply.components.push(Functions.actionRow([EmailsSelection]));
-            emailReply.components.push(Functions.actionRow([goBackButton]));
+            reply.components.push(
+                Functions.actionRow([
+                    new ButtonBuilder()
+                        .setCustomId(`archive_${emailId}`)
+                        .setLabel(userEmail.archived ? "Unarchive" : "Archive")
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji(type === "inbox" ? "📥" : "📬"),
+                    new ButtonBuilder()
+                        .setCustomId(`delete_${emailId}`)
+                        .setLabel("Delete")
+                        .setStyle(ButtonStyle.Danger)
+                        .setEmoji("🗑️"),
+                ])
+            );
 
-            ctx.makeMessage(emailReply);
+            return reply;
         }
 
-        menuEmbed();
+        const initialReply = renderMailbox();
+        await ctx.makeMessage(initialReply);
+
+        if (getEmails().length === 0) return;
 
         const collector = ctx.channel.createMessageComponentCollector({
-            filter: (interaction) =>
-                interaction.user.id === ctx.user.id &&
-                (interaction.customId === goBackID ||
-                    interaction.customId === deleteEmailID ||
-                    interaction.customId.startsWith(EmailsSelectionID) ||
-                    interaction.customId === actionID),
-            time: 60000,
+            filter: (i) => i.user.id === ctx.user.id,
+            time: 120000,
         });
 
-        collector.on("collect", async (interaction) => {
-            if (await ctx.antiCheat(true)) {
-                collector.stop();
+        collector.on("collect", async (i) => {
+            if (i.isStringSelectMenu()) {
+                if (i.customId === "select_email") {
+                    viewingEmailId = i.values[0];
+                    await i.deferUpdate();
+                    await ctx.interaction.editReply(await renderEmail(viewingEmailId));
+                }
                 return;
             }
 
-            if (!emails().length) {
-                ctx.makeMessage(containers.warning("You don't have any emails.."));
-                return;
-            }
+            const customId = i.customId;
 
-            switch (interaction.customId) {
-                case goBackID:
-                    interaction.deferUpdate();
-                    menuEmbed();
-                    break;
-                case EmailsSelectionID:
-                    interaction.deferUpdate();
-                    makeEmailEmbed((interaction as StringSelectMenuInteraction).values[0]);
-                    break;
-                case actionID: {
-                    if (!currentEmail) return;
-                    const email = ctx.userData.emails.find((email) => email.id === currentEmail);
-                    if (!email) return;
+            if (customId === "prev_page") {
+                currentPage = Math.max(0, currentPage - 1);
+                await i.update(renderMailbox());
+            } else if (customId === "next_page") {
+                currentPage++;
+                await i.update(renderMailbox());
+            } else if (customId === "back_to_list") {
+                viewingEmailId = null;
+                await i.update(renderMailbox());
+            } else if (customId.startsWith("view_")) {
+                viewingEmailId = customId.slice("view_".length);
+                await i.deferUpdate();
+                await ctx.interaction.editReply(await renderEmail(viewingEmailId));
+            } else if (customId.startsWith("archive_")) {
+                const id = customId.slice("archive_".length);
+                const email = ctx.userData.emails.find((e) => e.id === id);
+                if (email) {
                     email.archived = !email.archived;
-                    ctx.client.database.saveUserData(ctx.userData);
-                    menuEmbed();
-                    interaction.reply({
-                        content: `Email ${
-                            email.archived ? "archived" : "unarchived"
-                        } successfully!`,
-                        flags: MessageFlags.Ephemeral,
+                    await ctx.client.database.saveUserData(ctx.userData);
+                    await i.reply({
+                        ...containers.success(`Email ${email.archived ? "archived" : "unarchived"} successfully.`),
+                        ephemeral: true
                     });
-                    break;
+                    // If we were viewing it, go back to list (since it might have moved to another mailbox)
+                    viewingEmailId = null;
+                    await ctx.interaction.editReply(renderMailbox());
                 }
-                case deleteEmailID: {
-                    if (!currentEmail) return;
-                    const email = ctx.userData.emails.find((email) => email.id === currentEmail);
-                    if (!email) return;
-                    ctx.userData.emails = ctx.userData.emails.filter((v) => v.id !== email.id);
-                    ctx.client.database.saveUserData(ctx.userData);
-                    menuEmbed();
-                    interaction.reply({
-                        content: "Email deleted successfully!",
-                        flags: MessageFlags.Ephemeral,
-                    });
-                    break;
-                }
+            } else if (customId.startsWith("delete_")) {
+                const id = customId.slice("delete_".length);
+                ctx.userData.emails = ctx.userData.emails.filter((e) => e.id !== id);
+                await ctx.client.database.saveUserData(ctx.userData);
+                await i.reply({
+                    ...containers.success("Email deleted successfully."),
+                    ephemeral: true
+                });
+                viewingEmailId = null;
+                await ctx.interaction.editReply(renderMailbox());
             }
         });
     },
