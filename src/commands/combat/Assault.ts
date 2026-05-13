@@ -56,7 +56,6 @@ const slashCommand: SlashCommandFile = {
             return;
         }
         const trueLvl = Functions.getTrueLevel(ctx.userData);
-        console.log("True level: ", trueLvl);
 
         const normalNPC = Functions.randomArray(
             Object.values(FightableNPCS).filter(
@@ -111,7 +110,6 @@ const slashCommand: SlashCommandFile = {
 
         let cooldown = 60000 * 5;
         if (Functions.hasVotedRecenty(ctx.userData, ctx.client)) {
-            console.log("Voted recently, so cooldown is 45 seconds");
             cooldown = 45000;
         }
 
