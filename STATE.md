@@ -33,7 +33,7 @@ All landed on `rework`. Each is its own commit. Highlights:
 
 ### V2 components migration (done)
 
-Done: Profile, Help, Inventory, Daily, Settings, Trade, Emails, Side Quest, Chapter, Prestige, Leaderboard, Blackjack, Shop, Skills, Fight UI, Vote, Heal, Stand, Adventure, plus the new `/guide` paginated command. Helpers in `src/utils/containers.ts` and `src/utils/emojiBar.ts`. Style guide lives in `README_V2_UI.md`.
+Done: Profile, Help, Inventory, Daily, Settings, Trade, Emails, Side Quest, Chapter, Prestige, Leaderboard, Blackjack, Shop, Skills, Fight UI, Vote, Heal, Stand, Adventure, Dungeon, plus the new `/guide` paginated command. Helpers in `src/utils/containers.ts` and `src/utils/emojiBar.ts`. Style guide lives in `README_V2_UI.md`.
 
 Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green (`g*`), `bar_def_*` = blue (`blue*`), `bar_empty_*` = black/basic (`b*`). XP palette (purple) is still not uploaded — `bar_xp_*` keys are not defined; `emojiBar("xp", ...)` renders Unicode placeholders until added.
 
