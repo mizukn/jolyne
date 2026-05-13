@@ -440,7 +440,6 @@ const slashCommand: SlashCommandFile = {
                         if (status === true) {
                             winnerData.inventory["ice_shard"] -= 50;
                         }
-                        console.log(status, bossChosen);
 
                         fixedWinners.push({
                             oldData: oldWinnerData,

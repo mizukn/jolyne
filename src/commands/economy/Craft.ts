@@ -221,7 +221,6 @@ const slashCommand: SlashCommandFile = {
             collector.on("collect", async (i) => {
                 i.deferUpdate().catch(() => {});
                 if (await ctx.antiCheat(true)) {
-                    console.log("Anti cheat triggered at craft");
                     ctx.followUp({
                         content: `Your data has been changed. Please don't use other commands and try again.`,
                     });
