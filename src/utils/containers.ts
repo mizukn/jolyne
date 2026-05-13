@@ -46,6 +46,7 @@ export interface ContainerOptions {
     color?: number;
     footer?: string;
     thumbnail?: string;
+    image?: string;
     fields?: { name: string; value: string }[];
     sections?: SectionData[];
     sectionDividers?: boolean;
@@ -187,5 +188,16 @@ export const containers = {
     ephemeral: <T extends { flags?: number }>(reply: T): T & { flags: number } => ({
         ...reply,
         flags: (reply.flags ?? 0) | MessageFlags.Ephemeral,
+    }),
+
+    info: (description: string, footer?: string): V2Reply => ({
+        components: [
+            build({
+                description: `${EMOJIS.info} ${description}`,
+                color: COLORS.info,
+                footer,
+            }),
+        ],
+        flags: MessageFlags.IsComponentsV2,
     }),
 };
