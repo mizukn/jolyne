@@ -5,9 +5,10 @@ import {
     MessageFlags,
 } from "discord.js";
 import JolyneClient from "../structures/JolyneClient";
-import { commandLogsWebhook, specialLogsWebhook } from "../utils/Webhooks";
 import { runCommandEntryHooks } from "../services/EventService";
 import { runStep } from "../middlewares/pipeline";
+import { handleAutocomplete } from "./handleAutocomplete";
+import { logCommandUsage } from "./logCommandUsage";
 import { channelMiddleware } from "../middlewares/channel";
 import { bannedUserMiddleware } from "../middlewares/bannedUser";
 import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
@@ -127,61 +128,9 @@ const Event: EventFile = {
                     .catch(() => {});
             }
 
-            let optionsString = JSON.stringify(interaction.options["data"] || {});
-            if (optionsString.length > 1000) {
-                optionsString = optionsString.slice(0, 1000) + "... (truncated)";
-            }
-
-            commandLogsWebhook.send(
-                `🤖 | ${interaction.user.username} \`(${interaction.user.id})\` used \`/${
-                    interaction.commandName
-                }\` in guild ${interaction.guild?.name || "DMs"} \`(${
-                    interaction.guild?.id || "N/A"
-                })\` with options: \`\`\`${optionsString}\`\`\` _ _`,
-            ).catch(() => {});
-
-            if (command.category === "admin") {
-                specialLogsWebhook.send(
-                    `:warning: | ${interaction.user.username} \`(${
-                        interaction.user.id
-                    })\` used \`/${interaction.commandName}\` in guild ${
-                        interaction.guild?.name || "DMs"
-                    } \`(${interaction.guild?.id || "N/A"})\` with options: \`\`\`${optionsString}\`\`\` _ _`,
-                ).catch(() => {});
-            }
+            logCommandUsage(interaction, command);
         } else if (interaction.isAutocomplete()) {
-            if (
-                interaction.client.maintenanceReason &&
-                !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
-            )
-                return;
-            if (!interaction.client.allCommands) return;
-            const command = interaction.client.commands.get(interaction.commandName);
-            if (!command || !interaction.guild) return;
-
-            const userData = await interaction.client.database.getRPGUserData(interaction.user.id);
-            if (!userData) {
-                interaction.respond([]);
-                return;
-            }
-            if (
-                (await interaction.client.database.getCooldown(userData.id)) &&
-                command.data.name !== "trade"
-            ) {
-                interaction.respond([]);
-                return;
-            }
-            command.autoComplete(
-                interaction,
-                userData,
-                interaction.options.getFocused().toString(),
-            );
-            /*
-            commandLogsWebhook.send(
-                `[AUTOCOMPLETE] ${interaction.user.username} used ${
-                    interaction.commandName
-                } with options: ${JSON.stringify(interaction.options["data"])} (${command})`
-            );*/
+            await handleAutocomplete(interaction);
         }
     },
 };
