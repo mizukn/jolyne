@@ -8,15 +8,29 @@ import { pickOne } from "./random";
 import { isWeapon } from "./item_guards";
 import type { Stand, EvolutionStand, Weapon, Rarity } from "../@types";
 
-const totalStands: Stand[] = [
-    ...Object.values(Stands.Stands),
-    ...Object.values(Stands.EvolutionStands).map((x) => ({
-        ...x.evolutions[0],
-        id: x.id,
-    })),
-];
+// Computed lazily on first use. `Stands` and `EquipableItems` form an
+// import cycle through `Items/SpecialItems.ts`, so reading their values at
+// module-init time can yield empty namespaces depending on which side
+// of the cycle loaded first.
+let cachedStands: Stand[] | null = null;
+const getAllStands = (): Stand[] => {
+    if (cachedStands) return cachedStands;
+    cachedStands = [
+        ...Object.values(Stands.Stands),
+        ...Object.values(Stands.EvolutionStands).map((x) => ({
+            ...x.evolutions[0],
+            id: x.id,
+        })),
+    ];
+    return cachedStands;
+};
 
-const totalWeapons = Object.values(EquipableItems).filter((x) => isWeapon(x)) as Weapon[];
+let cachedWeapons: Weapon[] | null = null;
+const getAllWeapons = (): Weapon[] => {
+    if (cachedWeapons) return cachedWeapons;
+    cachedWeapons = Object.values(EquipableItems).filter((x) => isWeapon(x)) as Weapon[];
+    return cachedWeapons;
+};
 
 export const isEvolvableStand = (stand: Stand | EvolutionStand): boolean => {
     return (stand as EvolutionStand).evolutions !== undefined;
@@ -35,16 +49,14 @@ export const getStandEvolution = (stand: Stand): number => {
 export const getRandomStand = (
     includeRarity?: Rarity[],
 ): { stand: Stand; evolution: number } => {
-    const pool = includeRarity
-        ? totalStands.filter((x) => includeRarity.includes(x.rarity))
-        : totalStands;
+    const all = getAllStands();
+    const pool = includeRarity ? all.filter((x) => includeRarity.includes(x.rarity)) : all;
     const randomStand = pickOne(pool);
     return { stand: randomStand, evolution: getStandEvolution(randomStand) };
 };
 
 export const getRandomWeapon = (includeRarity?: Rarity[]): Weapon => {
-    const pool = includeRarity
-        ? totalWeapons.filter((x) => includeRarity.includes(x.rarity))
-        : totalWeapons;
+    const all = getAllWeapons();
+    const pool = includeRarity ? all.filter((x) => includeRarity.includes(x.rarity)) : all;
     return pickOne(pool);
 };
