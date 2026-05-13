@@ -396,7 +396,11 @@ const slashCommand: SlashCommandFile = {
                     status.message,
                     undefined,
                     (quest) => {
-                        const rowRewards = Functions.getDailyQuestRowRewards(quest, ctx);
+                        const boosted = !!(
+                            ctx.client.patreons.find((r) => r.id === ctx.userData.id) ||
+                            ctx.client.boosters.find((r) => r === ctx.userData.id)
+                        );
+                        const rowRewards = Functions.getDailyQuestRowRewards(quest, { boosted });
                         return `**x${rowRewards.coins.toLocaleString()}** ${ctx.client.localEmojis.jocoins}, **x${rowRewards.xp.toLocaleString()}** ${ctx.client.localEmojis.xp}`;
                     },
                 ).map(row => ({

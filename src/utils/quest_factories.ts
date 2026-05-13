@@ -9,6 +9,7 @@ import type {
     NPC,
     Quest,
     RaidNPCQuest,
+    RPGUserDataJSON,
     RPGUserEmail,
     RPGUserQuest,
     StartDungeonQuest,
@@ -17,10 +18,15 @@ import type {
     Quests,
 } from "../@types";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
-import { generateRandomId } from "./random";
+import { FightableNPCS } from "../rpg/NPCs";
+import { findStand } from "./lookup";
+import { getTrueLevel, isClaimXQuest } from "../services/UserService";
+import { getRewards } from "./rewards";
+import { chance, generateRandomId, pickOne, randomInt, shuffleInPlace } from "./random";
 import {
     isActionQuest,
     isBaseQuest,
+    isClaimItemQuest,
     isFightNPCQuest,
     isMustReadEmailQuest,
     isStartDungeonQuest,
@@ -242,4 +248,74 @@ export const generateWaitQuest = (
     if (!i18n_key) delete questData.i18n_key;
 
     return questData;
+};
+
+export const getDailyQuestRowRewards = (
+    quest: RPGUserQuest,
+    opts: { boosted: boolean },
+): { coins: number; xp: number } => {
+    let coins = 100;
+    let xp = 75;
+
+    if (isClaimItemQuest(quest) || isClaimXQuest(quest)) {
+        coins = quest.goal / 5;
+        xp = quest.goal / 15;
+    } else if (isFightNPCQuest(quest)) {
+        const npc = Object.values(FightableNPCS).find((r) => r.id === quest.npc);
+        if (npc) {
+            coins = (npc.level + 1) * 100;
+            xp = (npc.level + 1) * 10;
+        }
+    }
+
+    xp = Math.round(xp * 1.99);
+    if (opts.boosted) xp = Math.round(xp * 1.1);
+
+    return { coins: Math.round(coins), xp };
+};
+
+export const generateDailyQuests = (level: RPGUserDataJSON["level"]): RPGUserQuest[] => {
+    const quests: RPGUserQuest[] = [];
+    if (level > 200) level = 200;
+    if (level < 9) level = 9;
+
+    const npcs = shuffleInPlace(
+        Object.values(FightableNPCS).filter(
+            (npc) =>
+                getTrueLevel(npc) <= level &&
+                !npc.private &&
+                (npc.stand
+                    ? findStand(npc.stand, npc.standsEvolved[npc.stand])
+                        ? !findStand(npc.stand, npc.standsEvolved[npc.stand]).adminOnly
+                        : true
+                    : true),
+        ),
+    )
+        .slice(0, 15)
+        .sort((a, b) => b.level - a.level);
+
+    let tflv = level / 4;
+    if (tflv > 20) tflv = 20;
+    if (tflv < 5) tflv = 5;
+
+    for (let i = 0; i < tflv; i++) {
+        if (chance(80) || i < 5) {
+            quests.push(pushQuest(generateFightQuest(pickOne(npcs))));
+        }
+    }
+
+    if (level > 10 && chance(50)) {
+        quests.push(pushQuest(generateUseXCommandQuest("loot", randomInt(1, 5))));
+    }
+    if (level > 10 && chance(50)) {
+        quests.push(pushQuest(generateUseXCommandQuest("assault", randomInt(1, 5))));
+    }
+
+    if (level > 10) {
+        quests.push(
+            pushQuest(generateClaimXQuest("coin", Math.round(getRewards(level).coins * 2.5))),
+        );
+    }
+
+    return quests;
 };
