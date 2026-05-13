@@ -153,30 +153,17 @@ async function giveRewards(
                 if (realQuest.completed >= realQuest.total) {
                     continue;
                 }
-                if (realQuest.stage) {
-                    if (realQuest.stage && realQuest.stage > dungeon.stage) {
-                        accepted = false;
-                        console.log(
-                            `!!! Refused quest ${realQuest.id} because stage is lower than dungeon stage`
-                        );
-                    }
+                if (realQuest.stage && realQuest.stage > dungeon.stage) {
+                    accepted = false;
                 }
 
                 if (realQuest.modifiers) {
                     if (typeof realQuest.modifiers === "number") {
                         if (selectedModifiers.length < realQuest.modifiers) {
                             accepted = false;
-                            console.log(
-                                `!!! Refused quest ${realQuest.id} because not enough modifiers`
-                            );
                         }
-                    } else {
-                        if (!realQuest.modifiers.every((x) => selectedModifiers.includes(x))) {
-                            accepted = false;
-                            console.log(
-                                `!!! Refused quest ${realQuest.id} because not all modifiers are included`
-                            );
-                        }
+                    } else if (!realQuest.modifiers.every((x) => selectedModifiers.includes(x))) {
+                        accepted = false;
                     }
                 }
 
