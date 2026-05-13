@@ -67,7 +67,7 @@ const slashCommand: SlashCommandFile = {
         });
         sections.push({
             text: `### ⭐ Bonus Rewards\n> Every **2 votes**, you get a bonus **${dungeonEmoji} Dungeon Key**! ${ctx.userData.totalVotes % 2 === 0 ? "*(Next vote gives bonus)*" : "*(Earned on last vote)*"}`
-        })
+        });
 
         // Section 3: Status / Perks
         const cooldownPerkActive = hasVotedRecenty(cloneDeep(ctx.userData), ctx.client);

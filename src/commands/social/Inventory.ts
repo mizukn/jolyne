@@ -34,7 +34,7 @@ const itemTaxes = {
     C: 0.3,
 };
 
-export async function unequipInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, isButton: boolean = false): Promise<void> {
+export async function unequipInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, isButton = false): Promise<void> {
     const itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
     
     const respond = async (payload: any): Promise<void> => {
@@ -66,7 +66,7 @@ export async function unequipInventoryItem(ctx: CommandInteractionContext, itemS
     await respond(containers.success(`Unequipped ${itemData.emoji} **${itemData.name}**`));
 }
 
-export async function equipInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, isButton: boolean = false): Promise<void> {
+export async function equipInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, isButton = false): Promise<void> {
     let itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
     const amountX = 1;
 
@@ -127,7 +127,7 @@ export async function equipInventoryItem(ctx: CommandInteractionContext, itemStr
     await respond(containers.success(`[${formattedEquipableItemTypes[itemData.type]}] You equipped ${itemData.emoji} **${itemData.name}**`));
 }
 
-export async function useInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, amountArg?: number, isButton: boolean = false): Promise<void> {
+export async function useInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, amountArg?: number, isButton = false): Promise<void> {
     let itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
     const amountX = amountArg ?? ctx.interaction.options.getInteger("amount") ?? 1;
 
@@ -211,7 +211,7 @@ export async function useInventoryItem(ctx: CommandInteractionContext, itemStrin
     await respond(containers.success(`You used ${itemData.emoji} x${amountX} **${itemData.name}** and got: ${rewards || "nothing"}`));
 }
 
-export async function sellInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, amountArg?: number, isButton: boolean = false): Promise<void> {
+export async function sellInventoryItem(ctx: CommandInteractionContext, itemStringArg?: string, amountArg?: number, isButton = false): Promise<void> {
     const itemString = fixItemString(itemStringArg ?? ctx.interaction.options.getString("item", true));
     const amountX = amountArg ?? ctx.interaction.options.getInteger("amount") ?? 1;
     const left = ctx.userData.inventory[itemString] || 0;
