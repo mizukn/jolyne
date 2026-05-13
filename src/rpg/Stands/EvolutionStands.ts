@@ -542,7 +542,7 @@ export const TheWorld: EvolutionStand = {
                 speed: 25,
                 stamina: 25,
             },
-            color: 0xffff00,
+            color: 0xfde65f,
             available: false,
         },
     ],
