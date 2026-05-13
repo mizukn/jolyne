@@ -99,13 +99,16 @@ export async function giveRewards(
     if ((userData.inventory["dungeon_key"] ?? 0) < 1) {
         const ownerId = process.env.OWNER_IDS?.split(",")[0];
         if (ownerId)
-            ctx.client.users.fetch(ownerId).then((c) => {
-                c.send(
-                    `**${ctx.userData.tag}** (${ctx.userData.id}) with players (${newPlayers
-                        .map((x) => x.id)
-                        .join(", ")}) has tried to scam the dungeon system.`,
-                );
-            });
+            ctx.client.users
+                .fetch(ownerId)
+                .then((c) => {
+                    c.send(
+                        `**${ctx.userData.tag}** (${ctx.userData.id}) with players (${newPlayers
+                            .map((x) => x.id)
+                            .join(", ")}) has tried to scam the dungeon system.`,
+                    ).catch(() => undefined);
+                })
+                .catch(() => undefined);
         return void ctx.makeMessage(
             containers.error(
                 karsLine("Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]"),
@@ -192,7 +195,7 @@ export async function giveRewards(
                     realQuest.completed++;
                     ctx.followUp({
                         content: `:white_check_mark: <@${player.id}> Your DungeonQUEST has been completed (\`${realQuest.id}\`)`,
-                    });
+                    }).catch(() => undefined);
                 }
             }
         }
@@ -371,5 +374,12 @@ export async function giveRewards(
             },
         ],
         files: [attachment],
+    }).catch((error) => {
+        ctx.client.log(
+            `Dungeon log webhook failed: ${
+                error instanceof Error ? error.stack ?? error.message : String(error)
+            }`,
+            "error",
+        );
     });
 }
