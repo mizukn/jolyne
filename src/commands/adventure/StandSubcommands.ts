@@ -4,7 +4,8 @@ import {
     MessageComponentInteraction,
     EmbedBuilder,
     AttachmentBuilder,
-    APIEmbed,
+    ActionRowBuilder,
+    MessageActionRowComponentBuilder
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -14,8 +15,9 @@ import { ButtonStyle } from "discord.js";
 import * as Stands from "../../rpg/Stands/Stands";
 import * as EvolvableStands from "../../rpg/Stands/EvolutionStands";
 
-import { fixFields, isEvolvableStand } from "../../utils/Functions";
+import { isEvolvableStand } from "../../utils/Functions";
 import { cloneDeep } from "lodash";
+import { containers, COLORS, SectionData } from "../../utils/containers";
 
 const regularStandList = Object.values(Stands);
 const evolvableStandList = Object.values(EvolvableStands);
@@ -166,87 +168,34 @@ const slashCommand: SlashCommandFile = {
                         .filter((w) => w.evolutions[0].rarity === "T")
                         .map((w) => w.evolutions[0]),
                 ];
-                const evolvableStands = evolvableStandList.map((w) => {
-                    // return everything except for the first evolution (which is the base stand)
-                    return w.evolutions.slice(1);
-                });
+                const evolvableStands = evolvableStandList.map((w) => w.evolutions.slice(1));
 
-                const embed: APIEmbed = {
-                    title: "Stands",
-                    description:
-                        "Please note that this list is sorted by rarity & alphabetically, so for example if Star Platinum is above The World, it doesn't mean that Star Platinum is better than The World.",
-                    fields: fixFields([
-                        {
-                            name: `T Stands (event/limited) [${Tstands.length}]:`,
-                            value: Tstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
-                        },
-                        {
-                            name: `SS Stands [${SSstands.length}]:`,
-                            value: SSstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
-                        },
-                        {
-                            name: `S Stands [${Sstands.length}]:`,
-                            value: Sstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
-                        },
-                        {
-                            name: `A Stands [${Astands.length}]:`,
-                            value: Astands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
-                        },
-                        {
-                            name: `B Stands [${Bstands.length}]:`,
-                            value: Bstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
-                        },
-                        {
-                            name: `C Stands [${Cstands.length}]:`,
-                            value: Cstands.map((w) => `- ${w.emoji} ${w.name}`).join("\n"),
-                        },
-                        {
-                            name: `Evolvable Stands [${evolvableStands.flat().length}] [S/SS]:`,
-                            /*value: evolvableStands
-                                .flat()
-                                .map((w) => {
-                                    // FIND BASE STAND
-                                    const baseStand = Object.values(EvolvableStands)
-                                        .filter((k) => {
-                                            return k.evolutions.find((m) => m.name === w.name);
-                                        })
-                                        .filter((k) => k)[0].evolutions[0];
-                                    return `- ${baseStand.emoji} ${baseStand.name} ${ctx.client.localEmojis.arrowRight} ${w.emoji} ${w.name}`;
-                                })
-                                .join("\n"),*/
-                            // this is bad because it will do something like:
-                            /*
-                                :echoes_1: Echoes Act 1 :arrowRight: :echoes_2: Echoes Act 2
-:echoes_1: Echoes Act 1 :arrowRight: :echoes_3: Echoes Act 3*/
-                            // instead of:
-                            /*
-:echoes_1: Echoes Act 1 :arrowRight: :echoes_2: Echoes Act 2
-:echoes_2: Echoes Act 2 :arrowRight: :echoes_3: Echoes Act 3
-*/
-                            value: evolvableStands
-                                .flat()
-                                .map((w) => {
-                                    const baseStand = Object.values(EvolvableStands)
-                                        .filter((k) => {
-                                            return k.evolutions.find((m) => m.name === w.name);
-                                        })
-                                        .filter((k) => k)[0];
-                                    const currentStand = baseStand.evolutions.find(
-                                        (k) => k.name === w.name
-                                    );
-                                    const previous = baseStand.evolutions.indexOf(currentStand) - 1;
+                const sections: SectionData[] = [
+                    { text: `### 🌟 T Stands (event/limited) [${Tstands.length}]\n${Tstands.map((w) => `> ${w.emoji} ${w.name}`).join("\n")}` },
+                    { text: `### 🔴 SS Stands [${SSstands.length}]\n${SSstands.map((w) => `> ${w.emoji} ${w.name}`).join("\n")}` },
+                    { text: `### 🔵 S Stands [${Sstands.length}]\n${Sstands.map((w) => `> ${w.emoji} ${w.name}`).join("\n")}` },
+                    { text: `### 🟢 A Stands [${Astands.length}]\n${Astands.map((w) => `> ${w.emoji} ${w.name}`).join("\n")}` },
+                    { text: `### 🟡 B Stands [${Bstands.length}]\n${Bstands.map((w) => `> ${w.emoji} ${w.name}`).join("\n")}` },
+                    { text: `### ⚪ C Stands [${Cstands.length}]\n${Cstands.map((w) => `> ${w.emoji} ${w.name}`).join("\n")}` },
+                    { 
+                        text: `### ✨ Evolvable Stands [${evolvableStands.flat().length}] [S/SS]\n${evolvableStands.flat().map((w) => {
+                            const baseStand = Object.values(EvolvableStands)
+                                .filter((k) => k.evolutions.find((m) => m.name === w.name))[0];
+                            const currentStand = baseStand.evolutions.find((k) => k.name === w.name)!;
+                            const previous = baseStand.evolutions.indexOf(currentStand) - 1;
+                            return `> ${baseStand.evolutions[previous].emoji} ${baseStand.evolutions[previous].name} ${ctx.client.localEmojis.arrowRight} ${w.emoji} ${w.name}`;
+                        }).join("\n")}`
+                    }
+                ];
 
-                                    return `- ${baseStand.evolutions[previous].emoji} ${baseStand.evolutions[previous].name} ${ctx.client.localEmojis.arrowRight} ${w.emoji} ${w.name}`;
-                                })
-                                .join("\n"),
-                        },
-                    ]),
-                    color: 0x70926c,
-                };
-
-                await ctx.makeMessage({
-                    embeds: [embed],
-                });
+                await ctx.makeMessage(containers.primary({
+                    title: "📜 Stands List",
+                    description: "Sorted by rarity and alphabetically. A stand appearing higher doesn't necessarily mean it is better.",
+                    descriptionDivider: true,
+                    sections,
+                    sectionDividers: true,
+                    color: 0x70926c
+                }));
                 break;
             }
             case "view":
@@ -262,72 +211,72 @@ const slashCommand: SlashCommandFile = {
                     ctx.sendTranslated("base:NO_STAND");
                     return;
                 }
-                const standCartBuffer = await Functions.generateStandCart(
-                    choice
-                        ? Functions.findStand(
-                              choice.split("\\")[0],
-                              choice.includes("\\") ? parseInt(choice.split("\\")[1]) : null
-                          )
-                        : Functions.getCurrentStand(ctx.userData)
-                );
+                const standCartBuffer = await Functions.generateStandCart(stand);
                 const file = new AttachmentBuilder(standCartBuffer, { name: "stand.png" });
 
                 let color: number;
-
                 switch (stand.rarity) {
-                    case "SS":
-                        color = 0xff0000;
-                        break;
-                    case "S":
-                        color = 0x2b82ab;
-                        break;
-                    case "A":
-                        color = 0x3b8c4b;
-                        break;
-                    case "B":
-                        color = 0x786d23;
-                        break;
-                    default:
-                        color = stand.color;
+                    case "SS": color = 0xff0000; break;
+                    case "S": color = 0x2b82ab; break;
+                    case "A": color = 0x3b8c4b; break;
+                    case "B": color = 0x786d23; break;
+                    default: color = stand.color || COLORS.primary;
                 }
 
-                const embed: EmbedBuilder = new EmbedBuilder()
-                    .setTitle(stand.name)
-                    .setImage("attachment://stand.png")
-                    .setColor(color).setDescription(`**Rarity:** ${stand.rarity}
-            **Abilities [${stand.abilities.length}]:** ${stand.abilities
-                    .map((v) => v.name)
-                    .join(", ")}
-            **Skill-Points:** +${Functions.calculateArrayValues(
-                Object.keys(stand.skillPoints).map(
-                    (v) => stand.skillPoints[v as keyof typeof stand.skillPoints]
-                )
-            )}:
-            ${Object.keys(stand.skillPoints)
-                .map(
-                    (v) =>
-                        "  • +" + stand.skillPoints[v as keyof typeof stand.skillPoints] + " " + v
-                )
-                .join("\n")}
-            `);
-                sendStandPage(stand, ctx.userData);
-                const filter = (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                    return i.customId === switchID && i.user.id === ctx.user.id;
-                };
-                const collector = ctx.interaction.channel.createMessageComponentCollector({
-                    filter,
-                });
-                let status = 0;
-                collector.on("collect", (i: MessageComponentInteraction) => {
-                    if (status % 2 === 0) {
-                        ctx.makeMessage({
-                            files: [file],
-                            embeds: [embed],
+                function getStandReply(showCard: boolean) {
+                    if (showCard) {
+                        const reply = containers.primary({
+                            title: `${stand.emoji} ${stand.name}`,
+                            description: `**Rarity:** ${stand.rarity}\n${stand.description}`,
+                            color
                         });
-                    } else {
-                        sendStandPage(stand, ctx.userData);
+                        reply.components.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(switchBTN));
+                        return { ...reply, files: [file] };
                     }
+
+                    const sections: SectionData[] = [];
+                    for (const ability of stand.abilities) {
+                        const damage = Functions.getAbilityDamage(ctx.userData, ability);
+                        const displayDamage = damage === 0
+                            ? (ability.trueDamage ? Math.round(Functions.getAttackDamages(ctx.userData) * (1 + ability.trueDamage / 100)) : "???")
+                            : damage.toLocaleString();
+                        
+                        const dodge = ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable";
+
+                        sections.push({
+                            text: `### ${ability.special ? "⭐ " : ""}${ability.name}\n> *${ability.description.replace(/{standName}/gi, stand.name)}*\n> 💥 **Damages:** ${displayDamage}\n> 🔋 **Stamina Cost:** ${ability.stamina}\n> ⏳ **Cooldown:** ${ability.cooldown} turns\n> 🍃 **Dodge Score:** ${dodge}`
+                        });
+                    }
+
+                    const totalSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
+                    if (totalSkillPoints > 0) {
+                        const spText = Object.entries(stand.skillPoints).map(([k, v]) => `> • +${v} ${k}`).join("\n");
+                        sections.push({ text: `### 📈 Bonuses (+${totalSkillPoints} Skill-Points)\n${spText}` });
+                    }
+
+                    const reply = containers.primary({
+                        title: `# ${stand.emoji} ${stand.name}`,
+                        description: stand.description,
+                        descriptionDivider: true,
+                        sections,
+                        sectionDividers: true,
+                        color: showCard ? color : stand.color,
+                        image: stand.image,
+                        footer: `Rarity: ${stand.rarity}`
+                    });
+                    reply.components.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(switchBTN));
+                    return { ...reply, files: [] }; // Don't send file on abilities page to save bandwidth
+                }
+
+                await ctx.makeMessage(getStandReply(false));
+                const msg = await ctx.interaction.fetchReply();
+
+                const filter = (i: MessageComponentInteraction) => i.customId === switchID && i.user.id === ctx.user.id;
+                const collector = msg.createMessageComponentCollector({ filter, time: 120000 });
+                let status = 1;
+                
+                collector.on("collect", async (i) => {
+                    await i.update(getStandReply(status % 2 === 0));
                     status++;
                 });
                 break;
@@ -340,335 +289,183 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 const limit = Functions.calcStandDiscLimit(ctx);
-
                 if (Functions.hasExceedStandLimit(ctx, undefined, false)) {
-                    ctx.makeMessage({
-                        content: `Unfortunately, you can't store more than **${limit}** stand discs in your inventory. This limit may increase the more S tier stands we add to the game. [Patreon members](https://patreon.com/mizuki54) have a higher limit btw.`,
-                    });
+                    await ctx.makeMessage(containers.error(`You can't store more than **${limit}** stand discs in your inventory.\n[Patreon members](https://patreon.com/mizuki54) have a higher limit.`));
                     return;
                 }
 
-                /* -- FUTURE UPD
-                if (userData.items.filter(i => i.includes('disk')).length >= Util.getStandDiscLimit(ctx)) {
-                    if (ctx.client.patreons.find(v => v.id === ctx.author.id)) {
-                        return ctx.sendT('base:STAND_DISK_LIMIT_PATREON', {
-                            limit: Util.getStandDiscLimit(ctx)
-                        });
-                    } else return ctx.sendT('base:STAND_DISK_LIMIT', {
-                        limit: Util.getStandDiscLimit(ctx)
-                    });
-                }*/
-
+                const cost = Functions.standPrices[stand.rarity];
                 await ctx.makeMessage({
-                    content: `<:Pucci:929295630885593148> **Pucci:** So you want to remove your stand's disc and store it into your inventory... Since your stand's rarity is **${
-                        stand.rarity
-                    }**, it'll cost you **${Functions.standPrices[stand.rarity].toLocaleString(
-                        "en-US"
-                    )}** <:jocoins:927974784187392061>. Are you sure ? `,
-                    components: [Functions.actionRow([confirmBTN, cancelBTN])],
+                    ...containers.warning(`${Functions.makeNPCString(NPCs.Pucci, `So you want to store your stand's disc... Since its rarity is **${stand.rarity}**, it will cost you **${cost.toLocaleString("en-US")}** ${ctx.client.localEmojis.jocoins}. Are you sure?`)}`),
+                    components: [new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(confirmBTN, cancelBTN)]
                 });
-                const filter = (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                    return (
-                        (i.customId === confirmID || i.customId === cancelID) &&
-                        i.user.id === ctx.user.id
-                    );
-                };
-                const collector = ctx.interaction.channel.createMessageComponentCollector({
-                    filter,
-                });
-                collector.on("collect", async (i: MessageComponentInteraction) => {
+                
+                const msg = await ctx.interaction.fetchReply();
+                const filter = (i: MessageComponentInteraction) => (i.customId === confirmID || i.customId === cancelID) && i.user.id === ctx.user.id;
+                const collector = msg.createMessageComponentCollector({ filter, time: 60000 });
+
+                collector.on("collect", async (i) => {
                     if (await ctx.antiCheat(true)) {
                         collector.stop();
                         return;
                     }
+                    if (i.customId === cancelID) {
+                        await i.update({ ...containers.error("Action cancelled."), components: [] });
+                        collector.stop();
+                        return;
+                    }
+
                     const oldData = cloneDeep(ctx.userData);
-                    if (i.customId === confirmID) {
-                        collector.stop("DONT_DISABLE_COMPONENTS");
-                        if (ctx.userData.coins < Functions.standPrices[stand.rarity]) {
-                            ctx.sendTranslated("base:NOT_ENOUGH_COINS", {
-                                components: [],
-                            });
-                            return;
-                        }
-                        Functions.addCoins(ctx.userData, -Functions.standPrices[stand.rarity]);
-                        ctx.userData.stand = null;
-                        const status = Functions.addItem(
-                            ctx.userData,
-                            Functions.findItem(stand.id + ".$disc$"),
-                            1,
-                            true,
-                            ctx
-                        );
-                        const transaction = await ctx.client.database.handleTransaction(
-                            [
-                                {
-                                    oldData,
-                                    newData: ctx.userData,
-                                },
-                            ],
-                            `Stored stand: ${stand.name}`,
-                            [status]
-                        );
-                        if (!transaction) {
-                            return void ctx.makeMessage({
-                                content: `An error occurred while storing your stand's disc. Perhaps this stand is limited and you exceeded the limit?\n\nIf the stand you are trying to store is a limited stand, you'll be able to store it once the event ends. If that's not the case, please [contact us](https://discord.gg/jolyne-support-923608916540145694)\nAlternatively, if you don't care about your current stand, consider using the ${ctx.client.getSlashCommandMention(
-                                    "stand erase"
-                                )} command instead.`,
-                                components: [],
-                                embeds: [],
-                            });
-                        }
-                        //ctx.client.database.saveUserData(ctx.userData);
-                        ctx.sendTranslated("base:YOUR_STAND_DISC_HAS_BEEN_STORED", {
-                            components: [],
-                            stand: stand,
-                            //command: ctx.client.getSlashCommandMention("item use"),
-                        });
-                    } else collector.stop();
+                    if (ctx.userData.coins < cost) {
+                        await i.update({ ...containers.error(ctx.translate("base:NOT_ENOUGH_COINS")), components: [] });
+                        collector.stop();
+                        return;
+                    }
+                    
+                    Functions.addCoins(ctx.userData, -cost);
+                    ctx.userData.stand = null;
+                    const status = Functions.addItem(ctx.userData, Functions.findItem(stand.id + ".$disc$"), 1, true, ctx);
+                    
+                    const transaction = await ctx.client.database.handleTransaction([{ oldData, newData: ctx.userData }], `Stored stand: ${stand.name}`, [status]);
+                    if (!transaction) {
+                        await i.update({ ...containers.error("An error occurred while storing your stand's disc. The limit may have been exceeded."), components: [] });
+                    } else {
+                        await i.update({ ...containers.success(`Your stand's disc (**${stand.name}**) has been successfully stored in your inventory.`), components: [] });
+                    }
+                    collector.stop();
                 });
                 break;
             }
             case "erase":
             case "delete": {
                 if (ctx.userData.chapter.id === 1) {
-                    ctx.interaction.reply({
-                        content:
-                            "You can't do that right now. Use that command once you complete the Chapter I (`/story`)",
-                    });
+                    await ctx.makeMessage(containers.error("You can't do that right now. Complete Chapter I first."));
                     return;
                 }
 
-                if (!ctx.userData.stand) {
+                const stand = Functions.getCurrentStand(ctx.userData);
+                if (!stand) {
                     ctx.sendTranslated("base:NO_STAND");
                     return;
                 }
-                const stand = Functions.getCurrentStand(ctx.userData);
                 const price = 1000;
 
                 await ctx.makeMessage({
-                    content: `${Functions.makeNPCString(
-                        NPCs.Pucci,
-                        `It'll cost you **${price.toLocaleString()}** ${
-                            ctx.client.localEmojis.jocoins
-                        } to reset your stand (${stand.name}). Are you sure?`
-                    )}`,
-                    components: [Functions.actionRow([confirmBTN, cancelBTN])],
+                    ...containers.warning(`${Functions.makeNPCString(NPCs.Pucci, `It will cost you **${price.toLocaleString()}** ${ctx.client.localEmojis.jocoins} to reset your stand (${stand.name}). Are you sure?`)}`),
+                    components: [new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(confirmBTN, cancelBTN)]
                 });
-                const filter = (i: MessageComponentInteraction) => {
-                    i.deferUpdate().catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                    return (
-                        (i.customId === confirmID || i.customId === cancelID) &&
-                        i.user.id === ctx.user.id
-                    );
-                };
-                const collector = ctx.interaction.channel.createMessageComponentCollector({
-                    filter,
-                });
-                collector.on("collect", async (i: MessageComponentInteraction) => {
+
+                const msg = await ctx.interaction.fetchReply();
+                const filter = (i: MessageComponentInteraction) => (i.customId === confirmID || i.customId === cancelID) && i.user.id === ctx.user.id;
+                const collector = msg.createMessageComponentCollector({ filter, time: 60000 });
+
+                collector.on("collect", async (i) => {
                     if (await ctx.antiCheat(true)) {
                         collector.stop();
                         return;
                     }
-                    if (i.customId === confirmID) {
-                        collector.stop("DONT_DISABLE_COMPONENTS");
-                        if (ctx.userData.coins < price) {
-                            ctx.sendTranslated("base:NOT_ENOUGH_COINS", {
-                                components: [],
-                            });
-                            return;
-                        }
-                        Functions.addCoins(ctx.userData, -price);
-                        ctx.sendTranslated("base:YOUR_STAND_HAS_BEEN_RESET", {
-                            components: [],
-                            stand: stand,
-                        });
+                    if (i.customId === cancelID) {
+                        await i.update({ ...containers.error("Action cancelled."), components: [] });
+                        collector.stop();
+                        return;
+                    }
 
-                        ctx.userData.stand = null;
-                        ctx.client.database.saveUserData(ctx.userData);
-                    } else collector.stop();
+                    const oldData = cloneDeep(ctx.userData);
+                    if (ctx.userData.coins < price) {
+                        await i.update({ ...containers.error(ctx.translate("base:NOT_ENOUGH_COINS")), components: [] });
+                        collector.stop();
+                        return;
+                    }
+                    
+                    Functions.addCoins(ctx.userData, -price);
+                    ctx.userData.stand = null;
+                    
+                    const transaction = await ctx.client.database.handleTransaction([{ oldData, newData: ctx.userData }], `Reset stand: ${stand.name}`);
+                    if (!transaction) {
+                        await i.update({ ...containers.error("An error occurred while resetting your stand."), components: [] });
+                    } else {
+                        await i.update({ ...containers.success(`Your stand (**${stand.name}**) has been successfully erased.`), components: [] });
+                    }
+                    collector.stop();
                 });
                 break;
             }
             case "evolve":
             case "set-evolution": {
-                const evolution = ctx.interaction.options.getString("evolution", true)
-                    ? parseInt(ctx.interaction.options.getString("evolution", true))
-                    : 0;
-                if (isNaN(evolution) || evolution < 0 || evolution === undefined) {
-                    ctx.makeMessage({
-                        content: `:interrobang: Please provide a valid evolution number!`,
-                    });
+                const evolutionStr = ctx.interaction.options.getString("evolution", true);
+                const evolution = evolutionStr ? parseInt(evolutionStr) : 0;
+                
+                if (isNaN(evolution) || evolution < 0) {
+                    await ctx.makeMessage(containers.error("Please provide a valid evolution number!"));
                     return;
                 }
-                const stand = Object.values(EvolvableStands).find(
-                    (v) => v.id === ctx.userData.stand
-                );
+                
+                const stand = Object.values(EvolvableStands).find((v) => v.id === ctx.userData.stand);
                 if (!stand) {
-                    ctx.makeMessage({
-                        content: `:interrobang: Your stand isn't even evolvable...\n\nThe only stands that can be evolved are the following:\n${Object.values(
-                            EvolvableStands
-                        )
-                            .map(
-                                (v, i) =>
-                                    `${i + 1}. ${v.evolutions[0].emoji} **${v.evolutions[0].name}**`
-                            )
-                            .join("\n")}`,
-                    });
+                    await ctx.makeMessage(containers.error(`Your stand isn't evolvable. Only the following can be evolved:\n${Object.values(EvolvableStands).map((v, i) => `${i + 1}. ${v.evolutions[0].emoji} **${v.evolutions[0].name}**`).join("\n")}`));
                     return;
                 }
-                if (stand.evolutions.length < evolution) {
-                    ctx.makeMessage({
-                        content: Functions.makeNPCString(
-                            NPCs.Pucci,
-                            `You can't set your stand to an evolution that doesn't exist!`
-                        ),
-                    });
+                
+                if (stand.evolutions.length <= evolution) { // evolution is 0-indexed in array but user sees it as 1-based? Actually, 0 is base stand.
+                    await ctx.makeMessage(containers.error(Functions.makeNPCString(NPCs.Pucci, "You can't set your stand to an evolution that doesn't exist!")));
                     return;
                 }
 
-                if (
-                    evolution > (ctx.userData.standsEvolved[ctx.userData.stand] ?? 0) ||
-                    evolution < 0
-                ) {
-                    ctx.makeMessage({
-                        content: Functions.makeNPCString(
-                            NPCs.Pucci,
-                            `You can't set your stand to an evolution you haven't unlocked yet!`
-                        ),
-                    });
+                if (evolution > (ctx.userData.standsEvolved[ctx.userData.stand] ?? 0)) {
+                    await ctx.makeMessage(containers.error(Functions.makeNPCString(NPCs.Pucci, "You haven't unlocked this evolution yet!")));
                     return;
                 }
+
+                const oldData = cloneDeep(ctx.userData);
                 if (evolution === ctx.userData.standsEvolved[ctx.userData.stand]) {
                     delete ctx.userData.customStandsEvolved[ctx.userData.stand];
                 } else {
-                    ctx.userData.customStandsEvolved[ctx.userData.stand] = {
-                        active: true,
-                        evolution: evolution,
-                    };
+                    ctx.userData.customStandsEvolved[ctx.userData.stand] = { active: true, evolution };
                 }
+                
                 const currentStand = Functions.getCurrentStand(ctx.userData);
-                ctx.client.database.saveUserData(ctx.userData);
-
-                ctx.makeMessage({
-                    content: `${currentStand.emoji} | You have successfully set your stand to **${currentStand.name}**!`,
-                });
+                const transaction = await ctx.client.database.handleTransaction([{ oldData, newData: ctx.userData }], `Set stand evolution: ${currentStand.name}`);
+                
+                if (!transaction) {
+                    await ctx.makeMessage(containers.error("Failed to set evolution."));
+                } else {
+                    await ctx.makeMessage(containers.success(`You have successfully set your stand to **${currentStand.name}**!`));
+                }
                 break;
             }
         }
-
-        function sendStandPage(stand: Stand, userData: RPGUserDataJSON): Promise<Message<boolean>> {
-            const fields: Array<{
-                name: string;
-                value: string;
-                inline?: boolean;
-            }> = [];
-
-            for (const ability of stand.abilities) {
-                const damage: number = Functions.getAbilityDamage(userData, ability);
-                fields.push({
-                    name: `${ability.special ? "⭐" : ""}${ability.name}`,
-                    inline: ability.special ? false : true,
-                    value: `**\`Damages:\`** ${
-                        damage === 0
-                            ? ability.trueDamage
-                                ? Math.round(
-                                      Functions.getAttackDamages(userData) *
-                                          (1 + ability.trueDamage / 100)
-                                  )
-                                : "???"
-                            : damage
-                    }
-**\`Stamina Cost:\`** ${ability.stamina}
-**\`Cooldown:\`** ${ability.cooldown} turns
-**\`Dodge score:\`** ${
-                        !ability.dodgeScore
-                            ? ability.trueDodgeScore ?? "not dodgeable"
-                            : ability.dodgeScore
-                    }
-                            
-*${ability.description.replace(/{standName}/gi, stand.name)}*
-${ability.special ? "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" : "▬▬▬▬▬▬▬▬▬"}`,
-                });
-            }
-            const embed = new EmbedBuilder()
-                .setAuthor({ name: stand.name, iconURL: stand.image })
-                .addFields(fields)
-                .setDescription(
-                    stand.description +
-                        "\n" +
-                        `
- **BONUSES:** +${Object.keys(stand.skillPoints)
-     .map((v) => stand.skillPoints[v as keyof typeof stand.skillPoints])
-     .reduce((a, b) => a + b, 0)} Skill-Points:
-${Object.keys(stand.skillPoints)
-    .map((r) => `  • +${stand.skillPoints[r as keyof typeof stand.skillPoints]} ${r}`)
-    .join("\n")}
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-        `
-                )
-                .setFooter({ text: `Rarity: ${stand.rarity}` })
-                .setColor(stand.color)
-                .setThumbnail(stand.image);
-            ctx.makeMessage({
-                embeds: [Functions.standAbilitiesEmbed(userData, null, stand)],
-                files: [],
-                components: [Functions.actionRow([switchBTN])],
-            });
-            return;
-        }
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
-        const toRespond: {
-            name: string;
-            value: string;
-        }[] = [];
+        const toRespond: { name: string; value: string; }[] = [];
 
-        if (
-            interaction.options.getSubcommand() === "set-evolution" ||
-            interaction.options.getSubcommand() === "evolve"
-        ) {
-            const loop = userData.standsEvolved[userData.stand]
-                ? userData.standsEvolved[userData.stand]
-                : 0;
-            if (loop !== 0)
+        if (interaction.options.getSubcommand() === "set-evolution" || interaction.options.getSubcommand() === "evolve") {
+            const loop = userData.standsEvolved[userData.stand] || 0;
+            if (loop !== 0) {
                 for (let i = 0; i <= loop; i++) {
-                    console.log(i);
                     const stand = Functions.findStand(userData.stand, i);
                     if (!stand) continue;
                     if (stand.name.toLowerCase().includes(currentInput.toLowerCase())) {
-                        toRespond.push({
-                            name: stand.name,
-                            value: String(i),
-                        });
+                        toRespond.push({ name: stand.name, value: String(i) });
                     }
                 }
+            }
         } else {
             const totalStands: Stand[] = Object.values(Stands);
             for (const stand of Object.values(EvolvableStands)) {
-                const baseStand = stand.evolutions[0];
-                const rest = stand.evolutions.slice(1);
-
-                totalStands.push({ ...baseStand, id: stand.id });
-
-                for (let i = 0; i < rest.length; i++) {
-                    const evolution = rest[i];
-                    totalStands.push({ ...evolution, id: stand.id + `\\${i + 1}` });
+                totalStands.push({ ...stand.evolutions[0], id: stand.id });
+                for (let i = 0; i < stand.evolutions.slice(1).length; i++) {
+                    totalStands.push({ ...stand.evolutions.slice(1)[i], id: stand.id + `\\${i + 1}` });
                 }
             }
 
             for (const stand of totalStands) {
                 if (stand.name.toLowerCase().includes(currentInput.toLowerCase())) {
-                    toRespond.push({
-                        name: stand.name,
-                        value: stand.id,
-                    });
+                    toRespond.push({ name: stand.name, value: stand.id });
                 }
             }
         }
 
         toRespond.length = Math.min(toRespond.length, 25);
-
         interaction.respond(toRespond);
     },
 };
