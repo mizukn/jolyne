@@ -1,4 +1,4 @@
-import type { EventFile, RPGUserQuest } from "../@types";
+import type { EventFile } from "../@types";
 import {
     Events,
     Interaction,
@@ -21,6 +21,7 @@ import { maintenanceMiddleware } from "../middlewares/maintenance";
 import { permissionsMiddleware } from "../middlewares/permissions";
 import { restingAtCampfireMiddleware } from "../middlewares/restingAtCampfire";
 import { patreonRewardsMiddleware } from "../middlewares/patreonRewards";
+import { questDeduplicationMiddleware } from "../middlewares/questDeduplication";
 import { questEffectsMiddleware } from "../middlewares/questEffects";
 import { rpgCooldownMiddleware } from "../middlewares/rpgCooldown";
 import { seasonalEmailsMiddleware } from "../middlewares/seasonalEmails";
@@ -30,14 +31,6 @@ import { userDataFixupsMiddleware } from "../middlewares/userDataFixups";
 import { userDataMiddleware } from "../middlewares/userData";
 import { userStateNotificationsMiddleware } from "../middlewares/userStateNotifications";
 import type { MiddlewareInput } from "../middlewares/types";
-
-function returnUniqueQuests(quests: RPGUserQuest[]): RPGUserQuest[] {
-    const fixedQuests: RPGUserQuest[] = [];
-    for (const quest of quests) {
-        if (!fixedQuests.find((r) => r.id === quest.id)) fixedQuests.push(quest);
-    }
-    return fixedQuests;
-}
 
 const Event: EventFile = {
     name: Events.InteractionCreate,
@@ -81,16 +74,7 @@ const Event: EventFile = {
                 const notifications: string[] = (pipeline.notifications ??= []);
                 const oldDataJSON = JSON.stringify(ctx.userData);
 
-                // quests must be unique
-                ctx.userData.chapter.quests = returnUniqueQuests(ctx.userData.chapter.quests);
-                ctx.userData.daily.quests = returnUniqueQuests(ctx.userData.daily.quests);
-                ctx.userData.sideQuests = ctx.userData.sideQuests.filter(
-                    (x) => x && x.quests?.length > 0,
-                );
-                for (const sideQuest of ctx.userData.sideQuests) {
-                    sideQuest.quests = returnUniqueQuests(sideQuest.quests);
-                }
-
+                if (await runStep(pipeline, questDeduplicationMiddleware)) return;
                 if (await runStep(pipeline, seasonalEmailsMiddleware)) return;
                 if (await runStep(pipeline, patreonRewardsMiddleware)) return;
                 if (await runStep(pipeline, sideQuestEnrollmentMiddleware)) return;
