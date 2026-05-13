@@ -134,23 +134,7 @@ export { findQuest };
 
 export { findEmail };
 
-export const editNPCLevel = (npc: NPC, level: number): NPC | FightableNPC => {
-    const newNPC = JSON.parse(JSON.stringify({ ...npc })) as FightableNPC;
-    newNPC.level = level;
-    generateSkillPoints(newNPC);
-    /*newNPC.rewards.xp = 50;
-    newNPC.rewards.coins = 50;
-    newNPC.rewards.xp += getMaxXp(newNPC .level) / 700;
-    newNPC.rewards.coins += getMaxXp(newNPC.level) / 5000;
-
-    newNPC.rewards.xp += newNPC.level * 225;
-    newNPC.rewards.coins += newNPC.level * 0.65;
-
-    newNPC.rewards.xp = Math.round(newNPC.rewards.xp) * 3;
-    newNPC.rewards.coins = Math.round(newNPC.rewards.coins) * 15;*/
-
-    return newNPC;
-};
+export { editNPCLevel } from "./npc";
 export {
     generateActionQuest,
     generateAnswerChineseNewYearQuizQuest,
@@ -999,46 +983,7 @@ InventoryService.configureInventoryService({
         Object.values(Stands.Stands).filter((x) => x.rarity === rarity).length,
 });
 
-const Multiplier = {
-    SS: 1.65,
-    S: 1.45,
-    A: 1.2,
-    B: 1.1,
-    C: 1.05,
-    T: 1.35,
-};
-
-export function fixNpcRewards(npc: FightableNPC): void {
-    if (!npc.rewards) npc.rewards = {};
-    const baseXp = 5000 + npc.level * 750 + getMaxXp(npc.level) * 0.005;
-    let multiplier = 1;
-    if (findStand(npc.stand, npc.standsEvolved[npc.stand])) {
-        multiplier = Multiplier[findStand(npc.stand, npc.standsEvolved[npc.stand]).rarity];
-    }
-    // weapons are stored on equippedItems.X = 6
-    for (const type of Object.values(npc.equippedItems)) {
-        if (type === 6) {
-            const weapon = findItem(
-                Object.keys(npc.equippedItems).find((x) => npc.equippedItems[x] === 6),
-            ) as Weapon;
-
-            if (weapon) {
-                multiplier *= Multiplier[weapon.rarity];
-            }
-        }
-    }
-
-    npc.rewards.xp = Math.round(baseXp * multiplier);
-    /**
-     * Coins formula:
-     * 1000 +
-     * level * 0.25 +
-     * maxXp(level) * 0.0005
-     */
-    const baseCoins = 1000 + npc.level * 0.25 + getMaxXp(npc.level) * 0.0005;
-    npc.rewards.coins = Math.round(baseCoins * multiplier);
-
-}
+export { fixNpcRewards } from "./npc";
 
 export { getStandEvolution, getRandomStand, getRandomWeapon } from "./stand";
 
