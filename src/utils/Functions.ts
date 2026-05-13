@@ -40,7 +40,6 @@ import { Fighter, FightInfos } from "../structures/FightHandler";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import * as Items from "../rpg/Items";
-import Canvas from "canvas";
 import * as BaseQuests from "../rpg/Quests/Quests";
 import * as Emails from "../rpg/Emails";
 import * as EquipableItems from "../rpg/Items/EquipableItems";
@@ -48,7 +47,6 @@ import { Command } from "ioredis";
 import * as Emojis from "../emojis.json";
 import { get, random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
-import color from "get-image-colors";
 import { level } from "winston";
 import e from "express";
 import {
@@ -494,75 +492,7 @@ export { romanize } from "./format";
 
 export { sleep } from "./format";
 
-const bufferCache: { [key: string]: Buffer } = {};
-
-export const generateStandCart = async function standCart(stand: Stand): Promise<Buffer> {
-    if (bufferCache[stand.name as keyof typeof String])
-        return bufferCache[stand.name as keyof typeof bufferCache];
-
-    const canvas = Canvas.createCanvas(230, 345);
-    const ctx = canvas.getContext("2d");
-    const image = await Canvas.loadImage(stand.image);
-    let card_link;
-    let color: string;
-    switch (stand.rarity) {
-        case "S":
-            color = "#2b82ab";
-            card_link = "https://media.jolyne.moe/tpf4FN/direct";
-            break;
-        case "A":
-            color = "#3b8c4b";
-            card_link = "https://media.jolyne.moe/R95qjY/direct";
-            break;
-        case "B":
-            color = "#786d23";
-            card_link = "https://media.jolyne.moe/Od4M64/direct";
-            break;
-        case "C":
-            color = "#181818";
-            card_link = "https://media.jolyne.moe/ukfhrG/direct";
-            break;
-        case "T":
-            color = "#3131ac";
-            card_link = "https://media.jolyne.moe/J0FEBN/direct";
-            break;
-        default:
-            color = "#ff0000";
-            card_link = "https://media.jolyne.moe/h2bJqC/direct";
-    }
-
-    const card_image = await Canvas.loadImage(card_link);
-    const RM = 90;
-    ctx.drawImage(image, 40, 50, 230 - RM + 15, 345 - RM + 20);
-    ctx.drawImage(card_image, 0, 0, 230, 345);
-    ctx.fillStyle = "white";
-    const maxWidth = 180; // Set a max width for the text
-    const minFontSize = 16; // Set a minimum font size
-    const maxFontSize = 30; // Set a maximum font size
-    let fontSize = maxFontSize;
-    ctx.font = `${fontSize}px Arial`;
-
-    const content = stand.name;
-    let textWidth = ctx.measureText(content).width;
-
-    // Decrease font size until text fits the maxWidth
-    while (textWidth > maxWidth && fontSize > minFontSize) {
-        fontSize -= 1;
-        ctx.font = `${fontSize}px Arial`;
-        textWidth = ctx.measureText(content).width;
-    }
-
-    // Calculate dynamic positioning
-    const xPos = 115 - textWidth / 2; // Center the text horizontally
-    const yPos = 42;
-
-    // Render the text
-    ctx.fillText(content, xPos, yPos);
-
-    bufferCache[stand.name as keyof typeof bufferCache] = canvas.toBuffer();
-
-    return canvas.toBuffer();
-};
+export { generateStandCart } from "./images";
 
 export const addItem = InventoryService.addItem;
 
@@ -1159,27 +1089,7 @@ export const getRandomWeapon = (includeRarity?: Rarity[]): Weapon => {
 
 export const hasVotedRecenty = UserService.hasVotedRecenty;
 
-const hextoNumber = (hex: string) => parseInt(hex.replace("#", ""), 16);
-
-export const getProminentColor = async (
-    url: string,
-    intensity: number,
-    client?: Jolyne,
-): Promise<number> => {
-    if (client) {
-        const cache = await client.database.getString(`color.${intensity}:${url}`);
-        if (cache) return parseInt(cache);
-    }
-
-    const colors = await color(url, { count: intensity });
-    const hex = colors.map((x) => x.hex());
-    const prominentColors = hex.map((c) => hextoNumber(c));
-    const prominent = prominentColors.reduce((a, b) => (a > b ? a : b));
-
-    if (client) client.database.setString(`color.${intensity}:${url}`, prominent.toString());
-
-    return prominent;
-};
+export { getProminentColor } from "./images";
 
 // 'T̷̗̗̜̩̍̔̌͐̓͑͝Ì̴͉̖̝M̵̛̤̟̖͚̀͂̎͝Ḛ̶̮͉̉́͑͆͒̈̀̀̊̈́ ̵̢̢̮͖̘̱͈͖̯͗ͅS̷̢̭̯̭̬͎̙̼̯̿̐͂̇̍̎͆T̵̻͖͈̭͇̟̯̗̐͆̆̑̊̃͋́͘͝O̴̢̦̗̪̮̐̉̌̀̅͝͠͠͝Ṕ̶̧̰̦͛͂̚' to 'TIME STOP'
 
