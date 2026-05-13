@@ -14,6 +14,10 @@ const loadEvents = async (client: JolyneClient): Promise<void> => {
         const event: EventFile = await import(path.resolve(EVENTS_DIR, eventFile)).then(
             (m) => m.default,
         );
+        if (!event || !event.name || typeof event.execute !== "function") {
+            client.log(`Invalid event file: ${eventFile}`, "error");
+            continue;
+        }
         if (event.once) {
             client.once(event.name, (...args) => event.execute(...args));
         } else {
@@ -32,6 +36,11 @@ const loadCommands = async (client: JolyneClient, dir: string): Promise<void> =>
         } else if (file.endsWith(".js")) {
             const command: SlashCommandFile = await import(fullPath).then((m) => m.default);
             const category = path.basename(dir) as SlashCommand["category"];
+
+            if (!command || !command.data || typeof command.execute !== "function") {
+                client.log(`Invalid command file: ${fullPath}`, "error");
+                continue;
+            }
 
             client.commands.set(command.data.name, {
                 ...command,

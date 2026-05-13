@@ -6,7 +6,6 @@ import Jolyne from "../structures/JolyneClient";
 import { CronJob } from "cron";
 import TopGG from "../utils/TopGG";
 import { FightHandler } from "../structures/FightHandler";
-import { cli } from "winston/lib/winston/config";
 import * as FightableNPCs from "../rpg/NPCs/FightableNPCs";
 
 interface ClusterStatus {
