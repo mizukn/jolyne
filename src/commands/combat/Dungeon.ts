@@ -8,7 +8,7 @@ import {
     Weapon,
     StartDungeonQuest,
     RPGUserDataJSON,
-    possibleModifiers,
+    possibleModifiers as PossibleModifierId,
 } from "../../@types";
 import {
     Message,
@@ -30,65 +30,12 @@ import { clone, cloneDeep } from "lodash";
 import { dungeonLogsWebhook } from "../../utils/Webhooks";
 import { Image, createCanvas, loadImage } from "canvas";
 import { StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
-
-const getTotalXpIncrease = (modifiers: string[]) => {
-    const totalXp =
-        modifiers.reduce((a, b) => {
-            const modifier = possibleModifiers.find((f) => f.id === b);
-            if (!modifier) return a;
-            return a + modifier.xpIncrease;
-        }, 1) - modifiers.length;
-
-    return Math.round(totalXp * 100) / 100;
-};
-const getTotalDropIncrease = (modifiers: string[]) => {
-    const totalDrop =
-        modifiers.reduce((a, b) => {
-            const modifier = possibleModifiers.find((f) => f.id === b);
-            if (!modifier) return a;
-            return a + modifier.dropIncrease;
-        }, 1) - modifiers.length;
-
-    return Math.round(totalDrop * 100) / 100;
-};
-/**
- * Modifiers:
- * Speedrun - NPC levels increase twice as fast. EXP Increase - 1.5x, Drops Increase - 1.5x.
- * No Breaks - Your health and stamina are not reset after each enemy. EXP Increase - 4x, Drops Increase - 2x.
- * The Elite - All enemies will use S or SS tier stands and will always use a weapon. EXP Increase - 1.5x, Drops Increase - 2x.
- * Clone - All enemies will have an exact clone of themselves. EXP Increase - 2x, Drops Increase - 2x.
- */
-
-const possibleModifiers = [
-    {
-        id: "speedrun",
-        description: "NPC levels increase twice as fast.",
-        xpIncrease: 1.5,
-        dropIncrease: 1.5,
-        emoji: "🏃",
-    },
-    {
-        id: "no_breaks",
-        description: "Your health and stamina are not reset after each enemy.",
-        xpIncrease: 1.8,
-        dropIncrease: 2,
-        emoji: "❌",
-    },
-    {
-        id: "the_elite",
-        description: "All enemies will use S or SS tier stands and will always use a weapon.",
-        xpIncrease: 1.3,
-        dropIncrease: 2,
-        emoji: "🔥",
-    },
-    {
-        id: "clone",
-        description: "All enemies will have an exact clone of themselves.",
-        xpIncrease: 1.9,
-        dropIncrease: 2,
-        emoji: "👥",
-    },
-];
+import {
+    possibleModifiers,
+    getTotalXpIncrease,
+    getTotalDropIncrease,
+    dungeonRewards as rewards,
+} from "./dungeon_config";
 
 async function giveRewards(
     dungeon: DungeonHandler,
@@ -430,45 +377,6 @@ const msInMessage =
         }${time.seconds} second${time.seconds > 1 ? "s" : ""}`;
     };
 
-const rewards = [
-    {
-        id: "stand_arrow",
-        percent: 15,
-    },
-    {
-        id: "energy_drink",
-        percent: 9,
-    },
-    {
-        id: "health_potion",
-        percent: 5,
-    },
-    {
-        id: "rare_stand_arrow",
-        percent: 5,
-    },
-    {
-        id: "broken_arrow",
-        percent: 30,
-    },
-    {
-        id: "bloody_knife",
-        percent: 0.5,
-    },
-    {
-        id: "gauntlets_of_the_berserker",
-        percent: 0.3,
-    },
-    {
-        id: "dios_knives",
-        percent: 0.2,
-    },
-    {
-        id: "megumins_wand",
-        percent: 0.2,
-    },
-];
-
 const slashCommand: SlashCommandFile = {
     data: {
         name: "dungeon",
@@ -570,7 +478,7 @@ const slashCommand: SlashCommandFile = {
             .setMinValues(0)
             .setMaxValues(possibleModifiers.length);
 
-        const selectedModifiers: possibleModifiers[] = [];
+        const selectedModifiers: PossibleModifierId[] = [];
         ctx.client.database.setCooldown(ctx.user.id, `You are in a dungeon.`);
 
         await ctx.makeMessage({
@@ -794,7 +702,7 @@ const slashCommand: SlashCommandFile = {
                 selectedModifiers.length = 0;
                 for (const value of (i as StringSelectMenuInteraction).values) {
                     if (possibleModifiers.find((f) => f.id === value)) {
-                        selectedModifiers.push(value as possibleModifiers);
+                        selectedModifiers.push(value as PossibleModifierId);
                     }
                 }
                 await ctx.makeMessage({
