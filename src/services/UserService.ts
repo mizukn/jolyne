@@ -24,7 +24,10 @@ import type { Fighter } from "../structures/FightHandler";
 import { EVENT_IDS, isActive } from "./EventService";
 import log from "../utils/Logger";
 import { pickOne } from "../utils/random";
+import { plusOrMinus } from "../utils/math";
 import { getMaxXp } from "../utils/rewards";
+import * as Emojis from "../emojis.json";
+import type { Item } from "../@types";
 
 export const PrestigeShardReward = 50;
 
@@ -37,6 +40,7 @@ interface UserServiceDependencies {
     findStand: (stand: string, evolution?: number) => Stand;
     findEquipableItem: (item: string) => EquipableItem;
     findEmail: (email: string) => Email;
+    findItem: (item: string) => Item;
 }
 
 const missingDependencies: UserServiceDependencies = {
@@ -44,6 +48,7 @@ const missingDependencies: UserServiceDependencies = {
     findStand: () => null,
     findEquipableItem: () => null,
     findEmail: () => null,
+    findItem: () => null,
 };
 
 let dependencies = missingDependencies;
@@ -848,3 +853,66 @@ export function getRPGUserDataChanges(
 
     return changes;
 }
+
+export const getRewardsCompareData = (
+    data1: RPGUserDataJSON,
+    data2: RPGUserDataJSON,
+): string[] => {
+    const rewards: string[] = [];
+
+    if (data1.xp !== data2.xp) {
+        rewards.push(
+            `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
+                "en-US",
+            )}** XP ${Emojis.xp} ${
+                isActive(EVENT_IDS.CHRISTMAS_2024) && isWeekend()
+                    ? "(christmas event [Week-End]: +25%)"
+                    : ""
+            }${isActive(EVENT_IDS.THIRD_ANNIVERSARY) ? "(3rd anniversary event: +15%)" : ""}`,
+        );
+    }
+    if (data1.coins !== data2.coins) {
+        rewards.push(
+            `**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(
+                data1.coins - data2.coins,
+            ).toLocaleString()}** ${Emojis.jocoins}`,
+        );
+    }
+
+    if (JSON.stringify(data1.inventory) !== JSON.stringify(data2.inventory)) {
+        for (const item of Object.keys(data2.inventory)) {
+            if ((data2.inventory[item] || 0) > (data1.inventory[item] || 0)) {
+                const itemData = dependencies.findItem(item);
+                rewards.push(
+                    `**${plusOrMinus(
+                        data1.inventory[item] || 0,
+                        data2.inventory[item] || 0,
+                    )}${Math.abs(
+                        (data1.inventory[item] || 0) - (data2.inventory[item] || 0),
+                    ).toLocaleString()}** ${itemData?.emoji ?? ""} ${itemData?.name ?? item}`,
+                );
+            }
+        }
+    }
+
+    if (data1.health !== data2.health) {
+        rewards.push(
+            `**${plusOrMinus(data1.health, data2.health)}${Math.abs(
+                data1.health - data2.health,
+            ).toLocaleString()}** health :heart: (${data2.health.toLocaleString(
+                "en-US",
+            )}/${getMaxHealth(data2).toLocaleString()})`,
+        );
+    }
+    if (data1.stamina !== data2.stamina) {
+        rewards.push(
+            `**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(
+                data1.stamina - data2.stamina,
+            ).toLocaleString()}** :battery: (${data2.stamina.toLocaleString(
+                "en-US",
+            )}/${getMaxStamina(data2).toLocaleString()})`,
+        );
+    }
+
+    return rewards;
+};

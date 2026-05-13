@@ -43,7 +43,6 @@ import * as Items from "../rpg/Items";
 import * as BaseQuests from "../rpg/Quests/Quests";
 import * as Emails from "../rpg/Emails";
 import { Command } from "ioredis";
-import * as Emojis from "../emojis.json";
 import { get, random } from "lodash";
 import Jolyne from "../structures/JolyneClient";
 import { level } from "winston";
@@ -57,7 +56,6 @@ import {
 } from "./random";
 import * as UserService from "../services/UserService";
 import * as InventoryService from "../services/InventoryService";
-import { EVENT_IDS, isActive } from "../services/EventService";
 import { findEmail, findItem, findNPC, findQuest, findStand } from "./lookup";
 import {
     generateClaimXQuest,
@@ -100,7 +98,6 @@ import {
     isWaitQuest,
 } from "./quest_guards";
 import { isEquipableItem, isWeapon } from "./item_guards";
-import { plusOrMinus } from "./math";
 import { getEmojiId } from "./format";
 import { getMaxXp, getRewards } from "./rewards";
 export {
@@ -452,65 +449,7 @@ export { msToString } from "./format";
 
 export { isEvolvableStand } from "./stand";
 
-export const getRewardsCompareData = (data1: RPGUserDataJSON, data2: RPGUserDataJSON): string[] => {
-    const rewards: string[] = [];
-
-    if (data1.xp !== data2.xp)
-        rewards.push(
-            `**${plusOrMinus(data1.xp, data2.xp)}${Math.abs(data1.xp - data2.xp).toLocaleString(
-                "en-US",
-            )}** XP ${Emojis.xp} ${
-                isActive(EVENT_IDS.CHRISTMAS_2024) && isWeekend()
-                    ? "(christmas event [Week-End]: +25%)"
-                    : ""
-            }${isActive(EVENT_IDS.THIRD_ANNIVERSARY) ? "(3rd anniversary event: +15%)" : ""}`,
-        );
-    if (data1.coins !== data2.coins)
-        rewards.push(
-            `**${plusOrMinus(data1.coins, data2.coins)}${Math.abs(
-                data1.coins - data2.coins,
-            ).toLocaleString()}** ${Emojis.jocoins}`,
-        );
-
-    if (JSON.stringify(data1.inventory) !== JSON.stringify(data2.inventory)) {
-        // inventory example:
-        // {
-        //   "stand.disc": 1,
-        //   "pizza": 2
-        // }
-
-        for (const item of Object.keys(data2.inventory)) {
-            if ((data2.inventory[item] || 0) > (data1.inventory[item] || 0))
-                rewards.push(
-                    `**${plusOrMinus(
-                        data1.inventory[item] || 0,
-                        data2.inventory[item] || 0,
-                    )}${Math.abs(
-                        (data1.inventory[item] || 0) - (data2.inventory[item] || 0),
-                    ).toLocaleString()}** ${findItem(item).emoji} ${findItem(item).name}`,
-                );
-        }
-    }
-
-    if (data1.health !== data2.health)
-        rewards.push(
-            `**${plusOrMinus(data1.health, data2.health)}${Math.abs(
-                data1.health - data2.health,
-            ).toLocaleString()}** health :heart: (${data2.health.toLocaleString(
-                "en-US",
-            )}/${getMaxHealth(data2).toLocaleString()})`,
-        );
-    if (data1.stamina !== data2.stamina)
-        rewards.push(
-            `**${plusOrMinus(data1.stamina, data2.stamina)}${Math.abs(
-                data1.stamina - data2.stamina,
-            ).toLocaleString()}** :battery: (${data2.stamina.toLocaleString("en-US")}/${getMaxStamina(
-                data2,
-            ).toLocaleString()})`,
-        );
-
-    return rewards;
-};
+export const getRewardsCompareData = UserService.getRewardsCompareData;
 
 export const givePatreonRewards = InventoryService.givePatreonRewards;
 
@@ -892,6 +831,7 @@ UserService.configureUserService({
     findStand,
     findEquipableItem: (item) => findItem<EquipableItem>(item),
     findEmail,
+    findItem,
 });
 
 InventoryService.configureInventoryService({
