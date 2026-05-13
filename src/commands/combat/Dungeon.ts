@@ -26,8 +26,20 @@ const KARS = { emoji: "<:kars:1057261454421676092>", name: "Kars" } as const;
 const karsLine = (text: string): string =>
     `${KARS.emoji} **${KARS.name}:** ${text}`;
 
-const safeDungeonReply = async (dungeon: DungeonHandler, content: string): Promise<void> => {
-    await dungeon.message.reply({ content }).catch(() => undefined);
+const safeDungeonReply = async (
+    dungeon: DungeonHandler,
+    ctx: CommandInteractionContext,
+    content: string,
+): Promise<void> => {
+    if (dungeon.message) {
+        const replied = await dungeon.message
+            .reply({ content })
+            .then(() => true)
+            .catch(() => false);
+        if (replied) return;
+    }
+
+    await ctx.followUp({ content }).catch(() => undefined);
 };
 
 const finalizeDungeonRewards = async (
@@ -45,6 +57,9 @@ const finalizeDungeonRewards = async (
         );
     });
 };
+
+const hasDungeonProgress = (dungeon: DungeonHandler): boolean =>
+    dungeon.stage > 0 || dungeon.beatenEnemies.length > 0;
 
 const renderLobby = (
     hostTag: string,
@@ -296,19 +311,28 @@ const slashCommand: SlashCommandFile = {
                         ctx.client.database.redis.del(`tempCache_${player.id}:dungeon`);
                         ctx.client.database.deleteCooldown(player.id);
                     }
+                    const hasProgress = hasDungeonProgress(dungeon);
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         await safeDungeonReply(
                             dungeon,
-                            `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
+                            ctx,
+                            hasProgress
+                                ? `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`
+                                : `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. No rewards were generated because the dungeon did not start.`,
                         );
                     } else {
                         await safeDungeonReply(
                             dungeon,
-                            `The dungeon has ended unexpectedly: \`${reason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
+                            ctx,
+                            hasProgress
+                                ? `The dungeon has ended unexpectedly: \`${reason}\`. The host has been refunded a dungeon key but you still get the rewards.`
+                                : `The dungeon has ended unexpectedly: \`${reason}\`. No rewards were generated because the dungeon did not start.`,
                         );
                     }
 
-                    await finalizeDungeonRewards(dungeon, ctx, selectedModifiers, true);
+                    if (hasProgress) {
+                        await finalizeDungeonRewards(dungeon, ctx, selectedModifiers, true);
+                    }
                 });
 
                 dungeon.on("end", async (reason: string) => {
@@ -319,6 +343,7 @@ const slashCommand: SlashCommandFile = {
                     if (reason === "maintenance" || ctx.client.maintenanceReason) {
                         await safeDungeonReply(
                             dungeon,
+                            ctx,
                             `The dungeon has ended due to maintenance: \`${ctx.client.maintenanceReason}\`. The host has been refunded a dungeon key but you still get the rewards.`,
                         );
                     } else {
