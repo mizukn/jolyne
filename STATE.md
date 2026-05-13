@@ -43,14 +43,14 @@ Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green
 
 ## What's NOT done / in-flight
 
-### FightHandler split (PLAN §5 P3.2) — orchestrator at 254 lines
+### FightHandler split (PLAN §5 P3.2) — orchestrator at 259 lines
 
-Was 2,820. Down to 254 (−91%). The body now lives in sibling modules under `src/structures/`:
+Was 2,820. Down to 259 (−91%). The body now lives in sibling modules under `src/structures/`:
 
 | Module | Role |
 | --- | --- |
 | `Fighter.ts` | Fighter class + `FighterRemoveHealthTypes` + `FighterAttackStaminaCost` |
-| `FightTypes.ts` | `FightTypes`, `FightTypeColor`, `FightInfos`, `FightTurn`, `FightEvents` (no runtime deps on FightHandler) |
+| `FightTypes.ts` | `FightTypes`, `FightTypeColor`, `FightInfos`, `FightTurn`, `FightEndMeta`, `FightEvents` (no runtime deps on FightHandler) |
 | `FightAI.ts` | Pure NPC decision helpers (`chooseNPCMove`, `chooseNPCStandAbility`, `chooseNPCWeaponAbility`, `chooseNPCTargetId`, `controlledFighter`, `isNPCControlled`) |
 | `FightNPCTurn.ts` | `runNPCTurn(fight)` — dispatcher that the side-effecting NPC turn drives |
 | `FightActionMenus.ts` | `runTargetSelection`, `runStandAbilityMenu`, `runWeaponAbilityMenu` — bodies of the former `selectTarget` / `selectStandAbility` / `showWeaponAbilities` |
@@ -65,6 +65,7 @@ Was 2,820. Down to 254 (−91%). The body now lives in sibling modules under `sr
 | `FightSpecialCases.ts` | HolHorse-vs-Avdol auto-targeting + Hol Horse 9999999 instakill |
 | `FightTimeouts.ts` | Per-turn timeout penalty |
 | `FightLifecycle.ts` | `runUpdateMessage(fight)` + `armTurnTimeout(fight)` + `armNPCTimeout(fight)` + `endOrUnexpected(fight, error)` + `endIfOneTeamLeft(fight)` — bodies of the former `updateMessage` / `setTimeout` / `setNPCTimeout` / `endFightOrUnexpected` / `oneTeamLeft` |
+| `FightMessageAccess.ts` | Detects Discord message-access failures and fast-forwards the fight in autoplay mode when messages can no longer be edited/sent. |
 | `FightWebhookLogs.ts` | `sendFightLogs(fight)` + `sendFightStats(fight)` — bodies of the former `sendLogs` / `sendFightStats` (the latter is still callable via the FightHandler delegator since `FightHandlerWatchdog` invokes it externally) |
 | `FightInteraction.ts` | `handleInteraction(fight, interaction)` — body of the former constructor-internal `listenerCallback` (the button + string-select-menu dispatch switch) |
 | `FightLifecycleHandlers.ts` | `attachLifecycleHandlers(fight, fightEndCallback, fightCallFuncCallback)` — bodies of the former constructor-internal `on('unexpectedEnd')` / `on('end')` handlers |
@@ -72,7 +73,7 @@ Was 2,820. Down to 254 (−91%). The body now lives in sibling modules under `sr
 | `FightActions.ts` | `handleDefend(fight)` + `handleSkip(fight)` + `continueStep(fight)` — bodies of the former turn-action handlers and the post-target-pick `currentStep` router |
 | `FightTurnQueue.ts` | `getWhosTurn(fight)` + `getWhosTurnAvailableAbilities(fight)` + `getWhosTurnAvailableAbilitiesWeapon(fight)` — bodies of the former `whosTurn` / `whosTurnAvailableAbilities` / `whosTurnAvailableAbilitiesWeapon` getters |
 
-`FightHandler.ts` is now a thin orchestrator: constructor (10 lines of state seeding + a single `initializeFight` call) + 1-line delegators into the modules above + the small `availableFighters` / `hasStoppedTime` / `hasOneTarget` getters and the 10-line `addOrEditCooldown` mutator.
+`FightHandler.ts` is now a thin orchestrator: constructor state seeding + a single `initializeFight` call, one-line delegators into the modules above, the small `availableFighters` / `hasStoppedTime` / `hasOneTarget` getters, and the 10-line `addOrEditCooldown` mutator.
 
 **Still inline in FightHandler**:
 - The 10 field-default lines + `initializeFight(this, type, messageX)` in the constructor.
@@ -80,14 +81,27 @@ Was 2,820. Down to 254 (−91%). The body now lives in sibling modules under `sr
 - The small getters: `availableFighters` (3 lines), `hasStoppedTime` (3 lines), `hasOneTarget` (10-line getAvailableTargets delegator).
 - One-line delegators into all the extract modules.
 
-**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `NPCTimeout`, `NPCAttack`, `fiveMinTimeout`, `listener`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
+**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `endedByMessageAccessLoss`, `messageAccessAutoplaying`, `NPCTimeout`, `NPCAttack`, `listener`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
 
 **Method removed entirely:** the `handleUseAbility` private delegator was deleted — its only callers (`continueStep`'s `"handleUseAbility"` case) now invoke `applyAbility(fight, ...)` directly from `FightActions.ts`, so the method had no remaining purpose.
+
+### Fight message-access policy
+
+If Discord rejects fight message edits/sends with missing access, missing permissions, or unknown-message errors, `FightMessageAccess.startMessageAccessAutoplay(fight, error)` takes over instead of emitting a generic unexpected end. It:
+
+- sets `fight.noUpdateMessage`, `fight.endedByMessageAccessLoss`, and `fight.messageAccessAutoplaying`;
+- stops the interaction collector and clears pending turn/NPC timers;
+- marks every fighter as NPC-controlled with `autoLock = true`;
+- fast-forwards turns with `fight.NPCAttack()` until one team remains;
+- emits `end` with `FightEndMeta`: `{ endedByMessageAccessLoss: true, fastForwardedTurns }`;
+- force-resolves via `forceLastTeamStanding` after a 300-turn safety cap.
+
+Command handlers should prefer the `meta?.endedByMessageAccessLoss` flag over parsing error strings. Dungeon already consumes this flag: if a dungeon sub-fight finishes through message-access autoplay, `DungeonHandler` stops the dungeon and lets `/dungeon` apply the current policy (earned rewards, host key consumed, dungeon attempt/cooldown recorded). Other unexpected dungeon ends still grant earned rewards and refund the key.
 
 ### Fight V2 migration follow-ups
 
 - **`infos.thumbnail`** — done. Renders as a `ThumbnailBuilder` accessory on a dedicated section in `FightRenderer.renderTurn`.
-- **V2 message-transition audit** — mostly done. `FightSetup` now uses `FightRenderer.renderInitializingFight()`, `/fight quest` edits any provided `messageX` into a V2 placeholder before handing it to `FightHandler`, and `DungeonHandler` no longer passes its dungeon-progress message as the fight message. Remaining live-test path: click through raid/event/matchmaking starts and verify no duplicate fallback fight message appears.
+- **V2 message-transition audit** — mostly done. `FightSetup` now uses `FightRenderer.renderInitializingFight()`, `/fight quest` edits any provided `messageX` into a V2 placeholder before handing it to `FightHandler`, and `DungeonHandler` no longer passes its dungeon-progress message as the fight message. Remaining live-test path: click through raid/event/matchmaking starts and verify no duplicate fallback fight message appears. Message-access loss now fast-forwards the fight rather than trying to keep rendering.
 - **April Fools `randomGifs`** — gone in the V2 migration. V2 containers don't have a body image. Eight hardcoded gif URLs no longer render on April 1. Decide whether to restore via section markdown / thumbnail accessory or accept the loss.
 - **Ephemeral deprecation warnings** — partially addressed. `CommandInteractionContext.makeMessage/followUp` and queued followups normalize `ephemeral` to `MessageFlags.Ephemeral`; direct command gates, `/fight` defer, Slots modal errors, Patreon followup, and Email action replies were converted. Some direct component replies still use `ephemeral` and can be swept incrementally.
 
@@ -107,7 +121,7 @@ Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-1
 
 - **P2.1 middleware pipeline** — ✅ done. `interactionCreate.ts` is 91 lines (down from ~740), running a clean middleware chain. 22 middleware files live under `src/middlewares/` + a `pipeline.ts` runner + a `types.ts` for `Middleware` / `MiddlewareDecision` / `MiddlewareInput`. Sibling helpers: `handleAutocomplete.ts`, `logCommandUsage.ts`, `runCommand.ts`. `middlewares.test.ts` covers 54 cases.
 - **P3.1 Functions.ts split** — 🟡 active. Down from 3,071 → 670 lines (−78% so far). Sibling modules under `src/utils/` now: `lookup.ts`, `quest_guards.ts`, `quest_factories.ts` (also owns `generateDailyQuests` + `getDailyQuestRowRewards`), `quest_ui.ts`, `rewards.ts`, `format.ts`, `embed.ts`, `date.ts`, `item_guards.ts`, `math.ts`, `random.ts`, `images.ts` (stand-card canvas + dominant-color), `stand.ts` (stand helpers + random pickers), `npc.ts` (NPC level/reward scaling), `discord.ts` (`actionRow`), and `ability_embeds.ts` (`buildStandAbilityView` / `buildWeaponAbilityView` / `standAbilitiesContainer` / `weaponAbilitiesContainer` — V2-container ability lookups). User-domain helpers, combat stat/power math, prestige, skill-point generation, user-data diffing, and reward-diff formatting live in `src/services/UserService.ts`; `InventoryService.ts` owns inventory add/remove/type checks, stand-disc limits, consumable application, and Patreon item rewards. The remaining Functions.ts content is mostly aliasing re-exports plus the `dailyClaimRewardsChristmas` archive block (kept intentionally — useful for 2026+ seasonal reuse).
-- **P3.4 fat command files** — 🟡 `RaidSubcommands.ts` down to 791 lines via `src/rpg/SeasonalRaids.ts`. `Dungeon.ts` down to **393 lines** via `src/commands/combat/dungeon_config.ts` (modifier table + multipliers + drop table) and `src/commands/combat/dungeon_rewards.ts` (the 320-line `giveRewards` finalize flow). Next: trim `RaidSubcommands.ts` further (the join/ban/result flow could move to siblings).
+- **P3.4 fat command files** — 🟡 `RaidSubcommands.ts` is 813 lines after recent permission-safety wrappers; `Dungeon.ts` is 443 lines after explicit key/reward policy for message-access failures. Existing extracts: `src/rpg/SeasonalRaids.ts`, `src/commands/combat/dungeon_config.ts`, and `src/commands/combat/dungeon_rewards.ts`. Next: trim `RaidSubcommands.ts` further (join/ban/result flow could move to siblings) and move dungeon lifecycle helpers out of `Dungeon.ts` once behavior settles.
 - **P4.x data hygiene** — P4.1 type-safe registries is effectively done via `src/bootstrap/validate.ts`: duplicate-id + cross-reference checks now cover Items / Stands / NPCs / Emails / Quests / `pushEmailWhenCompleted`. Smoke-tested by `validate.test.ts`. P4.2 effect-based abilities, P4.4 bigint field migration, P4.5 atomic dual-write, and P4.6 transactions table integrity are still untouched.
 
 ### BRAINSTORM live-issue sweeps landed this session
@@ -121,6 +135,8 @@ Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-1
 - **`FightRenderer` NPC detection** — no longer uses `isNaN(Number(id))`; it now trusts explicit `fighter.npc` / `manipulatedBy.npc`.
 - **Forfeit + resurrection passive conflict** — fixed. `Fighter.flags.forfeited` is set on forfeit and the passive engine skips forfeited fighters even for `evenIfDead` passives, so Dead Revival no longer resurrects someone who gave up.
 - **Anti-cheat debug logs** in `CommandInteractionContext` — removed.
+- **Fight message-access loss** — no longer throws or force-ends immediately. If Discord refuses message edits/sends, fights enter autoplay fast-forward and emit `end` with `meta.endedByMessageAccessLoss`.
+- **Dungeon message-access economy policy** — if message access is lost during a dungeon after progress, earned rewards are granted, the host key is consumed, and dungeon attempt/cooldown is recorded; other unexpected ends refund the key while still granting earned rewards.
 
 ### BRAINSTORM live issues still in code (decision-pending or low-impact)
 

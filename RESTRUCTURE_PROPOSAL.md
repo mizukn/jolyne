@@ -128,6 +128,7 @@ src/
 │   ├── DatabaseHandler.ts        # client Postgres+Redis — reste ici (pas un "service métier")
 │   ├── FightHandler.ts           # orchestrateur Discord thin (~250 lignes), délègue aux Fight*.ts
 │   ├── DungeonHandler.ts         # idem
+│   ├── FightMessageAccess.ts     # autoplay/fast-forward quand Discord refuse edit/send
 │   ├── MediaHost.ts
 │   ├── i18n.ts
 │   └── Fighter.ts                # ✅ extrait de FightHandler.ts
@@ -145,7 +146,7 @@ src/
 
 ### Différences clés avec la proposition d'origine
 
-- **`FightHandler.ts` reste dans `structures/`.** Le déplacer dans `services/` ne ferait que changer son chemin. Ce qui comptait était d'**extraire** la logique pure (`Damage`, `Passive`, `Turn`, `Render`) : c'est maintenant largement fait, avec `FightHandler.ts` à ~250 lignes et les modules `Fight*.ts` autour. Prochain objectif : continuer à stabiliser ces modules et éviter d'y remettre de la logique de rendu.
+- **`FightHandler.ts` reste dans `structures/`.** Le déplacer dans `services/` ne ferait que changer son chemin. Ce qui comptait était d'**extraire** la logique pure (`Damage`, `Passive`, `Turn`, `Render`) : c'est maintenant largement fait, avec `FightHandler.ts` à ~260 lignes et les modules `Fight*.ts` autour. `FightMessageAccess.ts` porte le comportement de secours quand Discord refuse les edits/sends : autoplay rapide, puis `end` avec metadata. Prochain objectif : continuer à stabiliser ces modules et éviter d'y remettre de la logique de rendu.
 - **`DatabaseHandler.ts` reste dans `structures/`.** C'est un **client** d'infra (Postgres+Redis), pas un service métier. Le mettre dans `services/` brouillerait la frontière.
 - **Pas de renames "case-only" sur `rpg/Chapters/` → `rpg/chapters/`.** Le coût (sweep d'imports + risques macOS) excède le gain. À reporter à une phase de polissage globale, pas en parallèle des extractions Phase 2.
 - **`utils/` reste plat.** Pas de sous-dossiers `math/`, `discord/`, `game/` tant qu'il n'y a pas au moins 5 fichiers par groupe. Sur-organiser tôt fragilise plus que ça aide.
