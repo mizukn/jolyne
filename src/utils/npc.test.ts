@@ -53,9 +53,9 @@ describe("editNPCLevel", () => {
         const npc = makeNPC();
         editNPCLevel(npc as NPC, 200);
         expect(mocks.generateSkillPoints).toHaveBeenCalled();
-        const argLevel = (mocks.generateSkillPoints.mock.calls.at(-1)?.[0] as FightableNPC)
-            .level;
-        expect(argLevel).toBe(200);
+        const calls = mocks.generateSkillPoints.mock.calls;
+        const lastCall = calls[calls.length - 1] as unknown[];
+        expect((lastCall[0] as FightableNPC).level).toBe(200);
     });
 });
 

@@ -74,10 +74,16 @@ import {
     getRandomWeapon,
 } from "./stand";
 import * as Stands from "../rpg/Stands";
+import type { Stand, EvolutionStand } from "../@types";
 
 describe("stand helpers", () => {
-    const regularStand = Stands.Stands.sticky;
-    const evolvableStand = Stands.EvolutionStands.gold;
+    const mockedStands = Stands.Stands as unknown as Record<string, Stand>;
+    const mockedEvolutions = Stands.EvolutionStands as unknown as Record<
+        string,
+        EvolutionStand
+    >;
+    const regularStand = mockedStands.sticky;
+    const evolvableStand = mockedEvolutions.gold;
 
     it("isEvolvableStand returns true for evolution stand definitions", () => {
         expect(isEvolvableStand(evolvableStand)).toBe(true);
@@ -94,10 +100,10 @@ describe("stand helpers", () => {
     });
 
     it("getStandEvolution returns the matching index for evolution variants", () => {
-        const base = { ...evolvableStand.evolutions[0], id: evolvableStand.id };
+        const base = { ...evolvableStand.evolutions[0], id: evolvableStand.id } as Stand;
         expect(getStandEvolution(base)).toBe(0);
 
-        const next = { ...evolvableStand.evolutions[1], id: evolvableStand.id };
+        const next = { ...evolvableStand.evolutions[1], id: evolvableStand.id } as Stand;
         expect(getStandEvolution(next)).toBe(1);
     });
 

@@ -7,6 +7,8 @@ import * as ItemsBare from "../rpg/Items/Items";
 import * as Consumables from "../rpg/Items/ConsumableItems";
 import * as EquipableItems from "../rpg/Items/EquipableItems";
 import * as SpecialItems from "../rpg/Items/SpecialItems";
+import * as BaseQuests from "../rpg/Quests/Quests";
+import * as ActionQuests from "../rpg/Quests/ActionQuests";
 import Items from "../rpg/Items";
 import { endOf2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
 import {
@@ -269,10 +271,44 @@ export const validateRegistries = (): string[] => {
         }
     }
 
+    // Quests: ids must be unique across Quests + ActionQuests.
+    const { ids: questIds, errors: questErrors } = idsBySource("quest", [
+        ["Quests", BaseQuests as unknown as Record<string, unknown>],
+        ["ActionQuests", ActionQuests as unknown as Record<string, unknown>],
+    ]);
+    errors.push(...questErrors);
+
+    // pushEmailWhenCompleted references on any quest source must resolve to a
+    // known email id.
+    const validatePushEmail = (
+        provenance: string,
+        value: Record<string, unknown>,
+    ): void => {
+        const push = value.pushEmailWhenCompleted;
+        if (!isObject(push)) return;
+        const id = push.id;
+        if (typeof id !== "string") return;
+        if (!emailIds.has(id)) {
+            errors.push(
+                `${provenance} references unknown email "${id}" via pushEmailWhenCompleted`,
+            );
+        }
+    };
+    for (const [exportName, value] of Object.entries(
+        BaseQuests as unknown as Record<string, unknown>,
+    )) {
+        if (isObject(value)) validatePushEmail(`Quests.${exportName}`, value);
+    }
+    for (const [exportName, value] of Object.entries(
+        ActionQuests as unknown as Record<string, unknown>,
+    )) {
+        if (isObject(value)) validatePushEmail(`ActionQuests.${exportName}`, value);
+    }
+
     // Mark unused references to keep the linter quiet — every map participates
     // in the assertions above.
     void fightableNpcIds;
-    void emailIds;
+    void questIds;
 
     return errors;
 };
