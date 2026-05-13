@@ -1,8 +1,10 @@
-// V1 embed renderers for stand and weapon abilities. Still used by
-// FightRenderer (ability lookup popups) and `/weapon`. Kept as plain
-// builders so the V2 container migration can adopt them piecewise.
+// V2-container renderers for stand and weapon ability lookups. Mirrors the
+// `/stand display` layout in `src/commands/adventure/StandSubcommands.ts`:
+// one section per ability with damage / cost / cooldown / dodge, plus a
+// trailing bonuses block. Returns both raw parts (for callers that need to
+// compose with their own select menus / buttons — like the in-fight ability
+// menu) and a ready-to-send `V2Reply` (for one-shot commands like `/weapon`).
 
-import type { APIEmbed } from "discord.js";
 import type {
     EquipableItem,
     FightableNPC,
@@ -18,81 +20,98 @@ import {
     getAttackDamages,
 } from "../services/UserService";
 import { findItem, findStand } from "./lookup";
-import { getEmojiId } from "./format";
+import { containers, type SectionData, type V2Reply, COLORS } from "./containers";
 
-export const standAbilitiesEmbed = (
+export interface AbilityView {
+    title: string;
+    description: string;
+    sections: SectionData[];
+    color: number;
+    footer: string;
+    image?: string;
+}
+
+const formatAbilityDamage = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    ability: { trueDamage?: number },
+): string => {
+    const damage = getAbilityDamage(user, ability as Parameters<typeof getAbilityDamage>[1]);
+    if (damage) return damage.toLocaleString();
+    if (ability.trueDamage) {
+        return Math.round(
+            getAttackDamages(user) * (1 + ability.trueDamage / 100),
+        ).toLocaleString();
+    }
+    return "???";
+};
+
+const resolveCooldown = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    abilityName: string,
+    defaultCooldown: number,
+    cooldowns?: FightInfos["cooldowns"],
+): number => {
+    if (!cooldowns) return defaultCooldown;
+    return cooldowns.find((c) => c.move === abilityName && c.id === user.id)?.cooldown ?? 0;
+};
+
+export const buildStandAbilityView = (
     user: Fighter | RPGUserDataJSON | FightableNPC,
     cooldowns?: FightInfos["cooldowns"],
     chosenStand?: Stand,
-): APIEmbed => {
+): AbilityView | null => {
     const stand = chosenStand ? chosenStand : isFighter(user) ? user.stand : findStand(user.stand);
-    if (!stand) return { title: "No stand found", description: "No stand found", color: 0xff0000 };
-    const totalStandSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
+    if (!stand) return null;
 
-    const embed: APIEmbed = {
-        title: stand.name,
-        description:
-            stand.description +
-            `\n\n**BONUSES:** +${totalStandSkillPoints} skill-points:\n${Object.entries(
-                stand.skillPoints,
-            )
-                .map(([key, value]) => `• +${value} ${key}`)
-                .join("\n")}`,
-        color: stand.color,
-        footer: { text: `Rarity: ${stand.rarity}` },
-        thumbnail: { url: stand.image },
-        fields: [],
-    };
+    const sections: SectionData[] = [];
 
     for (const ability of stand.abilities) {
-        const index = stand.abilities.findIndex((w) => w.name === ability.name);
-        const isLast = index === stand.abilities.length - 1;
+        const cooldown = resolveCooldown(user, ability.name, ability.cooldown, cooldowns);
+        const dodge = ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable";
+        sections.push({
+            text:
+                `### ${ability.special ? "⭐ " : ""}${ability.name}\n` +
+                `> *${ability.description.replace(/{standName}/gi, stand.name)}*\n` +
+                `> 💥 **Damages:** ${formatAbilityDamage(user, ability)}\n` +
+                `> 🔋 **Stamina Cost:** ${ability.stamina}\n` +
+                `> ⏳ **Cooldown:** ${cooldown} turns\n` +
+                `> 🍃 **Dodge Score:** ${dodge}`,
+        });
+    }
 
-        let content = `> 💥 **Damages:** ${
-            getAbilityDamage(user, ability)
-                ? getAbilityDamage(user, ability).toLocaleString()
-                : ability.trueDamage
-                  ? Math.round(
-                        getAttackDamages(user) * (1 + ability.trueDamage / 100),
-                    ).toLocaleString()
-                  : "???"
-        }\n> 🔋 **Stamina Cost:** ${ability.stamina}`;
-
-        let cooldown: number;
-        if (cooldowns)
-            cooldown =
-                cooldowns.find((c) => c.move === ability.name && c.id === user.id)?.cooldown ?? 0;
-        else cooldown = ability.cooldown;
-
-        const dodgeScore = ability.dodgeScore ?? ability.trueDodgeScore;
-        content += `\n> ⏳ **Cooldown:** ${cooldown} turns\n> 🍃 **Dodge Score:** ${
-            dodgeScore ? dodgeScore : dodgeScore
-        }\n> \n> *${ability.description.replace(/{standName}/gi, stand.name)}*\n`;
-
-        embed.fields.push({
-            name: ability.name + (ability.special ? " ⭐" : ""),
-            value: content,
-            inline: ability.special || isLast ? false : true,
+    const totalSkillPoints = Object.values(stand.skillPoints).reduce((a, b) => a + b, 0);
+    if (totalSkillPoints > 0) {
+        const lines = Object.entries(stand.skillPoints)
+            .map(([k, v]) => `> • +${v} ${k}`)
+            .join("\n");
+        sections.push({
+            text: `### 📈 Bonuses (+${totalSkillPoints} Skill-Points)\n${lines}`,
         });
     }
 
     const passives = stand.passives ?? [];
     if (passives.length) {
-        embed.fields.push({
-            name: "Passives",
-            value: passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n"),
-            inline: false,
-        });
+        const lines = passives
+            .map((p, i) => `> ${i + 1}. \`${p.name}:\` ${p.description}`)
+            .join("\n");
+        sections.push({ text: `### 🌀 Passives\n${lines}` });
     }
 
-    return embed;
+    return {
+        title: `${stand.emoji ?? "✨"} ${stand.name}`,
+        description: stand.description,
+        sections,
+        color: stand.color ?? COLORS.primary,
+        footer: `Rarity: ${stand.rarity}`,
+        image: stand.image,
+    };
 };
 
-export const weaponAbilitiesEmbed = (
+export const buildWeaponAbilityView = (
     user: Fighter | RPGUserDataJSON | FightableNPC,
     cooldowns?: FightInfos["cooldowns"],
     chosenWeapon?: string,
-): APIEmbed => {
+): AbilityView | null => {
     const weapon = chosenWeapon
         ? findItem<Weapon>(chosenWeapon, true)
         : isFighter(user)
@@ -104,73 +123,90 @@ export const weaponAbilitiesEmbed = (
                         equipableItemTypes.WEAPON,
                 ),
             );
-    if (!weapon)
-        return {
-            title: "No weapon found",
-            description: "No weapon found",
-            color: 0xff0000,
-        };
+    if (!weapon) return null;
 
-    const totalWeaponSkillPoints = Object.values(weapon.effects.skillPoints).reduce(
+    const sections: SectionData[] = [];
+
+    for (const ability of weapon.abilities) {
+        const cooldown = resolveCooldown(user, ability.name, ability.cooldown, cooldowns);
+        const dodge = ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable";
+        sections.push({
+            text:
+                `### ${ability.special ? "⭐ " : ""}${ability.name}\n` +
+                `> *${ability.description.replace(/{weaponName}/gi, weapon.name)}*\n` +
+                `> 💥 **Damages:** ${formatAbilityDamage(user, ability)}\n` +
+                `> 🔋 **Stamina Cost:** ${ability.stamina}\n` +
+                `> ⏳ **Cooldown:** ${cooldown} turns\n` +
+                `> 🍃 **Dodge Score:** ${dodge}`,
+        });
+    }
+
+    const totalSkillPoints = Object.values(weapon.effects.skillPoints ?? {}).reduce(
         (a, b) => a + b,
         0,
     );
-
-    const embed: APIEmbed = {
-        title: weapon.name,
-        description:
-            weapon.description +
-            `\n\n**BONUSES:** +${totalWeaponSkillPoints} skill-points:\n${Object.entries(
-                weapon.effects.skillPoints,
-            )
-                .map(([key, value]) => `• +${value} ${key}`)
-                .join("\n")}`,
-        color: weapon.color,
-        footer: { text: `Rarity: ${weapon.rarity}` },
-        thumbnail: {
-            url: `https://cdn.discordapp.com/emojis/${getEmojiId(weapon.emoji)}.png`,
-        },
-        fields: [],
-    };
-
-    for (const ability of weapon.abilities) {
-        const index = weapon.abilities.findIndex((w) => w.name === ability.name);
-        const isLast = index === weapon.abilities.length - 1;
-        let content = `> 💥 **Damages:** ${
-            getAbilityDamage(user, ability)
-                ? getAbilityDamage(user, ability).toLocaleString()
-                : ability.trueDamage
-                  ? Math.round(
-                        getAttackDamages(user) * (1 + ability.trueDamage / 100),
-                    ).toLocaleString()
-                  : "???"
-        }\n> 🔋 **Stamina Cost:** ${ability.stamina}`;
-
-        let cooldown: number;
-        if (cooldowns)
-            cooldown =
-                cooldowns.find((c) => c.move === ability.name && c.id === user.id)?.cooldown ?? 0;
-        else cooldown = ability.cooldown;
-
-        content += `\n> ⏳ **Cooldown:** ${cooldown} turns\n> 🍃 **Dodge Score:** ${
-            ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable"
-        }\n> \n> *${ability.description.replace(/{weaponName}/gi, weapon.name)}*\n`;
-
-        embed.fields.push({
-            name: ability.name + (ability.special ? " ⭐" : ""),
-            value: content,
-            inline: ability.special || isLast ? false : true,
+    if (totalSkillPoints > 0) {
+        const lines = Object.entries(weapon.effects.skillPoints ?? {})
+            .map(([k, v]) => `> • +${v} ${k}`)
+            .join("\n");
+        sections.push({
+            text: `### 📈 Bonuses (+${totalSkillPoints} Skill-Points)\n${lines}`,
         });
     }
 
     const passives = weapon.passives ?? [];
     if (passives.length) {
-        embed.fields.push({
-            name: "Passives",
-            value: passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n"),
-            inline: false,
-        });
+        const lines = passives
+            .map((p, i) => `> ${i + 1}. \`${p.name}:\` ${p.description}`)
+            .join("\n");
+        sections.push({ text: `### 🌀 Passives\n${lines}` });
     }
 
-    return embed;
+    return {
+        title: `${weapon.emoji ?? "⚔️"} ${weapon.name}`,
+        description: weapon.description,
+        sections,
+        color: weapon.color ?? COLORS.primary,
+        footer: `Rarity: ${weapon.rarity}`,
+    };
+};
+
+const NOT_FOUND_STAND: V2Reply = containers.error("No stand found.");
+const NOT_FOUND_WEAPON: V2Reply = containers.error("No weapon found.");
+
+export const standAbilitiesContainer = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    cooldowns?: FightInfos["cooldowns"],
+    chosenStand?: Stand,
+): V2Reply => {
+    const view = buildStandAbilityView(user, cooldowns, chosenStand);
+    if (!view) return NOT_FOUND_STAND;
+    return containers.primary({
+        title: `# ${view.title}`,
+        description: view.description,
+        descriptionDivider: true,
+        sections: view.sections,
+        sectionDividers: true,
+        color: view.color,
+        image: view.image,
+        footer: view.footer,
+    });
+};
+
+export const weaponAbilitiesContainer = (
+    user: Fighter | RPGUserDataJSON | FightableNPC,
+    cooldowns?: FightInfos["cooldowns"],
+    chosenWeapon?: string,
+): V2Reply => {
+    const view = buildWeaponAbilityView(user, cooldowns, chosenWeapon);
+    if (!view) return NOT_FOUND_WEAPON;
+    return containers.primary({
+        title: `# ${view.title}`,
+        description: view.description,
+        descriptionDivider: true,
+        sections: view.sections,
+        sectionDividers: true,
+        color: view.color,
+        footer: view.footer,
+    });
 };

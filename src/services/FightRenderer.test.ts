@@ -6,8 +6,20 @@ vi.mock("../utils/Functions", () => ({
     splitEmbedIfExceedsLimit: vi.fn((embed: unknown) => [embed]),
     actionRow: vi.fn((components: unknown[]) => ({ kind: "ActionRow", components })),
     capitalize: vi.fn((s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)),
-    standAbilitiesEmbed: vi.fn(() => ({ description: "stand abilities embed" })),
-    weaponAbilitiesEmbed: vi.fn(() => ({ description: "weapon abilities embed" })),
+    buildStandAbilityView: vi.fn(() => ({
+        title: "Stand",
+        description: "stand abilities view",
+        sections: [],
+        color: 0,
+        footer: "",
+    })),
+    buildWeaponAbilityView: vi.fn(() => ({
+        title: "Weapon",
+        description: "weapon abilities view",
+        sections: [],
+        color: 0,
+        footer: "",
+    })),
     generateDiscordTimestamp: vi.fn(() => "TIMESTAMP"),
 }));
 

@@ -136,7 +136,12 @@ export const getAttackDamages = UserService.getAttackDamages;
 
 export const getAbilityDamage = UserService.getAbilityDamage;
 
-export { standAbilitiesEmbed, weaponAbilitiesEmbed } from "./ability_embeds";
+export {
+    buildStandAbilityView,
+    buildWeaponAbilityView,
+    standAbilitiesContainer,
+    weaponAbilitiesContainer,
+} from "./ability_embeds";
 
 export { getEmojiId } from "./format";
 

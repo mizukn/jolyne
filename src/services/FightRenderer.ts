@@ -347,19 +347,16 @@ const renderAbilityMenu = (
     availableAbilities: Ability[],
     selectCustomIdSuffix: "abilities" | "wabilities",
     title: string,
-    sourceEmbed: APIEmbed
+    view: ReturnType<typeof Functions.buildStandAbilityView>
 ): RenderResult => {
     const whosTurn = snap.whosTurn;
 
-    const fields = (sourceEmbed.fields ?? []).map((f) => ({
-        name: f.name,
-        value: f.value.length > 1024 ? f.value.slice(0, 1021) + "..." : f.value,
-    }));
-
     const opts = {
         title,
-        description: sourceEmbed.description ?? `It's **${whosTurn?.name}**'s turn — pick an ability.`,
-        fields,
+        description:
+            view?.description ?? `It's **${whosTurn?.name}**'s turn — pick an ability.`,
+        sections: view?.sections ?? [],
+        sectionDividers: true,
         color: FightTypeColor[snap.infos.type],
         selectMenus: [] as StringSelectMenuBuilder[],
         footer: `${availableAbilities.length} ability${availableAbilities.length === 1 ? "" : "s"} available`,
@@ -409,18 +406,18 @@ export function renderStandAbilityMenu(
     snap: FightSnapshot,
     availableAbilities: Ability[]
 ): RenderResult {
-    const embed = Functions.standAbilitiesEmbed(snap.whosTurn, snap.infos.cooldowns);
+    const view = Functions.buildStandAbilityView(snap.whosTurn, snap.infos.cooldowns);
     const title = `${snap.whosTurn?.stand?.emoji ?? "✨"} ${snap.whosTurn?.stand?.name ?? "Stand"} Abilities`;
-    return renderAbilityMenu(snap, availableAbilities, "abilities", title, embed);
+    return renderAbilityMenu(snap, availableAbilities, "abilities", title, view);
 }
 
 export function renderWeaponAbilityMenu(
     snap: FightSnapshot,
     availableAbilities: Ability[]
 ): RenderResult {
-    const embed = Functions.weaponAbilitiesEmbed(snap.whosTurn, snap.infos.cooldowns);
+    const view = Functions.buildWeaponAbilityView(snap.whosTurn, snap.infos.cooldowns);
     const title = `${snap.whosTurn?.weapon?.emoji ?? "⚔️"} ${snap.whosTurn?.weapon?.name ?? "Weapon"} Abilities`;
-    return renderAbilityMenu(snap, availableAbilities, "wabilities", title, embed);
+    return renderAbilityMenu(snap, availableAbilities, "wabilities", title, view);
 }
 
 export function renderForfeitConfirm(

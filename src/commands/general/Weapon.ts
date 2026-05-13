@@ -1,26 +1,9 @@
-import {
-    SlashCommandFile,
-    Chapter,
-    ChapterPart,
-    RPGUserDataJSON,
-    Consumable,
-    numOrPerc,
-    equipableItemTypes,
-    Weapon,
-} from "../../@types";
-import {
-    Message,
-    APIEmbed,
-    ButtonBuilder,
-    ButtonStyle,
-    MessageComponentInteraction,
-    ApplicationCommandOptionType,
-    AutocompleteInteraction,
-} from "discord.js";
+import { SlashCommandFile, equipableItemTypes, Weapon } from "../../@types";
+import { Message } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import * as ActionQuestsL from "../../rpg/Quests/ActionQuests";
 import * as EquippableItems from "../../rpg/Items/EquipableItems";
+import { containers } from "../../utils/containers";
 
 const Weapons = Object.values(EquippableItems).filter((x) => Functions.isWeapon(x));
 
@@ -46,21 +29,17 @@ const slashCommand: SlashCommandFile = {
                 (x) => ctx.userData.equippedItems[x] === equipableItemTypes.WEAPON
             );
         if (!hasWeaponEquipped) {
-            ctx.makeMessage({
-                content: "You don't have a weapon equipped!",
-            });
+            ctx.makeMessage(containers.error("You don't have a weapon equipped!"));
             return;
         }
         if (!Functions.findItem<Weapon>(hasWeaponEquipped, true)) {
-            ctx.makeMessage({
-                content: "That weapon doesn't exist...",
-            });
+            ctx.makeMessage(containers.error("That weapon doesn't exist..."));
             return;
         }
 
-        ctx.makeMessage({
-            embeds: [Functions.weaponAbilitiesEmbed(ctx.userData, null, hasWeaponEquipped)],
-        });
+        ctx.makeMessage(
+            Functions.weaponAbilitiesContainer(ctx.userData, null, hasWeaponEquipped),
+        );
     },
     autoComplete: async (interaction, userData, currentInput): Promise<void> => {
         const foundWeapons = Weapons.filter((x) =>
