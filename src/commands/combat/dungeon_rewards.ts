@@ -11,12 +11,17 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import DungeonHandler from "../../structures/DungeonHandler";
 import * as Functions from "../../utils/Functions";
 import { dungeonLogsWebhook } from "../../utils/Webhooks";
+import { containers, COLORS, SectionData } from "../../utils/containers";
 import {
     possibleModifiers,
     getTotalXpIncrease,
     getTotalDropIncrease,
     dungeonRewards as rewards,
 } from "./dungeon_config";
+
+const KARS = { emoji: "<:kars:1057261454421676092>", name: "Kars" } as const;
+const karsLine = (text: string): string =>
+    `${KARS.emoji} **${KARS.name}:** ${text}`;
 
 const timeFn = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -83,12 +88,11 @@ export async function giveRewards(
                         .join(", ")}) has tried to scam the dungeon system.`,
                 );
             });
-        return void ctx.makeMessage({
-            content:
-                "<:kars:1057261454421676092> **Kars:** Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]",
-            embeds: [],
-            components: [],
-        });
+        return void ctx.makeMessage(
+            containers.error(
+                karsLine("Wait, where's your key? Did you just scam me? [ANTICHEAT ERROR]"),
+            ),
+        );
     }
     const totalDamage = Object.values(dungeon.damageDealt).reduce((a, b) => a + b, 0);
 
@@ -194,45 +198,54 @@ export async function giveRewards(
     );
     if (!Transaction) {
         dungeon.message
-            .edit({
-                content: "<:kars:1057261454421676092> **Kars:** An error occurred.",
-                embeds: [],
-                components: [],
-            })
+            .edit({ ...containers.error(karsLine("An error occurred.")) })
             .catch(() => {});
         return;
     }
-    dungeon.message.edit({
-        content: `<:kars:1057261454421676092> **Kars:** well done, you've survived **${dungeon.getRoom()}** waves and beaten **${
-            dungeon.beatenEnemies.length
-        }** enemies (total damage: ${totalDamage.toLocaleString()}).\n\n${Object.keys(
-            dungeon.damageDealt,
+
+    const playerSections: SectionData[] = Object.keys(dungeon.damageDealt).map((x) => {
+        const tag = dungeon.players.find((f) => f.id === x)?.tag ?? x;
+        const dmg = (dungeon.damageDealt[x] ?? 0).toLocaleString();
+        const diff = Functions.getRewardsCompareData(
+            players.find((f) => f.id === x),
+            newPlayers.find((f) => f.id === x),
         )
-            .map((x) => {
-                return `- **${dungeon.players.find((f) => f.id === x).tag}**: ${(
-                    dungeon.damageDealt[x] ?? 0
-                ).toLocaleString()} damages dealt\n- - ${Functions.getRewardsCompareData(
-                    players.find((f) => f.id === x),
-                    newPlayers.find((f) => f.id === x),
-                ).join("\n- - ")}`;
-            })
-            .join("\n\n")}\n\n**Modifiers: (x${getTotalXpIncrease(
-            selectedModifiers,
-        )} XP, x${getTotalDropIncrease(selectedModifiers)} Drop)**\n${
-            selectedModifiers.length
-                ? selectedModifiers
-                      .map((x) => {
-                          const modifier = possibleModifiers.find((f) => f.id === x);
-                          return `- ${modifier?.emoji} ${Functions.capitalize(
-                              x.replace(/_/g, " "),
-                          )}: ${modifier?.description}`;
-                      })
-                      .join("\n")
-                : "None"
-        }`,
-        embeds: [],
-        components: [],
+            .map((line) => `> - ${line}`)
+            .join("\n");
+        return { text: `### 🗡️ **${tag}**\n> Damages dealt: **${dmg}**\n${diff}` };
     });
+
+    const modifierLines = selectedModifiers.length
+        ? selectedModifiers
+              .map((x) => {
+                  const modifier = possibleModifiers.find((f) => f.id === x);
+                  return `> ${modifier?.emoji} **${Functions.capitalize(
+                      x.replace(/_/g, " "),
+                  )}:** ${modifier?.description}`;
+              })
+              .join("\n")
+        : "> *None*";
+
+    const summary = containers.primary({
+        title: "# 🗝️ Dungeon Cleared",
+        description: karsLine(
+            `Well done, you survived **${dungeon.getRoom()}** waves and beat **${
+                dungeon.beatenEnemies.length
+            }** enemies (total damage: ${totalDamage.toLocaleString()}).`,
+        ),
+        descriptionDivider: true,
+        sections: [
+            ...playerSections,
+            {
+                text:
+                    `### 🎲 Modifiers (x${getTotalXpIncrease(selectedModifiers)} XP, ` +
+                    `x${getTotalDropIncrease(selectedModifiers)} Drop)\n${modifierLines}`,
+            },
+        ],
+        sectionDividers: true,
+        color: COLORS.primary,
+    });
+    dungeon.message.edit({ ...summary });
     const canvas = players.length === 2 ? createCanvas(1024, 512) : createCanvas(512, 512);
     const ctxCanvas = canvas.getContext("2d");
 
