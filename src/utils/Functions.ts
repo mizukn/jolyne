@@ -26,16 +26,7 @@ import {
 } from "../@types";
 import * as Stands from "../rpg/Stands";
 import { FightableNPCS, NPCs } from "../rpg/NPCs";
-import {
-    ActionRowBuilder,
-    AnyComponentBuilder,
-    ButtonBuilder,
-    StringSelectMenuBuilder,
-    APIEmbed,
-    Utils,
-    MessageActionRowComponent,
-    ActionRow,
-} from "discord.js";
+import type { APIEmbed } from "discord.js";
 import { Fighter, FightInfos } from "../structures/FightHandler";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
@@ -170,10 +161,7 @@ export { generateDailyQuests, getDailyQuestRowRewards } from "./quest_factories"
 
 export const isRPGUserDataJSON = UserService.isRPGUserDataJSON;
 
-export const actionRow = (
-    components: (ButtonBuilder | StringSelectMenuBuilder)[],
-): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder> =>
-    new ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>().addComponents(...components);
+export { actionRow } from "./discord";
 
 export const isFighter = UserService.isFighter;
 
