@@ -1,10 +1,4 @@
-import type {
-    FightableNPC,
-    RPGUserDataJSON,
-    Stand,
-    EquipableItem,
-    Weapon,
-} from "../@types";
+import type { EquipableItem } from "../@types";
 import * as Stands from "../rpg/Stands";
 import {
     chance,
