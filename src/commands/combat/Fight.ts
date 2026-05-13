@@ -486,13 +486,16 @@ const slashCommand: SlashCommandFile = {
                     // todo: add rewards
                     // todo: check if quest has to add chapter quests and/or emails
 
-                    await fight.message.reply({
+                    const victoryMsg = await fight.message.reply({
                         content: `:crossed_swords: Congratulations on beating **${
                             npc.name
                         }**, you got the following rewards: \n${winContent.join(
                             " "
                         )}\n\n---> Use the ${command} command to see your progression.`,
                     });
+
+                    // Store victoryMsg on the fight object temporarily so we can access it outside
+                    (fight as any).victoryMsg = victoryMsg;
                 }
 
                 const oldData = await ctx.client.database.getRPGUserData(ctx.userData.id);
@@ -539,15 +542,19 @@ const slashCommand: SlashCommandFile = {
                 const nextFightButton = new ButtonBuilder()
                     .setCustomId(ctx.interaction.id + "nfight")
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji(ctx.client.localEmojis.arrowRight);
+                    .setEmoji(ctx.client.localEmojis.arrowRight)
+                    .setLabel("Next Fight");
+
+                const victoryMsg = (fight as any).victoryMsg as Message | undefined;
 
                 if (
+                    victoryMsg &&
                     (chapterQuestsNPC.length !== 0 ||
                         dailyQuestsNPC.length !== 0 ||
                         sideQuestsNPC.length !== 0) &&
                     ctx.userData.health > 10
                 ) {
-                    await fight.message.edit({
+                    await victoryMsg.edit({
                         components: [Functions.actionRow([nextFightButton])],
                     });
 
@@ -555,7 +562,7 @@ const slashCommand: SlashCommandFile = {
                         i.customId === ctx.interaction.id + "nfight" &&
                         i.user.id === ctx.interaction.user.id;
 
-                    const collector = ctx.channel.createMessageComponentCollector({
+                    const collector = victoryMsg.createMessageComponentCollector({
                         filter,
                         time: 30000,
                     });
@@ -566,7 +573,7 @@ const slashCommand: SlashCommandFile = {
                         if (await ctx.antiCheat(true)) {
                             return;
                         }
-                        return ctx.client.commands.get("fight").execute(ctx, fight.message);
+                        return ctx.client.commands.get("fight").execute(ctx, victoryMsg);
                     });
                 }
             });
@@ -660,7 +667,7 @@ const slashCommand: SlashCommandFile = {
                             .addOptions(
                                 chapterQuestsNPC
                                     .map((r) => ({
-                                        label: Functions.findNPC(r.npc, true).name,
+                                        label: Functions.findNPC(r.npc, true).name + ` [LVL ${Functions.findNPC<FightableNPC>(r.npc, true).level}]`,
                                         description: ctx.translate<string>("fight:FROM_CHAPTER"),
                                         value: r.id,
                                         emoji: Functions.findNPC(r.npc, true).emoji,
@@ -670,7 +677,7 @@ const slashCommand: SlashCommandFile = {
                             .addOptions(
                                 dailyQuestsNPC
                                     .map((r) => ({
-                                        label: Functions.findNPC(r.npc, true).name,
+                                        label: Functions.findNPC(r.npc, true).name + ` [LVL ${Functions.findNPC<FightableNPC>(r.npc, true).level}]`,
                                         description: ctx.translate<string>("fight:FROM_DAILY"),
                                         value: r.id,
                                         emoji: Functions.findNPC(r.npc, true).emoji,
@@ -680,7 +687,7 @@ const slashCommand: SlashCommandFile = {
                             .addOptions(
                                 sideQuestsNPC
                                     .map((r) => ({
-                                        label: Functions.findNPC(r.npc, true).name,
+                                        label: Functions.findNPC(r.npc, true).name + ` [LVL ${Functions.findNPC<FightableNPC>(r.npc, true).level}]`,
                                         description: ctx.translate<string>("fight:FROM_SIDE_QUEST"),
                                         value: r.id,
                                         emoji: Functions.findNPC(r.npc, true).emoji,
