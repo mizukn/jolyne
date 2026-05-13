@@ -1,201 +1,202 @@
 import {
     RPGUserDataJSON,
     SlashCommandFile,
-    Leaderboard,
-    Item,
     RPGUserSettings,
     Consumable,
+    Item,
 } from "../../@types";
-import { Message, StringSelectMenuBuilder } from "discord.js";
+import {
+    Message,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder,
+    MessageActionRowComponentBuilder,
+    InteractionResponse,
+} from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as Emojis from "../../emojis.json";
-import { containers } from "../../utils/containers";
+import { containers, SectionData, V2Reply } from "../../utils/containers";
 import adventureCommand from "../adventure/AdventureSubcommands";
+import { cloneDeep } from "lodash";
 
+/**
+ * Helper to convert boolean settings to emojis.
+ */
 function booleanToEmoji(bool: boolean | unknown): string {
     return bool ? Emojis.yes : Emojis.no;
 }
 
-const separator = `-------------------------------------------`;
+/**
+ * Metadata for all user settings.
+ */
+const SETTINGS_METADATA = {
+    notifications: {
+        title: "Notifications",
+        emoji: "🔔",
+        description: "Manage where and when you receive pings and emails.",
+        items: [
+            { id: "email", name: "Email", emoji: "📧", description: "Receive email notifications for important updates." },
+            { id: "skill_points", name: "Skill Points", emoji: "➕", description: "Receive notifications when you have unused skill points." },
+            { id: "black_market", name: "Black Market", emoji: "🃏", description: "Get notified about black market deals." },
+            { id: "daily_quests", name: "Daily Quests", emoji: "📜", description: "Reminders for your daily quests." },
+            { id: "low_health_or_stamina", name: "Low Health/Stamina", emoji: "🩹", description: "Get notified when your health or stamina is low." },
+            { id: "reached_max_level", name: "Reached Max Level", emoji: "<:a_:927885909976834078>", description: "Get notified when you reach the maximum level for your current prestige lvl." },
+        ] as const,
+    },
+    fight: {
+        title: "Fight",
+        emoji: "🗡️",
+        description: "Configure combat behavior and target locking preferences.",
+        items: [
+            { id: "auto_target_lock", name: "Auto Target Lock", emoji: "🎯", description: "Automatically locks onto the lowest target in fights." },
+        ] as const,
+    },
+    auto_heal: {
+        title: "Auto-Heal",
+        emoji: "❤️‍🩹",
+        description: "Customize how your items are used automatically when low on health.",
+        items: [
+            { id: "sort_by_strongest", name: "Sort by Strongest", emoji: "💪", description: "Sort healing items by strongest effect first." },
+        ] as const,
+    },
+} as const;
 
-function itemsFoundInStringArr(str: string[]): Consumable[] {
-    return str
-        .map((id) => Functions.findItem<Consumable>(id))
-        .filter((x) => Functions.isConsumable(x));
-}
+type SettingCategory = keyof typeof SETTINGS_METADATA;
 
-function getItems(str: string): {
-    results: Item[];
-    notFound: string[];
-} {
-    const arr = str.split(",");
-    const results = itemsFoundInStringArr(arr);
-    const notFound: string[] = [];
-    arr.forEach((id, i) => {
-        if (!results[i]) notFound.push(arr[i]);
+/**
+ * Builds the main settings summary UI.
+ */
+function buildMainUI(ctx: CommandInteractionContext, sessionId: string): V2Reply {
+    const sections: SectionData[] = [];
+
+    for (const [key, cat] of Object.entries(SETTINGS_METADATA)) {
+        const category = key as SettingCategory;
+        const count = cat.items.length;
+        const activeCount = cat.items.filter(item => (ctx.userData.settings[category] as any)?.[item.id]).length;
+
+        sections.push({
+            text: `### ${cat.emoji} **${cat.title}**\n> ${cat.description}\n**Status:** ${activeCount}/${count} enabled`,
+            accessory: new ButtonBuilder()
+                .setCustomId(`settings:${sessionId}:jump:${category}`)
+                .setLabel(`Edit ${cat.title}`)
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji(cat.emoji)
+        });
+    }
+
+    // Add Language section separately as it's a redirect
+    sections.push({
+        text: `### 🌐 **Language**\n> Change your adventure language.\n**Current:** \`${ctx.userData.language || "en-US"}\``,
+        accessory: new ButtonBuilder()
+            .setCustomId(`settings:${sessionId}:jump:language`)
+            .setLabel("Change Language")
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji("🌐")
     });
 
-    return { results, notFound };
+    return containers.primary({
+        title: "⚙️ Settings",
+        description: "Manage your adventure preferences and notifications.",
+        descriptionDivider: true,
+        sections,
+        sectionDividers: true,
+    });
 }
 
-function getExcludedItems(str: RPGUserSettings["auto_heal"]["excluded_items"]): Consumable[] {
-    return str
-        .map((id) => Functions.findItem<Consumable>(id))
-        .filter((item) => Functions.isConsumable(item));
+/**
+ * Builds the UI for a specific settings category.
+ */
+function buildCategoryUI(ctx: CommandInteractionContext, sessionId: string, category: SettingCategory): V2Reply {
+    const meta = SETTINGS_METADATA[category];
+    const sections: SectionData[] = [];
+
+    for (const item of meta.items) {
+        const value = (ctx.userData.settings[category] as any)?.[item.id];
+        sections.push({
+            text: `### ${item.emoji} **${item.name}**\n> ${item.description}\n**Status:** ${booleanToEmoji(value)}`,
+            accessory: new ButtonBuilder()
+                .setCustomId(`settings:${sessionId}:toggle:${category}:${item.id}`)
+                .setLabel(value ? "Enabled" : "Disabled")
+                .setStyle(value ? ButtonStyle.Success : ButtonStyle.Danger)
+        });
+    }
+
+    if (category === "auto_heal") {
+        const excludedCount = ctx.userData.settings.auto_heal?.excluded_items?.length || 0;
+        const excludedItemsStr = (ctx.userData.settings.auto_heal?.excluded_items || [])
+            .map(id => Functions.findItem(id))
+            .filter(Boolean)
+            .map(item => `${item.emoji}`)
+            .join(" ") || "None";
+
+        sections.push({
+            text: `### 🚫 **Excluded Items**\n> Items that should not be used for auto-healing.\n**Excluded (${excludedCount}):** ${excludedItemsStr}`,
+            accessory: new ButtonBuilder()
+                .setCustomId(`settings:${sessionId}:jump:exclusions`)
+                .setLabel("Manage Exclusions")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji("🚫")
+        });
+    }
+
+    const reply = containers.primary({
+        title: `${meta.emoji} ${meta.title} Settings`,
+        description: meta.description,
+        descriptionDivider: true,
+        sections,
+        sectionDividers: true,
+    });
+
+    const backButton = new ButtonBuilder()
+        .setCustomId(`settings:${sessionId}:back`)
+        .setLabel("Back")
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("⬅️");
+
+    reply.components.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(backButton));
+
+    return reply;
 }
 
-function generateFightField(user: RPGUserDataJSON, commands?: string[]): { name: string; value: string } {
-    return {
-        //"Fight",
-        name: `🗡️ Fight`,
-        value:
-            (commands
-                ? `${separator}\n${commands
-                      .map((x) => `${Emojis.arrowRight} ${x}`)
-                      .join("\n")}\n${separator}\n`
-                : "") +
-            descriptions.fight.map((x) => {
-                const value = user.settings.fight[x.id];
-                return `- ${x.emoji} **${x.name}:** ${
-                    x.format ? x.format(value) : booleanToEmoji(value)
-                }\n- - ${x.description}`;
-            }),
-    };
-}
+/**
+ * Builds the UI for managing auto-heal exclusions.
+ */
+function buildExclusionsUI(ctx: CommandInteractionContext, sessionId: string): V2Reply {
+    const excluded = (ctx.userData.settings.auto_heal?.excluded_items || [])
+        .map(id => Functions.findItem(id))
+        .filter(Boolean);
 
-type SettingDescriptions<T> = {
-    [K in keyof T]: {
-        id: keyof T[K]; // Reference each key in the subcategories
-        name: string;
-        emoji: string;
-        description: string;
-        format?: (value: T[K][keyof T[K]]) => string;
-    }[];
-};
+    const sections: SectionData[] = excluded.slice(0, 10).map(item => ({
+        text: `${item.emoji} **${item.name}**`,
+        accessory: new ButtonBuilder()
+            .setCustomId(`settings:${sessionId}:remove_exclusion:${item.id}`)
+            .setLabel("Remove")
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji("🗑️")
+    }));
 
-const descriptions: SettingDescriptions<RPGUserSettings> = {
-    fight: [
-        {
-            id: "auto_target_lock",
-            name: "Auto Target Lock",
-            emoji: "🎯",
-            description: "Automatically locks onto the lowest target in fights.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-    ],
-    notifications: [
-        {
-            id: "email",
-            name: "Email",
-            emoji: "📧",
-            description: "Receive email notifications for important updates.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-        {
-            id: "skill_points",
-            name: "Skill Points",
-            emoji: "➕",
-            description: "Receive notifications when you have unused skill points.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-        {
-            id: "black_market",
-            name: "Black Market",
-            emoji: "🃏",
-            description: "Get notified about black market deals.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-        {
-            id: "daily_quests",
-            name: "Daily Quests",
-            emoji: "📜",
-            description: "Reminders for your daily quests.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-        {
-            id: "low_health_or_stamina",
-            name: "Low Health/Stamina",
-            emoji: "🩹",
-            description: "Get notified when your health or stamina is low.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-        {
-            id: "reached_max_level",
-            name: "Reached Max Level",
-            emoji: "<:a_:927885909976834078>",
-            description:
-                "Get notified when you reach the maximum level for your current prestige lvl.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-    ],
-    auto_heal: [
-        {
-            id: "sort_by_strongest",
-            name: "Sort by Strongest",
-            emoji: "💪",
-            description: "Sort healing items by strongest effect first.",
-            format: (value: unknown | string) => booleanToEmoji(value as boolean),
-        },
-        {
-            id: "excluded_items",
-            name: "Excluded Items",
-            emoji: "🚫",
-            description:
-                "Items that should not be used for auto healing. All T-tier items are excluded",
-            format: (value: unknown | string[]) => {
-                const result = getExcludedItems(value as string[])
-                    .map((x) => `${x.emoji} \`${x.name}\``)
-                    .join(", ");
-                return result || "None";
-            },
-        },
-    ],
-};
+    const reply = containers.primary({
+        title: "🚫 Auto-Heal Exclusions",
+        description: excluded.length 
+            ? "Remove items from the exclusion list below. To add items, use `/settings auto-heal exclusions add`."
+            : "No items are currently excluded. Use `/settings auto-heal exclusions add` to exclude specific items.",
+        descriptionDivider: true,
+        sections: sections,
+        sectionDividers: true,
+        footer: excluded.length > 10 ? `Showing 10 of ${excluded.length} items. Use the command to manage all.` : undefined,
+    });
 
-function generateNotificationsField(
-    user: RPGUserDataJSON,
-    commands?: string[]
-): { name: string; value: string } {
-    return {
-        name: `🔔 Notifications`,
-        value:
-            (commands
-                ? `${separator}\n${commands
-                      .map((x) => `${Emojis.arrowRight} ${x}`)
-                      .join("\n")}\n${separator}\n`
-                : "") +
-            descriptions.notifications
-                .map((x) => {
-                    const value = user.settings.notifications[x.id];
-                    return `- ${x.emoji} **${x.name}:** ${
-                        x.format ? x.format(value) : booleanToEmoji(value)
-                    }\n- - ${x.description}`;
-                })
-                .join("\n"),
-    };
-}
+    const backButton = new ButtonBuilder()
+        .setCustomId(`settings:${sessionId}:jump:auto_heal`)
+        .setLabel("Back")
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("⬅️");
 
-function generateAutoHealField(user: RPGUserDataJSON, commands?: string[]): { name: string; value: string } {
-    return {
-        //"❤️‍🩹 Auto-Heal",
-        name: `❤️‍🩹 Auto-Heal`,
-        value:
-            (commands
-                ? `${separator}\n${commands
-                      .map((x) => `${Emojis.arrowRight} ${x}`)
-                      .join("\n")}\n${separator}\n`
-                : "") +
-            descriptions.auto_heal
-                .map((x) => {
-                    const value = user.settings.auto_heal[x.id];
-                    return `- ${x.emoji} **${x.name}:** ${
-                        x.format ? x.format(value) : `${value}`
-                    }\n- - ${x.description}`;
-                })
-                .join("\n"),
-    };
+    reply.components.push(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(backButton));
+
+    return reply;
 }
 
 const slashCommand: SlashCommandFile = {
@@ -205,66 +206,44 @@ const slashCommand: SlashCommandFile = {
     ],
     data: {
         name: "settings",
-        description: "Shows the leaderboard",
+        description: "Manage your adventure settings and preferences.",
         type: ApplicationCommandOptionType.Subcommand,
         options: [
             {
                 name: "view",
-                description: "Shows your settings",
+                description: "Shows all your settings",
+                type: 1,
+            },
+            {
+                name: "notifications",
+                description: "Change your notification settings",
+                type: 1,
+            },
+            {
+                name: "fight",
+                description: "Change your fight settings",
                 type: 1,
             },
             {
                 name: "auto-heal",
-                description: "Change your auto-heal settings",
+                description: "Manage auto-heal preferences",
                 type: ApplicationCommandOptionType.SubcommandGroup,
                 options: [
                     {
-                        name: "sort-by-strongest",
-                        description: "Enable auto-heal",
+                        name: "view",
+                        description: "View auto-heal settings",
                         type: 1,
-                        options: [
-                            {
-                                name: "mode",
-                                description:
-                                    "Should we sort your items that give the most effective healing?",
-                                type: ApplicationCommandOptionType.Boolean,
-                                required: true,
-                            },
-                        ],
                     },
                     {
                         name: "sort",
-                        description: "Sort healing items by strongest effect first",
+                        description: "Toggle sorting by strongest effect",
                         type: 1,
                         options: [
                             {
                                 name: "mode",
-                                description:
-                                    "Should we sort your items that give the most effective healing?",
+                                description: "Should we sort your items by effectiveness?",
                                 type: ApplicationCommandOptionType.Boolean,
                                 required: true,
-                            },
-                        ],
-                    },
-                    // exclude-items option
-                    {
-                        name: "exclude-items",
-                        description: "Exclude items from auto-heal",
-                        type: 1,
-                        options: [
-                            {
-                                name: "add",
-                                description: "The items to exclude separated by commas",
-                                type: ApplicationCommandOptionType.String,
-                                required: false,
-                                autocomplete: false,
-                            },
-                            {
-                                name: "remove",
-                                description:
-                                    "The items to remove from the exclusion list separated by commas",
-                                type: ApplicationCommandOptionType.String,
-                                required: false,
                             },
                         ],
                     },
@@ -278,12 +257,10 @@ const slashCommand: SlashCommandFile = {
                                 description: "The items to exclude separated by commas",
                                 type: ApplicationCommandOptionType.String,
                                 required: false,
-                                autocomplete: false,
                             },
                             {
                                 name: "remove",
-                                description:
-                                    "The items to remove from the exclusion list separated by commas",
+                                description: "The items to remove from exclusion separated by commas",
                                 type: ApplicationCommandOptionType.String,
                                 required: false,
                             },
@@ -292,307 +269,133 @@ const slashCommand: SlashCommandFile = {
                 ],
             },
             {
-                name: "notifications",
-                description: "Change your notification settings",
-                type: 1,
-                // there will be a select string menu
-            },
-            {
                 name: "language",
                 description: "Change your adventure language.",
                 type: 1,
             },
-            {
-                name: "fight",
-                description: "Change your fight settings",
-                type: 1,
-            },
         ],
     },
-    execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
+    execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void | InteractionResponse<boolean>> => {
         const subcommand = ctx.options.getSubcommand();
+        const group = ctx.options.getSubcommandGroup(false);
 
-        if (subcommand === "view") {
-            const user = ctx.userData;
-            return void ctx.makeMessage(
-                containers.primary({
-                    title: "⚙️ Settings",
-                    fields: [
-                        generateNotificationsField(user, [
-                            ctx.client.getSlashCommandMention("settings notifications"),
-                        ]),
-                        generateAutoHealField(user, [
-                            ctx.client.getSlashCommandMention(
-                                "settings auto-heal sort"
-                            ),
-                            ctx.client.getSlashCommandMention("settings auto-heal exclusions"),
-                            ctx.client.getSlashCommandMention("heal"),
-                        ]),
-                        generateFightField(user, [
-                            ctx.client.getSlashCommandMention("settings fight"),
-                        ]),
-                    ],
-                })
-            );
-        } else if (subcommand === "language") {
+        if (subcommand === "language") {
             return adventureCommand.execute(ctx);
-        } else if (subcommand === "notifications" || subcommand === "fight") {
-            const type = (subcommand === "notifications" ? "notifications" : "fight") as
-                | "notifications"
-                | "fight";
-            const strigSelectMenu = () =>
-                new StringSelectMenuBuilder()
-                    .setCustomId(ctx.interaction.id + type)
-                    .setPlaceholder("Select an option to toggle")
-                    .setMinValues(1)
-                    .setMaxValues(descriptions[type].length)
-                    .addOptions(
-                        /*Object.entries(ctx.userData.settings.notifications).map(([key, value]) => ({
-                            label:
-                                descriptions.notifications.find((x) => x.id === key)?.name ??
-                                key
-                                    .replace(/_/g, " ")
-                                    .split(" ")
-                                    .map((x) => x[0].toUpperCase() + x.slice(1))
-                                    .join(" "),
-                            value: key,
-                            emoji:
-                                descriptions.notifications.find((x) => x.id === key)?.emoji ??
-                                booleanToEmoji(value),
-                            description:
-                                descriptions.notifications.find((x) => x.id === key)?.description ??
-                                "Placeholder",
-                        }))
-                    )*/
-                        Object.values(descriptions[type]).map((value) => {
-                            const id = value.id;
-                            const inValue =
-                                ctx.userData.settings[type][
-                                    id as keyof RPGUserSettings[typeof type]
-                                ];
-                            if (inValue === undefined) return;
-
-                            return {
-                                value: id,
-                                emoji: booleanToEmoji(inValue),
-                                description: value.description,
-                                label: value.name,
-                            };
-                        })
-                    );
-
-            ctx.makeMessage(
-                containers.primary({
-                    description: "Select an option to toggle",
-                    fields: [
-                        type === "notifications"
-                            ? generateNotificationsField(ctx.userData)
-                            : generateFightField(ctx.userData),
-                    ],
-                    selectMenus: [strigSelectMenu()],
-                })
-            );
-
-            const collector = ctx.channel.createMessageComponentCollector({
-                filter: (i) =>
-                    i.user.id === ctx.user.id && i.customId === ctx.interaction.id + type,
-                time: 60000,
-            });
-
-            collector.on("collect", async (i) => {
-                if (!i.isStringSelectMenu()) return;
-                if (await ctx.antiCheat(true)) return;
-
-                for (let x = 0; x < i.values.length; x++) {
-                    const key = i.values[x] as keyof RPGUserSettings["notifications" | "fight"];
-                    if (ctx.userData.settings[type][key] === undefined) return;
-
-                    // @ts-expect-error - I know what I'm doing
-                    ctx.userData.settings[type][key] = !ctx.userData.settings[type][key] as boolean;
-                }
-
-                if (i.values.length > 0) {
-                    ctx.client.database.saveUserData(ctx.userData);
-
-                    ctx.makeMessage(
-                        containers.primary({
-                            description: `Set the setting${
-                                i.values.length > 1 ? "s" : ""
-                            } to: ${i.values
-                                .map((x) => {
-                                    const key = x as keyof RPGUserSettings[
-                                        | "notifications"
-                                        | "fight"];
-                                    return (
-                                        `\`${x}:\` ` +
-                                        booleanToEmoji(ctx.userData.settings[type][key])
-                                    );
-                                })
-                                .join(", ")}`,
-                            fields: [
-                                type === "notifications"
-                                    ? generateNotificationsField(ctx.userData)
-                                    : generateFightField(ctx.userData),
-                            ],
-                            selectMenus: [strigSelectMenu()],
-                        })
-                    );
-
-                    i.deferUpdate();
-                }
-            });
-
-            collector.on("end", () => {});
-        } else if (subcommand === "exclude-items" || subcommand === "exclusions") {
-            /*const subcommandGroup = ctx.options.getSubcommand();
-            if (subcommandGroup === "add") {
-                const items = ctx.options.getString("add", false);
-                if (!items) {
-                    return void ctx.makeMessage({
-                        content: "You didn't provide any items to exclude.",
-                    });
-                }
-
-                const { results, notFound } = getItems(items);
-                if (notFound.length) {
-                    return void ctx.makeMessage({
-                        content: `The following items were not found: ${notFound.join(", ")}`,
-                    });
-                }
-
-                const excludedItems = ctx.userData.settings.auto_heal.excluded_items;
-                const newItems = results.map((x) => x.id);
-                ctx.userData.settings.auto_heal.excluded_items = [...excludedItems, ...newItems];
-                ctx.client.database.saveUserData(ctx.userData);
-
-                return void ctx.makeMessage({
-                    content: `Added the following items to the exclusion list: ${results
-                        .map((x) => x.name)
-                        .join(", ")}`,
-                });
-            } else if (subcommandGroup === "remove") {
-                const items = ctx.options.getString("remove", false);
-                if (!items) {
-                    return void ctx.makeMessage({
-                        content: "You didn't provide any items to remove.",
-                    });
-                }
-
-                const { results, notFound } = getItems(items);
-                if (notFound.length) {
-                    return void ctx.makeMessage({
-                        content: `The following items were not found: ${notFound.join(", ")}`,
-                    });
-                }
-
-                const excludedItems = ctx.userData.settings.auto_heal.excluded_items;
-                const newItems = results.map((x) => x.id);
-
-                ctx.userData.settings.auto_heal.excluded_items = excludedItems.filter(
-                    (x) => !newItems.includes(x)
-                );
-
-                ctx.client.database.saveUserData(ctx.userData);
-
-                return void ctx.makeMessage({
-                    content: `Removed the following items from the exclusion list: ${results
-                        .map((x) => x.name)
-                        .join(", ")}`,
-                });
-           }*/
-            const toExclude = ctx.options.getString("add", false);
-            const toRemove = ctx.options.getString("remove", false);
-
-            const msg = []; // we will push the messages here
-            // example: "Added the following items to the exclusion list: item1, item2"
-
-            if (toExclude) {
-                const { results, notFound } = getItems(toExclude);
-                if (notFound.length) {
-                    msg.push(
-                        `${msg.length + 1}. The following items were not found: ${notFound
-                            .map((x) => `\`${x}\``)
-                            .join(", ")} \`[type=add]\``
-                    );
-                }
-
-                const excludedItems = ctx.userData.settings.auto_heal.excluded_items;
-                const newItems = results.filter((x) => !excludedItems.includes(x.id));
-                ctx.userData.settings.auto_heal.excluded_items = [
-                    ...excludedItems,
-                    ...newItems.map((x) => x.id),
-                ];
-
-                if (newItems.length) {
-                    msg.push(
-                        `${
-                            msg.length + 1
-                        }. Added the following items to the exclusion list: ${newItems
-                            .map((x) => `${x.emoji} **${x.name}**`)
-                            .join(", ")}`
-                    );
-                }
-            }
-
-            if (toRemove) {
-                const { results, notFound } = getItems(toRemove);
-                if (notFound.length) {
-                    msg.push(
-                        `${msg.length + 1}. The following items were not found: ${notFound
-                            .map((x) => `\`${x}\``)
-                            .join(", ")} \`[type=remove]\``
-                    );
-                }
-
-                const excludedItems = ctx.userData.settings.auto_heal.excluded_items;
-                const newItems = results.map((x) => x.id);
-
-                const oldLength = excludedItems.length;
-                ctx.userData.settings.auto_heal.excluded_items = excludedItems.filter(
-                    (x) => !newItems.includes(x)
-                );
-
-                if (oldLength !== ctx.userData.settings.auto_heal.excluded_items.length)
-                    msg.push(
-                        `${
-                            msg.length + 1
-                        }. Removed the following items from the exclusion list: ${results
-                            .map((x) => `${x.emoji} **${x.name}**`)
-                            .join(", ")}`
-                    );
-            }
-
-            if (msg.length) {
-                ctx.client.database.saveUserData(ctx.userData);
-
-                return void ctx.makeMessage({
-                    content: msg.join("\n"),
-                });
-            } else {
-                return void ctx.makeMessage({
-                    content: "You didn't provide any items to exclude or remove.",
-                });
-            }
-        } else if (subcommand === "sort-by-strongest" || subcommand === "sort") {
-            const mode = ctx.options.getBoolean("mode", true);
-            if (mode === undefined) {
-                return void ctx.makeMessage({
-                    content: "You didn't provide a mode.",
-                });
-            }
-            if (ctx.userData.settings.auto_heal.sort_by_strongest === mode) {
-                return void ctx.makeMessage({
-                    content: `The auto-heal mode is already set to: ${booleanToEmoji(mode)}`,
-                });
-            }
-
-            ctx.userData.settings.auto_heal.sort_by_strongest = mode;
-            ctx.client.database.saveUserData(ctx.userData);
-
-            return void ctx.makeMessage({
-                content: `Set the auto-heal mode to: ${booleanToEmoji(mode)}`,
-            });
         }
+
+        // Quick Apply for sort/exclusions if options are provided
+        if (subcommand === "sort" && group === "auto-heal") {
+            const mode = ctx.options.getBoolean("mode", true);
+            const oldData = cloneDeep(ctx.userData);
+            if (!ctx.userData.settings.auto_heal) ctx.userData.settings.auto_heal = {};
+            ctx.userData.settings.auto_heal.sort_by_strongest = mode;
+            await ctx.client.database.handleTransaction([{ oldData, newData: ctx.userData }], "Update Auto-Heal Sort");
+            return ctx.makeMessage(containers.success(`Auto-heal sort by strongest set to: ${booleanToEmoji(mode)}`));
+        }
+
+        if (subcommand === "exclusions" && group === "auto-heal") {
+            const toAdd = ctx.options.getString("add");
+            const toRemove = ctx.options.getString("remove");
+            
+            if (toAdd || toRemove) {
+                const oldData = cloneDeep(ctx.userData);
+                const updates: string[] = [];
+                if (!ctx.userData.settings.auto_heal) ctx.userData.settings.auto_heal = { excluded_items: [] };
+                if (!ctx.userData.settings.auto_heal.excluded_items) ctx.userData.settings.auto_heal.excluded_items = [];
+                
+                if (toAdd) {
+                    const ids = toAdd.split(",").map(s => s.trim().toLowerCase());
+                    for (const id of ids) {
+                        const item = Functions.findItem(id);
+                        if (item && !ctx.userData.settings.auto_heal.excluded_items.includes(item.id)) {
+                            ctx.userData.settings.auto_heal.excluded_items.push(item.id);
+                            updates.push(`+ ${item.emoji} ${item.name}`);
+                        }
+                    }
+                }
+                
+                if (toRemove) {
+                    const ids = toRemove.split(",").map(s => s.trim().toLowerCase());
+                    for (const id of ids) {
+                        const item = Functions.findItem(id);
+                        if (item) {
+                            ctx.userData.settings.auto_heal.excluded_items = ctx.userData.settings.auto_heal.excluded_items.filter(x => x !== item.id);
+                            updates.push(`- ${item.emoji} ${item.name}`);
+                        }
+                    }
+                }
+
+                if (updates.length > 0) {
+                    await ctx.client.database.handleTransaction([{ oldData, newData: ctx.userData }], "Update Auto-Heal Exclusions");
+                    return ctx.makeMessage(containers.success(`Updated exclusions:\n${updates.join("\n")}`));
+                }
+            }
+        }
+
+        const sessionId = `${ctx.user.id}${Date.now()}`;
+        
+        let initialView: "main" | SettingCategory | "exclusions" = "main";
+        if (subcommand === "notifications") initialView = "notifications";
+        else if (subcommand === "fight") initialView = "fight";
+        else if (group === "auto-heal") initialView = subcommand === "exclusions" ? "exclusions" : "auto_heal";
+
+        async function getReply(view: "main" | SettingCategory | "exclusions"): Promise<V2Reply> {
+            if (view === "main") return buildMainUI(ctx, sessionId);
+            if (view === "exclusions") return buildExclusionsUI(ctx, sessionId);
+            return buildCategoryUI(ctx, sessionId, view);
+        }
+
+        await ctx.makeMessage(await getReply(initialView));
+        const message = await ctx.interaction.fetchReply();
+
+        const collector = message.createMessageComponentCollector({
+            filter: (i) => i.user.id === ctx.user.id && i.customId.startsWith(`settings:${sessionId}:`),
+            time: 300000, // 5 minutes
+        });
+
+        collector.on("collect", async (i) => {
+            const parts = i.customId.split(":");
+            const action = parts[2];
+
+            if (action === "back") {
+                return i.update(await getReply("main"));
+            }
+
+            if (action === "jump") {
+                const target = parts[3] as any;
+                if (target === "language") {
+                    collector.stop();
+                    await i.deferUpdate().catch(() => {});
+                    return adventureCommand.execute(ctx, "language");
+                }
+                return i.update(await getReply(target));
+            }
+
+            if (action === "toggle" || action === "remove_exclusion") {
+                const oldData = cloneDeep(ctx.userData);
+                
+                if (action === "toggle") {
+                    const category = parts[3] as SettingCategory;
+                    const settingId = parts[4];
+                    
+                    if (!ctx.userData.settings[category]) (ctx.userData.settings as any)[category] = {};
+                    (ctx.userData.settings[category] as any)[settingId] = !(ctx.userData.settings[category] as any)[settingId];
+                } else {
+                    const itemId = parts[3];
+                    if (ctx.userData.settings.auto_heal?.excluded_items) {
+                        ctx.userData.settings.auto_heal.excluded_items = ctx.userData.settings.auto_heal.excluded_items.filter(x => x !== itemId);
+                    }
+                }
+
+                await ctx.client.database.handleTransaction(
+                    [{ oldData, newData: ctx.userData }],
+                    `Update Setting: ${i.customId}`
+                );
+
+                const currentView = action === "toggle" ? parts[3] as any : "exclusions";
+                return i.update(await getReply(currentView));
+            }
+        });
     },
 };
 
