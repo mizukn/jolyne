@@ -1,30 +1,18 @@
 import {
     SlashCommandFile,
-    Leaderboard,
-    equipableItemTypesLimit,
-    formattedEquipableItemTypes,
-    EquipableItem,
-    SkillPoints,
-    Weapon,
-    RPGUserDataJSON,
     possibleModifiers as PossibleModifierId,
 } from "../../@types";
 import {
     Message,
-    APIEmbed,
     InteractionResponse,
     ButtonBuilder,
     ButtonStyle,
-    PermissionFlagsBits,
     MessageFlags,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { makeChapterTitle } from "../adventure/Chapter";
-import * as Chapters from "../../rpg/Chapters/Chapters";
-import * as ChapterParts from "../../rpg/Chapters/ChapterParts";
 import DungeonHandler from "../../structures/DungeonHandler";
 import {
     possibleModifiers,
@@ -32,6 +20,49 @@ import {
     getTotalDropIncrease,
 } from "./dungeon_config";
 import { giveRewards } from "./dungeon_rewards";
+import { containers, COLORS, SectionData, V2Reply } from "../../utils/containers";
+
+const KARS = { emoji: "<:kars:1057261454421676092>", name: "Kars" } as const;
+const karsLine = (text: string): string =>
+    `${KARS.emoji} **${KARS.name}:** ${text}`;
+
+const renderLobby = (
+    hostTag: string,
+    playerCount: number,
+    selectedModifiers: PossibleModifierId[],
+): V2Reply => {
+    const sections: SectionData[] = [];
+    if (selectedModifiers.length > 0) {
+        const lines = selectedModifiers
+            .map((id) => {
+                const m = possibleModifiers.find((f) => f.id === id);
+                return `> ${m?.emoji} **${Functions.capitalize(
+                    id.replace(/_/g, " "),
+                )}:** ${m?.description}`;
+            })
+            .join("\n");
+        sections.push({ text: `### 🎲 Active Modifiers\n${lines}` });
+    } else {
+        sections.push({ text: `### 🎲 Active Modifiers\n> *None selected.*` });
+    }
+    sections.push({
+        text:
+            `### 📈 Bonuses\n` +
+            `> **XP multiplier:** x${getTotalXpIncrease(selectedModifiers)}\n` +
+            `> **Drop multiplier:** x${getTotalDropIncrease(selectedModifiers)}`,
+    });
+
+    return containers.primary({
+        title: "# 🗝️ Dungeon Lobby",
+        description: karsLine(
+            `${hostTag} is hosting a dungeon. Party size **${playerCount}/2** — pick your modifiers and start when you're ready.`,
+        ),
+        descriptionDivider: true,
+        sections,
+        sectionDividers: true,
+        color: COLORS.primary,
+    });
+};
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -51,11 +82,9 @@ const slashCommand: SlashCommandFile = {
         const dateAtMidnight = new Date().setHours(0, 0, 0, 0);
         const nextDate = dateAtMidnight + 86400000;
         if (ctx.userData.health <= 0) {
-            return ctx.makeMessage({
-                content: "<:kars:1057261454421676092> **Kars:** You're dead, you can't do that.",
-                embeds: [],
-                components: [],
-            });
+            return ctx.makeMessage(
+                containers.error(karsLine("You're dead, you can't do that.")),
+            );
         }
 
         if (
@@ -64,45 +93,35 @@ const slashCommand: SlashCommandFile = {
             !ctx.client.user.username.includes("Alpha")
         ) {
             const timeLeft = nextDate - Date.now();
-            return ctx.makeMessage({
-                content: `<:kars:1057261454421676092> **Kars:** You've already done 4 dungeons today. Come back ${Functions.generateDiscordTimestamp(
-                    Date.now() + timeLeft,
-                    "FROM_NOW"
-                )}.`,
-                embeds: [],
-                components: [],
-            });
+            return ctx.makeMessage(
+                containers.error(
+                    karsLine(
+                        `You've already done 4 dungeons today. Come back ${Functions.generateDiscordTimestamp(
+                            Date.now() + timeLeft,
+                            "FROM_NOW",
+                        )}.`,
+                    ),
+                ),
+            );
         }
         if (await ctx.client.database.getString(`tempCache_${ctx.userData.id}:dungeon`)) {
-            /*ctx.client.users.fetch("239739781238620160").then((c) => {
-                c.send(
-                    `**${ctx.userData.tag}** (${
-                        ctx.userData.id
-                    }) has tried to start.`
-                );
-            });*/
-            return ctx.makeMessage({
-                content: "<:kars:1057261454421676092> **Kars:** Are you trying to scam me?",
-                embeds: [],
-                components: [],
-            });
+            return ctx.makeMessage(
+                containers.error(karsLine("Are you trying to scam me?")),
+            );
         }
         try {
             await ctx.channel.sendTyping();
         } catch (e) {
-            return void ctx.makeMessage({
-                content: "I don't have permission to send messages in this channel.",
-                embeds: [],
-                components: [],
-            });
+            return void ctx.makeMessage(
+                containers.error("I don't have permission to send messages in this channel."),
+            );
         }
         if ((ctx.userData.inventory["dungeon_key"] ?? 0) < 1) {
-            return ctx.makeMessage({
-                content:
-                    "<:kars:1057261454421676092> **Kars:** HA! Where's your key? You can't enter without it!",
-                embeds: [],
-                components: [],
-            });
+            return ctx.makeMessage(
+                containers.error(
+                    karsLine("HA! Where's your key? You can't enter without it!"),
+                ),
+            );
         }
 
         const joinButton = new ButtonBuilder()
@@ -137,30 +156,18 @@ const slashCommand: SlashCommandFile = {
         const selectedModifiers: PossibleModifierId[] = [];
         ctx.client.database.setCooldown(ctx.user.id, `You are in a dungeon.`);
 
-        await ctx.makeMessage({
-            content: `<:kars:1057261454421676092> **Kars:** ${
-                ctx.userData.tag
-            } is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${
-                selectedModifiers.length
-                    ? "\n" +
-                      selectedModifiers
-                          .map((x) => {
-                              const modifier = possibleModifiers.find((f) => f.id === x);
-                              return `- ${modifier?.emoji} ${Functions.capitalize(
-                                  x.replace(/_/g, " ")
-                              )}: ${modifier?.description}`;
-                          })
-                          .join("\n")
-                    : ":x:"
-            }\n**Total XP Increase:** ${getTotalXpIncrease(
-                selectedModifiers
-            )}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
-            embeds: [],
-            components: [
-                Functions.actionRow([joinButton, startButton, cancelButton]),
+        const sendLobby = async (
+            buttons: ButtonBuilder[],
+        ): Promise<Message<boolean> | InteractionResponse<boolean>> => {
+            const reply = renderLobby(ctx.userData.tag, totalPlayers.length, selectedModifiers);
+            reply.components.push(
+                Functions.actionRow(buttons),
                 Functions.actionRow([modifiersStringSelectMenu]),
-            ],
-        });
+            );
+            return ctx.makeMessage(reply);
+        };
+
+        await sendLobby([joinButton, startButton, cancelButton]);
         const collector = ctx.channel.createMessageComponentCollector({
             time: 60000,
             filter: (i) =>
@@ -226,61 +233,31 @@ const slashCommand: SlashCommandFile = {
                     content: "You've joined the dungeon.",
                     flags: MessageFlags.Ephemeral,
                 });
-                await ctx.makeMessage({
-                    content: `<:kars:1057261454421676092> **Kars:** ${
-                        data.tag
-                    } has joined the dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${
-                        selectedModifiers.length
-                            ? "\n" +
-                              selectedModifiers
-                                  .map((x) => {
-                                      const modifier = possibleModifiers.find((f) => f.id === x);
-                                      return `- ${modifier?.emoji} ${Functions.capitalize(
-                                          x.replace(/_/g, " ")
-                                      )}: ${modifier?.description}`;
-                                  })
-                                  .join("\n")
-                            : ":x:"
-                    }\n**Total XP Increase:** ${getTotalXpIncrease(
-                        selectedModifiers
-                    )}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
-                    embeds: [],
-                    components: [
-                        Functions.actionRow([startButton, cancelButton]),
-                        Functions.actionRow([modifiersStringSelectMenu]),
-                    ],
-                });
+                await sendLobby([startButton, cancelButton]);
                 ctx.client.database.setCooldown(
                     i.user.id,
-                    `You are in a dungeon with ${ctx.userData.tag} (${ctx.userData.id})`
+                    `You are in a dungeon with ${ctx.userData.tag} (${ctx.userData.id})`,
                 );
             } else if (i.customId === "start_dungeon" + ctx.interaction.id) {
                 for (const player of totalPlayers) {
                     if (await ctx.client.database.getString(`tempCache_${player.id}:dungeon`)) {
-                        /*ctx.client.users.fetch("239739781238620160").then((c) => {
-                            c.send(
-                                `**${ctx.userData.tag}** (${
-                                    ctx.userData.id
-                                }) has tried to start.`
-                            );
-                        });*/
-                        ctx.makeMessage({
-                            content: `<:kars:1057261454421676092> **Kars:** Are you trying to scam me? <@${player.id}>`,
-                            embeds: [],
-                            components: [],
-                        });
+                        ctx.makeMessage(
+                            containers.error(
+                                karsLine(`Are you trying to scam me? <@${player.id}>`),
+                            ),
+                        );
                         collector.stop("scam");
                         return;
                     }
                 }
                 const message = await ctx.interaction.channel.send(`Initializing dungeon...`);
-                ctx.makeMessage({
-                    content: `<:kars:1057261454421676092> **Kars:** The dungeon has started! ${Functions.generateMessageLink(
-                        message
-                    )}`,
-                    embeds: [],
-                    components: [],
-                });
+                ctx.makeMessage(
+                    containers.success(
+                        karsLine(
+                            `The dungeon has started! ${Functions.generateMessageLink(message)}`,
+                        ),
+                    ),
+                );
 
                 const dungeon = new DungeonHandler(
                     ctx,
@@ -361,30 +338,7 @@ const slashCommand: SlashCommandFile = {
                         selectedModifiers.push(value as PossibleModifierId);
                     }
                 }
-                await ctx.makeMessage({
-                    content: `<:kars:1057261454421676092> **Kars:** ${
-                        ctx.userData.tag
-                    } is hosting a dungeon! (${totalPlayers.length}/2)\n\n**__Modifiers:__**${
-                        selectedModifiers.length
-                            ? "\n" +
-                              selectedModifiers
-                                  .map((x) => {
-                                      const modifier = possibleModifiers.find((f) => f.id === x);
-                                      return `- ${modifier?.emoji} ${Functions.capitalize(
-                                          x.replace(/_/g, " ")
-                                      )}: ${modifier?.description}`;
-                                  })
-                                  .join("\n")
-                            : ":x:"
-                    }\n**Total XP Increase:** ${getTotalXpIncrease(
-                        selectedModifiers
-                    )}x\n**Total Drop Increase:** ${getTotalDropIncrease(selectedModifiers)}x`,
-                    embeds: [],
-                    components: [
-                        Functions.actionRow([joinButton, startButton, cancelButton]),
-                        Functions.actionRow([modifiersStringSelectMenu]),
-                    ],
-                });
+                await sendLobby([joinButton, startButton, cancelButton]);
             }
         });
     },
