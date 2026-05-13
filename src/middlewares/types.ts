@@ -34,6 +34,12 @@ export interface MiddlewareInput {
      * against this to increment `UseXCommand` quest counters.
      */
     commandName?: string;
+    /**
+     * `JSON.stringify(ctx.userData)` captured before the RPG side-effect
+     * middlewares run. The save middleware compares against the current
+     * shape to decide whether a Postgres+Redis write is needed.
+     */
+    oldDataJSON?: string;
 }
 
 export type StopDecision = {

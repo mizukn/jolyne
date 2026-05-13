@@ -12,6 +12,7 @@ import { logCommandUsage } from "./logCommandUsage";
 import { channelMiddleware } from "../middlewares/channel";
 import { bannedUserMiddleware } from "../middlewares/bannedUser";
 import { commandCooldownMiddleware } from "../middlewares/commandCooldown";
+import { commandUsageLogMiddleware } from "../middlewares/commandUsageLog";
 import { dailyResetMiddleware } from "../middlewares/dailyReset";
 import { deprecatedRedirectMiddleware } from "../middlewares/deprecatedRedirect";
 import { equippedItemsMiddleware } from "../middlewares/equippedItems";
@@ -24,6 +25,7 @@ import { patreonRewardsMiddleware } from "../middlewares/patreonRewards";
 import { questDeduplicationMiddleware } from "../middlewares/questDeduplication";
 import { questEffectsMiddleware } from "../middlewares/questEffects";
 import { rpgCooldownMiddleware } from "../middlewares/rpgCooldown";
+import { saveUserDataMiddleware } from "../middlewares/saveUserData";
 import { seasonalEmailsMiddleware } from "../middlewares/seasonalEmails";
 import { sideQuestEnrollmentMiddleware } from "../middlewares/sideQuestEnrollment";
 import { userBusyMiddleware } from "../middlewares/userBusy";
@@ -64,16 +66,10 @@ const Event: EventFile = {
                 if (await runStep(pipeline, userBusyMiddleware)) return;
                 if (await runStep(pipeline, restingAtCampfireMiddleware)) return;
 
-                const commandName = pipeline.commandName ?? command.data.name;
-                interaction.client.log(
-                    `${ctx.user.username} used ${commandName} with options: ${JSON.stringify(
-                        interaction.options["data"],
-                    )}`,
-                    "command",
-                );
-                const notifications: string[] = (pipeline.notifications ??= []);
-                const oldDataJSON = JSON.stringify(ctx.userData);
+                pipeline.notifications ??= [];
+                pipeline.oldDataJSON = JSON.stringify(ctx.userData);
 
+                if (await runStep(pipeline, commandUsageLogMiddleware)) return;
                 if (await runStep(pipeline, questDeduplicationMiddleware)) return;
                 if (await runStep(pipeline, seasonalEmailsMiddleware)) return;
                 if (await runStep(pipeline, patreonRewardsMiddleware)) return;
@@ -84,15 +80,7 @@ const Event: EventFile = {
                 if (await runStep(pipeline, dailyResetMiddleware)) return;
                 if (await runStep(pipeline, equippedItemsMiddleware)) return;
                 if (await runStep(pipeline, userStateNotificationsMiddleware)) return;
-
-                if (notifications.length > 0) {
-                    ctx.followUpQueue.push({
-                        content: `${notifications.join("\n\n")}\n-# <@${ctx.user.id}>`,
-                    });
-                }
-
-                if (oldDataJSON !== JSON.stringify(ctx.userData))
-                    ctx.client.database.saveUserData(ctx.userData);
+                if (await runStep(pipeline, saveUserDataMiddleware)) return;
             }
 
             try {
