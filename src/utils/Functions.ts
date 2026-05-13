@@ -312,7 +312,7 @@ export const standAbilitiesEmbed = (
                 stand.skillPoints,
             )
                 .map(([key, value]) => `• +${value} ${key}`)
-                .join("\n")}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
+                .join("\n")}`,
         color: stand.color,
         footer: {
             text: `Rarity: ${stand.rarity}`,
@@ -327,7 +327,7 @@ export const standAbilitiesEmbed = (
         const index = stand.abilities.findIndex((w) => w.name === ability.name);
         const isLast = index === stand.abilities.length - 1;
 
-        let content = `\`Damages:\` ${
+        let content = `> 💥 **Damages:** ${
             getAbilityDamage(user, ability)
                 ? getAbilityDamage(user, ability).toLocaleString()
                 : ability.trueDamage
@@ -335,7 +335,7 @@ export const standAbilitiesEmbed = (
                         getAttackDamages(user) * (1 + ability.trueDamage / 100),
                     ).toLocaleString()
                   : "???"
-        }\n\`Stamina cost:\` ${ability.stamina}`;
+        }\n> 🔋 **Stamina Cost:** ${ability.stamina}`;
 
         let cooldown: number;
         if (cooldowns)
@@ -344,12 +344,12 @@ export const standAbilitiesEmbed = (
         else cooldown = ability.cooldown;
 
         const dodgeScore = ability.dodgeScore ?? ability.trueDodgeScore;
-        content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
+        content += `\n> ⏳ **Cooldown:** ${cooldown} turns\n> 🍃 **Dodge Score:** ${
             dodgeScore ? dodgeScore : dodgeScore
-        }\n\n*${ability.description.replace(/{standName}/gi, stand.name)}*\n`;
+        }\n> \n> *${ability.description.replace(/{standName}/gi, stand.name)}*\n`;
 
-        if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
-        else content += "▬▬▬▬▬▬▬▬▬";
+        if (ability.special || isLast) content += "";
+        else content += "";
 
         embed.fields.push({
             name: ability.name + (ability.special ? " ⭐" : ""),
@@ -363,8 +363,7 @@ export const standAbilitiesEmbed = (
         embed.fields.push({
             name: "Passives",
             value:
-                passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n") +
-                "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n"),
             inline: false,
         });
     }
@@ -410,7 +409,7 @@ export const weaponAbilitiesEmbed = (
                 weapon.effects.skillPoints,
             )
                 .map(([key, value]) => `• +${value} ${key}`)
-                .join("\n")}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
+                .join("\n")}`,
         color: weapon.color,
         footer: {
             text: `Rarity: ${weapon.rarity}`,
@@ -424,7 +423,7 @@ export const weaponAbilitiesEmbed = (
     for (const ability of weapon.abilities) {
         const index = weapon.abilities.findIndex((w) => w.name === ability.name);
         const isLast = index === weapon.abilities.length - 1;
-        let content = `\`Damages:\` ${
+        let content = `> 💥 **Damages:** ${
             getAbilityDamage(user, ability)
                 ? getAbilityDamage(user, ability).toLocaleString()
                 : ability.trueDamage
@@ -432,7 +431,7 @@ export const weaponAbilitiesEmbed = (
                         getAttackDamages(user) * (1 + ability.trueDamage / 100),
                     ).toLocaleString()
                   : "???"
-        }\n\`Stamina cost:\` ${ability.stamina}`;
+        }\n> 🔋 **Stamina Cost:** ${ability.stamina}`;
 
         let cooldown: number;
         if (cooldowns)
@@ -440,12 +439,12 @@ export const weaponAbilitiesEmbed = (
                 cooldowns.find((c) => c.move === ability.name && c.id === user.id)?.cooldown ?? 0;
         else cooldown = ability.cooldown;
 
-        content += `\n\`Cooldown:\` ${cooldown} turns\n\`Dodge score:\` ${
+        content += `\n> ⏳ **Cooldown:** ${cooldown} turns\n> 🍃 **Dodge Score:** ${
             ability.dodgeScore ?? ability.trueDodgeScore ?? "not dodgeable"
-        }\n\n*${ability.description.replace(/{weaponName}/gi, weapon.name)}*\n`;
+        }\n> \n> *${ability.description.replace(/{weaponName}/gi, weapon.name)}*\n`;
 
-        if (ability.special || isLast) content += "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
-        else content += "▬▬▬▬▬▬▬▬▬";
+        if (ability.special || isLast) content += "";
+        else content += "";
 
         embed.fields.push({
             name: ability.name + (ability.special ? " ⭐" : ""),
@@ -462,8 +461,7 @@ export const weaponAbilitiesEmbed = (
         embed.fields.push({
             name: "Passives",
             value:
-                passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n") +
-                "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                passives.map((p, i) => `${i + 1}. \`${p.name}:\` ${p.description}`).join("\n"),
             inline: false,
         });
     }
