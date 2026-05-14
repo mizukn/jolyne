@@ -12,7 +12,6 @@ import {
     ButtonStyle,
     MessageComponentInteraction,
     InteractionResponse,
-    MessageFlags,
     ActionRowBuilder,
     MessageActionRowComponentBuilder,
 } from "discord.js";
@@ -715,20 +714,22 @@ const slashCommand: SlashCommandFile = {
             await sellInventoryItem(ctx);
         } else if (["throw", "discard"].includes(subcommand)) {
             if (Functions.userIsCommunityBanned(ctx.userData)) {
-                return void ctx.makeMessage({
-                    ...containers.error("You're community banned. You can't throw items. You should throw yourself instead."),
-                    flags: MessageFlags.Ephemeral,
-                });
+                return void ctx.makeMessage(
+                    ephemeralV2(
+                        containers.error(
+                            "You're community banned. You can't throw items. You should throw yourself instead.",
+                        ),
+                    ),
+                );
             }
             const itemString = fixItemString(ctx.interaction.options.getString("item", true));
             const left = ctx.userData.inventory[itemString] || 0;
             const amountX = ctx.interaction.options.getInteger("amount") || 1;
 
             if (amountX <= 0 || amountX === Infinity) {
-                return void ctx.makeMessage({
-                    ...containers.error("Stop trying to find glitches."),
-                    flags: MessageFlags.Ephemeral,
-                });
+                return void ctx.makeMessage(
+                    ephemeralV2(containers.error("Stop trying to find glitches.")),
+                );
             }
 
             if (left === 0) {
@@ -783,10 +784,13 @@ const slashCommand: SlashCommandFile = {
 
         } else if (["claim", "recover"].includes(subcommand)) {
             if (Functions.userIsCommunityBanned(ctx.userData)) {
-                return void ctx.makeMessage({
-                    ...containers.error("You're community banned. You can't claim items. You should throw yourself instead."),
-                    flags: MessageFlags.Ephemeral,
-                });
+                return void ctx.makeMessage(
+                    ephemeralV2(
+                        containers.error(
+                            "You're community banned. You can't claim items. You should throw yourself instead.",
+                        ),
+                    ),
+                );
             }
 
             const itemId = ctx.interaction.options.getString("id", true);
