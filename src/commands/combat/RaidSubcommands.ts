@@ -11,7 +11,7 @@ import CommandInteractionContext from "../../structures/CommandInteractionContex
 import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { cloneDeep } from "lodash";
-import { eventRaid, getFixedBosses } from "../../rpg/SeasonalRaids";
+import { getFixedBosses } from "../../rpg/SeasonalRaids";
 import { handleRaidLobbyInteraction } from "./raid_lobby";
 import { buildRaidLobbyMessage, createRaidLobbyButtons } from "./raid_menu";
 import {
@@ -47,54 +47,6 @@ const slashCommand: SlashCommandFile = {
         }
 
         const fixedBosses = getFixedBosses();
-
-        if (Date.now() < 1707606000000) {
-            if (Functions.isTimeNext15(new Date(Date.now()))) {
-                fixedBosses.push(eventRaid);
-            } else {
-                if (ctx.options.getString("npc", true) === "confetti_golem") {
-                    return void ctx.makeMessage({
-                        content: `${ctx.client.localEmojis["2ndAnniversaryBackpack"]}${
-                            ctx.client.localEmojis["ConfettiBazooka"]
-                        } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
-                            Functions.roundToNext15Minutes(new Date()),
-                            "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
-                    });
-                } else {
-                    ctx.followUpQueue.push({
-                        content: `${ctx.client.localEmojis["2ndAnniversaryBackpack"]}${
-                            ctx.client.localEmojis["ConfettiBazooka"]
-                        } | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
-                            Functions.roundToNext15Minutes(new Date()),
-                            "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
-                    });
-                }
-            }
-        }
-
-        /*if (Date.now() < endOf3rdAnnivesaryEvent.getTime()) {
-            if (Functions.isTimeNext15(new Date(Date.now()))) {
-                fixedBosses.push(PinataTitan);
-            } else {
-                if (ctx.options.getString("npc", true) === "pinata_titan") {
-                    return void ctx.makeMessage({
-                        content: `<:pinata_hammer:1345192028790849667><:pinata_hat:1345192118267936859> | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
-                            Functions.roundToNext15Minutes(new Date()),
-                            "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
-                    });
-                } else {
-                    ctx.followUpQueue.push({
-                        content: `<:pinata_hammer:1345192028790849667><:pinata_hat:1345192118267936859> | Looking for the event raid? It will be available ${Functions.generateDiscordTimestamp(
-                            Functions.roundToNext15Minutes(new Date()),
-                            "FROM_NOW"
-                        )} at **this exact time**. If the boss is too strong for you, make sure to ask help in the support server! https://discord.gg/PQBS32q9Br`,
-                    });
-                }
-            }
-        }*/
 
         if (ctx.userData.health < Functions.getMaxHealth(ctx.userData) * 0.1) {
             ctx.makeMessage({

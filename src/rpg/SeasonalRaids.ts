@@ -10,24 +10,6 @@ import * as Bosses from "./Raids";
 import * as Functions from "../utils/Functions";
 import { EVENT_IDS, isActive } from "../services/EventService";
 
-export const eventRaid: RaidBoss = {
-    boss: FightableNPCs.ConfettiGolem,
-    minions: [],
-    level: 0,
-    baseRewards: {
-        coins: 50000,
-        xp: Functions.getMaxXp(FightableNPCs.ConfettiGolem.level),
-        items: [
-            { item: Functions.findItem("Confetti").id, amount: 1, chance: 50 },
-            { item: Functions.findItem("second").id, amount: 1, chance: 15 },
-        ],
-    },
-    allies: [FightableNPCs.Jolyne],
-    maxLevel: Infinity,
-    maxPlayers: 10,
-    cooldown: 60000,
-};
-
 export const Halloween2024EventRaid: RaidBoss = {
     boss: FightableNPCs.PaleDark,
     minions: [],
