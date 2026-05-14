@@ -9,6 +9,7 @@ const MINUTE_MS = 60 * SECOND_MS;
 export const FIGHT_TURN_TIMEOUT_MS = 45 * SECOND_MS;
 export const FIGHT_NPC_DECISION_DELAY_MS = 1 * SECOND_MS;
 export const FIGHT_END_GRACE_MS = 700;
+export const FIGHT_MAINTENANCE_CHECK_MS = 1 * SECOND_MS;
 
 // FightHandler — fight-level limits.
 export const FIGHT_TOTAL_TIMEOUT_MS = 15 * MINUTE_MS;

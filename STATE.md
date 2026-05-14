@@ -43,9 +43,9 @@ Bar emoji palette in `emojis.json`: `bar_hp_*` = red (`r*`), `bar_sta_*` = green
 
 ## What's NOT done / in-flight
 
-### FightHandler split (PLAN §5 P3.2) — orchestrator at 259 lines
+### FightHandler split (PLAN §5 P3.2) — orchestrator at 264 lines
 
-Was 2,820. Down to 259 (−91%). The body now lives in sibling modules under `src/structures/`:
+Was 2,820. Down to 264 (−91%). The body now lives in sibling modules under `src/structures/`:
 
 | Module | Role |
 | --- | --- |
@@ -65,7 +65,7 @@ Was 2,820. Down to 259 (−91%). The body now lives in sibling modules under `sr
 | `FightSpecialCases.ts` | HolHorse-vs-Avdol auto-targeting + Hol Horse 9999999 instakill |
 | `FightTimeouts.ts` | Per-turn timeout penalty |
 | `FightLifecycle.ts` | `runUpdateMessage(fight)` + `armTurnTimeout(fight)` + `armNPCTimeout(fight)` + `endOrUnexpected(fight, error)` + `endIfOneTeamLeft(fight)` — bodies of the former `updateMessage` / `setTimeout` / `setNPCTimeout` / `endFightOrUnexpected` / `oneTeamLeft` |
-| `FightMessageAccess.ts` | Detects Discord message-access failures and fast-forwards the fight in autoplay mode when messages can no longer be edited/sent. |
+| `FightMessageAccess.ts` | Detects Discord message-access failures and maintenance mode, then fast-forwards the fight in autoplay mode until an outcome exists. |
 | `FightWebhookLogs.ts` | `sendFightLogs(fight)` + `sendFightStats(fight)` — bodies of the former `sendLogs` / `sendFightStats` (the latter is still callable via the FightHandler delegator since `FightHandlerWatchdog` invokes it externally) |
 | `FightInteraction.ts` | `handleInteraction(fight, interaction)` — body of the former constructor-internal `listenerCallback` (the button + string-select-menu dispatch switch) |
 | `FightLifecycleHandlers.ts` | `attachLifecycleHandlers(fight, fightEndCallback, fightCallFuncCallback)` — bodies of the former constructor-internal `on('unexpectedEnd')` / `on('end')` handlers |
@@ -81,22 +81,23 @@ Was 2,820. Down to 259 (−91%). The body now lives in sibling modules under `sr
 - The small getters: `availableFighters` (3 lines), `hasStoppedTime` (3 lines), `hasOneTarget` (10-line getAvailableTargets delegator).
 - One-line delegators into all the extract modules.
 
-**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `endedByMessageAccessLoss`, `messageAccessAutoplaying`, `NPCTimeout`, `NPCAttack`, `listener`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
+**Members promoted to public for cross-module orchestration** (visibility only, no external callers): `currentStep`, `currentStepAbility`, `selectTarget`, `selectStandAbility`, `handleDefend`, `handleSkip`, `handlePassives`, `oneTeamLeft`, `hasStoppedTime`, `checkNewRound`, `timeout`, `isAttacking`, `noUpdateMessage`, `endedByMessageAccessLoss`, `endedByMaintenance`, `messageAccessAutoplaying`, `fastForwardingToEnd`, `maintenanceMonitor`, `NPCTimeout`, `NPCAttack`, `listener`. Same convention every extract follows: take `fight: FightHandler` and read/write through `fight.*`.
 
 **Method removed entirely:** the `handleUseAbility` private delegator was deleted — its only callers (`continueStep`'s `"handleUseAbility"` case) now invoke `applyAbility(fight, ...)` directly from `FightActions.ts`, so the method had no remaining purpose.
 
-### Fight message-access policy
+### Fight fast-forward policy
 
-If Discord rejects fight message edits/sends with missing access, missing permissions, or unknown-message errors, `FightMessageAccess.startMessageAccessAutoplay(fight, error)` takes over instead of emitting a generic unexpected end. It:
+If Discord rejects fight message edits/sends with missing access, missing permissions, or unknown-message errors, `FightMessageAccess.startMessageAccessAutoplay(fight, error)` takes over instead of emitting a generic unexpected end. If `client.maintenanceReason` becomes truthy during an active fight, `FightSetup`'s maintenance monitor calls `FightMessageAccess.startMaintenanceAutoplay(fight)` within `FIGHT_MAINTENANCE_CHECK_MS` (currently 1s). Both paths:
 
-- sets `fight.noUpdateMessage`, `fight.endedByMessageAccessLoss`, and `fight.messageAccessAutoplaying`;
+- set `fight.noUpdateMessage` and `fight.fastForwardingToEnd`;
+- set either `fight.endedByMessageAccessLoss` or `fight.endedByMaintenance`;
 - stops the interaction collector and clears pending turn/NPC timers;
 - marks every fighter as NPC-controlled with `autoLock = true`;
 - fast-forwards turns with `fight.NPCAttack()` until one team remains;
-- emits `end` with `FightEndMeta`: `{ endedByMessageAccessLoss: true, fastForwardedTurns }`;
+- emits `end` with `FightEndMeta`: `{ endedByMessageAccessLoss?: true, endedByMaintenance?: true, fastForwardedTurns }`;
 - force-resolves via `forceLastTeamStanding` after a 300-turn safety cap.
 
-Command handlers should prefer the `meta?.endedByMessageAccessLoss` flag over parsing error strings. Dungeon already consumes this flag: if a dungeon sub-fight finishes through message-access autoplay, `DungeonHandler` stops the dungeon and lets `/dungeon` apply the current policy (earned rewards, host key consumed, dungeon attempt/cooldown recorded). Other unexpected dungeon ends still grant earned rewards and refund the key.
+Command handlers should prefer the metadata flags over parsing error strings. Dungeon already consumes them: if a dungeon sub-fight finishes through message-access autoplay, `DungeonHandler` stops the dungeon and lets `/dungeon` apply the current policy (earned rewards, host key consumed, dungeon attempt/cooldown recorded). If a dungeon sub-fight finishes through maintenance autoplay, `DungeonHandler` stops the dungeon with reason `"maintenance"` so `/dungeon` can finalize current rewards without starting another room. Other unexpected dungeon ends still grant earned rewards and refund the key.
 
 ### Fight V2 migration follow-ups
 
@@ -136,6 +137,7 @@ Phases 0 and 1 are fully landed; PLAN.md's status snapshot (last swept 2026-05-1
 - **Forfeit + resurrection passive conflict** — fixed. `Fighter.flags.forfeited` is set on forfeit and the passive engine skips forfeited fighters even for `evenIfDead` passives, so Dead Revival no longer resurrects someone who gave up.
 - **Anti-cheat debug logs** in `CommandInteractionContext` — removed.
 - **Fight message-access loss** — no longer throws or force-ends immediately. If Discord refuses message edits/sends, fights enter autoplay fast-forward and emit `end` with `meta.endedByMessageAccessLoss`.
+- **Fight maintenance mode** — active fights now enter autoplay fast-forward within 1s of `client.maintenanceReason` being set and emit `end` with `meta.endedByMaintenance`.
 - **Dungeon message-access economy policy** — if message access is lost during a dungeon after progress, earned rewards are granted, the host key is consumed, and dungeon attempt/cooldown is recorded; other unexpected ends refund the key while still granting earned rewards.
 
 ### BRAINSTORM live issues still in code (decision-pending or low-impact)
