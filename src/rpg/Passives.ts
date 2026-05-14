@@ -54,7 +54,6 @@ export const Rage: Passive = {
         }
 
         fight.cache.set(lastHealthId, newUser.health);
-        //fight.cache.set(baseStrengthId, newUser.skillPoints.strength);
     },
 };
 
