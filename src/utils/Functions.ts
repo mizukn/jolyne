@@ -215,8 +215,6 @@ export {
     disableRows,
     fixEmbeds,
     fixFields,
-    makeEmbedReds,
-    redEmbeds,
     splitEmbedIfExceedsLimit,
 } from "./embed";
 

@@ -123,37 +123,6 @@ export const disableRows = (interaction: ChatInputCommandInteraction | Message):
     }
 };
 
-export const redEmbeds = (interaction: ChatInputCommandInteraction | Message): void => {
-    if (interaction instanceof Message) {
-        interaction.edit({
-            embeds: interaction.embeds.map((x) => {
-                // @ts-expect-error DNC ABOUT THE READ ONLY
-                x.data.color = 0xff0000;
-                return x;
-            }),
-        });
-    } else {
-        interaction.fetchReply().then((x) => {
-            if (!x) return;
-            x.edit({
-                embeds: x.embeds.map((x) => {
-                    // @ts-expect-error DNC ABOUT THE READ ONLY
-                    x.data.color = 0xff0000;
-                    return x;
-                }),
-            });
-        });
-    }
-};
-
-export const makeEmbedReds = (embeds: APIEmbed[]): APIEmbed[] => {
-    return embeds.map((x) => {
-        // @ts-expect-error DNC ABOUT THE READ ONLY
-        x.data.color = 0xff0000;
-        return x;
-    });
-};
-
 const MAX_DESCRIPTION_LENGTH = 4096;
 
 export const fixEmbeds = (embeds: APIEmbed[]): APIEmbed[] => {
