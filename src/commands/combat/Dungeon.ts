@@ -1,7 +1,6 @@
 import {
     SlashCommandFile,
     possibleModifiers as PossibleModifierId,
-    RPGUserDataJSON,
 } from "../../@types";
 import {
     Message,
@@ -12,138 +11,20 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from "discord.js";
-import { cloneDeep } from "lodash";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import DungeonHandler from "../../structures/DungeonHandler";
+import { possibleModifiers } from "./dungeon_config";
+import { containers } from "../../utils/containers";
 import {
-    possibleModifiers,
-    getTotalXpIncrease,
-    getTotalDropIncrease,
-} from "./dungeon_config";
-import { giveRewards } from "./dungeon_rewards";
-import { containers, COLORS, SectionData, V2Reply } from "../../utils/containers";
-
-const KARS = { emoji: "<:kars:1057261454421676092>", name: "Kars" } as const;
-const karsLine = (text: string): string =>
-    `${KARS.emoji} **${KARS.name}:** ${text}`;
-
-const safeDungeonReply = async (
-    dungeon: DungeonHandler,
-    ctx: CommandInteractionContext,
-    content: string,
-): Promise<void> => {
-    if (dungeon.message) {
-        const replied = await dungeon.message
-            .reply({ content })
-            .then(() => true)
-            .catch(() => false);
-        if (replied) return;
-    }
-
-    await ctx.followUp({ content }).catch(() => undefined);
-};
-
-const finalizeDungeonRewards = async (
-    dungeon: DungeonHandler,
-    ctx: CommandInteractionContext,
-    selectedModifiers: PossibleModifierId[],
-    options: {
-        consumeKey?: boolean;
-    } = {},
-): Promise<void> => {
-    await giveRewards(dungeon, ctx, selectedModifiers, options).catch((error) => {
-        ctx.client.log(
-            `Dungeon reward finalization failed: ${
-                error instanceof Error ? error.stack ?? error.message : String(error)
-            }`,
-            "error",
-        );
-    });
-};
-
-const hasDungeonProgress = (dungeon: DungeonHandler): boolean =>
-    dungeon.stage > 0 || dungeon.beatenEnemies.length > 0;
-
-const isMessageAccessFailure = (reason: string): boolean =>
-    reason.includes("permission") ||
-    reason.includes("Missing Access") ||
-    reason.includes("50001") ||
-    reason.includes("50013") ||
-    reason.includes("message access") ||
-    reason.includes("send messages");
-
-const recordDungeonAttempt = async (
-    ctx: CommandInteractionContext,
-    players: RPGUserDataJSON[],
-): Promise<void> => {
-    for (const player of players) {
-        await ctx.client.database.setRPGCooldown(player.id, "dungeon", 1000 * 60 * 15);
-        const key = `dungeonDone:${player.id}:${Functions.getTodayString()}`;
-        const dungeonDoneToday = await ctx.client.database.getString(key);
-        const dungeonDoneTodayCount = dungeonDoneToday ? parseInt(dungeonDoneToday) : 0;
-        await ctx.client.database.redis.set(key, (dungeonDoneTodayCount + 1).toString());
-    }
-};
-
-const consumeDungeonKeyOnly = async (
-    ctx: CommandInteractionContext,
-    dungeon: DungeonHandler,
-): Promise<void> => {
-    const host = await ctx.client.database.getRPGUserData(ctx.userData.id);
-    if (!host) return;
-
-    const oldData = cloneDeep(host);
-    const removedKey = Functions.removeItem(host, "dungeon_key", 1);
-    await ctx.client.database.handleTransaction(
-        [
-            {
-                oldData,
-                newData: host,
-            },
-        ],
-        `Aborted a dungeon before progress after losing message access: total of ${dungeon.stage} waves and beaten ${dungeon.beatenEnemies.length} enemies.`,
-        [removedKey],
-    );
-};
-
-const renderLobby = (
-    hostTag: string,
-    playerCount: number,
-    selectedModifiers: PossibleModifierId[],
-): V2Reply => {
-    const sections: SectionData[] = [];
-    if (selectedModifiers.length > 0) {
-        const lines = selectedModifiers
-            .map((id) => {
-                const m = possibleModifiers.find((f) => f.id === id);
-                return `> ${m?.emoji} **${Functions.capitalize(
-                    id.replace(/_/g, " "),
-                )}:** ${m?.description}`;
-            })
-            .join("\n");
-        sections.push({ text: `### 🎲 Active Modifiers\n${lines}` });
-    } else {
-        sections.push({ text: `### 🎲 Active Modifiers\n> *None selected.*` });
-    }
-    sections.push({
-        text:
-            `### 📈 Bonuses\n` +
-            `> **XP multiplier:** x${getTotalXpIncrease(selectedModifiers)}\n` +
-            `> **Drop multiplier:** x${getTotalDropIncrease(selectedModifiers)}`,
-    });
-
-    return containers.primary({
-        title: "# 🗝️ Dungeon Lobby",
-        description: karsLine(
-            `${hostTag} is hosting a dungeon. Party size **${playerCount}/2** — pick your modifiers and start when you're ready.`,
-        ),
-        descriptionDivider: true,
-        sections,
-        sectionDividers: true,
-        color: COLORS.primary,
-    });
-};
+    consumeDungeonKeyOnly,
+    finalizeDungeonRewards,
+    hasDungeonProgress,
+    isMessageAccessFailure,
+    recordDungeonAttempt,
+    safeDungeonReply,
+} from "./dungeon_lifecycle";
+import { karsLine, renderDungeonLobby } from "./dungeon_lobby";
 
 const slashCommand: SlashCommandFile = {
     data: {
@@ -240,7 +121,7 @@ const slashCommand: SlashCommandFile = {
         const sendLobby = async (
             buttons: ButtonBuilder[],
         ): Promise<Message<boolean> | InteractionResponse<boolean>> => {
-            const reply = renderLobby(ctx.userData.tag, totalPlayers.length, selectedModifiers);
+            const reply = renderDungeonLobby(ctx.userData.tag, totalPlayers.length, selectedModifiers);
             reply.components.push(
                 Functions.actionRow(buttons),
                 Functions.actionRow([modifiersStringSelectMenu]),
