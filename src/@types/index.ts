@@ -6,8 +6,6 @@ import { FightHandler, Fighter } from "../structures/FightHandler";
 
 export type numOrPerc = number | `${number}%`;
 
-// TODO: Remove blockable and dodgeable from abilities since they're not used anymore
-
 /**
  * Disord Slash Command Data.
  */

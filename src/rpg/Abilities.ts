@@ -223,31 +223,6 @@ export const DeadlyErasure: Ability = {
     target: "enemy",
 };
 
-const burnDamagePromise = (ctx: FightHandler, target: Fighter, damage: number, user: Fighter) => {
-    ctx.nextTurnPromises.push({
-        cooldown: 3,
-        callerId: user.id,
-        executeOnlyOnce: false,
-        promise: (fight) => {
-            fight.turns[ctx.turns.length - 1].logs.push(
-                `:fire: **${target.name}** took **${damage}** burn damage`
-            );
-            if (target.health > 0) {
-                const oldHealth = target.health;
-                target.health -= damage;
-                user.totalDamageDealt += oldHealth - target.health;
-                if (target.health <= 0) {
-                    target.health = 0;
-                    fight.turns[ctx.turns.length - 1].logs.push(
-                        `:fire: **${target.name}** died from burn damage`
-                    );
-                }
-            }
-        },
-        id: "" + Date.now() + Math.random() + "",
-    });
-};
-
 const bleedDamagePromise = (
     ctx: FightHandler,
     target: Fighter,
