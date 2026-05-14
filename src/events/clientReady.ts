@@ -410,8 +410,6 @@ const Event: EventFile = {
         client.log(`Logged in as ${client.user?.tag}`, "ready");
         client.allCommands = commandsV3;
 
-        // client.database.migrateData();
-
         setInterval(
             () => {
                 client.database.redis.keys("*tempCache_*").then(async (keys) => {
