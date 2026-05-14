@@ -1068,19 +1068,6 @@ export interface Gang {
     color: number;
 }
 
-const GangMemberSQLQuery = `
-    CREATE TABLE IF NOT EXISTS gang_members
-    (
-        id        TEXT PRIMARY KEY,
-        role      TEXT    NOT NULL,
-        joined_at INTEGER NOT NULL,
-        gang      TEXT    NOT NULL,
-        FOREIGN KEY (gang) REFERENCES gangs (id),
-    );
-    ALTER TABLE gang_members
-        ADD CONSTRAINT unique_boss_per_gang UNIQUE (gang, role CHECK (role = 'boss'));
-`;
-
 export type possibleModifiers = "speedrun" | "no_breaks" | "the_elite" | "clone";
 
 export type FightPromise = {
@@ -1119,26 +1106,3 @@ export interface Transaction {
     message: string;
 }
 
-export const TransactionTableQuery = `
-    CREATE TABLE IF NOT EXISTS transactions
-    (
-        id   TEXT PRIMARY KEY,
-        data jsonb[] NOT NULL,
-        date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        message TEXT NOT NULL
-    );
-`;
-
-// we want an array of functions with arguments
-// for example [ { method: "add", args: arguments of add }]
-// must be auto detected using T or something
-
-export interface params<T> {
-    method: string;
-    args: T;
-}
-
-const test: params<number> = {
-    method: "add",
-    args: 1,
-};
