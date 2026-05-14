@@ -265,8 +265,8 @@ imperative-callback style that Abilities had pre-P4.2. The migration philosophy
 is identical: declarative `effects[]` for the easy patterns, keep `promise`
 callbacks for the weird ones, preserve behavior first.
 
-**Passive migration hasn't started yet.** The section below is the brief for
-the first agent to pick it up.
+The Passives migration is in flight as of slice 4 — see "Migrated passives"
+below.
 
 ## Where Passives live
 
@@ -306,25 +306,32 @@ namespace its cache entries.
 values, snapshots, "has-already-fired" flags, etc. there. Every cache key must
 be unique per (passive, user, fight) — that's what `getId` enforces.
 
-## Migration design — proposed
+## Migration design — current state
 
-The plan mirrors the Abilities migration:
+The architecture (slice 4):
 
-1. Add `effects?: PassiveEffect[]` to the `Passive` interface (alongside
-   the existing optional `promise`).
-2. Create `src/rpg/PassiveEffects.ts` with the `PassiveEffect` discriminated
-   union and `runPassiveEffects(passive, user, fight, from)` executor.
-3. Update `handleFightPassives` to call `runPassiveEffects` before calling
-   the legacy `promise` callback. Same pattern as
-   `runAbilityEffects` in `applyAbility`.
-4. Pick the simplest pattern across passives (probably per-round regen) and
-   migrate the 2-3 candidates that fit cleanly.
+1. `Passive.effects?: PassiveEffect[]` lives alongside the now-optional
+   `Passive.promise?` callback.
+2. [src/rpg/PassiveEffects.ts](src/rpg/PassiveEffects.ts) defines the
+   `PassiveEffect` discriminated union and `runPassiveEffects(passive, user,
+   fight)` executor.
+3. `handleFightPassives` in [src/structures/FightPassives.ts](src/structures/FightPassives.ts)
+   calls `runPassiveEffects` BEFORE invoking the legacy `promise` under the
+   same cooldown gate. A passive can declare effects, a promise, or both — but
+   once a passive has effects, its `promise` is usually no longer needed and
+   is omitted.
 
-The `PassiveEffect` union and the `AbilityEffect` union **should stay
-separate**. Even though some names overlap (both have "bleed/poison" concepts),
-the contexts differ — passive ticks fire automatically per cycle, ability
-effects fire after a hit lands. Cross-cutting them now would entangle
-unrelated semantics.
+The `PassiveEffect` union and the `AbilityEffect` union **stay separate**.
+Even though some names overlap (both have "bleed/poison" concepts), the
+contexts differ — passive ticks fire automatically per cycle, ability
+effects fire after a hit lands. Cross-cutting them would entangle unrelated
+semantics.
+
+### Current passive effects
+
+| Type | Shape | What it does |
+| --- | --- | --- |
+| `regen` | `{ type: "regen", cacheKey: string, healthPercent: number, staminaPercent: number, capPercent: number }` | Per-fire heal: `Math.round(user.maxHealth * healthPercent)` health and, if `staminaPercent > 0`, `Math.round(user.maxStamina * staminaPercent)` stamina. Stops once cumulative health healed `>= baseHealth * capPercent` (snapshotted at first fire). Logs the heal amounts using the user's weapon emoji. `cacheKey` must match the legacy `getId` prefix to keep cache state compatible (e.g. `"regeneration"`, `"regeneration_alter"`, `"jingle"`). |
 
 ## Migration buckets — Passives snapshot
 
@@ -332,7 +339,7 @@ Counts at the start of the Passives work:
 
 | Bucket | Passives | What |
 | --- | --- | --- |
-| Per-round regen (heal % of max with cap) | `Regeneration`, `RegenerationAlter`, `Jingle` | **Cleanest pilot target.** Each heals `maxHealth * X%` per round, capped at `maxHealth * Y%` total. `RegenerationAlter` + `Jingle` also heal stamina. A `passive_regen` effect with `{ resource: "health" \| "stamina" \| "both", percent: number, capPercent: number }` would unlock all three. |
+| Per-round regen (heal % of max with cap) | ✅ done — `Regeneration`, `RegenerationAlter`, `Jingle` migrated in slice 4. |
 | On-hit stacking DoT | `Poison`, `Fire` | Triggered when `fight.infos.lastHit.user === self`. Each stack deals `getAttackDamages(user) * multiplier`. Could potentially declarative but uses `fight.infos.lastHit` state and direct `removeHealth` — non-trivial. |
 | Conditional time-stop AoE | `KnivesThrow` | Fires only during `user.hasStoppedTime` with a specific item equipped (`dios_knives === 6`). Hits all enemies. Stand-specific. **Keep as `promise`.** |
 | Snapshot-and-mutate stat scaling | `Rage`, `Darkness` | Cache base values, then scale skill points up/down based on health-lost or hit-count. Complex restore logic on stack change. **Keep as `promise`.** |
@@ -377,11 +384,16 @@ Update this list when you investigate a passive and decide it stays custom.
 
 ## Migrated passives
 
-None yet.
-
 | Passive | Slice | Effects |
 | --- | --- | --- |
-| — | — | — |
+| `Regeneration` | 4 | `[{ type: "regen", cacheKey: "regeneration", healthPercent: 0.02, staminaPercent: 0, capPercent: 0.1 }]` |
+| `RegenerationAlter` | 4 | `[{ type: "regen", cacheKey: "regeneration_alter", healthPercent: 0.04, staminaPercent: 0.04, capPercent: 0.1 }]` |
+| `Jingle` | 4 | `[{ type: "regen", cacheKey: "jingle", healthPercent: 0.02, staminaPercent: 0.02, capPercent: 0.1 }]` |
+
+**Behavior note — Jingle description vs. code.** Jingle's description says
+"1% of their max health and stamina" but the legacy code regenerated 2%. The
+migration preserves the 2% behavior. If the intent was 1%, fix the constant
+and update the description in the same commit.
 
 ## Quick start for the first passive slice
 

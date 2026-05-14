@@ -1092,7 +1092,19 @@ export interface Passive {
     executeOnlyOnce?: boolean;
     evenIfDead?: boolean;
     getId: (user: Fighter, context: FightHandler, from: string) => string;
-    promise: (user: Fighter, context: FightHandler, from: string) => void;
+    /**
+     * Imperative callback. Optional after the P4.2 migration introduced
+     * `effects?` — a passive can declare effects, a promise, or both. If
+     * present, the promise runs AFTER `runPassiveEffects` and under the same
+     * cooldown gate.
+     */
+    promise?: (user: Fighter, context: FightHandler, from: string) => void;
+    /**
+     * Declarative side effects, run by `runPassiveEffects` before the
+     * `promise` callback fires (under the same cooldown gate). See
+     * ABILITIES.md ("Passives" section) for the migration policy.
+     */
+    effects?: import("../rpg/PassiveEffects").PassiveEffect[];
 }
 
 export type SkillPointsBuildArr = {

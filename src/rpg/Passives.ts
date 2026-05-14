@@ -327,29 +327,15 @@ export const Regeneration: Passive = {
         "At the end of each 'round', the user regenerates 2% of their max health (capped at 10%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `regeneration_${user.id}_${context.id}`,
-    promise: (user: Fighter, fight: FightHandler) => {
-        const totalHealingDoneId = `regeneration_${user.id}_${fight.id}.totalhealingdone`;
-        if (!fight.cache.has(totalHealingDoneId)) {
-            fight.cache.set(totalHealingDoneId, 0);
-        }
-        const baseHealthId = `regeneration_${user.id}_${fight.id}.basehealth`;
-        if (!fight.cache.has(baseHealthId)) {
-            fight.cache.set(baseHealthId, user.maxHealth);
-        }
-
-        const totalHealingDone = Number(fight.cache.get(totalHealingDoneId));
-        const baseHealth = Number(fight.cache.get(baseHealthId));
-
-        if (totalHealingDone >= baseHealth * 0.1) return;
-
-        const status = user.incrHealth(Math.round(user.maxHealth * 0.02)) * -1;
-
-        user.totalHealingDone += status;
-        if (status !== 0)
-            fight.turns[fight.turns.length - 1].logs.push(
-                `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health.`
-            );
-    },
+    effects: [
+        {
+            type: "regen",
+            cacheKey: "regeneration",
+            healthPercent: 0.02,
+            staminaPercent: 0,
+            capPercent: 0.1,
+        },
+    ],
 };
 
 export const RegenerationAlter: Passive = {
@@ -358,36 +344,15 @@ export const RegenerationAlter: Passive = {
         "At the end of each 'round', the user regenerates 4% of their max health and stamina (capped at 10%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `regeneration_alter_${user.id}_${context.id}`,
-    promise: (user: Fighter, fight: FightHandler) => {
-        const totalHealingDoneId = `regeneration_alter_${user.id}_${fight.id}.totalhealingdone`;
-        if (!fight.cache.has(totalHealingDoneId)) {
-            fight.cache.set(totalHealingDoneId, 0);
-        }
-
-        const totalHealingDone = Number(fight.cache.get(totalHealingDoneId));
-        const baseHealthId = `regeneration_alter_${user.id}_${fight.id}.basehealth`;
-        if (!fight.cache.has(baseHealthId)) {
-            fight.cache.set(baseHealthId, user.maxHealth);
-        }
-
-        const baseStaminaId = `regeneration_alter_${user.id}_${fight.id}.basestamina`;
-        if (!fight.cache.has(baseStaminaId)) {
-            fight.cache.set(baseStaminaId, user.maxStamina);
-        }
-
-        const baseHealth = Number(fight.cache.get(baseHealthId));
-
-        if (totalHealingDone >= baseHealth * 0.1) return;
-
-        const status = user.incrHealth(Math.round(user.maxHealth * 0.04)) * -1;
-
-        const statusStamina = user.incrStamina(Math.round(user.maxStamina * 0.04)) * -1;
-        user.totalHealingDone += status;
-        if (statusStamina !== 0 || status !== 0)
-            fight.turns[fight.turns.length - 1].logs.push(
-                `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health and **${statusStamina}** stamina.`
-            );
-    },
+    effects: [
+        {
+            type: "regen",
+            cacheKey: "regeneration_alter",
+            healthPercent: 0.04,
+            staminaPercent: 0.04,
+            capPercent: 0.1,
+        },
+    ],
 };
 
 export const Resurrection: Passive = {
@@ -432,40 +397,21 @@ export const Resurrection: Passive = {
 };
 
 // passive for santa's bell
+// Description says 1% but the original code regenerated 2%; behavior parity
+// preserved here. Update the description if balance was meant to be 1%.
 export const Jingle: Passive = {
     name: "Jingle",
     description:
         "At the end of each 'round', the user regenerates 1% of their max health and stamina (capped at 10%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `jingle_${user.id}_${context.id}`,
-    promise: (user: Fighter, fight: FightHandler) => {
-        const totalHealingDoneId = `jingle_${user.id}_${fight.id}.totalhealingdone`;
-        if (!fight.cache.has(totalHealingDoneId)) {
-            fight.cache.set(totalHealingDoneId, 0);
-        }
-
-        const totalHealingDone = Number(fight.cache.get(totalHealingDoneId));
-        const baseHealthId = `jingle_${user.id}_${fight.id}.basehealth`;
-        if (!fight.cache.has(baseHealthId)) {
-            fight.cache.set(baseHealthId, user.maxHealth);
-        }
-
-        const baseStaminaId = `jingle_${user.id}_${fight.id}.basestamina`;
-        if (!fight.cache.has(baseStaminaId)) {
-            fight.cache.set(baseStaminaId, user.maxStamina);
-        }
-
-        const baseHealth = Number(fight.cache.get(baseHealthId));
-
-        if (totalHealingDone >= baseHealth * 0.1) return;
-
-        const status = user.incrHealth(Math.round(user.maxHealth * 0.02)) * -1;
-
-        const statusStamina = user.incrStamina(Math.round(user.maxStamina * 0.02)) * -1;
-        user.totalHealingDone += status;
-        if (statusStamina !== 0 || status !== 0)
-            fight.turns[fight.turns.length - 1].logs.push(
-                `-# ${user.weapon?.emoji} **${user.name}** regenerated **${status}** health and **${statusStamina}** stamina.`
-            );
-    },
+    effects: [
+        {
+            type: "regen",
+            cacheKey: "jingle",
+            healthPercent: 0.02,
+            staminaPercent: 0.02,
+            capPercent: 0.1,
+        },
+    ],
 };
