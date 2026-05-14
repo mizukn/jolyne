@@ -173,7 +173,7 @@ whenever you investigate an ability and decide it's not worth porting.
 | `TheWorld` | Abilities.ts:58 | Time stop with stand-specific dialogue per `user.stand.id`, schedules re-enable via `nextTurnPromises`. Mutates `user.hasStoppedTime`. Pure dialogue/state combo, doesn't fit a generic effect. |
 | `Manipulation` | Abilities.ts:141 | Mutates `target.name`, sets `target.manipulatedBy`, schedules `nextRoundPromises` to revert. Highly bespoke. |
 | `OhMyGod` | Abilities.ts:325 | Snapshot-then-restore all skill points; the +100% (capped at 75) math doesn't generalize. |
-| `BulletsRafale` | Abilities.ts:384 | Sex Pistols ammo system via `fightCache`, multiple calls to `customAttack.handleAttack`. Comment in source says "ONLY FOR SEX PISTOLS OR ELSE IT WILL CRASH". |
+| `BulletsRafale` | Abilities.ts:384 | Sex Pistols ammo system via `fight.cache`, multiple calls to `customAttack.handleAttack`. Comment in source says "ONLY FOR SEX PISTOLS OR ELSE IT WILL CRASH". |
 
 Update this list as new bespoke abilities are encountered.
 

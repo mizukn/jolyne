@@ -366,9 +366,9 @@ export const BulletsRafale: Ability = {
     extraTurns: 0,
     useMessage: (user, target, damage, ctx) => {
         const bulletId = `${ctx.id}_${user.id}`;
-        ctx.ctx.client.fightCache.set(bulletId + "fireX", true);
+        ctx.cache.set(bulletId + "fireX", 1);
 
-        const bullets: number = (ctx.ctx.client.fightCache.get(bulletId) as number) || 0;
+        const bullets: number = (ctx.cache.get(bulletId) as number) || 0;
         if (bullets === 6) {
             ctx.turns[ctx.turns.length - 1].logs.push(
                 `${ctx.ctx.client.localEmojis.sexPistols} **${user.name}** has no bullets left... You just wasted your ability & stamina omg you're so dumb`
@@ -393,7 +393,7 @@ export const BulletsRafale: Ability = {
         }
         user.skillPoints.perception /= 2;
         user.skillPoints.speed /= 2;
-        ctx.ctx.client.fightCache.delete(bulletId + "fireX");
+        ctx.cache.delete(bulletId + "fireX");
     },
     dodgeScore: 0,
     target: "enemy",

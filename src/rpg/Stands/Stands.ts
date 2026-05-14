@@ -196,7 +196,7 @@ export const SexPistols: Stand = {
     customAttack: {
         name: (ctx, user) => {
             const bulletId = `${ctx.id}_${user.id}`;
-            const cooldown = ctx.ctx.client.fightCache.get(bulletId) || 0;
+            const cooldown = ctx.cache.get(bulletId) || 0;
 
             if (cooldown === 6) {
                 return "Reload";
@@ -207,15 +207,15 @@ export const SexPistols: Stand = {
             // damages *= 1.1; // nerf
             damages = Math.round(damages);
             const bulletId = `${ctx.id}_${user.id}`;
-            const cooldown = (ctx.ctx.client.fightCache.get(bulletId) as number) || 0;
+            const cooldown = (ctx.cache.get(bulletId) as number) || 0;
 
             if (cooldown >= 6) {
-                ctx.ctx.client.fightCache.set(bulletId, 0);
+                ctx.cache.set(bulletId, 0);
                 ctx.turns[ctx.turns.length - 1].logs.push(`${user.name} reloaded their bullets...`);
                 ctx.nextTurn();
                 return;
             }
-            ctx.ctx.client.fightCache.set(bulletId, cooldown + 1);
+            ctx.cache.set(bulletId, cooldown + 1);
             let last = false;
 
             if (cooldown + 1 === 6) {
@@ -256,7 +256,7 @@ export const SexPistols: Stand = {
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `:exclamation: ${user.name} will have to reload in order to shoot again...`
                     );
-                else if (!ctx.ctx.client.fightCache.get(bulletId + "fireX"))
+                else if (!ctx.cache.get(bulletId + "fireX"))
                     ctx.turns[ctx.turns.length - 1].logs.push(
                         `${emoji} [BULLETS LEFT: ${6 - cooldown - 1}/6]`
                     );
@@ -267,7 +267,7 @@ export const SexPistols: Stand = {
                     );
                 }
             }
-            if (!ctx.ctx.client.fightCache.get(bulletId + "fireX")) ctx.nextTurn();
+            if (!ctx.cache.get(bulletId + "fireX")) ctx.nextTurn();
         },
     },
     obtainableBy: "arrow",

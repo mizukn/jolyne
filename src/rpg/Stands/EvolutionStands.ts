@@ -173,7 +173,7 @@ export const Whitesnake: EvolutionStand = {
             customAttack: {
                 name: (ctx: FightHandler, user: Fighter): string => {
                     const cacheID = `${ctx.id}_${user.id}.attack.cmoon`;
-                    const attacks = (ctx.ctx.client.fightCache.get(cacheID) as number) || 0;
+                    const attacks = (ctx.cache.get(cacheID) as number) || 0;
 
                     if (attacks % 2 === 0) {
                         return "Inverted Punch";
@@ -190,12 +190,12 @@ export const Whitesnake: EvolutionStand = {
                     damages: number,
                 ): void => {
                     const cacheID = `${ctx.id}_${user.id}.attack.cmoon`;
-                    const attacks = (ctx.ctx.client.fightCache.get(cacheID) as number) || 0;
+                    const attacks = (ctx.cache.get(cacheID) as number) || 0;
                     user.stamina -= 1;
 
                     damages = Math.round(damages * (attacks % 2 === 0 ? 1.5 : 1));
 
-                    ctx.ctx.client.fightCache.set(cacheID, attacks + 1);
+                    ctx.cache.set(cacheID, attacks + 1);
 
                     const status = target.removeHealth(damages, user);
                     const emoji = user.stand?.customAttack?.emoji || user.stand?.emoji;
