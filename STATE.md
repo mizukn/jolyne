@@ -106,15 +106,9 @@ Command handlers should prefer the metadata flags over parsing error strings. Du
 - **April Fools `randomGifs`** — gone in the V2 migration and staying gone. User decided the body-image gifs were ugly; we're not restoring them.
 - **Ephemeral deprecation warnings** — done. `CommandInteractionContext.makeMessage/followUp` and queued followups normalize `ephemeral` to `MessageFlags.Ephemeral`; `ephemeralV2(reply)` in `src/utils/containers.ts` is the shared helper for ephemeral V2 container replies (bitwise-OR'd with the `IsComponentsV2` flag); the last three direct `ephemeral: true` literals in `EmailsSubcommands` and `Inventory` were converted, and three buggy `flags: MessageFlags.Ephemeral`-after-spread sites in `Inventory` (community-ban / "stop trying to find glitches" guards) were fixed to preserve the V2 flag.
 
-### XP emoji bar (purple) — pending user upload
+### XP emoji bar (purple) — done
 
-The user said purple XP bar emojis will be added later. When they arrive, add to [emojis.json](src/emojis.json):
-```
-"bar_xp_begin": "<:purplebegp:..>",
-"bar_xp_mid":   "<:purplemdp:..>",
-"bar_xp_end":   "<:purpleendp:..>"
-```
-At that point, re-add the XP bar in Profile (a previous version had it; was removed because no XP palette existed yet).
+Purple XP bar emojis are in [src/emojis.json](src/emojis.json) under `bar_xp_begin` / `bar_xp_mid` / `bar_xp_end`. Profile already calls `emojiBar("xp", rpgData.xp, Functions.getMaxXp(rpgData.level))` at [Profile.ts:266-270](src/commands/social/Profile.ts#L266-L270); the Unicode `▱` fallback that was rendering before the upload now resolves to the custom emojis automatically on next deploy.
 
 ### Other PLAN status
 
