@@ -455,10 +455,7 @@ export const Finisher: Ability = {
     damage: 50,
     stamina: 40,
     extraTurns: 1,
-    useMessage: (user, target, damage, ctx) => {
-        const burnDamageCalc = Math.round(Functions.getAbilityDamage(user, Finisher) / 10);
-        bleedDamagePromise(ctx, target, burnDamageCalc, user);
-    },
+    effects: [{ type: "bleed", damageDivisor: 10, turns: 3, source: "ability" }],
     dodgeScore: 2,
     target: "enemy",
 };

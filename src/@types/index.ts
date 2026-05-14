@@ -727,6 +727,12 @@ export interface Ability {
     ally?: boolean;
     target: "enemy" | "ally" | "onlyAlly" | "self" | "any";
     noNextTurn?: boolean;
+    /**
+     * Declarative side effects, run by `runAbilityEffects` after the main
+     * damage hit. See ABILITIES.md for the migration policy and effect
+     * type definitions.
+     */
+    effects?: import("../rpg/AbilityEffects").AbilityEffect[];
 }
 
 export interface RequiemStand extends Stand {
