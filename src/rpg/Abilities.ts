@@ -2999,8 +2999,12 @@ export const KillEveryone: Ability = {
     target: "self",
     useMessage: (user, target, damage, ctx) => {
         if (ctx.ctx.client.user.id === "923619190831730698") {
-            // in case I forgot to remove this ability in production
-            return StandBarrage.useMessage(user, target, damage, ctx);
+            // Safety guard: defang in production. Old code called
+            // `StandBarrage.useMessage(...)` but Stand Barrage is pure data
+            // (no useMessage), so the guard itself crashed — defeating its
+            // purpose. Now we just return; the default ability flow takes
+            // over (damage: 0 means no effect).
+            return;
         }
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} KILL EVERYONE: **${user.name}** has killed everyone...`
