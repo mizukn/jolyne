@@ -109,7 +109,8 @@ effect type by:
 
 | Type | Shape | What it does |
 | --- | --- | --- |
-| `dot` | `{ type: "dot", kind: "bleed" \| "burn" \| "poison", damageDivisor: number, turns: number }` | Schedules `turns` ticks of `Math.round(damage / damageDivisor)` damage via `fight.nextTurnPromises`. Mirrors the legacy `bleedDamagePromise` / `burnDamagePromise` / `poisonDamagePromise` helpers exactly. |
+| `bleed` | `{ type: "bleed", damageDivisor: number, turns: number, source?: "dealt" \| "ability" }` | Mirrors `bleedDamagePromise` exactly. Queued on `nextTurnPromises`, fires once per turn for `turns` turns. Per-tick damage is `Math.round(sourceDamage / damageDivisor)`. `source` picks between `status.amount` (default) and `Functions.getAbilityDamage(user, ability)`. Logs `-# 🩸 **target** took **N** bleed damage` (or "died from bleed damage" if killed). Re-fetches user/target from `fight.fighters` to survive references going stale across turns. |
+| `poison` | `{ type: "poison", damageDivisor: number, turns: number, source?: "dealt" \| "ability" }` | Mirrors `poisonDamagePromise` exactly. Queued on **`nextRoundPromises`** (one tick per round, not per turn). Logs `-# ☠️🧪☣️ **target** took **N** poison damage` **unconditionally** — including when the target is already dead, preserving a legacy quirk. Damage applies only if alive; if killed, follows with `-# ☠️🧪☣️ **target** died from poison damage`. Does NOT re-fetch user/target. |
 
 ## Slice convention
 
@@ -174,10 +175,10 @@ Update this list as new bespoke abilities are encountered.
 
 | Ability | Slice | Effects |
 | --- | --- | --- |
-| `Finisher` | 1 | `[{ type: "dot", kind: "bleed", damageDivisor: 10, turns: 3 }]` |
-| `DeterminationFlurry` | 1 | `[{ type: "dot", kind: "bleed", damageDivisor: 10, turns: 3 }]` |
-| `SerpentStrike` | 1 | `[{ type: "dot", kind: "poison", damageDivisor: 10, turns: 2 }]` |
-| `CelestialFang` | 1 | `[{ type: "dot", kind: "poison", damageDivisor: 3, turns: 2 }, { type: "dot", kind: "bleed", damageDivisor: 3, turns: 2 }]` |
+| `Finisher` | 1 | `[{ type: "bleed", damageDivisor: 10, turns: 3, source: "ability" }]` |
+| `FistEnlargement` | 1 | Inherits from `Finisher` via spread (`...Finisher`). |
+| `SerpentStrike` | 2 | `[{ type: "poison", damageDivisor: 10, turns: 2 }]` |
+| `CelestialFang` | 2 | `[{ type: "poison", damageDivisor: 3, turns: 2 }, { type: "bleed", damageDivisor: 3, turns: 2 }]` |
 
 Update with every slice.
 

@@ -3404,14 +3404,10 @@ export const SerpentStrike: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
-    useMessage: (user, target, damage, ctx) => {
-        const bleedDamageCalc = Math.round(damage / 10);
-        poisonDamagePromise(ctx, target, bleedDamageCalc, user, 2);
-    },
+    effects: [{ type: "poison", damageDivisor: 10, turns: 2 }],
 };
 
 export const CelestialFang: Ability = {
-    // bleed dmg too
     name: "Celestial Fang",
     description:
         "A powerful strike imbued with the blessings of the Lunar New Year, dealing massive damage and causes the enemy to bleed.",
@@ -3421,11 +3417,10 @@ export const CelestialFang: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
-    useMessage: (user, target, damage, ctx) => {
-        const bleedDamageCalc = Math.round(damage / 3);
-        poisonDamagePromise(ctx, target, bleedDamageCalc, user, 2);
-        bleedDamagePromise(ctx, target, bleedDamageCalc, user, 2);
-    },
+    effects: [
+        { type: "poison", damageDivisor: 3, turns: 2 },
+        { type: "bleed", damageDivisor: 3, turns: 2 },
+    ],
 };
 
 export const PinataSmash: Ability = {

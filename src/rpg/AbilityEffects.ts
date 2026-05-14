@@ -36,7 +36,16 @@ export interface BleedEffect {
     source?: "dealt" | "ability";
 }
 
-export type AbilityEffect = BleedEffect;
+export interface PoisonEffect {
+    type: "poison";
+    /** Per-tick damage is `Math.round(sourceDamage / damageDivisor)`. */
+    damageDivisor: number;
+    /** Number of ticks. Mirrors the `cooldown` arg of `poisonDamagePromise`. */
+    turns: number;
+    source?: "dealt" | "ability";
+}
+
+export type AbilityEffect = BleedEffect | PoisonEffect;
 
 function applyBleed(
     effect: BleedEffect,
@@ -85,6 +94,50 @@ function applyBleed(
     });
 }
 
+function applyPoison(
+    effect: PoisonEffect,
+    ability: Ability,
+    user: Fighter,
+    target: Fighter,
+    dealtDamage: number,
+    fight: FightHandler,
+): void {
+    const sourceDamage =
+        (effect.source ?? "dealt") === "ability"
+            ? Functions.getAbilityDamage(user, ability)
+            : dealtDamage;
+    const tickDamage = Math.round(sourceDamage / effect.damageDivisor);
+
+    // Mirrors `poisonDamagePromise` exactly: queued on nextRoundPromises (not
+    // nextTurnPromises), logs "took N damage" unconditionally with the static
+    // tickDamage (even if the target is already dead by then), then applies
+    // damage only if alive, then conditionally logs "died from poison".
+    fight.nextRoundPromises.push({
+        cooldown: effect.turns,
+        executeOnlyOnce: false,
+        callerId: user.id,
+        id: Functions.generateRandomId(),
+        promise: (resolvedFight) => {
+            const turnLogs =
+                resolvedFight.turns[resolvedFight.turns.length - 1].logs;
+            turnLogs.push(
+                `-# ☠️🧪☣️ **${target.name}** took **${tickDamage}** poison damage`,
+            );
+            if (target.health > 0) {
+                const oldHealth = target.health;
+                target.health -= tickDamage;
+                user.totalDamageDealt += oldHealth - target.health;
+                if (target.health <= 0) {
+                    target.health = 0;
+                    turnLogs.push(
+                        `-# ☠️🧪☣️ **${target.name}** died from poison damage`,
+                    );
+                }
+            }
+        },
+    });
+}
+
 export function runAbilityEffects(
     ability: Ability,
     user: Fighter,
@@ -97,6 +150,9 @@ export function runAbilityEffects(
         switch (effect.type) {
             case "bleed":
                 applyBleed(effect, ability, user, target, dealtDamage, fight);
+                break;
+            case "poison":
+                applyPoison(effect, ability, user, target, dealtDamage, fight);
                 break;
         }
     }

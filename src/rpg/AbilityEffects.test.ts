@@ -142,3 +142,94 @@ describe("runAbilityEffects — bleed", () => {
         expect(fight.nextTurnPromises).toHaveLength(2);
     });
 });
+
+describe("runAbilityEffects — poison", () => {
+    it("queues on nextRoundPromises (not nextTurnPromises)", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [{ type: "poison", damageDivisor: 10, turns: 2 }],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target");
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 30, fight);
+        expect(fight.nextTurnPromises).toHaveLength(0);
+        expect(fight.nextRoundPromises).toHaveLength(1);
+        expect(fight.nextRoundPromises[0].cooldown).toBe(2);
+    });
+
+    it("logs the static tick damage and applies it when target is alive", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [{ type: "poison", damageDivisor: 10, turns: 1 }],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target", 1000);
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 30, fight);
+        fight.nextRoundPromises[0].promise(fight);
+
+        expect(target.health).toBe(997); // 1000 - round(30 / 10)
+        expect(user.totalDamageDealt).toBe(3);
+        expect(fight.turns[0].logs[0]).toContain("took **3** poison damage");
+    });
+
+    it("logs death after damage when poison kills the target", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [{ type: "poison", damageDivisor: 1, turns: 1 }],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target", 10);
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 50, fight);
+        fight.nextRoundPromises[0].promise(fight);
+
+        expect(target.health).toBe(0);
+        expect(fight.turns[0].logs).toEqual([
+            expect.stringContaining("took **50** poison damage"),
+            expect.stringContaining("died from poison damage"),
+        ]);
+    });
+
+    it("still logs the tick line when the target was already dead (legacy parity)", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [{ type: "poison", damageDivisor: 10, turns: 1 }],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target", 0);
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 30, fight);
+        fight.nextRoundPromises[0].promise(fight);
+
+        // Bug-like behavior preserved from `poisonDamagePromise`: the
+        // "took N damage" line fires unconditionally, even if the target was
+        // already at 0 HP and no further damage applies.
+        expect(target.health).toBe(0);
+        expect(user.totalDamageDealt).toBe(0);
+        expect(fight.turns[0].logs).toHaveLength(1);
+        expect(fight.turns[0].logs[0]).toContain("took **3** poison damage");
+    });
+
+    it("mixes poison and bleed on the same ability", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [
+                { type: "poison", damageDivisor: 3, turns: 2 },
+                { type: "bleed", damageDivisor: 3, turns: 2 },
+            ],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target");
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 30, fight);
+        expect(fight.nextRoundPromises).toHaveLength(1);
+        expect(fight.nextTurnPromises).toHaveLength(1);
+    });
+});
