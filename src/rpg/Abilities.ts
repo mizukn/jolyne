@@ -2975,9 +2975,7 @@ export const RealityRevert: Ability = {
     dodgeScore: 0,
     target: "ally",
     useMessage: (user, target, damage, ctx) => {
-        //const oldHealth = cloneDeep(target.health);
         const status = target.incrHealth(target.maxHealth * 0.25);
-        //user.totalHealingDone += target.health - oldHealth;
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} REALITY REVERT: **${user.name}** has healed **${
@@ -3239,12 +3237,11 @@ export const SinHarvest: Ability = {
     dodgeScore: 0,
     target: "enemy",
     useMessage: (user, target, damage, ctx) => {
-        const healthStolen = damage; //Math.round(target.maxHealth * 0.15); // 15% of enemy max health
-        const staminaStolen = 10; // Flat stamina drain
+        const healthStolen = damage;
+        const staminaStolen = 10;
 
-        //const healthStatus = target.removeHealth(healthStolen, user, 0);
-        user.incrHealth(healthStolen * 0.5); // Heal user by 50% of stolen health
-        user.stamina = Math.min(user.maxStamina, user.stamina + staminaStolen); // Add stolen stamina
+        user.incrHealth(healthStolen * 0.5);
+        user.stamina = Math.min(user.maxStamina, user.stamina + staminaStolen);
 
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.weapon?.emoji} **${
@@ -3275,7 +3272,6 @@ export const KrampusCurse: Ability = {
             `- ${user.weapon?.emoji} **${user.name}** curses **${target.name}**`
         );
 
-        //const curseCacheId = `krampus_curse_${target.id}_${ctx.id}`;
         let oldHealth = target.health;
         ctx.nextTurnPromises.push({
             cooldown: 3,
