@@ -35,16 +35,6 @@ const slashCommand: SlashCommandFile = {
         }
 
         const status = getQuestsStats(ctx.userData.chapter.quests, ctx);
-        /*if (status.percent < 100)
-            return void ctx.makeMessage({
-                content: `You need to complete all chapter quests to prestige. Progress: **${status.percent}%**`,
-            });*/
-        /*if (ctx.userData.level < Functions.getMaxPrestigeLevel(ctx.userData.prestige))
-            return void ctx.makeMessage({
-                content: `You need to be level ${Functions.getMaxPrestigeLevel(
-                    ctx.userData.prestige
-                )} to prestige.`,
-            });*/
         const meetRequirements =
             ctx.userData.level >= Functions.getMaxPrestigeLevel(ctx.userData.prestige) &&
             status.percent >= 100;
