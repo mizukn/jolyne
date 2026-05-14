@@ -19,7 +19,11 @@ vi.mock("../utils/Webhooks", () => ({
     fightStatsWebhook: { send: vi.fn() },
 }));
 
-import { validateRegistries } from "./validate";
+import {
+    validateAbilityEffect,
+    validatePassiveEffect,
+    validateRegistries,
+} from "./validate";
 
 describe("validateRegistries", () => {
     it("reports no static-data issues against the current tree", () => {
@@ -32,5 +36,143 @@ describe("validateRegistries", () => {
             (e) => !e.includes(".$disc$"),
         );
         expect(errors).toEqual([]);
+    });
+});
+
+describe("validateAbilityEffect", () => {
+    it("accepts a well-formed bleed effect", () => {
+        expect(
+            validateAbilityEffect("X", {
+                type: "bleed",
+                damageDivisor: 10,
+                turns: 3,
+            }),
+        ).toEqual([]);
+    });
+
+    it("accepts source=ability on bleed/poison", () => {
+        expect(
+            validateAbilityEffect("X", {
+                type: "bleed",
+                damageDivisor: 10,
+                turns: 3,
+                source: "ability",
+            }),
+        ).toEqual([]);
+    });
+
+    it("rejects a typoed effect type", () => {
+        const errors = validateAbilityEffect("X", {
+            type: "dotz",
+            damageDivisor: 10,
+            turns: 3,
+        });
+        expect(errors).toHaveLength(1);
+        expect(errors[0]).toContain('unknown effect type "dotz"');
+    });
+
+    it("rejects zero or negative bleed parameters", () => {
+        expect(
+            validateAbilityEffect("X", {
+                type: "bleed",
+                damageDivisor: 0,
+                turns: 3,
+            }),
+        ).toEqual([expect.stringContaining("invalid damageDivisor")]);
+        expect(
+            validateAbilityEffect("X", {
+                type: "bleed",
+                damageDivisor: 10,
+                turns: 0,
+            }),
+        ).toEqual([expect.stringContaining("invalid turns")]);
+    });
+
+    it("rejects an invalid bleed source value", () => {
+        expect(
+            validateAbilityEffect("X", {
+                type: "bleed",
+                damageDivisor: 10,
+                turns: 3,
+                source: "weird",
+            }),
+        ).toEqual([expect.stringContaining('invalid source "weird"')]);
+    });
+
+    it("validates freeze mode", () => {
+        expect(
+            validateAbilityEffect("X", { type: "freeze", turns: 3, mode: "set" }),
+        ).toEqual([]);
+        expect(
+            validateAbilityEffect("X", { type: "freeze", turns: 3, mode: "weird" }),
+        ).toEqual([expect.stringContaining('invalid mode "weird"')]);
+        expect(
+            validateAbilityEffect("X", { type: "freeze", turns: 0, mode: "set" }),
+        ).toEqual([expect.stringContaining("invalid turns")]);
+    });
+});
+
+describe("validatePassiveEffect", () => {
+    it("accepts a well-formed regen effect", () => {
+        expect(
+            validatePassiveEffect("P", {
+                type: "regen",
+                cacheKey: "regeneration",
+                healthPercent: 0.02,
+                staminaPercent: 0,
+                capPercent: 0.1,
+            }),
+        ).toEqual([]);
+    });
+
+    it("rejects empty cacheKey or non-positive capPercent", () => {
+        expect(
+            validatePassiveEffect("P", {
+                type: "regen",
+                cacheKey: "",
+                healthPercent: 0.02,
+                staminaPercent: 0,
+                capPercent: 0.1,
+            }),
+        ).toEqual([expect.stringContaining("empty cacheKey")]);
+        expect(
+            validatePassiveEffect("P", {
+                type: "regen",
+                cacheKey: "x",
+                healthPercent: 0.02,
+                staminaPercent: 0,
+                capPercent: 0,
+            }),
+        ).toEqual([expect.stringContaining("invalid capPercent")]);
+    });
+
+    it("accepts on_hit_stack with stand emoji source", () => {
+        expect(
+            validatePassiveEffect("P", {
+                type: "on_hit_stack",
+                cacheKey: "poison",
+                attackMultiplier: 0.75,
+                label: "poison",
+                emojiSource: "stand",
+            }),
+        ).toEqual([]);
+    });
+
+    it("requires literalEmoji when emojiSource=literal", () => {
+        expect(
+            validatePassiveEffect("P", {
+                type: "on_hit_stack",
+                cacheKey: "burn_damage",
+                attackMultiplier: 0.5,
+                label: "burn",
+                emojiSource: "literal",
+            }),
+        ).toEqual([expect.stringContaining("non-empty literalEmoji")]);
+    });
+
+    it("rejects a typoed passive effect type", () => {
+        expect(validatePassiveEffect("P", { type: "regenz" })).toEqual([
+            expect.stringContaining('unknown effect type "regenz"'),
+        ]);
     });
 });

@@ -9,6 +9,8 @@ import * as EquipableItems from "../rpg/Items/EquipableItems";
 import * as SpecialItems from "../rpg/Items/SpecialItems";
 import * as BaseQuests from "../rpg/Quests/Quests";
 import * as ActionQuests from "../rpg/Quests/ActionQuests";
+import * as Abilities from "../rpg/Abilities";
+import * as Passives from "../rpg/Passives";
 import Items from "../rpg/Items";
 import { endOf2024HalloweenEvent } from "../rpg/Events/2024HalloweenEvent";
 import {
@@ -44,6 +46,98 @@ import log from "../utils/Logger";
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null;
+
+export const validateAbilityEffect = (provenance: string, effect: unknown): string[] => {
+    if (!isObject(effect)) return [`${provenance} is not an object`];
+    const errs: string[] = [];
+    const t = effect.type;
+    switch (t) {
+        case "bleed":
+        case "poison": {
+            if (typeof effect.damageDivisor !== "number" || effect.damageDivisor <= 0) {
+                errs.push(`${provenance} ${t} has invalid damageDivisor`);
+            }
+            if (typeof effect.turns !== "number" || effect.turns <= 0) {
+                errs.push(`${provenance} ${t} has invalid turns`);
+            }
+            if (
+                effect.source !== undefined &&
+                effect.source !== "dealt" &&
+                effect.source !== "ability"
+            ) {
+                errs.push(
+                    `${provenance} ${t} has invalid source "${String(effect.source)}"`,
+                );
+            }
+            break;
+        }
+        case "freeze": {
+            if (typeof effect.turns !== "number" || effect.turns <= 0) {
+                errs.push(`${provenance} freeze has invalid turns`);
+            }
+            if (effect.mode !== "set" && effect.mode !== "add") {
+                errs.push(
+                    `${provenance} freeze has invalid mode "${String(effect.mode)}"`,
+                );
+            }
+            break;
+        }
+        default:
+            errs.push(`${provenance} has unknown effect type "${String(t)}"`);
+    }
+    return errs;
+};
+
+export const validatePassiveEffect = (provenance: string, effect: unknown): string[] => {
+    if (!isObject(effect)) return [`${provenance} is not an object`];
+    const errs: string[] = [];
+    const t = effect.type;
+    switch (t) {
+        case "regen": {
+            if (typeof effect.cacheKey !== "string" || !effect.cacheKey) {
+                errs.push(`${provenance} regen has empty cacheKey`);
+            }
+            if (typeof effect.healthPercent !== "number" || effect.healthPercent < 0) {
+                errs.push(`${provenance} regen has invalid healthPercent`);
+            }
+            if (typeof effect.staminaPercent !== "number" || effect.staminaPercent < 0) {
+                errs.push(`${provenance} regen has invalid staminaPercent`);
+            }
+            if (typeof effect.capPercent !== "number" || effect.capPercent <= 0) {
+                errs.push(`${provenance} regen has invalid capPercent`);
+            }
+            break;
+        }
+        case "on_hit_stack": {
+            if (typeof effect.cacheKey !== "string" || !effect.cacheKey) {
+                errs.push(`${provenance} on_hit_stack has empty cacheKey`);
+            }
+            if (typeof effect.attackMultiplier !== "number" || effect.attackMultiplier <= 0) {
+                errs.push(`${provenance} on_hit_stack has invalid attackMultiplier`);
+            }
+            if (typeof effect.label !== "string" || !effect.label) {
+                errs.push(`${provenance} on_hit_stack has empty label`);
+            }
+            if (effect.emojiSource !== "stand" && effect.emojiSource !== "literal") {
+                errs.push(
+                    `${provenance} on_hit_stack has invalid emojiSource "${String(effect.emojiSource)}"`,
+                );
+            }
+            if (
+                effect.emojiSource === "literal" &&
+                (typeof effect.literalEmoji !== "string" || !effect.literalEmoji)
+            ) {
+                errs.push(
+                    `${provenance} on_hit_stack with emojiSource=literal needs a non-empty literalEmoji`,
+                );
+            }
+            break;
+        }
+        default:
+            errs.push(`${provenance} has unknown effect type "${String(t)}"`);
+    }
+    return errs;
+};
 
 const idsBySource = (
     label: string,
@@ -303,6 +397,34 @@ export const validateRegistries = (): string[] => {
         ActionQuests as unknown as Record<string, unknown>,
     )) {
         if (isObject(value)) validatePushEmail(`ActionQuests.${exportName}`, value);
+    }
+
+    // Ability/Passive effects validation (P4.2). Catches typos in effect
+    // `type` literals and bad parameter values that would otherwise no-op at
+    // runtime (silent damage loss / freeze never firing / regen never capping).
+    for (const [exportName, value] of Object.entries(
+        Abilities as unknown as Record<string, unknown>,
+    )) {
+        if (!isObject(value)) continue;
+        const effects = value.effects;
+        if (!Array.isArray(effects)) continue;
+        effects.forEach((effect, i) => {
+            errors.push(
+                ...validateAbilityEffect(`Abilities.${exportName}.effects[${i}]`, effect),
+            );
+        });
+    }
+    for (const [exportName, value] of Object.entries(
+        Passives as unknown as Record<string, unknown>,
+    )) {
+        if (!isObject(value)) continue;
+        const effects = value.effects;
+        if (!Array.isArray(effects)) continue;
+        effects.forEach((effect, i) => {
+            errors.push(
+                ...validatePassiveEffect(`Passives.${exportName}.effects[${i}]`, effect),
+            );
+        });
     }
 
     // Mark unused references to keep the linter quiet — every map participates

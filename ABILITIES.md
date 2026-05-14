@@ -213,16 +213,21 @@ Counts at the start of P4.2 work:
 
 Numbers are estimates — refine with each pass.
 
-## Boot validation — open work
+## Boot validation — landed
 
-When the executor lands, add to [src/bootstrap/validate.ts](src/bootstrap/validate.ts):
+[src/bootstrap/validate.ts](src/bootstrap/validate.ts) walks every export of
+`src/rpg/Abilities.ts` and `src/rpg/Passives.ts`, checks the `effects?` array
+on each, and asserts:
 
-- Walk every `Ability.effects?` array.
-- For each effect, assert the `type` is a known union member.
-- Per-type sanity: `dot.damageDivisor > 0`, `dot.turns > 0`, etc.
-- Process-exit (production) or warn (dev) with the offending ability name.
+- `effect.type` is a known union member (rejects typos like `"dotz"` or `"regenz"`).
+- Per-type parameter sanity (e.g. `bleed.damageDivisor > 0`, `freeze.mode in {set, add}`, `regen.cacheKey` non-empty, `on_hit_stack.literalEmoji` required when `emojiSource === "literal"`).
 
-This catches typos like `type: "dotz"` that would silently no-op at runtime.
+Violations are reported through the same `validateRegistries` channel as the
+rest of the boot checks — process-exit in production, warn in dev/BETA.
+Unit-tested in [validate.test.ts](src/bootstrap/validate.test.ts).
+
+When adding a new effect type, extend the `validateAbilityEffect` /
+`validatePassiveEffect` switch in `validate.ts` with the new case.
 
 ## Don't do these
 
