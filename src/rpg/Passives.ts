@@ -34,7 +34,6 @@ export const Rage: Passive = {
         const lastHealth = Number(fight.cache.get(lastHealthId)) ?? newUser.health;
 
         const healthLost = lastHealth - newUser.health;
-        console.log(totalStrengthGained, baseStrength);
 
         if (healthLost > 0) {
             const healthLostPercent = healthLost / user.maxHealth;

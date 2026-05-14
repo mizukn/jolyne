@@ -663,7 +663,6 @@ if (isActive(EVENT_IDS.HALLOWEEN_2024)) {
         // @ts-expect-error because it's a private property
         Excalibur.tradable = true;
     }, timeout);
-    console.log(`Excalibur will be tradable in ${timeout}ms.`);
 }
 
 export const ExcaliburAlter: Weapon = {
