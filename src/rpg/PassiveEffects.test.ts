@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../utils/Functions", () => ({}));
+vi.mock("../utils/Functions", () => ({
+    getAttackDamages: vi.fn(() => 100),
+}));
 
 import { runPassiveEffects } from "./PassiveEffects";
 import type { Passive } from "../@types";
@@ -23,6 +25,7 @@ interface FakeFighter {
     maxStamina: number;
     totalHealingDone: number;
     weapon: { emoji: string } | undefined;
+    stand?: { emoji: string };
     incrHealth: (delta: number) => number;
     incrStamina: (delta: number) => number;
 }
@@ -209,5 +212,154 @@ describe("runPassiveEffects — regen", () => {
         // Both should have fired once each — they don't share cache.
         expect(fight.cache.get("regeneration_u_F5.totalhealingdone")).toBe(20);
         expect(fight.cache.get("jingle_u_F5.totalhealingdone")).toBe(20);
+    });
+});
+
+interface FakeEnemy {
+    id: string;
+    name: string;
+    health: number;
+    stand: { emoji: string } | undefined;
+    removeHealth: (
+        damage: number,
+        attacker: unknown,
+        dodge: number,
+    ) => { type: string; amount: number };
+}
+
+const makeEnemy = (id: string, name: string, health = 1000): FakeEnemy => ({
+    id,
+    name,
+    health,
+    stand: { emoji: "🟢" },
+    removeHealth: function (damage: number) {
+        const before = this.health;
+        this.health = Math.max(0, this.health - damage);
+        return { type: "Normal", amount: before - this.health };
+    },
+});
+
+const makeOnHitFight = (
+    user: FakeFighter,
+    enemy: FakeEnemy,
+    lastHit: { user: string; target: string } | undefined,
+    id = "f",
+): FightHandler =>
+    ({
+        id,
+        cache: new Map<string, string | number>(),
+        turns: [{ logs: [] as string[] }],
+        fighters: [user, enemy],
+        infos: { lastHit },
+    }) as unknown as FightHandler;
+
+describe("runPassiveEffects — on_hit_stack", () => {
+    const poisonPassive: Passive = {
+        ...basePassive,
+        type: "turn",
+        effects: [
+            {
+                type: "on_hit_stack",
+                cacheKey: "poison",
+                attackMultiplier: 0.75,
+                label: "poison",
+                emojiSource: "stand",
+            },
+        ],
+    };
+
+    const firePassive: Passive = {
+        ...basePassive,
+        type: "turn",
+        effects: [
+            {
+                type: "on_hit_stack",
+                cacheKey: "burn_damage",
+                attackMultiplier: 0.5,
+                label: "burn",
+                emojiSource: "literal",
+                literalEmoji: ":fire:",
+            },
+        ],
+    };
+
+    it("fires when the user's last hit landed on a live enemy", () => {
+        const user = makeFighter("u", "User");
+        user.stand = { emoji: "🟢" };
+        const enemy = makeEnemy("e", "Enemy", 1000);
+        const fight = makeOnHitFight(user, enemy, { user: "u", target: "e" });
+
+        runPassiveEffects(poisonPassive, cast(user), fight);
+
+        // damage = round(100 * 0.75) = 75
+        expect(enemy.health).toBe(925);
+        expect(fight.turns[0].logs[0]).toContain(
+            "Enemy took **75** poison damages.",
+        );
+        expect(fight.infos.lastHit).toBeUndefined();
+        expect(fight.cache.get("poison_u_f.stacks")).toBe(1);
+    });
+
+    it("no-ops when lastHit is undefined", () => {
+        const user = makeFighter("u", "User");
+        const enemy = makeEnemy("e", "Enemy");
+        const fight = makeOnHitFight(user, enemy, undefined);
+
+        runPassiveEffects(poisonPassive, cast(user), fight);
+        expect(enemy.health).toBe(1000);
+        expect(fight.turns[0].logs).toHaveLength(0);
+    });
+
+    it("no-ops when lastHit.user is someone else", () => {
+        const user = makeFighter("u", "User");
+        const enemy = makeEnemy("e", "Enemy");
+        const fight = makeOnHitFight(user, enemy, { user: "other", target: "e" });
+
+        runPassiveEffects(poisonPassive, cast(user), fight);
+        expect(enemy.health).toBe(1000);
+        expect(fight.infos.lastHit).toEqual({ user: "other", target: "e" });
+    });
+
+    it("no-ops when the target is already dead", () => {
+        const user = makeFighter("u", "User");
+        const enemy = makeEnemy("e", "Enemy", 0);
+        const fight = makeOnHitFight(user, enemy, { user: "u", target: "e" });
+
+        runPassiveEffects(poisonPassive, cast(user), fight);
+        expect(enemy.health).toBe(0);
+        expect(fight.turns[0].logs).toHaveLength(0);
+        // lastHit is preserved when the gate rejects (matches legacy behavior).
+        expect(fight.infos.lastHit).toEqual({ user: "u", target: "e" });
+    });
+
+    it("uses the literal emoji when emojiSource is 'literal' (Fire pattern)", () => {
+        const user = makeFighter("u", "User");
+        user.stand = { emoji: "🟢" };
+        const enemy = makeEnemy("e", "Enemy", 1000);
+        const fight = makeOnHitFight(user, enemy, { user: "u", target: "e" });
+
+        runPassiveEffects(firePassive, cast(user), fight);
+
+        // damage = round(100 * 0.5) = 50
+        expect(enemy.health).toBe(950);
+        expect(fight.turns[0].logs[0]).toContain(
+            ":fire: Enemy took **50** burn damages.",
+        );
+        expect(fight.cache.get("burn_damage_u_f.stacks")).toBe(1);
+    });
+
+    it("only one stacking passive fires per hit (lastHit is consumed)", () => {
+        const user = makeFighter("u", "User");
+        user.stand = { emoji: "🟢" };
+        const enemy = makeEnemy("e", "Enemy", 1000);
+        const fight = makeOnHitFight(user, enemy, { user: "u", target: "e" });
+
+        runPassiveEffects(poisonPassive, cast(user), fight);
+        runPassiveEffects(firePassive, cast(user), fight);
+
+        // Poison fired and consumed lastHit; Fire saw nothing.
+        expect(enemy.health).toBe(925);
+        expect(fight.cache.get("poison_u_f.stacks")).toBe(1);
+        expect(fight.cache.get("burn_damage_u_f.stacks")).toBeUndefined();
     });
 });

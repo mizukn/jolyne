@@ -332,6 +332,7 @@ semantics.
 | Type | Shape | What it does |
 | --- | --- | --- |
 | `regen` | `{ type: "regen", cacheKey: string, healthPercent: number, staminaPercent: number, capPercent: number }` | Per-fire heal: `Math.round(user.maxHealth * healthPercent)` health and, if `staminaPercent > 0`, `Math.round(user.maxStamina * staminaPercent)` stamina. Stops once cumulative health healed `>= baseHealth * capPercent` (snapshotted at first fire). Logs the heal amounts using the user's weapon emoji. `cacheKey` must match the legacy `getId` prefix to keep cache state compatible (e.g. `"regeneration"`, `"regeneration_alter"`, `"jingle"`). |
+| `on_hit_stack` | `{ type: "on_hit_stack", cacheKey: string, attackMultiplier: number, label: string, emojiSource: "stand" \| "literal", literalEmoji?: string }` | Triggered when `fight.infos.lastHit.user === self.id` and the target is a different live fighter. Applies `Math.round(getAttackDamages(user) * attackMultiplier)` damage via `target.removeHealth(damage, user, 0)`, increments a per-passive stack counter in `fight.cache`, consumes `lastHit`, and logs `-# <emoji> <target> took **N** <label> damages.`. Emoji is either the user's stand emoji or a literal string. Mirrors legacy `Poison` (75%, stand emoji) and `Fire` (50%, `:fire:`) passives. |
 
 ## Migration buckets — Passives snapshot
 
@@ -340,7 +341,7 @@ Counts at the start of the Passives work:
 | Bucket | Passives | What |
 | --- | --- | --- |
 | Per-round regen (heal % of max with cap) | ✅ done — `Regeneration`, `RegenerationAlter`, `Jingle` migrated in slice 4. |
-| On-hit stacking DoT | `Poison`, `Fire` | Triggered when `fight.infos.lastHit.user === self`. Each stack deals `getAttackDamages(user) * multiplier`. Could potentially declarative but uses `fight.infos.lastHit` state and direct `removeHealth` — non-trivial. |
+| On-hit stacking DoT | ✅ done — `Poison`, `Fire` migrated in slice 5 via the `on_hit_stack` effect. The legacy `basehealth` and `multiplier` cache entries (set but never read in either passive) were dropped during migration since they're truly dead state. |
 | Conditional time-stop AoE | `KnivesThrow` | Fires only during `user.hasStoppedTime` with a specific item equipped (`dios_knives === 6`). Hits all enemies. Stand-specific. **Keep as `promise`.** |
 | Snapshot-and-mutate stat scaling | `Rage`, `Darkness` | Cache base values, then scale skill points up/down based on health-lost or hit-count. Complex restore logic on stack change. **Keep as `promise`.** |
 | Weapon transformation | `Alter` | Replaces `user.weapon` with `excalibur_alter`, rescales stats, renames the fighter. **Keep as `promise` forever.** |
@@ -389,6 +390,8 @@ Update this list when you investigate a passive and decide it stays custom.
 | `Regeneration` | 4 | `[{ type: "regen", cacheKey: "regeneration", healthPercent: 0.02, staminaPercent: 0, capPercent: 0.1 }]` |
 | `RegenerationAlter` | 4 | `[{ type: "regen", cacheKey: "regeneration_alter", healthPercent: 0.04, staminaPercent: 0.04, capPercent: 0.1 }]` |
 | `Jingle` | 4 | `[{ type: "regen", cacheKey: "jingle", healthPercent: 0.02, staminaPercent: 0.02, capPercent: 0.1 }]` |
+| `Poison` | 5 | `[{ type: "on_hit_stack", cacheKey: "poison", attackMultiplier: 0.75, label: "poison", emojiSource: "stand" }]` |
+| `Fire` | 5 | `[{ type: "on_hit_stack", cacheKey: "burn_damage", attackMultiplier: 0.5, label: "burn", emojiSource: "literal", literalEmoji: ":fire:" }]` |
 
 **Behavior note — Jingle description vs. code.** Jingle's description says
 "1% of their max health and stamina" but the legacy code regenerated 2%. The

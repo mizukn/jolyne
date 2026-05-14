@@ -1,6 +1,7 @@
 import type { Passive } from "../@types";
 import type { Fighter } from "../structures/Fighter";
 import type { FightHandler } from "../structures/FightHandler";
+import { getAttackDamages } from "../utils/Functions";
 
 /**
  * Declarative passive effects, executed by `runPassiveEffects` before the
@@ -30,7 +31,30 @@ export interface RegenEffect {
     capPercent: number;
 }
 
-export type PassiveEffect = RegenEffect;
+export interface OnHitStackEffect {
+    type: "on_hit_stack";
+    /**
+     * Cache-key namespace, mirrors the legacy `getId` prefix (e.g. `"poison"`,
+     * `"burn_damage"`).
+     */
+    cacheKey: string;
+    /**
+     * Multiplier on `getAttackDamages(user)`. Mirrors the legacy
+     * `getAttackDamages(user) * N` constant in each passive's promise.
+     */
+    attackMultiplier: number;
+    /** Damage label in the log line: e.g. `"poison"`, `"burn"`. */
+    label: string;
+    /**
+     * Emoji source for the log line:
+     * - `"stand"`: `user.stand?.emoji` (Poison passive style)
+     * - `"literal"`: the `literalEmoji` field (Fire passive uses `":fire:"`)
+     */
+    emojiSource: "stand" | "literal";
+    literalEmoji?: string;
+}
+
+export type PassiveEffect = RegenEffect | OnHitStackEffect;
 
 function applyRegen(
     effect: RegenEffect,
@@ -76,6 +100,40 @@ function applyRegen(
     }
 }
 
+function applyOnHitStack(
+    effect: OnHitStackEffect,
+    user: Fighter,
+    fight: FightHandler,
+): void {
+    // Mirrors the legacy Poison/Fire passives. Fires only when the user's last
+    // hit landed on a non-self, still-alive target. Consumes `lastHit` so each
+    // hit triggers at most one stacking-DoT passive per fighter.
+    const lastHit = fight.infos.lastHit;
+    if (!lastHit) return;
+
+    const enemy = fight.fighters.find((f) => f.id === lastHit.target);
+    const userAttacker = fight.fighters.find((f) => f.id === lastHit.user);
+    if (!enemy || !userAttacker) return;
+    if (userAttacker.id !== user.id) return;
+    if (userAttacker.id === enemy.id) return;
+    if (enemy.health <= 0) return;
+
+    fight.infos.lastHit = undefined;
+
+    const stackId = `${effect.cacheKey}_${user.id}_${fight.id}.stacks`;
+    const currentStacks = Number(fight.cache.get(stackId) ?? 0);
+    fight.cache.set(stackId, currentStacks + 1);
+
+    const damages = Math.round(getAttackDamages(user) * effect.attackMultiplier);
+    const status = enemy.removeHealth(damages, user, 0);
+
+    const emoji =
+        effect.emojiSource === "stand" ? user.stand?.emoji : effect.literalEmoji;
+    fight.turns[fight.turns.length - 1].logs.push(
+        `-# ${emoji} ${enemy.name} took **${status.amount}** ${effect.label} damages.`,
+    );
+}
+
 export function runPassiveEffects(
     passive: Passive,
     user: Fighter,
@@ -86,6 +144,9 @@ export function runPassiveEffects(
         switch (effect.type) {
             case "regen":
                 applyRegen(effect, user, fight);
+                break;
+            case "on_hit_stack":
+                applyOnHitStack(effect, user, fight);
                 break;
         }
     }
