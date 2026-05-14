@@ -4,19 +4,16 @@ import {
 } from "../../@types";
 import {
     Message,
-    APIEmbed,
     ApplicationCommandOptionType,
     MessageFlags,
-    StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
-import { ButtonBuilder } from "discord.js";
-import { ButtonStyle } from "discord.js";
 import { cloneDeep } from "lodash";
 import { eventRaid, getFixedBosses } from "../../rpg/SeasonalRaids";
+import { buildRaidLobbyMessage, createRaidLobbyButtons } from "./raid_menu";
 import {
     attachRaidFightResultHandlers,
     getIceShard,
@@ -180,43 +177,13 @@ const slashCommand: SlashCommandFile = {
 
         Functions.generateSkillPoints(enhancedBoss, true);
 
-        const joinRaidButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
-            .setCustomId(joinRaidID)
-            .setLabel(
-                bossChosen === "ice_golem"
-                    ? `Join Raid (${raidCost.toLocaleString(
-                          "en-US"
-                      )} coins and 50 Ice Shards required)`
-                    : `Join Raid (${raidCost.toLocaleString()} coins required)`
-            )
-            .setEmoji(bossChosen === "ice_golem" ? "1323363296719536158" : "927974784187392061");
-        const leaveRaidButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Danger)
-            .setCustomId(leaveRaidID)
-            .setLabel("Leave Raid")
-            .setEmoji("➖");
-        const startRaidButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Success)
-            .setCustomId(startRaidID)
-            .setLabel("Start Raid")
-            .setEmoji("👊");
-
-        function generateBanUserFromRaid() {
-            return new StringSelectMenuBuilder()
-                .setCustomId(banUserFromRaidID)
-                .setPlaceholder("[Select a user to ban (not)]")
-                .setMinValues(1)
-                .setMaxValues(1)
-                .addOptions(
-                    joinedUsers.map((r) => {
-                        return {
-                            label: `${r.tag} (LEVEL: ${r.level})`,
-                            value: r.id,
-                        };
-                    })
-                );
-        }
+        const buttons = createRaidLobbyButtons({
+            bossChosen,
+            joinRaidID,
+            leaveRaidID,
+            raidCost,
+            startRaidID,
+        });
 
         const startRaid = Date.now() + 120000;
         const collector = ctx.channel.createMessageComponentCollector({
@@ -441,104 +408,19 @@ const slashCommand: SlashCommandFile = {
                 return;
             }
 
-            const components = [
-                Functions.actionRow([joinRaidButton]),
-                Functions.actionRow([startRaidButton, leaveRaidButton]),
-            ];
-            if (joinedUsers.length > 1) {
-                components.push(Functions.actionRow([generateBanUserFromRaid()]));
-            }
-
-            const embed: APIEmbed = {
-                title: `${enhancedBoss.emoji} ${enhancedBoss.name} RAID`,
-                description: `> \`Boss Level:\` ${enhancedBoss.level}\n> \`Coins required:\` ${
-                    ctx.client.localEmojis.jocoins
-                } ${raidCost.toLocaleString()}\n${
-                    raid.prestige ? `> \`Prestige Requirement:\` ${raid.prestige}\n` : ""
-                }> \`Min Level Requirement:\` ${
-                    raid.level
-                }\n> \`Maximum Level Requirement:\` ${raid.maxLevel.toLocaleString(
-                    "en-US"
-                )}\n> \`Cooldown:\` ${Functions.msToString(
-                    raid.cooldown
-                )}\n> \`Auto Starts\` ${Functions.generateDiscordTimestamp(startRaid, "FROM_NOW")}`,
-                fields: Functions.fixFields([
-                    {
-                        name: "Rewards:",
-
-                        value: `> - **${(raid.baseRewards?.coins ?? 0).toLocaleString()}**${
-                            ctx.client.localEmojis.jocoins
-                        }\n> - **${(raid.baseRewards?.xp ?? 0).toLocaleString()}**${
-                            ctx.client.localEmojis.xp
-                        }\n${raid.baseRewards?.items
-                            .map((i) => {
-                                const itemData = Functions.findItem(i.item);
-                                if (!itemData) return null;
-                                return `> • **${i.amount.toLocaleString()}x** ${itemData.name} ${
-                                    itemData.emoji
-                                }${i.chance ? ` (** ${i.chance}% **)` : ""}`;
-                            })
-                            .filter((r) => r)
-                            .join("\n")}${
-                            raid.baseRewards?.items.length !== 0
-                                ? "\n\n\\- The drop rate of an item is determined by the damage you deal. If there is a 100% chance of getting an item, and you deal 50% damage, you'll have a 50% to get the item. This logic applies to every reward."
-                                : ""
-                        }`,
-                    },
-                    {
-                        name: `Joined Users [${joinedUsers.length}/${raid.maxPlayers}]:`,
-                        value: `\n${joinedUsers
-                            .map(
-                                (r) =>
-                                    `- ${r.tag} (Level: ${r.level}) [${r.health.toLocaleString(
-                                        "en-US"
-                                    )}/${Functions.getMaxHealth(r).toLocaleString(
-                                        "en-US"
-                                    )} :heart:]`
-                            )
-                            .join("\n")}`,
-                    },
-
-                    /*
-                    {
-                        name: "\u200b",
-                        value: `\`Starts (auto) in:\` ${Functions.generateDiscordTimestamp(
-                            startRaid,
-                            "FROM_NOW"
-                        )}`,
-                    },*/
-                ]),
-                thumbnail: {
-                    url: enhancedBoss.avatarURL,
-                },
-                color: 0x70926c,
-            };
-            if (raid.allies)
-                embed.fields.push({
-                    name: `Allies [${raid.allies.length}]:`,
-                    value: `\n${raid.allies
-                        .map((r) => `- ${r.emoji} ${r.name} (LEVEL: ${r.level})`)
-                        .join("\n")}`,
-                });
-            if (raid.minions.length !== 0) {
-                embed.fields.push({
-                    name: `Minions [${raid.minions.length}]:`,
-                    value: `\n${raid.minions
-                        .map((r) => `- ${r.emoji} ${r.name} (LEVEL: ${r.level})`)
-                        .join("\n")}`,
-                });
-            }
-
-            if (bannedUsers.length !== 0) {
-                embed.fields.push({
-                    name: `Banned Users [${bannedUsers.length}]:`,
-                    value: `\n${bannedUsers.map((r) => `${r.tag} (LEVEL: ${r.level})`).join("\n")}`,
-                });
-            }
-            ctx.makeMessage({
-                embeds: Functions.fixEmbeds([embed]),
-                components,
-            });
+            ctx.makeMessage(
+                buildRaidLobbyMessage({
+                    ctx,
+                    raid,
+                    enhancedBoss,
+                    joinedUsers,
+                    bannedUsers,
+                    raidCost,
+                    startRaid,
+                    banUserFromRaidID,
+                    buttons,
+                })
+            );
         }
         makeMenuMessage();
     },
