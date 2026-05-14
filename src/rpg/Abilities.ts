@@ -1199,9 +1199,17 @@ export const PoisonGas: Ability = {
                                 user: user.id,
                                 target: x.id,
                             };
-                            user.stand?.passives
-                                ?.find((x) => x.name === "Poison")
-                                ?.promise(user, ctx, "stand");
+                            // Trigger the Poison passive on this AoE tick.
+                            // After slice 5, Poison's `promise` is undefined
+                            // (effects-only), so we must run effects + optional
+                            // promise like `handleFightPassives` does.
+                            const poisonPassive = user.stand?.passives?.find(
+                                (p) => p.name === "Poison"
+                            );
+                            if (poisonPassive) {
+                                runPassiveEffects(poisonPassive, user, ctx);
+                                poisonPassive.promise?.(user, ctx, "stand");
+                            }
                         } else {
                             ctx.turns[ctx.turns.length - 1].logs.push(
                                 `- ${emoji(status.type)}${user.stand?.emoji} POISON GAS: **${
@@ -3044,9 +3052,16 @@ export const DarkWave: Ability = {
                         user: user.id,
                         target: x.id,
                     };
-                    user.stand.passives
-                        .find((x) => x.name === "Darkness")
-                        ?.promise(user, ctx, "stand");
+                    // Trigger the Darkness passive on this AoE tick. Run
+                    // effects + optional promise so future migrations of
+                    // Darkness don't silently regress.
+                    const darknessPassive = user.stand?.passives?.find(
+                        (p) => p.name === "Darkness"
+                    );
+                    if (darknessPassive) {
+                        runPassiveEffects(darknessPassive, user, ctx);
+                        darknessPassive.promise?.(user, ctx, "stand");
+                    }
                 }
             });
     },
