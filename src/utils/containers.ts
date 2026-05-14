@@ -59,6 +59,11 @@ export interface V2Reply {
     flags: number;
 }
 
+export const ephemeralV2 = (reply: V2Reply): V2Reply => ({
+    ...reply,
+    flags: reply.flags | MessageFlags.Ephemeral,
+});
+
 function build(opts: ContainerOptions): any {
     const components: any[] = [];
     let lastWasSeparator = false;

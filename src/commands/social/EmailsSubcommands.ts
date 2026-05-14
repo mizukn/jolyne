@@ -6,13 +6,12 @@ import {
     StringSelectMenuInteraction,
     ButtonBuilder,
     ButtonStyle,
-    MessageFlags,
     ActionRowBuilder,
     MessageActionRowComponentBuilder,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { containers, SectionData, COLORS, V2Reply } from "../../utils/containers";
+import { containers, ephemeralV2, SectionData, COLORS, V2Reply } from "../../utils/containers";
 import { cloneDeep } from "lodash";
 
 type MailboxType = "inbox" | "archived";
@@ -289,10 +288,13 @@ const slashCommand: SlashCommandFile = {
                 if (email) {
                     email.archived = !email.archived;
                     await ctx.client.database.saveUserData(ctx.userData);
-                    await i.reply({
-                        ...containers.success(`Email ${email.archived ? "archived" : "unarchived"} successfully.`),
-                        ephemeral: true
-                    });
+                    await i.reply(
+                        ephemeralV2(
+                            containers.success(
+                                `Email ${email.archived ? "archived" : "unarchived"} successfully.`,
+                            ),
+                        ),
+                    );
                     // If we were viewing it, go back to list (since it might have moved to another mailbox)
                     viewingEmailId = null;
                     await ctx.interaction.editReply(renderMailbox());
@@ -301,10 +303,7 @@ const slashCommand: SlashCommandFile = {
                 const id = customId.slice("delete_".length);
                 ctx.userData.emails = ctx.userData.emails.filter((e) => e.id !== id);
                 await ctx.client.database.saveUserData(ctx.userData);
-                await i.reply({
-                    ...containers.success("Email deleted successfully."),
-                    ephemeral: true
-                });
+                await i.reply(ephemeralV2(containers.success("Email deleted successfully.")));
                 viewingEmailId = null;
                 await ctx.interaction.editReply(renderMailbox());
             }

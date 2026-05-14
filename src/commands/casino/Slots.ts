@@ -6,7 +6,6 @@ import {
     TextInputBuilder,
     TextInputStyle,
     ActionRowBuilder,
-    MessageFlags,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
@@ -14,12 +13,7 @@ import * as NPCs from "../../rpg/NPCs/NPCs";
 import { SlashCommandFile } from "../../@types";
 import * as Emojis from "../../emojis.json";
 import { cloneDeep } from "lodash";
-import { COLORS, containers, V2Reply } from "../../utils/containers";
-
-const ephemeralV2 = (reply: V2Reply): V2Reply => ({
-    ...reply,
-    flags: reply.flags | MessageFlags.Ephemeral,
-});
+import { COLORS, containers, ephemeralV2, V2Reply } from "../../utils/containers";
 
 const slotsChart = {
     [Emojis.diamond_gif]: {

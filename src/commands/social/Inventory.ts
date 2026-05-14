@@ -21,7 +21,7 @@ import * as Functions from "../../utils/Functions";
 import { claimedItemsWebhook, thrownItemsWebhook } from "../../utils/Webhooks";
 import { NPCs } from "../../rpg/NPCs";
 import { cloneDeep } from "lodash";
-import { COLORS, containers, SectionData, V2Reply } from "../../utils/containers";
+import { COLORS, containers, ephemeralV2, SectionData, V2Reply } from "../../utils/containers";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -571,10 +571,13 @@ const slashCommand: SlashCommandFile = {
                     await i.update(buildReply(page));
                 } else if (i.customId.startsWith(`${ctx.interaction.id}_info_`)) {
                     const itemId = i.customId.replace(`${ctx.interaction.id}_info_`, "");
-                    await i.reply({
-                        ...containers.info(`To view full details, use: ${ctx.client.getSlashCommandMention("item info")} \`item:${itemId}\``),
-                        ephemeral: true
-                    });
+                    await i.reply(
+                        ephemeralV2(
+                            containers.info(
+                                `To view full details, use: ${ctx.client.getSlashCommandMention("item info")} \`item:${itemId}\``,
+                            ),
+                        ),
+                    );
                 }
             });
         } else if (subcommand === "info") {
