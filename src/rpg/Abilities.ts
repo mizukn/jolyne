@@ -2,6 +2,7 @@ import { Ability, FightableNPC, SkillPoints } from "../@types";
 import { FightHandler, Fighter, FighterRemoveHealthTypes } from "../structures/FightHandler";
 import { cloneDeep } from "lodash";
 import * as Functions from "../utils/Functions";
+import { runPassiveEffects } from "./PassiveEffects";
 
 function emoji(type: FighterRemoveHealthTypes) {
     switch (type) {
@@ -1425,7 +1426,15 @@ export const CapsuleShot: Ability = {
                 target: target.id,
             };
 
-            user.stand.passives.find((x) => x.name === "Poison")?.promise(user, ctx, "stand");
+            // Manually trigger the Poison passive on this hit. Runs effects
+            // (slice 5 migration) and the optional `promise` callback, matching
+            // `handleFightPassives`. The previous `?.promise(...)` direct call
+            // would TypeError after Poison's `promise` became undefined.
+            const poisonPassive = user.stand?.passives?.find((x) => x.name === "Poison");
+            if (poisonPassive) {
+                runPassiveEffects(poisonPassive, user, ctx);
+                poisonPassive.promise?.(user, ctx, "stand");
+            }
         }
     },
 };
