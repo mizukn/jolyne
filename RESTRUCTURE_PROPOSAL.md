@@ -8,11 +8,11 @@ Trois irritants concrets motivent une restructuration :
 
 1. **Sous-modules pénibles.** `src/structures` et `src/scripts` sont des dépôts Git séparés. Toute modification implique deux commits (sous-module → bump du pointeur parent). Erreurs fréquentes, friction permanente.
 2. **Casing incohérent.** Mélange `Chapters/`, `Items/`, `chapters.ts`, `items.ts`. Pas de règle suivie.
-3. **`structures/` mal nommé.** Le dossier contient à la fois :
+3. **`structures/` encore trop large.** Le dossier contient à la fois :
    - des **types/interfaces purs** (modélisation),
    - des **classes de logique métier** (`FightHandler`, `DungeonHandler`, `DatabaseHandler`),
    - des **clients** (`JolyneClient`, `MediaHost`).
-   La frontière entre "structure de données" et "service avec orchestration" commence à être tracée (`FightHandler.ts` a déjà été fortement aminci), mais elle reste fragile pour les prochains ajouts.
+   La frontière est déjà beaucoup plus nette qu'avant (`FightHandler.ts` est devenu un orchestrateur fin), mais elle reste fragile : les prochains ajouts doivent aller dans les modules/domain services existants, pas regonfler les vieux fichiers.
 
 Ce document propose une cible. Il ne remplace **pas** les phases 2 et 3 de `PLAN.md` (extraction de `CombatService`, `FightRenderer`, etc.) ; il les **complète** en réglant la question de l'arborescence.
 
@@ -51,7 +51,7 @@ git add src/structures src/scripts
 # 5. Si .gitmodules ne référence plus rien, le supprimer
 git rm .gitmodules  # ou éditer si d'autres entrées subsistent
 
-git commit -m "refactor: absorb structures and scripts submodules"
+git commit -m "Absorb structures and scripts submodules"
 ```
 
 ### Procédure préservant l'historique (recommandée si on tient à la traçabilité)
@@ -73,7 +73,7 @@ rm -rf .git/modules/src/structures .git/modules/src/scripts
 git subtree add --prefix=src/structures <URL-du-sous-module> abc1234 --squash
 git subtree add --prefix=src/scripts    <URL-du-sous-module> def5678 --squash
 
-git commit -m "refactor: absorb structures and scripts submodules with history"
+git commit -m "Absorb structures and scripts submodules with history"
 ```
 
 > **Note :** `--squash` réduit l'historique du sous-module à un seul commit dans le parent. Sans `--squash`, on importe l'historique complet, ce qui peut alourdir la revue mais reste utilisable.
@@ -88,13 +88,14 @@ src/
 ├── index.ts                      # (entrypoint worker — devient un thin shell après P2.6)
 ├── @types/index.ts               # (à éclater plus tard, P5)
 │
-├── assets/                       # (NOUVEAU) ressources statiques non-data
+├── assets/                       # (optionnel) ressources statiques non-data
 │   └── emojis.json
 │
-├── data/                         # (NOUVEAU) JSON de jeu, cache, snapshots
-│   ├── NPCs.json                 # (toujours utilisé en lecture, voir P1.7)
-│   └── prestigeNPCs.json
-│
+# Pas de data/ par défaut pour l'instant.
+# Les anciens NPCs.json / prestigeNPCs.json sont des artefacts legacy :
+# ils doivent disparaître après migration des derniers lecteurs, pas être
+# déplacés vers un nouveau dossier "data" comme si c'était une cible stable.
+
 ├── bootstrap/                    # déjà OK
 │   └── validate.ts
 │
@@ -103,6 +104,8 @@ src/
 │
 ├── commands/{admin,adventure,casino,combat,economy,general,social}/
 │                                 # (déjà OK depuis 0c702e3)
+│                                 # les grosses commandes peuvent avoir des siblings
+│                                 # métier locaux : dungeon_*.ts, raid_*.ts, etc.
 │
 ├── events/                       # handlers Discord — pas un domaine "rpg/Events"
 │
@@ -115,18 +118,31 @@ src/
 │   └── Stands/
 │
 ├── services/                     # logique métier extraite (sources de vérité)
+│   ├── DatabaseMaintenanceService.ts # ✅ scripts de maintenance DB/runtime
+│   ├── DeprecatedCommandService.ts   # ✅ redirections slash-command deprecated
 │   ├── EventService.ts           # ✅ existe
-│   ├── UserService.ts            # ✅ existe
-│   ├── TradeService.ts           # ✅ existe
+│   ├── EventNPCGenerator.ts      # ✅ génération déterministe des NPCs event/index
 │   ├── FightRenderer.ts          # ✅ existe (rendu Discord/V2 + logs webhook)
-│   ├── CombatService/            # ⏳ optionnel ; aujourd'hui le combat est surtout éclaté en Fight*.ts côté structures
-│   └── EventNPCGenerator.ts      # ✅ existe
+│   ├── InventoryService.ts       # ✅ domaine inventory
+│   ├── SkillPointBuildService.ts # ✅ builds skill points
+│   ├── TradeService.ts           # ✅ domaine trade ; durcissement TOCTOU à finir
+│   ├── TransactionRollbackService.ts # 🟡 si gardé : scripts rollback hors DatabaseHandler
+│   ├── UserService.ts            # ✅ domaine user/progression
+│   └── CombatService/            # ⏳ seulement si une vraie frontière apparaît ;
+│                                 # aujourd'hui le combat est dans Fight*.ts
 │
 ├── structures/                   # clients + orchestrateurs Discord/stateful
 │   ├── JolyneClient.ts           # client Discord — reste ici
 │   ├── CommandInteractionContext.ts
 │   ├── DatabaseHandler.ts        # client Postgres+Redis — reste ici (pas un "service métier")
-│   ├── FightHandler.ts           # orchestrateur Discord thin (~250 lignes), délègue aux Fight*.ts
+│   ├── FightHandler.ts           # orchestrateur Discord thin (~260 lignes), délègue aux Fight*.ts
+│   ├── FightTypes.ts             # types combat partagés
+│   ├── FightSetup.ts             # construction/initialisation d'un combat
+│   ├── FightActions.ts           # actions utilisateur/ability/weapon
+│   ├── FightDamage.ts            # application dégâts/soins
+│   ├── FightPassives.ts          # dispatch passifs
+│   ├── FightTurnEngine.ts        # moteur tour/round
+│   ├── FightLifecycle.ts         # update/end lifecycle
 │   ├── DungeonHandler.ts         # idem
 │   ├── FightMessageAccess.ts     # autoplay/fast-forward quand Discord refuse edit/send
 │   ├── MediaHost.ts
@@ -148,6 +164,7 @@ src/
 
 - **`FightHandler.ts` reste dans `structures/`.** Le déplacer dans `services/` ne ferait que changer son chemin. Ce qui comptait était d'**extraire** la logique pure (`Damage`, `Passive`, `Turn`, `Render`) : c'est maintenant largement fait, avec `FightHandler.ts` à ~260 lignes et les modules `Fight*.ts` autour. `FightMessageAccess.ts` porte le comportement de secours quand Discord refuse les edits/sends : autoplay rapide, puis `end` avec metadata. Prochain objectif : continuer à stabiliser ces modules et éviter d'y remettre de la logique de rendu.
 - **`DatabaseHandler.ts` reste dans `structures/`.** C'est un **client** d'infra (Postgres+Redis), pas un service métier. Le mettre dans `services/` brouillerait la frontière.
+- **`data/` n'est pas une destination pour les vieux JSON.** `NPCs.json` et `prestigeNPCs.json` existent encore comme dette de compatibilité, mais P1.7 a déjà arrêté l'écriture runtime. La cible propre est : lecteurs migrés vers registres/factories déterministes, puis suppression des JSON legacy. Si un dossier `data/` existe un jour, il doit contenir des sources versionnées stables, jamais des caches ou snapshots générés.
 - **Pas de renames "case-only" sur `rpg/Chapters/` → `rpg/chapters/`.** Le coût (sweep d'imports + risques macOS) excède le gain. À reporter à une phase de polissage globale, pas en parallèle des extractions Phase 2.
 - **`utils/` reste plat.** Pas de sous-dossiers `math/`, `discord/`, `game/` tant qu'il n'y a pas au moins 5 fichiers par groupe. Sur-organiser tôt fragilise plus que ça aide.
 - **`Fighter.ts` est maintenant extrait.** Il doit rester une classe de modèle/combat state, pas devenir un endroit où remettre l'orchestration de `FightHandler`.
@@ -158,10 +175,10 @@ Chaque étape doit être un commit/PR isolé qui passe `tsc --noEmit` et `npm te
 
 1. **Décision préalable :** confirmer avec l'utilisateur que l'absorption des sous-modules est désirée et choisir la procédure (avec ou sans historique).
 2. **Sous-modules :** absorber `src/structures` (`src/scripts` séparément, après accord — voir `STATE.md`).
-3. **Phase 2 restante :** P2.1 (middleware pipeline) reste le gros chantier ; `FightRenderer.ts`, `TradeService.ts` et `EventService.ts` existent déjà.
-4. **Phase 3 active :** continuer le split de `Functions.ts` par domaines (`UserService`, inventory, équipement, rewards, UI helpers). Ne pas créer de nouveau code dans `Functions.ts`.
-5. **Combat :** `FightHandler.ts` est déjà thin ; garder les nouvelles règles/comportements dans les modules `Fight*.ts` ou `services/FightRenderer.ts` selon leur rôle.
-6. **`assets/` + `data/` :** déplacer `emojis.json` et `NPCs.json` / `prestigeNPCs.json`. Sweep d'imports en un seul commit. À faire après que `index.ts` ait fini de rétrécir (sinon le diff est noyé).
+3. **Phase 2 restante :** P2.3 et P2.4 ne sont plus surtout des déplacements de fichiers. `TradeService.ts` existe ; le travail restant est le durcissement transactionnel/TOCTOU. Côté combat, créer `CombatService/` seulement si une vraie frontière métier apparaît au-delà des modules `Fight*.ts`.
+4. **Phase 3 active :** continuer à faire maigrir les géants restants : `Functions.ts` (re-export shell), `DatabaseHandler.ts` (rollback/maintenance déjà extraits en services), puis `clientReady.ts` si un bloc clair ressort. Ne pas créer de nouveau code dans ces fichiers.
+5. **Combat :** `FightHandler.ts` est déjà thin ; garder les nouvelles règles/comportements dans les modules `Fight*.ts` ou `services/FightRenderer.ts` selon leur rôle. Les cas Discord impossibles (`Unknown Message`, `Missing Access`, maintenance active) restent du ressort de `FightMessageAccess.ts`.
+6. **`assets/` :** déplacer éventuellement `emojis.json` vers `assets/` en un commit isolé, avec sweep d'imports. Ne pas déplacer `NPCs.json` / `prestigeNPCs.json` : migrer les derniers lecteurs, puis supprimer.
 7. **Renames `rpg/<Cap>/` :** seulement si on décide collectivement de standardiser le casing. Faire le sweep en deux commits (`Chapters → _tmp` puis `_tmp → chapters`) pour gérer les FS insensibles à la casse.
 8. **Standardisation `utils/` :** uniformiser le casing (`Logger.ts` → `logger.ts`, `Aes.ts` → `aes.ts`, `Webhooks.ts` → `webhooks.ts`) — un fichier par commit pour limiter le churn de revue.
 
@@ -173,6 +190,6 @@ Chaque étape doit être un commit/PR isolé qui passe `tsc --noEmit` et `npm te
 | Fichiers exportant une classe/interface dominante | `PascalCase.ts` | `UserService.ts`, `CommandInteractionContext.ts` | — |
 | Fichiers de fonctions pures / helpers             | `camelCase.ts`  | `emojiBar.ts`, `random.ts`, `containers.ts` | `Functions.ts` (devrait être `functions.ts` ou éclaté), `Logger.ts`, `Aes.ts`, `Webhooks.ts`, `Matchmaking.ts`, `TopGG.ts`, `FightHandlerWatchdog.ts`, `AdminAudit.ts` |
 | Tests                                             | `<nom>.test.ts` | `random.test.ts`, `UserService.test.ts` | — |
-| Constantes JSON                                   | `lowercase.json`| `emojis.json`             | `NPCs.json`, `prestigeNPCs.json`, `standUsersNPCS.json` |
+| Constantes JSON                                   | `lowercase.json`| `emojis.json`             | `NPCs.json`, `prestigeNPCs.json` sont legacy à supprimer après migration ; `standUsersNPCS.json` si encore présent doit suivre la même règle |
 
 > **Lecture :** la colonne « exceptions » est une dette à régler par la **phase 5 polissage** (un PR par dossier ou par fichier), pas par un commit en bloc. Chaque rename casse les imports en cascade et doit être isolé pour la revue.
