@@ -295,22 +295,6 @@ export const Resurrection: Passive = {
         }
 
         const isEnabled = Number(fight.cache.get(isEnabledId));
-        // check if user has forfeited
-        // fight.turns.forEach((x) => x.logs.forEach(g => g.includes(user.name) && g.includes("forfeited")))
-
-        let foundForfeit = false;
-        fight.turns.forEach((x) => {
-            x.logs.forEach((g) => {
-                if (g.includes(user.name) && g.includes("forfeited")) {
-                    foundForfeit = true;
-                }
-            });
-        });
-
-        /*if (foundForfeit) {
-            console.log("Forfeit found");
-            return;
-        }*/
         if (isEnabled === 0 && user.health <= 0) {
             fight.cache.set(isEnabledId, 1);
             user.health = Math.round(user.maxHealth / 2);

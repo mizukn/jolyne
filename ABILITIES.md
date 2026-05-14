@@ -369,12 +369,12 @@ The Ability rules apply, plus:
    triggering contracts are completely different. Same goes for their
    `PassiveEffect` / `AbilityEffect` unions — keep them separate even when
    names overlap.
-4. **Don't migrate `Resurrection` without confirming the forfeit policy.**
-   There's a commented-out `foundForfeit` check at
-   [Passives.ts:410-417](src/rpg/Passives.ts#L410-L417) that suggests the
-   "resurrect on death but not after forfeit" rule was once considered and
-   then reverted. Whoever migrates Resurrection needs to ask the user which
-   behavior is canonical.
+4. **Forfeit policy for Resurrection is settled.** Forfeit is enforced
+   upstream — `Fighter.flags.forfeited` is set on forfeit and
+   `handleFightPassives` skips forfeited fighters even for `evenIfDead`
+   passives. The legacy log-scan `foundForfeit` block inside the
+   Resurrection callback was redundant and has been deleted. No in-passive
+   check is needed.
 
 ## Passives that stay as `promise` (decided)
 
@@ -386,7 +386,7 @@ Update this list when you investigate a passive and decide it stays custom.
 | `KnivesThrow` | Fires only during `user.hasStoppedTime` with `dios_knives === 6` equipped. Item-and-state gated AoE. |
 | `Darkness` | Stacking debuff that mutates target's `speed` and `perception` skill points, capped at 12 stacks (48%). Per-stack mutation + base-value snapshot. |
 | `Alter` | Hot-swaps `user.weapon` to `excalibur_alter`, rescales every skill point by 1.3, renames the fighter. Highly bespoke. |
-| `Resurrection` | `evenIfDead: true`, runs the forfeit-detection log scan, special revive semantics. Wait on forfeit policy decision. |
+| `Resurrection` | `evenIfDead: true`, special revive semantics (mutates health/stamina/turn-log directly on first death, single-shot via cache flag). Effect shape doesn't generalize. |
 
 ## Migrated passives
 
