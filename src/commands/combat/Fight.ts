@@ -530,7 +530,6 @@ const slashCommand: SlashCommandFile = {
                 }
 
                 const oldData = await ctx.client.database.getRPGUserData(ctx.userData.id);
-                //await ctx.client.database.saveUserData(ctx.userData);
                 const transaction = await ctx.client.database.handleTransaction(
                     [
                         {

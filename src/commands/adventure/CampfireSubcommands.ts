@@ -135,7 +135,6 @@ const slashCommand: SlashCommandFile = {
                                 "en-US"
                             )} :battery:]`,
                         });
-                        // await ctx.client.database.saveUserData(ctx.userData);
                         const transaction = await ctx.client.database.handleTransaction(
                             [
                                 {

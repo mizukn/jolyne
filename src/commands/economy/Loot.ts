@@ -341,7 +341,6 @@ const slashCommand: SlashCommandFile = {
                     prize: String(coins),
                 };
             }
-            //ctx.client.database.saveUserData(ctx.userData);
             ctx.client.database.deleteCooldown(ctx.userData.id);
             ctx.client.database.handleTransaction(
                 [

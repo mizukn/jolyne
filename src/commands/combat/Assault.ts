@@ -184,7 +184,6 @@ const slashCommand: SlashCommandFile = {
                         content: `${npc.emoji} | You assaulted \`${npc.name}\` and lost! You lost all your health. Better luck next time or train yourself more.`,
                     });
                 }
-                //await ctx.client.database.saveUserData(ctx.userData);
                 const oldData = await ctx.client.database.getRPGUserData(ctx.user.id);
                 const transaction = await ctx.client.database.handleTransaction(
                     [

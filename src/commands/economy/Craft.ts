@@ -267,7 +267,6 @@ const slashCommand: SlashCommandFile = {
                 ctx.interaction.followUp({
                     content: `You have successfully crafted x${amount} ${item.emoji} \`${item.name}\`!`,
                 });
-                //ctx.client.database.saveUserData(ctx.userData);
             });
         }
     },

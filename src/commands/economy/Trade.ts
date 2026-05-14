@@ -429,8 +429,6 @@ const slashCommand: SlashCommandFile = {
 
                                 ctx.makeMessage(containers.success(`Trade completed! (ID: \`${tradeID}\`)`));
                                 collector.stop();
-                                //await ctx.client.database.saveUserData(userData);
-                                //await ctx.client.database.saveUserData(targetData);
                                 ctx.client.database.deleteCooldown(target.id);
                                 ctx.client.database.deleteCooldown(ctx.user.id);
 

@@ -657,7 +657,6 @@ const slashCommand: SlashCommandFile = {
                 status = getQuestsStats(ctx.userData.chapter.quests, ctx);
 
                 const oldData = await ctx.client.database.getRPGUserData(ctx.user.id);
-                //await ctx.client.database.saveUserData(ctx.userData);
                 const transaction = await ctx.client.database.handleTransaction(
                     [
                         {
