@@ -802,18 +802,15 @@ export const ChristmasEvent2024: SideQuest = {
         if (ctx.userData.level <= 200) tflv *= 2;
         const NPCsQuests = [];
 
-        //for (let i = 0; i < tflv; i++) {
         let noFoundCount = 0;
         while (NPCsQuests.length < tflv) {
             if (noFoundCount > 100) break;
-            //if (Functions.percent(80) || i < 5) {
             const NPC = Functions.randomArray(NPCs);
             if (!NPC) {
                 noFoundCount++;
                 continue;
             }
             NPCsQuests.push(Functions.generateFightQuest(NPC));
-            //}
         }
         quests.push(...NPCsQuests);
         if (ctx.userData.level > 200)
@@ -892,18 +889,15 @@ export const WinterEvent2025: SideQuest = {
         if (ctx.userData.level <= 200) tflv *= 2;
         const NPCsQuests = [];
 
-        //for (let i = 0; i < tflv; i++) {
         let noFoundCount = 0;
         while (NPCsQuests.length < tflv) {
             if (noFoundCount > 100) break;
-            //if (Functions.percent(80) || i < 5) {
             const NPC = Functions.randomArray(NPCs);
             if (!NPC) {
                 noFoundCount++;
                 continue;
             }
             NPCsQuests.push(Functions.generateFightQuest(NPC));
-            //}
         }
         quests.push(...NPCsQuests);
         if (ctx.userData.level > 200)
@@ -956,18 +950,15 @@ export const ChineseNewYearEvent2025: SideQuest = {
         if (ctx.userData.level <= 200) tflv *= 2;
         const NPCsQuests = [];
 
-        //for (let i = 0; i < tflv; i++) {
         let noFoundCount = 0;
         while (NPCsQuests.length < tflv) {
             if (noFoundCount > 100) break;
-            //if (Functions.percent(80) || i < 5) {
             const NPC = Functions.randomArray(NPCs);
             if (!NPC) {
                 noFoundCount++;
                 continue;
             }
             NPCsQuests.push(Functions.generateFightQuest(NPC));
-            //}
         }
         baseQuests.push(...NPCsQuests);
         if (ctx.userData.level > 200)
