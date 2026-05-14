@@ -217,9 +217,6 @@ export const Halloween2025EventCommandHandler: SlashCommand["execute"] = async (
                         value: `-# You can only have x3 copies of the **Dead Revival Disc**.`,
                     },
                 ],
-                /*thumbnail: {
-                    url: "https://cdn.discordapp.com/emojis/1294731380017856715.webp?size=512",
-                },*/
             };
         };
 

@@ -539,9 +539,6 @@ export const Christmas2024EventCommandHandler: SlashCommand["execute"] = async (
                         value: `-# You can only have x3 copies of <:krampus_staff:1311446274540830720> **Krampus' Staff**.`,
                     },
                 ],
-                /*thumbnail: {
-                    url: "https://cdn.discordapp.com/emojis/1294731380017856715.webp?size=512",
-                },*/
             };
         };
 
