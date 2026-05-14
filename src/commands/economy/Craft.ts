@@ -2,8 +2,6 @@ import { Item, RPGUserDataJSON, SlashCommandFile } from "../../@types";
 import { Message, StringSelectMenuBuilder } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
-import { ButtonBuilder } from "discord.js";
-import { ButtonStyle } from "discord.js";
 import * as Items from "../../rpg/Items";
 import { cloneDeep } from "lodash";
 import { parse } from "node:path";
@@ -47,7 +45,6 @@ const slashCommand: SlashCommandFile = {
     execute: async (ctx: CommandInteractionContext): Promise<Message<boolean> | void> => {
         const itemChosen = ctx.options.getString("item", true);
         const item = Functions.findItem(itemChosen);
-        let craftValuePrice = 0;
 
         const contentCraft: string[][] = [[]];
         const contentPhaseMaxLengthCraft = 2048;
@@ -90,7 +87,6 @@ const slashCommand: SlashCommandFile = {
                 item === craftItems[craftItems.length - 1]
                     ? ctx.client.localEmojis.replyEnd
                     : ctx.client.localEmojis.reply;
-            if (item.price !== undefined) craftValuePrice += item.price * item.amount;
 
             const itemString = `${emoji} ${item.emoji} \`${item.name} (x${item.amount})\` (${
                 ctx.userData.inventory[item.id] ?? 0
@@ -118,11 +114,6 @@ const slashCommand: SlashCommandFile = {
             .map((v, i) => i + 1)
             .filter((v) => meetReq(v, item, ctx.userData))
             .sort((a, b) => b - a)[0];
-        /*if (canCraftAmount % 15 == 0) pas = 15;
-        else if (canCraftAmount % 10 == 0) pas = 10;
-        else if (canCraftAmount % 5 == 0) pas = 5;
-        else if (canCraftAmount % 3 == 0) pas = 3;
-        else if (canCraftAmount % 2 == 0) pas = 2;*/
         for (let i = canCraftAmount - 1; i > 0; i--) {
             if (canCraftAmount % i == 0) {
                 pas = i;
@@ -181,12 +172,6 @@ const slashCommand: SlashCommandFile = {
                         )}.png`,
                     },
                     fields: [
-                        /*{
-                            name: "Craft value",
-                            value: `${craftValuePrice.toLocaleString()} ${
-                                ctx.client.localEmojis.jocoins
-                            }`,
-                        },*/
                         {
                             name: "Requirements met?",
                             value: meetRequirements ? "✅, select an amount to craft" : "❌",
@@ -195,15 +180,7 @@ const slashCommand: SlashCommandFile = {
                 },
             ],
             components: meetRequirements
-                ? [
-                      /*Functions.actionRow([
-                          new ButtonBuilder()
-                              .setCustomId(`craft_${ctx.interaction.id}`)
-                              .setEmoji(item.emoji)
-                              .setStyle(ButtonStyle.Secondary),
-                      ]),*/
-                      Functions.actionRow([selectAnAmountMenu()]),
-                  ]
+                ? [Functions.actionRow([selectAnAmountMenu()])]
                 : [],
         });
 
