@@ -6,18 +6,17 @@ import {
     Message,
     ApplicationCommandOptionType,
     MessageFlags,
-    StringSelectMenuInteraction,
 } from "discord.js";
 import CommandInteractionContext from "../../structures/CommandInteractionContext";
 import * as Functions from "../../utils/Functions";
 import { FightHandler, FightTypes } from "../../structures/FightHandler";
 import { cloneDeep } from "lodash";
 import { eventRaid, getFixedBosses } from "../../rpg/SeasonalRaids";
+import { handleRaidLobbyInteraction } from "./raid_lobby";
 import { buildRaidLobbyMessage, createRaidLobbyButtons } from "./raid_menu";
 import {
     attachRaidFightResultHandlers,
     getIceShard,
-    safeRaidFollowUp,
 } from "./raid_results";
 
 const slashCommand: SlashCommandFile = {
@@ -225,176 +224,25 @@ const slashCommand: SlashCommandFile = {
         });
 
         collector.on("collect", async (interaction) => {
-            interaction.deferUpdate().catch(() => {});
-            const usrData = await ctx.client.database.getRPGUserData(interaction.user.id);
-            if (!usrData) return;
-
-            if (usrData.health < Functions.getMaxHealth(usrData) * 0.1) {
-                if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                    safeRaidFollowUp(
-                        ctx,
-                        `<@${interaction.user.id}> tried to join the raid but they low in health.`
-                    );
-                    cooldownedUsers.push(interaction.user.id);
-                }
-                return;
-            }
-            switch (interaction.customId) {
-                case joinRaidID: {
-                    if (Functions.userIsCommunityBanned(usrData) || usrData.restingAtCampfire) {
-                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeRaidFollowUp(
-                                ctx,
-                                `<@${interaction.user.id}> tried to join the raid but they are either resting at a campfire or community banned.`
-                            );
-                            cooldownedUsers.push(interaction.user.id);
-                        }
-                        return;
-                    }
-
-                    if (Functions.userIsCommunityBanned(ctx.userData)) {
-                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeRaidFollowUp(
-                                ctx,
-                                `<@${interaction.user.id}> tried to join the raid but the host is community banned.`
-                            );
-                            cooldownedUsers.push(interaction.user.id);
-                        }
-
-                        return;
-                    }
-                    if (!(await ctx.client.database.canUseRPGCommand(usrData.id, "raid"))) {
-                        return;
-                    }
-                    if (joinedUsers.length >= raid.maxPlayers) {
-                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeRaidFollowUp(
-                                ctx,
-                                `<@${interaction.user.id}> tried to join the raid but it is full.`
-                            );
-                            cooldownedUsers.push(interaction.user.id);
-                        }
-                        return;
-                    }
-                    if (bannedUsers.find((r) => r.id === interaction.user.id)) {
-                        return;
-                    }
-                    if (joinedUsers.find((r) => r.id === interaction.user.id)) {
-                        return;
-                    }
-                    if (await ctx.client.database.getCooldown(usrData.id)) {
-                        return;
-                    }
-                    if (usrData.level < raid.level) {
-                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeRaidFollowUp(
-                                ctx,
-                                `<@${interaction.user.id}> tried to join the raid but they are too low level.`
-                            );
-                            cooldownedUsers.push(interaction.user.id);
-                        }
-
-                        return;
-                    }
-
-                    if (usrData.prestige < raid.prestige) {
-                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeRaidFollowUp(
-                                ctx,
-                                `<@${interaction.user.id}> tried to join the raid but they are too low prestige.`
-                            );
-                            cooldownedUsers.push(interaction.user.id);
-                        }
-                        return;
-                    }
-                    if (usrData.coins < raidCost) {
-                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeRaidFollowUp(
-                                ctx,
-                                `<@${interaction.user.id}> tried to join the raid but they don't have enough coins.`
-                            );
-                            cooldownedUsers.push(interaction.user.id);
-                        }
-                        return;
-                    }
-                    if (bossChosen === "ice_golem" && getIceShard(usrData) < 50) {
-                        if (!cooldownedUsers.find((r) => r === interaction.user.id)) {
-                            safeRaidFollowUp(
-                                ctx,
-                                `<@${interaction.user.id}> tried to join the raid but they don't have enough Ice Shards.`
-                            );
-                            cooldownedUsers.push(interaction.user.id);
-                        }
-                        return;
-                    }
-
-                    joinedUsers.push(usrData);
-                    cooldownedUsers.slice(
-                        cooldownedUsers.findIndex((r) => r === interaction.user.id),
-                        1
-                    );
-                    ctx.interaction
-                        .followUp({
-                            content: `${usrData.tag} has joined the raid.`,
-                            flags: MessageFlags.Ephemeral,
-                        })
-                        .catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-                    ctx.client.database.setCooldown(
-                        usrData.id,
-                        `You are on a raid: ${enhancedBoss.name} cooldown!`
-                    );
-                    makeMenuMessage();
-                    break;
-                }
-                case leaveRaidID: {
-                    // prevent host from leaving
-                    if (usrData.id === joinedUsers[0].id && joinedUsers.length > 1) {
-                        return;
-                    }
-                    if (!joinedUsers.find((r) => r.id === interaction.user.id)) {
-                        return;
-                    }
-                    joinedUsers.splice(
-                        joinedUsers.findIndex((r) => r.id === interaction.user.id),
-                        1
-                    );
-                    ctx.client.database.deleteCooldown(usrData.id);
-                    makeMenuMessage();
-                    break;
-                }
-                case banUserFromRaidID: {
-                    if (usrData.id !== joinedUsers[0].id) {
-                        return;
-                    }
-                    if (joinedUsers.length <= 1) {
-                        return;
-                    }
-                    const userToBan = joinedUsers.find(
-                        (r) => r.id === (interaction as StringSelectMenuInteraction).values[0]
-                    );
-                    if (!userToBan) {
-                        return;
-                    }
-                    if (userToBan.id === ctx.userData.id) {
-                        return;
-                    }
-                    bannedUsers.push(userToBan);
-                    joinedUsers.splice(
-                        joinedUsers.findIndex((r) => r.id === userToBan.id),
-                        1
-                    );
-                    ctx.client.database.deleteCooldown(userToBan.id);
-                    makeMenuMessage();
-                    break;
-                }
-                case startRaidID: {
-                    if (usrData.id !== joinedUsers[0].id) {
-                        return;
-                    }
-                    collector.stop();
-                    break;
-                }
-            }
+            await handleRaidLobbyInteraction({
+                ctx,
+                interaction,
+                customIds: {
+                    joinRaidID,
+                    leaveRaidID,
+                    banUserFromRaidID,
+                    startRaidID,
+                },
+                joinedUsers,
+                bannedUsers,
+                cooldownedUsers,
+                raid,
+                raidCost,
+                bossChosen,
+                enhancedBoss,
+                refreshLobby: makeMenuMessage,
+                startRaid: () => collector.stop(),
+            });
         });
 
         function makeMenuMessage(): void {
