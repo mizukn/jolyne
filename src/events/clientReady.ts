@@ -1,4 +1,4 @@
-import type { EventFile, SkillPointsBuildArr } from "../@types";
+import type { EventFile } from "../@types";
 import * as Functions from "../utils/Functions";
 import { Events, ActivityType, ActivityOptions } from "discord.js";
 import * as Stands from "../rpg/Stands/Stands";
@@ -7,6 +7,7 @@ import { CronJob } from "cron";
 import TopGG from "../utils/TopGG";
 import { FightHandler } from "../structures/FightHandler";
 import * as FightableNPCs from "../rpg/NPCs/FightableNPCs";
+import { buildReadyCommands } from "./clientReadyCommands";
 
 interface ClusterStatus {
     id: number;
@@ -359,94 +360,7 @@ const Event: EventFile = {
             fetchPatreons();
         }
 
-        const allCommandsV1 = client.commands
-            .filter((r) => r.category !== "admin")
-            .map((v) => {
-                if (
-                    v.data?.options?.length !== 0 &&
-                    v.data.options instanceof Array &&
-                    v.data.options
-                        .filter((r) => !r.choices)
-                        .filter((r) => r.type !== 3)
-                        .filter((r) => r.type !== 6)
-                        .filter((r) => r.type !== 5)
-                        .filter((r) => r.type !== 4).length !== 0
-                ) {
-                    return v.data.options.map((c) => {
-                        const name = `${v.data.name} ${c.name}`;
-                        return {
-                            cooldown: v.cooldown,
-                            category: v.category,
-                            options: v.data?.options?.filter((r) => r.name === c.name)[0]?.options,
-                            name,
-                            description: removeEmoji(c.description),
-                            hidden: v.hidden || v.hiddenCommandNames?.includes(name),
-                            hiddenCommandNames: v.hiddenCommandNames,
-                        };
-                    });
-                } else
-                    return {
-                        cooldown: v.cooldown,
-                        category: v.category,
-                        options: v.data?.options?.filter(
-                            (r) => r.type === 3 || r.type === 6 || r.type === 4 || r.type === 5,
-                        ),
-                        name: v.data.name,
-                        description: removeEmoji(v.data.description),
-                        hidden: v.hidden || v.hiddenCommandNames?.includes(v.data.name),
-                        hiddenCommandNames: v.hiddenCommandNames,
-                    };
-            })
-            .map((v) => {
-                if (v instanceof Array) {
-                    return v.map((v) => {
-                        return {
-                            cooldown: v.cooldown,
-                            category: v.category,
-                            options: v.options,
-                            name: v.name,
-                            description: v.description,
-                            hidden: v.hidden,
-                            hiddenCommandNames: v.hiddenCommandNames,
-                        };
-                    });
-                } else
-                    return {
-                        cooldown: v.cooldown,
-                        category: v.category,
-                        options: v.options,
-                        name: v.name,
-                        description: v.description,
-                        hidden: v.hidden,
-                        hiddenCommandNames: v.hiddenCommandNames,
-                    };
-            });
-        const commandsV2 = [];
-        for (const command of allCommandsV1) {
-            if (command instanceof Array) {
-                for (const commandx of command) {
-                    commandsV2.push(commandx);
-                }
-            } else commandsV2.push(command);
-        }
-        const commandsV3 = [];
-        for (const commands of commandsV2) {
-            if (commands.options?.find((x) => x.type === 1)) {
-                for (const command of commands.options) {
-                    const name = `${commands.name} ${command.name}`;
-                    commandsV3.push({
-                        cooldown: commands.cooldown,
-                        category: commands.category,
-                        options: command.options,
-                        name,
-                        description: command.description,
-                        hidden:
-                            commands.hidden ||
-                            commands.hiddenCommandNames?.includes(name),
-                    });
-                }
-            } else commandsV3.push(commands);
-        }
+        const commandsV3 = buildReadyCommands(client);
 
         const build = await client.database.updateSkillPointsBuilds();
 
@@ -536,21 +450,3 @@ const Event: EventFile = {
     },
 };
 export default Event;
-
-function removeEmoji(string: string) {
-    return string
-        .replace(
-            /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
-            "",
-        )
-        .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, "")
-        .replace(
-            /[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g,
-            "",
-        )
-        .replace(/🪙/gi, "")
-        .replace(/🔎/gi, "")
-        .replace(/📧/gi, "")
-        .replace(/⭐/gi, "")
-        .trim();
-}
