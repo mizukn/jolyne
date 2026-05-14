@@ -1,8 +1,13 @@
-# Abilities — agent handoff
+# Abilities & Passives — agent handoff
 
-> Read this before touching anything in `src/rpg/Abilities.ts` or the ability
-> executor. PLAN.md P4.2 is the long-form spec; this doc is the operational
-> brief for the people actually doing the work.
+> Read this before touching anything in `src/rpg/Abilities.ts`, `src/rpg/Passives.ts`,
+> or their executors. PLAN.md P4.2 is the long-form spec; this doc is the
+> operational brief for the people actually doing the work. Abilities and
+> Passives are two different systems that share the same migration philosophy:
+> declarative `effects[]` where possible, callback fallback for the weird ones.
+> The Abilities migration is in flight (slices 1-3); the Passives migration
+> hasn't started — its section below covers the type, callsite, and
+> classification so a future slice can begin without re-reading the source.
 
 ## Why this doc exists
 
@@ -233,7 +238,7 @@ This catches typos like `type: "dotz"` that would silently no-op at runtime.
   the callback and write the effects array by hand, the ability isn't a good
   migration candidate.
 
-## Quick start for the next slice
+## Quick start for the next ability slice
 
 1. Read this file (you're doing that).
 2. Pick a bucket from "Migration buckets" that hasn't been done yet
@@ -242,9 +247,158 @@ This catches typos like `type: "dotz"` that would silently no-op at runtime.
    [src/rpg/Abilities.ts](src/rpg/Abilities.ts) to confirm the shape.
 4. Add the new effect type(s) to [src/rpg/AbilityEffects.ts](src/rpg/AbilityEffects.ts).
 5. Migrate those 3-5 abilities by deleting their `useMessage` and adding
-   `effects: [...]`.
+   `effects: [...]` (or keeping `useMessage` for the log + `effects` for state
+   mutation — see the freeze-migration note above).
 6. Add executor test(s) for the new effect type.
 7. Update this doc's "Effect types", "Migrated abilities", "Migration buckets".
 8. Run `npx tsc --noEmit` and `npm run lint`.
 9. One commit. If the slice touches `src/structures/FightDamage.ts`, that's a
    submodule commit first, then the parent.
+
+---
+
+# Passives
+
+Passives are the second half of the active-fight engine. They run automatically
+each turn or round (no user action required), and they currently use the same
+imperative-callback style that Abilities had pre-P4.2. The migration philosophy
+is identical: declarative `effects[]` for the easy patterns, keep `promise`
+callbacks for the weird ones, preserve behavior first.
+
+**Passive migration hasn't started yet.** The section below is the brief for
+the first agent to pick it up.
+
+## Where Passives live
+
+| File | What |
+| --- | --- |
+| [src/rpg/Passives.ts](src/rpg/Passives.ts) | All 10 active passives. ~470 lines. |
+| [src/structures/FightPassives.ts](src/structures/FightPassives.ts) | `handleFightPassives({ fighters, cache, fight, type, ... })` — the integration point. Walks every fighter's stand + weapon passives, filters by `type` (`"turn"` vs `"round"`), respects `evenIfDead`, then calls `passive.promise(...)`. Lives in the `src/structures/` submodule. |
+| [src/@types/index.ts](src/@types/index.ts) | `Passive` interface. |
+
+The integration point is called twice per cycle: once with `type: "turn"`
+(every turn), once with `type: "round"` (every round). Passives self-select by
+declaring their `type`.
+
+## The Passive type today
+
+```ts
+interface Passive {
+    name: string;
+    description: string;
+    type: "round" | "turn";        // when it fires
+    cooldown?: number;             // turns/rounds before first fire
+    executeOnlyOnce?: boolean;     // fire once vs. every cycle
+    evenIfDead?: boolean;          // fire when fighter.health <= 0
+    getId: (user, context, from) => string;     // cache-key namespace
+    promise: (user, context, from) => void;     // the actual side effect
+}
+```
+
+**Where Passives are attached:** `Stand.passives?: Passive[]` and
+`Weapon.passives?: Passive[]`. A fighter can carry passives from BOTH their
+stand and their weapon at the same time. The `from` argument in `getId` /
+`promise` is `"stand" | "weapon"` so a passive applied via both sources can
+namespace its cache entries.
+
+**`fight.cache`** is a `Map<string, string | number>` that lives on the
+`FightHandler` for the duration of one fight. Passives store stacks, base
+values, snapshots, "has-already-fired" flags, etc. there. Every cache key must
+be unique per (passive, user, fight) — that's what `getId` enforces.
+
+## Migration design — proposed
+
+The plan mirrors the Abilities migration:
+
+1. Add `effects?: PassiveEffect[]` to the `Passive` interface (alongside
+   the existing optional `promise`).
+2. Create `src/rpg/PassiveEffects.ts` with the `PassiveEffect` discriminated
+   union and `runPassiveEffects(passive, user, fight, from)` executor.
+3. Update `handleFightPassives` to call `runPassiveEffects` before calling
+   the legacy `promise` callback. Same pattern as
+   `runAbilityEffects` in `applyAbility`.
+4. Pick the simplest pattern across passives (probably per-round regen) and
+   migrate the 2-3 candidates that fit cleanly.
+
+The `PassiveEffect` union and the `AbilityEffect` union **should stay
+separate**. Even though some names overlap (both have "bleed/poison" concepts),
+the contexts differ — passive ticks fire automatically per cycle, ability
+effects fire after a hit lands. Cross-cutting them now would entangle
+unrelated semantics.
+
+## Migration buckets — Passives snapshot
+
+Counts at the start of the Passives work:
+
+| Bucket | Passives | What |
+| --- | --- | --- |
+| Per-round regen (heal % of max with cap) | `Regeneration`, `RegenerationAlter`, `Jingle` | **Cleanest pilot target.** Each heals `maxHealth * X%` per round, capped at `maxHealth * Y%` total. `RegenerationAlter` + `Jingle` also heal stamina. A `passive_regen` effect with `{ resource: "health" \| "stamina" \| "both", percent: number, capPercent: number }` would unlock all three. |
+| On-hit stacking DoT | `Poison`, `Fire` | Triggered when `fight.infos.lastHit.user === self`. Each stack deals `getAttackDamages(user) * multiplier`. Could potentially declarative but uses `fight.infos.lastHit` state and direct `removeHealth` — non-trivial. |
+| Conditional time-stop AoE | `KnivesThrow` | Fires only during `user.hasStoppedTime` with a specific item equipped (`dios_knives === 6`). Hits all enemies. Stand-specific. **Keep as `promise`.** |
+| Snapshot-and-mutate stat scaling | `Rage`, `Darkness` | Cache base values, then scale skill points up/down based on health-lost or hit-count. Complex restore logic on stack change. **Keep as `promise`.** |
+| Weapon transformation | `Alter` | Replaces `user.weapon` with `excalibur_alter`, rescales stats, renames the fighter. **Keep as `promise` forever.** |
+| Revive-on-death | `Resurrection` | `evenIfDead: true`. Restores health/stamina on first death. Has special interaction with forfeit logic (currently commented-out check). **Keep as `promise`** until the resurrection vs. forfeit policy is settled. |
+
+## Passive hard rules
+
+The Ability rules apply, plus:
+
+1. **Don't change `fight.cache` key conventions.** Every passive that uses the
+   cache picks a namespace via `getId`. Migrating to declarative effects must
+   preserve those exact keys so an in-progress fight surviving a deploy doesn't
+   suddenly lose its cache state. (Realistically fights don't survive deploys,
+   but the convention keeps debugging consistent.)
+2. **`evenIfDead` semantics must be preserved exactly.** `FightPassives.ts`
+   filters dead fighters' passives unless `evenIfDead` is set. The executor
+   does NOT need to know this — `handleFightPassives` handles the filter
+   before calling into the executor.
+3. **Don't merge `Passive` and `Ability` types.** They look similar but the
+   triggering contracts are completely different. Same goes for their
+   `PassiveEffect` / `AbilityEffect` unions — keep them separate even when
+   names overlap.
+4. **Don't migrate `Resurrection` without confirming the forfeit policy.**
+   There's a commented-out `foundForfeit` check at
+   [Passives.ts:410-417](src/rpg/Passives.ts#L410-L417) that suggests the
+   "resurrect on death but not after forfeit" rule was once considered and
+   then reverted. Whoever migrates Resurrection needs to ask the user which
+   behavior is canonical.
+
+## Passives that stay as `promise` (decided)
+
+Update this list when you investigate a passive and decide it stays custom.
+
+| Passive | Why it stays custom |
+| --- | --- |
+| `Rage` | Cache-heavy stat scaling based on cumulative health lost. Tracks total strength gained against base strength. Doesn't fit a clean effect shape. |
+| `KnivesThrow` | Fires only during `user.hasStoppedTime` with `dios_knives === 6` equipped. Item-and-state gated AoE. |
+| `Darkness` | Stacking debuff that mutates target's `speed` and `perception` skill points, capped at 12 stacks (48%). Per-stack mutation + base-value snapshot. |
+| `Alter` | Hot-swaps `user.weapon` to `excalibur_alter`, rescales every skill point by 1.3, renames the fighter. Highly bespoke. |
+| `Resurrection` | `evenIfDead: true`, runs the forfeit-detection log scan, special revive semantics. Wait on forfeit policy decision. |
+
+## Migrated passives
+
+None yet.
+
+| Passive | Slice | Effects |
+| --- | --- | --- |
+| — | — | — |
+
+## Quick start for the first passive slice
+
+1. Read [src/rpg/Passives.ts](src/rpg/Passives.ts) end-to-end (it's only ~470 lines).
+2. Read [src/structures/FightPassives.ts](src/structures/FightPassives.ts) to understand the integration point.
+3. Pick the per-round regen bucket as the pilot — `Regeneration`,
+   `RegenerationAlter`, `Jingle` are the three candidates and they share a
+   clean structure.
+4. Add `effects?: PassiveEffect[]` to the `Passive` interface in `@types`.
+5. Create `src/rpg/PassiveEffects.ts` exporting the `PassiveEffect` union
+   (start with a single `regen` type) and `runPassiveEffects(...)`.
+6. Update `handleFightPassives` in the **submodule** to call
+   `runPassiveEffects` before invoking the legacy `promise`. That's a
+   submodule commit, then a parent commit.
+7. Migrate the three regen passives by adding `effects: [...]` and deleting
+   their `promise` callbacks.
+8. Add executor tests for the regen effect (resource selection, percent,
+   cap-on-total-healing).
+9. Update this doc's "Migrated passives" table and the bucket counts.
+10. `npx tsc --noEmit` and `npm run lint` clean before commit.
