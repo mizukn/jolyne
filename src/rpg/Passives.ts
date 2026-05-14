@@ -323,12 +323,10 @@ export const Resurrection: Passive = {
 };
 
 // passive for santa's bell
-// Description says 1% but the original code regenerated 2%; behavior parity
-// preserved here. Update the description if balance was meant to be 1%.
 export const Jingle: Passive = {
     name: "Jingle",
     description:
-        "At the end of each 'round', the user regenerates 1% of their max health and stamina (capped at 10%).",
+        "At the end of each 'round', the user regenerates 2% of their max health and stamina (capped at 10%).",
     type: "round",
     getId: (user: Fighter, context: FightHandler) => `jingle_${user.id}_${context.id}`,
     effects: [

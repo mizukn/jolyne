@@ -398,10 +398,9 @@ Update this list when you investigate a passive and decide it stays custom.
 | `Poison` | 5 | `[{ type: "on_hit_stack", cacheKey: "poison", attackMultiplier: 0.75, label: "poison", emojiSource: "stand" }]` |
 | `Fire` | 5 | `[{ type: "on_hit_stack", cacheKey: "burn_damage", attackMultiplier: 0.5, label: "burn", emojiSource: "literal", literalEmoji: ":fire:" }]` |
 
-**Behavior note — Jingle description vs. code.** Jingle's description says
-"1% of their max health and stamina" but the legacy code regenerated 2%. The
-migration preserves the 2% behavior. If the intent was 1%, fix the constant
-and update the description in the same commit.
+**Behavior note — Jingle description aligned with code.** Jingle's
+description previously said "1%" while the code regenerated 2%. The code is
+canonical; the description was corrected to 2%.
 
 ## Quick start for the first passive slice
 
