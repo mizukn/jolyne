@@ -13,7 +13,7 @@ const standPrices: Record<Rarity, number> = {
     A: 25000,
     B: 10000,
     C: 5000,
-    T: 69,
+    T: 69696,
 };
 
 const getInitials = (name: string): string =>
