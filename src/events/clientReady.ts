@@ -384,16 +384,9 @@ const Event: EventFile = {
                         Functions.randomArray(build);
 
                     Functions.generateSkillPointsByBuild(NPC, Build.skillPoints);
-                    /*console.log(
-                        `Used build LVL ${Build.level} for ${NPC.name} (${NPC.level})`,
-                        Build.skillPoints
-                    );*/
                 } else {
                     Functions.generateSkillPoints(NPC);
-                    //console.log(`Generated random skill points for ${NPC.name} (${NPC.level})`);
                 }
-            } else {
-                //console.log(`Skill points are OK for ${NPC.name} (${NPC.level})`, NPC.skillPoints);
             }
 
             if (NPC.id === "ice_golem") {
