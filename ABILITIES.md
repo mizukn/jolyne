@@ -111,6 +111,7 @@ effect type by:
 | --- | --- | --- |
 | `bleed` | `{ type: "bleed", damageDivisor: number, turns: number, source?: "dealt" \| "ability" }` | Mirrors `bleedDamagePromise` exactly. Queued on `nextTurnPromises`, fires once per turn for `turns` turns. Per-tick damage is `Math.round(sourceDamage / damageDivisor)`. `source` picks between `status.amount` (default) and `Functions.getAbilityDamage(user, ability)`. Logs `-# 🩸 **target** took **N** bleed damage` (or "died from bleed damage" if killed). Re-fetches user/target from `fight.fighters` to survive references going stale across turns. |
 | `poison` | `{ type: "poison", damageDivisor: number, turns: number, source?: "dealt" \| "ability" }` | Mirrors `poisonDamagePromise` exactly. Queued on **`nextRoundPromises`** (one tick per round, not per turn). Logs `-# ☠️🧪☣️ **target** took **N** poison damage` **unconditionally** — including when the target is already dead, preserving a legacy quirk. Damage applies only if alive; if killed, follows with `-# ☠️🧪☣️ **target** died from poison damage`. Does NOT re-fetch user/target. |
+| `freeze` | `{ type: "freeze", turns: number, mode: "set" \| "add" }` | Immediate state mutation (no promise queue). `"set"` mode assigns `target.frozenFor = turns` (overrides existing). `"add"` mode does `target.frozenFor += turns` (stacks). The flavor log line stays in the ability's `useMessage` because each freeze ability has bespoke wording. |
 
 ## Slice convention
 
@@ -179,8 +180,17 @@ Update this list as new bespoke abilities are encountered.
 | `FistEnlargement` | 1 | Inherits from `Finisher` via spread (`...Finisher`). |
 | `SerpentStrike` | 2 | `[{ type: "poison", damageDivisor: 10, turns: 2 }]` |
 | `CelestialFang` | 2 | `[{ type: "poison", damageDivisor: 3, turns: 2 }, { type: "bleed", damageDivisor: 3, turns: 2 }]` |
+| `LifeShot` | 3 | `[{ type: "freeze", turns: 4, mode: "add" }]` (useMessage retains the flavor log) |
+| `YoAngelo` | 3 | `[{ type: "freeze", turns: 3, mode: "add" }]` (useMessage retains the flavor log) |
+| `Flash` | 3 | `[{ type: "freeze", turns: 4, mode: "set" }]` (useMessage retains the flavor log) |
+| `Freeze` | 3 | `[{ type: "freeze", turns: 3, mode: "set" }]` (useMessage retains the flavor log) |
+| `DisorientingStabs` | 3 | `[{ type: "freeze", turns: 2, mode: "set" }]` (useMessage retains the flavor log) |
+| `JingleStun` | 3 | `[{ type: "freeze", turns: 2, mode: "set" }]` (useMessage retains the flavor log) |
+| `Frostbite` | 3 | `[{ type: "freeze", turns: 3, mode: "set" }]` (useMessage retains the flavor log) |
 
 Update with every slice.
+
+**Behavior subtlety — `useMessage` push vs. return:** the freeze migrations keep `useMessage` for the bespoke flavor log. CRITICAL: those callbacks must **push** the log line directly to `ctx.turns[...].logs` and return void. Do NOT refactor them to return the string. Reason: `FightDamage.applyAbility` only pushes the returned-string log when `status.amount !== 0`; for `damage: 0` abilities (most freeze ones) the return path silently drops the log. The push-directly pattern fires unconditionally and was the original semantics. Verified the hard way during slice 3.
 
 ## Migration buckets (snapshot)
 

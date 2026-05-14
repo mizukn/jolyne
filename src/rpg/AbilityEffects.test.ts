@@ -233,3 +233,47 @@ describe("runAbilityEffects — poison", () => {
         expect(fight.nextTurnPromises).toHaveLength(1);
     });
 });
+
+describe("runAbilityEffects — freeze", () => {
+    it("set mode overrides existing frozenFor", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [{ type: "freeze", turns: 3, mode: "set" }],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target");
+        target.frozenFor = 10;
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 0, fight);
+        expect(target.frozenFor).toBe(3);
+    });
+
+    it("add mode stacks with existing frozenFor", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [{ type: "freeze", turns: 4, mode: "add" }],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target");
+        target.frozenFor = 2;
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 0, fight);
+        expect(target.frozenFor).toBe(6);
+    });
+
+    it("does not push any promises (freeze is immediate state mutation)", () => {
+        const ability: Ability = {
+            ...baseAbility,
+            effects: [{ type: "freeze", turns: 3, mode: "set" }],
+        };
+        const user = makeFighter("u", "User");
+        const target = makeFighter("t", "Target");
+        const fight = makeFight([user, target]);
+
+        runAbilityEffects(ability, user, target, 0, fight);
+        expect(fight.nextTurnPromises).toHaveLength(0);
+        expect(fight.nextRoundPromises).toHaveLength(0);
+    });
+});

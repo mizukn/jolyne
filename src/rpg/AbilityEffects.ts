@@ -45,7 +45,23 @@ export interface PoisonEffect {
     source?: "dealt" | "ability";
 }
 
-export type AbilityEffect = BleedEffect | PoisonEffect;
+export interface FreezeEffect {
+    type: "freeze";
+    /** Number of turns the target is frozen / stunned. */
+    turns: number;
+    /**
+     * - `"set"`: `target.frozenFor = turns` (overrides any existing freeze).
+     * - `"add"`: `target.frozenFor += turns` (stacks with existing freeze).
+     *
+     * Legacy callbacks used both. Pick whichever matches the original behavior
+     * of the migrated ability — usually the description gives it away
+     * (`stunned for N turns` ≈ "set", `puts to sleep for additional N turns`
+     * ≈ "add").
+     */
+    mode: "set" | "add";
+}
+
+export type AbilityEffect = BleedEffect | PoisonEffect | FreezeEffect;
 
 function applyBleed(
     effect: BleedEffect,
@@ -138,6 +154,14 @@ function applyPoison(
     });
 }
 
+function applyFreeze(effect: FreezeEffect, target: Fighter): void {
+    if (effect.mode === "set") {
+        target.frozenFor = effect.turns;
+    } else {
+        target.frozenFor += effect.turns;
+    }
+}
+
 export function runAbilityEffects(
     ability: Ability,
     user: Fighter,
@@ -153,6 +177,9 @@ export function runAbilityEffects(
                 break;
             case "poison":
                 applyPoison(effect, ability, user, target, dealtDamage, fight);
+                break;
+            case "freeze":
+                applyFreeze(effect, target);
                 break;
         }
     }

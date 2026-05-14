@@ -671,8 +671,8 @@ export const LifeShot: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     special: true,
+    effects: [{ type: "freeze", turns: 4, mode: "add" }],
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor += 4;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} LIFE SHOT: **${user.name}** has caused **${target.name}**'s soul to leave their body for 4 turns...`
         );
@@ -1336,8 +1336,8 @@ export const YoAngelo: Ability = {
     target: "enemy",
     special: true,
     thumbnail: "https://i.imgur.com/NZ1wC8E.gif",
+    effects: [{ type: "freeze", turns: 3, mode: "add" }],
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor += 3;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} YO ANGELO: **${user.name}** has transformed **${target.name}** into a rock for 3 turns... LOL GET CLAPPED BOZO`
         );
@@ -2479,8 +2479,8 @@ export const Flash: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
+    effects: [{ type: "freeze", turns: 4, mode: "set" }],
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor = 4;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} FLASH: **${target.name}** has been stunned... UwU`
         );
@@ -2543,8 +2543,8 @@ export const Freeze: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
+    effects: [{ type: "freeze", turns: 3, mode: "set" }],
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor = 3;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} FREEZE: **${target.name}** has been frozen...`
         );
@@ -2838,8 +2838,8 @@ export const DisorientingStabs: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
+    effects: [{ type: "freeze", turns: 2, mode: "set" }],
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor = 2;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.stand?.emoji} DISORIENTING STABS: **${target.name}** has been stunned...`
         );
@@ -3347,8 +3347,8 @@ export const JingleStun: Ability = {
     extraTurns: 0,
     dodgeScore: 0,
     target: "enemy",
+    effects: [{ type: "freeze", turns: 2, mode: "set" }],
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor = 2;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.weapon?.emoji} **${target.name}** has been stunned...`
         );
@@ -3365,8 +3365,8 @@ export const Frostbite: Ability = {
     extraTurns: 0,
     dodgeScore: 3,
     target: "enemy",
+    effects: [{ type: "freeze", turns: 3, mode: "set" }],
     useMessage: (user, target, damage, ctx) => {
-        target.frozenFor = 3;
         ctx.turns[ctx.turns.length - 1].logs.push(
             `- ${user.weapon?.emoji} **${target.name}** has been frozen...`
         );
