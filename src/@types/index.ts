@@ -1,4 +1,4 @@
-import type { User, Message, AutocompleteInteraction } from "discord.js";
+import type { User, AutocompleteInteraction } from "discord.js";
 import CommandInteractionContext from "../structures/CommandInteractionContext";
 import JolyneClient from "../structures/JolyneClient";
 import { LocaleString, ApplicationCommandOptionType } from "discord-api-types/v10";
