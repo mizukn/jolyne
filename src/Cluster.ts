@@ -20,7 +20,6 @@ const final = () =>
             return;
         } else {
             console.log(`Port ${port} is available.`);
-            // await TempRedis.set("rpgGlobalFightMatchmaking", JSON.stringify([]));
             await TempRedis.keys("*tempCache_*").then((keys) => {
                 for (const key of keys) {
                     TempRedis.del(key);
@@ -66,26 +65,9 @@ const final = () =>
                 console.log(
                     `Launched Cluster ${cluster.id}\n-------------------------------------------------------------`
                 );
-                /*
-            setInterval(() => {
-                cluster
-                    .request({
-                        content: "What are your fights?",
-                        fightHandlers: true,
-                    })
-                    .then((response: any) => {
-                        if (response.content === "alright") {
-                            clients.set(cluster.id, response.client);
-                        }
-                    });
-                setInterval(() => {
-                    cluster.send({ content: "fightTotal", fights: clients });
-                }, 2000);
-            }, 5000);*/
             });
             manager.spawn({ timeout: -1 }).catch((e) => {
                 console.log(e);
-                //const response = JSON.parse(e.message);
                 console.log(
                     "DISCORD API LIMIT: ERROR, YOU HAVE BEEN RATELIMITED. PLEASE TRY AGAIN IN " +
                         e.headers.get("Retry-After") +
